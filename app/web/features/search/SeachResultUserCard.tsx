@@ -4,11 +4,18 @@ import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StyledLink from "components/StyledLink";
+import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
+import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
+import {
+  makeResultId,
+  setSearchReferrer,
+} from "features/analytics/searchAttribution";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
+import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
@@ -23,7 +30,38 @@ import { aboutText, truncateWithEllipsis } from "./utils/constants";
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
   onUserCardClick: (userId: number) => void;
+  position: number;
   user: SearchUser.AsObject;
+}
+
+function responseRateBucket(user: SearchUser.AsObject): string | null {
+  if (user.most) return "most";
+  if (user.some) return "some";
+  if (user.low) return "low";
+  if (user.insufficientData) return "insufficient";
+  return null;
+}
+
+function displayedAttributes(
+  user: SearchUser.AsObject,
+): Record<string, unknown> {
+  const lastActive = user.lastActive
+    ? timestamp2Date(user.lastActive).getTime()
+    : null;
+  return {
+    has_avatar: user.avatarUrl.length > 0,
+    has_about: user.profileSnippet.length > 0,
+    profile_snippet_length: user.profileSnippet.length,
+    age: user.age,
+    gender: user.gender,
+    hosting_status: user.hostingStatus,
+    meetup_status: user.meetupStatus,
+    num_references: user.numReferences,
+    has_completed_profile: user.hasCompletedProfile,
+    has_completed_my_home: user.hasCompletedMyHome,
+    last_active_ms: lastActive,
+    response_rate_bucket: responseRateBucket(user),
+  };
 }
 
 const StyledCard = styled("div", {
@@ -154,6 +192,7 @@ const generateAboutText = (
 const SearchResultUserCard = ({
   isHighlighted = false,
   onUserCardClick,
+  position,
   user,
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -163,12 +202,71 @@ const SearchResultUserCard = ({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, PROFILE]);
 
+  const analytics = useSearchAnalytics();
+  const logEvent = useLogEvent();
+  const attrs = displayedAttributes(user);
+  const resultId = analytics
+    ? makeResultId(analytics.searchQueryId, user.userId, position)
+    : null;
+
+  const impressionProps = analytics
+    ? {
+        search_session_id: analytics.searchSessionId,
+        search_query_id: analytics.searchQueryId,
+        page_number: analytics.pageNumber,
+        result_id: resultId,
+        user_id: user.userId,
+        position,
+        surface: "list",
+        ...attrs,
+      }
+    : {};
+  const impressionRef = useImpressionRef(
+    "search.result_impressed",
+    impressionProps,
+    { threshold: 0.5, minDurationMs: 250 },
+  );
+
   const handleUserCardClick = () => {
     onUserCardClick(user.userId);
   };
 
+  const handleClickCapture = (e: MouseEvent<HTMLDivElement>) => {
+    if (!analytics || !resultId) return;
+    const target = e.target as HTMLElement | null;
+    const anchor = target?.closest("a");
+    if (!anchor) return;
+    setSearchReferrer({
+      searchSessionId: analytics.searchSessionId,
+      searchQueryId: analytics.searchQueryId,
+      resultId,
+      userId: user.userId,
+    });
+    logEvent("search.result_clicked", {
+      search_session_id: analytics.searchSessionId,
+      search_query_id: analytics.searchQueryId,
+      page_number: analytics.pageNumber,
+      result_id: resultId,
+      user_id: user.userId,
+      position,
+      surface: "list",
+      opened_in_new_tab:
+        anchor.getAttribute("target") === "_blank" ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.button === 1,
+      was_selected_on_map: isHighlighted,
+      ...attrs,
+    });
+  };
+
   return (
-    <StyledCard isHighlighted={isHighlighted} onClick={handleUserCardClick}>
+    <StyledCard
+      isHighlighted={isHighlighted}
+      onClick={handleUserCardClick}
+      onClickCapture={analytics ? handleClickCapture : undefined}
+      ref={analytics ? impressionRef : undefined}
+    >
       <StyledTopContent>
         <Avatar openInNewTab user={user} />
         <FlexColumn>

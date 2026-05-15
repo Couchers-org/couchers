@@ -3,6 +3,11 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
+import { useLogEvent } from "features/analytics/hooks";
+import {
+  readSearchReferrer,
+  referrerToProperties,
+} from "features/analytics/searchAttribution";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
@@ -11,7 +16,7 @@ import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { routeToUser, UserTab } from "routes";
 
 import UserCard from "./UserCard";
@@ -59,6 +64,48 @@ export default function UserPage({
     }
   }, [isRequesting, isMessaging]);
 
+  const logEvent = useLogEvent();
+  const userId = user?.userId;
+  const referrerProps = useMemo(
+    () => referrerToProperties(userId ? readSearchReferrer(userId) : null),
+    [userId],
+  );
+
+  useEffect(() => {
+    if (!userId) return;
+    const startedAt = performance.now();
+    let foregroundAccumMs = 0;
+    let visibleSince: number | null =
+      typeof document !== "undefined" && document.visibilityState === "visible"
+        ? startedAt
+        : null;
+
+    const onVis = () => {
+      const now = performance.now();
+      if (document.visibilityState === "visible") {
+        if (visibleSince === null) visibleSince = now;
+      } else if (visibleSince !== null) {
+        foregroundAccumMs += now - visibleSince;
+        visibleSince = null;
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      const now = performance.now();
+      if (visibleSince !== null) foregroundAccumMs += now - visibleSince;
+      const totalMs = now - startedAt;
+      logEvent("profile.tab_viewed", {
+        user_id: userId,
+        tab,
+        foreground_ms: Math.round(foregroundAccumMs),
+        total_ms: Math.round(totalMs),
+        ...referrerProps,
+      });
+    };
+  }, [tab, userId, logEvent, referrerProps]);
+
   return (
     <>
       <HtmlMeta title={user?.name} />
@@ -85,7 +132,7 @@ export default function UserPage({
               }}
               top={
                 <>
-                  <Collapse in={isRequesting}>
+                  <Collapse in={isRequesting} mountOnEnter unmountOnExit>
                     <NewHostRequest
                       setIsRequesting={setIsRequesting}
                       setIsRequestSuccess={setIsSuccessRequest}

@@ -355,4 +355,152 @@ describe("useImpressionRef", () => {
 
     expect(mockLogEvent).not.toHaveBeenCalled();
   });
+
+  describe("with minDurationMs", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("fires after the element is continuously visible for the duration", () => {
+      const { result } = renderHook(() =>
+        useImpressionRef(
+          "card.viewed",
+          { card_id: "1" },
+          { minDurationMs: 250 },
+        ),
+      );
+
+      const node = document.createElement("div");
+      act(() => {
+        result.current(node);
+      });
+
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+      expect(mockLogEvent).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(250);
+      });
+
+      expect(mockLogEvent).toHaveBeenCalledTimes(1);
+      expect(mockLogEvent).toHaveBeenCalledWith("card.viewed", {
+        card_id: "1",
+      });
+      expect(mockDisconnect).toHaveBeenCalled();
+    });
+
+    it("does not fire if the element leaves before the duration elapses", () => {
+      const { result } = renderHook(() =>
+        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
+      );
+
+      const node = document.createElement("div");
+      act(() => {
+        result.current(node);
+      });
+
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: false } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(500);
+      });
+
+      expect(mockLogEvent).not.toHaveBeenCalled();
+    });
+
+    it("restarts the timer when the element re-enters after leaving", () => {
+      const { result } = renderHook(() =>
+        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
+      );
+
+      const node = document.createElement("div");
+      act(() => {
+        result.current(node);
+      });
+
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: false } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+      // Re-enter — timer should restart from zero
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+      act(() => {
+        jest.advanceTimersByTime(249);
+      });
+      expect(mockLogEvent).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      expect(mockLogEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears the pending timer on unmount", () => {
+      const { result, unmount } = renderHook(() =>
+        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
+      );
+
+      const node = document.createElement("div");
+      act(() => {
+        result.current(node);
+      });
+      act(() => {
+        lastCallback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+      unmount();
+
+      act(() => {
+        jest.advanceTimersByTime(500);
+      });
+
+      expect(mockLogEvent).not.toHaveBeenCalled();
+    });
+  });
 });

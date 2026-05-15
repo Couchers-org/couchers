@@ -6,17 +6,30 @@ import Datepicker from "components/Datepicker";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import dayjs from "dayjs";
+import { useLogEvent } from "features/analytics/hooks";
+import {
+  readSearchReferrer,
+  referrerToProperties,
+} from "features/analytics/searchAttribution";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { theme } from "theme";
 import { isSameOrFutureDate } from "utils/date";
+
+const TYPING_GAP_CAP_MS = 3000;
+
+function isFormField(target: EventTarget | null): boolean {
+  if (!target || !(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA";
+}
 
 const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(1),
@@ -84,12 +97,115 @@ export default function NewHostRequest({
 
   const textField = watch("text") ?? "";
 
+  const logEvent = useLogEvent();
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const submittedRef = useRef(false);
+  const latestValuesRef = useRef<{
+    text: string;
+    fromDate: dayjs.Dayjs | null;
+    toDate: dayjs.Dayjs | null;
+  }>({ text: "", fromDate: null, toDate: null });
+  const watchedText = watch("text");
+  const watchedFromDateForRef = watch("fromDate");
+  const watchedToDateForRef = watch("toDate");
+  latestValuesRef.current = {
+    text: watchedText ?? "",
+    fromDate: watchedFromDateForRef ?? null,
+    toDate: watchedToDateForRef ?? null,
+  };
+
+  useEffect(() => {
+    const startedAt = performance.now();
+    let foregroundAccumMs = 0;
+    let visibleSince: number | null =
+      typeof document !== "undefined" && document.visibilityState === "visible"
+        ? startedAt
+        : null;
+    let focusAccumMs = 0;
+    let focusSince: number | null = null;
+    let activeTypingMs = 0;
+    let lastKeystroke: number | null = null;
+    let keystrokeCount = 0;
+
+    const onVis = () => {
+      const now = performance.now();
+      if (document.visibilityState === "visible") {
+        if (visibleSince === null) visibleSince = now;
+      } else if (visibleSince !== null) {
+        foregroundAccumMs += now - visibleSince;
+        visibleSince = null;
+      }
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      if (!isFormField(e.target)) return;
+      if (focusSince === null) focusSince = performance.now();
+    };
+    const onFocusOut = (e: FocusEvent) => {
+      if (!isFormField(e.target)) return;
+      if (focusSince !== null) {
+        focusAccumMs += performance.now() - focusSince;
+        focusSince = null;
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isFormField(e.target)) return;
+      const now = performance.now();
+      if (lastKeystroke !== null) {
+        const gap = now - lastKeystroke;
+        if (gap <= TYPING_GAP_CAP_MS) activeTypingMs += gap;
+      }
+      lastKeystroke = now;
+      keystrokeCount += 1;
+    };
+
+    document.addEventListener("visibilitychange", onVis);
+    const formEl = formRef.current;
+    formEl?.addEventListener("focusin", onFocusIn);
+    formEl?.addEventListener("focusout", onFocusOut);
+    formEl?.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      formEl?.removeEventListener("focusin", onFocusIn);
+      formEl?.removeEventListener("focusout", onFocusOut);
+      formEl?.removeEventListener("keydown", onKeyDown);
+
+      const now = performance.now();
+      if (visibleSince !== null) foregroundAccumMs += now - visibleSince;
+      if (focusSince !== null) focusAccumMs += now - focusSince;
+      const totalMs = now - startedAt;
+
+      const { text, fromDate, toDate } = latestValuesRef.current;
+      const referrerProps = referrerToProperties(
+        readSearchReferrer(user.userId),
+      );
+
+      logEvent("host_request.form_closed", {
+        host_user_id: user.userId,
+        submitted: submittedRef.current,
+        form_open_ms: Math.round(foregroundAccumMs),
+        form_open_total_ms: Math.round(totalMs),
+        focus_ms: Math.round(focusAccumMs),
+        active_typing_ms: Math.round(activeTypingMs),
+        keystroke_count: keystrokeCount,
+        text_length: text.length,
+        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
+        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
+        ...referrerProps,
+      });
+    };
+    // Effect intentionally has no deps: it should only run on mount/unmount,
+    // matching the form's open/close lifecycle (Collapse mountOnEnter/unmountOnExit).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { error, mutate } = useMutation({
     mutationFn: (data: CreateHostRequestWrapper) => {
       return service.requests.createHostRequest(data);
     },
 
     onSuccess: () => {
+      submittedRef.current = true;
       setIsRequesting(false);
       setIsRequestSuccess(true);
     },
@@ -126,7 +242,7 @@ export default function NewHostRequest({
       {hostError ? (
         <Alert severity={"error"}>{hostError?.message}</Alert>
       ) : (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} ref={formRef}>
           <StyledRequestRow>
             <StyledDateRow>
               <StyledDatepicker
