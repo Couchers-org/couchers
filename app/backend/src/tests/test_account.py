@@ -287,7 +287,7 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
+        assert e.value.details() == "Wrong Username/Email or Password."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -324,7 +324,7 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
+        assert e.value.details() == "Wrong Username/Email or Password."
 
     with session_scope() as session:
         assert (
@@ -351,7 +351,7 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
+        assert e.value.details() == "Wrong Username/Email or Password."
 
     with session_scope() as session:
         assert (

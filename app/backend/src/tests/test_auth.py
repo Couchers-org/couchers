@@ -831,7 +831,7 @@ def test_unsuccessful_authenticate(db):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Wrong password."
+        assert e.value.details() == "Wrong Username/Email or Password."
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
