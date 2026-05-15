@@ -3,6 +3,7 @@ import {
   GenderVerificationStatus,
   GetLiteUsersRes,
   LiteUser,
+  Profile,
   User,
 } from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
@@ -52,6 +53,11 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
 
 export async function getUser(userId: string): Promise<User.AsObject> {
   return userMap[userId];
+}
+
+export async function getProfile(userId: string): Promise<Profile.AsObject> {
+  // users.json fixtures still carry profile-shaped fields, so we can reuse them.
+  return userMap[userId] as unknown as Profile.AsObject;
 }
 
 export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {

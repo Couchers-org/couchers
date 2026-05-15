@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { User } from "proto/api_pb";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
+import { Profile, User } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions } from "test/serviceMockDefaults";
@@ -19,8 +20,21 @@ beforeEach(() => {
   getRegionsMock.mockImplementation(getRegions);
 });
 
-function renderAbout(user?: User.AsObject) {
-  return render(<About user={user || defaultUser} />, { wrapper });
+function renderAbout(overrides?: {
+  user?: Partial<User.AsObject>;
+  profile?: Partial<Profile.AsObject>;
+}) {
+  const user = { ...defaultUser, ...overrides?.user } as User.AsObject;
+  const profile = {
+    ...defaultProfile,
+    ...overrides?.profile,
+  } as Profile.AsObject;
+  return render(
+    <ProfileUserProvider user={user} profile={profile}>
+      <About />
+    </ProfileUserProvider>,
+    { wrapper },
+  );
 }
 describe("About (user)", () => {
   it("displays both visited and lived regions", async () => {
@@ -38,9 +52,10 @@ describe("About (user)", () => {
 
   it("should display age and gender without verification icons when unspecified ", async () => {
     renderAbout({
-      ...defaultUser,
-      genderVerificationStatus: 0,
-      birthdateVerificationStatus: 0,
+      user: {
+        genderVerificationStatus: 0,
+        birthdateVerificationStatus: 0,
+      },
     });
 
     const checkIcon = screen.queryByTestId("check-circle-icon");
@@ -50,9 +65,10 @@ describe("About (user)", () => {
   });
   it("should display age and gender without verification icons when unverified", async () => {
     renderAbout({
-      ...defaultUser,
-      genderVerificationStatus: 1,
-      birthdateVerificationStatus: 1,
+      user: {
+        genderVerificationStatus: 1,
+        birthdateVerificationStatus: 1,
+      },
     });
 
     const checkIcon = screen.queryByTestId("check-circle-icon");
@@ -63,9 +79,10 @@ describe("About (user)", () => {
 
   it("should display verification ticks when verified", async () => {
     renderAbout({
-      ...defaultUser,
-      genderVerificationStatus: 2,
-      birthdateVerificationStatus: 2,
+      user: {
+        genderVerificationStatus: 2,
+        birthdateVerificationStatus: 2,
+      },
     });
 
     const checkIcons = screen.queryAllByTestId("check-circle-icon");
@@ -76,9 +93,10 @@ describe("About (user)", () => {
 
   it("should display error icons when mismatched", async () => {
     renderAbout({
-      ...defaultUser,
-      genderVerificationStatus: 3,
-      birthdateVerificationStatus: 3,
+      user: {
+        genderVerificationStatus: 3,
+        birthdateVerificationStatus: 3,
+      },
     });
 
     const checkIcons = screen.queryByTestId("check-circle-icon");
@@ -89,9 +107,10 @@ describe("About (user)", () => {
 
   it("displays None when there are no regions", async () => {
     renderAbout({
-      ...defaultUser,
-      regionsVisitedList: [],
-      regionsLivedList: [],
+      profile: {
+        regionsVisitedList: [],
+        regionsLivedList: [],
+      },
     });
     expect((await screen.findAllByText("None")).length).toBe(2);
   });

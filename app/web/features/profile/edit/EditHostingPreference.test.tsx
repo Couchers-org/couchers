@@ -4,7 +4,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getUser } from "test/serviceMockDefaults";
+import { getProfile, getUser } from "test/serviceMockDefaults";
 
 import { ParkingDetails } from "../../../proto/api_pb";
 import { addDefaultUser, MockedService } from "../../../test/utils";
@@ -16,6 +16,9 @@ jest.mock("components/MarkdownInput");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
+>;
+const getProfileMock = service.user.getProfile as MockedService<
+  typeof service.user.getProfile
 >;
 const updateHostingPreferenceMock = service.user
   .updateHostingPreference as MockedService<
@@ -30,6 +33,7 @@ describe("EditHostingPreference", () => {
   beforeEach(() => {
     addDefaultUser(1);
     getUserMock.mockImplementation(getUser);
+    getProfileMock.mockImplementation(getProfile);
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
   });
 
@@ -72,6 +76,10 @@ describe("EditHostingPreference", () => {
 
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
+      aboutPlace: "",
+    }));
+    getProfileMock.mockImplementation(async (user) => ({
+      ...(await getProfile(user)),
       aboutPlace: "",
     }));
     renderPage();

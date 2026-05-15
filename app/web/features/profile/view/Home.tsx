@@ -8,9 +8,9 @@ import {
   sleepingArrangementLabelsShort,
   smokingLocationLabels,
 } from "features/profile/constants";
+import { useProfileData } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
 
 const StyledRoot = styled("div")({
   display: "flex",
@@ -28,12 +28,9 @@ const StyledSpacedDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-interface HomeProps {
-  user: User.AsObject;
-}
-
-export default function Home({ user }: HomeProps) {
+export default function Home() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const profile = useProfileData();
 
   return (
     <>
@@ -44,35 +41,35 @@ export default function Home({ user }: HomeProps) {
           </Typography>
           <LabelAndText
             label={t("profile:home_info_headings.last_minute")}
-            text={booleanConversion(t, user.lastMinute?.value)}
+            text={booleanConversion(t, profile.lastMinute?.value)}
           />
           <LabelAndText
             label={t("profile:home_info_headings.wheelchair")}
-            text={booleanConversion(t, user.wheelchairAccessible?.value)}
+            text={booleanConversion(t, profile.wheelchairAccessible?.value)}
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_camping")}
-            text={booleanConversion(t, user.campingOk?.value)}
+            text={booleanConversion(t, profile.campingOk?.value)}
           />
           <LabelAndText
             label={t("profile:home_info_headings.max_guests")}
-            text={`${user.maxGuests?.value || t("profile:unspecified_info")}`}
+            text={`${profile.maxGuests?.value || t("profile:unspecified_info")}`}
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_kids")}
-            text={booleanConversion(t, user.acceptsKids?.value)}
+            text={booleanConversion(t, profile.acceptsKids?.value)}
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_pets")}
-            text={booleanConversion(t, user.acceptsPets?.value)}
+            text={booleanConversion(t, profile.acceptsPets?.value)}
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_drinking")}
-            text={booleanConversion(t, user.drinkingAllowed?.value)}
+            text={booleanConversion(t, profile.drinkingAllowed?.value)}
           />
           <LabelAndText
             label={t("profile:edit_home_questions.accept_smoking")}
-            text={`${smokingLocationLabels(t)[user.smokingAllowed]}`}
+            text={`${smokingLocationLabels(t)[profile.smokingAllowed]}`}
           />
         </StyledInfoColumn>
         <StyledInfoColumn>
@@ -82,91 +79,91 @@ export default function Home({ user }: HomeProps) {
           <LabelAndText
             label={t("profile:home_info_headings.space")}
             text={
-              sleepingArrangementLabelsShort(t)[user.sleepingArrangement] ||
+              sleepingArrangementLabelsShort(t)[profile.sleepingArrangement] ||
               t("profile:unspecified_info")
             }
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking")}
-            text={booleanConversion(t, user.parking?.value)}
+            text={booleanConversion(t, profile.parking?.value)}
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking_details")}
-            text={parkingDetailsLabels(t)[user.parkingDetails]}
+            text={parkingDetailsLabels(t)[profile.parkingDetails]}
           />
           <LabelAndText
             label={t("profile:home_info_headings.has_housemates")}
-            text={`${booleanConversion(t, user.hasHousemates?.value)}${
-              user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value}`
+            text={`${booleanConversion(t, profile.hasHousemates?.value)}${
+              profile.housemateDetails?.value
+                ? `, ${profile.housemateDetails?.value}`
                 : ""
             }`}
           />
           <LabelAndText
             label={t("profile:home_info_headings.has_kids")}
-            text={`${booleanConversion(t, user.hasKids?.value)}${
-              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
+            text={`${booleanConversion(t, profile.hasKids?.value)}${
+              profile.kidDetails?.value ? `, ${profile.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={t("profile:home_info_headings.has_pets")}
-            text={`${booleanConversion(t, user.hasPets?.value)}${
-              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
+            text={`${booleanConversion(t, profile.hasPets?.value)}${
+              profile.petDetails?.value ? `, ${profile.petDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={t("profile:home_info_headings.host_drinking")}
-            text={booleanConversion(t, user.drinksAtHome?.value)}
+            text={booleanConversion(t, profile.drinksAtHome?.value)}
           />
           <LabelAndText
             label={t("profile:home_info_headings.host_smoking")}
-            text={booleanConversion(t, user.smokesAtHome?.value)}
+            text={booleanConversion(t, profile.smokesAtHome?.value)}
           />
         </StyledInfoColumn>
       </StyledRoot>
       <StyledSpacedDivider />
-      {user.aboutPlace && (
+      {profile.aboutPlace && (
         <>
           <Typography variant="h1">
             {t("profile:home_info_headings.about_home")}
           </Typography>
-          <Markdown source={user.aboutPlace} />
+          <Markdown source={profile.aboutPlace} />
           <StyledSpacedDivider />
         </>
       )}
-      {user.area && (
+      {profile.area && (
         <>
           <Typography variant="h1">
             {t("profile:home_info_headings.local_area")}
           </Typography>
-          <Markdown source={user.area?.value} />
+          <Markdown source={profile.area?.value} />
           <StyledSpacedDivider />
         </>
       )}
-      {user.sleepingDetails && (
+      {profile.sleepingDetails && (
         <>
           <Typography variant="h1">
             {t("profile:home_info_headings.sleeping_arrangement")}
           </Typography>
-          <Markdown source={user.sleepingDetails?.value} />
+          <Markdown source={profile.sleepingDetails?.value} />
           <StyledSpacedDivider />
         </>
       )}
-      {user.houseRules && (
+      {profile.houseRules && (
         <>
           <Typography variant="h1">
             {t("profile:home_info_headings.house_rules")}
           </Typography>
-          <Markdown source={user.houseRules?.value} />
+          <Markdown source={profile.houseRules?.value} />
           <StyledSpacedDivider />
         </>
       )}
-      {user.otherHostInfo && (
+      {profile.otherHostInfo && (
         <>
           <Typography variant="h1">
             {t("profile:heading.additional_information_section")}
           </Typography>
-          <Markdown source={user.otherHostInfo?.value} />
+          <Markdown source={profile.otherHostInfo?.value} />
         </>
       )}
     </>

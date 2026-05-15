@@ -31,6 +31,10 @@ export function liteUserKey(userId?: number) {
   return userId === undefined ? ["liteUser"] : ["liteUser", userId];
 }
 
+export function profileKey(userId?: number) {
+  return userId === undefined ? ["profile"] : ["profile", userId];
+}
+
 export const liteUsersKey = (ids: number[] | string[]) => ["liteUsers", ...ids];
 
 export const referencesGivenKey = "referencesGiven";

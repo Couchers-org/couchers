@@ -10,7 +10,11 @@ import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
+import {
+  getAvailableReferences,
+  getProfile,
+  getUser,
+} from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
 import LeaveReferencePage from "./LeaveReferencePage";
@@ -23,6 +27,9 @@ const getAvailableReferencesMock = service.references
 >;
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
+>;
+const getProfileMock = service.user.getProfile as MockedService<
+  typeof service.user.getProfile
 >;
 const getHostRequestReferenceStatusMock = service.references
   .getHostRequestReferenceStatus as unknown as jest.MockedFunction<
@@ -86,6 +93,7 @@ function renderLeaveRequestReferencePage(
 describe("LeaveReferencePage", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
+    getProfileMock.mockImplementation(getProfile);
     getAvailableReferencesMock.mockImplementation(getAvailableReferences);
     getHostRequestReferenceStatusMock.mockResolvedValue({
       hasGiven: false,

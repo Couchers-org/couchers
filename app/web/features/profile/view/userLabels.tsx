@@ -7,6 +7,7 @@ import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import {
   BirthdateVerificationStatus,
   GenderVerificationStatus,
+  Profile,
   User,
 } from "proto/api_pb";
 import { theme } from "theme";
@@ -145,14 +146,16 @@ const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledCheckCircleIcon = styledIcon(CheckCircleIcon);
 const StyledErrorIcon = styledIcon(ErrorIcon);
 
-const AgeAndGenderRenderer = ({ user }: Props) => {
-  const {
-    birthdateVerificationStatus,
-    genderVerificationStatus,
-    age,
-    gender,
-    pronouns,
-  } = user;
+const AgeAndGenderRenderer = ({
+  user,
+  profile,
+}: {
+  user: User.AsObject;
+  profile: Profile.AsObject;
+}) => {
+  const { birthdateVerificationStatus, genderVerificationStatus, age, gender } =
+    user;
+  const { pronouns } = profile;
   const { t } = useTranslation("profile");
 
   const getBirthdateVerificationIcon = (
@@ -222,7 +225,13 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
   );
 };
 
-export const AgeGenderLanguagesLabels = ({ user }: Props) => {
+export const AgeGenderLanguagesLabels = ({
+  user,
+  profile,
+}: {
+  user: User.AsObject;
+  profile: Profile.AsObject;
+}) => {
   const { t } = useTranslation("profile");
   const { languages } = useLanguages();
 
@@ -230,13 +239,13 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
     <>
       <LabelAndText
         label={t("heading.age_gender")}
-        text={<AgeAndGenderRenderer user={user} />}
+        text={<AgeAndGenderRenderer user={user} profile={profile} />}
       />
       {languages && (
         <LabelAndText
           label={t("heading.languages_fluent")}
           text={
-            user.languageAbilitiesList
+            profile.languageAbilitiesList
               .map((ability) => languages[ability.code])
               .join(", ") || t("languages_fluent_false")
           }
@@ -246,7 +255,13 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
   );
 };
 
-export const RemainingAboutLabels = ({ user }: Props) => {
+export const RemainingAboutLabels = ({
+  user,
+  profile,
+}: {
+  user: User.AsObject;
+  profile: Profile.AsObject;
+}) => {
   const {
     t,
     i18n: { language: locale },
@@ -255,15 +270,15 @@ export const RemainingAboutLabels = ({ user }: Props) => {
     <>
       <LabelAndText
         label={t("profile:heading.hometown")}
-        text={user.hometown}
+        text={profile.hometown}
       />
       <LabelAndText
         label={t("profile:heading.occupation")}
-        text={user.occupation}
+        text={profile.occupation}
       />
       <LabelAndText
         label={t("profile:heading.education")}
-        text={user.education}
+        text={profile.education}
       />
       <LabelAndText
         label={t("profile:heading.joined")}

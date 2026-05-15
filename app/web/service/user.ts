@@ -3,12 +3,14 @@ import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetLiteUserReq,
   GetLiteUsersReq,
+  GetProfileReq,
   GetUserReq,
   LanguageAbility,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
   PingReq,
+  Profile,
   RepeatedLanguageAbilityValue,
   RepeatedStringValue,
   UpdateProfileReq,
@@ -99,6 +101,21 @@ export async function getUser(user: string): Promise<User.AsObject> {
   }
 
   const response = await client.api.getUser(userReq);
+
+  return response.toObject();
+}
+
+/**
+ * Returns Profile record by Username or id
+ *
+ * @param {string} user
+ * @returns {Promise<Profile.AsObject>}
+ */
+export async function getProfile(user: string): Promise<Profile.AsObject> {
+  const req = new GetProfileReq();
+  req.setUser(user);
+
+  const response = await client.api.getProfile(req);
 
   return response.toObject();
 }

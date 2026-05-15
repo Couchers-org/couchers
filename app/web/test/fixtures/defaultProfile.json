@@ -1,0 +1,30 @@
+{
+  "userId": 1,
+  "hometown": "Brisbane",
+  "pronouns": "He/him",
+  "occupation": "Mathematician",
+  "education": "Uni",
+  "aboutMe": "Some generic stuff.",
+  "thingsILike": "hospex",
+  "aboutPlace": "About Aapeli's place",
+  "additionalInformation": "",
+  "hostingStatus": 2,
+  "meetupStatus": 1,
+  "regionsVisitedList": ["AUS"],
+  "regionsLivedList": ["AUS", "FIN", "SWE", "USA"],
+  "languageAbilitiesList": [
+    {
+      "code": "eng",
+      "fluency": 4
+    },
+    {
+      "code": "fin",
+      "fluency": 3
+    }
+  ],
+  "profileGalleryId": 1,
+  "sleeping_arrangement": 2,
+  "sleepingArrangement": 2,
+  "parkingDetails": 3,
+  "smokingAllowed": 1
+}

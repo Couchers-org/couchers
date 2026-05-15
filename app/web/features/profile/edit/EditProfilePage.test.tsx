@@ -3,7 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
+import {
+  getLanguages,
+  getProfile,
+  getRegions,
+  getUser,
+} from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 
 import EditProfilePage from "./EditProfilePage";
@@ -15,6 +20,10 @@ jest.mock("components/MarkdownInput");
 
 const getUserMock = service.user.getUser as jest.MockedFunction<
   typeof service.user.getUser
+>;
+
+const getProfileMock = service.user.getProfile as jest.MockedFunction<
+  typeof service.user.getProfile
 >;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
@@ -45,11 +54,13 @@ describe("Edit profile", () => {
     addDefaultUser();
     getRegionsMock.mockImplementation(getRegions);
     getLanguagesMock.mockImplementation(getLanguages);
+    getProfileMock.mockImplementation(getProfile);
   });
 
   afterEach(() => {
     updateProfileMock.mockClear();
     getUserMock.mockClear();
+    getProfileMock.mockClear();
     uploadFileMock.mockClear();
   });
 
@@ -110,6 +121,11 @@ describe("Edit profile", () => {
       aboutMe: "",
       thingsILike: "",
     }));
+    getProfileMock.mockImplementation(async (user) => ({
+      ...(await getProfile(user)),
+      aboutMe: "",
+      thingsILike: "",
+    }));
     await renderPage();
 
     const user = userEvent.setup();
@@ -152,6 +168,11 @@ describe("Edit profile", () => {
       aboutMe: "",
       thingsILike: "",
     }));
+    getProfileMock.mockImplementation(async (user) => ({
+      ...(await getProfile(user)),
+      aboutMe: "",
+      thingsILike: "",
+    }));
 
     await renderPage();
 
@@ -178,6 +199,11 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
+      aboutMe: "",
+      thingsILike: "",
+    }));
+    getProfileMock.mockImplementation(async (user) => ({
+      ...(await getProfile(user)),
       aboutMe: "",
       thingsILike: "",
     }));

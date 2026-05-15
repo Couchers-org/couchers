@@ -5,6 +5,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserOverview from "features/profile/view/UserOverview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useCurrentProfile } from "features/userQueries/useProfile";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
@@ -33,17 +34,23 @@ function DashboardUserProfileSummaryActions() {
 
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
+  const {
+    data: profile,
+    error: profileError,
+    isLoading: isProfileLoading,
+  } = useCurrentProfile();
   const desktopMode = useMediaQuery((theme: Theme) =>
     theme.breakpoints.up("sm"),
   );
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      {isLoading ? (
+      {profileError && <Alert severity="error">{profileError.message}</Alert>}
+      {isLoading || isProfileLoading ? (
         <CenteredSpinner />
-      ) : user ? (
+      ) : user && profile ? (
         desktopMode ? (
-          <ProfileUserProvider user={user}>
+          <ProfileUserProvider user={user} profile={profile}>
             <UserOverview
               actions={<DashboardUserProfileSummaryActions />}
               showHostAndMeetAvailability

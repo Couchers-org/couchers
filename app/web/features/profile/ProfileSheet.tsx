@@ -7,6 +7,7 @@ import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
 import UserCard from "features/profile/view/UserCard";
+import { useProfile } from "features/userQueries/useProfile";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -57,6 +58,9 @@ export default function ProfileSheet() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
+  const { data: profile, isLoading: isProfileLoading } = useProfile(
+    openProfileUserId ?? undefined,
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<UserTab>("about");
   const [isRequesting, setIsRequesting] = useState(false);
@@ -115,9 +119,9 @@ export default function ProfileSheet() {
               {t("profile:message_form.success")}
             </Snackbar>
           )}
-          {isLoading && <CenteredSpinner />}
-          {user && (
-            <ProfileUserProvider user={user}>
+          {(isLoading || isProfileLoading) && <CenteredSpinner />}
+          {user && profile && (
+            <ProfileUserProvider user={user} profile={profile}>
               <Overview
                 setIsRequesting={setIsRequesting}
                 setIsMessaging={setIsMessaging}

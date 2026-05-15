@@ -1,18 +1,17 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
+import {
+  useProfileData,
+  useProfileUser,
+} from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 import { useRegions } from "../hooks/useRegions";
 import ProfilePhotoGallery from "./ProfilePhotoGallery";
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
-
-interface AboutProps {
-  user: User.AsObject;
-}
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(1),
@@ -22,51 +21,53 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-export default function About({ user }: AboutProps) {
+export default function About() {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const theme = useTheme();
   const { regions } = useRegions();
+  const user = useProfileUser();
+  const profile = useProfileData();
   return (
     <StyledWrapper>
       <Typography variant="h1">
         {t("profile:heading.overview_section")}
       </Typography>
-      <AgeGenderLanguagesLabels user={user} />
-      <RemainingAboutLabels user={user} />
+      <AgeGenderLanguagesLabels user={user} profile={profile} />
+      <RemainingAboutLabels user={user} profile={profile} />
 
-      {user.profileGalleryId && user.profileGalleryId > 0 && (
+      {profile.profileGalleryId && profile.profileGalleryId > 0 && (
         <>
-          <ProfilePhotoGallery galleryId={user.profileGalleryId} />
+          <ProfilePhotoGallery galleryId={profile.profileGalleryId} />
           <StyledDivider />
         </>
       )}
 
-      {!user.profileGalleryId && <StyledDivider />}
+      {!profile.profileGalleryId && <StyledDivider />}
 
-      {user.aboutMe && (
+      {profile.aboutMe && (
         <>
           <Typography variant="h1">
             {t("profile:heading.who_section")}
           </Typography>
-          <Markdown source={user.aboutMe} />
+          <Markdown source={profile.aboutMe} />
           <StyledDivider />
         </>
       )}
-      {user.thingsILike && (
+      {profile.thingsILike && (
         <>
           <Typography variant="h1">
             {t("profile:heading.hobbies_section")}
           </Typography>
-          <Markdown source={user.thingsILike} />
+          <Markdown source={profile.thingsILike} />
           <StyledDivider />
         </>
       )}
-      {user.additionalInformation && (
+      {profile.additionalInformation && (
         <>
           <Typography variant="h1">
             {t("profile:heading.additional_information_section")}
           </Typography>
-          <Markdown source={user.additionalInformation} />
+          <Markdown source={profile.additionalInformation} />
           <StyledDivider />
         </>
       )}
@@ -74,8 +75,8 @@ export default function About({ user }: AboutProps) {
         {t("profile:heading.travel_section")}
       </Typography>
       <Typography variant="body1">
-        {regions && user.regionsVisitedList.length > 0
-          ? user.regionsVisitedList
+        {regions && profile.regionsVisitedList.length > 0
+          ? profile.regionsVisitedList
               .map((country) => regions[country])
               .join(`, `)
           : t("profile:regions_empty_state")}
@@ -83,8 +84,10 @@ export default function About({ user }: AboutProps) {
       <StyledDivider />
       <Typography variant="h1">{t("profile:heading.lived_section")}</Typography>
       <Typography variant="body1">
-        {regions && user.regionsLivedList.length > 0
-          ? user.regionsLivedList.map((country) => regions[country]).join(`, `)
+        {regions && profile.regionsLivedList.length > 0
+          ? profile.regionsLivedList
+              .map((country) => regions[country])
+              .join(`, `)
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />
@@ -95,9 +98,9 @@ export default function About({ user }: AboutProps) {
             geographies.map((geo) => {
               let color = theme.palette.grey[200];
               if (regions) {
-                if (user.regionsLivedList.includes(geo.id)) {
+                if (profile.regionsLivedList.includes(geo.id)) {
                   color = theme.palette.primary.main;
-                } else if (user.regionsVisitedList.includes(geo.id)) {
+                } else if (profile.regionsVisitedList.includes(geo.id)) {
                   color = theme.palette.secondary.main;
                 }
               }

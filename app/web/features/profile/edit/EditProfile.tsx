@@ -28,6 +28,7 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useCurrentProfile } from "features/userQueries/useProfile";
 import { StatusCode } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
@@ -264,6 +265,7 @@ export default function EditProfileForm() {
     error: updateMutationError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
+  const { data: profile } = useCurrentProfile();
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState<string | null>(
     isMounted,
@@ -293,28 +295,28 @@ export default function EditProfileForm() {
   // Reset form with user data when user and data are loaded
   // This allows only showing save bar once something changes
   useEffect(() => {
-    if (user && languages && regions) {
+    if (user && profile && languages && regions) {
       reset(
         {
           name: user.name,
-          pronouns: user.pronouns,
-          hometown: user.hometown,
-          occupation: user.occupation,
-          education: user.education,
-          hostingStatus: user.hostingStatus,
-          meetupStatus: user.meetupStatus,
-          fluentLanguages: user.languageAbilitiesList
+          pronouns: profile.pronouns,
+          hometown: profile.hometown,
+          occupation: profile.occupation,
+          education: profile.education,
+          hostingStatus: profile.hostingStatus,
+          meetupStatus: profile.meetupStatus,
+          fluentLanguages: profile.languageAbilitiesList
             .map((ability) => languages[ability.code] || "")
             .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
+          regionsVisited: profile.regionsVisitedList
             .map((region) => regions[region] || "")
             .filter(Boolean),
-          regionsLived: user.regionsLivedList
+          regionsLived: profile.regionsLivedList
             .map((region) => regions[region] || "")
             .filter(Boolean),
-          aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: user.additionalInformation,
+          aboutMe: profile.aboutMe,
+          thingsILike: profile.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          additionalInformation: profile.additionalInformation,
           location: {
             city: user.city,
             lat: user.lat,
@@ -333,8 +335,8 @@ export default function EditProfileForm() {
           hometown: "",
           occupation: "",
           education: "",
-          hostingStatus: user?.hostingStatus,
-          meetupStatus: user?.meetupStatus,
+          hostingStatus: profile?.hostingStatus,
+          meetupStatus: profile?.meetupStatus,
           fluentLanguages: [],
           regionsVisited: [],
           regionsLived: [],
@@ -351,7 +353,7 @@ export default function EditProfileForm() {
         { keepDirty: false, keepErrors: false },
       );
     }
-  }, [user, reset, languages, regions]);
+  }, [user, profile, reset, languages, regions]);
 
   // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
   useEffect(() => {
@@ -479,7 +481,7 @@ export default function EditProfileForm() {
           {t("profile:helper_text.missing_profile_photo")}
         </StyledAlert>
       )}
-      {user && languages && regions ? (
+      {user && profile && languages && regions ? (
         <>
           <HelpTextContainer>
             <Typography>
@@ -557,7 +559,7 @@ export default function EditProfileForm() {
 
               <FieldGroup ref={galleryEditorRef}>
                 <GalleryEditor
-                  galleryId={user.profileGalleryId}
+                  galleryId={profile.profileGalleryId}
                   userId={user.userId}
                   title={t("profile:gallery.profile_photos_title")}
                   description={t("profile:gallery.profile_photos_description")}
@@ -637,7 +639,7 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <Controller
                   control={control}
-                  defaultValue={user.hostingStatus}
+                  defaultValue={profile.hostingStatus}
                   name="hostingStatus"
                   render={({ field }) => (
                     <StatusCardGroup
@@ -711,7 +713,7 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <Controller
                   control={control}
-                  defaultValue={user.meetupStatus}
+                  defaultValue={profile.meetupStatus}
                   name="meetupStatus"
                   render={({ field }) => (
                     <StatusCardGroup
@@ -803,7 +805,7 @@ export default function EditProfileForm() {
                 </Typography>
                 <Controller
                   control={control}
-                  defaultValue={user.pronouns}
+                  defaultValue={profile.pronouns}
                   name="pronouns"
                   render={({ field }) => {
                     const other =
@@ -858,7 +860,7 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.languageAbilitiesList.map(
+                    defaultValue={profile.languageAbilitiesList.map(
                       (ability) => languages[ability.code],
                     )}
                     name="fluentLanguages"
@@ -883,7 +885,7 @@ export default function EditProfileForm() {
                   id="hometown"
                   {...register("hometown")}
                   label={t("profile:edit_profile_headings.hometown")}
-                  defaultValue={user.hometown}
+                  defaultValue={profile.hometown}
                 />
               </FieldGroup>
 
@@ -892,7 +894,7 @@ export default function EditProfileForm() {
                   id="occupation"
                   {...register("occupation")}
                   label={t("profile:edit_profile_headings.occupation")}
-                  defaultValue={user.occupation}
+                  defaultValue={profile.occupation}
                 />
               </FieldGroup>
 
@@ -901,7 +903,7 @@ export default function EditProfileForm() {
                   id="education"
                   {...register("education")}
                   label={t("profile:edit_profile_headings.education")}
-                  defaultValue={user.education}
+                  defaultValue={profile.education}
                 />
               </FieldGroup>
             </ProfileSection>
@@ -931,7 +933,7 @@ export default function EditProfileForm() {
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
                   placeholder={DEFAULT_ABOUT_ME_HEADINGS}
-                  defaultValue={user.aboutMe}
+                  defaultValue={profile.aboutMe}
                   control={control}
                   warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
                   helperText={
@@ -971,7 +973,7 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={profile.thingsILike || DEFAULT_HOBBIES_HEADINGS}
                   control={control}
                 />
               </FieldGroup>
@@ -981,7 +983,7 @@ export default function EditProfileForm() {
                   id="additionalInformation"
                   label={t("profile:heading.additional_information_section")}
                   name="additionalInformation"
-                  defaultValue={user.additionalInformation}
+                  defaultValue={profile.additionalInformation}
                   control={control}
                 />
               </FieldGroup>
@@ -1002,7 +1004,7 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
+                    defaultValue={profile.regionsVisitedList.map(
                       (region) => regions[region],
                     )}
                     name="regionsVisited"
@@ -1024,7 +1026,7 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
+                    defaultValue={profile.regionsLivedList.map(
                       (region) => regions[region],
                     )}
                     name="regionsLived"

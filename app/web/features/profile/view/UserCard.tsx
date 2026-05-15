@@ -94,11 +94,11 @@ export default function UserCard({
         />
         {top || null}
         <TabPanel value="about" sx={{ padding: 0 }}>
-          <About user={user} />
+          <About />
         </TabPanel>
         {modPanel}
         <TabPanel value="home">
-          <Home user={user}></Home>
+          <Home />
         </TabPanel>
         <TabPanel value="references">
           <References />

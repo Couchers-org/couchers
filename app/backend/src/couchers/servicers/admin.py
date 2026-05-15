@@ -47,7 +47,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
-from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.api import profile_model_to_pb, user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
@@ -199,6 +199,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         return user_model_to_pb(user, session, context, is_admin_see_ghosts=True)
+
+    def GetProfile(self, request: admin_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.Profile:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        return profile_model_to_pb(user)
 
     def SearchUsers(
         self, request: admin_pb2.SearchUsersReq, context: CouchersContext, session: Session

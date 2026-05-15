@@ -18,7 +18,7 @@ describe("UserOverview", () => {
   describe("when user is loaded and provided via context", () => {
     it("should display the user name", () => {
       render(
-        <ProfileUserProvider user={defaultUser}>
+        <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
@@ -28,7 +28,7 @@ describe("UserOverview", () => {
 
     it("should display the user username with a leading @", () => {
       render(
-        <ProfileUserProvider user={defaultUser}>
+        <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
@@ -38,7 +38,7 @@ describe("UserOverview", () => {
 
     it("should display the user location", () => {
       render(
-        <ProfileUserProvider user={defaultUser}>
+        <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
@@ -54,7 +54,7 @@ describe("UserOverview", () => {
 
       it("should display the hosting and meeting status when showHostAndMeetAvailability is true", () => {
         render(
-          <ProfileUserProvider user={defaultUser}>
+          <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
             <UserOverview showHostAndMeetAvailability />
           </ProfileUserProvider>,
           { wrapper },
@@ -65,7 +65,7 @@ describe("UserOverview", () => {
 
       it("should not display the hosting and meeting status when showHostAndMeetAvailability is false", () => {
         render(
-          <ProfileUserProvider user={defaultUser}>
+          <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
             <UserOverview showHostAndMeetAvailability={false} />
           </ProfileUserProvider>,
           { wrapper },
@@ -91,7 +91,7 @@ describe("UserOverview", () => {
       const expectedLabelVerification = t("global:verification_score");
 
       render(
-        <ProfileUserProvider user={defaultUser}>
+        <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
@@ -107,7 +107,7 @@ describe("UserOverview", () => {
 
     it("should render the action buttons", () => {
       render(
-        <ProfileUserProvider user={defaultUser}>
+        <ProfileUserProvider user={defaultUser} profile={defaultProfile}>
           <UserOverview
             showHostAndMeetAvailability={false}
             actions={
@@ -126,6 +126,7 @@ describe("UserOverview", () => {
       render(
         <ProfileUserProvider
           user={{ ...defaultUser, hasStrongVerification: false }}
+          profile={defaultProfile}
         >
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
@@ -140,6 +141,7 @@ describe("UserOverview", () => {
       render(
         <ProfileUserProvider
           user={{ ...defaultUser, hasStrongVerification: true }}
+          profile={defaultProfile}
         >
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,

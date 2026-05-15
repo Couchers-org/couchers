@@ -17,7 +17,7 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
 
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useProfileData, useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
@@ -103,6 +103,7 @@ export default function UserOverview({
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const profile = useProfileData();
 
   const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
 
@@ -156,7 +157,7 @@ export default function UserOverview({
             icon={CouchIcon}
             text={
               hostingStatusLabels(t)[
-                user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
+                profile.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
               ]
             }
           />
@@ -164,7 +165,7 @@ export default function UserOverview({
             icon={LocationIcon}
             text={
               meetupStatusLabels(t)[
-                user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
+                profile.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
               ]
             }
           />

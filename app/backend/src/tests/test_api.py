@@ -17,6 +17,7 @@ from couchers.models import (
     ModerationState,
     ModerationVisibility,
     RateLimitAction,
+    SleepingArrangement,
     User,
     UserBadge,
 )
@@ -179,6 +180,66 @@ def test_get_user(db):
         assert res.user_id == user2.id
         assert res.username == user2.username
         assert res.name == user2.name
+
+
+def test_get_profile(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user(
+        complete_profile=False,
+        about_me="hello there",
+        things_i_like="long walks",
+        about_place="cozy couch",
+        hometown="Berlin",
+        occupation="Software engineer",
+        max_guests=3,
+        sleeping_arrangement=SleepingArrangement.private,
+    )
+
+    with api_session(token1) as api:
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
+        assert res.user_id == user2.id
+        assert res.about_me == "hello there"
+        assert res.things_i_like == "long walks"
+        assert res.about_place == "cozy couch"
+        assert res.hometown == "Berlin"
+        assert res.occupation == "Software engineer"
+        assert res.max_guests.value == 3
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_PRIVATE
+        assert res.hosting_status in (
+            api_pb2.HOSTING_STATUS_UNKNOWN,
+            api_pb2.HOSTING_STATUS_CAN_HOST,
+            api_pb2.HOSTING_STATUS_MAYBE,
+            api_pb2.HOSTING_STATUS_CANT_HOST,
+        )
+
+    with api_session(token1) as api:
+        res = api.GetProfile(api_pb2.GetProfileReq(user=str(user2.id)))
+        assert res.user_id == user2.id
+
+
+def test_get_profile_not_found(db):
+    _, token1 = generate_user()
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetProfile(api_pb2.GetProfileReq(user="nonexistent_user_xyz"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
+def test_get_profile_ghost_user(db, flag):
+    _, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])

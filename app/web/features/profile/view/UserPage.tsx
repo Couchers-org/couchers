@@ -7,6 +7,7 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
+import useProfileByUsername from "features/userQueries/useProfileByUsername";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -47,6 +48,11 @@ export default function UserPage({
   const router = useRouter();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    error: profileError,
+  } = useProfileByUsername(username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
@@ -66,10 +72,11 @@ export default function UserPage({
         <Snackbar severity="success">{t("request_form.success")}</Snackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
-      {isLoading ? (
+      {profileError && <Alert severity="error">{profileError}</Alert>}
+      {isLoading || isProfileLoading ? (
         <CenteredSpinner />
-      ) : user ? (
-        <ProfileUserProvider user={user}>
+      ) : user && profile ? (
+        <ProfileUserProvider user={user} profile={profile}>
           <StyledProfileRoot>
             <Overview
               setIsRequesting={setIsRequesting}

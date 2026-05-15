@@ -1,9 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useCurrentProfile } from "features/userQueries/useProfile";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { service } from "service";
+import defaultProfile from "test/fixtures/defaultProfile.json";
 import defaultUser from "test/fixtures/defaultUser.json";
 import galleryFixtures from "test/fixtures/gallery.json";
 import wrapper from "test/hookWrapper";
@@ -11,6 +13,7 @@ import i18n from "test/i18n";
 import {
   getAccountInfo,
   getLanguages,
+  getProfile,
   getRegions,
   getUser,
 } from "test/serviceMockDefaults";
@@ -21,11 +24,15 @@ import ProfilePage from "./ProfilePage";
 const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
+jest.mock("features/userQueries/useProfile");
 
 jest.mock("react-simple-maps");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
+>;
+const getProfileMock = service.user.getProfile as MockedService<
+  typeof service.user.getProfile
 >;
 const reportContentMock = service.reporting.reportContent as MockedService<
   typeof service.reporting.reportContent
@@ -41,6 +48,9 @@ const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
 
 const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
+>;
+const useCurrentProfileMock = useCurrentProfile as jest.MockedFunction<
+  typeof useCurrentProfile
 >;
 
 const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<
@@ -62,6 +72,7 @@ describe("Profile page", () => {
 
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
+    getProfileMock.mockImplementation(getProfile);
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);
     getAccountInfoMock.mockImplementation(getAccountInfo);
@@ -79,6 +90,13 @@ describe("Profile page", () => {
         isFetching: false,
         error: "",
       });
+      useCurrentProfileMock.mockReturnValue({
+        data: defaultProfile,
+        isLoading: false,
+        isError: false,
+        isFetching: false,
+        error: null,
+      } as unknown as ReturnType<typeof useCurrentProfile>);
     });
 
     describe("and a tab is opened", () => {

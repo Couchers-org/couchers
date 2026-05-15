@@ -20,6 +20,10 @@ service API {
     // Get info about a particular user
   }
 
+  rpc GetProfile(GetProfileReq) returns (Profile) {
+    // Get the editable profile (markdown bio, hosting prefs, my-home) for a user
+  }
+
   rpc GetLiteUser(GetLiteUserReq) returns (LiteUser) {
     // Get minimal info about a particular user
   }
@@ -317,6 +321,56 @@ message User {
 
 message GetUserReq {
   string user = 1;
+}
+
+message GetProfileReq {
+  string user = 1;
+}
+
+message Profile {
+  int64 user_id = 1;
+
+  string hometown = 2;
+  string pronouns = 3;
+  string occupation = 4;
+  string education = 5; // CommonMark without images
+  string about_me = 6; // CommonMark without images
+  string things_i_like = 7; // CommonMark without images
+  string about_place = 8; // CommonMark without images
+  string additional_information = 9; // CommonMark without images
+
+  HostingStatus hosting_status = 10;
+  MeetupStatus meetup_status = 11;
+
+  repeated string regions_visited = 12;
+  repeated string regions_lived = 13;
+  repeated LanguageAbility language_abilities = 14;
+
+  uint64 profile_gallery_id = 15;
+
+  google.protobuf.UInt32Value max_guests = 20;
+  google.protobuf.BoolValue last_minute = 21;
+  google.protobuf.BoolValue has_pets = 22;
+  google.protobuf.BoolValue accepts_pets = 23;
+  google.protobuf.StringValue pet_details = 24;
+  google.protobuf.BoolValue has_kids = 25;
+  google.protobuf.BoolValue accepts_kids = 26;
+  google.protobuf.StringValue kid_details = 27;
+  google.protobuf.BoolValue has_housemates = 28;
+  google.protobuf.StringValue housemate_details = 29;
+  google.protobuf.BoolValue wheelchair_accessible = 30;
+  SmokingLocation smoking_allowed = 31;
+  google.protobuf.BoolValue smokes_at_home = 32;
+  google.protobuf.BoolValue drinking_allowed = 33;
+  google.protobuf.BoolValue drinks_at_home = 34;
+  google.protobuf.StringValue other_host_info = 35; // CommonMark without images
+  SleepingArrangement sleeping_arrangement = 36;
+  google.protobuf.StringValue sleeping_details = 37; // CommonMark without images
+  google.protobuf.StringValue area = 38; // CommonMark without images
+  google.protobuf.StringValue house_rules = 39; // CommonMark without images
+  google.protobuf.BoolValue parking = 40;
+  ParkingDetails parking_details = 41;
+  google.protobuf.BoolValue camping_ok = 42;
 }
 
 message LiteUser {

@@ -5,6 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useCurrentProfile } from "features/userQueries/useProfile";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -35,15 +36,23 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
   const router = useRouter();
 
   const { data: user, error, isLoading } = useCurrentUser();
+  const {
+    data: profile,
+    error: profileError,
+    isLoading: isProfileLoading,
+  } = useCurrentProfile();
 
   return (
     <>
       <HtmlMeta title={t("global:nav.profile")} />
       {error && <Alert severity="error">{error}</Alert>}
-      {isLoading ? (
+      {profileError && (
+        <Alert severity="error">{profileError.message}</Alert>
+      )}
+      {isLoading || isProfileLoading ? (
         <CenteredSpinner />
-      ) : user ? (
-        <ProfileUserProvider user={user}>
+      ) : user && profile ? (
+        <ProfileUserProvider user={user} profile={profile}>
           <StyledWrapper>
             <Overview tab={tab} />
             <UserCard

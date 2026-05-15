@@ -21,7 +21,7 @@ import {
   UserTab,
 } from "routes";
 
-import { useProfileUser } from "../hooks/useProfileUser";
+import { useProfileData, useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
 import ProfileReportFlagButton from "./ProfileReportFlagButton";
 
@@ -70,8 +70,9 @@ function DefaultActions({
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const profile = useProfileData();
   const disableHosting =
-    user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
+    profile.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
 
   const [mutationError, setMutationError] = useState("");
   const [showCantRequestDialog, setShowCantRequestDialog] =
