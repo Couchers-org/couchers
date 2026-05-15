@@ -10,7 +10,7 @@ _Readme last updated: 2025/08/23._
 
 _These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu._
 
-You need `nodejs` v20. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
+You need `nodejs` v22. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
 
 ```sh
 curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
