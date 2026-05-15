@@ -219,6 +219,18 @@ enum GenderVerificationStatus {
 }
 
 message User {
+  // Profile fields moved to the Profile message; fetch via GetProfile.
+  reserved 13, 14, 15, 16, 22, 24, 25, 26, 27, 28, 30, 31, 37, 40, 41, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 123;
+  reserved
+    "hometown", "pronouns", "hosting_status", "meetup_status", "occupation", "education",
+    "about_me", "things_i_like", "about_place", "additional_information",
+    "regions_visited", "regions_lived", "language_abilities", "profile_gallery_id",
+    "max_guests", "last_minute", "has_pets", "accepts_pets", "pet_details",
+    "has_kids", "accepts_kids", "kid_details", "has_housemates", "housemate_details",
+    "wheelchair_accessible", "smoking_allowed", "smokes_at_home", "drinking_allowed",
+    "drinks_at_home", "other_host_info", "sleeping_arrangement", "sleeping_details",
+    "area", "house_rules", "parking", "parking_details", "camping_ok";
+
   enum FriendshipStatus {
     NOT_FRIENDS = 0;
     FRIENDS = 1;
@@ -232,7 +244,6 @@ message User {
   string username = 2;
   string name = 3;
   string city = 4;
-  string hometown = 100;
 
   // the user's time zonename derived from their coordinates, for example "Australia/Melbourne"
   string timezone = 122;
@@ -248,54 +259,16 @@ message User {
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;
-  string pronouns = 101;
   uint32 age = 9;
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
-  HostingStatus hosting_status = 13;
-  MeetupStatus meetup_status = 102;
-  string occupation = 14;
-  string education = 103; // CommonMark without images
-  string about_me = 15; // CommonMark without images
-  // string my_travels = 104; // CommonMark without images
-  string things_i_like = 105; // CommonMark without images
-  string about_place = 16; // CommonMark without images
-  repeated string regions_visited = 40;
-  repeated string regions_lived = 41;
-  string additional_information = 106; // CommonMark without images
 
   FriendshipStatus friends = 20;
   // only present if friends == FriendshipStatus.PENDING
   FriendRequest pending_friend_request = 36;
 
-  google.protobuf.UInt32Value max_guests = 22;
-  google.protobuf.BoolValue last_minute = 24;
-  google.protobuf.BoolValue has_pets = 107;
-  google.protobuf.BoolValue accepts_pets = 25;
-  google.protobuf.StringValue pet_details = 108;
-  google.protobuf.BoolValue has_kids = 109;
-  google.protobuf.BoolValue accepts_kids = 26;
-  google.protobuf.StringValue kid_details = 110;
-  google.protobuf.BoolValue has_housemates = 111;
-  google.protobuf.StringValue housemate_details = 112;
-  google.protobuf.BoolValue wheelchair_accessible = 27;
-  SmokingLocation smoking_allowed = 28;
-  google.protobuf.BoolValue smokes_at_home = 113;
-  google.protobuf.BoolValue drinking_allowed = 114;
-  google.protobuf.BoolValue drinks_at_home = 115;
-  google.protobuf.StringValue other_host_info = 116; // CommonMark without images
-  SleepingArrangement sleeping_arrangement = 117;
-  google.protobuf.StringValue sleeping_details = 118; // CommonMark without images
-  google.protobuf.StringValue area = 30; // CommonMark without images
-  google.protobuf.StringValue house_rules = 31; // CommonMark without images
-  google.protobuf.BoolValue parking = 119;
-  ParkingDetails parking_details = 120; // CommonMark without images
-  google.protobuf.BoolValue camping_ok = 121;
-
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
-  uint64 profile_gallery_id = 123;
-  repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;
 

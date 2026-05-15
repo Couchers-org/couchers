@@ -206,10 +206,11 @@ def test_signup_incremental(db):
 
     with api_session(sess_token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
+        profile_res = api.GetProfile(api_pb2.GetProfileReq(user=str(user_id)))
 
     assert res.username == "frodo"
     assert res.gender == "Bot"
-    assert res.hosting_status == api_pb2.HOSTING_STATUS_MAYBE
+    assert profile_res.hosting_status == api_pb2.HOSTING_STATUS_MAYBE
     assert res.city == "New York City"
     assert res.lat == 40.7331
     assert res.lng == -73.9778

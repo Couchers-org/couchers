@@ -57,17 +57,16 @@ def test_ping(db):
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
+        profile = api.GetProfile(api_pb2.GetProfileReq(user=str(user.id)))
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
     assert res.user.name == user.name
     assert res.user.city == user.city
-    assert res.user.hometown == user.hometown
     assert res.user.verification == 0.0
     assert res.user.community_standing == user.community_standing
     assert res.user.num_references == 0
     assert res.user.gender == user.gender
-    assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
 
     assert (res.user.lat, res.user.lng) == user.coordinates
@@ -78,21 +77,22 @@ def test_ping(db):
     # same for last_active
     assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
-    assert res.user.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
-    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP
-
-    assert res.user.occupation == user.occupation
-    assert res.user.education == user.education
-    assert res.user.about_me == user.about_me
-    assert res.user.things_i_like == user.things_i_like
-    assert {language_ability.code for language_ability in res.user.language_abilities} == {"fin", "fra"}
-    assert res.user.about_place == user.about_place
-    assert res.user.regions_visited == ["FIN", "REU", "CHE"]  # Tests alphabetization by region name
-    assert res.user.regions_lived == ["EST", "FRA", "ESP"]  # Ditto
-    assert res.user.additional_information == user.additional_information
-
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert not res.user.HasField("pending_friend_request")
+
+    assert profile.hometown == user.hometown
+    assert profile.pronouns == user.pronouns
+    assert profile.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
+    assert profile.meetup_status == api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP
+    assert profile.occupation == user.occupation
+    assert profile.education == user.education
+    assert profile.about_me == user.about_me
+    assert profile.things_i_like == user.things_i_like
+    assert {language_ability.code for language_ability in profile.language_abilities} == {"fin", "fra"}
+    assert profile.about_place == user.about_place
+    assert profile.regions_visited == ["FIN", "REU", "CHE"]  # Tests alphabetization by region name
+    assert profile.regions_lived == ["EST", "FRA", "ESP"]  # Ditto
+    assert profile.additional_information == user.additional_information
 
 
 def test_coords(db):
@@ -237,9 +237,13 @@ def test_get_profile_ghost_user(db, flag):
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
+
+    assert res.user_id == user2.id
+    assert res.about_me.startswith("This user is no longer on the platform.")
+    assert res.hometown == ""
+    assert res.occupation == ""
+    assert res.hosting_status == 0
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
@@ -254,15 +258,12 @@ def test_user_model_to_pb_ghost_user(db, flag):
 
     with api_session(token1) as api:
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        profile_pb = api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
 
     assert user_pb.user_id == user2.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Deactivated Account"
-    assert (
-        user_pb.about_me
-        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
-    )
 
     assert user_pb.lat == 0
     assert user_pb.lng == 0
@@ -271,26 +272,20 @@ def test_user_model_to_pb_ghost_user(db, flag):
     assert user_pb.community_standing == 0.0
     assert user_pb.num_references == 0
     assert user_pb.age == 0
-    assert user_pb.hosting_status == 0
-    assert user_pb.meetup_status == 0
     assert user_pb.city == ""
-    assert user_pb.hometown == ""
     assert user_pb.timezone == ""
     assert user_pb.gender == ""
-    assert user_pb.pronouns == ""
-    assert user_pb.occupation == ""
-    assert user_pb.education == ""
-    assert user_pb.things_i_like == ""
-    assert user_pb.about_place == ""
-    assert user_pb.additional_information == ""
-    assert list(user_pb.language_abilities) == []
-    assert list(user_pb.regions_visited) == []
-    assert list(user_pb.regions_lived) == []
     assert list(user_pb.badges) == []
     assert user_pb.friends == api_pb2.User.FriendshipStatus.NOT_FRIENDS
     assert user_pb.avatar_url == ""
     assert user_pb.avatar_thumbnail_url == ""
     assert not user_pb.has_strong_verification
+
+    assert profile_pb.user_id == user2.id
+    assert (
+        profile_pb.about_me
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+    )
 
     with api_session(token1) as api:
         lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
@@ -320,15 +315,12 @@ def test_user_model_to_pb_ghost_user_blocked(db):
 
     with api_session(token1) as api:
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        profile_pb = api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
 
     assert user_pb.user_id == user2.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Deactivated Account"
-    assert (
-        user_pb.about_me
-        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
-    )
 
     assert user_pb.lat == 0
     assert user_pb.lng == 0
@@ -337,26 +329,20 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert user_pb.community_standing == 0.0
     assert user_pb.num_references == 0
     assert user_pb.age == 0
-    assert user_pb.hosting_status == 0
-    assert user_pb.meetup_status == 0
     assert user_pb.city == ""
-    assert user_pb.hometown == ""
     assert user_pb.timezone == ""
     assert user_pb.gender == ""
-    assert user_pb.pronouns == ""
-    assert user_pb.occupation == ""
-    assert user_pb.education == ""
-    assert user_pb.things_i_like == ""
-    assert user_pb.about_place == ""
-    assert user_pb.additional_information == ""
-    assert list(user_pb.language_abilities) == []
-    assert list(user_pb.regions_visited) == []
-    assert list(user_pb.regions_lived) == []
     assert list(user_pb.badges) == []
     assert user_pb.friends == api_pb2.User.FriendshipStatus.NOT_FRIENDS
     assert user_pb.avatar_url == ""
     assert user_pb.avatar_thumbnail_url == ""
     assert not user_pb.has_strong_verification
+
+    assert profile_pb.user_id == user2.id
+    assert (
+        profile_pb.about_me
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+    )
 
     with api_session(token1) as api:
         lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
@@ -385,6 +371,7 @@ def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
 
     with admin_session(token_admin) as api:
         user_pb = api.GetUser(admin_pb2.GetUserReq(user=user.username))
+        profile_pb = api.GetProfile(admin_pb2.GetUserReq(user=user.username))
 
     assert user_pb.user_id == user.id
     assert user_pb.username == user.username
@@ -392,7 +379,7 @@ def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     assert user_pb.city == user.city
     assert user_pb.name != "Deactivated Account"
     assert user_pb.username != "ghost"
-    assert user_pb.hosting_status in (
+    assert profile_pb.hosting_status in (
         api_pb2.HOSTING_STATUS_UNKNOWN,
         api_pb2.HOSTING_STATUS_CAN_HOST,
         api_pb2.HOSTING_STATUS_MAYBE,
@@ -625,25 +612,26 @@ def test_update_profile(db):
         )
 
         user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        profile_details = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert user_details.name == "New name"
         assert user_details.city == "Timbuktu"
-        assert user_details.hometown == "Walla Walla"
-        assert user_details.pronouns == "Ro, Robo, Robots"
-        assert user_details.education == "Couchers U"
-        assert user_details.things_i_like == "Couchers"
         assert user_details.lat == 0.01
         assert user_details.lng == -2
         assert user_details.radius == 321
-        assert user_details.occupation == "Testing"
-        assert user_details.about_me == "I rule"
-        assert user_details.about_place == "My place"
-        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
-        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert user_details.language_abilities[0].code == "eng"
-        assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
-        assert user_details.additional_information == "I <3 Couchers"
-        assert user_details.regions_visited == ["CXR", "FIN"]
-        assert user_details.regions_lived == ["EST", "USA"]
+        assert profile_details.hometown == "Walla Walla"
+        assert profile_details.pronouns == "Ro, Robo, Robots"
+        assert profile_details.education == "Couchers U"
+        assert profile_details.things_i_like == "Couchers"
+        assert profile_details.occupation == "Testing"
+        assert profile_details.about_me == "I rule"
+        assert profile_details.about_place == "My place"
+        assert profile_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert profile_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
+        assert profile_details.language_abilities[0].code == "eng"
+        assert profile_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
+        assert profile_details.additional_information == "I <3 Couchers"
+        assert profile_details.regions_visited == ["CXR", "FIN"]
+        assert profile_details.regions_lived == ["EST", "USA"]
 
         # Test unset values
         api.UpdateProfile(
@@ -666,20 +654,21 @@ def test_update_profile(db):
         )
 
         user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert not user_details.hometown
+        profile_details = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert not user_details.radius
-        assert not user_details.pronouns
-        assert not user_details.occupation
-        assert not user_details.education
-        assert not user_details.about_me
-        assert not user_details.things_i_like
-        assert not user_details.about_place
-        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
-        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert not user_details.language_abilities
-        assert not user_details.regions_visited
-        assert not user_details.regions_lived
-        assert not user_details.additional_information
+        assert not profile_details.hometown
+        assert not profile_details.pronouns
+        assert not profile_details.occupation
+        assert not profile_details.education
+        assert not profile_details.about_me
+        assert not profile_details.things_i_like
+        assert not profile_details.about_place
+        assert profile_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert profile_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
+        assert not profile_details.language_abilities
+        assert not profile_details.regions_visited
+        assert not profile_details.regions_lived
+        assert not profile_details.additional_information
 
 
 def test_update_profile_do_not_email(db):
@@ -709,7 +698,7 @@ def test_language_abilities(db):
     )
 
     with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 2
 
         # can't add non-existent languages
@@ -750,7 +739,7 @@ def test_language_abilities(db):
         assert "violates unique constraint" in str(err2.value)
 
         # nothing changed
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 2
 
         # now actually add a value
@@ -767,7 +756,7 @@ def test_language_abilities(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 1
         assert res.language_abilities[0].code == "eng"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
@@ -786,7 +775,7 @@ def test_language_abilities(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 1
         assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
@@ -805,7 +794,7 @@ def test_language_abilities(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 1
         assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
@@ -813,7 +802,7 @@ def test_language_abilities(db):
         # don't change it
         api.UpdateProfile(api_pb2.UpdateProfileReq())
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 1
         assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
@@ -827,7 +816,7 @@ def test_language_abilities(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert len(res.language_abilities) == 0
 
 
@@ -1472,7 +1461,7 @@ def test_hosting_preferences(db):
     user2, token2 = generate_user()
 
     with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -1528,7 +1517,7 @@ def test_hosting_preferences(db):
     # Use a second user to view the hosting preferences just to check
     # that it is public information.
     with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user1.username))
         assert res.max_guests.value == 3
         assert res.last_minute.value
         assert not res.has_pets.value
@@ -1583,7 +1572,7 @@ def test_hosting_preferences(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -1968,8 +1957,6 @@ def test_GetUser_ghost_user_by_id(db, flag):
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"
         assert user_pb.city == ""
-        assert user_pb.hosting_status == 0
-        assert user_pb.meetup_status == 0
 
 
 def test_GetUser_blocked_user(db):

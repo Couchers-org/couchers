@@ -26,7 +26,13 @@ from couchers.models.uploads import get_avatar_upload
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
-from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
+from couchers.servicers.api import (
+    fluency2api,
+    hostingstatus2api,
+    meetupstatus2api,
+    profile_model_to_pb,
+    user_model_to_pb,
+)
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.utils import Timestamp_from_datetime, not_none, now
 
@@ -199,8 +205,12 @@ class Public(public_pb2_grpc.PublicServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if user.public_visibility == ProfilePublicVisibility.full:
+            logged_out_ctx = make_logged_out_context(localization=context.localization)
             return public_pb2.GetPublicUserRes(
-                full_user=user_model_to_pb(user, session, make_logged_out_context(localization=context.localization))
+                full_user=public_pb2.FullUser(
+                    user=user_model_to_pb(user, session, logged_out_ctx),
+                    profile=profile_model_to_pb(user),
+                )
             )
 
         num_references = session.execute(

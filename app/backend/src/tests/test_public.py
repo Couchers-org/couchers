@@ -562,8 +562,8 @@ def test_GetPublicUser_full_visibility(db):
     with public_session() as public:
         res = public.GetPublicUser(public_pb2.GetPublicUserReq(user="full_user"))
         assert res.HasField("full_user")
-        assert res.full_user.username == "full_user"
-        assert res.full_user.name == "Full User"
-        assert res.full_user.city == "Testing city"
+        assert res.full_user.user.username == "full_user"
+        assert res.full_user.user.name == "Full User"
+        assert res.full_user.user.city == "Testing city"
         # Full user should have all the fields from the complete user profile
-        assert res.full_user.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
+        assert res.full_user.profile.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST

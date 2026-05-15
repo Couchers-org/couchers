@@ -94,8 +94,13 @@ message GetPublicUserRes {
   oneof profile {
     LimitedUser limited_user = 1;
     MostUser most_user = 2;
-    org.couchers.api.core.User full_user = 3;
+    FullUser full_user = 3;
   }
+}
+
+message FullUser {
+  org.couchers.api.core.User user = 1;
+  org.couchers.api.core.Profile profile = 2;
 }
 
 message GetSignupPageInfoRes {

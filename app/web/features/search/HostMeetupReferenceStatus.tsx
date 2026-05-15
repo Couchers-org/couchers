@@ -12,6 +12,7 @@ import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
+import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
 const Wrapper = styled("div")(({ theme }) => ({
@@ -61,8 +62,8 @@ const HostMeetupReferenceStatus = ({
   meetupStatus,
   numberReferences,
 }: {
-  hostingStatus: User.AsObject["hostingStatus"];
-  meetupStatus: User.AsObject["meetupStatus"];
+  hostingStatus: SearchUser.AsObject["hostingStatus"];
+  meetupStatus: SearchUser.AsObject["meetupStatus"];
   numberReferences: User.AsObject["numReferences"];
 }) => {
   const { t } = useTranslation([PROFILE]);

@@ -47,7 +47,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector
         assert not res.jailed
 
     with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
@@ -80,7 +80,7 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
         assert not res.jailed
 
     with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
@@ -159,6 +159,6 @@ def test_activeness_probes_expiry(db, push_collector: PushCollector):
         assert not res.jailed
 
     with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user.username))
         assert res.hosting_status == api_pb2.HOSTING_STATUS_MAYBE
         assert res.meetup_status == api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP

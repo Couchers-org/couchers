@@ -177,15 +177,7 @@ fluency2api = {
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
-        user = session.execute(
-            select(User)
-            .where(User.id == context.user_id)
-            .options(
-                selectinload(User.regions_visited),
-                selectinload(User.regions_lived),
-                selectinload(User.language_abilities),
-            )
-        ).scalar_one()
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
             HostRequest.initiator_user_id == context.user_id
@@ -280,15 +272,7 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
-        user = session.execute(
-            select(User)
-            .where(username_or_id(request.user))
-            .options(
-                selectinload(User.regions_visited),
-                selectinload(User.regions_lived),
-                selectinload(User.language_abilities),
-            )
-        ).scalar_one_or_none()
+        user = session.execute(select(User).where(username_or_id(request.user))).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -310,7 +294,10 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if is_not_visible(session, context.user_id, user.id):
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+            return api_pb2.Profile(
+                user_id=user.id,
+                about_me=context.localization.localize_string("ghost_users.about_me"),
+            )
 
         return profile_model_to_pb(user)
 
@@ -1063,7 +1050,6 @@ def user_model_to_pb(
                 is_ghost=True,
                 username=GHOST_USERNAME,
                 name=context.localization.localize_string("ghost_users.display_name"),
-                about_me=context.localization.localize_string("ghost_users.about_me"),
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
@@ -1142,7 +1128,6 @@ def user_model_to_pb(
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
-        hometown=db_user.hometown,
         timezone=db_user.timezone,
         lat=lat,
         lng=lng,
@@ -1151,98 +1136,19 @@ def user_model_to_pb(
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,
-        pronouns=db_user.pronouns,
         age=int(db_user.age),
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
-        hosting_status=hostingstatus2api[db_user.hosting_status],
-        meetup_status=meetupstatus2api[db_user.meetup_status],
-        occupation=db_user.occupation,
-        education=db_user.education,
-        about_me=db_user.about_me,
-        things_i_like=db_user.things_i_like,
-        about_place=db_user.about_place,
-        language_abilities=[
-            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
-            for ability in db_user.language_abilities
-        ],
-        regions_visited=[region.code for region in db_user.regions_visited],
-        regions_lived=[region.code for region in db_user.regions_lived],
-        additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,
-        smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
-        sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
-        parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=avatar_upload.full_url if avatar_upload else None,
         avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
-        profile_gallery_id=db_user.profile_gallery_id,
         badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
         **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
     )
-
-    if db_user.max_guests is not None:
-        user.max_guests.value = db_user.max_guests
-
-    if db_user.last_minute is not None:
-        user.last_minute.value = db_user.last_minute
-
-    if db_user.has_pets is not None:
-        user.has_pets.value = db_user.has_pets
-
-    if db_user.accepts_pets is not None:
-        user.accepts_pets.value = db_user.accepts_pets
-
-    if db_user.pet_details is not None:
-        user.pet_details.value = db_user.pet_details
-
-    if db_user.has_kids is not None:
-        user.has_kids.value = db_user.has_kids
-
-    if db_user.accepts_kids is not None:
-        user.accepts_kids.value = db_user.accepts_kids
-
-    if db_user.kid_details is not None:
-        user.kid_details.value = db_user.kid_details
-
-    if db_user.has_housemates is not None:
-        user.has_housemates.value = db_user.has_housemates
-
-    if db_user.housemate_details is not None:
-        user.housemate_details.value = db_user.housemate_details
-
-    if db_user.wheelchair_accessible is not None:
-        user.wheelchair_accessible.value = db_user.wheelchair_accessible
-
-    if db_user.smokes_at_home is not None:
-        user.smokes_at_home.value = db_user.smokes_at_home
-
-    if db_user.drinking_allowed is not None:
-        user.drinking_allowed.value = db_user.drinking_allowed
-
-    if db_user.drinks_at_home is not None:
-        user.drinks_at_home.value = db_user.drinks_at_home
-
-    if db_user.other_host_info is not None:
-        user.other_host_info.value = db_user.other_host_info
-
-    if db_user.sleeping_details is not None:
-        user.sleeping_details.value = db_user.sleeping_details
-
-    if db_user.area is not None:
-        user.area.value = db_user.area
-
-    if db_user.house_rules is not None:
-        user.house_rules.value = db_user.house_rules
-
-    if db_user.parking is not None:
-        user.parking.value = db_user.parking
-
-    if db_user.camping_ok is not None:
-        user.camping_ok.value = db_user.camping_ok
 
     return user
 
