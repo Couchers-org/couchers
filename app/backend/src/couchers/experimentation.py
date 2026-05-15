@@ -4,12 +4,18 @@ Experimentation framework for feature flags and experiments.
 Uses GrowthBook under the hood, but abstracts the implementation details.
 """
 
+import hashlib
+import json
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from growthbook import GrowthBook
+from growthbook import GrowthBook, feature_repo
+from growthbook.common_types import Experiment, Result
+from sqlalchemy.dialects.postgresql import insert
 
 from couchers.config import config
+from couchers.db import session_scope
+from couchers.models.logging import ExperimentExposure
 
 if TYPE_CHECKING:
     from couchers.context import CouchersContext
@@ -42,15 +48,17 @@ def setup_experimentation() -> None:
 
     logger.info("Initializing experimentation framework")
 
-    gb = GrowthBook(
-        api_host=config["GROWTHBOOK_API_HOST"],
-        client_key=config["GROWTHBOOK_CLIENT_KEY"],
-        http_connect_timeout=1,
-        http_read_timeout=2,
-    )
-    gb.load_features()
-    test_gate_result = gb.is_on("test_growthbook_integration")
-    gb.destroy()
+    # These settings get baked into feature_repo's PoolManager on first HTTP
+    # call, so configure them before any fetches happen.
+    feature_repo.http_connect_timeout = 1
+    feature_repo.http_read_timeout = 2
+
+    response = feature_repo.load_features(config["GROWTHBOOK_API_HOST"], config["GROWTHBOOK_CLIENT_KEY"])
+    features = response.get("features", {}) if response else {}
+    saved_groups = response.get("savedGroups", {}) if response else {}
+
+    smoke_gb = GrowthBook(features=features, savedGroups=saved_groups)
+    test_gate_result = smoke_gb.is_on("test_growthbook_integration")
 
     _initialized = True
     logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
@@ -63,21 +71,78 @@ def _check_initialized() -> None:
         )
 
 
+def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: Any) -> None:
+    data = {
+        "experiment_name": experiment.name,
+        "variation_key": result.key,
+        "variation_name": result.name,
+        "hash_attribute": result.hashAttribute,
+        "hash_value": result.hashValue,
+        "bucket": result.bucket,
+        "in_experiment": result.inExperiment,
+        "hash_used": result.hashUsed,
+        "sticky_bucket_used": result.stickyBucketUsed,
+        "feature_id": result.featureId,
+    }
+    # Fingerprint covers the assignment-relevant fields. Display-only fields
+    # (experiment_name, variation_name) are excluded so renames don't create
+    # spurious new rows.
+    fingerprint_payload = {
+        "variation_id": result.variationId,
+        "variation_key": result.key,
+        "hash_attribute": result.hashAttribute,
+        "hash_value": result.hashValue,
+        "bucket": result.bucket,
+        "in_experiment": result.inExperiment,
+        "hash_used": result.hashUsed,
+        "sticky_bucket_used": result.stickyBucketUsed,
+        "feature_id": result.featureId,
+    }
+    fingerprint = hashlib.sha256(
+        json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    stmt = (
+        insert(ExperimentExposure)
+        .values(
+            user_id=user_id,
+            experiment_key=experiment.key,
+            variation_id=result.variationId,
+            fingerprint=fingerprint,
+            data=data,
+        )
+        .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_fp")
+    )
+    with session_scope() as session:
+        session.execute(stmt)
+
+
 def _get_growthbook(context: CouchersContext) -> GrowthBook:
     """
     Get or create a cached GrowthBook instance for the given context.
 
-    Features come from the shared feature_repo cache, so load_features() is cheap.
+    Features are fetched via the process-wide feature_repo cache (one HTTP
+    fetch per cache TTL, shared across all users) and handed to the per-request
+    instance directly. We deliberately construct without `client_key` so
+    GrowthBook.__init__ doesn't register a bound callback on feature_repo's
+    callback list - those callbacks would pin every per-request instance for
+    the lifetime of the worker.
     """
     if not hasattr(context, "_growthbook"):
+        response = feature_repo.load_features(config["GROWTHBOOK_API_HOST"], config["GROWTHBOOK_CLIENT_KEY"])
+        features = response.get("features", {}) if response else {}
+        saved_groups = response.get("savedGroups", {}) if response else {}
+
+        user_id = context.user_id
+
+        def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+            _record_exposure(user_id, experiment, result)
+
         gb = GrowthBook(
-            api_host=config["GROWTHBOOK_API_HOST"],
-            client_key=config["GROWTHBOOK_CLIENT_KEY"],
-            attributes={"id": str(context.user_id)},
-            http_connect_timeout=1,
-            http_read_timeout=2,
+            attributes={"id": str(user_id)},
+            features=features,
+            savedGroups=saved_groups,
+            on_experiment_viewed=on_experiment_viewed,
         )
-        gb.load_features()
         context._growthbook = gb  # type: ignore[attr-defined]
     return context._growthbook  # type: ignore[attr-defined, no-any-return]
 

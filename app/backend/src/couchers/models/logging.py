@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, UniqueConstraint, func
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -113,5 +113,52 @@ class EventLog(Base, kw_only=True):
         Index("ix_logging_event_log_created", "created"),
         Index("ix_logging_event_log_event_type_created", "event_type", "created"),
         Index("ix_logging_event_log_user_id_created", "user_id", "created"),
+        {"schema": "logging"},
+    )
+
+
+class ExperimentExposure(Base, kw_only=True):
+    """
+    Records each distinct exposure of a user to an experiment.
+
+    Populated by GrowthBook's on_experiment_viewed callback. A new row is
+    written whenever the exposure differs from a prior one (e.g. user is
+    re-bucketed into a different variation, weights change, in/out of the
+    experiment flips). Identical exposures are deduped via the unique
+    constraint on (user_id, experiment_key, fingerprint).
+    """
+
+    __tablename__ = "experiment_exposures"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the exposure was first recorded
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # backend version when the exposure was recorded
+    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+
+    # user exposed to the experiment
+    user_id: Mapped[int] = mapped_column(BigInteger)
+
+    # experiment identifier from GrowthBook
+    experiment_key: Mapped[str] = mapped_column(String)
+
+    # the variation the user was bucketed into
+    variation_id: Mapped[int] = mapped_column(BigInteger)
+
+    # sha256 hex digest over the assignment-relevant fields in `data` plus
+    # variation_id; identical exposures collide here and are dropped via
+    # ON CONFLICT, while any meaningful change produces a new row.
+    fingerprint: Mapped[str] = mapped_column(String)
+
+    # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
+    # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "experiment_key", "fingerprint", name="uq_experiment_exposures_user_exp_fp"),
+        Index("ix_logging_experiment_exposures_experiment_key_created", "experiment_key", "created"),
+        Index("ix_logging_experiment_exposures_user_id_created", "user_id", "created"),
         {"schema": "logging"},
     )
