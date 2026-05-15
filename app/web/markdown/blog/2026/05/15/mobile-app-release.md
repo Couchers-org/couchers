@@ -3,10 +3,16 @@ is_blog_post: true
 title: Couchers.org app officially released on iOS and Android!
 slug: mobile-app-release
 description: "It's Couchers.org mobile app release day! Find us on iOS and Android app stores"
-date: 2026/05/16
+date: 2026/05/15
 author: Nicole
 author_username: unsettleddown
 ---
+
+<div style="text-align: center">
+
+![Couchers mobile app release image](/img/blog/20260515_couchers_mobile_app_release.png)
+
+</div>
 
 We have the news you’ve been waiting for, the Couchers.org mobile app is out today for iOS and Android! You can find it by searching "Couchers.org" in the Apple App and Google Play stores.
 
