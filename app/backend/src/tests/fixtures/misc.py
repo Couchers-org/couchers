@@ -11,6 +11,7 @@ from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.servicers.threads import unpack_thread_id
 from tests.fixtures.sessions import real_moderation_session
 
 
@@ -212,12 +213,8 @@ class Moderator:
             )
 
     def approve_thread_post(self, packed_thread_id: int, reason: str = "Test approval") -> None:
-        """Approve whichever of Comment/Reply the packed thread_id refers to.
-
-        packed_thread_id uses the convention from couchers.servicers.threads.pack_thread_id:
-        the trailing digit is depth (1=Comment, 2=Reply); the rest is the database id.
-        """
-        database_id, depth = divmod(packed_thread_id, 10)
+        """Approve whichever of Comment/Reply the packed thread_id refers to."""
+        database_id, depth = unpack_thread_id(packed_thread_id)
         if depth == 1:
             self.approve_comment(database_id, reason=reason)
         elif depth == 2:

@@ -6,8 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context, make_logged_out_context
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
@@ -31,21 +32,30 @@ from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
 
-# Since the API exposes a single ID space regardless of nesting level,
-# we construct the API id by appending the nesting level to the
-# database ID.
-
 
 def pack_thread_id(database_id: int, depth: int) -> int:
+    """Pack (database_id, depth) into a single API thread id.
+
+    The API exposes a single ID space regardless of nesting level, so we append
+    the nesting level (depth) as the trailing digit of the database id: depth 0
+    = Thread, depth 1 = Comment, depth 2 = Reply.
+    """
     return database_id * 10 + depth
 
 
 def unpack_thread_id(thread_id: int) -> tuple[int, int]:
-    """Returns (database_id, depth) tuple."""
+    """Inverse of pack_thread_id; returns (database_id, depth)."""
     return divmod(thread_id, 10)
 
 
-def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
+def _viewing_context(viewing_user_id: int | None) -> CouchersContext:
+    if viewing_user_id is not None:
+        return make_background_user_context(user_id=viewing_user_id)
+    return make_logged_out_context(LocalizationContext.en_utc())
+
+
+def total_num_responses(session: Session, viewing_user_id: int | None, database_id: int) -> int:
+    context = _viewing_context(viewing_user_id)
     comments = where_moderated_content_visible(
         select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
         context,
@@ -64,10 +74,10 @@ def total_num_responses(session: Session, context: CouchersContext, database_id:
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
-def thread_to_pb(session: Session, context: CouchersContext, database_id: int) -> threads_pb2.Thread:
+def thread_to_pb(session: Session, viewing_user_id: int | None, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
-        num_responses=total_num_responses(session, context, database_id),
+        num_responses=total_num_responses(session, viewing_user_id, database_id),
     )
 
 
