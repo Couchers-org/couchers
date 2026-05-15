@@ -463,8 +463,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
                 return _auth_res(user)
             else:
-                logger.debug("Wrong password")
-                # wrong password
+                logger.debug("Wrong username/email or password")
+                # Wrong username/email or password
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_password")
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete

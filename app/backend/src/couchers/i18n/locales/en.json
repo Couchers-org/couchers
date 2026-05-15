@@ -120,7 +120,7 @@
     "invalid_message": "Invalid message.",
     "invalid_name": "Name not supported.",
     "invalid_notification_preference": "Invalid notification preference.",
-    "invalid_password": "Wrong password.",
+    "invalid_password": "Wrong username/email or password.",
     "invalid_phone": "Phone number must be in international format without punctuation.",
     "invalid_recipients": "Invalid recipients list.",
     "invalid_region": "Invalid region.",
