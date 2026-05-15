@@ -9,6 +9,7 @@ import { service } from "service";
 import hostRequest from "test/fixtures/hostRequest.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { addDefaultUser } from "test/utils";
 
 import HostRequestSendField from "./HostRequestSendField";
 
@@ -303,7 +304,40 @@ describe("HostRequestSendField", () => {
     const input = document.getElementById(
       "host-request-message",
     ) as HTMLTextAreaElement;
-    expect(input.value).toBe(t("messages:request_closed_message"));
+    expect(input.value).toBe("");
+    expect(input.placeholder).toBe(t("messages:request_closed_message"));
+  });
+
+  it("does not send the closed-state placeholder text when re-accepting a rejected request", async () => {
+    const rejectedRequest = {
+      ...mockHostRequest,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
+      toDate: "2099-01-05",
+    };
+    addDefaultUser(rejectedRequest.hostUserId);
+
+    render(
+      <HostRequestSendField
+        hostRequest={rejectedRequest}
+        sendMutation={mockSendMutation}
+        respondMutation={mockRespondMutation}
+      />,
+      { wrapper },
+    );
+
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", { name: t("global:accept") }),
+    );
+
+    await waitFor(() => {
+      expect(mockRespondMutation.mutate).toHaveBeenCalledTimes(1);
+    });
+    expect(mockRespondMutation.mutate).toHaveBeenCalledWith({
+      hostRequestId: rejectedRequest.hostRequestId,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+      text: "",
+    });
   });
 
   it("disables the send button while a message is being sent", async () => {
