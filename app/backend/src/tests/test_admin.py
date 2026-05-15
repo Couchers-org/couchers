@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime, timedelta
 
 import grpc
@@ -326,7 +327,55 @@ def test_AddAdminNote_blank(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin note cannot be empty."
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    payload = '{"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}'
+
+    with real_admin_session(super_token) as api:
+        res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data=payload))
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "note"
+    assert res.admin_actions[0].note == ""
+    assert json.loads(res.admin_actions[0].data) == {"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}
+
+
+def test_AddAdminNote_both_note_and_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(
+                admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="note text", data='{"x": 1}')
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_neither(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_invalid_json(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data="{not valid json"))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The admin note data must be valid JSON."
 
 
 def test_admin_content_reports(db):
