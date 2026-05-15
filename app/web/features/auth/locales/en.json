@@ -49,19 +49,18 @@
     "success_message": "A password reset link has been sent to the email associated with that account, if it exists and is active. Note that the email may sometimes end up in spam."
   },
    "login_page": {
-     "title": "Log in",
-     "header": "Welcome back!",
-     "no_account_prompt": "No account yet? <2>Join us</2>",
-     "form": {
-       "username_field_label": "Email/Username",
-       "password_field_label": "Password",
-       "remember_me": "Remember me",
-       "forgot_password": "Forgot password?",
-       "show_password": "Show password",
-       "hide_password": "Hide password"
-     },
-     "invalid_password": "Wrong Username/Email or Password."
-   },
+    "title": "Log in",
+    "header": "Welcome back!",
+    "no_account_prompt": "No account yet? <2>Join us</2>",
+    "form": {
+      "username_field_label": "Email/Username",
+      "password_field_label": "Password",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "show_password": "Show password",
+      "hide_password": "Hide password"
+    }
+  },
   "basic_sign_up_form": {
     "existing_user_prompt": "Already have an account? <2>Log in</2>",
     "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, email, and data handling policies."
