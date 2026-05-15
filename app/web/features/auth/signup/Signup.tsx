@@ -52,6 +52,8 @@ export default function Signup() {
   const error = authState.error;
 
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
 
   const urlToken = stringOrFirstString(router.query.token);
   const inviteCode = stringOrFirstString(router.query.code);
@@ -182,7 +184,7 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {loading ? (
+          {!isMounted || loading ? (
             <CenteredSpinner />
           ) : (
             <SignupFormContent inviteCode={inviteCode || undefined} />
