@@ -14,7 +14,7 @@ author_username: unsettleddown
 
 </div>
 
-We have the news you’ve been waiting for, the Couchers.org mobile app is out today for iOS and Android! You can find it by searching "Couchers.org" in the Apple App and Google Play stores.
+We have the news you’ve been waiting for: the Couchers.org mobile app is out today for iOS and Android! You can find it by searching "Couchers.org" in the Apple App Store and Google Play Store, or by clicking one of the links below:
 
 * [Android App on Google Play store](https://play.google.com/store/apps/details?id=org.couchers.android)
 * [iOS App on Apple App Store](https://apps.apple.com/us/app/couchers-org/id6623776751)
