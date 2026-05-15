@@ -23,7 +23,7 @@ We heard you. Many people don’t travel with their laptops and a mobile app was
 
 The app has gone through maaaaany rounds of internal testing thanks to our lovely volunteers and two rounds of public beta testing by a group of over 1000 active Couchers. We believe we have caught the major bugs. That said, if you find any issues please report it via the red button in the top navigation bar and provide steps in English on how we can replicate the issue.
 
-If you like the app, please do leave us a good review on Google Play or in the Apple App Store, it’s a low effort way that helps spread the word about Couchers and helps us grow this community.
+If you like the app, please do leave us a good review on Google Play or in the Apple App Store, it’s a low effort way that helps spread the word about Couchers and helps us grow this community. If you have feedback about the app, please email feedback(αt)couchers.org. Or, if you’re a developer, sign up to [volunteer](https://couchers.org/volunteer) and help us continue to develop the platform and app!
 
 You can also share our social media posts about the release on [Instagram](https://www.instagram.com/p/DYWyHBzDSjo/), [Facebook](https://www.facebook.com/Couchers.org/posts/pfbid029MZtEtiYD4BaUTAkCPbero3HZwX1mtBBNbG4M9H7ETH5camyNUPVucFNMS4d81vml) or [TikTok](https://www.tiktok.com/@couchersorg).
 
