@@ -21,7 +21,13 @@ def upgrade() -> None:
     op.add_column(
         "admin_actions", sa.Column("data", postgresql.JSONB(none_as_null=True, astext_type=sa.Text()), nullable=True)
     )
+    op.create_check_constraint(
+        constraint_name="note_xor_data",
+        table_name="admin_actions",
+        condition="note IS NULL OR data IS NULL",
+    )
 
 
 def downgrade() -> None:
+    op.drop_constraint("ck_admin_actions_note_xor_data", "admin_actions", type_="check")
     op.drop_column("admin_actions", "data")
