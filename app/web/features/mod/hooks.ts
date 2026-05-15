@@ -73,8 +73,7 @@ export default function useUserWithDetails(user: string) {
     query.isLoading || profileQuery.isLoading || detailsQuery.isLoading;
   const isFetching =
     query.isFetching || profileQuery.isFetching || detailsQuery.isFetching;
-  const isError =
-    query.isError || profileQuery.isError || detailsQuery.isError;
+  const isError = query.isError || profileQuery.isError || detailsQuery.isError;
 
   return {
     user: query.data,

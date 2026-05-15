@@ -46,9 +46,7 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
     <>
       <HtmlMeta title={t("global:nav.profile")} />
       {error && <Alert severity="error">{error}</Alert>}
-      {profileError && (
-        <Alert severity="error">{profileError.message}</Alert>
-      )}
+      {profileError && <Alert severity="error">{profileError.message}</Alert>}
       {isLoading || isProfileLoading ? (
         <CenteredSpinner />
       ) : user && profile ? (
