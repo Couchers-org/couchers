@@ -4,7 +4,8 @@
     "accept_friend_label": "Aceptar",
     "decline_friend_label": "Declinar",
     "request": "Enviar solicitud",
-    "back_to_dashboard": "Volver al tablón"
+    "back_to_dashboard": "Volver al tablón",
+    "add_friend": "Añadir amigo"
   },
   "heading": {
     "about_me": "Sobre mí",
