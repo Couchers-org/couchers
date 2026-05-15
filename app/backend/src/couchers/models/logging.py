@@ -119,23 +119,22 @@ class EventLog(Base, kw_only=True):
 
 class ExperimentExposure(Base, kw_only=True):
     """
-    Records each distinct exposure of a user to an experiment.
+    Records the first time a user is exposed to a particular experiment variation.
 
-    Populated by GrowthBook's on_experiment_viewed callback. A new row is
-    written whenever the exposure differs from a prior one (e.g. user is
-    re-bucketed into a different variation, weights change, in/out of the
-    experiment flips). Identical exposures are deduped via the unique
-    constraint on (user_id, experiment_key, fingerprint).
+    Populated by GrowthBook's on_experiment_viewed callback. One row per
+    (user, experiment, variation) - subsequent exposures collide on the
+    unique constraint and are dropped via ON CONFLICT DO NOTHING, so
+    `created` and `data` reflect the first exposure.
     """
 
     __tablename__ = "experiment_exposures"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    # when the exposure was first recorded
+    # when the first exposure was recorded
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
-    # backend version when the exposure was recorded
+    # backend version when the first exposure was recorded
     version: Mapped[str] = mapped_column(String, default=config["VERSION"])
 
     # user exposed to the experiment
@@ -147,17 +146,12 @@ class ExperimentExposure(Base, kw_only=True):
     # the variation the user was bucketed into
     variation_id: Mapped[int] = mapped_column(BigInteger)
 
-    # sha256 hex digest over the assignment-relevant fields in `data` plus
-    # variation_id; identical exposures collide here and are dropped via
-    # ON CONFLICT, while any meaningful change produces a new row.
-    fingerprint: Mapped[str] = mapped_column(String)
-
     # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
     # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)
     data: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
     __table_args__ = (
-        UniqueConstraint("user_id", "experiment_key", "fingerprint", name="uq_experiment_exposures_user_exp_fp"),
+        UniqueConstraint("user_id", "experiment_key", "variation_id", name="uq_experiment_exposures_user_exp_var"),
         Index("ix_logging_experiment_exposures_experiment_key_created", "experiment_key", "created"),
         Index("ix_logging_experiment_exposures_user_id_created", "user_id", "created"),
         {"schema": "logging"},

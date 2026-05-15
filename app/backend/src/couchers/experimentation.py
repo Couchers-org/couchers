@@ -4,8 +4,6 @@ Experimentation framework for feature flags and experiments.
 Uses GrowthBook under the hood, but abstracts the implementation details.
 """
 
-import hashlib
-import json
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -84,33 +82,15 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         "sticky_bucket_used": result.stickyBucketUsed,
         "feature_id": result.featureId,
     }
-    # Fingerprint covers the assignment-relevant fields. Display-only fields
-    # (experiment_name, variation_name) are excluded so renames don't create
-    # spurious new rows.
-    fingerprint_payload = {
-        "variation_id": result.variationId,
-        "variation_key": result.key,
-        "hash_attribute": result.hashAttribute,
-        "hash_value": result.hashValue,
-        "bucket": result.bucket,
-        "in_experiment": result.inExperiment,
-        "hash_used": result.hashUsed,
-        "sticky_bucket_used": result.stickyBucketUsed,
-        "feature_id": result.featureId,
-    }
-    fingerprint = hashlib.sha256(
-        json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
     stmt = (
         insert(ExperimentExposure)
         .values(
             user_id=user_id,
             experiment_key=experiment.key,
             variation_id=result.variationId,
-            fingerprint=fingerprint,
             data=data,
         )
-        .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_fp")
+        .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
     )
     with session_scope() as session:
         session.execute(stmt)
