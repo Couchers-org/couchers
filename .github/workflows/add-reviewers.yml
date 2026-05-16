@@ -26,13 +26,14 @@ jobs:
         with:
           sparse-checkout: .github/autoreviewers.yml
 
-      - uses: dorny/paths-filter@v4
+      - name: Match rules from autoreviewers.yml
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: .github/autoreviewers.yml
           predicate-quantifier: every
 
-      - name: Add reviewers
+      - name: Process matching rules and add reviewers
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -65,5 +66,8 @@ jobs:
             for reviewer in "${REVIEWERS[@]}"; do
               ARGS+=(--add-reviewer "$reviewer")
             done
+            echo "Adding reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
             # gh pr edit "$PR_NUMBER" "${ARGS[@]}"
+          else
+            echo "No reviewers to add"
           fi
