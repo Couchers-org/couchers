@@ -3,8 +3,68 @@ import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { signupRoute, whatIsCouchSurfingRoute } from "routes";
+import {
+  couchersAppStoreURL,
+  couchersGooglePlayURL,
+  signupRoute,
+  whatIsCouchSurfingRoute,
+} from "routes";
 import { theme } from "theme";
+
+function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
+  const { t } = useTranslation(GLOBAL);
+  // Google Play SVG (viewBox 155×60) has 10px internal padding on all sides;
+  // content rect is x=10 y=10 w=135 h=40. Render at 1.5× so the content
+  // matches appStoreHeight, then clip the transparent padding with a wrapper.
+  const googlePlayHeight = appStoreHeight * 1.5;
+  const googlePlayPadding = appStoreHeight / 4; // 10/40 × appStoreHeight
+  const googlePlayContentWidth = appStoreHeight * 3.375; // 135/40 × appStoreHeight
+  return (
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        marginTop: 2,
+        width: "fit-content",
+        mx: { xs: "auto", md: 0 },
+      }}
+    >
+      <a href={couchersAppStoreURL} target="_blank" rel="noopener noreferrer">
+        <img
+          src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+          alt={t("download_on_app_store")}
+          style={{
+            height: `${appStoreHeight}px`,
+            width: "auto",
+            display: "block",
+          }}
+        />
+      </a>
+      <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
+        <div
+          style={{
+            height: `${appStoreHeight}px`,
+            width: `${googlePlayContentWidth}px`,
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <img
+            src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+            alt={t("get_it_on_google_play")}
+            style={{
+              height: `${googlePlayHeight}px`,
+              width: "auto",
+              position: "absolute",
+              top: `-${googlePlayPadding}px`,
+              left: `-${googlePlayPadding}px`,
+            }}
+          />
+        </div>
+      </a>
+    </Stack>
+  );
+}
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
@@ -74,44 +134,50 @@ const CouchersIntroduction = () => {
           {t("landing:introduction_subtitle2")}
         </Typography>
         {!isMobile && (
-          <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
-            <Button
-              onClick={routeToSignupPage}
-              size="large"
-              color="primary"
-              sx={{
-                minWidth: theme.spacing(20),
-                fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
-              }}
-            >
-              {t("global:join_us")}
-            </Button>
+          <>
+            <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
+              <Button
+                onClick={routeToSignupPage}
+                size="large"
+                color="primary"
+                sx={{
+                  minWidth: theme.spacing(20),
+                  fontSize: "1.2rem",
+                  paddingX: theme.spacing(3),
+                }}
+              >
+                {t("global:join_us")}
+              </Button>
+              <Button
+                onClick={routeToLearnMore}
+                size="large"
+                variant="outlined"
+                color="primary"
+                sx={{
+                  minWidth: theme.spacing(20),
+                  fontSize: "1.2rem",
+                  paddingX: theme.spacing(3),
+                }}
+              >
+                {t("global:learn_more")}
+              </Button>
+            </Stack>
+            <AppStoreBadges appStoreHeight={42} />
+          </>
+        )}
+        {isMobile && (
+          <>
             <Button
               onClick={routeToLearnMore}
               size="large"
-              variant="outlined"
+              variant="text"
               color="primary"
-              sx={{
-                minWidth: theme.spacing(20),
-                fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
-              }}
+              sx={{ mt: 2, fontSize: "1.1rem", textDecoration: "underline" }}
             >
               {t("global:learn_more")}
             </Button>
-          </Stack>
-        )}
-        {isMobile && (
-          <Button
-            onClick={routeToLearnMore}
-            size="medium"
-            variant="text"
-            color="primary"
-            sx={{ mt: 2 }}
-          >
-            {t("global:learn_more")}
-          </Button>
+            <AppStoreBadges />
+          </>
         )}
       </>
     </StyledIntroduction>

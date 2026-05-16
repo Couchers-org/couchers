@@ -3,13 +3,14 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import RedditIcon from "@mui/icons-material/Reddit";
 import {
+  Box,
   Button,
   ButtonProps,
   Link as MuiLink,
   styled,
   Typography,
 } from "@mui/material";
-import { BlueSkyIcon } from "components/Icons";
+import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
@@ -21,6 +22,8 @@ import {
   blogRoute,
   builtWithRoute,
   contactRoute,
+  couchersAppStoreURL,
+  couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
   facebookURL,
@@ -133,6 +136,7 @@ const StyledButtonContainer = styled("div")({
   display: "flex",
   flexDirection: "column",
   justifySelf: "flex-start",
+  alignItems: "center",
 });
 
 const StyledSocialIconsContainer = styled("div")({
@@ -155,10 +159,10 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-const VersionLink = styled(Link)(({ theme }) => ({
+const VersionLink = styled(Link)({
   fontWeight: 700,
   color: "inherit",
-}));
+});
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const {
@@ -220,23 +224,81 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            {!isNativeEmbed && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                width: "fit-content",
+              }}
+            >
+              {!isNativeEmbed && (
+                <StyledButton
+                  component={Link}
+                  href={donationsRoute}
+                  variant="contained"
+                >
+                  {t("nav.donate")}
+                </StyledButton>
+              )}
               <StyledButton
                 component={Link}
-                href={donationsRoute}
+                href={volunteerRoute}
                 variant="contained"
+                color="secondary"
               >
-                {t("nav.donate")}
+                {t("nav.volunteer")}
               </StyledButton>
-            )}
-            <StyledButton
-              component={Link}
-              href={volunteerRoute}
-              variant="contained"
-              color="secondary"
-            >
-              {t("nav.volunteer")}
-            </StyledButton>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: { xs: "center", sm: "space-between" },
+                  gap: { xs: 1, sm: 0 },
+                  width: "100%",
+                  mb: 1,
+                }}
+              >
+                <a
+                  href={couchersAppStoreURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                    alt={t("download_on_app_store")}
+                    style={{ height: "26px", width: "auto", display: "block" }}
+                  />
+                </a>
+                <a
+                  href={couchersGooglePlayURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div
+                    style={{
+                      height: "26px",
+                      width: "87.75px",
+                      overflow: "hidden",
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                      alt={t("get_it_on_google_play")}
+                      style={{
+                        height: "39px",
+                        width: "auto",
+                        position: "absolute",
+                        top: "-6.5px",
+                        left: "-6.5px",
+                      }}
+                    />
+                  </div>
+                </a>
+              </Box>
+            </Box>
             <StyledSocialIconsContainer>
               <MuiLink
                 href={githubURL}
@@ -273,6 +335,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 color="inherit"
               >
                 <BlueSkyIcon />
+              </MuiLink>
+              <MuiLink
+                href="https://www.tiktok.com/@couchersorg"
+                target="_blank"
+                rel="noopener"
+                aria-label="TikTok"
+                color="inherit"
+              >
+                <TikTokIcon />
               </MuiLink>
               <MuiLink
                 href={facebookURL}

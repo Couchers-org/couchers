@@ -21,6 +21,11 @@ export const newsletterSignupURL =
 
 export const translateJobURL = "https://couchers.org/volunteer/translator";
 
+export const couchersAppStoreURL =
+  "https://apps.apple.com/us/app/couchers-org/id6623776751";
+export const couchersGooglePlayURL =
+  "https://play.google.com/store/apps/details?id=org.couchers.android";
+
 export const landingRoute = "/landing";
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
