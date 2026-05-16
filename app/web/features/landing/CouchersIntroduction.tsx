@@ -13,18 +13,19 @@ import { theme } from "theme";
 
 function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
   const { t } = useTranslation(GLOBAL);
-  // App Store SVG is naturally 40px tall; Google Play SVG is naturally 60px tall.
-  // Use a 1:1.5 ratio so both badges appear the same visual size.
+  // Google Play SVG (viewBox 155×60) has 10px internal padding on all sides;
+  // content rect is x=10 y=10 w=135 h=40. Render at 1.5× so the content
+  // matches appStoreHeight, then clip the transparent padding with a wrapper.
   const googlePlayHeight = appStoreHeight * 1.5;
+  const googlePlayPadding = appStoreHeight / 4; // 10/40 × appStoreHeight
+  const googlePlayContentWidth = appStoreHeight * 3.375; // 135/40 × appStoreHeight
   return (
     <Stack
       direction="row"
       spacing={1}
       sx={{
         marginTop: 2,
-        flexWrap: "wrap",
         width: "fit-content",
-        alignItems: "center",
         mx: { xs: "auto", md: 0 },
       }}
     >
@@ -40,15 +41,26 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
         />
       </a>
       <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
-        <img
-          src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
-          alt={t("get_it_on_google_play")}
+        <div
           style={{
-            height: `${googlePlayHeight}px`,
-            width: "auto",
-            display: "block",
+            height: `${appStoreHeight}px`,
+            width: `${googlePlayContentWidth}px`,
+            overflow: "hidden",
+            position: "relative",
           }}
-        />
+        >
+          <img
+            src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+            alt={t("get_it_on_google_play")}
+            style={{
+              height: `${googlePlayHeight}px`,
+              width: "auto",
+              position: "absolute",
+              top: `-${googlePlayPadding}px`,
+              left: `-${googlePlayPadding}px`,
+            }}
+          />
+        </div>
       </a>
     </Stack>
   );
@@ -157,10 +169,10 @@ const CouchersIntroduction = () => {
           <>
             <Button
               onClick={routeToLearnMore}
-              size="medium"
+              size="large"
               variant="text"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, fontSize: "1.1rem", textDecoration: "underline" }}
             >
               {t("global:learn_more")}
             </Button>

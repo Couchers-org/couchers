@@ -3,6 +3,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import RedditIcon from "@mui/icons-material/Reddit";
 import {
+  Box,
   Button,
   ButtonProps,
   Link as MuiLink,
@@ -223,55 +224,81 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            {!isNativeEmbed && (
-              <StyledButton
-                component={Link}
-                href={donationsRoute}
-                variant="contained"
-              >
-                {t("nav.donate")}
-              </StyledButton>
-            )}
-            <StyledButton
-              component={Link}
-              href={volunteerRoute}
-              variant="contained"
-              color="secondary"
-            >
-              {t("nav.volunteer")}
-            </StyledButton>
-            <div
-              style={{
+            <Box
+              sx={{
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "8px",
+                flexDirection: "column",
+                alignItems: "stretch",
+                width: "fit-content",
               }}
             >
-              <a
-                href={couchersAppStoreURL}
-                target="_blank"
-                rel="noopener noreferrer"
+              {!isNativeEmbed && (
+                <StyledButton
+                  component={Link}
+                  href={donationsRoute}
+                  variant="contained"
+                >
+                  {t("nav.donate")}
+                </StyledButton>
+              )}
+              <StyledButton
+                component={Link}
+                href={volunteerRoute}
+                variant="contained"
+                color="secondary"
               >
-                <img
-                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
-                  alt={t("download_on_app_store")}
-                  style={{ height: "26px", width: "auto", display: "block" }}
-                />
-              </a>
-              <a
-                href={couchersGooglePlayURL}
-                target="_blank"
-                rel="noopener noreferrer"
+                {t("nav.volunteer")}
+              </StyledButton>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: { xs: "center", sm: "space-between" },
+                  gap: { xs: 1, sm: 0 },
+                  width: "100%",
+                  mb: 1,
+                }}
               >
-                <img
-                  src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
-                  alt={t("get_it_on_google_play")}
-                  style={{ height: "39px", width: "auto", display: "block" }}
-                />
-              </a>
-            </div>
+                <a
+                  href={couchersAppStoreURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                    alt={t("download_on_app_store")}
+                    style={{ height: "26px", width: "auto", display: "block" }}
+                  />
+                </a>
+                <a
+                  href={couchersGooglePlayURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div
+                    style={{
+                      height: "26px",
+                      width: "87.75px",
+                      overflow: "hidden",
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                      alt={t("get_it_on_google_play")}
+                      style={{
+                        height: "39px",
+                        width: "auto",
+                        position: "absolute",
+                        top: "-6.5px",
+                        left: "-6.5px",
+                      }}
+                    />
+                  </div>
+                </a>
+              </Box>
+            </Box>
             <StyledSocialIconsContainer>
               <MuiLink
                 href={githubURL}
