@@ -1,7 +1,7 @@
 """Backend/moderation: UMS coverage for discussions
 
-Revision ID: 0150
-Revises: 0149
+Revision ID: 0153
+Revises: 0152
 Create Date: 2026-05-10 01:23:40.985349
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0150"
-down_revision = "0149"
+revision = "0153"
+down_revision = "0152"
 branch_labels = None
 depends_on = None
 
