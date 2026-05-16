@@ -15,6 +15,14 @@
     "usage_warning": "This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.",
     "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
   },
+  "badge_added": {
+    "subject": "The {{ badge_name }} badge was added to your profile",
+    "body": "The {{ badge_name }} badge was added to your profile."
+  },
+  "badge_removed": {
+    "subject": "The {{ badge_name }} badge was removed from your profile",
+    "body": "The {{ badge_name }} badge was removed from your profile."
+  },
   "birthdate_changed": {
     "subject": "Your date of birth was changed",
     "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
@@ -31,9 +39,23 @@
     "subject": "Your gender was changed",
     "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
+  "moderator_note": {
+    "subject": "You have received a mod note",
+    "body": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
+  },
   "password_changed": {
     "subject": "Your password was changed",
     "body": "Your login password for Couchers.org was changed."
+  },
+  "password_reset_completed": {
+    "subject": "Your password was successfully reset",
+    "body": "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+  },
+  "password_reset_started": {
+    "subject": "Reset your Couchers.org password",
+    "request_description": "You asked for your password to be reset on Couchers.org.",
+    "confirmation_instructions": "To complete this change, click on the following link:",
+    "reset_button": "Reset your password"
   },
   "phone_number_verification_started": {
     "subject": "Phone verification started",

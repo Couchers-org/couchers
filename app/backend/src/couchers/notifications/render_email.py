@@ -101,6 +101,10 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
     match notification.topic_action:
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.expiry)
+        case NotificationTopicAction.badge__add:
+            return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=True)
+        case NotificationTopicAction.badge__remove:
+            return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=False)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
         case NotificationTopicAction.email_address__change:
@@ -109,6 +113,16 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.EmailAddressVerifiedEmail(user_name)
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail(user_name, new_gender=data.gender)
+        case NotificationTopicAction.modnote__create:
+            return emails.ModNoteEmail(user_name)
+        case NotificationTopicAction.password__change:
+            return emails.PasswordChangedEmail(user_name)
+        case NotificationTopicAction.password_reset__complete:
+            return emails.PasswordResetCompletedEmail(user_name)
+        case NotificationTopicAction.password_reset__start:
+            return emails.PasswordResetStartedEmail(
+                user_name, password_reset_link=urls.password_reset_link(password_reset_token=data.password_reset_token)
+            )
         case NotificationTopicAction.phone_number__change:
             return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=False)
         case NotificationTopicAction.phone_number__verify:
@@ -226,53 +240,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "other": UserTemplateArgs.from_protobuf_user(data.surfer),
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.password__change:
-        title = "Your password was changed"
-        message = "Your login password for Couchers.org was changed."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.password_reset__start:
-        message = "Someone initiated a password change on your account."
-        return CustomTemplatedEmail(
-            subject="Reset your Couchers.org password",
-            preview=message,
-            template_name="password_reset",
-            template_args={
-                "password_reset_link": urls.password_reset_link(password_reset_token=data.password_reset_token)
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.password_reset__complete:
-        title = "Your password was successfully reset"
-        message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action.display in ["badge:add", "badge:remove"]:
-        actioned = "added to" if notification.action == "add" else "removed from"
-        title = f"The {data.badge_name} badge was {actioned} your profile"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="badge",
-            template_args={
-                "badge_name": data.badge_name,
-                "actioned": actioned,
-                "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
-            },
-        )
     elif notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")
         message = loc_context.localize_string(
@@ -610,15 +577,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "edit_profile_link": urls.edit_profile_link(),
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.modnote__create:
-        title = "You have received a mod note"
-        message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="mod_note",
-            template_args={"title": title},
-        )
     elif notification.topic_action == NotificationTopicAction.verification__sv_success:
         title = "Strong Verification succeeded"
         message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
