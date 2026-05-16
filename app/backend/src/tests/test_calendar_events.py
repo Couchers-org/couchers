@@ -44,8 +44,8 @@ def test_ics_content():
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
-METHOD:PUBLISH
 BEGIN:VEVENT
+SEQUENCE:0
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:<stripped>/42
@@ -54,6 +54,7 @@ SUMMARY:Hosting Bob
 UID:host_request.42@<stripped>
 URL:<stripped>/42
 END:VEVENT
+METHOD:PUBLISH
 END:VCALENDAR
     """.strip()
     )
