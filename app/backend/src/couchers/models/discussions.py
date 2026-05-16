@@ -16,6 +16,7 @@ class Discussion(Base, kw_only=True):
     """
 
     __tablename__ = "discussions"
+    __moderation_author_column__ = "creator_user_id"
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
@@ -24,6 +25,7 @@ class Discussion(Base, kw_only=True):
     title: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)

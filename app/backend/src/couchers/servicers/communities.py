@@ -471,14 +471,13 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
-        discussions = (
-            node.official_cluster.owned_discussions.where(
-                or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0))
-            )
-            .order_by(Discussion.id.desc())
-            .limit(page_size + 1)
-            .all()
+        query = (
+            select(Discussion)
+            .where(Discussion.owner_cluster_id == node.official_cluster.id)
+            .where(or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0)))
         )
+        query = where_moderated_content_visible(query, context, Discussion, is_list_operation=True)
+        discussions = session.execute(query.order_by(Discussion.id.desc()).limit(page_size + 1)).scalars().all()
         return communities_pb2.ListDiscussionsRes(
             discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,

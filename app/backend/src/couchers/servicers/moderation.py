@@ -17,6 +17,7 @@ from couchers.metrics import (
 from couchers.models import (
     AdminActionLevel,
     Comment,
+    Discussion,
     Event,
     EventOccurrence,
     FriendRelationship,
@@ -108,6 +109,7 @@ moderationobjecttype2api = {
     ModerationObjectType.event_occurrence: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
     ModerationObjectType.comment: moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
     ModerationObjectType.reply: moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
+    ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
 }
 
 moderationobjecttype2sql = {
@@ -118,6 +120,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE: ModerationObjectType.event_occurrence,
     moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT: ModerationObjectType.comment,
     moderation_pb2.MODERATION_OBJECT_TYPE_REPLY: ModerationObjectType.reply,
+    moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
 }
 
 # Mapping from ModerationObjectType to the SQLAlchemy model class
@@ -128,6 +131,7 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
     ModerationObjectType.event_occurrence: EventOccurrence,
     ModerationObjectType.comment: Comment,
     ModerationObjectType.reply: Reply,
+    ModerationObjectType.discussion: Discussion,
 }
 
 
@@ -267,6 +271,11 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         author_user_id, content = session.execute(
             select(Reply.author_user_id, Reply.content).where(Reply.id == object_id)
         ).one()
+    elif object_type == ModerationObjectType.discussion:
+        author_user_id, title, body = session.execute(
+            select(Discussion.creator_user_id, Discussion.title, Discussion.content).where(Discussion.id == object_id)
+        ).one()
+        content = f"{title}\n\n{body}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 

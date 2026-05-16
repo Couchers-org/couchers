@@ -7,6 +7,7 @@ from sqlalchemy.sql import Select, exists, union
 from couchers.context import CouchersContext
 from couchers.models import (
     Comment,
+    Discussion,
     EventOccurrence,
     FriendRelationship,
     GroupChat,
@@ -26,7 +27,9 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship | EventOccurrence | Comment | Reply]
+    type _ModeratedContent = type[
+        HostRequest | GroupChat | FriendRelationship | EventOccurrence | Comment | Reply | Discussion
+    ]
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -272,6 +275,15 @@ def moderation_state_column_visible(
                             select(Reply.id).where(
                                 Reply.id == aliased_mod_state.object_id,
                                 Reply.author_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.discussion,
+                        exists(
+                            select(Discussion.id).where(
+                                Discussion.id == aliased_mod_state.object_id,
+                                Discussion.creator_user_id == context.user_id,
                             )
                         ),
                     ),
