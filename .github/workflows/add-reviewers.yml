@@ -33,11 +33,9 @@ jobs:
           filters: .github/autoreviewers.yml
           predicate-quantifier: every
 
-      - name: Process matching rules and add reviewers
+      - name: Collect reviewers from matched rules
+        id: collect-reviewers
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           # The "changes" output is a JSON array of filter names.
           FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
@@ -61,13 +59,21 @@ jobs:
             done
           done < <(echo "$FILTER_CHANGES" | jq -r '.[]')
 
-          if [[ ${#REVIEWERS[@]} -gt 0 ]]; then
-            ARGS=()
-            for reviewer in "${REVIEWERS[@]}"; do
-              ARGS+=(--add-reviewer "$reviewer")
-            done
-            echo "Adding reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
-            # gh pr edit "$PR_NUMBER" "${ARGS[@]}"
-          else
-            echo "No reviewers to add"
-          fi
+          echo "reviewers=$(IFS=','; echo "${REVIEWERS[*]}")" >> "$GITHUB_OUTPUT"
+
+      - name: Add reviewers
+        if: steps.collect-reviewers.outputs.reviewers != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEWERS: ${{ steps.collect-reviewers.outputs.reviewers }}
+        run: |
+          GH_PR_EDIT_ARGS=()
+          IFS=',' read -ra reviewers <<< "$REVIEWERS"
+          for reviewer in "${reviewers[@]}"; do
+            GH_PR_EDIT_ARGS+=(--add-reviewer "$reviewer")
+          done
+
+          echo "Adding reviewers: $REVIEWERS"
+          # gh pr edit "$PR_NUMBER" "${GH_PR_EDIT_ARGS[@]}"
