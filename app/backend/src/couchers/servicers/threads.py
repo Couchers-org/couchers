@@ -32,18 +32,17 @@ from couchers.utils import Timestamp_from_datetime
 logger = logging.getLogger(__name__)
 
 
-def pack_thread_id(database_id: int, depth: int) -> int:
-    """Pack (database_id, depth) into a single API thread id.
+# Since the API exposes a single ID space regardless of nesting level,
+# we construct the API id by appending the nesting level to the
+# database ID.
 
-    The API exposes a single ID space regardless of nesting level, so we append
-    the nesting level (depth) as the trailing digit of the database id: depth 0
-    = Thread, depth 1 = Comment, depth 2 = Reply.
-    """
+
+def pack_thread_id(database_id: int, depth: int) -> int:
     return database_id * 10 + depth
 
 
 def unpack_thread_id(thread_id: int) -> tuple[int, int]:
-    """Inverse of pack_thread_id; returns (database_id, depth)."""
+    """Returns (database_id, depth) tuple."""
     return divmod(thread_id, 10)
 
 
