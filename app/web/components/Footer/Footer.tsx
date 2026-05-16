@@ -9,7 +9,7 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { BlueSkyIcon } from "components/Icons";
+import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
@@ -21,6 +21,8 @@ import {
   blogRoute,
   builtWithRoute,
   contactRoute,
+  couchersAppStoreURL,
+  couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
   facebookURL,
@@ -133,6 +135,7 @@ const StyledButtonContainer = styled("div")({
   display: "flex",
   flexDirection: "column",
   justifySelf: "flex-start",
+  alignItems: "center",
 });
 
 const StyledSocialIconsContainer = styled("div")({
@@ -155,10 +158,10 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-const VersionLink = styled(Link)(({ theme }) => ({
+const VersionLink = styled(Link)({
   fontWeight: 700,
   color: "inherit",
-}));
+});
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const {
@@ -237,6 +240,38 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             >
               {t("nav.volunteer")}
             </StyledButton>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "8px",
+                marginBottom: "8px",
+              }}
+            >
+              <a
+                href={couchersAppStoreURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt={t("download_on_app_store")}
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
+              </a>
+              <a
+                href={couchersGooglePlayURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  alt={t("get_it_on_google_play")}
+                  style={{ height: "39px", width: "auto", display: "block" }}
+                />
+              </a>
+            </div>
             <StyledSocialIconsContainer>
               <MuiLink
                 href={githubURL}
@@ -273,6 +308,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 color="inherit"
               >
                 <BlueSkyIcon />
+              </MuiLink>
+              <MuiLink
+                href="https://www.tiktok.com/@couchersorg"
+                target="_blank"
+                rel="noopener"
+                aria-label="TikTok"
+                color="inherit"
+              >
+                <TikTokIcon />
               </MuiLink>
               <MuiLink
                 href={facebookURL}

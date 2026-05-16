@@ -3,8 +3,56 @@ import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { signupRoute, whatIsCouchSurfingRoute } from "routes";
+import {
+  couchersAppStoreURL,
+  couchersGooglePlayURL,
+  signupRoute,
+  whatIsCouchSurfingRoute,
+} from "routes";
 import { theme } from "theme";
+
+function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
+  const { t } = useTranslation(GLOBAL);
+  // App Store SVG is naturally 40px tall; Google Play SVG is naturally 60px tall.
+  // Use a 1:1.5 ratio so both badges appear the same visual size.
+  const googlePlayHeight = appStoreHeight * 1.5;
+  return (
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        marginTop: 2,
+        flexWrap: "wrap",
+        width: "fit-content",
+        alignItems: "center",
+        mx: { xs: "auto", md: 0 },
+      }}
+    >
+      <a href={couchersAppStoreURL} target="_blank" rel="noopener noreferrer">
+        <img
+          src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+          alt={t("download_on_app_store")}
+          style={{
+            height: `${appStoreHeight}px`,
+            width: "auto",
+            display: "block",
+          }}
+        />
+      </a>
+      <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
+        <img
+          src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+          alt={t("get_it_on_google_play")}
+          style={{
+            height: `${googlePlayHeight}px`,
+            width: "auto",
+            display: "block",
+          }}
+        />
+      </a>
+    </Stack>
+  );
+}
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
@@ -74,44 +122,50 @@ const CouchersIntroduction = () => {
           {t("landing:introduction_subtitle2")}
         </Typography>
         {!isMobile && (
-          <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
-            <Button
-              onClick={routeToSignupPage}
-              size="large"
-              color="primary"
-              sx={{
-                minWidth: theme.spacing(20),
-                fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
-              }}
-            >
-              {t("global:join_us")}
-            </Button>
+          <>
+            <Stack direction="row" spacing={2} sx={{ marginTop: 4 }}>
+              <Button
+                onClick={routeToSignupPage}
+                size="large"
+                color="primary"
+                sx={{
+                  minWidth: theme.spacing(20),
+                  fontSize: "1.2rem",
+                  paddingX: theme.spacing(3),
+                }}
+              >
+                {t("global:join_us")}
+              </Button>
+              <Button
+                onClick={routeToLearnMore}
+                size="large"
+                variant="outlined"
+                color="primary"
+                sx={{
+                  minWidth: theme.spacing(20),
+                  fontSize: "1.2rem",
+                  paddingX: theme.spacing(3),
+                }}
+              >
+                {t("global:learn_more")}
+              </Button>
+            </Stack>
+            <AppStoreBadges appStoreHeight={42} />
+          </>
+        )}
+        {isMobile && (
+          <>
             <Button
               onClick={routeToLearnMore}
-              size="large"
-              variant="outlined"
+              size="medium"
+              variant="text"
               color="primary"
-              sx={{
-                minWidth: theme.spacing(20),
-                fontSize: "1.2rem",
-                paddingX: theme.spacing(3),
-              }}
+              sx={{ mt: 2 }}
             >
               {t("global:learn_more")}
             </Button>
-          </Stack>
-        )}
-        {isMobile && (
-          <Button
-            onClick={routeToLearnMore}
-            size="medium"
-            variant="text"
-            color="primary"
-            sx={{ mt: 2 }}
-          >
-            {t("global:learn_more")}
-          </Button>
+            <AppStoreBadges />
+          </>
         )}
       </>
     </StyledIntroduction>
