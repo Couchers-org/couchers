@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime, timedelta
 
 import grpc
@@ -21,7 +22,15 @@ from couchers.models import (
     UserActivity,
     UserSession,
 )
-from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import (
+    account_pb2,
+    admin_pb2,
+    auth_pb2,
+    events_pb2,
+    references_pb2,
+    reporting_pb2,
+    requests_pb2,
+)
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
@@ -32,8 +41,10 @@ from tests.fixtures.sessions import (
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -209,6 +220,77 @@ def test_UnbanUser(db):
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
+def test_ShadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    admin_note = "Spammer"
+
+    # Create a host request from `surfer` and approve its moderation state to VISIBLE so we can verify the cascade
+    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with real_admin_session(super_token) as api:
+        res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
+    assert res.user_id == surfer.id
+    assert res.shadowed
+    assert not res.banned
+    assert not res.deleted
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "shadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+    assert res.admin_actions[0].note == admin_note
+
+    # The previously-visible host request is now shadowed
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_UnshadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == normal_user.id)).scalar_one().shadowed_at = now()
+
+    with real_admin_session(super_token) as api:
+        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=normal_user.username, admin_note="rehabilitated"))
+    assert not res.shadowed
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "unshadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser_blank_note(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ShadowUser(admin_pb2.ShadowUserReq(user=normal_user.username, admin_note="  \t  "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_AddAdminNote(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
@@ -245,7 +327,55 @@ def test_AddAdminNote_blank(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin note cannot be empty."
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    payload = '{"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}'
+
+    with real_admin_session(super_token) as api:
+        res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data=payload))
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "note"
+    assert res.admin_actions[0].note == ""
+    assert json.loads(res.admin_actions[0].data) == {"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}
+
+
+def test_AddAdminNote_both_note_and_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(
+                admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="note text", data='{"x": 1}')
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_neither(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_invalid_json(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data="{not valid json"))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The admin note data must be valid JSON."
 
 
 def test_admin_content_reports(db):
@@ -1301,6 +1431,84 @@ def test_search_users_by_admin_note(db):
         user_ids = {u.user_id for u in res.users}
         assert user1.id in user_ids
         assert user2.id not in user_ids
+
+
+def test_ListAdminActions_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+    assert len(res.admin_actions) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListAdminActions_returns_newest_first_with_target_info(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="first note"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="second note"))
+        api.BanUser(admin_pb2.BanUserReq(user=user1.username, admin_note="ban reason"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+
+    assert len(res.admin_actions) == 3
+    # Newest first
+    assert res.admin_actions[0].action_type == "ban"
+    assert res.admin_actions[0].target_user_id == user1.id
+    assert res.admin_actions[0].target_username == user1.username
+    assert res.admin_actions[0].admin_user_id == super_user.id
+    assert res.admin_actions[0].admin_username == super_user.username
+    assert res.admin_actions[1].action_type == "note"
+    assert res.admin_actions[1].target_user_id == user2.id
+    assert res.admin_actions[2].action_type == "note"
+    assert res.admin_actions[2].target_user_id == user1.id
+
+
+def test_ListAdminActions_filter_by_admin_and_target(db):
+    super1, super1_token = generate_user(is_superuser=True)
+    super2, super2_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super1_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super1 to user1"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="from super1 to user2"))
+    with real_admin_session(super2_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super2 to user1"))
+
+    with real_admin_session(super1_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super1 to user2"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(target_user_id=user1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super2 to user1"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id, target_user_id=user1.id))
+        assert [a.note for a in res.admin_actions] == ["from super1 to user1"]
+
+
+def test_ListAdminActions_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        for i in range(3):
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user.username, admin_note=f"note {i}"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2))
+        assert len(res.admin_actions) == 2
+        assert res.next_page_token != ""
+        first_page_notes = [a.note for a in res.admin_actions]
+
+        res2 = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2, page_token=res.next_page_token))
+        assert len(res2.admin_actions) == 1
+        assert res2.next_page_token == ""
+
+    all_notes = first_page_notes + [a.note for a in res2.admin_actions]
+    assert set(all_notes) == {"note 0", "note 1", "note 2"}
 
 
 # community invite feature tested in test_events.py

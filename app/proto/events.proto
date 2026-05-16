@@ -134,9 +134,9 @@ message Event {
   // the tzdata timezone identifier
   string timezone = 18;
 
-  // the start/end times as localized strings (according to the above timezone)
-  string start_time_display = 19;
-  string end_time_display = 20;
+  // start/end_time_display were unused and not localized
+  reserved 19, 20;
+  reserved "start_time_display", "end_time_display";
 
   // the user's attendance state
   AttendanceState attendance_state = 21;

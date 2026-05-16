@@ -21,7 +21,8 @@
     "actions": {
       "create_event": "crear un evento",
       "send_message": "enviar un mensaje",
-      "send_request": "enviar una solicitud"
+      "send_request": "enviar una solicitud",
+      "send_friend_request": "enviar una solicitud de amistad"
     },
     "edit_profile_button": "Edita tu perfil ahora",
     "cancel_button": "Ahora no",
@@ -58,8 +59,8 @@
   "my_communities_heading": "Mis Comunidades",
   "reminder": {
     "respond_to_host_request": {
-      "title": "Responder a la solicitud de hospedaje",
-      "description": "No olvides responder a {{name}} sobre su estancia.",
+      "title": "Responder a {{name}}",
+      "description": "No olvides responder a la solicitud de hospedaje de {{name}}.",
       "button": "Ver solicitud"
     },
     "write_reference": {

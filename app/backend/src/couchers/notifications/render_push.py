@@ -179,7 +179,7 @@ def _get_content(
     icon_url = _avatar_url_or_default(icon_user) if icon_user else None
 
     return PushNotificationContent(
-        title=title, ios_title=title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
+        title=title, ios_title=ios_title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
     )
 
 
@@ -509,14 +509,14 @@ def _render_general__new_blog_post(
 def _render_host_request__create(
     data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    days = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days + 1
+    night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
     return _get_content(
         NotificationTopicAction.host_request__create,
         loc_context,
         substitutions={
             "user": data.surfer.name,
             "start_date": loc_context.localize_date_from_iso(data.host_request.from_date),
-            "count": days,
+            "count": night_count,
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),

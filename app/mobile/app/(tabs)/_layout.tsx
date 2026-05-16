@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useColorScheme } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
+import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 
 export default function TabLayout() {
@@ -34,6 +35,11 @@ export default function TabLayout() {
   return (
     <Tabs
       initialRouteName="dashboard"
+      screenListeners={{
+        tabPress: () => {
+          dispatchEscapeRef.current?.();
+        },
+      }}
       screenOptions={{
         tabBarActiveTintColor: activeTintColor,
         headerShown: false,

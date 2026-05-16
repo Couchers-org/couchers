@@ -1,57 +1,93 @@
-{
+﻿{
   "change_email_form": {
-    "title": "更改郵件地址",
-    "current_email_message": "您目前的電子郵件地址為：",
-    "success_message": "我們已經收到您更改電子郵件地址的請求。請查看您的新電子郵件信箱以完成更改。",
-    "current_password": "目前密碼",
-    "new_email": "新電子郵件地址"
+    "title": "更改電子郵件",
+    "current_email_message": "您目前的電子郵件地址是 <1>{{email}}</1>。",
+    "success_message": "我們已收到您的電子郵件變更申請。請到新信箱完成確認。",
+    "current_password": "當前密碼",
+    "new_email": "新電子郵件",
+    "hide_current_password": "隱藏當前密碼",
+    "show_current_password": "顯示當前密碼"
+  },
+  "do_not_email": {
+    "title": "請勿向我發送郵件",
+    "status": {
+      "no_emails_enabled_message": "您目前已<1>停用</1>郵件通知。",
+      "no_emails_disabled_message": "您目前已<1>開啟</1>郵件通知。"
+    },
+    "action_button": {
+      "no_emails_enable_text": "停用郵件通知",
+      "no_emails_disable_text": "重新開啟郵件通知"
+    },
+    "caveat": "啟用此設定後，您的帳戶將不再接收留宿請求，但仍會收到安全相關郵件（例如重設密碼）。您也可能仍會收到電子報，可透過電子報頁尾的連結取消訂閱。"
   },
   "change_email_confirmation": {
-    "change_in_progress": "電子郵件更改中...…",
-    "success_message": "您的電子郵件信箱已經更改成功！",
-    "error_message": "更改電子郵件地址出錯了:"
+    "change_in_progress": "正在更改電子郵件…",
+    "success_message": "您的電子郵件已成功更新！",
+    "error_message": "更改電子郵件時發生錯誤：{{message}}"
   },
   "change_password_form": {
     "title": "更改密碼",
+    "subtitle": "使用此表單重設您的登入密碼。",
     "confirm_password": "確認密碼",
-    "password_changed_success": "您的密碼已設定完成且確認信已發送至您的電子郵件地址。",
-    "old_password": "先前的密碼",
-    "new_password": "新的密碼",
-    "password_mismatch_error": "這與您在上面輸入的密碼不一樣。"
+    "password_changed_success": "您的新密碼已設定完成，我們也已寄出通知郵件。",
+    "old_password": "目前密碼",
+    "new_password": "新密碼",
+    "password_mismatch_error": "密碼不匹配。",
+    "user_logged_error": "您已登入時無法重設密碼。您可以到設定頁變更密碼，或先登出後再重設。",
+    "token_error": "處理密碼重設連結時發生錯誤，請重新從電子郵件開啟連結。",
+    "reset_password_success": "您的密碼已成功更改！",
+    "reset_password_error": "重置密碼時出錯：{{message}}",
+    "hide_old_password": "隱藏舊密碼",
+    "show_old_password": "顯示舊密碼",
+    "hide_new_password": "隱藏新密碼",
+    "show_new_password": "顯示新密碼",
+    "hide_confirm_password": "隱藏確認密碼",
+    "show_confirm_password": "顯示確認密碼"
   },
   "reset_password_form": {
     "enter_email": "輸入您的使用者名稱或電子郵件地址",
-    "success_message": "檢查您的電子郵件以接收崇信設定密碼的連結！"
+    "success_message": "如果該帳戶存在且仍為啟用狀態，我們已將重設密碼連結寄到對應的電子郵件地址。請留意郵件有時可能會進入垃圾郵件匣。"
   },
   "login_page": {
     "title": "登入",
-    "header": "歡迎回來！",
-    "no_account_prompt": "還沒有帳號嗎？<2>現在註冊</2>",
+    "header": "歡迎回家！",
+    "no_account_prompt": "還沒有帳號？<2>加入我們</2>",
     "form": {
+      "username_field_label": "電子郵件／使用者名稱",
+      "password_field_label": "密碼",
       "remember_me": "記住我",
       "forgot_password": "忘記密碼？",
-      "username_field_label": "電子郵件／用戶名稱",
-      "password_field_label": "密碼"
+      "show_password": "顯示密碼",
+      "hide_password": "隱藏密碼"
     }
   },
   "basic_sign_up_form": {
-    "sign_up_agreement_explainer": "如果繼續，將表示您已確認我們的 <2>服務條款</2>，其中也包括我們關於cookie、電子信箱、個人數據的處理方法。",
-    "existing_user_prompt": "已經有帳號了嗎?<2>登入</2>"
+    "existing_user_prompt": "已經有帳號了嗎？<2>登入</2>",
+    "sign_up_agreement_explainer": "如果您繼續，即表示您同意我們的<2>服務條款</2>，包括我們對 Cookie、電子郵件與資料的處理方式。"
   },
   "account_form": {
-    "header": "您的帳號詳情",
+    "header": "您的帳戶資料",
     "username": {
-      "field_label": "用戶名稱",
-      "username_taken_error": "該用戶名稱已經被註冊。",
-      "required_error": "請輸入您的用戶名稱"
+      "field_label": "使用者名稱",
+      "required_error": "請輸入您的使用者名稱",
+      "username_taken_error": "這個使用者名稱已被使用。",
+      "validation_error": "使用者名稱只能包含英文字母、數字或底線，並且必須以字母開頭。",
+      "helper_text": "這是您專屬的登入 ID，不是顯示名稱。"
+    },
+    "password": {
+      "field_label": "密碼",
+      "required_error": "輸入密碼",
+      "validation_error": "密碼長度必須介於 8 到 256 個字元之間，而且不能是過於常見的密碼。"
     },
     "birthday": {
       "field_label": "生日",
       "required_error": "輸入您的生日",
-      "validation_error": "生日必須是過去存在的日期。"
+      "validation_error": "生日得是過去存在的一天。",
+      "too_young_error": "您必須年滿18歲才能使用Couchers",
+      "not_real_date_error": "請輸入真實的出生日期"
     },
     "hosting_status": {
-      "field_label": "接待偏好",
+      "field_label": "接待狀態",
       "can_host": "可以接待",
       "maybe": "可能可以接待",
       "cant_host": "無法接待"
@@ -63,22 +99,22 @@
       "non_binary": "非二元性別",
       "woman": "女性"
     },
-    "tos_accept_label": "我接受服務條款。",
-    "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。",
-    "password": {
-      "field_label": "密碼",
-      "required_error": "輸入密碼"
-    }
+    "opt_in_newsletter": "訂閱我們偶爾寄送的社群更新電子報。",
+    "tos_prompt": "請您閱讀並且接受<1></1>以繼續。",
+    "tos_accept_label": "我接受服務條款。"
   },
   "basic_form": {
     "name": {
-      "required_error": "此欄位不能為空白。",
-      "field_label": "您的名字"
+      "field_label": "您的名字",
+      "required_error": "此欄位不能留空。",
+      "invalid_characters_error": "名稱只能包含字母、空格、連字號和撇號",
+      "min_length_error": "名稱至少要有 2 個字元",
+      "max_length_error": "名稱不能超過 100 個字元"
     },
     "email": {
       "field_label": "電子郵件",
-      "empty_error": "請輸入一個有效的電子信箱地址",
-      "required_error": "電子信箱不能空白。"
+      "empty_error": "請輸入有效的電子郵件地址",
+      "required_error": "電子郵件不能留空。"
     }
   },
   "location": {
@@ -89,78 +125,286 @@
     "header": "社群守則",
     "guideline": {
       "checkbox_label": "好的，我明白了",
-      "required_error": "必須填寫所有選項"
-    }
-  },
-  "sign_up_completed_title": "感謝您註冊！",
-  "sign_up_confirmed_prompt": "已完成！如果您沒有被自動導入頁面，請嘗試重新登入。",
-  "unhandled_sign_up_state": "註冊過程發生了一點意外。",
-  "login_prompt": "點擊此處登入",
-  "about_us": "關於我們",
-  "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-  "change_phone": {
-    "phone_label": "您的電話號碼",
-    "title": "電話號碼",
-    "wrong_code": "驗證碼錯誤。",
-    "remove_button_text": "移除目前的電話號碼",
-    "remove_success": "電話號碼已移除。",
-    "verify_button_text": "驗證電話號碼",
-    "verify_success": "電話號碼已驗證。",
-    "change_button_text": "更改電話號碼",
-    "code_label": "驗證碼",
-    "add_success": "電話號碼已添加。"
-  },
-  "delete_account": {
-    "confirm": {
-      "button_text": "確認帳號刪除",
-      "title": "確認帳號刪除",
-      "account_deleted": "帳號已刪除。感謝您使用Couchers.org！",
-      "error_message": "刪除帳號失敗：{{message}}"
-    },
-    "recover": {
-      "title": "恢復您的Couchers.org帳號",
-      "error_message": "恢復帳號失敗：{{message}}",
-      "button_text": "恢復您的帳號",
-      "success": "您的帳號已經恢復，您可以重新登入。我們很興奮您再度回來！"
-    },
-    "request": {
-      "username_mismatch": "用戶名稱不符。",
-      "reason_explanation": "請您告訴我們為什麼要刪除帳戶以幫助我們改進平台。",
-      "reason_label": "帳戶刪除原因",
-      "confirm_username_explanation": "您的用户名稱是 <1>{{ username }}</1> ，請將它輸入到下方，確認刪除帳戶。",
-      "confirm_username_label": "用戶名稱確認",
-      "title": "刪除帳戶"
+      "required_error": "所有必填項都需要填好"
     }
   },
   "jail": {
-    "title": "需要更多訊息",
-    "description": "請檢查以下問題後繼續。",
+    "title": "需要更多資訊",
+    "description": "請完成以下項目後再繼續。",
     "terms_of_service_section": {
       "description": "我們更新了服務條款。請閱讀並接受新的<1></1>以繼續。"
     },
     "location_section": {
-      "title": "請添加您的位置",
+      "title": "請更新您的位置",
       "submit_button": {
-        "active_text": "保存",
+        "active_text": "儲存",
         "inactive_text": "謝謝！"
       },
-      "resubmit_button_text": "重新提交"
+      "resubmit_button_text": "重新提交",
+      "explanation": "您的座標似乎不正確。請更新您的位置以繼續。"
+    },
+    "mod_note_section": {
+      "title": "您已收到來自管理員的通知",
+      "description": "管理員已向您發送以下通知。請仔細閱讀，並在確認您已閱讀且理解後再繼續。",
+      "note_title": "收到管理員通知於 {{time}}：",
+      "acknowledge": "確認已閱讀"
+    },
+    "activeness_probe": {
+      "title": "你現在還願意接待沙發客嗎？",
+      "description": "我們注意到您已經有一段時間沒有登入，想確認您是否仍願意接待旅行者。",
+      "still_hosting": "我還是想接待！",
+      "not_hosting": "我不能再接待了。",
+      "note": "我們會根據您的選擇更新您的資料！"
     }
   },
   "logged_out_message": "您已登出。",
-  "reset_password": "重設密碼",
+  "sign_up_completed_title": "感謝您註冊！",
+  "sign_up_need_verification_title": "最後一步：確認您的電子郵件。",
+  "sign_up_resend_verification_email_help": "沒有收到郵件？點擊<2>這裡重新寄送驗證連結</2>。",
+  "sign_up_resend_verification_done": "完成！我們已向您發送了另一封郵件。",
+  "sign_up_completed_prompt": "我們已將驗證連結寄到您的電子郵件地址，請點擊連結啟用帳戶。",
+  "sign_up_confirmed_prompt": "大功告成！如果頁面沒有自動跳轉，請嘗試登入。",
+  "unhandled_sign_up_state": "錯誤：未處理的註冊流程狀態。",
+  "login_prompt": "點此登入",
+  "about_us": "關於我們",
+  "reset_password": "重置密碼",
   "account_settings_page": {
-    "title": "帳號設定",
+    "title": "帳戶設定",
     "gender_section": {
-      "title": "更改性別"
+      "title": "更改性別",
+      "explanation": "管理員非常樂意幫您更改您的性別標籤。請聯繫support@couchers.org！"
     },
     "birth_date_section": {
-      "title": "更改生日"
+      "title": "修改生日",
+      "explanation": "管理員非常樂意幫您更改您的生日。請聯繫support@couchers.org！"
     },
     "timezone_section": {
-      "title": "時區和在地化",
+      "title": "時區與在地化",
       "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
-      "explanation": "此時間和時區是根據您的住家位置決定的。如果它不正确，請回報錯誤。"
+      "explanation": "此時間和時區是根據您的家庭位置決定的。如果它不正確，請報告錯誤。"
+    },
+    "username_section": {
+      "title": "使用者名稱",
+      "description": "您的使用者名稱是 <1>{{username}}</1>。",
+      "explanation": "使用者名稱會在建立帳戶時設定。"
+    },
+    "appearance_section": {
+      "title": "外觀",
+      "current_mode": "您當前的模式：",
+      "click_to_change": "點擊下方按鈕，即可在淺色、深色與系統模式之間切換。",
+      "change_mode": "更改外觀模式",
+      "modes": {
+        "light": "淺色模式",
+        "dark": "深色模式",
+        "system": "系統模式（跟隨您的設備）"
+      }
+    }
+  },
+  "feature_preview": {
+    "title": "功能預覽",
+    "explanation": "此頁面允許您嘗試尚在開發中的功能，這些功能尚未完全準備好供所有人使用。",
+    "disclaimer": "請注意，這些功能目前處於實驗階段。它們可能無法按預期工作，並且在我們開發過程中可能會迅速發生變化。歡迎使用“報告問題”按鈕反饋任何錯誤！",
+    "no_previews": {
+      "title": "暫無預覽功能",
+      "explanation": "目前暫無活動的預覽功能，請稍後再來查看！"
+    }
+  },
+  "active_logins": {
+    "heading": "目前登入中的裝置",
+    "settings_page_text": "查看您的登入位置並登出其他工作階段",
+    "settings_page_link": "管理目前登入中的裝置",
+    "description": "這個頁面會列出目前仍有效的登入工作階段。您可以點擊各筆登入旁的按鈕登出單一工作階段，或在頁面底部登出除目前工作階段外的所有裝置。",
+    "login_header": "登入於 {{login_datetime}}",
+    "location": "靠近 <2>{{approximate_location}}</2>",
+    "last_activity": "上次活動 <2>{{last_activity_ago}}</2>",
+    "expiry": "過期時間 <1>{{expiry_datetime}}</1>",
+    "current_session": "這是您當前的會話。",
+    "log_out_of_session": "退出此會話",
+    "log_out_of_all_session": "退出其他所有會話"
+  },
+  "strong_verification": {
+    "title": "強身份驗證",
+    "subtitle": "強身份驗證是一項額外的安全功能，允許您通過生物護照驗證出生日期和性別。",
+    "status": {
+      "enabled_message": "您<1>當前已完成</1>強身份驗證。",
+      "disabled_message": "您<1>尚未完成</1>強身份驗證。"
+    },
+    "learn_more": "瞭解強身份驗證，點擊<a>此處</a>。",
+    "start_button": "開始強身份驗證",
+    "delete_information": "您可以隨時從我們的服務器中刪除您的強身份驗證資料（除簽發國家、到期日期和證件號碼後三位外）。",
+    "delete_information_text2": "如果您刪除了您的資料，您將無法再次使用同一本護照進行強身份驗證。",
+    "delete_my_data_button": "刪除我的資料",
+    "delete_button": "刪除我的強身份驗證資料",
+    "complete_message1": "您的護照正在驗證中, 結果將在幾分鐘內通過郵件發送給您。",
+    "complete_message2": "強身份驗證將在您的護照到期時失效，您需要在獲得新護照後重新完成驗證。",
+    "delete_success": "您的護照資訊已被刪除。",
+    "donation_title": "感謝驗證！感謝您讓Couchers.org變得更安全。",
+    "complete_title": "我們正在處理您的強身份驗證請求",
+    "delete_data_title": "刪除您的強身份驗證護照資料",
+    "donation_message1": "對你來說，驗證是免費的，但對我們來說卻是有成本的。作為一個由志願者運營的非營利組織，我們依靠捐款來支付諸如服務器運行、驗證以及為志願者和社群建設者提供工具等開支。",
+    "donation_message2": "如果您有能力，請考慮捐款以幫助Couchers.org持續運營和發展。",
+    "donate_button": "捐款支持Couchers.org",
+    "instructions": {
+      "step1": "下載 <strong>IRIS ID</strong> 應用",
+      "warning": "重要提示：護照芯片掃描步驟可能較為複雜，請務必先閱讀所有說明！",
+      "title": "如何完成強身份驗證",
+      "step1_apple_note": "<strong>蘋果使用者：</strong>您可以跳過下載，直接使用瀏覽器。出現提示時只需點擊“打開”即可。",
+      "step2": "點擊下方的<strong>“開始強身份驗證”</strong>（將在新標籤頁中打開）",
+      "step3": "請用手機掃描二維碼",
+      "step5": "選擇<strong>護照</strong>（不支持身份證）",
+      "step6": "請拍攝一張護照頁面的清晰照片，確保底部的號碼清晰可見",
+      "step7": "將手機貼在帶有NFC芯片的護照頁面上（見下方提示）",
+      "download_app_store": "前往 App Store 下載",
+      "download_google_play": "前往 Google Play 下載",
+      "chip_location": {
+        "us_germany_mexico": "<strong>巴西、美國、德國（2016）、印度尼西亞、墨西哥：</strong> 封底",
+        "finland_germany_new": "<strong>芬蘭、德國（2017年及以後）、俄羅斯：</strong> 照片頁",
+        "australia": "<strong>澳大利亞：</strong> 中間頁面（標有符號+“芯片名稱”）",
+        "heading": "尋找護照NFC芯片位置",
+        "description": "芯片的位置因國家而異。您可能需要嘗試不同的頁面。以下是一些位置示例："
+      },
+      "step8": "當您看到進度百分比增加和載入動畫時,說明正在成功處理",
+      "step4": "如果出現提示，請打開應用並再次掃描二維碼",
+      "scanning_tips": {
+        "heading": "成功進行NFC掃描的提示",
+        "description": "NFC掃描是最棘手的部分。這些提示可顯著提高您的機會：",
+        "remove_case": "<strong>取下手機殼</strong> - 即使很薄的手機殼也會阻擋 NFC 信號",
+        "hold_still": "<strong>將手機完全靜止</strong>至少 5 秒 - 過早移動是失敗的最常見原因",
+        "flat_surface": "<strong>將護照放在平坦的表面上</strong> - 不要將其拿在手中",
+        "nfc_location": "<strong>找到手機的 NFC 天線</strong> - 它通常位於手機背面的頂部中心附近。如果無法連接，請嘗試不同的位置",
+        "no_metal": "<strong>避免金屬表面</strong> - 不要將護照放在金屬桌子或筆記本電腦上",
+        "retry": "如果掃描失敗，請重試 - 通常需要 2-3 次嘗試才能正確定位"
+      },
+      "before_you_start": {
+        "heading": "開始之前",
+        "nfc_check": "您的手機必須具備 <strong>NFC 功能</strong>。大多數現代手機都支援，而且通常預設會開啟；某些較舊的手機則可能需要您到設定中手動開啟。",
+        "passport_check": "您的護照必須是<strong>生物識別護照</strong> - 查找封面上的金色芯片符號。沒有此符號的舊護照將無法使用。",
+        "remove_case": "<strong>開始前請取下手機殼</strong> - 即使很薄的手機殼也會阻擋 NFC 信號並導致掃描失敗。",
+        "passport_symbol_alt": "生物識別護照符號"
+      },
+      "didnt_work": {
+        "heading": "有問題嗎？",
+        "tip1": "如果您使用的是較舊的 Android 手機，請確認已在手機設定中開啟 NFC（大多數新款手機預設都已開啟）",
+        "tip2": "嘗試護照的不同頁面 — 芯片位置因國家/地區而異",
+        "tip3": "如果使用 Android，請確認已安裝 IRIS ID 應用程式（不是瀏覽器版本）",
+        "tip4": "一些較舊的護照或護照卡沒有 NFC 芯片，因此無法使用",
+        "contact": "如果如果您仍然遇到問題，請<1>告訴我們</1>，我們會提供幫助。"
+      }
+    }
+  },
+  "change_phone": {
+    "title": "電話號碼",
+    "need_to_donate": "您需要<2>捐贈</2>後才能完成電話號碼驗證。",
+    "no_phone_description": "您的帳戶尚未添加電話號碼。請在下方輸入，我們會通過短信驗證。",
+    "phone_label": "您的電話號碼",
+    "add_button_text": "添加電話號碼",
+    "add_success": "電話號碼已添加。",
+    "phone_not_verified_description": "我們已向 <2>{{phone}}</2> 發送了一條驗證碼。請在下方輸入驗證碼以驗證您的號碼：",
+    "code_label": "驗證碼",
+    "wrong_code": "驗證碼錯誤。",
+    "verify_button_text": "驗證電話號碼",
+    "verify_success": "電話號碼已驗證。",
+    "remove_phone_description": "您的當前電話號碼是 <2>{{phone}}</2>。您可以在下方移除電話號碼。",
+    "remove_button_text": "移除當前電話號碼",
+    "remove_success": "電話號碼已移除。",
+    "change_to_different_description": "如需更改為其他電話號碼，請在下方輸入。",
+    "change_button_text": "更改電話號碼"
+  },
+  "delete_account": {
+    "request": {
+      "title": "刪除帳戶",
+      "description": "如要刪除您的帳戶，請按以下步驟操作。我們將向您發出確認郵件。",
+      "confirm_username_explanation": "您的使用者名稱是 <1>{{username}}</1>，請在下方輸入以確認刪除帳戶。",
+      "confirm_username_label": "使用者名稱確認",
+      "username_mismatch": "使用者名稱不匹配。",
+      "reason_explanation": "請告訴我們刪除帳戶的原因，以幫助我們改進平台。",
+      "reason_label": "帳戶刪除原因",
+      "success_message": "已啟動帳戶刪除。請通過我們發給您的電子郵件完成帳戶刪除。"
+    },
+    "missing_token": "錯誤：缺少令牌",
+    "confirm": {
+      "title": "確認帳戶刪除",
+      "error_message": "確認帳戶刪除失敗：{{message}}",
+      "button_text": "確認刪除帳戶",
+      "account_deleted": "帳戶已刪除。感謝您使用Couchers.org！"
+    },
+    "recover": {
+      "title": "恢復您的Couchers.org帳戶",
+      "error_message": "恢復帳戶失敗：{{message}}",
+      "button_text": "恢復您的帳戶",
+      "success": "您的帳戶已恢復，您可以重新登入了。我們很激動您願意回來！"
+    }
+  },
+  "quick_links": {
+    "button_text": "確認操作",
+    "title": "郵件快捷操作",
+    "error_message": "錯誤：{{message}}",
+    "missing_payload_or_sig": "無效的URL"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "most": "<1>大部分</1>：顯示完整的“關於我”部分，但不包括“附加資訊”",
+      "full_profile": "<1>完整資料</1>：顯示我的完整資料（不包括使用者評價）",
+      "nothing": "<1>無</1>：徹底隱藏我",
+      "map_only": "<1>僅地圖</1>：僅顯示一個隨機、匿名的地圖標記，不包含其他資訊",
+      "limited": "<1>有限</1>：顯示我的姓名、位置、接待/見面狀態、徽章、評價數量，以及我成為Coucher的時長"
+    },
+    "title": "個人資料可見性",
+    "choose": "選擇哪些資訊對未登入使用者可見"
+  },
+  "motivations_form": {
+    "header": "您會看到什麼躺椅？",
+    "surfing": "衝浪",
+    "surfing_description": "我正在計劃旅行並尋找主持人",
+    "hosting": "託管",
+    "hosting_description": "我想在我的城市接待和歡迎旅行者",
+    "events": "活動",
+    "events_description": "我想參加活動並與社群見面",
+    "community_organizing": "社群組織",
+    "community_organizing_description": "我想在平台上組織活動和活動",
+    "something_else": "其他",
+    "something_else_description": "我正在探索或尚未決定"
+  },
+  "volunteer_management": {
+    "title": "志願者管理",
+    "description": "如果您的角色或日期不正確，請告知我們。",
+    "card_preview_label": "您的團隊頁面列表",
+    "not_a_volunteer_message": "根據我們的記錄，您不是當前或過去的志願者。如果不正確，請填寫<1>此表單</1>告知我們。",
+    "current_volunteer": "自 {{startDate}} 起志願服務。",
+    "past_volunteer": " 從 {{startDate}} 到 {{endDate}} 志願服務。",
+    "shown_on_team_page_current": " 在團隊頁面上顯示為當前團隊成員。",
+    "shown_on_team_page_past": " 在團隊頁面上顯示為過去的成員志願者.",
+    "not_shown_on_team_page": "在團隊頁面中隱藏。",
+    "update_success": "您的志願者資訊已更新。",
+    "form": {
+      "title": "更新您的志願者資訊",
+      "override_name_label": "在團隊頁面上使用不同的名稱（而不是“{{profileName}}”）",
+      "display_name_label": "顯示名稱",
+      "override_location_label": "在團隊頁面上使用其他位置（而不是“{{profileLocation}}”）",
+      "display_location_label": "顯示位置",
+      "show_on_team_page_label": "在團隊頁面上顯示",
+      "link_type_label": "連結類型",
+      "link_type_couchers": "Couchers個人資料",
+      "link_type_email": "電子郵件",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "網站",
+      "link_text_label": "連結文字",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "your@email.com",
+      "link_text_website_placeholder": "https://your-website.com",
+      "link_text_linkedin_helper": "您的個人資料 URL 中的使用者名稱（例如 linkedin.com/in/jane-doe-a1b2c3）",
+      "link_text_email_helper": "您的電子郵件地址",
+      "link_text_website_helper": "顯示用的連結文字",
+      "link_text_required": "請輸入連結文字",
+      "link_text_email_invalid": "請輸入有效的電子郵件地址",
+      "link_text_linkedin_invalid": "請輸入有效的 LinkedIn 使用者名稱（僅限字母、數字與連字號）",
+      "link_url_label": "連結 URL",
+      "link_url_placeholder": "https://your-website.com",
+      "link_url_helper": "連結要指向的完整 URL",
+      "link_url_required": "請輸入網站的 URL",
+      "link_url_invalid": "請輸入以 http:// 或 https://",
+      "save_button": "儲存變更"
     }
   }
 }
+

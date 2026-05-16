@@ -23,9 +23,9 @@ import {
   searchRoute,
 } from "routes";
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Paper)(() => ({
   position: "fixed",
-  bottom: 0,
+  bottom: "var(--cookie-banner-height, 0px)",
   left: 0,
   right: 0,
   zIndex: 1100,

@@ -14,6 +14,9 @@ class _FakeContext:
     def __init__(self, user_id):
         self.user_id = user_id
 
+    def is_logged_in(self):
+        return self.user_id is not None and self.user_id != 0
+
 
 # Also tests different ways to make users invisible
 def test_is_visible_property(db):
@@ -73,3 +76,69 @@ def test_select_dot_where_users_column_visible(db):
             ).scalar_one()
             == 1
         )
+
+
+def test_shadowed_user_hidden_from_others_visible_to_self(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(shadowed_at=func.now()))
+
+    other_context = cast(CouchersContext, _FakeContext(user1.id))
+    self_context = cast(CouchersContext, _FakeContext(user2.id))
+    anon_context = cast(CouchersContext, _FakeContext(None))
+
+    with session_scope() as session:
+        # user1 (other) does not see shadowed user2
+        visible_to_other = (
+            session.execute(select(User.id).where(users_visible(other_context)).where(User.id == user2.id))
+            .scalars()
+            .all()
+        )
+        assert visible_to_other == []
+
+        # user2 (self) sees themselves
+        visible_to_self = (
+            session.execute(select(User.id).where(users_visible(self_context)).where(User.id == user2.id))
+            .scalars()
+            .all()
+        )
+        assert visible_to_self == [user2.id]
+
+        # anonymous viewer does not see shadowed user2
+        visible_to_anon = (
+            session.execute(select(User.id).where(users_visible(anon_context)).where(User.id == user2.id))
+            .scalars()
+            .all()
+        )
+        assert visible_to_anon == []
+
+
+def test_shadowed_user_column_visible_with_self_exception(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    make_friends(user1, user2)
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(shadowed_at=func.now()))
+
+    # user1 (other): friendship to shadowed user2 is filtered out
+    context_other = cast(CouchersContext, _FakeContext(user1.id))
+    with session_scope() as session:
+        count = session.execute(
+            where_users_column_visible(
+                select(func.count()).select_from(FriendRelationship), context_other, FriendRelationship.to_user_id
+            )
+        ).scalar_one()
+        assert count == 0
+
+    # user2 (self): can see the friendship pointing at themselves
+    context_self = cast(CouchersContext, _FakeContext(user2.id))
+    with session_scope() as session:
+        count = session.execute(
+            where_users_column_visible(
+                select(func.count()).select_from(FriendRelationship), context_self, FriendRelationship.to_user_id
+            )
+        ).scalar_one()
+        assert count == 1

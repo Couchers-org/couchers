@@ -4,6 +4,13 @@
     "closing_line": "Best,\nThe Couchers.org Team",
     "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!"
   },
+  "calendar_events": {
+    "title_cancelled": "Cancelled: {{ title }}",
+    "host_requests": {
+      "title_host": "Hosting {{ name }}",
+      "title_surfer": "Surfing with {{ name }}"
+    }
+  },
   "plaintext_formats": {
     "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"

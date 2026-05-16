@@ -14,8 +14,8 @@
       "push": {
         "title": "Hesap silindi",
         "ios_title": "Hesap Silindi",
-        "body_one": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
-        "body_other": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
+        "body_one": "Size gönderdiğimiz link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
+        "body_other": "Size gönderdiğimiz link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
       }
     },
     "recovered": {
@@ -103,23 +103,40 @@
       "event_description": "Takip ettiğin bir tartışmada birisi yorum yapınca"
     },
     "create": {
-      "event_description": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında"
+      "event_description": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında",
+      "push": {
+        "title": "Yeni tartışma: {{title}}",
+        "ios_title": "Yeni Tartışma",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "donation": {
     "received": {
-      "event_description": "Bağışınız alındı"
+      "event_description": "Bağışınız alındı",
+      "push": {
+        "title": "Bağış alındı",
+        "ios_title": "Bağış Alındı",
+        "body": "{{amount_with_currency}}'lık bağışınız için çok teşekkürler!"
+      }
     }
   },
   "email_address": {
     "change": {
       "event_description": "E-posta değişikliği başlatıldı",
       "push": {
-        "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
+        "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın.",
+        "title": "Email değişikliği istendi",
+        "ios_title": "Email Değişikliği İstendi"
       }
     },
     "verify": {
-      "event_description": "Yeni e-postanız doğrulandı"
+      "event_description": "Yeni e-postanız doğrulandı",
+      "push": {
+        "title": "Email doğrulandı",
+        "ios_title": "Email Doğrulandı",
+        "body": "Yeni email adresiniz doğrulandı."
+      }
     }
   },
   "event": {
@@ -128,22 +145,30 @@
       "push": {
         "title": "{{title}} Etkinliği iptal edildi",
         "ios_title": "Etkinlik İptal Edildi",
-        "body": "{{user}} etkinliği iptal etti."
+        "body": "{{user}} etkinliği iptal etti.",
+        "ios_subtitle": "{{title}}"
       }
     },
     "comment": {
-      "event_description": "Katılacağınız bir etkinliğe bir kullanıcı yorum yapıyor"
+      "event_description": "Katılacağınız bir etkinliğe bir kullanıcı yorum yapıyor",
+      "push": {
+        "ios_title": "{{user}}"
+      }
     },
     "create_any": {
       "push": {
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu."
+        "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu.",
+        "title": "Yeni etkinlik: {{title}}",
+        "ios_title": "Yeni Etkinlik"
       }
     },
     "create_approved": {
       "event_description": "Moderatörler tarafından onaylanan bir etkinlik topluluğunuzda oluşturuldu",
       "push": {
-        "title": "Yeni etkinlik: {{title}}"
+        "title": "Yeni etkinlik: {{title}}",
+        "ios_title": "Yeni Etkinlik",
+        "ios_subtitle": "{{title}}"
       }
     },
     "delete": {
@@ -181,36 +206,84 @@
       "push": {
         "title": "{{from_user}}'dan arkadaşlık isteği",
         "ios_subtitle": "Arkadaşlık İsteği",
-        "body": "{{from_user}} arkadaşın olmak istiyor."
+        "body": "{{from_user}} arkadaşın olmak istiyor.",
+        "ios_title": "{{from_user}}"
       }
     }
   },
   "gender": {
     "change": {
-      "event_description": "Profilinizde gösterilen cinsiyet değiştirildi"
+      "event_description": "Profilinizde gösterilen cinsiyet değiştirildi",
+      "push": {
+        "ios_title": "Cinsiyet Değiştirildi",
+        "body": "Bir yönetici cinsiyetinizi {{gender}} olarak değiştirdi.",
+        "title": "Cinsiyet değiştirildi"
+      }
     }
   },
   "host_request": {
     "accept": {
-      "event_description": "Birisi ev sahipliği isteğini kabul edince"
+      "event_description": "Birisi ev sahipliği isteğini kabul edince",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğinizi kabul etti",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği Kabul Edildi",
+        "body": "{{user}}, {{date}} için ev sahipliği isteğinizi kabul etti."
+      }
     },
     "confirm": {
-      "event_description": "Birisi ev sahipliği isteğini onayladığında"
+      "event_description": "Birisi ev sahipliği isteğini onayladığında",
+      "push": {
+        "title": "{{user}}, ev sahibi isteklerini onayladı",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği Onaylandı",
+        "body": "{{user}}, {{date}} için kendi ev sahipliği isteğini onayladı."
+      }
     },
     "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği yollayınca"
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
+      "push": {
+        "title": "{{user}}'dan yeni ev sahipliği isteği",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Yeni Ev Sahipliği İsteği",
+        "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",
+        "body_other": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor."
+      }
     },
     "message": {
-      "event_description": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+      "event_description": "Birisi ev sahipliği isteğinde mesaj gönderdiğinde"
     },
     "missed_messages": {
-      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında"
+      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
+      "push": {
+        "title": "{{user}}'dan yeni mesajlar",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Okunmamış Mesajlar",
+        "body": "{{user}} kişisinden yeni okunmamış mesajların var."
+      }
     },
     "reject": {
-      "event_description": "Birisi ev sahipliği isteğini reddettiğinde"
+      "event_description": "Birisi ev sahipliği isteğini reddettiğinde",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğini reddetti",
+        "ios_title": "{{user}}"
+      }
     },
     "reminder": {
-      "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz"
+      "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
+      "push": {
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} sizin cevabınızı bekliyor, lütfen isteği kabul edin veya reddedin."
+      }
+    },
+    "cancel": {
+      "event_description": "Birisi ev sahipliği isteğini iptal ettiğinde",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğini iptal etti",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği İptal Edildi",
+        "body": "{{user}}, {{date}} için ev sahipliği isteğini iptal etti."
+      }
     }
   },
   "phone_number": {
@@ -235,6 +308,52 @@
   "thread": {
     "reply": {
       "event_description": "Birisi yorumuna cevap verdiğinde"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "push": {
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "push": {
+        "title": "Yeni moderatör notu",
+        "ios_title": "Yeni Moderatör Notu"
+      }
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Kayıt olduktan sonra profilini tamamlamak için hatırlatıcı",
+      "push": {
+        "first": {
+          "title": "Couchers'a Hoş Geldin!",
+          "ios_title": "Couchers'a Hoş Geldin!"
+        },
+        "subsequent": {
+          "title": "Profilini tamamlamayı unutma"
+        }
+      }
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "Şifreniz değiştirildi",
+      "push": {
+        "title": "Şifre değiştirildi",
+        "ios_title": "Şifre Değiştirildi"
+      }
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "push": {
+        "body": "Şifreniz başarıyla sıfırlandı.",
+        "ios_title": "Şifre Sıfırlandı"
+      }
     }
   }
 }

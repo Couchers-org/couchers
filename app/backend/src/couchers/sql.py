@@ -57,14 +57,20 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     return false()
 
 
+def _shadow_clause(context: CouchersContext, table: _User) -> ColumnElement[bool]:
+    if context.is_logged_in():
+        return or_(table.shadowed_at.is_(None), table.id == context.user_id)
+    return table.shadowed_at.is_(None)
+
+
 def users_visible(context: CouchersContext, table: _User = User) -> ColumnElement[bool]:
     """
-    Filters out users that should not be visible: blocked, deleted, or banned
+    Filters out users that should not be visible: blocked, deleted, banned, or shadowed (to others).
 
     Filters the given table, assuming it's already joined/selected from
     """
     hidden_users = _relevant_user_blocks(context.user_id)
-    return and_(table.is_visible, ~table.id.in_(hidden_users))
+    return and_(table.is_visible, _shadow_clause(context, table), ~table.id.in_(hidden_users))
 
 
 def where_users_column_visible[T: tuple[Any, ...]](
@@ -78,30 +84,28 @@ def where_users_column_visible[T: tuple[Any, ...]](
     return (
         query.join(aliased_user, aliased_user.id == column)
         .where(aliased_user.is_visible)
+        .where(_shadow_clause(context, aliased_user))
         .where(~aliased_user.id.in_(hidden_users))
     )
 
 
-def users_visible_to_each_other(user1: _User, user2: _User) -> ColumnElement[bool]:
+def users_visible_to_each_other(*, self_user: _User, other_user: _User) -> ColumnElement[bool]:
     """
-    Filters to ensure two users are mutually visible to each other.
-
-    Checks that:
-    - Both users are visible (not deleted/banned)
-    - Neither user has blocked the other (bidirectional check)
+    Filters to ensure other_user is visible to self_user, and that they haven't blocked each other.
 
     Use this when both User tables are already joined/selected in the query.
     """
     return and_(
-        user1.is_visible,
-        user2.is_visible,
+        self_user.is_visible,
+        other_user.is_visible,
+        other_user.shadowed_at.is_(None),
         ~exists(
             select(1)
             .select_from(UserBlock)
             .where(
                 or_(
-                    and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
-                    and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                    and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
+                    and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
                 )
             )
         ),
@@ -109,33 +113,31 @@ def users_visible_to_each_other(user1: _User, user2: _User) -> ColumnElement[boo
 
 
 def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
-    query: Select[T], column1: InstrumentedAttribute[int], column2: InstrumentedAttribute[int]
+    query: Select[T], *, self_column: InstrumentedAttribute[int], other_column: InstrumentedAttribute[int]
 ) -> Select[T]:
     """
-    Filters to ensure two users are mutually visible to each other.
+    Filters to ensure the user in other_column is visible to the user in self_column, and that they
+    haven't blocked each other.
 
-    Checks that:
-    - Both users are visible (not deleted/banned)
-    - Neither user has blocked the other (bidirectional check)
-
-    Use this when you have two user_id columns that haven't been joined yet.
-    This will join both User tables and apply the visibility checks.
+    Use this when you have two user_id columns that haven't been joined yet. This will join both
+    User tables and apply the visibility checks.
     """
-    user1 = aliased(User)
-    user2 = aliased(User)
+    self_user = aliased(User)
+    other_user = aliased(User)
     return (
-        query.join(user1, user1.id == column1)
-        .join(user2, user2.id == column2)
-        .where(user1.is_visible)
-        .where(user2.is_visible)
+        query.join(self_user, self_user.id == self_column)
+        .join(other_user, other_user.id == other_column)
+        .where(self_user.is_visible)
+        .where(other_user.is_visible)
+        .where(other_user.shadowed_at.is_(None))
         .where(
             ~exists(
                 select(1)
                 .select_from(UserBlock)
                 .where(
                     or_(
-                        and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
-                        and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                        and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
+                        and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
                     )
                 )
             )

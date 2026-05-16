@@ -4,7 +4,8 @@
     "accept_friend_label": "Aceptar",
     "decline_friend_label": "Declinar",
     "request": "Enviar solicitud",
-    "back_to_dashboard": "Volver al tablón"
+    "back_to_dashboard": "Volver al tablón",
+    "add_friend": "Añadir amigo"
   },
   "heading": {
     "about_me": "Sobre mí",
@@ -200,6 +201,14 @@
     "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
     "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
   },
+  "message_form": {
+    "hosting_request_hint": "¿Estas enviando una solicitud de alojamiento? Usa el botón <request>Solicitar</request> en su lugar.",
+    "send_message": "Envia un mensaje a {{name}}",
+    "message": "Mensaje",
+    "message_description": "Escribe tu mensaje...",
+    "message_empty": "Por favor, escribe un mensaje.",
+    "success": "¡Mensaje enviado!"
+  },
   "my_connections": "Mis contactos",
   "active": "Activo",
   "sleeping_arrangement": {
@@ -283,7 +292,6 @@
   "response_time_text_almost_all": "Normalmente entre {{p33}} y {{p66}}",
   "unsaved_changes_warning": "No has guardado tus cambios. ¿De verdad deseas salir de esta página?",
   "profile_tag_input": {
-    "header_text": "Presiona 'Enter' para añadir\n<support_link>Envíanos un correo electrónico</support_link> para añadir una entrada",
     "remove_button_a11y_text": "Eliminar {{tag}}"
   },
   "view_in_admin_console": "Ver usuario en consola de administración",

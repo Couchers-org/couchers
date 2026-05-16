@@ -139,16 +139,7 @@ def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
     # the sender must return a models.Email object that can be added to the database
-    email = sender(
-        sender_name=payload.sender_name,
-        sender_email=payload.sender_email,
-        recipient=payload.recipient,
-        subject=payload.subject,
-        plain=payload.plain,
-        html=payload.html,
-        list_unsubscribe_header=payload.list_unsubscribe_header,
-        source_data=payload.source_data,
-    )
+    email = sender(payload)
     with session_scope() as session:
         session.add(email)
 
@@ -514,7 +505,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.initiator_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.initiator_reason_didnt_meetup == None)
-                .where(users_visible_to_each_other(user, other_user))
+                .where(users_visible_to_each_other(self_user=user, other_user=other_user))
             )
 
             # hosts needing to write a ref
@@ -535,7 +526,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.recipient_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.recipient_reason_didnt_meetup == None)
-                .where(users_visible_to_each_other(user, other_user))
+                .where(users_visible_to_each_other(self_user=user, other_user=other_user))
             )
 
             union = union_all(q1, q2).subquery()
@@ -593,8 +584,8 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                     .where(HostRequest.start_time > func.now())
                     .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
                     .where(~exists(host_has_sent_message)),
-                    HostRequest.recipient_user_id,
-                    HostRequest.initiator_user_id,
+                    self_column=HostRequest.recipient_user_id,
+                    other_column=HostRequest.initiator_user_id,
                 )
             )
             .scalars()
@@ -1553,8 +1544,13 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
         if not items:
             return
 
-        logger.info(f"Auto-approving {len(items)} moderation queue items")
-        for item in items:
+        # Skip items whose author is shadowed; their content stays in shadowed state indefinitely
+        approvable = [item for item in items if not item.moderation_state.author.shadowed]
+        if not approvable:
+            return
+
+        logger.info(f"Auto-approving {len(approvable)} moderation queue items")
+        for item in approvable:
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=item.moderation_state_id,
@@ -1565,4 +1561,4 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
                 context=ctx,
                 session=session,
             )
-        moderation_auto_approved_counter.inc(len(items))
+        moderation_auto_approved_counter.inc(len(approvable))

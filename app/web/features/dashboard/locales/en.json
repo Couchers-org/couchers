@@ -12,6 +12,7 @@
     "actions": {
       "send_request": "send a request",
       "send_message": "send a message",
+      "send_friend_request": "send a friend request",
       "create_event": "create an event"
     },
     "edit_profile_button": "Edit your profile now",
@@ -67,8 +68,8 @@
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "Respond to host request",
-      "description": "Don't forget to respond to {{name}} about their stay.",
+      "title": "Respond to {{name}}",
+      "description": "Don't forget to respond to the host request by {{name}}.",
       "button": "View request"
     },
     "write_reference": {

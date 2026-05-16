@@ -1,4 +1,5 @@
-- Fix signup and password reset email confirmation redirects
-- Fix language picker closing the menu before selection
-- Add user agent string for bug reports
-- Fix notification menu not closing on navigation
+Bug fixes and improvements:
+- Tapping a user avatar or name opens their profile in a bottom sheet to save your place
+- Language changes now apply immediately across all tabs
+- Samsung specific fixes for some interaction issues
+- Fixed community info edit page on mobile

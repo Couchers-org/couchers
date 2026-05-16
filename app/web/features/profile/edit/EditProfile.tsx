@@ -176,7 +176,7 @@ const StickySaveBar = styled(Box, {
 
   return {
     position: "fixed",
-    bottom: 0,
+    bottom: "var(--cookie-banner-height, 0px)",
     left: 0,
     right: 0,
     backgroundColor: "var(--mui-palette-background-paper)",
@@ -190,7 +190,7 @@ const StickySaveBar = styled(Box, {
     gap: theme.spacing(2),
 
     [theme.breakpoints.down("md")]: {
-      bottom: bottomNavHeight,
+      bottom: `calc(${bottomNavHeight}px + var(--cookie-banner-height, 0px))`,
       padding: theme.spacing(1),
       paddingBottom: safePadding,
     },

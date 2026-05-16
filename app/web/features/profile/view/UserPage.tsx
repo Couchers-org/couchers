@@ -5,10 +5,11 @@ import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
+import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
@@ -42,20 +43,21 @@ export default function UserPage({
   username: string;
   tab?: UserTab;
 }) {
-  const { t } = useTranslation(PROFILE);
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const router = useRouter();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+  const [isMessaging, setIsMessaging] = useState(false);
 
   useLayoutEffect(() => {
-    if (isRequesting) {
+    if (isRequesting || isMessaging) {
       const requestEl = document.getElementById(REQUEST_ID);
       requestEl?.scrollIntoView();
     }
-  }, [isRequesting]);
+  }, [isRequesting, isMessaging]);
 
   return (
     <>
@@ -69,7 +71,11 @@ export default function UserPage({
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>
-            <Overview setIsRequesting={setIsRequesting} tab={tab} />
+            <Overview
+              setIsRequesting={setIsRequesting}
+              setIsMessaging={setIsMessaging}
+              tab={tab}
+            />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
@@ -78,12 +84,17 @@ export default function UserPage({
                 });
               }}
               top={
-                <Collapse in={isRequesting}>
-                  <NewHostRequest
-                    setIsRequesting={setIsRequesting}
-                    setIsRequestSuccess={setIsSuccessRequest}
-                  />
-                </Collapse>
+                <>
+                  <Collapse in={isRequesting}>
+                    <NewHostRequest
+                      setIsRequesting={setIsRequesting}
+                      setIsRequestSuccess={setIsSuccessRequest}
+                    />
+                  </Collapse>
+                  <Collapse in={isMessaging}>
+                    <NewMessage setIsMessaging={setIsMessaging} />
+                  </Collapse>
+                </>
               }
             />
           </StyledProfileRoot>

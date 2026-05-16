@@ -185,7 +185,7 @@ def test_email_patching_fails(db):
 
     patched_msg = random_hex(64)
 
-    def mock_queue_email(session, **kwargs):
+    def mock_queue_email(session, payload):
         raise Exception(patched_msg)
 
     with api_session(from_token) as api:

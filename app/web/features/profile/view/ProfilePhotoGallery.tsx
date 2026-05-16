@@ -35,11 +35,10 @@ const StyledImageListItem = styled(ImageListItem)(({ theme }) => ({
   cursor: "pointer",
   overflow: "hidden",
   borderRadius: theme.shape.borderRadius,
-  transition: "box-shadow 0.2s ease, transform 0.2s ease",
+  transition: "box-shadow 0.2s ease",
   border: `1px solid var(--mui-palette-grey-300)`,
   "&:hover": {
     boxShadow: theme.shadows[4],
-    transform: "scale(1.02)",
   },
   "& img": {
     width: "100%",

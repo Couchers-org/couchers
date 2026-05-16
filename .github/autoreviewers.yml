@@ -1,0 +1,18 @@
+# Defines PR reviewers based on modified file paths.
+# The syntax is as the dorny/paths-filter action accepts,
+# but our filter names are a label plus a comma-delimited people/teams to assign.
+backend Couchers-org/backend:
+  - 'app/backend/**'
+  - '!app/backend/**/locales/*.json'
+  - 'app/media/**'
+web Couchers-org/web:
+  - 'app/web/**'
+  - '!app/web/**/locales/*.json'
+mobile Couchers-org/mobile:
+  - 'app/mobile/**'
+  - '!app/mobile/**/locales/*.json'
+i18n tristanlabelle:
+  - 'app/**/locales/*.json'
+  - 'app/**/i18n/**'
+docs aapeliv,nabramow:
+  - 'docs/**'

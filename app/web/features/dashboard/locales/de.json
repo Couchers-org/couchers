@@ -12,7 +12,8 @@
     "actions": {
       "send_request": "Eine Anfrage senden",
       "send_message": "Eine Nachricht senden",
-      "create_event": "Erstelle ein Event"
+      "create_event": "Erstelle ein Event",
+      "send_friend_request": "Eine Freundschafts-Anfrage senden"
     },
     "edit_profile_button": "Jetzt dein Profil bearbeiten",
     "cancel_button": "Doch nicht"
@@ -57,8 +58,8 @@
   "my_communities_heading": "Meine Communitys",
   "reminder": {
     "respond_to_host_request": {
-      "title": "Auf Host-Anfrage antworten",
-      "description": "Vergiss nicht, {{name}} bezüglich des Aufenthalts zu antworten.",
+      "title": "{{name}} antworten",
+      "description": "Vergiss nicht, auf die Host-Anfrage von {{name}} zu antworten.",
       "button": "Anfrage anzeigen"
     },
     "write_reference": {

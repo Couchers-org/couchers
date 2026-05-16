@@ -9,7 +9,7 @@
   "login": "Inloggen",
   "sign_up": "Aanmelden",
   "nav": {
-    "account_settings": "Accountinstellingen",
+    "account_settings": "Account-instellingen",
     "about": "Over",
     "blog": "Blog",
     "community": "Community",
@@ -97,7 +97,7 @@
     "show_all_languages": "Alle talen laten zien in de taalkiezer",
     "show_all_languages_description": "Als je dit inschakelt, laat de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
   },
-  "create": "maken",
+  "create": "Plannen",
   "terms_of_service": "Servicevoorwaarden",
   "required": "Verplicht",
   "accept": "Accepteren",
@@ -317,7 +317,6 @@
     "cs": "Tsjechisch",
     "de": "Duits",
     "en": "Engels",
-    "en-CORP": "Amerikaans (zakelijk)",
     "es": "Spaans (Spanje)",
     "es-419": "Spaans",
     "fr": "Frans (Frankrijk)",

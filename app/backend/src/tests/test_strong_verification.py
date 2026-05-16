@@ -368,11 +368,6 @@ def test_strong_verification_happy_path(db, monkeypatch):
             api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
             == res.has_strong_verification
         )
-    with account_session(token) as account:
-        assert not any(
-            reminder.HasField("complete_verification_reminder")
-            for reminder in account.GetReminders(empty_pb2.Empty()).reminders
-        )
 
     # check has_passport_sex_gender_exception
     with real_admin_session(superuser_token) as admin:
@@ -400,11 +395,6 @@ def test_strong_verification_happy_path(db, monkeypatch):
             api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
             == res.has_strong_verification
         )
-    with account_session(token) as account:
-        assert not any(
-            reminder.HasField("complete_verification_reminder")
-            for reminder in account.GetReminders(empty_pb2.Empty()).reminders
-        )
 
     with real_admin_session(superuser_token) as admin:
         res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
@@ -430,11 +420,6 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert (
             api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
             == res.has_strong_verification
-        )
-    with account_session(token) as account:
-        assert any(
-            reminder.HasField("complete_verification_reminder")
-            for reminder in account.GetReminders(empty_pb2.Empty()).reminders
         )
 
     with real_admin_session(superuser_token) as admin:

@@ -89,6 +89,19 @@ wheels = [
 ]
 
 [[package]]
+name = "arrow"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+    { name = "tzdata" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b9/33/032cdc44182491aa708d06a68b62434140d8c50820a087fac7af37703357/arrow-1.4.0.tar.gz", hash = "sha256:ed0cc050e98001b8779e84d461b0098c4ac597e88704a655582b21d116e526d7", size = 152931, upload-time = "2025-10-18T17:46:46.761Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/c9/d7977eaacb9df673210491da99e6a247e93df98c715fc43fd136ce1d3d33/arrow-1.4.0-py3-none-any.whl", hash = "sha256:749f0769958ebdc79c173ff0b0670d59051a535fa26e8eba02953dc19eb43205", size = 68797, upload-time = "2025-10-18T17:46:45.663Z" },
+]
+
+[[package]]
 name = "attrs"
 version = "25.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -254,6 +267,7 @@ dependencies = [
     { name = "geoip2" },
     { name = "grpcio" },
     { name = "http-ece" },
+    { name = "ics" },
     { name = "jinja2" },
     { name = "luhn" },
     { name = "markdown-it-py" },
@@ -314,6 +328,7 @@ requires-dist = [
     { name = "geoip2", specifier = ">=5.1.0" },
     { name = "grpcio", specifier = ">=1.76.0" },
     { name = "http-ece", specifier = ">=1.2.1" },
+    { name = "ics", specifier = ">=0.7.3" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "luhn", specifier = ">=0.2.0" },
     { name = "markdown-it-py", specifier = ">=4.0.0" },
@@ -599,6 +614,22 @@ dependencies = [
     { name = "cryptography" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7c/af/249d1576653b69c20b9ac30e284b63bd94af6a175d72d87813235caf2482/http_ece-1.2.1.tar.gz", hash = "sha256:8c6ab23116bbf6affda894acfd5f2ca0fb8facbcbb72121c11c75c33e7ce8cff", size = 8830, upload-time = "2024-08-08T00:10:47.301Z" }
+
+[[package]]
+name = "ics"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "arrow" },
+    { name = "attrs" },
+    { name = "python-dateutil" },
+    { name = "six" },
+    { name = "tatsu" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/45/9d/f1fa704c153351f679245c0f1dc0099df2d5e3ddb94a06810403a8931bef/ics-0.7.3.tar.gz", hash = "sha256:2dcd6876e8c913d40db76f1f1ca47bccd1c162178c73f69fbbedca1b844eface", size = 191007, upload-time = "2026-04-15T09:44:43.042Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/cd/b8b730bd5804554643610d15954c0fe4eac6ddfe8e78b4396a67c3cae93d/ics-0.7.3-py2.py3-none-any.whl", hash = "sha256:519f633f2e3d7b1528847e990a58dcb8807a2fffdcfd9dd880d1d5094d456af7", size = 40173, upload-time = "2026-04-15T09:44:41.307Z" },
+]
 
 [[package]]
 name = "identify"
@@ -1592,6 +1623,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/63/01/59d92650146c6340e333c22b8a238561b022e8641ba255298dfe46b4137d/stripe-14.4.1.tar.gz", hash = "sha256:e3eecfb336819326cd2ab9a93f98eb01b49c4d4d93c9d167a52a68ab99c19a88", size = 1473321, upload-time = "2026-03-06T22:59:45.822Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/35/0f/547eab75052384a72771b396a484556e5636629c031e5eafa8dc27af89ed/stripe-14.4.1-py3-none-any.whl", hash = "sha256:d6722b985dc3b4d6da01ff4fa95a975d3694a89bba96895bf17aa858073ff2b8", size = 2116642, upload-time = "2026-03-06T22:59:43.72Z" },
+]
+
+[[package]]
+name = "tatsu"
+version = "5.15.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/dc/0b/46725961e0b77e88352e60b9e78aef268cacd6dfae7f1527a348b0247606/tatsu-5.15.1.tar.gz", hash = "sha256:38b0467dbf086f032a7321023e65a773201c1acdebe0e9ac35c5ec26637e0b0d", size = 133908, upload-time = "2026-01-04T13:39:47.97Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/2f/7afdd76cac1511c456fdd880394cd54bc27ff5d991d3cb6b2ce0720b7d80/tatsu-5.15.1-py3-none-any.whl", hash = "sha256:3a1229eec55dcb1da7ae2842b1abf26bb746e92dc6734ab6785e84cecb465f06", size = 80069, upload-time = "2026-01-04T13:39:46.358Z" },
 ]
 
 [[package]]

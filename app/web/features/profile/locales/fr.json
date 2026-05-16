@@ -259,8 +259,7 @@
   "unsaved_changes_warning": "Vous n'avez pas enregistré vos modifications. Êtes-vous sûr.e de vouloir quitter la page ?",
   "references_filter_a11y_label": "Afficher les références : ",
   "profile_tag_input": {
-    "remove_button_a11y_text": "Enlever {{tag}}",
-    "header_text": "Tapez sur la touche « Entrée » pour ajouter\n<support_link>Contactez-nous</support_link> pour ajouter une entrée"
+    "remove_button_a11y_text": "Enlever {{tag}}"
   },
   "badges": {
     "no_people": "Il n'y a personne qui possède ce badge.",

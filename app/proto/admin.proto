@@ -41,6 +41,10 @@ service Admin {
 
   rpc UnbanUser(UnbanUserReq) returns (UserDetails) {}
 
+  rpc ShadowUser(ShadowUserReq) returns (UserDetails) {}
+
+  rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
+
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
@@ -99,6 +103,8 @@ service Admin {
   rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
 
   rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
+
+  rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
 }
 
 message AdminActionLog {
@@ -107,9 +113,12 @@ message AdminActionLog {
   int64 admin_user_id = 3;
   string admin_username = 4;
   string action_type = 5;
-  string note = 6;   // optional note/details
+  string note = 6;   // optional human-readable note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
+  int64 target_user_id = 9;
+  string target_username = 10;
+  string data = 11;  // optional machine-readable JSON payload
 }
 
 message AdminTagInfo {
@@ -126,6 +135,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  bool shadowed = 21;
   bool do_not_email = 15;
   repeated string badges = 8;
 
@@ -173,6 +183,7 @@ message SearchUsersReq {
   repeated string language_codes = 17;
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue is_shadowed = 22;
   google.protobuf.BoolValue has_avatar = 20;
   repeated string admin_tags = 21;
 
@@ -225,11 +236,25 @@ message UnbanUserReq {
   string admin_note = 2;
 }
 
-message AddAdminNoteReq {
+message ShadowUserReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;
+}
+
+message UnshadowUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message AddAdminNoteReq {
+  // username, email, or user id
+  string user = 1;
+  // exactly one of admin_note or data must be provided; data is a JSON-encoded object
+  string admin_note = 2;
   AdminActionLevel level = 3;  // defaults to NORMAL if unset
+  string data = 4;
 }
 
 message ContentReport {
@@ -533,4 +558,19 @@ message SetModScoreReq {
   // username, email, or user id
   string user = 1;
   double mod_score = 2;
+}
+
+message ListAdminActionsReq {
+  // Filter to actions performed by this admin (optional)
+  int64 admin_user_id = 1;
+  // Filter to actions targeting this user (optional)
+  int64 target_user_id = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListAdminActionsRes {
+  repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
 }

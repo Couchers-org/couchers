@@ -49,14 +49,17 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 
     queue_email(
         session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=user.email,
-        subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
-        plain=rendered.body_plaintext,
-        html=rendered.body_html,
-        source_data=rendered.source_data,
-        list_unsubscribe_header=rendered.list_unsubscribe_header,
+        jobs_pb2.SendEmailPayload(
+            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            recipient=user.email,
+            subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
+            plain=rendered.body_plaintext,
+            html=rendered.body_html,
+            source_data=rendered.source_data,
+            list_unsubscribe_header=rendered.list_unsubscribe_header,
+            attachments=rendered.attachments,
+        ),
     )
 
 

@@ -10,6 +10,7 @@ from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
+from couchers.proto.internal import jobs_pb2
 from tests.fixtures.sessions import real_moderation_session
 
 
@@ -25,30 +26,9 @@ def mock_notification_email() -> Generator[Mock]:
         process_jobs()
 
 
-@dataclass
-class EmailData:
-    sender_name: str
-    sender_email: str
-    recipient: str
-    subject: str
-    plain: str
-    html: str
-    source_data: str
-    list_unsubscribe_header: str
-
-
-def email_fields(mock: Mock, call_ix: int = 0) -> EmailData:
-    _, kw = mock.call_args_list[call_ix]
-    return EmailData(
-        sender_name=kw.get("sender_name"),
-        sender_email=kw.get("sender_email"),
-        recipient=kw.get("recipient"),
-        subject=kw.get("subject"),
-        plain=kw.get("plain"),
-        html=kw.get("html"),
-        source_data=kw.get("source_data"),
-        list_unsubscribe_header=kw.get("list_unsubscribe_header"),
-    )
+def email_fields(mock: Mock, call_ix: int = 0) -> jobs_pb2.SendEmailPayload:
+    args, _ = mock.call_args_list[call_ix]
+    return args[1]
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

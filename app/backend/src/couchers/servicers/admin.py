@@ -1,10 +1,11 @@
+import json
 import logging
 from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
@@ -32,6 +33,7 @@ from couchers.models import (
     LanguageAbility,
     Message,
     ModerationUserList,
+    ModerationVisibility,
     ModNote,
     Reference,
     Reply,
@@ -49,6 +51,7 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
+from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
@@ -77,6 +80,7 @@ def log_admin_action(
     target_user: User,
     action_type: str,
     note: str | None = None,
+    data: object | None = None,
     tag: str | None = None,
     level: AdminActionLevel = AdminActionLevel.normal,
 ) -> AdminAction:
@@ -86,6 +90,7 @@ def log_admin_action(
         action_type=action_type,
         level=level,
         note=note,
+        data=data,
         tag=tag,
     )
     session.add(action)
@@ -113,7 +118,10 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
                 action_type=action.action_type,
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
                 tag=action.tag or "",
+                target_user_id=action.target_user_id,
+                target_username=user.username,
             )
         )
 
@@ -138,6 +146,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         birthdate=date_to_api(user.birthdate),
         banned=user.banned_at is not None,
         deleted=user.deleted_at is not None,
+        shadowed=user.shadowed_at is not None,
         do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(session, user),
@@ -242,6 +251,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             statement = statement.where((User.deleted_at != None) == request.is_deleted.value)
         if request.HasField("is_banned"):
             statement = statement.where((User.banned_at != None) == request.is_banned.value)
+        if request.HasField("is_shadowed"):
+            statement = statement.where((User.shadowed_at != None) == request.is_shadowed.value)
         if request.HasField("has_avatar"):
             statement = statement.where(has_avatar_photo_expression(User) == request.has_avatar.value)
         if request.admin_tags:
@@ -410,16 +421,67 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user.banned_at = None
         return _user_to_details(session, user)
 
-    def AddAdminNote(
-        self, request: admin_pb2.AddAdminNoteReq, context: CouchersContext, session: Session
+    def ShadowUser(
+        self, request: admin_pb2.ShadowUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
+        user.shadowed_at = now()
+        # Bulk-shadow all UMS-governed content authored by this user so existing visible content is hidden too
+        bulk_set_user_content_visibility(
+            session=session,
+            user=user,
+            new_visibility=ModerationVisibility.shadowed,
+            moderator_user_id=context.user_id,
+            reason=f"User {user.id} shadowed: {request.admin_note}",
+        )
+        return _user_to_details(session, user)
+
+    def UnshadowUser(
+        self, request: admin_pb2.UnshadowUserReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        if not request.admin_note.strip():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
+        user.shadowed_at = None
+        # Existing UMS content remains where moderators left it; admins can manually re-approve as appropriate
+        return _user_to_details(session, user)
+
+    def AddAdminNote(
+        self, request: admin_pb2.AddAdminNoteReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        has_note = bool(request.admin_note.strip())
+        has_data = bool(request.data.strip())
+        if has_note == has_data:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "admin_note_requires_exactly_one_of_note_or_data"
+            )
+        data = None
+        if has_data:
+            try:
+                data = json.loads(request.data)
+            except json.JSONDecodeError:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_data_must_be_valid_json")
         level = api2adminactionlevel.get(request.level, AdminActionLevel.normal)
-        log_admin_action(session, context, user, "note", note=request.admin_note, level=level)
+        log_admin_action(
+            session,
+            context,
+            user,
+            "note",
+            note=request.admin_note if has_note else None,
+            data=data,
+            level=level,
+        )
         return _user_to_details(session, user)
 
     def GetContentReport(
@@ -1085,3 +1147,50 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user.mod_score = request.mod_score
         log_admin_action(session, context, user, "set_mod_score", note=f"mod_score={request.mod_score}")
         return _user_to_details(session, user)
+
+    def ListAdminActions(
+        self, request: admin_pb2.ListAdminActionsReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListAdminActionsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        admin_user = aliased(User)
+        target_user = aliased(User)
+
+        statement = (
+            select(AdminAction, admin_user.username, target_user.username)
+            .join(admin_user, AdminAction.admin_user_id == admin_user.id)
+            .join(target_user, AdminAction.target_user_id == target_user.id)
+        )
+
+        if request.admin_user_id:
+            statement = statement.where(AdminAction.admin_user_id == request.admin_user_id)
+        if request.target_user_id:
+            statement = statement.where(AdminAction.target_user_id == request.target_user_id)
+        if request.page_token:
+            statement = statement.where(AdminAction.id < int(request.page_token))
+
+        statement = statement.order_by(AdminAction.id.desc()).limit(page_size + 1)
+
+        rows = session.execute(statement).all()
+
+        action_pbs = [
+            admin_pb2.AdminActionLog(
+                admin_action_id=action.id,
+                created=Timestamp_from_datetime(action.created),
+                admin_user_id=action.admin_user_id,
+                admin_username=admin_username,
+                action_type=action.action_type,
+                level=adminactionlevel2api[action.level],
+                note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
+                tag=action.tag or "",
+                target_user_id=action.target_user_id,
+                target_username=target_username,
+            )
+            for action, admin_username, target_username in rows[:page_size]
+        ]
+
+        return admin_pb2.ListAdminActionsRes(
+            admin_actions=action_pbs,
+            next_page_token=str(rows[page_size - 1][0].id) if len(rows) > page_size else None,
+        )

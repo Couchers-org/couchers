@@ -96,6 +96,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
             caption=request.caption or None,
         )
         session.add(item)
+        gallery.last_updated = func.now()
         session.flush()
         session.refresh(gallery)
 
@@ -124,6 +125,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "gallery_item_not_found")
 
         session.delete(item)
+        gallery.last_updated = func.now()
         session.flush()
         session.refresh(gallery)
 
@@ -184,6 +186,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
             session.execute(
                 update(PhotoGalleryItem).where(PhotoGalleryItem.id == request.item_id).values(position=new_position)
             )
+            gallery.last_updated = func.now()
 
         session.flush()
         session.refresh(gallery)
@@ -213,6 +216,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "gallery_item_not_found")
 
         item.caption = request.caption or None
+        gallery.last_updated = func.now()
         session.flush()
         session.refresh(gallery)
 

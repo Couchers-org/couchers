@@ -14,7 +14,10 @@ import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
+import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
+import ProfileSheet from "features/profile/ProfileSheet";
+import { ProfileSheetProvider } from "features/profile/ProfileSheetContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import StatsigProvider from "features/statsig/StatsigProvider";
 import type { AppProps } from "next/app";
@@ -78,18 +81,23 @@ function MyApp(props: AppWithLayoutProps) {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <ThemeProvider theme={theme}>
             <ErrorBoundary isFatal>
-              <ReactQueryClientProvider>
-                <AuthProvider>
-                  <StatsigProvider>
-                    <CssBaseline />
-                    <NativeColorSchemeSync />
-                    <NativeMobileNavigationHandler />
-                    <EnvironmentBanner />
-                    <HtmlMeta />
-                    {getLayout(<Component {...pageProps} />)}
-                  </StatsigProvider>
-                </AuthProvider>
-              </ReactQueryClientProvider>
+              <AnalyticsProvider>
+                <ReactQueryClientProvider>
+                  <AuthProvider>
+                    <StatsigProvider>
+                      <CssBaseline />
+                      <NativeColorSchemeSync />
+                      <NativeMobileNavigationHandler />
+                      <EnvironmentBanner />
+                      <HtmlMeta />
+                      <ProfileSheetProvider>
+                        {getLayout(<Component {...pageProps} />)}
+                        <ProfileSheet />
+                      </ProfileSheetProvider>
+                    </StatsigProvider>
+                  </AuthProvider>
+                </ReactQueryClientProvider>
+              </AnalyticsProvider>
             </ErrorBoundary>
           </ThemeProvider>
         </LocalizationProvider>
