@@ -19,7 +19,7 @@ jobs:
   add-reviewers:
     name: Add reviewers
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
+    if: "!github.event.pull_request.draft"
     steps:
       - uses: actions/checkout@v4
         with:
