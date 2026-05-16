@@ -41,20 +41,29 @@ jobs:
           # The "changes" output is a JSON array of filter names.
           FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
         run: |
-          # Filter keys are "<name> <reviewer1,reviewer2,...>"; extract reviewers from matched filters.
-          MATCHED_REVIEWERS=$(echo "$FILTER_CHANGES" | jq -r '.[] | split(" ")[1] | split(",") | .[]')
+          # Filter keys are "<name> <reviewer1,reviewer2,...>"; process matched filters.
+          REVIEWERS=()
+          while IFS= read -r entry; do
+            [[ -n "$entry" ]] || continue
+            RULE_NAME="${entry%% *}"
+            REVIEWERS_STR="${entry#* }"
 
-          ARGS=()
-          while IFS= read -r reviewer; do
-            # Ignore empty entries
-            [[ -n "$reviewer" ]] || continue
-            # The PR author cannot be a reviewer on their own PR
-            [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
+            echo "Matched rule \"$RULE_NAME\" with reviewers: $REVIEWERS_STR"
+            IFS=',' read -ra reviewers <<< "$REVIEWERS_STR"
+            for reviewer in "${reviewers[@]}"; do
+              [[ -n "$reviewer" ]] || continue
+              # The PR author cannot be a reviewer on their own PR
+              [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
+              # Avoid adding the same reviewer twice
+              [[ " ${REVIEWERS[*]} " == *" $reviewer "* ]] && continue
+              REVIEWERS+=("$reviewer")
+            done
+          done < <(echo "$FILTER_CHANGES" | jq -r '.[]')
 
-            echo "Adding reviewer: $reviewer"
-            ARGS+=(--add-reviewer "$reviewer")
-          done <<< "$MATCHED_REVIEWERS"
-
-          if [[ ${#ARGS[@]} -gt 0 ]]; then
+          if [[ ${#REVIEWERS[@]} -gt 0 ]]; then
+            ARGS=()
+            for reviewer in "${REVIEWERS[@]}"; do
+              ARGS+=(--add-reviewer "$reviewer")
+            done
             # gh pr edit "$PR_NUMBER" "${ARGS[@]}"
           fi
