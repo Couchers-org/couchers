@@ -20,7 +20,7 @@ jobs:
     name: Add reviewers
     runs-on: ubuntu-latest
     # Let tristanlabelle validate this workflow before switching from CODEOWNERS
-    if: github.event.pull_request.user.login == 'tristanlabelle' && github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
+    if: github.event.pull_request.user.login == 'tristanlabelle' && github.actor != 'dependabot[bot]'
     steps:
       - uses: dorny/paths-filter@v4
         id: filter
@@ -51,5 +51,5 @@ jobs:
           done <<< "$MATCHED_REVIEWERS"
 
           if [[ ${#ARGS[@]} -gt 0 ]]; then
-            gh pr edit "$PR_NUMBER" "${ARGS[@]}"
+            # gh pr edit "$PR_NUMBER" "${ARGS[@]}"
           fi

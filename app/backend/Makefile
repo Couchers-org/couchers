@@ -1,4 +1,4 @@
-# Makefile for the backend of the application
+# Makefile for the backend of the application test
 # Run 'make [command]' in app/backend to execute the specified command
 
 UV_VERSION=0.10.9
