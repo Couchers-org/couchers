@@ -81,10 +81,12 @@ class Comment(Base, kw_only=True):
     """
 
     __tablename__ = "comments"
+    __moderation_author_column__ = "author_user_id"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
@@ -99,10 +101,12 @@ class Reply(Base, kw_only=True):
     """
 
     __tablename__ = "replies"
+    __moderation_author_column__ = "author_user_id"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)

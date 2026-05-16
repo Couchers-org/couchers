@@ -41,7 +41,7 @@ def discussion_to_pb(session: Session, discussion: Discussion, context: Couchers
         owner_title=discussion.owner_cluster.name,
         title=discussion.title,
         content=discussion.content,
-        thread=thread_to_pb(session, discussion.thread_id),
+        thread=thread_to_pb(session, context, discussion.thread_id),
         can_moderate=can_moderate,
     )
 

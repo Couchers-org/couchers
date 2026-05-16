@@ -66,6 +66,8 @@ class ModerationObjectType(enum.Enum):
     group_chat = enum.auto()
     friend_request = enum.auto()
     event_occurrence = enum.auto()
+    comment = enum.auto()
+    reply = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):

@@ -9,17 +9,28 @@ from sqlalchemy.sql import func
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
-from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
+from couchers.models import (
+    Comment,
+    Discussion,
+    Event,
+    EventOccurrence,
+    ModerationObjectType,
+    Reply,
+    Thread,
+    User,
+)
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import where_users_column_visible
+from couchers.sql import where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
+
 
 # Since the API exposes a single ID space regardless of nesting level,
 # we construct the API id by appending the nesting level to the
@@ -35,24 +46,29 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     return divmod(thread_id, 10)
 
 
-def total_num_responses(session: Session, database_id: int) -> int:
-    """Return the total number of comments and replies to the thread with
-    database id database_id.
-    """
-    comments = select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
-    replies = (
+def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
+    comments = where_moderated_content_visible(
+        select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
+        context,
+        Comment,
+        is_list_operation=True,
+    )
+    replies = where_moderated_content_visible(
         select(func.count())
         .select_from(Reply)
         .join(Comment, Comment.id == Reply.comment_id)
-        .where(Comment.thread_id == database_id)
+        .where(Comment.thread_id == database_id),
+        context,
+        Reply,
+        is_list_operation=True,
     )
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
-def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
+def thread_to_pb(session: Session, context: CouchersContext, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
-        num_responses=total_num_responses(session, database_id),
+        num_responses=total_num_responses(session, context, database_id),
     )
 
 
@@ -103,7 +119,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             event=event_to_pb(session, occurrence, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
-                        moderation_state_id=occurrence.moderation_state_id,
+                        moderation_state_id=comment.moderation_state_id,
                     )
             elif discussion:
                 # community discussion thread
@@ -129,6 +145,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             discussion=discussion_to_pb(session, discussion, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
+                        moderation_state_id=comment.moderation_state_id,
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
@@ -186,7 +203,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             event=event_to_pb(session, occurrence, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
-                        moderation_state_id=occurrence.moderation_state_id,
+                        moderation_state_id=db_reply.moderation_state_id,
                     )
             elif discussion:
                 # community discussion thread
@@ -202,6 +219,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             discussion=discussion_to_pb(session, discussion, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
+                        moderation_state_id=db_reply.moderation_state_id,
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
@@ -222,7 +240,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = session.execute(
-                where_users_column_visible(
+                where_moderated_content_visible(
                     select(Comment, func.count(Reply.id))
                     .outerjoin(Reply, Reply.comment_id == Comment.id)
                     .where(Comment.thread_id == database_id)
@@ -231,7 +249,8 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     .order_by(Comment.created.desc())
                     .limit(page_size + 1),
                     context,
-                    Comment.author_user_id,
+                    Comment,
+                    is_list_operation=True,
                 )
             ).all()
             replies = [
@@ -246,19 +265,26 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             ]
 
         elif depth == 1:
-            if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
+            if not session.execute(
+                where_moderated_content_visible(
+                    select(Comment).where(Comment.id == database_id),
+                    context,
+                    Comment,
+                )
+            ).scalar_one_or_none():
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
                 session.execute(  # type: ignore[assignment]
-                    where_users_column_visible(
+                    where_moderated_content_visible(
                         select(Reply)
                         .where(Reply.comment_id == database_id)
                         .where(Reply.id < page_start)
                         .order_by(Reply.created.desc())
                         .limit(page_size + 1),
                         context,
-                        Reply.author_user_id,
+                        Reply,
+                        is_list_operation=True,
                     )
                 )
                 .scalars()
@@ -295,20 +321,42 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
 
         database_id, depth = unpack_thread_id(request.thread_id)
-        if depth == 0:
-            object_to_add: Comment | Reply = Comment(
-                thread_id=database_id, author_user_id=context.user_id, content=content
-            )
-        elif depth == 1:
-            object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
-        else:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
-        session.add(object_to_add)
-        try:
-            session.flush()
-        except sqlalchemy.exc.IntegrityError:
+        if depth not in (0, 1):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
+        object_to_add: Comment | Reply | None = None
+
+        def create_object(moderation_state_id: int) -> int:
+            nonlocal object_to_add
+            if depth == 0:
+                object_to_add = Comment(
+                    thread_id=database_id,
+                    author_user_id=context.user_id,
+                    content=content,
+                    moderation_state_id=moderation_state_id,
+                )
+            else:
+                object_to_add = Reply(
+                    comment_id=database_id,
+                    author_user_id=context.user_id,
+                    content=content,
+                    moderation_state_id=moderation_state_id,
+                )
+            session.add(object_to_add)
+            try:
+                session.flush()
+            except sqlalchemy.exc.IntegrityError:
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+            return object_to_add.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.comment if depth == 0 else ModerationObjectType.reply,
+            object_id=create_object,
+            creator_user_id=context.user_id,
+        )
+
+        assert object_to_add is not None
         thread_id = pack_thread_id(object_to_add.id, depth + 1)
 
         queue_job(

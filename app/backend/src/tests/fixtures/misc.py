@@ -11,6 +11,7 @@ from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.servicers.threads import unpack_thread_id
 from tests.fixtures.sessions import real_moderation_session
 
 
@@ -174,3 +175,49 @@ class Moderator:
                     reason=reason,
                 )
             )
+
+    def approve_comment(self, comment_id: int, reason: str = "Test approval") -> None:
+        """Approve a Comment using the moderation API. comment_id is the database id of the Comment."""
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
+                    object_id=comment_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_reply(self, reply_id: int, reason: str = "Test approval") -> None:
+        """Approve a Reply using the moderation API. reply_id is the database id of the Reply."""
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
+                    object_id=reply_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_thread_post(self, packed_thread_id: int, reason: str = "Test approval") -> None:
+        """Approve whichever of Comment/Reply the packed thread_id refers to."""
+        database_id, depth = unpack_thread_id(packed_thread_id)
+        if depth == 1:
+            self.approve_comment(database_id, reason=reason)
+        elif depth == 2:
+            self.approve_reply(database_id, reason=reason)
+        else:
+            raise ValueError(f"approve_thread_post: thread_id {packed_thread_id} has unsupported depth {depth}")
