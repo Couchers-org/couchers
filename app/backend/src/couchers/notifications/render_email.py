@@ -22,7 +22,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.proto import api_pb2, notification_data_pb2
+from couchers.proto import api_pb2
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now, to_aware_datetime
 
@@ -114,7 +114,7 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail(user_name, new_gender=data.gender)
         case NotificationTopicAction.modnote__create:
-            return emails.ModNoteEmail(user_name)
+            return emails.ModeratorNoteEmail(user_name)
         case NotificationTopicAction.password__change:
             return emails.PasswordChangedEmail(user_name)
         case NotificationTopicAction.password_reset__complete:
@@ -127,6 +127,19 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=False)
         case NotificationTopicAction.phone_number__verify:
             return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=True)
+        case NotificationTopicAction.postal_verification__failed:
+            return emails.PostalVerificationFailedEmail(user_name, reason=data.reason)
+        case NotificationTopicAction.postal_verification__postcard_sent:
+            return emails.PostalVerificationPostcardSentEmail(user_name, city=data.city, country=data.country)
+        case NotificationTopicAction.postal_verification__success:
+            return emails.PostalVerificationSucceededEmail(user_name)
+        case NotificationTopicAction.verification__sv_fail:
+            return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
+        case NotificationTopicAction.verification__sv_success:
+            return emails.StrongVerificationSucceededEmail(
+                user_name,
+                donate_link=urls.donation_url() + "?utm_source=strong-verification-email",
+            )
         case _:
             # Still implemented as a custom templated email
             return None
@@ -575,80 +588,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 template_name="onboarding2",
                 template_args={
                     "edit_profile_link": urls.edit_profile_link(),
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.verification__sv_success:
-        title = "Strong Verification succeeded"
-        message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="strong_verification_success",
-            template_args={
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.verification__sv_fail:
-        title = "Strong Verification failed"
-        if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
-            reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
-        elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-            reason_message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
-        elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            reason_message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
-        else:
-            raise Exception("Shouldn't get here")
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": reason_message,
-            },
-        )
-    elif notification.topic == "postal_verification":
-        if notification.action == "postcard_sent":
-            title = "Your verification postcard is on its way"
-            message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=message,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": message,
-                },
-            )
-        elif notification.action == "success":
-            title = "Postal Verification succeeded"
-            message = "You have been verified with Postal Verification! Your address has been confirmed."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=message,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": message,
-                },
-            )
-        elif notification.action == "failed":
-            title = "Postal Verification failed"
-            if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
-                reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
-            elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
-                reason_message = "Too many incorrect code attempts. You can start a new verification attempt."
-            else:
-                reason_message = (
-                    "Your postal verification attempt has failed. You can start a new verification attempt."
-                )
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=title,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": reason_message,
                 },
             )
     elif notification.topic_action == NotificationTopicAction.activeness__probe:

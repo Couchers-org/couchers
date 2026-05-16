@@ -1,8 +1,0 @@
-<mj-section padding="0px">
-  <mj-column>
-    <mj-text>Hi {{ user.name }},</mj-text>
-    <mj-text>{{ message }}</mj-text>
-    <mj-text>If you did not initiate this action, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
-    <mj-text>Best,<br />The Couchers.org Team</mj-text>
-  </mj-column>
-</mj-section>

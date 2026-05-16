@@ -16,6 +16,7 @@ from couchers.email.rendering import (
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict
 from couchers.i18n.localize import format_phone_number
+from couchers.proto import notification_data_pb2
 
 
 @dataclass
@@ -208,10 +209,10 @@ class ModeratorNoteEmail(EmailBase):
     """Sent to a user to notify them they have received a moderator note."""
 
     @property
-    def _localize_key_prefix(self) -> str:
+    def string_key_prefix(self) -> str:
         return "moderator_note"
 
-    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body")
 
     @classmethod
@@ -266,7 +267,7 @@ class PasswordResetStartedEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("request_description")
         builder.para("confirmation_instructions")
-        builder.action(self.password_reset_link, "reset_button")
+        builder.action(self.password_reset_link, "reset_action")
         builder.security_warning_para()
 
     @classmethod
@@ -295,4 +296,126 @@ class PhoneNumberChangeEmail(EmailBase):
             user_name="Alice",
             new_phone_number="+12223334444",
             completed=False,
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationFailedEmail(EmailBase):
+    """Sent to a user when their postal verification attempt has failed."""
+
+    reason: notification_data_pb2.PostalVerificationFailReason.ValueType
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "postal_verification_failed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        match self.reason:
+            case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
+                reason_string_key = "reason_code_expired"
+            case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
+                reason_string_key = "reason_too_many_attempts"
+            case _:
+                reason_string_key = "reason_unknown"
+        builder.para(reason_string_key)
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> PostalVerificationFailedEmail:
+        return PostalVerificationFailedEmail(
+            user_name="Alice",
+            reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED,
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationPostcardSentEmail(EmailBase):
+    """Sent to a user to notify them that their verification postcard has been sent."""
+
+    city: str
+    country: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "postal_verification_postcard_sent"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"city": self.city, "country": self.country})
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> PostalVerificationPostcardSentEmail:
+        return PostalVerificationPostcardSentEmail(user_name="Alice", city="New York", country="United States")
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationSucceededEmail(EmailBase):
+    """Sent to a user when their postal verification has succeeded."""
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "postal_verification_succeeded"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> PostalVerificationSucceededEmail:
+        return PostalVerificationSucceededEmail(user_name="Alice")
+
+
+@dataclass(kw_only=True, slots=True)
+class StrongVerificationFailedEmail(EmailBase):
+    """Sent to a user when their strong verification attempt has failed."""
+
+    reason: notification_data_pb2.SVFailReason.ValueType
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "strong_verification_failed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        match self.reason:
+            case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
+                reason_string_key = "reason_wrong_birthdate_or_gender"
+            case notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
+                reason_string_key = "reason_not_a_passport"
+            case notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
+                reason_string_key = "reason_duplicate"
+            case _:
+                raise Exception("Shouldn't get here")
+        builder.para(reason_string_key)
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> StrongVerificationFailedEmail:
+        return StrongVerificationFailedEmail(
+            user_name="Alice",
+            reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT,
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class StrongVerificationSucceededEmail(EmailBase):
+    """Sent to a user when their strong verification has succeeded."""
+
+    donate_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "strong_verification_succeeded"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("success_message")
+        builder.para("thanks_message")
+        builder.para("cost_explanation")
+        builder.para("donation_request")
+        builder.action(self.donate_link, "donate_action")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> StrongVerificationSucceededEmail:
+        return StrongVerificationSucceededEmail(
+            user_name="Alice", donate_link="https://couchers.org/donate?utm_source=strong-verification-email"
         )
