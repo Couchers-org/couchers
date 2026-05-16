@@ -30,6 +30,7 @@ jobs:
         id: filter
         with:
           filters: .github/autoreviewers.yml
+          predicate-quantifier: every
 
       - name: Add reviewers
         env:
