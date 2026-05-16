@@ -22,6 +22,10 @@ jobs:
     # Let tristanlabelle validate this workflow before switching from CODEOWNERS
     if: github.event.pull_request.user.login == 'tristanlabelle' && github.actor != 'dependabot[bot]'
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/autoreviewers.yml
+
       - uses: dorny/paths-filter@v4
         id: filter
         with:
