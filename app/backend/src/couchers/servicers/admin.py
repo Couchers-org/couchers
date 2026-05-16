@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import timedelta
 
@@ -79,6 +80,7 @@ def log_admin_action(
     target_user: User,
     action_type: str,
     note: str | None = None,
+    data: object | None = None,
     tag: str | None = None,
     level: AdminActionLevel = AdminActionLevel.normal,
 ) -> AdminAction:
@@ -88,6 +90,7 @@ def log_admin_action(
         action_type=action_type,
         level=level,
         note=note,
+        data=data,
         tag=tag,
     )
     session.add(action)
@@ -115,6 +118,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
                 action_type=action.action_type,
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
                 tag=action.tag or "",
                 target_user_id=action.target_user_id,
                 target_username=user.username,
@@ -456,10 +460,28 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        has_note = bool(request.admin_note.strip())
+        has_data = bool(request.data.strip())
+        if has_note == has_data:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "admin_note_requires_exactly_one_of_note_or_data"
+            )
+        data = None
+        if has_data:
+            try:
+                data = json.loads(request.data)
+            except json.JSONDecodeError:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_data_must_be_valid_json")
         level = api2adminactionlevel.get(request.level, AdminActionLevel.normal)
-        log_admin_action(session, context, user, "note", note=request.admin_note, level=level)
+        log_admin_action(
+            session,
+            context,
+            user,
+            "note",
+            note=request.admin_note if has_note else None,
+            data=data,
+            level=level,
+        )
         return _user_to_details(session, user)
 
     def GetContentReport(
@@ -1160,6 +1182,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 action_type=action.action_type,
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
                 tag=action.tag or "",
                 target_user_id=action.target_user_id,
                 target_username=target_username,

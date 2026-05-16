@@ -1,0 +1,55 @@
+# Adds reviewers upon publishing a PR based on changed files.
+# Works around limitations of GitHub's CODEOWNERS, which can only match one rule,
+# whereas our changes can straddle frontend and backend, for example.
+name: Add reviewers
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  add-reviewers:
+    name: Add reviewers
+    runs-on: ubuntu-latest
+    # Let tristanlabelle validate this workflow before switching from CODEOWNERS
+    if: github.event.pull_request.user.login == 'tristanlabelle' && github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
+    steps:
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: .github/autoreviewers.yml
+
+      - name: Add reviewers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          # The "changes" output is a JSON array of filter names.
+          FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
+        run: |
+          # Filter keys are "<name> <reviewer1,reviewer2,...>"; extract reviewers from matched filters.
+          MATCHED_REVIEWERS=$(echo "$FILTER_CHANGES" | jq -r '.[] | split(" ")[1] | split(",") | .[]')
+
+          ARGS=()
+          while IFS= read -r reviewer; do
+            # Ignore empty entries
+            [[ -n "$reviewer" ]] || continue
+            # The PR author cannot be a reviewer on their own PR
+            [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
+
+            echo "Adding reviewer: $reviewer"
+            ARGS+=(--add-reviewer "$reviewer")
+          done <<< "$MATCHED_REVIEWERS"
+
+          if [[ ${#ARGS[@]} -gt 0 ]]; then
+            gh pr edit "$PR_NUMBER" "${ARGS[@]}"
+          fi
