@@ -30,6 +30,9 @@ jobs:
         id: filter
         with:
           filters: .github/autoreviewers.yml
+          # Require every glob to match for a rule to match,
+          # otherwise we cannot express exclusions.
+          # e.g. 'app/web/**' + '!**/en.json' needs to be AND, not OR
           predicate-quantifier: every
 
       - name: Collect reviewers from matched rules
