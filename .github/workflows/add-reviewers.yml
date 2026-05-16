@@ -59,6 +59,12 @@ jobs:
             done
           done < <(echo "$FILTER_CHANGES" | jq -r '.[]')
 
+          if [[ ${#REVIEWERS[@]} -gt 0 ]]; then
+            echo "Collected reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
+          else
+            echo "No reviewers collected"
+          fi
+
           echo "reviewers=$(IFS=','; echo "${REVIEWERS[*]}")" >> "$GITHUB_OUTPUT"
 
       - name: Add reviewers
