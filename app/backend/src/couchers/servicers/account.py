@@ -67,7 +67,7 @@ from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
-from couchers.sql import where_moderated_content_visible, where_users_column_visible
+from couchers.sql import where_moderated_content_visible
 from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_report_email,
@@ -747,7 +747,6 @@ class Account(account_pb2_grpc.AccountServicer):
         query = select(HostRequest.conversation_id, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.initiator_user_id
         )
-        query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
         query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
         pending_host_requests = session.execute(
             query.where(HostRequest.recipient_user_id == context.user_id)
