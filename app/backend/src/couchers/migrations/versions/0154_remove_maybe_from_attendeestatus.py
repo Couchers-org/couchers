@@ -15,6 +15,8 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # backfill any remaining maybe rows to going before dropping the enum value
+    op.execute("UPDATE event_occurrence_attendees SET attendee_status = 'going' WHERE attendee_status = 'maybe'")
     op.execute("ALTER TYPE attendeestatus RENAME TO attendeestatus_old")
     op.execute("CREATE TYPE attendeestatus AS ENUM ('going')")
     op.execute("""
