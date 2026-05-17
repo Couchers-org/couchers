@@ -153,7 +153,8 @@ def _get_growthbook(context: CouchersContext) -> GrowthBook:
     `client_key` keeps the GrowthBook a pure evaluator: no callback
     registration on the library's process-wide singleton.
     """
-    if not hasattr(context, "_growthbook"):
+    gb = context._growthbook
+    if gb is None:
         with _state_lock:
             features = _state["features"]
             saved_groups = _state["savedGroups"]
@@ -169,8 +170,8 @@ def _get_growthbook(context: CouchersContext) -> GrowthBook:
             savedGroups=saved_groups,
             on_experiment_viewed=on_experiment_viewed,
         )
-        context._growthbook = gb  # type: ignore[attr-defined]
-    return context._growthbook  # type: ignore[attr-defined, no-any-return]
+        context._growthbook = gb
+    return gb
 
 
 def check_gate(context: CouchersContext, gate_name: str) -> bool:
