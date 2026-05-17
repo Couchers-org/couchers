@@ -10,7 +10,7 @@ from couchers.proto import conversations_pb2, requests_pb2
 from couchers.proto.requests_pb2 import HostRequest
 from couchers.utils import today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import Moderator, EmailCollector
+from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
 from tests.test_requests import valid_request_text
 
