@@ -1,11 +1,12 @@
+# [WIP] Currently fails to add team reviewers
 # Adds reviewers upon publishing a PR based on changed files.
 # Works around limitations of GitHub's CODEOWNERS, which can only match one rule,
 # whereas our changes can straddle frontend and backend, for example.
 name: Add reviewers
 
-on:
-  pull_request:
-    types: [opened, ready_for_review, reopened]
+# on:
+#   pull_request:
+#     types: [opened, ready_for_review, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
