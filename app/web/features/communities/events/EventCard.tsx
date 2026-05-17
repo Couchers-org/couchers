@@ -125,10 +125,7 @@ interface EventCardProps {
   className?: string;
 }
 
-export default function EventCard({
-  event,
-  className,
-}: EventCardProps) {
+export default function EventCard({ event, className }: EventCardProps) {
   const {
     t,
     i18n: { language: locale },
