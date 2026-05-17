@@ -201,7 +201,7 @@ const LongEventCard = ({
             <ActivityStatsWrapper>
               <Attendees>
                 {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
+                  count: event.goingCount,
                 })}
               </Attendees>
               <StyledCommentsCount variant="body2">

@@ -123,15 +123,9 @@ export const EVENT_CARD_TEST_ID = "event-card";
 interface EventCardProps {
   event: Event.AsObject;
   className?: string;
-  // Optional formatter to override attendees count text (used by dashboard to avoid loading COMMUNITIES)
-  attendeesCountFormatter?: (count: number) => string;
 }
 
-export default function EventCard({
-  event,
-  className,
-  attendeesCountFormatter,
-}: EventCardProps) {
+export default function EventCard({ event, className }: EventCardProps) {
   const {
     t,
     i18n: { language: locale },
@@ -224,11 +218,9 @@ export default function EventCard({
 
             <ActivityStatsWrapper>
               <Typography variant="body2" color="textSecondary">
-                {attendeesCountFormatter
-                  ? attendeesCountFormatter(event.goingCount + event.maybeCount)
-                  : t("communities:attendees_count", {
-                      count: event.goingCount + event.maybeCount,
-                    })}
+                {t("communities:attendees_count", {
+                  count: event.goingCount,
+                })}
               </Typography>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {
