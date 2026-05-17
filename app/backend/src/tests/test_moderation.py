@@ -32,7 +32,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.misc import PushCollector, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
@@ -1785,7 +1785,7 @@ def test_group_chat_moderation_shadow(db):
 # ============================================================================
 
 
-def test_auto_approve_moderation_queue_disabled_when_zero(db):
+def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: EmailCollector):
     """Test that auto-approval is disabled when deadline is 0"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1796,18 +1796,17 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
 
         # No email should have been sent (request is shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
         # Ensure deadline is 0 (disabled)
         config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
@@ -1850,7 +1849,9 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
 
-def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: PushCollector):
+def test_auto_approve_moderation_queue_approves_old_items(
+    db, email_collector: EmailCollector, push_collector: PushCollector
+):
     """Test that auto-approval approves items older than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1861,18 +1862,17 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text("Test request for auto-approval"),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request for auto-approval"),
+            )
+        ).host_request_id
 
         # No email sent initially (shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host cannot see the request yet
     with requests_session(token2) as api:
@@ -1943,7 +1943,7 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
         assert approve_entries[0].moderator_user_id == moderator.id
 
 
-def test_auto_approve_does_not_approve_recent_items(db):
+def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCollector):
     """Test that auto-approval does not approve items that are newer than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1954,29 +1954,27 @@ def test_auto_approve_does_not_approve_recent_items(db):
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
 
         # No email sent (shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
     # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 3600
     config["MODERATION_BOT_USER_ID"] = moderator.id
 
     # Run the job - the item was just created, so it shouldn't be approved
-    with mock_notification_email() as mock:
-        auto_approve_moderation_queue(empty_pb2.Empty())
+    auto_approve_moderation_queue(empty_pb2.Empty())
 
-        # Still no email sent
-        mock.assert_not_called()
+    # Still no email sent
+    assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host still cannot see the request
     with requests_session(token2) as api:
@@ -2216,7 +2214,9 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
 # ============================================================================
 
 
-def test_host_request_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
+def test_host_request_message_notifications_suppressed_before_approval(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     """
     Test that notifications are NOT sent for messages in host requests
     that haven't been approved yet.
@@ -2239,6 +2239,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
         ).host_request_id
 
     # No notifications should have been sent to the host (request is SHADOWED)
+    assert email_collector.count_for_recipient(host.email) == 0
     assert push_collector.count_for_user(host.id) == 0
 
     # Send additional messages BEFORE approval - should NOT generate notifications
@@ -2260,8 +2261,8 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
     assert push_collector.count_for_user(host.id) == 0
 
     # Now approve the request
-    with mock_notification_email():
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
+    email_collector.pop_for_recipient(host.email)
 
     # Host should now have 3 notifications (all deferred notifications are delivered on approval):
     # 1. host_request:create (the initial request)
@@ -2315,7 +2316,9 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
     assert push_collector.count_for_user(host.id) == 0
 
 
-def test_host_request_notifications_sent_after_approval(db, push_collector: PushCollector, moderator):
+def test_host_request_notifications_sent_after_approval(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     """
     Test that after a host request is approved, all notifications work normally.
     """
@@ -2336,39 +2339,39 @@ def test_host_request_notifications_sent_after_approval(db, push_collector: Push
             )
         ).host_request_id
 
-    with mock_notification_email():
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
     # Host should have received 1 notification (the approval notification)
+    email_collector.pop_for_recipient(host.email, last=True)
     push_collector.pop_for_user(host.id, last=True)
 
     # Host accepts the request - surfer should be notified
     with requests_session(host_token) as api:
-        with mock_notification_email():
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    text="Sure, come on over!",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Sure, come on over!",
             )
+        )
 
     # Surfer should have 1 notification (the accept notification)
+    email_collector.pop_for_recipient(surfer.email, last=True)
     push = push_collector.pop_for_user(surfer.id, last=True)
     assert push.content.title == f"{host.name} accepted your host request"
 
     # Surfer confirms - host should be notified
     with requests_session(surfer_token) as api:
-        with mock_notification_email():
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-                    text="See you then!",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                text="See you then!",
             )
+        )
 
     # Host should now have received the confirmation notifications
+    email_collector.pop_for_recipient(host.email, last=True)
     push = push_collector.pop_for_user(host.id, last=True)
     assert push.content.title == f"{surfer.name} confirmed their host request"
 

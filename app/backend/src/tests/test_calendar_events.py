@@ -10,7 +10,7 @@ from couchers.proto import conversations_pb2, requests_pb2
 from couchers.proto.requests_pb2 import HostRequest
 from couchers.utils import today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import Moderator, email_fields, mock_notification_email
+from tests.fixtures.misc import Moderator, EmailCollector
 from tests.fixtures.sessions import requests_session
 from tests.test_requests import valid_request_text
 
@@ -92,7 +92,7 @@ def _normalize_ics(ics: str) -> str:
     return ics
 
 
-def test_host_request_attachments(db, moderator: Moderator):
+def test_host_request_attachments(db, email_collector: EmailCollector, moderator: Moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -110,28 +110,25 @@ def test_host_request_attachments(db, moderator: Moderator):
             )
         ).host_request_id
 
-    with mock_notification_email() as mock:
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert "request" in e.subject and surfer.name in e.subject
-    assert not e.attachments
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert "request" in email.subject and surfer.name in email.subject
+    assert not email.attachments
 
     # Host accepts, surfer gets a calendar attachment
     with requests_session(host_token) as api:
-        with mock_notification_email() as mock:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    text="Accepting host request",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
             )
+        )
 
-    e = email_fields(mock)
-    assert "accept" in e.subject and host.name in e.subject
-    ics_event = _get_email_ics_attachment_calendar_event(e)
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert "accept" in email.subject and host.name in email.subject
+    ics_event = _get_email_ics_attachment_calendar_event(email)
     assert _get_ics_event_sequence(ics_event) == 0
     assert not ics_event.status
     assert ics_event.begin.date() == from_date
@@ -139,38 +136,36 @@ def test_host_request_attachments(db, moderator: Moderator):
     assert ics_event.name == f"Surfing with {host.name}"
     assert ics_event.location == host.city
 
-    # Surfer confirms, hosts gets a calendar attachment
+    # Surfer confirms, host gets a calendar attachment
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-                    text="Confirming host request",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                text="Confirming host request",
             )
+        )
 
-    e = email_fields(mock)
-    assert "confirm" in e.subject and surfer.name in e.subject
-    ics_event = _get_email_ics_attachment_calendar_event(e)
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert "confirm" in email.subject and surfer.name in email.subject
+    ics_event = _get_email_ics_attachment_calendar_event(email)
     assert _get_ics_event_sequence(ics_event) == 0
     assert not ics_event.status
     assert ics_event.name == f"Hosting {surfer.name}"
 
-    # Host cancels, surfer gets a calendar attachment
+    # Surfer cancels, host gets a calendar attachment
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
-                    text="Cancelling host request",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                text="Cancelling host request",
             )
+        )
 
-    e = email_fields(mock)
-    assert "cancel" in e.subject and surfer.name in e.subject
-    ics_event = _get_email_ics_attachment_calendar_event(e)
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert "cancel" in email.subject and surfer.name in email.subject
+    ics_event = _get_email_ics_attachment_calendar_event(email)
     assert _get_ics_event_sequence(ics_event) == 1
     assert ics_event.status == "CANCELLED"
 

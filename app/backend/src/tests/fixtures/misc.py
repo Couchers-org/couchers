@@ -1,11 +1,9 @@
-from collections.abc import Generator
-from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
-from unittest.mock import Mock, patch
 
 from sqlalchemy.orm import Session
 
+from couchers.config import config
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
@@ -20,16 +18,41 @@ def process_jobs() -> None:
         pass
 
 
-@contextmanager
-def mock_notification_email() -> Generator[Mock]:
-    with patch("couchers.email.queuing._queue_email") as mock:
-        yield mock
+class EmailCollector:
+    def __init__(self) -> None:
+        # Collected emails by recipient address, chronologically.
+        self.by_recipient: dict[str, list[jobs_pb2.SendEmailPayload]] = {}
+
+    def mock_queue_email(self, session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+        if payload.recipient not in self.by_recipient:
+            self.by_recipient[payload.recipient] = []
+        self.by_recipient[payload.recipient].append(payload)
+
+    def count(self) -> int:
         process_jobs()
+        return sum(len(v) for v in self.by_recipient.values())
 
+    def count_for_recipient(self, recipient: str) -> int:
+        process_jobs()
+        return len(self.by_recipient.get(recipient, []))
 
-def email_fields(mock: Mock, call_ix: int = 0) -> jobs_pb2.SendEmailPayload:
-    args, _ = mock.call_args_list[call_ix]
-    return args[1]
+    def count_for_mods(self) -> int:
+        return self.count_for_recipient(config["MODS_EMAIL_RECIPIENT"])
+
+    def pop_for_recipient(self, recipient: str, last: bool = False) -> jobs_pb2.SendEmailPayload:
+        """
+        Removes and returns the oldest email queued to a given recipient,
+        optionally asserting that it is the last one.
+        """
+        process_jobs()
+        pushes = self.by_recipient.get(recipient)
+        assert pushes, f"No emails to pop for recipient {recipient}."
+        if last:
+            assert len(pushes) == 1, f"Expected a single email for recipient {recipient}."
+        return pushes.pop(0)
+
+    def pop_for_mods(self, last: bool = False) -> jobs_pb2.SendEmailPayload:
+        return self.pop_for_recipient(config["MODS_EMAIL_RECIPIENT"])
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -41,7 +64,7 @@ class Push:
 
 
 class PushCollector:
-    def __init__(self):
+    def __init__(self) -> None:
         self.by_user: dict[int, list[Push]] = {}
         """Collected notifications by user id, chronologically."""
 

@@ -26,7 +26,7 @@ from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import Moderator, PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
 
@@ -2341,7 +2341,7 @@ def test_list_past_events_regression(db):
         assert len(res.events) == 1
 
 
-def test_community_invite_requests(db, moderator: Moderator):
+def test_community_invite_requests(db, email_collector: EmailCollector, moderator: Moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2378,14 +2378,12 @@ def test_community_invite_requests(db, moderator: Moderator):
     moderator.approve_event_occurrence(event_id)
 
     with events_session(token1) as api:
-        with mock_notification_email() as mock:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == "mods@couchers.org.invalid"
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
 
-        assert user_url in e.plain
-        assert event_url in e.plain
+        email = email_collector.pop_for_mods(last=True)
+
+        assert user_url in email.plain
+        assert event_url in email.plain
 
         # can't send another req
         with pytest.raises(grpc.RpcError) as err:

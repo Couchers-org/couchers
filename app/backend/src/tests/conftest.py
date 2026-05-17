@@ -28,7 +28,7 @@ from tests.fixtures.db import (  # noqa: E402
     generate_user,
     populate_testing_resources,
 )
-from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -297,6 +297,15 @@ def fast_passwords():
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
+
+
+@pytest.fixture
+def email_collector():
+    """Captures emails and allows inspecting them."""
+    collector = EmailCollector()
+
+    with patch("couchers.email.queuing._queue_email", collector.mock_queue_email):
+        yield collector
 
 
 @pytest.fixture
