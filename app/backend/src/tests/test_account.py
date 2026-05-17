@@ -722,7 +722,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.ConfirmDeleteAccount(
             auth_pb2.ConfirmDeleteAccountReq(
-                token=token,
+                token=delete_token,
             )
         )
 

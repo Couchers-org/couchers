@@ -331,7 +331,7 @@ def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
                 )
             )
 
-        assert email_collector.count_for_mods() == 0
+        assert email_collector.count_for_reports() == 0
 
         host_user, _ = generate_user()
         with pytest.raises(grpc.RpcError) as exc_info:
@@ -349,7 +349,7 @@ def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
             == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
         )
 
-        email = email_collector.pop_for_mods(last=True)
+        email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
             f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
         )
