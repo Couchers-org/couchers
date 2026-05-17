@@ -5,7 +5,7 @@ name: Add reviewers
 
 on:
   pull_request:
-    types: [opened, ready_for_review, reopened]
+    types: [opened, ready_for_review, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -93,4 +93,5 @@ jobs:
           done
 
           echo "Adding reviewers: $REVIEWERS"
+          set -e
           gh pr edit "$PR_NUMBER" "${GH_PR_EDIT_ARGS[@]}"
