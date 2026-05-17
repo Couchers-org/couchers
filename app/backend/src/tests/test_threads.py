@@ -14,9 +14,11 @@ from couchers.models import (
     ModerationVisibility,
     Reply,
     Thread,
+    User,
 )
 from couchers.proto import moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
+from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_moderation_session, threads_session
 
@@ -261,6 +263,76 @@ def test_shadowed_reply_visible_to_author_only(db):
     with threads_session(other_token) as api:
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id))
         assert len(ret.replies) == 0
+
+
+def _approve(session, moderation_state_id):
+    session.execute(
+        select(ModerationState).where(ModerationState.id == moderation_state_id)
+    ).scalar_one().visibility = ModerationVisibility.visible
+
+
+def test_comment_by_invisible_user_hidden(db):
+    """A comment by a deleted/banned user is hidden from others even when its moderation state is visible."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="from invisible user")
+    comment_db_id = comment_thread_id // 10
+
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+        _approve(session, comment.moderation_state_id)
+
+    # while the author is visible, the comment shows
+    with threads_session(other_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 1
+
+    # delete the author
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == author.id)).scalar_one().deleted_at = now()
+
+    # the comment is now hidden from other users
+    with threads_session(other_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+
+
+def test_reply_by_invisible_user_hidden(db):
+    """A reply by a deleted/banned user is hidden from others even when its moderation state is visible."""
+    commenter, commenter_token = generate_user()
+    replier, replier_token = generate_user()
+    viewer, viewer_token = generate_user()
+
+    # comment by a user who stays visible, so the parent comment can still be navigated to
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(commenter_token, content="hi")
+    comment_db_id = comment_thread_id // 10
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+        _approve(session, comment.moderation_state_id)
+
+    with threads_session(replier_token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply")
+        ).thread_id
+    reply_db_id = reply_thread_id // 10
+    with session_scope() as session:
+        reply = session.execute(select(Reply).where(Reply.id == reply_db_id)).scalar_one()
+        _approve(session, reply.moderation_state_id)
+
+    # while the replier is visible, the reply shows and is counted on the parent comment
+    with threads_session(viewer_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id)).replies) == 1
+        parent = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
+        assert parent.replies[0].num_replies == 1
+
+    # delete the replier
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == replier.id)).scalar_one().deleted_at = now()
+
+    # the reply is now hidden from other users and no longer counted on the parent comment
+    with threads_session(viewer_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id)).replies) == 0
+        parent = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
+        assert parent.replies[0].num_replies == 0
 
 
 def test_admin_can_approve_comment(db):

@@ -48,16 +48,24 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
 
 def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
     comments = where_moderated_content_visible(
-        select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
+        where_users_column_visible(
+            select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
+            context,
+            Comment.author_user_id,
+        ),
         context,
         Comment,
         is_list_operation=True,
     )
     replies = where_moderated_content_visible(
-        select(func.count())
-        .select_from(Reply)
-        .join(Comment, Comment.id == Reply.comment_id)
-        .where(Comment.thread_id == database_id),
+        where_users_column_visible(
+            select(func.count())
+            .select_from(Reply)
+            .join(Comment, Comment.id == Reply.comment_id)
+            .where(Comment.thread_id == database_id),
+            context,
+            Reply.author_user_id,
+        ),
         context,
         Reply,
         is_list_operation=True,
@@ -239,15 +247,32 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
+            visible_reply_count = (
+                where_moderated_content_visible(
+                    where_users_column_visible(
+                        select(func.count(Reply.id)).where(Reply.comment_id == Comment.id),
+                        context,
+                        Reply.author_user_id,
+                    ),
+                    context,
+                    Reply,
+                    is_list_operation=True,
+                )
+                .correlate(Comment)
+                .scalar_subquery()
+            )
+
             res = session.execute(
                 where_moderated_content_visible(
-                    select(Comment, func.count(Reply.id))
-                    .outerjoin(Reply, Reply.comment_id == Comment.id)
-                    .where(Comment.thread_id == database_id)
-                    .where(Comment.id < page_start)
-                    .group_by(Comment.id)
-                    .order_by(Comment.created.desc())
-                    .limit(page_size + 1),
+                    where_users_column_visible(
+                        select(Comment, visible_reply_count)
+                        .where(Comment.thread_id == database_id)
+                        .where(Comment.id < page_start)
+                        .order_by(Comment.created.desc())
+                        .limit(page_size + 1),
+                        context,
+                        Comment.author_user_id,
+                    ),
                     context,
                     Comment,
                     is_list_operation=True,
@@ -267,7 +292,11 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         elif depth == 1:
             if not session.execute(
                 where_moderated_content_visible(
-                    select(Comment).where(Comment.id == database_id),
+                    where_users_column_visible(
+                        select(Comment).where(Comment.id == database_id),
+                        context,
+                        Comment.author_user_id,
+                    ),
                     context,
                     Comment,
                 )
@@ -277,11 +306,15 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             res = (
                 session.execute(  # type: ignore[assignment]
                     where_moderated_content_visible(
-                        select(Reply)
-                        .where(Reply.comment_id == database_id)
-                        .where(Reply.id < page_start)
-                        .order_by(Reply.created.desc())
-                        .limit(page_size + 1),
+                        where_users_column_visible(
+                            select(Reply)
+                            .where(Reply.comment_id == database_id)
+                            .where(Reply.id < page_start)
+                            .order_by(Reply.created.desc())
+                            .limit(page_size + 1),
+                            context,
+                            Reply.author_user_id,
+                        ),
                         context,
                         Reply,
                         is_list_operation=True,
