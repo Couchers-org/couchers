@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from unittest.mock import patch
 from typing import Any
+from unittest.mock import patch
 
 from sqlalchemy.orm import Session
 
@@ -33,7 +33,7 @@ class EmailCollector:
         self.by_recipient[payload.recipient].append(payload)
 
     def __enter__(self):
-        process_jobs() # Flush any emails prior to this point
+        process_jobs()  # Flush any emails prior to this point
         self.by_recipient.clear()
         self._patch.start()
         return self
@@ -97,7 +97,7 @@ class PushCollector:
         self.by_user[user_id].append(Push(**kwargs))
 
     def __enter__(self):
-        process_jobs() # Flush any push notifications prior to this point
+        process_jobs()  # Flush any push notifications prior to this point
         self.by_user.clear()
         self._patch.start()
         return self
