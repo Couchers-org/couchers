@@ -1,12 +1,11 @@
-# [WIP] Currently fails to add team reviewers
 # Adds reviewers upon publishing a PR based on changed files.
 # Works around limitations of GitHub's CODEOWNERS, which can only match one rule,
 # whereas our changes can straddle frontend and backend, for example.
 name: Add reviewers
 
-# on:
-#   pull_request:
-#     types: [opened, ready_for_review, reopened]
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronized, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -20,7 +19,7 @@ jobs:
   add-reviewers:
     name: Add reviewers
     runs-on: ubuntu-latest
-    if: "!github.event.pull_request.draft"
+    # if: "!github.event.pull_request.draft"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +43,9 @@ jobs:
           FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
         run: |
           # Filter keys are "<name> <reviewer1,reviewer2,...>"; process matched filters.
+          # Reviewers with "/" are org teams (e.g. "Couchers-org/backend"); others are individuals.
           REVIEWERS=()
+          TEAM_REVIEWERS=()
           while IFS= read -r entry; do
             [[ -n "$entry" ]] || continue
             RULE_NAME="${entry%% *}"
@@ -54,35 +55,44 @@ jobs:
             IFS=',' read -ra reviewers <<< "$REVIEWERS_STR"
             for reviewer in "${reviewers[@]}"; do
               [[ -n "$reviewer" ]] || continue
-              # The PR author cannot be a reviewer on their own PR
-              [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
-              # Avoid adding the same reviewer twice
-              [[ " ${REVIEWERS[*]} " == *" $reviewer "* ]] && continue
-              REVIEWERS+=("$reviewer")
+              if [[ "$reviewer" == *"/"* ]]; then
+                team_slug="${reviewer#*/}"
+                [[ " ${TEAM_REVIEWERS[*]} " == *" $team_slug "* ]] && continue
+                TEAM_REVIEWERS+=("$team_slug")
+              else
+                # The PR author cannot be a reviewer on their own PR
+                [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
+                # Avoid adding the same reviewer twice
+                [[ " ${REVIEWERS[*]} " == *" $reviewer "* ]] && continue
+                REVIEWERS+=("$reviewer")
+              fi
             done
           done < <(echo "$FILTER_CHANGES" | jq -r '.[]')
 
           if [[ ${#REVIEWERS[@]} -gt 0 ]]; then
-            echo "Collected reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
-          else
+            echo "Individual reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
+          fi
+          if [[ ${#TEAM_REVIEWERS[@]} -gt 0 ]]; then
+            echo "Team reviewers: $(IFS=','; echo "${TEAM_REVIEWERS[*]}")"
+          fi
+          if [[ ${#REVIEWERS[@]} -eq 0 && ${#TEAM_REVIEWERS[@]} -eq 0 ]]; then
             echo "No reviewers collected"
           fi
 
-          echo "reviewers=$(IFS=','; echo "${REVIEWERS[*]}")" >> "$GITHUB_OUTPUT"
+          echo "reviewers=$(jq -cn '$ARGS.positional' --args "${REVIEWERS[@]}")" >> "$GITHUB_OUTPUT"
+          echo "team-reviewers=$(jq -cn '$ARGS.positional' --args "${TEAM_REVIEWERS[@]}")" >> "$GITHUB_OUTPUT"
 
       - name: Add reviewers
-        if: steps.collect-reviewers.outputs.reviewers != ''
+        if: steps.collect-reviewers.outputs.reviewers != '[]' || steps.collect-reviewers.outputs.team-reviewers != '[]'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REVIEWERS: ${{ steps.collect-reviewers.outputs.reviewers }}
+          TEAM_REVIEWERS: ${{ steps.collect-reviewers.outputs.team-reviewers }}
         run: |
-          GH_PR_EDIT_ARGS=()
-          IFS=',' read -ra reviewers <<< "$REVIEWERS"
-          for reviewer in "${reviewers[@]}"; do
-            GH_PR_EDIT_ARGS+=(--add-reviewer "$reviewer")
-          done
-
           echo "Adding reviewers: $REVIEWERS"
-          gh pr edit "$PR_NUMBER" "${GH_PR_EDIT_ARGS[@]}"
+          echo "Adding team reviewers: $TEAM_REVIEWERS"
+          gh api "repos/$GH_REPO/pulls/$PR_NUMBER/requested_reviewers" \
+            --method POST \
+            --input - <<< "{\"reviewers\": $REVIEWERS, \"team_reviewers\": $TEAM_REVIEWERS}"
