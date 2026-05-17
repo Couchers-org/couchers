@@ -302,9 +302,8 @@ def fast_passwords():
 @pytest.fixture
 def email_collector():
     """Captures emails and allows inspecting them."""
-    collector = EmailCollector()
 
-    with patch("couchers.email.queuing._queue_email", collector.mock_queue_email):
+    with EmailCollector() as collector:
         yield collector
 
 
@@ -313,9 +312,7 @@ def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-    collector = PushCollector()
-
-    with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
+    with PushCollector() as collector:
         yield collector
 
 

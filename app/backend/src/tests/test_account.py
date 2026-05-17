@@ -693,8 +693,6 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
     assert email.recipient == user.email
     assert "account deletion" in email.subject.lower()
-    assert token in email.plain
-    assert token in email.html
     unique_string = "You requested that we delete your account from Couchers.org."
     assert unique_string in email.plain
     assert unique_string in email.html
@@ -715,6 +713,8 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
         assert not user_.undelete_token
         assert not user_.undelete_until
 
+    assert delete_token in email.plain
+    assert delete_token in email.html
     delete_url = f"http://localhost:3000/delete-account?token={delete_token}"
     assert delete_url in email.plain
     assert delete_url in email.html

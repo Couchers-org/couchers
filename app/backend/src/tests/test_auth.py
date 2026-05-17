@@ -318,7 +318,7 @@ def test_basic_login(db):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
-def test_login_part_signed_up_verified_email(db, email_collector: EmailCollector):
+def test_login_part_signed_up_verified_email(db):
     """
     If you try to log in but didn't finish singing up, we send you a new email and ask you to finish signing up.
     """
@@ -338,18 +338,19 @@ def test_login_part_signed_up_verified_email(db, email_collector: EmailCollector
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as err:
-            auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
-        assert err.value.details() == "Please check your email for a link to continue signing up."
+    with EmailCollector() as email_collector:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as err:
+                auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
+            assert err.value.details() == "Please check your email for a link to continue signing up."
 
-    email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
-    assert email.recipient == "email@couchers.org.invalid"
-    assert flow_token in email.plain
-    assert flow_token in email.html
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert flow_token in email.plain
+        assert flow_token in email.html
 
 
-def test_login_part_signed_up_not_verified_email(db, email_collector: EmailCollector):
+def test_login_part_signed_up_not_verified_email(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -372,20 +373,21 @@ def test_login_part_signed_up_not_verified_email(db, email_collector: EmailColle
     flow_token = res.flow_token
     assert res.need_verify_email
 
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as err:
-            auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
-        assert err.value.details() == "Please check your email for a link to continue signing up."
+    with EmailCollector() as email_collector:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as err:
+                auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
+            assert err.value.details() == "Please check your email for a link to continue signing up."
 
-    with session_scope() as session:
-        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
-        email_token = flow.email_token
+        with session_scope() as session:
+            flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+            email_token = flow.email_token
 
-    email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
-    assert email.recipient == "email@couchers.org.invalid"
-    assert email_token
-    assert email_token in email.plain
-    assert email_token in email.html
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert email_token
+        assert email_token in email.plain
+        assert email_token in email.html
 
 
 def test_banned_user(db):

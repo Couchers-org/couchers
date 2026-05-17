@@ -763,12 +763,12 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
             recipient_user, _ = generate_user()
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
-        assert email_collector.count_for_mods() == 0
+        assert email_collector.count_for_reports() == 0
 
         recipient_user, _ = generate_user()
         _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
-        email = email_collector.pop_for_mods(last=True)
+        email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
             f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
         )
@@ -778,7 +778,7 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
             recipient_user, _ = generate_user()
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
-        assert email_collector.count_for_mods() == 0
+        assert email_collector.count_for_reports() == 0
 
         recipient_user, _ = generate_user()
         with pytest.raises(grpc.RpcError) as exc_info:
@@ -789,7 +789,7 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
             == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
         )
 
-        email = email_collector.pop_for_mods(last=True)
+        email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
             f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
         )

@@ -1075,11 +1075,11 @@ def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollec
             friend_user, _ = generate_user()
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
-        assert email_collector.count_for_mods() == 0
+        assert email_collector.count_for_reports() == 0
         friend_user, _ = generate_user()
         _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
-        email = email_collector.pop_for_mods(last=True)
+        email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
             f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
         )
@@ -1089,7 +1089,7 @@ def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollec
             friend_user, _ = generate_user()
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
-        assert email_collector.count_for_mods() == 0
+        assert email_collector.count_for_reports() == 0
         friend_user, _ = generate_user()
         with pytest.raises(grpc.RpcError) as exc_info:
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
@@ -1099,7 +1099,7 @@ def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollec
             == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
         )
 
-        email = email_collector.pop_for_mods(last=True)
+        email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
             f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
         )

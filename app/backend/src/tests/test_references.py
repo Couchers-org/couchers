@@ -557,7 +557,7 @@ def test_WriteFriendReference_with_private_text(db, email_collector: EmailCollec
         moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    email_collector.pop_for_mods(last=True)
+    email_collector.pop_for_reports(last=True)
     email = email_collector.pop_for_recipient(user2.email, last=True)
     assert email.subject == f"[TEST] You've received a friend reference from {user1.name}!"
     assert email.recipient == user2.email
@@ -883,7 +883,7 @@ def test_WriteHostRequestReference_private_text(db, email_collector: EmailCollec
         moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    email_collector.pop_for_mods(last=True)
+    email_collector.pop_for_reports(last=True)
     email = email_collector.pop_for_recipient(user2.email, last=True)
     assert email.subject == f"[TEST] You've received a reference from {user1.name}!"
     assert email.recipient == user2.email
