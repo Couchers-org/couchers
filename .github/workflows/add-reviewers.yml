@@ -19,7 +19,7 @@ jobs:
   add-reviewers:
     name: Add reviewers
     runs-on: ubuntu-latest
-    if: "!github.event.pull_request.draft"
+    # if: "!github.event.pull_request.draft"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,10 +69,19 @@ jobs:
 
           echo "reviewers=$(IFS=','; echo "${REVIEWERS[*]}")" >> "$GITHUB_OUTPUT"
 
+      # Log in as the bot since the default GITHUB_TOKEN doesn't have the permission to request review from a team
+      - name: Login as the couchers bot
+        if: steps.collect-reviewers.outputs.reviewers != ''
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Add reviewers
         if: steps.collect-reviewers.outputs.reviewers != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REVIEWERS: ${{ steps.collect-reviewers.outputs.reviewers }}

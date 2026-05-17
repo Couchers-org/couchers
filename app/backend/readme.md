@@ -79,7 +79,7 @@ cd app/backend
 make run-deps
 ```
 
-Then execute app/backend/src/run_locally.py with your debugger of choice. It will have all the correct 
+Then execute app/backend/src/run_locally.py with your debugger of choice. It will have all the correct
 env variables and will connect to the services (db, etc.) running in docker.
 
 
@@ -133,3 +133,5 @@ If you are using the live dev api ("next"/staging), it will send you real emails
 ### Q: How do I receive emails like the signup confirmation email in local dev?
 
 **A**: We run [MailDev](https://github.com/maildev/maildev) with the docker compose setup: it will receive emails and let you browse them. To view emails, visit <http://localhost:1080>.
+
+test
