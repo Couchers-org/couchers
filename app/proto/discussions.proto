@@ -55,7 +55,7 @@ message GetDiscussionReq {
 }
 
 message ListMyCommunitiesDiscussionsReq {
-  uint32 page_size = 1; // Maximum: 25
+  uint32 page_size = 1;
   string page_token = 2;
 }
 

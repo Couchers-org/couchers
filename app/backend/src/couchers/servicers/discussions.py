@@ -22,7 +22,7 @@ from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
 
-MAX_DISCUSSIONS_PAGE_SIZE = 25
+MAX_PAGE_SIZE = 25
 
 
 def discussion_to_pb(session: Session, discussion: Discussion, context: CouchersContext) -> discussions_pb2.Discussion:
@@ -172,7 +172,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
-        page_size = min(MAX_DISCUSSIONS_PAGE_SIZE, request.page_size or MAX_DISCUSSIONS_PAGE_SIZE)
+        page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
         next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
 
         discussions = (
