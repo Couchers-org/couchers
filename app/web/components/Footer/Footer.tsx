@@ -70,7 +70,7 @@ const StyledUpperContainer = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(1),
   columnGap: theme.spacing(1),
-  gridTemplateColumns: "auto auto",
+  gridTemplateColumns: "1fr 1fr",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
@@ -112,13 +112,13 @@ const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
 const StyledLowerContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
+  alignItems: "flex-start",
   margin: "0 auto",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     justifyContent: "center",
 
@@ -137,13 +137,14 @@ const StyledButtonContainer = styled("div")({
   flexDirection: "column",
   justifySelf: "flex-start",
   alignItems: "center",
+  width: "100%",
 });
 
 const StyledSocialIconsContainer = styled("div")({
   display: "flex",
   flexDirection: "row",
   justifyContent: "center",
-  gap: "12px",
+  gap: 2,
   marginTop: "16px",
 });
 
@@ -151,9 +152,7 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   minWidth: "8rem",
   textAlign: "center",
   marginBlockEnd: theme.spacing(2),
-  [theme.breakpoints.up("sm")]: {
-    minWidth: "12rem",
-  },
+  width: "100%",
   "& .MuiButton-label > * + *": {
     marginInlineStart: theme.spacing(1),
   },
@@ -224,80 +223,71 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
+            {!isNativeEmbed && (
+              <StyledButton
+                component={Link}
+                href={donationsRoute}
+                variant="contained"
+              >
+                {t("nav.donate")}
+              </StyledButton>
+            )}
+            <StyledButton
+              component={Link}
+              href={volunteerRoute}
+              variant="contained"
+              color="secondary"
+            >
+              {t("nav.volunteer")}
+            </StyledButton>
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "stretch",
-                width: "fit-content",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                flexWrap: "wrap",
+                gap: 1,
+                mb: 1,
               }}
             >
-              {!isNativeEmbed && (
-                <StyledButton
-                  component={Link}
-                  href={donationsRoute}
-                  variant="contained"
-                >
-                  {t("nav.donate")}
-                </StyledButton>
-              )}
-              <StyledButton
-                component={Link}
-                href={volunteerRoute}
-                variant="contained"
-                color="secondary"
+              <a
+                href={couchersAppStoreURL}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {t("nav.volunteer")}
-              </StyledButton>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: { xs: "center", sm: "space-between" },
-                  gap: { xs: 1, sm: 0 },
-                  width: "100%",
-                  mb: 1,
-                }}
+                <img
+                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt={t("download_on_app_store")}
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
+              </a>
+              <a
+                href={couchersGooglePlayURL}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <a
-                  href={couchersAppStoreURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <div
+                  style={{
+                    height: "26px",
+                    width: "87.75px",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
                 >
                   <img
-                    src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
-                    alt={t("download_on_app_store")}
-                    style={{ height: "26px", width: "auto", display: "block" }}
-                  />
-                </a>
-                <a
-                  href={couchersGooglePlayURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div
+                    src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                    alt={t("get_it_on_google_play")}
                     style={{
-                      height: "26px",
-                      width: "87.75px",
-                      overflow: "hidden",
-                      position: "relative",
+                      height: "39px",
+                      width: "auto",
+                      position: "absolute",
+                      top: "-6.5px",
+                      left: "-6.5px",
                     }}
-                  >
-                    <img
-                      src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
-                      alt={t("get_it_on_google_play")}
-                      style={{
-                        height: "39px",
-                        width: "auto",
-                        position: "absolute",
-                        top: "-6.5px",
-                        left: "-6.5px",
-                      }}
-                    />
-                  </div>
-                </a>
-              </Box>
+                  />
+                </div>
+              </a>
             </Box>
             <StyledSocialIconsContainer>
               <MuiLink
