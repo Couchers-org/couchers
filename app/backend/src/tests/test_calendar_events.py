@@ -4,7 +4,7 @@ from datetime import timedelta
 import ics
 import pytest
 
-from couchers.email.calendar_events import create_host_request_cancellation_calendar, create_host_request_calendar
+from couchers.email.calendar_events import create_host_request_calendar, create_host_request_cancellation_calendar
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.proto.requests_pb2 import HostRequest

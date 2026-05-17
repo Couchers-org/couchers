@@ -69,7 +69,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
             msg.add_attachment(attachment.data, maintype="application", subtype="octet-stream")
             attachment_part: MIMEPart = msg.get_payload()[-1]
             attachment_part["Content-Disposition"] = attachment.content_disposition
-            attachment_part['Content-Type'] = attachment.content_type
+            attachment_part["Content-Type"] = attachment.content_type
 
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()

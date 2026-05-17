@@ -102,13 +102,9 @@ def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailAttachment
     content_type = 'text/calendar; charset="UTF-8"'
     if calendar.method:
         # The SMTP Content-Type "method" parameter must match the value in the ics file.
-        content_type += f' method={calendar.method}'
+        content_type += f" method={calendar.method}"
 
-    return EmailAttachment(
-        data=data,
-        content_disposition=content_disposition,
-        content_type=content_type
-    )
+    return EmailAttachment(data=data, content_disposition=content_disposition, content_type=content_type)
 
 
 def get_host_request_event_uid(host_request_id: int) -> str:
