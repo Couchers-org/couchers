@@ -1028,12 +1028,11 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     )
     # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
     query = where_references_not_hidden_by_reciprocity(query)
-    query = (
-        query.where(Reference.to_user_id.in_(user_ids))
-        .join(User, User.id == Reference.from_user_id)
-        .where(User.is_visible)
-        .group_by(Reference.to_user_id)
-    )
+    query = where_users_column_visible(
+        query.where(Reference.to_user_id.in_(user_ids)),
+        context,
+        Reference.from_user_id,
+    ).group_by(Reference.to_user_id)
     return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
