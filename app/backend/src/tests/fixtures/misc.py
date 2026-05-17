@@ -39,7 +39,7 @@ class EmailCollector:
     def count_for_mods(self) -> int:
         return self.count_for_recipient(config["MODS_EMAIL_RECIPIENT"])
 
-    def pop_for_recipient(self, recipient: str, last: bool = False) -> jobs_pb2.SendEmailPayload:
+    def pop_for_recipient(self, recipient: str, *, last: bool = False) -> jobs_pb2.SendEmailPayload:
         """
         Removes and returns the oldest email queued to a given recipient,
         optionally asserting that it is the last one.
@@ -51,8 +51,8 @@ class EmailCollector:
             assert len(pushes) == 1, f"Expected a single email for recipient {recipient}."
         return pushes.pop(0)
 
-    def pop_for_mods(self, last: bool = False) -> jobs_pb2.SendEmailPayload:
-        return self.pop_for_recipient(config["MODS_EMAIL_RECIPIENT"])
+    def pop_for_mods(self, *, last: bool = False) -> jobs_pb2.SendEmailPayload:
+        return self.pop_for_recipient(config["MODS_EMAIL_RECIPIENT"], last=last)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -74,13 +74,15 @@ class PushCollector:
         self.by_user[user_id].append(Push(**kwargs))
 
     def count_for_user(self, user_id: int) -> int:
+        process_jobs()
         return len(self.by_user.get(user_id, []))
 
-    def pop_for_user(self, user_id: int, last: bool = False) -> Push:
+    def pop_for_user(self, user_id: int, *, last: bool = False) -> Push:
         """
         Removes and returns the oldest push notification received by the given user,
         optionally asserting that it is the last one.
         """
+        process_jobs()
         pushes = self.by_user.get(user_id)
         assert pushes, f"No notifications to pop for user {user_id}."
         if last:
