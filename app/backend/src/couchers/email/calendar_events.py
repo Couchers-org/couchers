@@ -1,5 +1,4 @@
 from email.headerregistry import Address
-from typing import cast
 
 from ics import Calendar, Event  # type: ignore[import-untyped]
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
@@ -17,18 +16,18 @@ HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 def create_host_request_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
-    ics = create_host_request_ics(host_request, other_name, hosting, loc_context)
-    return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
+    calendar = create_host_request_calendar(host_request, other_name, hosting, loc_context)
+    return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
 
-def create_host_request_ics(
+def create_host_request_calendar(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
     event = create_host_request_event(host_request, other_name, hosting, loc_context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # It allows for later cancellation, and doesn't expose accept/decline functionality.
-    return event_to_ics(event, "PUBLISH", loc_context)
+    return event_to_calendar(event, "PUBLISH", loc_context)
 
 
 def create_host_request_event(
@@ -69,13 +68,13 @@ def create_host_request_event(
 def create_host_request_cancellation_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
-    ics = create_host_request_cancellation_ics(host_request, other_name, hosting, loc_context)
-    return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
+    calendar = create_host_request_cancellation_calendar(host_request, other_name, hosting, loc_context)
+    return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
 
-def create_host_request_cancellation_ics(
+def create_host_request_cancellation_calendar(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> str:
+) -> Calendar:
     event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
     event.name = get_emails_i18next().localize(
         "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
@@ -85,23 +84,30 @@ def create_host_request_cancellation_ics(
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # Gmail™ will immediately remove the event from the user's calendar.
     # METHOD:CANCEL might leave the event in cancelled state or not work.
-    return event_to_ics(event, "PUBLISH", loc_context)
+    return event_to_calendar(event, "PUBLISH", loc_context)
 
 
-def event_to_ics(event: Event, method: str | None, loc_context: LocalizationContext) -> str:
+def event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> str:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
     calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
     if method:
         calendar.method = method
     calendar.events.add(event)
-    return cast(str, calendar.serialize())
+    return calendar
 
 
-def ics_to_attachment(ics: str, filename: str) -> EmailAttachment:
+def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailAttachment:
+    data = calendar.serialize().encode("utf-8")
+    content_disposition = f'attachment; filename="{filename}"'
+    content_type = 'text/calendar; charset="UTF-8"'
+    if calendar.method:
+        # The SMTP Content-Type "method" parameter must match the value in the ics file.
+        content_type += f' method={calendar.method}'
+
     return EmailAttachment(
-        filename=filename,
-        mime_type="text/calendar",
-        data=ics.encode("utf-8"),
+        data=data,
+        content_disposition=content_disposition,
+        content_type=content_type
     )
 
 

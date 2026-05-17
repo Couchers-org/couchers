@@ -18,9 +18,11 @@ message SendEmailPayload {
 }
 
 message EmailAttachment {
-  string filename = 1;
-  string mime_type = 2; // Both the type and subtype, e.g. "application/pdf"
+  reserved 1, 2;
+  reserved "filename", "mime_type";
   bytes data = 3;
+  string content_disposition = 4; // The Content-Disposition header, including parameters
+  string content_type = 5; // The Content-Type header, including parameters
 }
 
 message HandleNotificationPayload {

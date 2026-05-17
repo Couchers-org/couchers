@@ -3,7 +3,6 @@ from email.headerregistry import Address
 from email.message import EmailMessage, MIMEPart
 from email.utils import make_msgid
 from pathlib import Path
-from typing import cast
 
 from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
@@ -58,15 +57,19 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         msg.add_alternative(updated_html, subtype="html")
 
         for cid, mime_type, mime_subtype, data in used_attachments:
-            payloads = cast(list[MIMEPart], msg.get_payload())
-            payloads[1].add_related(data, mime_type, mime_subtype, cid=cid)
+            html_part: MIMEPart = msg.get_payload()[-1]
+            html_part.add_related(data, mime_type, mime_subtype, cid=cid)
 
     if payload.attachments:
         for attachment in payload.attachments:
-            mime_maintype, mime_subtype = attachment.mime_type.split("/")
-            msg.add_attachment(
-                attachment.data, maintype=mime_maintype, subtype=mime_subtype, filename=attachment.filename
-            )
+            # Versioning: ignore older SendEmailPayload that did not specify headers.
+            if not attachment.HasField("content_disposition") or not attachment.HasField("content_type"):
+                continue
+
+            msg.add_attachment(attachment.data, maintype="application", subtype="octet-stream")
+            attachment_part: MIMEPart = msg.get_payload()[-1]
+            attachment_part["Content-Disposition"] = attachment.content_disposition
+            attachment_part['Content-Type'] = attachment.content_type
 
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()
