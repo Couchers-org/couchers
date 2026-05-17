@@ -29,3 +29,5 @@ git apply < translations.diff
 ```
 
 In between, you'll want to inspect `translations.diff` and remove anything that doesn't touch translation files.
+
+lol
