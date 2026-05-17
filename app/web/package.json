@@ -85,7 +85,7 @@
     "@types/google-protobuf": "^3.15.12",
     "@types/jest": "^29.5.14",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^22.18.12",
+    "@types/node": "^25.8.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/react-gtm-module": "^2.0.4",
