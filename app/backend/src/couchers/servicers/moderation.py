@@ -1,5 +1,4 @@
 import logging
-from typing import TYPE_CHECKING
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_, select
@@ -36,13 +35,11 @@ from couchers.models import (
     NotificationDelivery,
     Reply,
     User,
+    get_moderated_models,
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import Timestamp_from_datetime, now
-
-if TYPE_CHECKING:
-    from couchers.sql import _ModeratedContent
 
 logger = logging.getLogger(__name__)
 
@@ -123,16 +120,8 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
 }
 
-# Mapping from ModerationObjectType to the SQLAlchemy model class
-moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
-    ModerationObjectType.host_request: HostRequest,
-    ModerationObjectType.group_chat: GroupChat,
-    ModerationObjectType.friend_request: FriendRelationship,
-    ModerationObjectType.event_occurrence: EventOccurrence,
-    ModerationObjectType.comment: Comment,
-    ModerationObjectType.reply: Reply,
-    ModerationObjectType.discussion: Discussion,
-}
+# Mapping from ModerationObjectType to the SQLAlchemy model class and its moderation metadata
+moderationobjecttype2model = get_moderated_models()
 
 
 def bulk_set_user_content_visibility(
@@ -147,10 +136,9 @@ def bulk_set_user_content_visibility(
     final_reason = reason or f"Bulk visibility update for user {user.id} to {new_visibility.name}"
 
     author_exists_clauses = []
-    for model in moderationobjecttype2model.values():
-        author_col = getattr(model, model.__moderation_author_column__)
+    for entry in moderationobjecttype2model.values():
         author_exists_clauses.append(
-            exists().where(and_(model.moderation_state_id == ModerationState.id, author_col == user.id))
+            exists().where(and_(entry.model.moderation_state_id == ModerationState.id, entry.author_column == user.id))
         )
 
     states = session.execute(select(ModerationState).where(or_(*author_exists_clauses))).scalars().all()
@@ -346,13 +334,12 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             # Use EXISTS for efficient author filtering
             author_exists_clauses = []
-            for model in moderationobjecttype2model.values():
-                author_col = getattr(model, model.__moderation_author_column__)
+            for entry in moderationobjecttype2model.values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            model.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                            author_col == author_user_id,
+                            entry.model.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                            entry.author_column == author_user_id,
                         )
                     )
                 )
@@ -687,13 +674,12 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         if request.author_user_id:
             author_exists_clauses = []
-            for model in moderationobjecttype2model.values():
-                author_col = getattr(model, model.__moderation_author_column__)
+            for entry in moderationobjecttype2model.values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            model.moderation_state_id == ModerationState.id,
-                            author_col == request.author_user_id,
+                            entry.model.moderation_state_id == ModerationState.id,
+                            entry.author_column == request.author_user_id,
                         )
                     )
                 )

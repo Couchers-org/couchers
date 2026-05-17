@@ -64,7 +64,6 @@ def get_host_req_and_check_can_write_ref(
     Returns the host req and `surfed`, a boolean of if the user was the surfer or not
     """
     query = select(HostRequest)
-    query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
     query = where_users_column_visible(query, context, HostRequest.recipient_user_id)
     query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=False)
     query = query.where(HostRequest.conversation_id == host_request_id)
@@ -144,7 +143,6 @@ def get_pending_references_to_write(
         )
         .join(LiteUser, LiteUser.id == HostRequest.initiator_user_id)
     )
-    q2 = where_users_column_visible(q2, context, HostRequest.initiator_user_id)
     q2 = where_moderated_content_visible(q2, context, HostRequest, is_list_operation=True)
     q2 = q2.where(Reference.id == None)
     q2 = q2.where(HostRequest.can_write_reference)

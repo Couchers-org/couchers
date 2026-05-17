@@ -209,7 +209,6 @@ class API(api_pb2_grpc.APIServicer):
         received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
             HostRequest.recipient_user_id == context.user_id
         )
-        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.initiator_user_id)
         received_reqs_query = where_moderated_content_visible(
             received_reqs_query, context, HostRequest, is_list_operation=True
         )
@@ -245,9 +244,6 @@ class API(api_pb2_grpc.APIServicer):
 
         pending_friend_request_query = select(func.count(FriendRelationship.id)).where(
             FriendRelationship.to_user_id == context.user_id
-        )
-        pending_friend_request_query = where_users_column_visible(
-            pending_friend_request_query, context, FriendRelationship.from_user_id
         )
         pending_friend_request_query = pending_friend_request_query.where(
             FriendRelationship.status == FriendStatus.pending
@@ -611,7 +607,6 @@ class API(api_pb2_grpc.APIServicer):
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> api_pb2.ListFriendsRes:
         rels_query = select(FriendRelationship)
-        rels_query = where_users_column_visible(rels_query, context, FriendRelationship.from_user_id)
         rels_query = where_users_column_visible(rels_query, context, FriendRelationship.to_user_id)
         rels_query = rels_query.where(
             or_(
@@ -629,7 +624,6 @@ class API(api_pb2_grpc.APIServicer):
         self, request: api_pb2.RemoveFriendReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         rel_query = select(FriendRelationship)
-        rel_query = where_users_column_visible(rel_query, context, FriendRelationship.from_user_id)
         rel_query = where_users_column_visible(rel_query, context, FriendRelationship.to_user_id)
         rel_query = rel_query.where(
             or_(

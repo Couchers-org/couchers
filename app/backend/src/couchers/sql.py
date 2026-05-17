@@ -6,30 +6,22 @@ from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
 from couchers.models import (
-    Comment,
-    Discussion,
-    EventOccurrence,
-    FriendRelationship,
-    GroupChat,
-    HostRequest,
-    ModerationObjectType,
     ModerationState,
     ModerationVisibility,
-    Reply,
     SignupFlow,
     User,
     UserBlock,
+    get_moderated_models,
 )
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
     from couchers.materialized_views import LiteUser
+    from couchers.models.moderation import ModeratedContentModel
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = type[
-        HostRequest | GroupChat | FriendRelationship | EventOccurrence | Comment | Reply | Discussion
-    ]
+    type _ModeratedContent = ModeratedContentModel
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -163,15 +155,43 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     if not is_list_operation:
         conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
+    author_column = get_moderated_models()[table.__moderation_object_type__].author_column
+
     # Authors can always see their own SHADOWED content
     conditions.append(
         and_(
             aliased_mod_state.visibility == ModerationVisibility.shadowed,
-            getattr(table, table.__moderation_author_column__) == user_id_column,
+            author_column == user_id_column,
         )
     )
 
-    return query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    # Content is hidden whenever its author is not visible to the user in user_id_column
+    author_user = aliased(User)
+    return (
+        query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id)
+        .join(author_user, author_user.id == author_column)
+        .where(or_(*conditions))
+        .where(author_user.is_visible)
+        .where(or_(author_user.shadowed_at.is_(None), author_user.id == user_id_column))
+        .where(
+            ~exists(
+                select(1)
+                .select_from(UserBlock)
+                .where(
+                    or_(
+                        and_(
+                            UserBlock.blocking_user_id == author_column,
+                            UserBlock.blocked_user_id == user_id_column,
+                        ),
+                        and_(
+                            UserBlock.blocking_user_id == user_id_column,
+                            UserBlock.blocked_user_id == author_column,
+                        ),
+                    )
+                )
+            )
+        )
+    )
 
 
 def where_moderated_content_visible[T: tuple[Any, ...]](
@@ -187,16 +207,20 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
     if not is_list_operation:
         conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
+    author_column = get_moderated_models()[table.__moderation_object_type__].author_column
+
     # Authors can always see their own SHADOWED content
     if context.is_logged_in():
         conditions.append(
             and_(
                 aliased_mod_state.visibility == ModerationVisibility.shadowed,
-                getattr(table, table.__moderation_author_column__) == context.user_id,
+                author_column == context.user_id,
             )
         )
 
-    return query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    # Content is hidden whenever its author is not visible to the viewer
+    query = query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    return where_users_column_visible(query, context, author_column)
 
 
 def moderation_state_column_visible(
@@ -211,96 +235,61 @@ def moderation_state_column_visible(
 
     The condition evaluates to True when:
     - The column is NULL (non-moderated content), OR
-    - The linked moderation state has visibility 'visible' or 'unlisted', OR
-    - The linked moderation state has visibility 'shadowed' and the current user is the author
+    - The linked content's author is visible to the viewer, AND either
+      - the linked moderation state has visibility 'visible' or 'unlisted', OR
+      - the linked moderation state has visibility 'shadowed' and the current user is the author
     """
     aliased_mod_state = aliased(ModerationState)
 
-    # For 'shadowed' content, check if the user is the author by looking up the content table
-    # using object_type and object_id on the moderation_state row
+    # Look up the moderated content via object_type/object_id to check the author per object type
     shadowed_conditions: list[ColumnElement[bool]] = []
-    if context.is_logged_in():
-        shadowed_conditions = [
+    author_visible_conditions: list[ColumnElement[bool]] = []
+    for entry in get_moderated_models().values():
+        object_id_column = entry.model.__mapper__.primary_key[0]
+
+        author_user = aliased(User)
+        author_visible_conditions.append(
             and_(
-                aliased_mod_state.visibility == ModerationVisibility.shadowed,
-                or_(
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.host_request,
-                        exists(
-                            select(HostRequest.conversation_id).where(
-                                HostRequest.conversation_id == aliased_mod_state.object_id,
-                                HostRequest.initiator_user_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.group_chat,
-                        exists(
-                            select(GroupChat.conversation_id).where(
-                                GroupChat.conversation_id == aliased_mod_state.object_id,
-                                GroupChat.creator_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.friend_request,
-                        exists(
-                            select(FriendRelationship.id).where(
-                                FriendRelationship.id == aliased_mod_state.object_id,
-                                FriendRelationship.from_user_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.event_occurrence,
-                        exists(
-                            select(EventOccurrence.id).where(
-                                EventOccurrence.id == aliased_mod_state.object_id,
-                                EventOccurrence.creator_user_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.comment,
-                        exists(
-                            select(Comment.id).where(
-                                Comment.id == aliased_mod_state.object_id,
-                                Comment.author_user_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.reply,
-                        exists(
-                            select(Reply.id).where(
-                                Reply.id == aliased_mod_state.object_id,
-                                Reply.author_user_id == context.user_id,
-                            )
-                        ),
-                    ),
-                    and_(
-                        aliased_mod_state.object_type == ModerationObjectType.discussion,
-                        exists(
-                            select(Discussion.id).where(
-                                Discussion.id == aliased_mod_state.object_id,
-                                Discussion.creator_user_id == context.user_id,
-                            )
-                        ),
-                    ),
+                aliased_mod_state.object_type == entry.object_type,
+                exists(
+                    select(1)
+                    .select_from(entry.model)
+                    .join(author_user, author_user.id == entry.author_column)
+                    .where(object_id_column == aliased_mod_state.object_id)
+                    .where(users_visible(context, author_user))
                 ),
             )
-        ]
+        )
+
+        if context.is_logged_in():
+            shadowed_conditions.append(
+                and_(
+                    aliased_mod_state.object_type == entry.object_type,
+                    exists(
+                        select(1)
+                        .select_from(entry.model)
+                        .where(object_id_column == aliased_mod_state.object_id)
+                        .where(entry.author_column == context.user_id)
+                    ),
+                )
+            )
+
+    visibility_conditions = [
+        aliased_mod_state.visibility == ModerationVisibility.visible,
+        aliased_mod_state.visibility == ModerationVisibility.unlisted,
+    ]
+    if shadowed_conditions:
+        visibility_conditions.append(
+            and_(aliased_mod_state.visibility == ModerationVisibility.shadowed, or_(*shadowed_conditions))
+        )
 
     return or_(
         column.is_(None),
         exists(
             select(aliased_mod_state.id).where(
                 aliased_mod_state.id == column,
-                or_(
-                    aliased_mod_state.visibility == ModerationVisibility.visible,
-                    aliased_mod_state.visibility == ModerationVisibility.unlisted,
-                    *shadowed_conditions,
-                ),
+                or_(*author_visible_conditions),
+                or_(*visibility_conditions),
             )
         ),
     )

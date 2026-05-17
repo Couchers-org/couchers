@@ -373,11 +373,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         host_request = session.execute(
             where_moderated_content_visible(
                 where_users_column_visible(
-                    where_users_column_visible(
-                        select(HostRequest),
-                        context,
-                        HostRequest.initiator_user_id,
-                    ),
+                    select(HostRequest),
                     context,
                     HostRequest.recipient_user_id,
                 ),
@@ -411,16 +407,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         message_2 = aliased(Message)
         statement = where_moderated_content_visible(
             where_users_column_visible(
-                where_users_column_visible(
-                    select(Message, HostRequest, Conversation)
-                    .outerjoin(
-                        message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
-                    )
-                    .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
-                    .join(Conversation, Conversation.id == HostRequest.conversation_id),
-                    context,
-                    HostRequest.initiator_user_id,
-                ),
+                select(Message, HostRequest, Conversation)
+                .outerjoin(
+                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+                )
+                .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
+                .join(Conversation, Conversation.id == HostRequest.conversation_id),
                 context,
                 HostRequest.recipient_user_id,
             ),
@@ -513,11 +505,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         host_request = session.execute(
             where_moderated_content_visible(
                 where_users_column_visible(
-                    where_users_column_visible(
-                        select(HostRequest),
-                        context,
-                        HostRequest.initiator_user_id,
-                    ),
+                    select(HostRequest),
                     context,
                     HostRequest.recipient_user_id,
                 ),
