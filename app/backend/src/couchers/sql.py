@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = ModeratedContentModel
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -144,7 +143,7 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
 
 def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     query: Select[T],
-    table: _ModeratedContent,
+    table: ModeratedContentModel,
     user_id_column: InstrumentedAttribute[int],
     is_list_operation: bool = False,
 ) -> Select[T]:
@@ -197,7 +196,7 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
 def where_moderated_content_visible[T: tuple[Any, ...]](
     query: Select[T],
     context: CouchersContext,
-    table: _ModeratedContent,
+    table: ModeratedContentModel,
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)

@@ -120,9 +120,6 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
 }
 
-# Mapping from ModerationObjectType to the SQLAlchemy model class and its moderation metadata
-moderationobjecttype2model = get_moderated_models()
-
 
 def bulk_set_user_content_visibility(
     session: Session,
@@ -136,7 +133,7 @@ def bulk_set_user_content_visibility(
     final_reason = reason or f"Bulk visibility update for user {user.id} to {new_visibility.name}"
 
     author_exists_clauses = []
-    for entry in moderationobjecttype2model.values():
+    for entry in get_moderated_models().values():
         author_exists_clauses.append(
             exists().where(and_(entry.model.moderation_state_id == ModerationState.id, entry.author_column == user.id))
         )
@@ -334,7 +331,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             # Use EXISTS for efficient author filtering
             author_exists_clauses = []
-            for entry in moderationobjecttype2model.values():
+            for entry in get_moderated_models().values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
@@ -674,7 +671,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         if request.author_user_id:
             author_exists_clauses = []
-            for entry in moderationobjecttype2model.values():
+            for entry in get_moderated_models().values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
