@@ -16,7 +16,7 @@ from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(db, testconfig):
     pass
 
 
