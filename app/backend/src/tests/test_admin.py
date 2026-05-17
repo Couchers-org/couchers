@@ -34,7 +34,7 @@ from couchers.proto import (
 )
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
-from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,

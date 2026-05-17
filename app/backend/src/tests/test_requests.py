@@ -35,7 +35,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
 

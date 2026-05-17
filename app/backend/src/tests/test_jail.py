@@ -8,7 +8,7 @@ from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import real_account_session, real_admin_session, real_api_session, real_jail_session
 
 

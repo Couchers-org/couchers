@@ -26,7 +26,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     api_session,
     blocking_session,

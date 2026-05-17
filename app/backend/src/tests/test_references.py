@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
