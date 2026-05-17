@@ -100,6 +100,7 @@ def test_host_request_attachments(db, moderator):
     e = email_fields(mock)
     assert "accept" in e.subject and host.name in e.subject
     ics_event = _get_email_ics_attachment_calendar_event(e)
+    assert _get_ics_event_sequence(ics_event) == 0
     assert not ics_event.status
     assert ics_event.begin.date() == from_date
     assert ics_event.end.date() == (to_date + timedelta(days=1))
@@ -120,6 +121,7 @@ def test_host_request_attachments(db, moderator):
     e = email_fields(mock)
     assert "confirm" in e.subject and surfer.name in e.subject
     ics_event = _get_email_ics_attachment_calendar_event(e)
+    assert _get_ics_event_sequence(ics_event) == 0
     assert not ics_event.status
     assert ics_event.name == f"Hosting {surfer.name}"
 
@@ -137,6 +139,7 @@ def test_host_request_attachments(db, moderator):
     e = email_fields(mock)
     assert "cancel" in e.subject and surfer.name in e.subject
     ics_event = _get_email_ics_attachment_calendar_event(e)
+    assert _get_ics_event_sequence(ics_event) == 1
     assert ics_event.status == "CANCELLED"
 
 
@@ -147,3 +150,10 @@ def _get_email_ics_attachment_calendar_event(e) -> ics.Event:
     ics_calendar = ics.Calendar(ics_attachment.data.decode("utf-8"))
     assert len(ics_calendar.events) == 1
     return next(iter(ics_calendar.events))
+
+
+def _get_ics_event_sequence(event: ics.Event) -> int | None:
+    for x in event.extra:
+        if x.name == "SEQUENCE":
+            return int(x.value)
+    return None
