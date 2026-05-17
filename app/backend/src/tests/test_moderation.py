@@ -2258,6 +2258,7 @@ def test_host_request_message_notifications_suppressed_before_approval(
         )
 
     # Host should STILL have no notifications (messages sent while SHADOWED)
+    assert email_collector.count_for_recipient(host.email) == 0
     assert push_collector.count_for_user(host.id) == 0
 
     # Now approve the request
