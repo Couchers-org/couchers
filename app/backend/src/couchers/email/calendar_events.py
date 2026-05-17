@@ -32,7 +32,7 @@ def create_host_request_ics(
 
 
 def create_host_request_event(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext, sequence: int = 0
 ) -> Event:
     """Creates an ics event for a host request."""
 
@@ -40,7 +40,7 @@ def create_host_request_event(
     event.uid = get_host_request_event_uid(host_request.host_request_id)
 
     # Explicitly allow later sequencing of a cancellation with SEQUENCE:1
-    event.extra.append(ContentLine(name="SEQUENCE", value="0"))
+    event.extra.append(ContentLine(name="SEQUENCE", value=str(sequence)))
 
     if hosting:
         event.name = get_emails_i18next().localize(
@@ -76,14 +76,11 @@ def create_host_request_cancellation_attachment(
 def create_host_request_cancellation_ics(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context)
+    event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
     event.name = get_emails_i18next().localize(
         "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
     )
     event.status = "CANCELLED"
-
-    # Sequence cancellation is after creation (which uses SEQUENCE:0)
-    event.extra.append(ContentLine(name="SEQUENCE", value="1"))
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # Gmail™ will immediately remove the event from the user's calendar.
