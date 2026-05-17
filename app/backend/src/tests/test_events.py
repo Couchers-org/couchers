@@ -96,7 +96,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -133,7 +132,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -165,7 +163,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -209,7 +206,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -244,7 +240,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -274,7 +269,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -576,7 +570,6 @@ def test_ScheduleEvent(db):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user.id
@@ -742,9 +735,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     time_before_update = now()
 
@@ -777,7 +767,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -809,7 +798,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -841,7 +829,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -881,7 +868,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -913,7 +899,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -943,7 +928,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1025,9 +1009,6 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         for i in range(5):
@@ -1128,9 +1109,6 @@ def test_GetEvent(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -1154,7 +1132,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1186,7 +1163,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1218,7 +1194,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1276,9 +1251,6 @@ def test_CancelEvent(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         res = api.CancelEvent(
@@ -1670,13 +1642,6 @@ def test_SetEventAttendance(db, moderator: Moderator):
             == events_pb2.ATTENDANCE_STATE_GOING
         )
         api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
-        assert (
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
-            == events_pb2.ATTENDANCE_STATE_MAYBE
-        )
-        api.SetEventAttendance(
             events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
         )
         assert (
@@ -1875,7 +1840,7 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     with events_session(token1) as api:
         api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
         )
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e4, subscribe=True))
 

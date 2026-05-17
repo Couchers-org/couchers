@@ -241,7 +241,6 @@ class EventOrganizer(Base, kw_only=True):
 
 class AttendeeStatus(enum.Enum):
     going = enum.auto()
-    maybe = enum.auto()
 
 
 class EventOccurrenceAttendee(Base, kw_only=True):
