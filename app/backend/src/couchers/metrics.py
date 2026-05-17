@@ -15,13 +15,25 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy import select
+from sqlalchemy import and_, case, select
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
-from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
+from couchers.models import (
+    BackgroundJob,
+    Cluster,
+    ClusterSubscription,
+    EventOccurrenceAttendee,
+    HostingStatus,
+    HostRequest,
+    Message,
+    Node,
+    NodeType,
+    Reference,
+    User,
+)
 from couchers.models.moderation import (
     ModerationAction,
     ModerationObjectType,
@@ -94,6 +106,41 @@ def _make_gauge_from_query(name: str, description: str, statement: Select[Any]) 
     return gauge
 
 
+# list of labeled gauges and the function to populate their label values just before collection
+_set_hacky_labeled_gauges_funcs: list[tuple[Gauge, Callable[[Gauge], None]]] = []
+
+
+def _make_labeled_gauge_from_query(
+    name: str,
+    description: str,
+    labelname: str,
+    statement: Select[Any],
+    default_label_values: list[str] | None = None,
+) -> Gauge:
+    """
+    Given a name, description, label name and statement, creates a gauge with one label set from the statement.
+
+    statement should be a sqlalchemy SELECT statement that returns rows of (label_value, count).
+
+    default_label_values, if given, are seeded to zero before the query results are applied, so that label
+    values with no matching rows are still emitted.
+    """
+
+    gauge = Gauge(name, description, labelnames=[labelname], multiprocess_mode="mostrecent")
+
+    def f(g: Gauge) -> None:
+        with tracer.start_as_current_span(f"metric.{name}"):
+            with session_scope() as session:
+                rows = session.execute(statement).all()
+        for label_value in default_label_values or []:
+            g.labels(label_value).set(0)
+        for label_value, count in rows:
+            g.labels(str(label_value)).set(count)
+
+    _set_hacky_labeled_gauges_funcs.append((gauge, f))
+    return gauge
+
+
 active_users_gauges: list[Gauge] = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
@@ -112,6 +159,54 @@ active_users_gauges: list[Gauge] = [
 
 users_gauge: Gauge = _make_gauge_from_query(
     "couchers_users", "Total number of users", select(func.count()).select_from(User).where(User.is_visible)
+)
+
+# Number of users per community, labeled by community name. Only includes communities at the region level or
+# broader (world, macroregion, region).
+_users_per_community_node_types = [NodeType.world, NodeType.macroregion, NodeType.region]
+users_per_community_gauge: Gauge = _make_labeled_gauge_from_query(
+    "couchers_users_per_community",
+    "Number of users per community, for regions and broader",
+    "community",
+    (
+        select(Cluster.name, func.count(User.id))
+        .select_from(Node)
+        .join(Cluster, and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster))
+        .outerjoin(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+        .outerjoin(User, and_(User.id == ClusterSubscription.user_id, User.is_visible))
+        .where(Node.node_type.in_(_users_per_community_node_types))
+        .group_by(Cluster.id, Cluster.name)
+    ),
+)
+
+# Number of users bucketed by how recently they were last active.
+_active_users_buckets: list[tuple[str, timedelta | None]] = [
+    ("<1d", timedelta(days=1)),
+    ("1d-1w", timedelta(days=7)),
+    ("1w-1m", timedelta(days=31)),
+    ("1m-6m", timedelta(days=183)),
+    ("6m-12m", timedelta(days=365)),
+    ("12m-24m", timedelta(days=730)),
+    ("24m+", None),
+]
+_active_users_age = func.now() - User.last_active
+active_users_by_recency_gauge: Gauge = _make_labeled_gauge_from_query(
+    "couchers_active_users_by_recency",
+    "Number of users bucketed by how recently they were last active",
+    "period",
+    (
+        select(
+            case(
+                *[(_active_users_age < interval, label) for label, interval in _active_users_buckets if interval],
+                else_=_active_users_buckets[-1][0],
+            ).label("period"),
+            func.count(),
+        )
+        .select_from(User)
+        .where(User.is_visible)
+        .group_by("period")
+    ),
+    default_label_values=[label for label, _ in _active_users_buckets],
 )
 
 man_gauge: Gauge = _make_gauge_from_query(
@@ -548,6 +643,8 @@ def create_prometheus_server(port: int) -> Any:
         # set hacky gauges
         for gauge, f in _set_hacky_gauges_funcs:
             gauge.set(f())
+        for gauge, labeled_f in _set_hacky_labeled_gauges_funcs:
+            labeled_f(gauge)
 
         data = generate_latest(registry)
         start_response("200 OK", [("Content-type", CONTENT_TYPE_LATEST), ("Content-Length", str(len(data)))])
