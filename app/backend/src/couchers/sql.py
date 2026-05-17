@@ -59,6 +59,22 @@ def _shadow_clause(context: CouchersContext, table: _User) -> ColumnElement[bool
     return table.shadowed_at.is_(None)
 
 
+def _users_block_each_other(
+    user_a: InstrumentedAttribute[int], user_b: InstrumentedAttribute[int]
+) -> ColumnElement[bool]:
+    """True when either of the two users (referenced by id columns) has blocked the other."""
+    return exists(
+        select(1)
+        .select_from(UserBlock)
+        .where(
+            or_(
+                and_(UserBlock.blocking_user_id == user_a, UserBlock.blocked_user_id == user_b),
+                and_(UserBlock.blocking_user_id == user_b, UserBlock.blocked_user_id == user_a),
+            )
+        )
+    )
+
+
 def users_visible(context: CouchersContext, table: _User = User) -> ColumnElement[bool]:
     """
     Filters out users that should not be visible: blocked, deleted, banned, or shadowed (to others).
@@ -95,16 +111,7 @@ def users_visible_to_each_other(*, self_user: _User, other_user: _User) -> Colum
         self_user.is_visible,
         other_user.is_visible,
         other_user.shadowed_at.is_(None),
-        ~exists(
-            select(1)
-            .select_from(UserBlock)
-            .where(
-                or_(
-                    and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
-                    and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
-                )
-            )
-        ),
+        ~_users_block_each_other(self_user.id, other_user.id),
     )
 
 
@@ -126,18 +133,26 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
         .where(self_user.is_visible)
         .where(other_user.is_visible)
         .where(other_user.shadowed_at.is_(None))
-        .where(
-            ~exists(
-                select(1)
-                .select_from(UserBlock)
-                .where(
-                    or_(
-                        and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
-                        and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
-                    )
-                )
-            )
-        )
+        .where(~_users_block_each_other(self_user.id, other_user.id))
+    )
+
+
+def _where_user_column_visible_to_user_column[T: tuple[Any, ...]](
+    query: Select[T], *, user_column: InstrumentedAttribute[int], viewer_column: InstrumentedAttribute[int]
+) -> Select[T]:
+    """
+    Filters so the user in user_column is visible to the viewer in viewer_column: not deleted or
+    banned, not shadowed (unless the viewer is that user), and not blocked either way.
+
+    The column-based counterpart of where_users_column_visible, for when the viewer is a column
+    rather than the request context.
+    """
+    user = aliased(User)
+    return (
+        query.join(user, user.id == user_column)
+        .where(user.is_visible)
+        .where(or_(user.shadowed_at.is_(None), user.id == viewer_column))
+        .where(~_users_block_each_other(user_column, viewer_column))
     )
 
 
@@ -165,32 +180,8 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     )
 
     # Content is hidden whenever its author is not visible to the user in user_id_column
-    author_user = aliased(User)
-    return (
-        query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id)
-        .join(author_user, author_user.id == author_column)
-        .where(or_(*conditions))
-        .where(author_user.is_visible)
-        .where(or_(author_user.shadowed_at.is_(None), author_user.id == user_id_column))
-        .where(
-            ~exists(
-                select(1)
-                .select_from(UserBlock)
-                .where(
-                    or_(
-                        and_(
-                            UserBlock.blocking_user_id == author_column,
-                            UserBlock.blocked_user_id == user_id_column,
-                        ),
-                        and_(
-                            UserBlock.blocking_user_id == user_id_column,
-                            UserBlock.blocked_user_id == author_column,
-                        ),
-                    )
-                )
-            )
-        )
-    )
+    query = query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    return _where_user_column_visible_to_user_column(query, user_column=author_column, viewer_column=user_id_column)
 
 
 def where_moderated_content_visible[T: tuple[Any, ...]](
