@@ -24,6 +24,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
+from couchers.models.moderation import ModerationObjectType
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
@@ -112,6 +113,7 @@ class Event(Base, kw_only=True):
 class EventOccurrence(Base, kw_only=True):
     __tablename__ = "event_occurrences"
     __moderation_author_column__ = "creator_user_id"
+    __moderation_object_type__ = ModerationObjectType.event_occurrence
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False

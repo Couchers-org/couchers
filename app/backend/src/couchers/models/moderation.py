@@ -7,7 +7,8 @@ to any moderatable content on the platform (host requests, discussions, events, 
 
 import enum
 from datetime import datetime
-from typing import TYPE_CHECKING
+from functools import cache
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,7 +16,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from couchers.models.base import Base, moderation_seq
 
 if TYPE_CHECKING:
+    from couchers.models.conversations import GroupChat
+    from couchers.models.discussions import Comment, Discussion, Reply
+    from couchers.models.events import EventOccurrence
+    from couchers.models.host_requests import HostRequest
+    from couchers.models.rest import FriendRelationship
     from couchers.models.users import User
+
+    type ModeratedContentModel = type[
+        HostRequest | GroupChat | FriendRelationship | EventOccurrence | Comment | Reply | Discussion
+    ]
 
 
 class ModerationVisibility(enum.Enum):
@@ -186,3 +196,33 @@ class ModerationLog(Base, kw_only=True):
 
     def __repr__(self) -> str:
         return f"ModerationLog(id={self.id}, state_id={self.moderation_state_id}, action={self.action}, moderator={self.moderator_user_id}, time={self.time})"
+
+
+class ModeratedModel(NamedTuple):
+    """A model governed by the UMS, with its moderation metadata resolved."""
+
+    object_type: ModerationObjectType
+    model: ModeratedContentModel
+    # the InstrumentedAttribute of the model's author column; Any avoids descriptor-unwrapping on access
+    author_column: Any
+
+
+@cache
+def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
+    """
+    Maps each ModerationObjectType to its model and resolved moderation metadata.
+
+    Discovered from every mapped model that declares __moderation_object_type__, so the moderation
+    metadata stays on the models themselves rather than in a separate hand-maintained list.
+    """
+    models: dict[ModerationObjectType, ModeratedModel] = {}
+    for mapper in Base.registry.mappers:
+        cls = mapper.class_
+        if not hasattr(cls, "__moderation_object_type__"):
+            continue
+        models[cls.__moderation_object_type__] = ModeratedModel(
+            object_type=cls.__moderation_object_type__,
+            model=cls,
+            author_column=getattr(cls, cls.__moderation_author_column__),
+        )
+    return models
