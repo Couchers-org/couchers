@@ -1,7 +1,7 @@
 """Replace Statsig with GrowthBook for experimentation
 
-Revision ID: 0151
-Revises: 0150
+Revision ID: 0155
+Revises: 0154
 Create Date: 2026-05-15 03:18:53.799426
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "0151"
-down_revision = "0150"
+revision = "0155"
+down_revision = "0154"
 branch_labels = None
 depends_on = None
 
