@@ -6,9 +6,10 @@ to any moderatable content on the platform (host requests, discussions, events, 
 """
 
 import enum
+from dataclasses import dataclass
 from datetime import datetime
 from functools import cache
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -198,7 +199,8 @@ class ModerationLog(Base, kw_only=True):
         return f"ModerationLog(id={self.id}, state_id={self.moderation_state_id}, action={self.action}, moderator={self.moderator_user_id}, time={self.time})"
 
 
-class ModeratedModel(NamedTuple):
+@dataclass(frozen=True)
+class ModeratedModel:
     """A model governed by the UMS, with its moderation metadata resolved."""
 
     object_type: ModerationObjectType
