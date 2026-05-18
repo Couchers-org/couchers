@@ -257,7 +257,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  src={`/img/app-store-badge/${locale}.svg`}
                   alt={t("app_store_badge_a11y")}
                   style={{ height: "26px", width: "auto", display: "block" }}
                 />
@@ -276,7 +276,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                   }}
                 >
                   <img
-                    src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                    src={`/img/google-play-badge/${locale}.svg`}
                     alt={t("google_play_badge_a11y")}
                     style={{
                       height: "39px",
