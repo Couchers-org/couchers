@@ -8,6 +8,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.locales import DEFAULT_LOCALE, get_locale_fallbacks
 from couchers.i18n.localize import (
+    get_babel_locale,
     get_main_i18next,
     localize_date,
     localize_datetime,
@@ -42,16 +43,7 @@ class LocalizationContext:
         self.locale = locale
         self.locale_list = [self.locale] + get_locale_fallbacks(self.locale)
         self.timezone = timezone
-        self.babel_locale = LocalizationContext._get_babel_locale(self.locale_list)
-
-    @staticmethod
-    def _get_babel_locale(locale_list: list[str]) -> babel.Locale:
-        for locale in locale_list:
-            try:
-                return babel.Locale.parse(locale)
-            except babel.UnknownLocaleError:
-                continue
-        return babel.Locale.parse(locale_list[0])  # Will raise babel.UnknownLocaleError
+        self.babel_locale = get_babel_locale(self.locale_list)
 
     @property
     def localized_timezone(self) -> str:
