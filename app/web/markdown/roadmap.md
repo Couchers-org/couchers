@@ -111,7 +111,7 @@ hide_title: true
     </tr>
     <tr>
 	  <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Notifications Overhaul</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Improve Notifications</td>
     </tr>
 	<!-- OPERATIONS -->
     <tr >
