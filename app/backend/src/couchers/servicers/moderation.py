@@ -135,7 +135,7 @@ def bulk_set_user_content_visibility(
     author_exists_clauses = []
     for entry in get_moderated_models().values():
         author_exists_clauses.append(
-            exists().where(and_(entry.model.moderation_state_id == ModerationState.id, entry.author_column == user.id))
+            exists().where(and_(entry.moderation_state_id_column == ModerationState.id, entry.author_column == user.id))
         )
 
     states = session.execute(select(ModerationState).where(or_(*author_exists_clauses))).scalars().all()
@@ -335,7 +335,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            entry.model.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                            entry.moderation_state_id_column == ModerationQueueItem.moderation_state_id,
                             entry.author_column == author_user_id,
                         )
                     )
@@ -675,7 +675,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            entry.model.moderation_state_id == ModerationState.id,
+                            entry.moderation_state_id_column == ModerationState.id,
                             entry.author_column == request.author_user_id,
                         )
                     )

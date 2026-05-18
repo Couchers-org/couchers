@@ -17,7 +17,7 @@ from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
     from couchers.materialized_views import LiteUser
-    from couchers.models.moderation import ModeratedContentModel
+    from couchers.models.moderation import ModeratedContent
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
@@ -139,10 +139,11 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
 
 def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     query: Select[T],
-    table: ModeratedContentModel,
+    table: type[ModeratedContent],
     user_id_column: InstrumentedAttribute[int],
     is_list_operation: bool = False,
 ) -> Select[T]:
+    entry = get_moderated_models()[table.__moderation_object_type__]
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -154,19 +155,22 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     conditions.append(
         and_(
             aliased_mod_state.visibility == ModerationVisibility.shadowed,
-            getattr(table, table.__moderation_author_column__) == user_id_column,
+            entry.author_column == user_id_column,
         )
     )
 
-    return query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    return query.join(aliased_mod_state, aliased_mod_state.id == entry.moderation_state_id_column).where(
+        or_(*conditions)
+    )
 
 
 def where_moderated_content_visible[T: tuple[Any, ...]](
     query: Select[T],
     context: CouchersContext,
-    table: ModeratedContentModel,
+    table: type[ModeratedContent],
     is_list_operation: bool = False,
 ) -> Select[T]:
+    entry = get_moderated_models()[table.__moderation_object_type__]
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -179,11 +183,13 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
         conditions.append(
             and_(
                 aliased_mod_state.visibility == ModerationVisibility.shadowed,
-                getattr(table, table.__moderation_author_column__) == context.user_id,
+                entry.author_column == context.user_id,
             )
         )
 
-    return query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+    return query.join(aliased_mod_state, aliased_mod_state.id == entry.moderation_state_id_column).where(
+        or_(*conditions)
+    )
 
 
 def moderation_state_column_visible(
@@ -207,14 +213,13 @@ def moderation_state_column_visible(
     shadowed_conditions: list[ColumnElement[bool]] = []
     if context.is_logged_in():
         for entry in get_moderated_models().values():
-            object_id_column = entry.model.__mapper__.primary_key[0]
             shadowed_conditions.append(
                 and_(
                     aliased_mod_state.object_type == entry.object_type,
                     exists(
                         select(1)
                         .select_from(entry.model)
-                        .where(object_id_column == aliased_mod_state.object_id)
+                        .where(entry.object_id_column == aliased_mod_state.object_id)
                         .where(entry.author_column == context.user_id)
                     ),
                 )
