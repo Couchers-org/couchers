@@ -9,9 +9,9 @@ import enum
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cache
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Protocol
 
-from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, func
+from sqlalchemy import BigInteger, ColumnElement, DateTime, Enum, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base, moderation_seq
@@ -203,10 +203,9 @@ class ModeratedModel:
 
     object_type: ModerationObjectType
     model: type[ModeratedContent]
-    # InstrumentedAttributes/Columns resolved from the model; Any avoids descriptor-unwrapping on access
-    author_column: Any
-    object_id_column: Any
-    moderation_state_id_column: Any
+    author_column: ColumnElement[int]
+    object_id_column: ColumnElement[int]
+    moderation_state_id_column: ColumnElement[int]
 
 
 @cache
@@ -226,7 +225,7 @@ def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
         models[model.__moderation_object_type__] = ModeratedModel(
             object_type=model.__moderation_object_type__,
             model=model,
-            author_column=getattr(model, model.__moderation_author_column__),
+            author_column=mapper.columns[model.__moderation_author_column__],
             object_id_column=mapper.primary_key[0],
             moderation_state_id_column=mapper.columns["moderation_state_id"],
         )
