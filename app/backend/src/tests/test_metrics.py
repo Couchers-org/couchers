@@ -16,7 +16,7 @@ from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
-def _(db, testconfig):
+def _(testconfig):
     pass
 
 
@@ -34,7 +34,7 @@ def _sample_values(gauge):
     }
 
 
-def test_users_per_community_gauge():
+def test_users_per_community_gauge(db):
     user1, _ = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
@@ -55,7 +55,7 @@ def test_users_per_community_gauge():
     assert "Subregion" not in values
 
 
-def test_active_users_by_recency_gauge():
+def test_active_users_by_recency_gauge(db):
     ages = {
         "<1d": timedelta(hours=2),
         "1d-1w": timedelta(days=3),
