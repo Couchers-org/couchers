@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime, timedelta
 
 import grpc
@@ -17,6 +18,7 @@ from couchers.models import (
     ModerationUserList,
     ModerationVisibility,
     Reference,
+    Upload,
     User,
     UserActivity,
     UserSession,
@@ -326,7 +328,55 @@ def test_AddAdminNote_blank(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin note cannot be empty."
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    payload = '{"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}'
+
+    with real_admin_session(super_token) as api:
+        res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data=payload))
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "note"
+    assert res.admin_actions[0].note == ""
+    assert json.loads(res.admin_actions[0].data) == {"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}
+
+
+def test_AddAdminNote_both_note_and_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(
+                admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="note text", data='{"x": 1}')
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_neither(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_invalid_json(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data="{not valid json"))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The admin note data must be valid JSON."
 
 
 def test_admin_content_reports(db):
@@ -1460,6 +1510,70 @@ def test_ListAdminActions_pagination(db):
 
     all_notes = first_page_notes + [a.note for a in res2.admin_actions]
     assert set(all_notes) == {"note 0", "note 1", "note 2"}
+
+
+def test_ListUserUploads(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+    other_user, _ = generate_user()
+
+    with session_scope() as session:
+        for i in range(3):
+            session.add(
+                Upload(
+                    key=f"key{i}",
+                    filename=f"photo{i}.jpg",
+                    creator_user_id=user.id,
+                    credit=f"credit {i}" if i == 0 else None,
+                )
+            )
+        session.add(Upload(key="other_key", filename="other.jpg", creator_user_id=other_user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
+
+    assert len(res.uploads) == 3
+    assert res.next_page_token == ""
+    assert {u.filename for u in res.uploads} == {"photo0.jpg", "photo1.jpg", "photo2.jpg"}
+
+    upload0 = next(u for u in res.uploads if u.key == "key0")
+    assert upload0.credit == "credit 0"
+    assert upload0.full_url.endswith("/img/full/photo0.jpg")
+    assert upload0.thumbnail_url.endswith("/img/thumbnail/photo0.jpg")
+    assert upload0.HasField("created")
+
+
+def test_ListUserUploads_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        for i in range(3):
+            session.add(Upload(key=f"key{i}", filename=f"photo{i}.jpg", creator_user_id=user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username, page_size=2))
+        assert len(res.uploads) == 2
+        assert res.next_page_token != ""
+        first_page_keys = [u.key for u in res.uploads]
+
+        res2 = api.ListUserUploads(
+            admin_pb2.ListUserUploadsReq(user=user.username, page_size=2, page_token=res.next_page_token)
+        )
+        assert len(res2.uploads) == 1
+        assert res2.next_page_token == ""
+
+    all_keys = first_page_keys + [u.key for u in res2.uploads]
+    assert set(all_keys) == {"key0", "key1", "key2"}
+
+
+def test_ListUserUploads_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListUserUploads(admin_pb2.ListUserUploadsReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 # community invite feature tested in test_events.py

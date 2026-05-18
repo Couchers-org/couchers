@@ -27,6 +27,7 @@ import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
+import { useIsClient } from "utils/hooks";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -52,6 +53,7 @@ export default function Signup() {
   const error = authState.error;
 
   const [loading, setLoading] = useState(false);
+  const isClient = useIsClient();
 
   const urlToken = stringOrFirstString(router.query.token);
   const inviteCode = stringOrFirstString(router.query.code);
@@ -182,7 +184,7 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {loading ? (
+          {!isClient || loading ? (
             <CenteredSpinner />
           ) : (
             <SignupFormContent inviteCode={inviteCode || undefined} />

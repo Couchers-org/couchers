@@ -1,5 +1,4 @@
 import logging
-from typing import TYPE_CHECKING
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_, select
@@ -16,6 +15,8 @@ from couchers.metrics import (
 )
 from couchers.models import (
     AdminActionLevel,
+    Comment,
+    Discussion,
     Event,
     EventOccurrence,
     FriendRelationship,
@@ -32,14 +33,13 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    Reply,
     User,
+    get_moderated_models,
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import Timestamp_from_datetime, now
-
-if TYPE_CHECKING:
-    from couchers.sql import _ModeratedContent
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +104,9 @@ moderationobjecttype2api = {
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
     ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
     ModerationObjectType.event_occurrence: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
+    ModerationObjectType.comment: moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
+    ModerationObjectType.reply: moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
+    ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
 }
 
 moderationobjecttype2sql = {
@@ -112,14 +115,9 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
     moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE: ModerationObjectType.event_occurrence,
-}
-
-# Mapping from ModerationObjectType to the SQLAlchemy model class
-moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
-    ModerationObjectType.host_request: HostRequest,
-    ModerationObjectType.group_chat: GroupChat,
-    ModerationObjectType.friend_request: FriendRelationship,
-    ModerationObjectType.event_occurrence: EventOccurrence,
+    moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT: ModerationObjectType.comment,
+    moderation_pb2.MODERATION_OBJECT_TYPE_REPLY: ModerationObjectType.reply,
+    moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
 }
 
 
@@ -135,10 +133,9 @@ def bulk_set_user_content_visibility(
     final_reason = reason or f"Bulk visibility update for user {user.id} to {new_visibility.name}"
 
     author_exists_clauses = []
-    for model in moderationobjecttype2model.values():
-        author_col = getattr(model, model.__moderation_author_column__)
+    for entry in get_moderated_models().values():
         author_exists_clauses.append(
-            exists().where(and_(model.moderation_state_id == ModerationState.id, author_col == user.id))
+            exists().where(and_(entry.moderation_state_id_column == ModerationState.id, entry.author_column == user.id))
         )
 
     states = session.execute(select(ModerationState).where(or_(*author_exists_clauses))).scalars().all()
@@ -251,6 +248,19 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
             .where(EventOccurrence.id == object_id)
         ).one()
         content = f"{title}\n\n{description}"
+    elif object_type == ModerationObjectType.comment:
+        author_user_id, content = session.execute(
+            select(Comment.author_user_id, Comment.content).where(Comment.id == object_id)
+        ).one()
+    elif object_type == ModerationObjectType.reply:
+        author_user_id, content = session.execute(
+            select(Reply.author_user_id, Reply.content).where(Reply.id == object_id)
+        ).one()
+    elif object_type == ModerationObjectType.discussion:
+        author_user_id, title, body = session.execute(
+            select(Discussion.creator_user_id, Discussion.title, Discussion.content).where(Discussion.id == object_id)
+        ).one()
+        content = f"{title}\n\n{body}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
@@ -321,13 +331,12 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             # Use EXISTS for efficient author filtering
             author_exists_clauses = []
-            for model in moderationobjecttype2model.values():
-                author_col = getattr(model, model.__moderation_author_column__)
+            for entry in get_moderated_models().values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            model.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                            author_col == author_user_id,
+                            entry.moderation_state_id_column == ModerationQueueItem.moderation_state_id,
+                            entry.author_column == author_user_id,
                         )
                     )
                 )
@@ -662,13 +671,12 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         if request.author_user_id:
             author_exists_clauses = []
-            for model in moderationobjecttype2model.values():
-                author_col = getattr(model, model.__moderation_author_column__)
+            for entry in get_moderated_models().values():
                 author_exists_clauses.append(
                     exists().where(
                         and_(
-                            model.moderation_state_id == ModerationState.id,
-                            author_col == request.author_user_id,
+                            entry.moderation_state_id_column == ModerationState.id,
+                            entry.author_column == request.author_user_id,
                         )
                     )
                 )

@@ -8,7 +8,8 @@
     "actions": {
       "send_request": "een verzoek doen",
       "send_message": "een bericht sturen",
-      "create_event": "een event aanmaken"
+      "create_event": "een event aanmaken",
+      "send_friend_request": "stuur een vriendschapsverzoek"
     },
     "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
     "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",

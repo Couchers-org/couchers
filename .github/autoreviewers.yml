@@ -1,0 +1,21 @@
+# Defines PR reviewers based on modified file paths.
+# This is an input to the dorny/paths-filter GitHub action,
+# configured to match rules if EVERY glob applies (to support exclusions).
+# Filter names are a label plus a comma-delimited people/teams to assign.
+backend Couchers-org/backend:
+  - 'app/backend/**'
+  - '!app/backend/**/locales/*.json'
+media Couchers-org/backend:
+  - 'app/media/**'
+web Couchers-org/web:
+  - 'app/web/**'
+  - '!app/web/**/locales/*.json'
+mobile Couchers-org/mobile:
+  - 'app/mobile/**'
+  - '!app/mobile/**/locales/*.json'
+locales tristanlabelle:
+  - 'app/**/locales/*.json'
+i18n tristanlabelle:
+  - 'app/**/i18n/**'
+docs aapeliv,nabramow:
+  - 'docs/**'

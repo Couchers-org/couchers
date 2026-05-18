@@ -27,7 +27,7 @@ describe("Event card", () => {
     expect(
       screen.getByText(
         t("communities:attendees_count", {
-          count: firstEvent.goingCount + firstEvent.maybeCount,
+          count: firstEvent.goingCount,
         }),
       ),
     ).toBeVisible();
@@ -61,7 +61,7 @@ describe("Event card", () => {
     expect(
       screen.getByText(
         t("communities:attendees_count", {
-          count: thirdEvent.goingCount + thirdEvent.maybeCount,
+          count: thirdEvent.goingCount,
         }),
       ),
     ).toBeVisible();
@@ -92,7 +92,7 @@ describe("Event card", () => {
     expect(
       screen.getByText(
         t("communities:attendees_count", {
-          count: secondEvent.goingCount + secondEvent.maybeCount,
+          count: secondEvent.goingCount,
         }),
       ),
     ).toBeVisible();

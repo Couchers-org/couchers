@@ -48,12 +48,6 @@ module.exports = {
   returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
-    // i18next runs our "en-CORP" through Intl.getCanonicalLocales,
-    // which converts it to "en-Corp". Convert it back to match our file names.
-    if (locale == "en-Corp") {
-      locale = "en-CORP";
-    }
-
     // eslint-disable-next-line
     const path = require("path");
     if (namespace === "global") {

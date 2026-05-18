@@ -3,13 +3,14 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import RedditIcon from "@mui/icons-material/Reddit";
 import {
+  Box,
   Button,
   ButtonProps,
   Link as MuiLink,
   styled,
   Typography,
 } from "@mui/material";
-import { BlueSkyIcon } from "components/Icons";
+import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
@@ -21,6 +22,8 @@ import {
   blogRoute,
   builtWithRoute,
   contactRoute,
+  couchersAppStoreURL,
+  couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
   facebookURL,
@@ -67,7 +70,7 @@ const StyledUpperContainer = styled("div")(({ theme }) => ({
   display: "grid",
   rowGap: theme.spacing(1),
   columnGap: theme.spacing(1),
-  gridTemplateColumns: "auto auto",
+  gridTemplateColumns: "1fr 1fr",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
@@ -109,13 +112,13 @@ const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
 const StyledLowerContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
+  alignItems: "flex-start",
   margin: "0 auto",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     justifyContent: "center",
 
@@ -133,13 +136,15 @@ const StyledButtonContainer = styled("div")({
   display: "flex",
   flexDirection: "column",
   justifySelf: "flex-start",
+  alignItems: "center",
+  width: "100%",
 });
 
 const StyledSocialIconsContainer = styled("div")({
   display: "flex",
   flexDirection: "row",
   justifyContent: "center",
-  gap: "12px",
+  gap: 2,
   marginTop: "16px",
 });
 
@@ -147,18 +152,16 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   minWidth: "8rem",
   textAlign: "center",
   marginBlockEnd: theme.spacing(2),
-  [theme.breakpoints.up("sm")]: {
-    minWidth: "12rem",
-  },
+  width: "100%",
   "& .MuiButton-label > * + *": {
     marginInlineStart: theme.spacing(1),
   },
 }));
 
-const VersionLink = styled(Link)(({ theme }) => ({
+const VersionLink = styled(Link)({
   fontWeight: 700,
   color: "inherit",
-}));
+});
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const {
@@ -237,6 +240,55 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             >
               {t("nav.volunteer")}
             </StyledButton>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                flexWrap: "wrap",
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <a
+                href={couchersAppStoreURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt={t("app_store_badge_a11y")}
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
+              </a>
+              <a
+                href={couchersGooglePlayURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div
+                  style={{
+                    height: "26px",
+                    width: "87.75px",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <img
+                    src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                    alt={t("google_play_badge_a11y")}
+                    style={{
+                      height: "39px",
+                      width: "auto",
+                      position: "absolute",
+                      top: "-6.5px",
+                      left: "-6.5px",
+                    }}
+                  />
+                </div>
+              </a>
+            </Box>
             <StyledSocialIconsContainer>
               <MuiLink
                 href={githubURL}
@@ -273,6 +325,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 color="inherit"
               >
                 <BlueSkyIcon />
+              </MuiLink>
+              <MuiLink
+                href="https://www.tiktok.com/@couchersorg"
+                target="_blank"
+                rel="noopener"
+                aria-label="TikTok"
+                color="inherit"
+              >
+                <TikTokIcon />
               </MuiLink>
               <MuiLink
                 href={facebookURL}

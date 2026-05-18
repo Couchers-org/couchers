@@ -238,7 +238,6 @@
     "nl": "Niederländisch",
     "ca": "Katalan",
     "tr": "Türkisch",
-    "en-CORP": "Amerikanisch (Unternehmenssprache)",
     "he": "Hebräisch",
     "hu": "Ungarisch"
   },
@@ -338,5 +337,7 @@
   "copy_button": {
     "a11y": "Kopieren",
     "copied_tooltip": "In die Zwischenablage kopiert"
-  }
+  },
+  "app_store_badge_a11y": "Laden im App Store",
+  "google_play_badge_a11y": "Jetzt bei Google Play"
 }
