@@ -24,7 +24,10 @@ import { service } from "service";
 import { theme } from "theme";
 
 export default function StrongVerificationInstructions() {
-  const { t } = useTranslation([GLOBAL, AUTH]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, AUTH]);
 
   const {
     error,
@@ -168,7 +171,7 @@ export default function StrongVerificationInstructions() {
                   alt={t(
                     "auth:strong_verification.instructions.download_google_play",
                   )}
-                  style={{ height: "45px", width: "auto" }}
+                  style={{ height: "30px", width: "auto" }}
                 />
               </a>
             </Box>

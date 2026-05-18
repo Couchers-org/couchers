@@ -267,26 +267,11 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <div
-                  style={{
-                    height: "26px",
-                    width: "87.75px",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <img
-                    src={`/img/google-play-badge/${locale}.svg`}
-                    alt={t("google_play_badge_a11y")}
-                    style={{
-                      height: "39px",
-                      width: "auto",
-                      position: "absolute",
-                      top: "-6.5px",
-                      left: "-6.5px",
-                    }}
-                  />
-                </div>
+                <img
+                  src={`/img/google-play-badge/${locale}.svg`}
+                  alt={t("google_play_badge_a11y")}
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
               </a>
             </Box>
             <StyledSocialIconsContainer>
