@@ -6,7 +6,7 @@ import {
 
 type StorageType = "localStorage" | "sessionStorage";
 
-export function usePersistedState<T>(
+export function useClearablePersistedState<T>(
   key: string,
   defaultValue: T,
   storage: StorageType = "localStorage",
@@ -35,6 +35,15 @@ export function usePersistedState<T>(
     _setState(undefined);
   }, [key, storage]);
   return [_state, setState, clearState];
+}
+
+export function usePersistedState<T>(
+  key: string,
+  defaultValue: T,
+  storage: StorageType = "localStorage",
+) {
+  const [state, setState] = useClearablePersistedState(key, defaultValue, storage);
+  return [state as T, setState] as const;
 }
 
 export function clearStorage() {
