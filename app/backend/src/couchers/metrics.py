@@ -30,6 +30,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.models.notifications import DeviceType, PushNotificationPlatform, PushNotificationSubscription
 
 tracer = trace.get_tracer(__name__)
 
@@ -94,20 +95,43 @@ def _make_gauge_from_query(name: str, description: str, statement: Select[Any]) 
     return gauge
 
 
+_active_user_periods: list[tuple[str, str, timedelta]] = [
+    ("5m", "5 min", timedelta(minutes=5)),
+    ("24h", "24 hours", timedelta(hours=24)),
+    ("1month", "1 month", timedelta(days=31)),
+    ("3month", "3 months", timedelta(days=92)),
+    ("6month", "6 months", timedelta(days=183)),
+    ("12month", "12 months", timedelta(days=365)),
+]
+
 active_users_gauges: list[Gauge] = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
         f"Number of active users in the last {description}",
         (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
     )
-    for name, description, interval in [
-        ("5m", "5 min", timedelta(minutes=5)),
-        ("24h", "24 hours", timedelta(hours=24)),
-        ("1month", "1 month", timedelta(days=31)),
-        ("3month", "3 months", timedelta(days=92)),
-        ("6month", "6 months", timedelta(days=183)),
-        ("12month", "12 months", timedelta(days=365)),
-    ]
+    for name, description, interval in _active_user_periods
+]
+
+# active users that have the mobile app installed, split by device platform; a user is counted as a mobile app user if
+# they have a non-disabled Expo push notification subscription for that platform
+active_mobile_app_users_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_active_users_{name}_mobile_{device_type.name}",
+        f"Number of active users in the last {description} with a registered {device_type.name} mobile app",
+        (
+            select(func.count(distinct(User.id)))
+            .select_from(User)
+            .join(PushNotificationSubscription, PushNotificationSubscription.user_id == User.id)
+            .where(User.is_visible)
+            .where(User.last_active > func.now() - interval)
+            .where(PushNotificationSubscription.platform == PushNotificationPlatform.expo)
+            .where(PushNotificationSubscription.device_type == device_type)
+            .where(PushNotificationSubscription.disabled_at > func.now())
+        ),
+    )
+    for device_type in [DeviceType.ios, DeviceType.android]
+    for name, description, interval in _active_user_periods
 ]
 
 users_gauge: Gauge = _make_gauge_from_query(
