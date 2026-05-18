@@ -29,6 +29,7 @@ from sqlalchemy.sql import expression
 
 from couchers.constants import GUIDELINES_VERSION
 from couchers.models.base import Base, Geom
+from couchers.models.moderation import ModerationObjectType
 from couchers.models.users import HostingStatus
 from couchers.utils import now
 
@@ -73,6 +74,7 @@ class FriendRelationship(Base, kw_only=True):
 
     __tablename__ = "friend_relationships"
     __moderation_author_column__ = "from_user_id"
+    __moderation_object_type__ = ModerationObjectType.friend_request
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 

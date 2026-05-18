@@ -177,8 +177,6 @@ export default function EventListRow({ event }: EventListRowProps) {
     ? event.offlineInformation.address
     : t("dashboard:events.location_online_label");
 
-  const attendeeCount = event.goingCount + event.maybeCount;
-
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
       <DateChip>
@@ -191,7 +189,7 @@ export default function EventListRow({ event }: EventListRowProps) {
           <AttendeeTag>
             <Group sx={{ fontSize: "11px" }} />
             {t("dashboard:events.attendees_count_label", {
-              count: attendeeCount,
+              count: event.goingCount,
             })}
           </AttendeeTag>
           <ChevronRight

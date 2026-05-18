@@ -363,3 +363,39 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_list_my_communities_discussions_respects_moderation(db, moderator: Moderator):
+    """A shadowed discussion is hidden from other community members until approved."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+
+    with session_scope() as session:
+        community = create_community(session, 0, 1, "Testing Community", [author, other], [], None)
+        community_id = community.id
+
+    with discussions_session(author_token) as api:
+        discussion_id = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="hello",
+                content="world",
+                owner_community_id=community_id,
+            )
+        ).discussion_id
+
+    # Author sees their own shadowed discussion
+    with discussions_session(author_token) as api:
+        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
+        assert [d.title for d in res.discussions] == ["hello"]
+
+    # Other members do not see the shadowed discussion
+    with discussions_session(other_token) as api:
+        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
+        assert [d.title for d in res.discussions] == []
+
+    moderator.approve_discussion(discussion_id)
+
+    # Once approved, it shows up for other members too
+    with discussions_session(other_token) as api:
+        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
+        assert [d.title for d in res.discussions] == ["hello"]

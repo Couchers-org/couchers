@@ -32,7 +32,7 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
       <a href={couchersAppStoreURL} target="_blank" rel="noopener noreferrer">
         <img
           src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
-          alt={t("download_on_app_store")}
+          alt={t("app_store_badge_a11y")}
           style={{
             height: `${appStoreHeight}px`,
             width: "auto",
@@ -51,7 +51,7 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
         >
           <img
             src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
-            alt={t("get_it_on_google_play")}
+            alt={t("google_play_badge_a11y")}
             style={{
               height: `${googlePlayHeight}px`,
               width: "auto",

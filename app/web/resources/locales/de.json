@@ -338,6 +338,6 @@
     "a11y": "Kopieren",
     "copied_tooltip": "In die Zwischenablage kopiert"
   },
-  "download_on_app_store": "Im App Store herunterladen",
-  "get_it_on_google_play": "Bei Google Play herunterladen"
+  "app_store_badge_a11y": "Laden im App Store",
+  "google_play_badge_a11y": "Jetzt bei Google Play"
 }

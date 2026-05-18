@@ -56,13 +56,11 @@ logger = logging.getLogger(__name__)
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
     events_pb2.AttendanceState.ATTENDANCE_STATE_GOING: AttendeeStatus.going,
-    events_pb2.AttendanceState.ATTENDANCE_STATE_MAYBE: AttendeeStatus.maybe,
 }
 
 attendancestate2api = {
     None: events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING,
     AttendeeStatus.going: events_pb2.AttendanceState.ATTENDANCE_STATE_GOING,
-    AttendeeStatus.maybe: events_pb2.AttendanceState.ATTENDANCE_STATE_MAYBE,
 }
 
 MAX_PAGINATION_LENGTH = 25
@@ -136,17 +134,6 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
             EventOccurrenceAttendee.user_id,
         )
     ).scalar_one()
-    maybe_count = session.execute(
-        where_users_column_visible(
-            select(func.count())
-            .select_from(EventOccurrenceAttendee)
-            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe),
-            context,
-            EventOccurrenceAttendee.user_id,
-        )
-    ).scalar_one()
-
     organizer_count = session.execute(
         where_users_column_visible(
             select(func.count()).select_from(EventOrganizer).where(EventOrganizer.event_id == event.id),
@@ -198,7 +185,6 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         organizer=event.organizers.where(EventOrganizer.user_id == context.user_id).one_or_none() is not None,
         subscriber=event.subscribers.where(EventSubscription.user_id == context.user_id).one_or_none() is not None,
         going_count=going_count,
-        maybe_count=maybe_count,
         organizer_count=organizer_count,
         subscriber_count=subscriber_count,
         owner_user_id=event.owner_user_id,
