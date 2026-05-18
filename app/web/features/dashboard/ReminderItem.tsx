@@ -1,6 +1,8 @@
 import { alpha, Box, Typography } from "@mui/material";
 import { useMediaQuery } from "@mui/system";
 import Button from "components/Button";
+import IconButton from "components/IconButton";
+import { CloseIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -17,8 +19,10 @@ import { theme } from "../../theme";
 
 export default function ReminderItem({
   reminder,
+  onDismiss,
 }: {
   reminder: Reminder.AsObject;
+  onDismiss?: () => void;
 }) {
   const { t } = useTranslation([DASHBOARD]);
 
@@ -66,6 +70,7 @@ export default function ReminderItem({
   return (
     <Box
       sx={(theme) => ({
+        position: "relative",
         backgroundColor: alpha(theme.palette.secondary.main, 0.08),
         padding: isMobile ? "20px" : "24px",
         display: "flex",
@@ -73,6 +78,21 @@ export default function ReminderItem({
         height: "100%",
       })}
     >
+      {onDismiss && (
+        <IconButton
+          aria-label={t("reminder.carousel_dismiss_button_a11y")}
+          onClick={onDismiss}
+          size="small"
+          sx={(theme) => ({
+            position: "absolute",
+            top: theme.spacing(1),
+            right: theme.spacing(1),
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+
       <Box sx={{ flexGrow: 1 }}>
         <Typography
           variant="h3"
