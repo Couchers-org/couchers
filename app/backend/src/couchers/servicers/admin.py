@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
@@ -43,7 +43,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.uploads import has_avatar_photo_expression
+from couchers.models.uploads import Upload, has_avatar_photo_expression
 from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -1193,4 +1193,41 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.ListAdminActionsRes(
             admin_actions=action_pbs,
             next_page_token=str(rows[page_size - 1][0].id) if len(rows) > page_size else None,
+        )
+
+    def ListUserUploads(
+        self, request: admin_pb2.ListUserUploadsReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListUserUploadsRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        statement = select(Upload).where(Upload.creator_user_id == user.id)
+        if request.page_token:
+            cursor_created = session.execute(
+                select(Upload.created).where(Upload.key == request.page_token)
+            ).scalar_one()
+            statement = statement.where(tuple_(Upload.created, Upload.key) < (cursor_created, request.page_token))
+
+        uploads = (
+            session.execute(statement.order_by(Upload.created.desc(), Upload.key.desc()).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.ListUserUploadsRes(
+            uploads=[
+                admin_pb2.UserUpload(
+                    key=upload.key,
+                    filename=upload.filename,
+                    full_url=upload.full_url,
+                    thumbnail_url=upload.thumbnail_url,
+                    credit=upload.credit or "",
+                    created=Timestamp_from_datetime(upload.created),
+                )
+                for upload in uploads[:page_size]
+            ],
+            next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )

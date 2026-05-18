@@ -105,6 +105,8 @@ service Admin {
   rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
 
   rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
+
+  rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
 }
 
 message AdminActionLog {
@@ -572,5 +574,27 @@ message ListAdminActionsReq {
 
 message ListAdminActionsRes {
   repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
+}
+
+message ListUserUploadsReq {
+  // username, email, or user id
+  string user = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message UserUpload {
+  string key = 1;
+  string filename = 2;
+  string full_url = 3;
+  string thumbnail_url = 4;
+  string credit = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message ListUserUploadsRes {
+  repeated UserUpload uploads = 1;
   string next_page_token = 2;
 }
