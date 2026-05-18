@@ -290,21 +290,30 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     is_list_operation=True,
                 )
             ).all()
-            replies = [
-                threads_pb2.Reply(
-                    thread_id=pack_thread_id(r.id, 1),
-                    deleted=r.deleted is not None,
-                    content=r.content if r.deleted is None else "",
-                    author_user_id=r.author_user_id if r.deleted is None else 0,
-                    created_time=Timestamp_from_datetime(r.created) if r.deleted is None else None,
-                    num_replies=n,
-                    can_edit=(context.user_id == r.author_user_id) if r.deleted is None else False,
-                    last_edited=Timestamp_from_datetime(r.last_edited)
-                    if (r.last_edited and r.deleted is None)
-                    else None,
-                )
-                for r, n in res[:page_size]
-            ]
+            # Deleted comments are shown as stubs (thread_id, deleted, num_replies only)
+            # to preserve thread structure, but content and author are stripped.
+            replies = []
+            for r, n in res[:page_size]:
+                if r.deleted is not None:
+                    replies.append(
+                        threads_pb2.Reply(
+                            thread_id=pack_thread_id(r.id, 1),
+                            deleted=True,
+                            num_replies=n,
+                        )
+                    )
+                else:
+                    replies.append(
+                        threads_pb2.Reply(
+                            thread_id=pack_thread_id(r.id, 1),
+                            content=r.content,
+                            author_user_id=r.author_user_id,
+                            created_time=Timestamp_from_datetime(r.created),
+                            num_replies=n,
+                            can_edit=(context.user_id == r.author_user_id),
+                            last_edited=Timestamp_from_datetime(r.last_edited) if r.last_edited else None,
+                        )
+                    )
 
         elif depth == 1:
             if not session.execute(

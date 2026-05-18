@@ -995,6 +995,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         ).scalar_one_or_none()
         if not discussion:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            return empty_pb2.Empty()
         discussion.deleted = now()
         return empty_pb2.Empty()
 

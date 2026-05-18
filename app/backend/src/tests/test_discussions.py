@@ -183,6 +183,13 @@ def test_update_discussion(db):
         assert res.title == "Updated title"
         assert res.content == "Updated content"
         assert res.can_edit
+        assert res.last_edited is not None
+
+    with discussions_session(token) as api:
+        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
+        assert res.title == "Updated title"
+        assert res.content == "Updated content"
+        assert res.last_edited is not None
 
 
 def test_update_discussion_permission_denied(db):
@@ -263,18 +270,20 @@ def test_delete_discussion_by_creator(db):
         assert res.thread.thread_id != 0
 
 
-def test_delete_discussion_by_moderator(db):
+def test_delete_discussion_permission_denied_for_non_creator(db):
     creator, creator_token = generate_user()
-    moderator, moderator_token = generate_user()
+    community_admin, community_admin_token = generate_user()
     random_user, random_token = generate_user()
     with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [moderator], [creator, random_user], None)
+        community = create_community(
+            session, 0, 1, "Testing Community", [community_admin], [creator, random_user], None
+        )
         community_id = community.id
 
     with discussions_session(creator_token) as api:
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
-                title="To be moderated",
+                title="Only creator can delete",
                 content="Some content",
                 owner_community_id=community_id,
             )
@@ -287,10 +296,10 @@ def test_delete_discussion_by_moderator(db):
             api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
-    with discussions_session(moderator_token) as api:
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.deleted
+    with discussions_session(community_admin_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_deleted_discussion_not_in_list(db):
@@ -326,7 +335,7 @@ def test_deleted_discussion_not_in_list(db):
         assert deleted_id not in ids
 
 
-def test_deleted_discussion_thread_still_accessible(db):
+def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
     user, token = generate_user()
     commenter, commenter_token = generate_user()
     with session_scope() as session:
@@ -347,7 +356,8 @@ def test_deleted_discussion_thread_still_accessible(db):
     process_jobs()
 
     with threads_session(commenter_token) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="a comment"))
+        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="a comment")).thread_id
+    moderator.approve_thread_post(comment_thread_id)
 
     with discussions_session(token) as api:
         api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
@@ -360,7 +370,7 @@ def test_deleted_discussion_thread_still_accessible(db):
         assert len(res.replies) == 1
 
 
-def test_delete_comment_shows_placeholder_with_replies(db):
+def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator):
     """Deleting a top-level comment that has nested replies should show a deleted
     placeholder so the replies remain visible."""
     user, token = generate_user()
@@ -383,13 +393,22 @@ def test_delete_comment_shows_placeholder_with_replies(db):
 
     # commenter adds a top-level comment
     with threads_session(commenter_token) as api:
-        comment_res = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="top-level comment"))
-        comment_thread_id = comment_res.thread_id
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=thread_id, content="top-level comment")
+        ).thread_id
 
     # replier adds two nested replies
     with threads_session(replier_token) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 1"))
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 2"))
+        reply_thread_id_1 = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 1")
+        ).thread_id
+        reply_thread_id_2 = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 2")
+        ).thread_id
+
+    moderator.approve_thread_post(comment_thread_id)
+    moderator.approve_thread_post(reply_thread_id_1)
+    moderator.approve_thread_post(reply_thread_id_2)
 
     # commenter deletes their top-level comment
     with threads_session(commenter_token) as api:

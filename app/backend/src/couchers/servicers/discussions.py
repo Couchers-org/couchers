@@ -183,6 +183,78 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         return discussion_to_pb(session, discussion, context)
 
+    def UpdateDiscussion(
+        self, request: discussions_pb2.UpdateDiscussionReq, context: CouchersContext, session: Session
+    ) -> discussions_pb2.Discussion:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussion_deleted")
+        if context.user_id != discussion.creator_user_id:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_edit_permission_denied")
+
+        updated = False
+
+        if request.HasField("title"):
+            new_title = request.title.value.strip()
+            if not new_title:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
+            discussion.title = new_title
+            updated = True
+
+        if request.HasField("content"):
+            new_content = request.content.value.strip()
+            if not new_content:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
+            discussion.content = new_content
+            updated = True
+
+        if not updated:
+            return discussion_to_pb(session, discussion, context)
+
+        discussion.last_edited = now()
+
+        log_event(
+            context,
+            session,
+            "discussion.updated",
+            {
+                "discussion_id": discussion.id,
+            },
+        )
+
+        return discussion_to_pb(session, discussion, context)
+
+    def DeleteDiscussion(
+        self, request: discussions_pb2.DeleteDiscussionReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussion_deleted")
+
+        if context.user_id != discussion.creator_user_id:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_delete_permission_denied")
+
+        discussion.deleted = now()
+
+        log_event(
+            context,
+            session,
+            "discussion.deleted",
+            {
+                "discussion_id": discussion.id,
+            },
+        )
+
+        return empty_pb2.Empty()
+
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
