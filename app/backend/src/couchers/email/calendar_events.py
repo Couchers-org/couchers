@@ -22,7 +22,7 @@ def create_host_request_attachment(
 
 def create_host_request_calendar(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> str:
+) -> Calendar:
     event = create_host_request_event(host_request, other_name, hosting, loc_context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
@@ -87,7 +87,7 @@ def create_host_request_cancellation_calendar(
     return event_to_calendar(event, "PUBLISH", loc_context)
 
 
-def event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> str:
+def event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> Calendar:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
     calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
     if method:
@@ -99,10 +99,10 @@ def event_to_calendar(event: Event, method: str | None, loc_context: Localizatio
 def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailAttachment:
     data = calendar.serialize().encode("utf-8")
     content_disposition = f'attachment; filename="{filename}"'
-    content_type = 'text/calendar; charset="UTF-8"'
+    content_type = 'text/calendar; charset="utf-8"'
     if calendar.method:
         # The SMTP Content-Type "method" parameter must match the value in the ics file.
-        content_type += f" method={calendar.method}"
+        content_type += f"; method={calendar.method}"
 
     return EmailAttachment(data=data, content_disposition=content_disposition, content_type=content_type)
 
