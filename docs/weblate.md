@@ -2,9 +2,11 @@
 
 Weblate is our translation platform which we self-host at https://translate.couchershq.org. It provides a UI for translators to consume our `locales/en.json` files and produce `locales/<not-en>.json` files for every locale we support.
 
-Weblate maintains a clone of the `git` repo. It appends commits with translation changes to its `develop` branch, and periodically opens pull requests to merge its `develop` branch into GitHub's. Sometimes conflicts can happen where this merge operation fails, at which point Weblate locks up until we resolve it.
+## Weblate's git clone
 
-Although all Weblate components share the same `git` repo clone, the [web-app-auth](https://translate.couchershq.org/git/couchers/web-app-auth) component is configured to own the clone, and other components are configured to refence it. As such, all Weblate repo maintenance operations are on the `web-app-auth` component.
+Weblate maintains a clone of the GitHub repo. It keeps up-to-date with new commits in GitHub's `develop` branch, while appending commits with translation changes to its own `develop` branch, and maintaining a GitHub pull request to merge them back into GitHub's. Sometimes conflicts can happen where this merge operation fails, at which point Weblate locks up until we resolve it.
+
+Although all Weblate components share the same git repo clone, the [web-app-auth](https://translate.couchershq.org/git/couchers/web-app-auth) component is configured to own the clone, and other components are configured to refence it. As such, all Weblate repo maintenance operations are on the `web-app-auth` component.
 
 You can add Weblate's repo clone for read-only access as any other remote. We usually call it `weblate`:
 
@@ -13,6 +15,10 @@ You can add Weblate's repo clone for read-only access as any other remote. We us
 git remote add weblate https://translate.couchershq.org/git/couchers/web-app-auth/
 git fetch weblate develop
 ```
+
+## Why conflicts occur
+
+Weblate conflicts occur when it fails to reconciliate GitHub's `develop` branch with its own `develop` branch, meaning that a translation file was modified in GitHub and differently in Weblate. Surprisingly, conflicts are also likely when merging Weblate PRs using the `squash` strategy, since Weblate's won't find its commits in upstream, and its individual commits might conflict with the final squashed commit in GitHub, even if they lead to the same file state.
 
 ## Avoiding conflicts
 
@@ -39,13 +45,11 @@ If you're confident that your string's translations and its viscinity are not be
 1. Refactor the string keys, open a PR and merge it.
 1. Unlock the Weblate component.
 
-## Why conflicts occur
-
-Weblate conflicts occur when it fails to reconciliate GitHub's `develop` branch with its own `develop`, meaning that a translation file was modified in GitHub and differently in Weblate. Surprisingly, conflicts are also likely when merging Weblate PRs using the `squash` strategy, since Weblate's won't find its commits in upstream, and its individual commits might conflict with the final squashed commit in GitHub, even if they lead to the same file state. For this reason, Webl
-
 ## Resolving conflicts
 
-The goal of conflict resolution is to allow Weblate to reconciliate its queued commits with what's already in GitHub. Weblate gives a few tools to modify its `develop` branch, but those are fraught (big scary red buttons), so the better approach is to merge Weblate's queued commits into GitHub, after which it will automatically clear its queue. Follow the steps below, and make sure to merge your PR with the `merge` strategy!
+The goal of conflict resolution is to allow Weblate to reconciliate its queued commits with what's already in GitHub. Weblate gives a few tools to modify its `develop` branch, but those are fraught (big scary red buttons), so the better approach is to merge Weblate's queued commits into GitHub, after which it will automatically clear its queue.
+
+First merge the two latest `develop` branches:
 
 ```sh
 git fetch origin develop
@@ -53,9 +57,15 @@ git checkout origin/develop
 
 git fetch weblate develop
 git merge weblate/develop
+```
 
-# <resolve any conflicts and commit the resolution>
+If any there are any conflicts, resolve them and commit the resolution. Note that sometimes the merge is a no-op because the state of the files are the same in the two branches, but the commits leading to there can still be different and this confuses Weblate, so keep going.
 
+Then, create a branch and push it to GitHub:
+
+```sh
 git checkout -b i18n/merge-weblate
 git push
 ```
+
+Finally, create a pull request, get it reviewed and merge it, but **make sure to use the `merge` strategy**!
