@@ -1,5 +1,5 @@
 from couchers.email.smtp import email_proto_to_message
-from couchers.proto.internal.jobs_pb2 import SendEmailPayload, EmailAttachment
+from couchers.proto.internal.jobs_pb2 import EmailAttachment, SendEmailPayload
 
 
 def test_verbatim_attachment_headers():

@@ -99,7 +99,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         recipient=payload.recipient,
         subject=payload.subject,
         plain=payload.plain,
-        html=updated_html,
+        html=updated_html or "",
         list_unsubscribe_header=payload.list_unsubscribe_header,
         source_data=payload.source_data,
     )
