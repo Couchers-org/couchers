@@ -1,9 +1,11 @@
 from datetime import timedelta
 
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy import update
 
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import (
     _set_hacky_labeled_gauges_funcs,
     active_users_by_recency_gauge,
@@ -45,6 +47,9 @@ def test_users_per_community_gauge(db):
         region = create_community(session, 0, 25, "Region", [user3], [user1], macroregion)
         # subregion is below the region level and must be excluded
         create_community(session, 0, 10, "Subregion", [user2], [user3], region)
+
+    # the gauge reads from the cluster_subscription_counts materialized view
+    refresh_materialized_views(empty_pb2.Empty())
 
     _populate(users_per_community_gauge)
     values = _sample_values(users_per_community_gauge)

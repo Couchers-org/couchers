@@ -21,10 +21,10 @@ from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
+from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.models import (
     BackgroundJob,
     Cluster,
-    ClusterSubscription,
     EventOccurrenceAttendee,
     HostingStatus,
     HostRequest,
@@ -163,19 +163,16 @@ users_gauge: Gauge = _make_gauge_from_query(
 
 # Number of users per community, labeled by community name. Only includes communities at the region level or
 # broader (world, macroregion, region).
-_users_per_community_node_types = [NodeType.world, NodeType.macroregion, NodeType.region]
 users_per_community_gauge: Gauge = _make_labeled_gauge_from_query(
     "couchers_users_per_community",
     "Number of users per community, for regions and broader",
     "community",
     (
-        select(Cluster.name, func.count(User.id))
+        select(Cluster.name, func.coalesce(ClusterSubscriptionCount.count, 0))
         .select_from(Node)
         .join(Cluster, and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster))
-        .outerjoin(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-        .outerjoin(User, and_(User.id == ClusterSubscription.user_id, User.is_visible))
-        .where(Node.node_type.in_(_users_per_community_node_types))
-        .group_by(Cluster.id, Cluster.name)
+        .outerjoin(ClusterSubscriptionCount, ClusterSubscriptionCount.cluster_id == Cluster.id)
+        .where(Node.node_type <= NodeType.region)
     ),
 )
 
