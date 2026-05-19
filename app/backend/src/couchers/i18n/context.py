@@ -46,8 +46,8 @@ class LocalizationContext:
         self.babel_locale = get_babel_locale(self.locale_list)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        # Freeze after initialization. We can't use @dataclass(frozen=True) because some
-        # of our attributes are derived from others, so we can't use the default initializer.
+        # Freeze after initialization. We can't use @dataclass(frozen=True) because then
+        # we need the default initializer and some of our fields shouldn't be parameters.
         if hasattr(self, "babel_locale"):
             raise FrozenInstanceError(f"Cannot modify attribute {name}.")
         return object.__setattr__(self, name, value)
