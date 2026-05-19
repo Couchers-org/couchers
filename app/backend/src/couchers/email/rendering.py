@@ -87,13 +87,18 @@ class EmailBlocksBuilder:
     def user(
         self,
         info: UserInfo,
-        comment_key: str,
+        comment_key: str | None = None,
         substitutions: SubstitutionDict | None = None,
     ) -> Self:
-        return self.block(UserBlock(info=info, comment=self._markup(comment_key, substitutions)))
+        comment = self._markup(comment_key, substitutions) if comment_key else None
+        return self.block(UserBlock(info=info, comment=comment))
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
+
+    def do_not_reply_request_para(self) -> Self:
+        line = get_emails_i18next().localize_with_markup("generic.do_not_reply_request", self._locale)
+        return self.block(ParaBlock(text=line))
 
     def security_warning_para(self) -> Self:
         line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)

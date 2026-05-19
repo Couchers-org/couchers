@@ -2,7 +2,8 @@
   "generic": {
     "greeting_line": "Hi {{name}},",
     "closing_line": "Best,\nThe Couchers.org Team",
-    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!"
+    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
+    "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request."
   },
   "calendar_events": {
     "title_cancelled": "Cancelled: {{ title }}",
@@ -91,6 +92,18 @@
     "reason_wrong_birthdate_or_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
     "reason_not_a_passport": "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
     "reason_duplicate": "You tried to verify with a passport that has already been used for verification. Please use another passport."
+  },
+  "friend_request_received": {
+    "subject": "{{name}} wants to be your friend on Couchers.org!",
+    "body": "You've received a friend request from {{name}}.",
+    "view_action": "View friend requests",
+    "closing": "We hope you make a new friend!"
+  },
+  "friend_request_accepted": {
+    "subject": "{{name}} accepted your friend request",
+    "body": "{{name}} has accepted your friend request.",
+    "view_action": "View their profile",
+    "closing": "We hope you continue making new friends!"
   },
   "strong_verification_succeeded": {
     "subject": "Strong Verification succeeded",

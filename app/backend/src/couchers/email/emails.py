@@ -7,10 +7,13 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import Self
 
+from couchers import urls
 from couchers.email.rendering import (
     EmailBlock,
     EmailBlocksBuilder,
     ParaBlock,
+    UserBlock,
+    UserInfo,
     get_emails_i18next,
 )
 from couchers.i18n import LocalizationContext
@@ -400,8 +403,6 @@ class StrongVerificationFailedEmail(EmailBase):
 class StrongVerificationSucceededEmail(EmailBase):
     """Sent to a user when their strong verification has succeeded."""
 
-    donate_link: str
-
     @property
     def string_key_prefix(self) -> str:
         return "strong_verification_succeeded"
@@ -411,11 +412,85 @@ class StrongVerificationSucceededEmail(EmailBase):
         builder.para("thanks_message")
         builder.para("cost_explanation")
         builder.para("donation_request")
-        builder.action(self.donate_link, "donate_action")
+        donate_link = urls.donation_url() + "?utm_source=strong-verification-email"
+        builder.action(donate_link, "donate_action")
         builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> StrongVerificationSucceededEmail:
         return StrongVerificationSucceededEmail(
-            user_name="Alice", donate_link="https://couchers.org/donate?utm_source=strong-verification-email"
+            user_name="Alice"
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestReceivedEmail(EmailBase):
+    """Sent to a user when they receive a friend request."""
+
+    befriender: UserInfo
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "friend_request_received"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"name": self.befriender.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "body", {"name": self.befriender.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"name": self.befriender.name})
+        builder.user(self.befriender)
+        builder.action(urls.friend_requests_link(), "view_action")
+        builder.para("closing")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> FriendRequestReceivedEmail:
+        return FriendRequestReceivedEmail(
+            user_name="Alice",
+            befriender=UserInfo(
+                name="Bob",
+                age=30,
+                city="Berlin",
+                avatar_url="https://couchers.org/img/icon.png",
+                profile_url="https://couchers.org/user/bob",
+            )
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestAcceptedEmail(EmailBase):
+    """Sent to a user when their friend request is accepted."""
+
+    new_friend: UserInfo
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "friend_request_accepted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"name": self.new_friend.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "body", {"name": self.new_friend.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"name": self.new_friend.name})
+        builder.user(self.new_friend)
+        builder.action(self.new_friend.profile_url, "view_action")
+        builder.para("closing")
+
+    @classmethod
+    def dummy_data(cls) -> FriendRequestAcceptedEmail:
+        return FriendRequestAcceptedEmail(
+            user_name="Alice",
+            new_friend=UserInfo(
+                name="Bob",
+                age=30,
+                city="Berlin",
+                avatar_url="https://couchers.org/img/icon.png",
+                profile_url="https://couchers.org/user/bob",
+            ),
         )

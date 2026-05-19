@@ -11,6 +11,7 @@ from couchers.email.rendering import (
     EmailFooter,
     UnsubscribeInfo,
     UnsubscribeLink,
+    UserInfo,
     render_html_body,
     render_plaintext_body,
 )
@@ -106,6 +107,16 @@ def render_email_notification(
     )
 
 
+def _user_info(user: api_pb2.User) -> UserInfo:
+    return UserInfo(
+        name=user.name,
+        age=user.age,
+        city=user.city,
+        avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
+        profile_url=urls.user_link(username=user.username),
+    )
+
+
 def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
@@ -146,10 +157,11 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.verification__sv_fail:
             return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
         case NotificationTopicAction.verification__sv_success:
-            return emails.StrongVerificationSucceededEmail(
-                user_name,
-                donate_link=urls.donation_url() + "?utm_source=strong-verification-email",
-            )
+            return emails.StrongVerificationSucceededEmail(user_name)
+        case NotificationTopicAction.friend_request__create:
+            return emails.FriendRequestReceivedEmail(user_name, befriender=_user_info(data.other_user))
+        case NotificationTopicAction.friend_request__accept:
+            return emails.FriendRequestAcceptedEmail(user_name, new_friend=_user_info(data.other_user))
         case _:
             # Still implemented as a custom templated email
             return None
@@ -278,30 +290,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.friend_request__create:
-        other = data.other_user
-        preview = f"You've received a friend request from {other.name}"
-        return CustomTemplatedEmail(
-            subject=f"{other.name} wants to be your friend on Couchers.org!",
-            preview=preview,
-            template_name="friend_request",
-            template_args={
-                "friend_requests_link": urls.friend_requests_link(),
-                "other": UserTemplateArgs.from_protobuf_user(other),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.friend_request__accept:
-        other = data.other_user
-        title = f"{other.name} accepted your friend request!"
-        preview = f"{other.name} has accepted your friend request"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=preview,
-            template_name="friend_request_accepted",
-            template_args={
-                "other": UserTemplateArgs.from_protobuf_user(other),
             },
         )
     elif notification.topic_action == NotificationTopicAction.account_deletion__start:
