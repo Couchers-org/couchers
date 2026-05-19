@@ -20,6 +20,10 @@ jest.mock("expo-constants", () => ({
       gitHash: "abc12345",
     },
   },
+}));
+
+// Mock expo-application globally
+jest.mock("expo-application", () => ({
   nativeBuildVersion: "42",
 }));
 

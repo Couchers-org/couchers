@@ -5,6 +5,7 @@ import { getApiBaseUrl } from "@/config/urls";
 import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
 import isGrpcError from "@/service/utils/isGrpcError";
+import { applicationNameForUserAgent } from "@/utils/userAgent";
 
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
@@ -65,12 +66,32 @@ class PlatformInterceptor {
   }
 }
 
+// Sets an explicit User-Agent on API requests. Without this, native requests
+// go out with the platform HTTP stack's default UA (okhttp's "okhttp/4.12.0"
+// on Android, CFNetwork/Darwin on iOS), making API traffic indistinguishable
+// from generic clients.
+export class UserAgentInterceptor {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown,
+  ) {
+    request.getMetadata()["User-Agent"] = applicationNameForUserAgent;
+    return invoker(request);
+  }
+}
+
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
 const platformInterceptor = new PlatformInterceptor();
+const userAgentInterceptor = new UserAgentInterceptor();
 
 const opts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor, platformInterceptor],
+  unaryInterceptors: [
+    authInterceptor,
+    timeoutInterceptor,
+    platformInterceptor,
+    userAgentInterceptor,
+  ],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
