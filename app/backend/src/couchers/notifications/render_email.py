@@ -752,7 +752,6 @@ def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str
             raise NotImplementedError(f"No topic-key unsubscribe text for {topic_action}.")
 
 
-
 def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
     return EmailFooter(
         timezone_name=loc_context.localized_timezone,
