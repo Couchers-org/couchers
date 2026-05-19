@@ -14,7 +14,8 @@
       "event_description": "Votre compte a été récupéré (restauré)",
       "push": {
         "title": "Compte restauré",
-        "ios_title": "Compte restauré"
+        "ios_title": "Compte restauré",
+        "body": "Bon retour parmi nous !"
       }
     },
     "start": {
@@ -31,7 +32,8 @@
       "push": {
         "title": "Toujours disposé.e à héberger ?",
         "ios_title": "Toujours disposé.e à héberger ?"
-      }
+      },
+      "event_description": "Vous acceptez les invités, mais vous ne vous êtes pas connecté depuis un certain temps"
     }
   },
   "api_key": {
