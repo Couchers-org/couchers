@@ -260,7 +260,8 @@
     "map_search": "Rechercher",
     "volunteer": "Bénévolat",
     "landing_page": "Page d'accueil",
-    "invite_members": "Inviter des membres"
+    "invite_members": "Inviter des membres",
+    "donate": "Faire un don"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
