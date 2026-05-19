@@ -143,7 +143,7 @@ export default function DiscussionListRow({
   const timeStr = timeAgo({ since: createdDate, t, locale });
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
-    originalContent: discussion.content,
+    originalContent: discussion.content?.replace(/\n/g, " "),
     maxLength: 300,
   });
 
