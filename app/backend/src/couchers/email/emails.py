@@ -79,6 +79,77 @@ class EmailBase(ABC):
 
 
 @dataclass(kw_only=True, slots=True)
+class AccountDeletionStartedEmail(EmailBase):
+    """Sent to a user to confirm their account deletion request."""
+
+    deletion_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_started"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("request_description")
+        builder.para("confirmation_instructions")
+        builder.action(self.deletion_link, "confirm_action")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionStartedEmail:
+        return AccountDeletionStartedEmail(
+            user_name="Alice",
+            deletion_link="https://couchers.org/delete-account?token=xxx",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionCompletedEmail(EmailBase):
+    """Sent to a user after their account has been deleted."""
+
+    undelete_link: str
+    days: int
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_completed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("confirmation")
+        builder.para("farewell")
+        builder.para("recovery_instructions_days", {"count": self.days})
+        builder.action(self.undelete_link, "recover_action")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionCompletedEmail:
+        return AccountDeletionCompletedEmail(
+            user_name="Alice",
+            undelete_link="https://couchers.org/recover-account?token=xxx",
+            days=30,
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionRecoveredEmail(EmailBase):
+    """Sent to a user after their account deletion has been cancelled."""
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_recovered"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("confirmation")
+        builder.para("login_instructions")
+        builder.action(urls.app_link(), "login_action")
+        builder.para("redelete_instructions")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionRecoveredEmail:
+        return AccountDeletionRecoveredEmail(user_name="Alice")
+
+
+@dataclass(kw_only=True, slots=True)
 class APIKeyIssuedEmail(EmailBase):
     """Sent to a user to notify them that their API key was issued."""
 
@@ -149,6 +220,92 @@ class BirthdateChangedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class DiscussionCreatedEmail(EmailBase):
+    """Sent to a user when a new discussion is created in a community they follow."""
+
+    author: UserInfo
+    title: str
+    parent_context: str  # Community or group name
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "discussion_created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"author": self.author.name, "title": self.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            "body",
+            {
+                "author": self.author.name,
+                "title": self.title,
+                "parent_context": self.parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> DiscussionCreatedEmail:
+        return DiscussionCreatedEmail(
+            user_name="Alice",
+            author=UserInfo.dummy_bob(),
+            title="Best hiking trails near Berlin",
+            parent_context="Berlin Community",
+            markdown_text="I've been exploring the area and found some **great** spots...",
+            view_link="https://couchers.org/discussions/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class DiscussionCommentEmail(EmailBase):
+    """Sent to a user when someone comments on a discussion they follow."""
+
+    author: UserInfo
+    discussion_title: str
+    discussion_parent_context: str  # Community or group name
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "discussion_comment"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            "body",
+            {
+                "author": self.author.name,
+                "discussion_title": self.discussion_title,
+                "parent_context": self.discussion_parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> DiscussionCommentEmail:
+        return DiscussionCommentEmail(
+            user_name="Alice",
+            author=UserInfo.dummy_bob(),
+            discussion_title="Best hiking trails near Berlin",
+            discussion_parent_context="Berlin Community",
+            markdown_text="Great recommendations, I also **love** the Grünewald forest!",
+            view_link="https://couchers.org/discussions/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
 class EmailAddressChangedEmail(EmailBase):
     """Sent to a user to notify them that their email address was changed."""
 
@@ -182,6 +339,67 @@ class EmailAddressVerifiedEmail(EmailBase):
     @classmethod
     def dummy_data(cls) -> EmailAddressVerifiedEmail:
         return EmailAddressVerifiedEmail(user_name="Alice")
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestReceivedEmail(EmailBase):
+    """Sent to a user when they receive a friend request."""
+
+    befriender: UserInfo
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "friend_request_received"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"name": self.befriender.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "body", {"name": self.befriender.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"name": self.befriender.name})
+        builder.user(self.befriender)
+        builder.action(urls.friend_requests_link(), "view_action")
+        builder.para("closing")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> FriendRequestReceivedEmail:
+        return FriendRequestReceivedEmail(
+            user_name="Alice",
+            befriender=UserInfo.dummy_bob(),
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestAcceptedEmail(EmailBase):
+    """Sent to a user when their friend request is accepted."""
+
+    new_friend: UserInfo
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "friend_request_accepted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"name": self.new_friend.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "body", {"name": self.new_friend.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"name": self.new_friend.name})
+        builder.user(self.new_friend)
+        builder.action(self.new_friend.profile_url, "view_action")
+        builder.para("closing")
+
+    @classmethod
+    def dummy_data(cls) -> FriendRequestAcceptedEmail:
+        return FriendRequestAcceptedEmail(
+            user_name="Alice",
+            new_friend=UserInfo.dummy_bob(),
+        )
 
 
 @dataclass(kw_only=True, slots=True)
@@ -418,224 +636,6 @@ class StrongVerificationSucceededEmail(EmailBase):
     @classmethod
     def dummy_data(cls) -> StrongVerificationSucceededEmail:
         return StrongVerificationSucceededEmail(user_name="Alice")
-
-
-@dataclass(kw_only=True, slots=True)
-class FriendRequestReceivedEmail(EmailBase):
-    """Sent to a user when they receive a friend request."""
-
-    befriender: UserInfo
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "friend_request_received"
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"name": self.befriender.name})
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "body", {"name": self.befriender.name})
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("body", {"name": self.befriender.name})
-        builder.user(self.befriender)
-        builder.action(urls.friend_requests_link(), "view_action")
-        builder.para("closing")
-        builder.do_not_reply_request_para()
-
-    @classmethod
-    def dummy_data(cls) -> FriendRequestReceivedEmail:
-        return FriendRequestReceivedEmail(
-            user_name="Alice",
-            befriender=UserInfo.dummy_bob(),
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class FriendRequestAcceptedEmail(EmailBase):
-    """Sent to a user when their friend request is accepted."""
-
-    new_friend: UserInfo
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "friend_request_accepted"
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"name": self.new_friend.name})
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "body", {"name": self.new_friend.name})
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("body", {"name": self.new_friend.name})
-        builder.user(self.new_friend)
-        builder.action(self.new_friend.profile_url, "view_action")
-        builder.para("closing")
-
-    @classmethod
-    def dummy_data(cls) -> FriendRequestAcceptedEmail:
-        return FriendRequestAcceptedEmail(
-            user_name="Alice",
-            new_friend=UserInfo.dummy_bob(),
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class AccountDeletionStartedEmail(EmailBase):
-    """Sent to a user to confirm their account deletion request."""
-
-    deletion_link: str
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "account_deletion_started"
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("request_description")
-        builder.para("confirmation_instructions")
-        builder.action(self.deletion_link, "confirm_action")
-        builder.security_warning_para()
-
-    @classmethod
-    def dummy_data(cls) -> AccountDeletionStartedEmail:
-        return AccountDeletionStartedEmail(
-            user_name="Alice",
-            deletion_link="https://couchers.org/delete-account?token=xxx",
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class AccountDeletionCompletedEmail(EmailBase):
-    """Sent to a user after their account has been deleted."""
-
-    undelete_link: str
-    days: int
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "account_deletion_completed"
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("confirmation")
-        builder.para("farewell")
-        builder.para("recovery_instructions_days", {"count": self.days})
-        builder.action(self.undelete_link, "recover_action")
-        builder.security_warning_para()
-
-    @classmethod
-    def dummy_data(cls) -> AccountDeletionCompletedEmail:
-        return AccountDeletionCompletedEmail(
-            user_name="Alice",
-            undelete_link="https://couchers.org/recover-account?token=xxx",
-            days=30,
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class AccountDeletionRecoveredEmail(EmailBase):
-    """Sent to a user after their account deletion has been cancelled."""
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "account_deletion_recovered"
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("confirmation")
-        builder.para("login_instructions")
-        builder.action(urls.app_link(), "login_action")
-        builder.para("redelete_instructions")
-        builder.security_warning_para()
-
-    @classmethod
-    def dummy_data(cls) -> AccountDeletionRecoveredEmail:
-        return AccountDeletionRecoveredEmail(user_name="Alice")
-
-
-@dataclass(kw_only=True, slots=True)
-class DiscussionCreatedEmail(EmailBase):
-    """Sent to a user when a new discussion is created in a community they follow."""
-
-    author: UserInfo
-    title: str
-    parent_context: str  # Community or group name
-    markdown_text: str
-    view_link: str
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "discussion_created"
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"author": self.author.name, "title": self.title})
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para(
-            "body",
-            {
-                "author": self.author.name,
-                "title": self.title,
-                "parent_context": self.parent_context,
-            },
-        )
-        builder.user(self.author)
-        builder.quote(self.markdown_text, markdown=True)
-        builder.action(self.view_link, "view_action")
-
-    @classmethod
-    def dummy_data(cls) -> DiscussionCreatedEmail:
-        return DiscussionCreatedEmail(
-            user_name="Alice",
-            author=UserInfo.dummy_bob(),
-            title="Best hiking trails near Berlin",
-            parent_context="Berlin Community",
-            markdown_text="I've been exploring the area and found some **great** spots...",
-            view_link="https://couchers.org/discussions/123",
-        )
-
-
-@dataclass(kw_only=True, slots=True)
-class DiscussionCommentEmail(EmailBase):
-    """Sent to a user when someone comments on a discussion they follow."""
-
-    author: UserInfo
-    discussion_title: str
-    discussion_parent_context: str  # Community or group name
-    markdown_text: str
-    view_link: str
-
-    @property
-    def string_key_prefix(self) -> str:
-        return "discussion_comment"
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(
-            loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title}
-        )
-
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para(
-            "body",
-            {
-                "author": self.author.name,
-                "discussion_title": self.discussion_title,
-                "parent_context": self.discussion_parent_context,
-            },
-        )
-        builder.user(self.author)
-        builder.quote(self.markdown_text, markdown=True)
-        builder.action(self.view_link, "view_action")
-
-    @classmethod
-    def dummy_data(cls) -> DiscussionCommentEmail:
-        return DiscussionCommentEmail(
-            user_name="Alice",
-            author=UserInfo.dummy_bob(),
-            discussion_title="Best hiking trails near Berlin",
-            discussion_parent_context="Berlin Community",
-            markdown_text="Great recommendations, I also **love** the Grünewald forest!",
-            view_link="https://couchers.org/discussions/123",
-        )
 
 
 @dataclass(kw_only=True, slots=True)

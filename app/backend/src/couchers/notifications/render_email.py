@@ -120,6 +120,19 @@ def _user_info(user: api_pb2.User) -> UserInfo:
 def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
+        case NotificationTopicAction.account_deletion__start:
+            return emails.AccountDeletionStartedEmail(
+                user_name,
+                deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+            )
+        case NotificationTopicAction.account_deletion__complete:
+            return emails.AccountDeletionCompletedEmail(
+                user_name,
+                undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+                days=data.undelete_days,
+            )
+        case NotificationTopicAction.account_deletion__recovered:
+            return emails.AccountDeletionRecoveredEmail(user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.expiry)
         case NotificationTopicAction.badge__add:
@@ -128,10 +141,34 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=False)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
+        case NotificationTopicAction.discussion__create:
+            discussion = data.discussion
+            return emails.DiscussionCreatedEmail(
+                user_name,
+                author=_user_info(data.author),
+                title=discussion.title,
+                parent_context=discussion.owner_title,
+                markdown_text=discussion.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
+        case NotificationTopicAction.discussion__comment:
+            discussion = data.discussion
+            return emails.DiscussionCommentEmail(
+                user_name,
+                author=_user_info(data.author),
+                discussion_title=discussion.title,
+                discussion_parent_context=discussion.owner_title,
+                markdown_text=data.reply.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
         case NotificationTopicAction.email_address__change:
             return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name)
+        case NotificationTopicAction.friend_request__create:
+            return emails.FriendRequestReceivedEmail(user_name, befriender=_user_info(data.other_user))
+        case NotificationTopicAction.friend_request__accept:
+            return emails.FriendRequestAcceptedEmail(user_name, new_friend=_user_info(data.other_user))
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail(user_name, new_gender=data.gender)
         case NotificationTopicAction.modnote__create:
@@ -154,47 +191,6 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.PostalVerificationPostcardSentEmail(user_name, city=data.city, country=data.country)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name)
-        case NotificationTopicAction.verification__sv_fail:
-            return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
-        case NotificationTopicAction.verification__sv_success:
-            return emails.StrongVerificationSucceededEmail(user_name)
-        case NotificationTopicAction.friend_request__create:
-            return emails.FriendRequestReceivedEmail(user_name, befriender=_user_info(data.other_user))
-        case NotificationTopicAction.friend_request__accept:
-            return emails.FriendRequestAcceptedEmail(user_name, new_friend=_user_info(data.other_user))
-        case NotificationTopicAction.account_deletion__start:
-            return emails.AccountDeletionStartedEmail(
-                user_name,
-                deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
-            )
-        case NotificationTopicAction.account_deletion__complete:
-            return emails.AccountDeletionCompletedEmail(
-                user_name,
-                undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
-                days=data.undelete_days,
-            )
-        case NotificationTopicAction.account_deletion__recovered:
-            return emails.AccountDeletionRecoveredEmail(user_name)
-        case NotificationTopicAction.discussion__create:
-            discussion = data.discussion
-            return emails.DiscussionCreatedEmail(
-                user_name,
-                author=_user_info(data.author),
-                title=discussion.title,
-                parent_context=discussion.owner_title,
-                markdown_text=discussion.content,
-                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
-            )
-        case NotificationTopicAction.discussion__comment:
-            discussion = data.discussion
-            return emails.DiscussionCommentEmail(
-                user_name,
-                author=_user_info(data.author),
-                discussion_title=discussion.title,
-                discussion_parent_context=discussion.owner_title,
-                markdown_text=data.reply.content,
-                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
-            )
         case NotificationTopicAction.thread__reply:
             parent = data.WhichOneof("reply_parent")
             if parent == "event":
@@ -212,6 +208,10 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                 markdown_text=data.reply.content,
                 view_link=view_link,
             )
+        case NotificationTopicAction.verification__sv_fail:
+            return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
+        case NotificationTopicAction.verification__sv_success:
+            return emails.StrongVerificationSucceededEmail(user_name)
         case _:
             # Still implemented as a custom templated email
             return None
