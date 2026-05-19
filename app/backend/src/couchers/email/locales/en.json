@@ -81,7 +81,7 @@
     "closing": "We hope you make a new friend!"
   },
   "friend_request_accepted": {
-    "subject": "{{name}} accepted your friend request",
+    "subject": "{{name}} accepted your friend request!",
     "body": "{{name}} has accepted your friend request.",
     "view_action": "View their profile",
     "closing": "We hope you continue making new friends!"
