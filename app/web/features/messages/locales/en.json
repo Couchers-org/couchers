@@ -13,7 +13,7 @@
   "cancel_request_button": "Cancel request",
   "cancel_request_dialog_title": "Cancel request?",
   "cancel_request_dialog_message": "Are you sure you want to cancel your request? This cannot be undone.",
-  "feedback_modal": {
+  "private_feedback_card": {
     "title": "Feedback on this request",
     "quality_label": "Privately rate this request (Optional):",
     "quality_high": "High quality",

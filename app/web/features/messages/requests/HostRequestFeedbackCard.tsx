@@ -100,13 +100,13 @@ export default function HostRequestFeedbackCard({
 
       <FormControl component="fieldset">
         <Typography variant="subtitle2" gutterBottom>
-          {t("feedback_modal.quality_label")}
+          {t("private_feedback_card.quality_label")}
         </Typography>
         <ToggleButtonGroup
           exclusive
           value={quality}
           onChange={(_e, val) => setQuality(val)}
-          aria-label={t("feedback_modal.quality_label")}
+          aria-label={t("private_feedback_card.quality_label")}
           size="small"
           sx={{
             gap: 1,
@@ -130,7 +130,7 @@ export default function HostRequestFeedbackCard({
             }}
           >
             <ThumbDown fontSize="inherit" />
-            {t("feedback_modal.quality_low")}
+            {t("private_feedback_card.quality_low")}
           </ToggleButton>
           <ToggleButton
             value={HostRequestQuality.HOST_REQUEST_QUALITY_OKAY}
@@ -143,7 +143,7 @@ export default function HostRequestFeedbackCard({
             }}
           >
             <ThumbsUpDown fontSize="inherit" />
-            {t("feedback_modal.quality_okay")}
+            {t("private_feedback_card.quality_okay")}
           </ToggleButton>
           <ToggleButton
             value={HostRequestQuality.HOST_REQUEST_QUALITY_HIGH}
@@ -156,14 +156,14 @@ export default function HostRequestFeedbackCard({
             }}
           >
             <ThumbUp fontSize="inherit" />
-            {t("feedback_modal.quality_high")}
+            {t("private_feedback_card.quality_high")}
           </ToggleButton>
         </ToggleButtonGroup>
       </FormControl>
 
       <FormControl component="fieldset">
         <Typography variant="subtitle2" gutterBottom>
-          {t("feedback_modal.decline_reason_label")}
+          {t("private_feedback_card.decline_reason_label")}
         </Typography>
         <RadioGroup
           value={declineReason}
@@ -172,22 +172,22 @@ export default function HostRequestFeedbackCard({
           <FormControlLabel
             value="cannot_host"
             control={<Radio size="small" />}
-            label={t("feedback_modal.reason_cannot_host")}
+            label={t("private_feedback_card.reason_cannot_host")}
           />
           <FormControlLabel
             value="low_quality_request"
             control={<Radio size="small" />}
-            label={t("feedback_modal.reason_low_quality")}
+            label={t("private_feedback_card.reason_low_quality")}
           />
           <FormControlLabel
             value="good_request_dont_want"
             control={<Radio size="small" />}
-            label={t("feedback_modal.reason_good_request")}
+            label={t("private_feedback_card.reason_good_request")}
           />
           <FormControlLabel
             value="other"
             control={<Radio size="small" />}
-            label={t("feedback_modal.reason_other")}
+            label={t("private_feedback_card.reason_other")}
           />
         </RadioGroup>
         {declineReason === "other" && (
@@ -198,7 +198,7 @@ export default function HostRequestFeedbackCard({
             fullWidth
             value={otherText}
             onChange={(e) => setOtherText(e.target.value)}
-            placeholder={t("feedback_modal.reason_other_placeholder")}
+            placeholder={t("private_feedback_card.reason_other_placeholder")}
             size="small"
             sx={{ mt: 1 }}
           />
@@ -206,7 +206,7 @@ export default function HostRequestFeedbackCard({
       </FormControl>
 
       <Typography variant="caption" color="text.secondary">
-        {t("feedback_modal.privacy_notice")}
+        {t("private_feedback_card.privacy_notice")}
       </Typography>
 
       <StyledActions>
@@ -216,7 +216,7 @@ export default function HostRequestFeedbackCard({
           onClick={handleSkip}
           disabled={isPending}
         >
-          {t("feedback_modal.skip_button")}
+          {t("private_feedback_card.skip_button")}
         </Button>
         <Button
           variant="contained"
@@ -224,7 +224,7 @@ export default function HostRequestFeedbackCard({
           onClick={handleSubmit}
           loading={isPending}
         >
-          {t("feedback_modal.submit_button")}
+          {t("private_feedback_card.submit_button")}
         </Button>
       </StyledActions>
     </StyledCard>
