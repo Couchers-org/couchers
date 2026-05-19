@@ -105,6 +105,27 @@
     "view_action": "View their profile",
     "closing": "We hope you continue making new friends!"
   },
+  "account_deletion_started": {
+    "subject": "Confirm your Couchers.org account deletion",
+    "request_description": "You requested that we delete your account from Couchers.org.",
+    "confirmation_instructions": "To complete this process, please confirm by clicking the following button:",
+    "confirm_action": "Confirm account deletion"
+  },
+  "account_deletion_completed": {
+    "subject": "Your Couchers.org account has been deleted",
+    "confirmation": "You have successfully deleted your account from Couchers.org.",
+    "farewell": "We are sad to see you go, and wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)",
+    "recovery_instructions_days_one": "If you change your mind, <b>you have {{count}} day to recover your account</b> by clicking the following link:",
+    "recovery_instructions_days_other": "If you change your mind, <b>you have {{count}} days to recover your account</b> by clicking the following link:",
+    "recover_action": "Recover account"
+  },
+  "account_deletion_recovered": {
+    "subject": "Your Couchers.org account has been recovered!",
+    "confirmation": "Your account on Couchers.org has been successfully recovered!",
+    "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
+    "login_action": "Log back in",
+    "redelete_instructions": "If you change your mind, you can delete your account at any time."
+  },
   "strong_verification_succeeded": {
     "subject": "Strong Verification succeeded",
     "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",

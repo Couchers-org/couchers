@@ -12,7 +12,6 @@ from couchers.email.rendering import (
     EmailBlock,
     EmailBlocksBuilder,
     ParaBlock,
-    UserBlock,
     UserInfo,
     get_emails_i18next,
 )
@@ -418,9 +417,7 @@ class StrongVerificationSucceededEmail(EmailBase):
 
     @classmethod
     def dummy_data(cls) -> StrongVerificationSucceededEmail:
-        return StrongVerificationSucceededEmail(
-            user_name="Alice"
-        )
+        return StrongVerificationSucceededEmail(user_name="Alice")
 
 
 @dataclass(kw_only=True, slots=True)
@@ -456,7 +453,7 @@ class FriendRequestReceivedEmail(EmailBase):
                 city="Berlin",
                 avatar_url="https://couchers.org/img/icon.png",
                 profile_url="https://couchers.org/user/bob",
-            )
+            ),
         )
 
 
@@ -493,4 +490,77 @@ class FriendRequestAcceptedEmail(EmailBase):
                 avatar_url="https://couchers.org/img/icon.png",
                 profile_url="https://couchers.org/user/bob",
             ),
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionStartedEmail(EmailBase):
+    """Sent to a user to confirm their account deletion request."""
+
+    deletion_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_started"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("request_description")
+        builder.para("confirmation_instructions")
+        builder.action(self.deletion_link, "confirm_action")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionStartedEmail:
+        return AccountDeletionStartedEmail(
+            user_name="Alice",
+            deletion_link="https://couchers.org/delete-account?token=xxx",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionCompletedEmail(EmailBase):
+    """Sent to a user after their account has been deleted."""
+
+    undelete_link: str
+    days: int
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_completed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("confirmation")
+        builder.para("farewell")
+        builder.para("recovery_instructions_days", {"count": self.days})
+        builder.action(self.undelete_link, "recover_action")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionCompletedEmail:
+        return AccountDeletionCompletedEmail(
+            user_name="Alice",
+            undelete_link="https://couchers.org/recover-account?token=xxx",
+            days=30,
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionRecoveredEmail(EmailBase):
+    """Sent to a user after their account deletion has been cancelled."""
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "account_deletion_recovered"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("confirmation")
+        builder.para("login_instructions")
+        builder.action(urls.app_link(), "login_action")
+        builder.para("redelete_instructions")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> AccountDeletionRecoveredEmail:
+        return AccountDeletionRecoveredEmail(
+            user_name="Alice"
         )

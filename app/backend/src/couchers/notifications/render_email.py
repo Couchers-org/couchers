@@ -162,6 +162,19 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.FriendRequestReceivedEmail(user_name, befriender=_user_info(data.other_user))
         case NotificationTopicAction.friend_request__accept:
             return emails.FriendRequestAcceptedEmail(user_name, new_friend=_user_info(data.other_user))
+        case NotificationTopicAction.account_deletion__start:
+            return emails.AccountDeletionStartedEmail(
+                user_name,
+                deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+            )
+        case NotificationTopicAction.account_deletion__complete:
+            return emails.AccountDeletionCompletedEmail(
+                user_name,
+                undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+                days=data.undelete_days,
+            )
+        case NotificationTopicAction.account_deletion__recovered:
+            return emails.AccountDeletionRecoveredEmail(user_name)
         case _:
             # Still implemented as a custom templated email
             return None
@@ -290,37 +303,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__start:
-        return CustomTemplatedEmail(
-            subject="Confirm your Couchers.org account deletion",
-            preview="Please confirm that you want to delete your Couchers.org account.",
-            template_name="account_deletion_start",
-            template_args={
-                "deletion_link": urls.delete_account_link(account_deletion_token=data.deletion_token),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__complete:
-        title = "Your Couchers.org account has been deleted"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
-            template_name="account_deletion_complete",
-            template_args={
-                "undelete_link": urls.recover_account_link(account_undelete_token=data.undelete_token),
-                "days": data.undelete_days,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__recovered:
-        title = "Your Couchers.org account has been recovered!"
-        subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=subtitle,
-            template_name="account_deletion_recovered",
-            template_args={
-                "app_link": urls.app_link(),
             },
         )
     elif notification.topic_action == NotificationTopicAction.chat__message:
