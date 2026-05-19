@@ -144,7 +144,7 @@ export default function DiscussionListRow({
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
     originalContent: discussion.content,
-    maxLength: 120,
+    maxLength: 300,
   });
 
   return (
