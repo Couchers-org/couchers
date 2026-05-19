@@ -739,13 +739,14 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
 
 
 def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str:
-    assert can_unsubscribe_topic_key(topic_action)
-    # Not localized because the design will change so avoid useless work by translators.
-    match topic_action:
-        case NotificationTopicAction.chat__message:
-            return "this chat (mute)"
-        case _:
-            raise AssertionError(f"No topic-key description for {topic_action}")
+    if can_unsubscribe_topic_key(topic_action):
+        # Not localized because the design will change so avoid useless work by translators.
+        match topic_action:
+            case NotificationTopicAction.chat__message:
+                return "this chat (mute)"
+            case _:
+                pass
+    raise ValueError(f"Topic-action {topic_action} has no unsubscribe text.")
 
 
 def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
