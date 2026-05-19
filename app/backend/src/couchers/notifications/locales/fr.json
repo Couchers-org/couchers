@@ -291,7 +291,8 @@
     "push_enabled": {
       "push": {
         "title": "Notifications push activées",
-        "body": "Vous recevrez désormais des notifications sur cet appareil."
+        "body": "Vous recevrez désormais des notifications sur cet appareil.",
+        "ios_title": "Notifications push activées"
       }
     }
   }

@@ -4,6 +4,7 @@
     "check_connection": "Vérifiez votre connexion internet et réessayez."
   },
   "not_found": {
-    "message": "Cet écran n'existe pas."
+    "message": "Cet écran n'existe pas.",
+    "title": "Oups !"
   }
 }
