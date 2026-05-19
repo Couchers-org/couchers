@@ -42,6 +42,7 @@
     "event_not_an_organizer": "Ce membre n'est pas un organisateur.",
     "event_not_found": "Impossible de trouver l'événement.",
     "event_transfer_permission_denied": "Vous n'êtes pas autorisé à transférer cet événement.",
-    "events_not_enabled": "Les événements ne sont pas activés dans ce groupe ou dans cette communauté."
+    "events_not_enabled": "Les événements ne sont pas activés dans ce groupe ou dans cette communauté.",
+    "cannot_reinstate_and_set_stopped_date": "Vous ne pouvez pas réactiver un bénévole tout en définissant une date de fin en même temps."
   }
 }
