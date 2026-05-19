@@ -1,5 +1,6 @@
 import { Skeleton, styled } from "@mui/material";
 import TextBody from "components/TextBody";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
@@ -35,6 +36,7 @@ export default function ControlMessageView({
   className,
 }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
+  const { authState } = useAuthContext();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId,
   );
@@ -64,6 +66,7 @@ export default function ControlMessageView({
               user: authorName,
               target_user: targetName,
               t,
+              isCurrentUser: message.authorUserId === authState.userId,
             })}
           </TextBody>
         ) : (

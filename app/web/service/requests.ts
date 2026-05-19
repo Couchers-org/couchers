@@ -5,9 +5,11 @@ import {
   GetHostRequestMessagesReq,
   GetHostRequestReq,
   GetResponseRateReq,
+  HostRequestQuality,
   ListHostRequestsReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
+  SendHostRequestFeedbackReq,
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
@@ -121,6 +123,18 @@ export async function getResponseRate(userId: number) {
   const req = new GetResponseRateReq();
   req.setUserId(userId);
   return (await client.requests.getResponseRate(req)).toObject();
+}
+
+export async function sendHostRequestFeedback(
+  hostRequestId: number,
+  quality: HostRequestQuality,
+  declineReason: string,
+) {
+  const req = new SendHostRequestFeedbackReq();
+  req.setHostRequestId(hostRequestId);
+  req.setHostRequestQuality(quality);
+  req.setDeclineReason(declineReason);
+  await client.requests.sendHostRequestFeedback(req);
 }
 
 export async function setHostRequestArchiveStatus(

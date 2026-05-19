@@ -25,6 +25,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { HostRequestStatus } from "proto/conversations_pb";
 import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
@@ -39,6 +40,9 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
+import HostRequestFeedbackCard from "./HostRequestFeedbackCard";
+import HostRequestRespondButtons from "./HostRequestRespondButtons";
+import HostRequestStatusBanner from "./HostRequestStatusBanner";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
 
 const StyledHeader = styled("div")(({ theme }) => ({
@@ -144,7 +148,7 @@ export default function HostRequestView({
   const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
   const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
-  const isHost = host?.userId === currentUserId;
+  const isHost = hostRequest?.hostUserId === currentUserId;
   const otherUser = isHost ? surfer : host;
   const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
@@ -237,6 +241,10 @@ export default function HostRequestView({
     },
   });
 
+  const handleBannerRespond = (status: HostRequestStatus) => () => {
+    respondMutation.mutate({ hostRequestId, status, text: "" });
+  };
+
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
@@ -311,6 +319,25 @@ export default function HostRequestView({
         hostRequest={hostRequest}
         otherUser={otherUser}
       />
+      {hostRequest && !isRequestPast && (
+        <HostRequestStatusBanner
+          isHost={isHost}
+          status={hostRequest.status}
+          isLoading={respondMutation.isPending}
+          onAccept={handleBannerRespond(
+            HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+          )}
+          onDecline={handleBannerRespond(
+            HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
+          )}
+          onConfirm={handleBannerRespond(
+            HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
+          )}
+          onCancel={handleBannerRespond(
+            HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
+          )}
+        />
+      )}
       {hasError && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||
@@ -330,13 +357,29 @@ export default function HostRequestView({
         hasNextPage={!!hasNextPage}
         markLastSeen={markLastSeen}
         isError={!!messagesError}
+        footer={
+          hostRequest ? (
+            <>
+              {!isRequestPast && (
+                <HostRequestRespondButtons
+                  isHost={isHost}
+                  status={hostRequest.status}
+                  isLoading={respondMutation.isPending}
+                  handleStatus={handleBannerRespond}
+                />
+              )}
+              {isHost && hostRequest.needHostRequestFeedback && (
+                <HostRequestFeedbackCard hostRequestId={hostRequestId} />
+              )}
+            </>
+          ) : undefined
+        }
       />
       <StyledFooter>
         {hostRequest && (
           <HostRequestSendField
             hostRequest={hostRequest}
             sendMutation={sendMutation}
-            respondMutation={respondMutation}
           />
         )}
       </StyledFooter>
