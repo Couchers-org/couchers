@@ -558,7 +558,7 @@ class DiscussionCreatedEmail(EmailBase):
 
     author: UserInfo
     title: str
-    parent_context: str
+    parent_context: str  # Community or group name
     markdown_text: str
     view_link: str
 
@@ -600,7 +600,7 @@ class DiscussionCommentEmail(EmailBase):
 
     author: UserInfo
     discussion_title: str
-    discussion_parent_context: str
+    discussion_parent_context: str  # Community or group name
     markdown_text: str
     view_link: str
 
@@ -609,7 +609,9 @@ class DiscussionCommentEmail(EmailBase):
         return "discussion_comment"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title})
+        return self._localize(
+            loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title}
+        )
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(
@@ -632,5 +634,40 @@ class DiscussionCommentEmail(EmailBase):
             discussion_title="Best hiking trails near Berlin",
             discussion_parent_context="Berlin Community",
             markdown_text="Great recommendations, I also **love** the Grünewald forest!",
+            view_link="https://couchers.org/discussions/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class ThreadReplyEmail(EmailBase):
+    """Sent to a user when someone replies in a comment thread they participated in."""
+
+    author: UserInfo
+    parent_context: str  # Title of the event or discussion being replied in
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "thread_reply"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, "subject", {"author": self.author.name, "parent_context": self.parent_context}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"author": self.author.name, "parent_context": self.parent_context})
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> ThreadReplyEmail:
+        return ThreadReplyEmail(
+            user_name="Alice",
+            author=UserInfo.dummy_bob(),
+            parent_context="Best hiking trails near Berlin",
+            markdown_text="I agree, the Grünewald is **amazing**!",
             view_link="https://couchers.org/discussions/123",
         )

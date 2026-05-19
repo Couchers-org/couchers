@@ -14,7 +14,7 @@ from markupsafe import Markup
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import load_locales
-from couchers.templating import Jinja2Template, template_folder, _markdown
+from couchers.templating import Jinja2Template, _markdown, template_folder
 from couchers.utils import now
 
 
@@ -318,9 +318,7 @@ class HTMLRenderer:
                         )
                     )
                 case QuoteBlock():
-                    args = {
-                        "text": Markup(_markdown.render(block.text)) if block.markdown else block.text
-                    }
+                    args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(block.__dict__, loc_context))

@@ -195,6 +195,23 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                 markdown_text=data.reply.content,
                 view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
             )
+        case NotificationTopicAction.thread__reply:
+            parent = data.WhichOneof("reply_parent")
+            if parent == "event":
+                parent_context = data.event.title
+                view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            elif parent == "discussion":
+                parent_context = data.discussion.title
+                view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+            else:
+                raise Exception("Can only do replies to events and discussions")
+            return emails.ThreadReplyEmail(
+                user_name,
+                author=_user_info(data.author),
+                parent_context=parent_context,
+                markdown_text=data.reply.content,
+                view_link=view_link,
+            )
         case _:
             # Still implemented as a custom templated email
             return None
@@ -461,28 +478,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": event_link,
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.thread__reply:
-        parent = data.WhichOneof("reply_parent")
-        if parent == "event":
-            title = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
-        elif parent == "discussion":
-            title = data.discussion.title
-            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
-        else:
-            raise Exception("Can only do replies to events and discussions")
-
-        return CustomTemplatedEmail(
-            subject=f'{data.author.name} replied in "{title}"',
-            preview="Someone replied in a comment thread you have participated in.",
-            template_name="comment_reply",
-            template_args={
-                "author": UserTemplateArgs.from_protobuf_user(data.author),
-                "title": title,
-                "reply": data.reply,
-                "view_link": view_link,
-            },
-        )
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"

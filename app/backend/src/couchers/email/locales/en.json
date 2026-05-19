@@ -136,6 +136,11 @@
     "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
     "view_action": "View discussion"
   },
+  "thread_reply": {
+    "subject": "{{author}} replied in {{parent_context}}",
+    "body": "<b>{{author}}</b> replied in <b>{{parent_context}}</b>:",
+    "view_action": "View thread"
+  },
   "strong_verification_succeeded": {
     "subject": "Strong Verification succeeded",
     "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
