@@ -175,6 +175,26 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             )
         case NotificationTopicAction.account_deletion__recovered:
             return emails.AccountDeletionRecoveredEmail(user_name)
+        case NotificationTopicAction.discussion__create:
+            discussion = data.discussion
+            return emails.DiscussionCreatedEmail(
+                user_name,
+                author=_user_info(data.author),
+                discussion_title=discussion.title,
+                discussion_owner_title=discussion.owner_title,
+                discussion_content=discussion.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
+        case NotificationTopicAction.discussion__comment:
+            discussion = data.discussion
+            return emails.DiscussionCommentEmail(
+                user_name,
+                author=_user_info(data.author),
+                discussion_title=discussion.title,
+                discussion_owner_title=discussion.owner_title,
+                reply_content=data.reply.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
         case _:
             # Still implemented as a custom templated email
             return None
@@ -439,32 +459,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "time_display": time_display,
                     "event": event,
                     "view_link": event_link,
-                },
-            )
-    elif notification.topic == "discussion":
-        discussion = data.discussion
-        discussion_link = urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug)
-        if notification.action == "create":
-            return CustomTemplatedEmail(
-                subject=f'{data.author.name} created a discussion: "{discussion.title}"',
-                preview="Someone created a discussion in a community or group you are subscribed to.",
-                template_name="discussion_create",
-                template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
-                    "discussion": discussion,
-                    "view_link": discussion_link,
-                },
-            )
-        elif notification.action == "comment":
-            return CustomTemplatedEmail(
-                subject=f'{data.author.name} commented on "{discussion.title}"',
-                preview="Someone commented on your discussion.",
-                template_name="discussion_comment",
-                template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
-                    "discussion": discussion,
-                    "reply": data.reply,
-                    "view_link": discussion_link,
                 },
             )
     elif notification.topic_action == NotificationTopicAction.thread__reply:

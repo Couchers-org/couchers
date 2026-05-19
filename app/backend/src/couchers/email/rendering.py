@@ -14,7 +14,7 @@ from markupsafe import Markup
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import load_locales
-from couchers.templating import Jinja2Template, template_folder
+from couchers.templating import Jinja2Template, template_folder, _markdown
 from couchers.utils import now
 
 
@@ -48,12 +48,23 @@ class UserInfo:
     avatar_url: str
     profile_url: str
 
+    @staticmethod
+    def dummy_bob() -> UserInfo:
+        return UserInfo(
+            name="Bob",
+            age=30,
+            city="Berlin",
+            avatar_url="https://couchers.org/img/icon.png",
+            profile_url="https://couchers.org/user/bob",
+        )
+
 
 @dataclass(kw_only=True)
 class QuoteBlock(EmailBlock):
-    """A quoted message from another user. May not contain markup."""
+    """A quoted message, typically from another user. Either plaintext or markdown."""
 
     text: str
+    markdown: bool
 
 
 @dataclass(kw_only=True)
@@ -81,8 +92,8 @@ class EmailBlocksBuilder:
     def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ParaBlock(text=self._markup(key, substitutions)))
 
-    def quote(self, text: str) -> Self:
-        return self.block(QuoteBlock(text=text))
+    def quote(self, text: str, *, markdown: bool) -> Self:
+        return self.block(QuoteBlock(text=text, markdown=markdown))
 
     def user(
         self,
@@ -307,7 +318,10 @@ class HTMLRenderer:
                         )
                     )
                 case QuoteBlock():
-                    concats.append(self.quote_block_template.render(block.__dict__, loc_context))
+                    args = {
+                        "text": Markup(_markdown.render(block.text)) if block.markdown else block.text
+                    }
+                    concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(block.__dict__, loc_context))
                 case _:

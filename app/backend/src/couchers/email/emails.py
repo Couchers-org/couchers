@@ -91,7 +91,7 @@ class APIKeyIssuedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("header")
-        builder.quote(self.api_key)
+        builder.quote(self.api_key, markdown=False)
         builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para("usage_warning")
         builder.para("policy_warning")
@@ -447,13 +447,7 @@ class FriendRequestReceivedEmail(EmailBase):
     def dummy_data(cls) -> FriendRequestReceivedEmail:
         return FriendRequestReceivedEmail(
             user_name="Alice",
-            befriender=UserInfo(
-                name="Bob",
-                age=30,
-                city="Berlin",
-                avatar_url="https://couchers.org/img/icon.png",
-                profile_url="https://couchers.org/user/bob",
-            ),
+            befriender=UserInfo.dummy_bob(),
         )
 
 
@@ -483,13 +477,7 @@ class FriendRequestAcceptedEmail(EmailBase):
     def dummy_data(cls) -> FriendRequestAcceptedEmail:
         return FriendRequestAcceptedEmail(
             user_name="Alice",
-            new_friend=UserInfo(
-                name="Bob",
-                age=30,
-                city="Berlin",
-                avatar_url="https://couchers.org/img/icon.png",
-                profile_url="https://couchers.org/user/bob",
-            ),
+            new_friend=UserInfo.dummy_bob(),
         )
 
 
@@ -561,6 +549,88 @@ class AccountDeletionRecoveredEmail(EmailBase):
 
     @classmethod
     def dummy_data(cls) -> AccountDeletionRecoveredEmail:
-        return AccountDeletionRecoveredEmail(
-            user_name="Alice"
+        return AccountDeletionRecoveredEmail(user_name="Alice")
+
+
+@dataclass(kw_only=True, slots=True)
+class DiscussionCreatedEmail(EmailBase):
+    """Sent to a user when a new discussion is created in a community they follow."""
+
+    author: UserInfo
+    title: str
+    parent_context: str
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "discussion_created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"author": self.author.name, "title": self.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            "body",
+            {
+                "author": self.author.name,
+                "title": self.title,
+                "parent_context": self.parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> DiscussionCreatedEmail:
+        return DiscussionCreatedEmail(
+            user_name="Alice",
+            author=UserInfo.dummy_bob(),
+            title="Best hiking trails near Berlin",
+            parent_context="Berlin Community",
+            markdown_text="I've been exploring the area and found some **great** spots...",
+            view_link="https://couchers.org/discussions/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class DiscussionCommentEmail(EmailBase):
+    """Sent to a user when someone comments on a discussion they follow."""
+
+    author: UserInfo
+    discussion_title: str
+    discussion_parent_context: str
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "discussion_comment"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            "body",
+            {
+                "author": self.author.name,
+                "discussion_title": self.discussion_title,
+                "parent_context": self.discussion_parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> DiscussionCommentEmail:
+        return DiscussionCommentEmail(
+            user_name="Alice",
+            author=UserInfo.dummy_bob(),
+            discussion_title="Best hiking trails near Berlin",
+            discussion_parent_context="Berlin Community",
+            markdown_text="Great recommendations, I also **love** the Grünewald forest!",
+            view_link="https://couchers.org/discussions/123",
         )

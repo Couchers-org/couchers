@@ -126,6 +126,16 @@
     "login_action": "Log back in",
     "redelete_instructions": "If you change your mind, you can delete your account at any time."
   },
+  "discussion_created": {
+    "subject": "{{author}} started a discussion: {{title}}",
+    "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
+    "view_action": "View discussion"
+  },
+  "discussion_comment": {
+    "subject": "{{author}} commented on {{discussion_title}}",
+    "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
+    "view_action": "View discussion"
+  },
   "strong_verification_succeeded": {
     "subject": "Strong Verification succeeded",
     "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
