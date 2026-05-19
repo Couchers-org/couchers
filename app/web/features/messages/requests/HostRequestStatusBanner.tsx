@@ -1,4 +1,4 @@
-import { Box, styled,Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
