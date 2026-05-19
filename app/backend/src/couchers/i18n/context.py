@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, dataclass
+from dataclasses import FrozenInstanceError
 from datetime import UTC, date, datetime, time, tzinfo
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -20,7 +20,6 @@ from couchers.models.users import User
 from couchers.utils import to_timezone
 
 
-@dataclass(init=False, slots=True)
 class LocalizationContext:
     """
     Specifies regional settings used for localization of strings and date/times.
