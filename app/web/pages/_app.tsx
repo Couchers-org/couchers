@@ -16,10 +16,10 @@ import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
 import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
+import ExperimentationProvider from "features/experimentation/ExperimentationProvider";
 import ProfileSheet from "features/profile/ProfileSheet";
 import { ProfileSheetProvider } from "features/profile/ProfileSheetContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
-import StatsigProvider from "features/statsig/StatsigProvider";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
@@ -84,7 +84,7 @@ function MyApp(props: AppWithLayoutProps) {
               <AnalyticsProvider>
                 <ReactQueryClientProvider>
                   <AuthProvider>
-                    <StatsigProvider>
+                    <ExperimentationProvider>
                       <CssBaseline />
                       <NativeColorSchemeSync />
                       <NativeMobileNavigationHandler />
@@ -94,7 +94,7 @@ function MyApp(props: AppWithLayoutProps) {
                         {getLayout(<Component {...pageProps} />)}
                         <ProfileSheet />
                       </ProfileSheetProvider>
-                    </StatsigProvider>
+                    </ExperimentationProvider>
                   </AuthProvider>
                 </ReactQueryClientProvider>
               </AnalyticsProvider>

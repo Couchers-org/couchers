@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, UniqueConstraint, func
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -113,5 +113,46 @@ class EventLog(Base, kw_only=True):
         Index("ix_logging_event_log_created", "created"),
         Index("ix_logging_event_log_event_type_created", "event_type", "created"),
         Index("ix_logging_event_log_user_id_created", "user_id", "created"),
+        {"schema": "logging"},
+    )
+
+
+class ExperimentExposure(Base, kw_only=True):
+    """
+    Records the first time a user is exposed to a particular experiment variation.
+
+    Populated by GrowthBook's on_experiment_viewed callback. One row per
+    (user, experiment, variation) - subsequent exposures collide on the
+    unique constraint and are dropped via ON CONFLICT DO NOTHING, so
+    `created` and `data` reflect the first exposure.
+    """
+
+    __tablename__ = "experiment_exposures"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the first exposure was recorded
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # backend version when the first exposure was recorded
+    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+
+    # user exposed to the experiment
+    user_id: Mapped[int] = mapped_column(BigInteger)
+
+    # experiment identifier from GrowthBook
+    experiment_key: Mapped[str] = mapped_column(String)
+
+    # the variation the user was bucketed into
+    variation_id: Mapped[int] = mapped_column(BigInteger)
+
+    # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
+    # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "experiment_key", "variation_id", name="uq_experiment_exposures_user_exp_var"),
+        Index("ix_logging_experiment_exposures_experiment_key_created", "experiment_key", "created"),
+        Index("ix_logging_experiment_exposures_user_id_created", "user_id", "created"),
         {"schema": "logging"},
     )

@@ -168,9 +168,9 @@ class Account(account_pb2_grpc.AccountServicer):
         ).one()
 
         # Test experimentation integration - check if user is in the test gate
-        # Create 'test_statsig_integration' in Statsig console to test
-        test_gate = check_gate(context, "test_statsig_integration")
-        logger.info(f"Experimentation gate 'test_statsig_integration' for user {user.id}: {test_gate}")
+        # Create 'test_growthbook_integration' in GrowthBook to test
+        test_gate = check_gate(context, "test_growthbook_integration")
+        logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
         should_show_donation_banner = DONATION_DRIVE_START is not None and (
             user.last_donated is None or user.last_donated < DONATION_DRIVE_START
