@@ -39,7 +39,7 @@ def test_all_notifications_have_descriptions() -> None:
 def test_topic_action_unsubscribe_text_iff_unsubscribable() -> None:
     for topic_action in NotificationTopicAction:
         if topic_action.is_critical:
-            with pytest.raises(AssertionError):
+            with pytest.raises(ValueError):
                 get_topic_action_unsubscribe_text(topic_action)
         else:
             assert get_topic_action_unsubscribe_text(topic_action)
@@ -50,5 +50,5 @@ def test_topic_key_unsubscribe_text_iff_unsubscribable() -> None:
         if can_unsubscribe_topic_key(topic_action):
             assert get_topic_key_unsubscribe_text(topic_action)
         else:
-            with pytest.raises(AssertionError):
+            with pytest.raises(ValueError):
                 get_topic_key_unsubscribe_text(topic_action)

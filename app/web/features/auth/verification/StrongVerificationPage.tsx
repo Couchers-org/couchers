@@ -24,7 +24,10 @@ import { service } from "service";
 import { theme } from "theme";
 
 export default function StrongVerificationInstructions() {
-  const { t } = useTranslation([GLOBAL, AUTH]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, AUTH]);
 
   const {
     error,
@@ -151,7 +154,7 @@ export default function StrongVerificationInstructions() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  src={`/img/app-store-badge/${locale}.svg`}
                   alt={t(
                     "auth:strong_verification.instructions.download_app_store",
                   )}
@@ -164,11 +167,11 @@ export default function StrongVerificationInstructions() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  src={`/img/google-play-badge/${locale}.svg`}
                   alt={t(
                     "auth:strong_verification.instructions.download_google_play",
                   )}
-                  style={{ height: "45px", width: "auto" }}
+                  style={{ height: "30px", width: "auto" }}
                 />
               </a>
             </Box>

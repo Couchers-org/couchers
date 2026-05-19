@@ -12,13 +12,10 @@ import {
 import { theme } from "theme";
 
 function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
-  const { t } = useTranslation(GLOBAL);
-  // Google Play SVG (viewBox 155×60) has 10px internal padding on all sides;
-  // content rect is x=10 y=10 w=135 h=40. Render at 1.5× so the content
-  // matches appStoreHeight, then clip the transparent padding with a wrapper.
-  const googlePlayHeight = appStoreHeight * 1.5;
-  const googlePlayPadding = appStoreHeight / 4; // 10/40 × appStoreHeight
-  const googlePlayContentWidth = appStoreHeight * 3.375; // 135/40 × appStoreHeight
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
   return (
     <Stack
       direction="row"
@@ -31,7 +28,7 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
     >
       <a href={couchersAppStoreURL} target="_blank" rel="noopener noreferrer">
         <img
-          src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+          src={`/img/app-store-badge/${locale}.svg`}
           alt={t("app_store_badge_a11y")}
           style={{
             height: `${appStoreHeight}px`,
@@ -41,26 +38,15 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
         />
       </a>
       <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
-        <div
+        <img
+          src={`/img/google-play-badge/${locale}.svg`}
+          alt={t("google_play_badge_a11y")}
           style={{
             height: `${appStoreHeight}px`,
-            width: `${googlePlayContentWidth}px`,
-            overflow: "hidden",
-            position: "relative",
+            width: "auto",
+            display: "block",
           }}
-        >
-          <img
-            src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
-            alt={t("google_play_badge_a11y")}
-            style={{
-              height: `${googlePlayHeight}px`,
-              width: "auto",
-              position: "absolute",
-              top: `-${googlePlayPadding}px`,
-              left: `-${googlePlayPadding}px`,
-            }}
-          />
-        </div>
+        />
       </a>
     </Stack>
   );
