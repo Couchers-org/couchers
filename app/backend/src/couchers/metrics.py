@@ -25,6 +25,7 @@ from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.models import (
     BackgroundJob,
+    ClientPlatform,
     Cluster,
     EventOccurrenceAttendee,
     HostingStatus,
@@ -34,6 +35,7 @@ from couchers.models import (
     NodeType,
     Reference,
     User,
+    UserActivity,
 )
 from couchers.models.moderation import (
     ModerationAction,
@@ -142,20 +144,22 @@ def _make_labeled_gauge_from_query(
     return gauge
 
 
+_active_user_periods: list[tuple[str, str, timedelta]] = [
+    ("5m", "5 min", timedelta(minutes=5)),
+    ("24h", "24 hours", timedelta(hours=24)),
+    ("1month", "1 month", timedelta(days=31)),
+    ("3month", "3 months", timedelta(days=92)),
+    ("6month", "6 months", timedelta(days=183)),
+    ("12month", "12 months", timedelta(days=365)),
+]
+
 active_users_gauges: list[Gauge] = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
         f"Number of active users in the last {description}",
         (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
     )
-    for name, description, interval in [
-        ("5m", "5 min", timedelta(minutes=5)),
-        ("24h", "24 hours", timedelta(hours=24)),
-        ("1month", "1 month", timedelta(days=31)),
-        ("3month", "3 months", timedelta(days=92)),
-        ("6month", "6 months", timedelta(days=183)),
-        ("12month", "12 months", timedelta(days=365)),
-    ]
+    for name, description, interval in _active_user_periods
 ]
 
 users_gauge: Gauge = _make_gauge_from_query(
@@ -206,6 +210,60 @@ active_users_by_recency_gauge: Gauge = _make_labeled_gauge_from_query(
     ),
     default_label_values=[label for label, _ in _active_users_buckets],
 )
+
+# UserActivity.client_platform is set from a header the client explicitly sends; null is some other client (e.g. an
+# API key script) or activity from before the header existed
+_client_platform_label = case(
+    (UserActivity.client_platform == ClientPlatform.web_desktop, "web_desktop"),
+    (UserActivity.client_platform == ClientPlatform.web_mobile, "web_mobile"),
+    (UserActivity.client_platform == ClientPlatform.app_ios, "app_ios"),
+    (UserActivity.client_platform == ClientPlatform.app_android, "app_android"),
+    else_="other",
+)
+
+
+def active_users_by_platform_statement() -> Select[Any]:
+    # one query: scan user_activity once over the widest window and count distinct users per platform for each window
+    return (
+        select(
+            _client_platform_label.label("platform"),
+            *[
+                func.count(distinct(UserActivity.user_id))
+                .filter(UserActivity.period > func.now() - interval)
+                .label(name)
+                for name, _, interval in _active_user_periods
+            ],
+        )
+        .select_from(UserActivity)
+        .join(User, User.id == UserActivity.user_id)
+        .where(User.is_visible)
+        .where(UserActivity.period > func.now() - _active_user_periods[-1][2])
+        .group_by(_client_platform_label)
+    )
+
+
+# Number of active users per time window, split by client platform. Unlike the single-label helper gauges, this one
+# is labeled by both period and platform, so it's populated with a custom function.
+active_users_by_platform_gauge: Gauge = Gauge(
+    "couchers_active_users_by_platform",
+    "Number of active users per time window, split by client platform "
+    "(web_desktop, web_mobile, app_ios, app_android, other)",
+    labelnames=["period", "platform"],
+    multiprocess_mode="mostrecent",
+)
+
+
+def _set_active_users_by_platform(gauge: Gauge) -> None:
+    with tracer.start_as_current_span("metric.couchers_active_users_by_platform"):
+        with session_scope() as session:
+            rows = session.execute(active_users_by_platform_statement()).all()
+    for row in rows:
+        platform = row[0]
+        for index, (name, _, _) in enumerate(_active_user_periods):
+            gauge.labels(name, platform).set(row[index + 1])
+
+
+_set_hacky_labeled_gauges_funcs.append((active_users_by_platform_gauge, _set_active_users_by_platform))
 
 man_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_man",

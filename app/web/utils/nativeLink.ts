@@ -25,6 +25,23 @@ function isNativeEmbed(): boolean {
   return true;
 }
 
+export type NativePlatform = "ios" | "android";
+
+// Returns the native app platform when running inside the mobile app's WebView, otherwise null.
+export function getNativePlatform(): NativePlatform | null {
+  const webview = getReactNativeWebView();
+  if (!webview?.injectedObjectJson) return null;
+
+  try {
+    const injectedData = JSON.parse(webview.injectedObjectJson());
+    const platform = injectedData?.nativePlatform;
+    if (platform === "ios" || platform === "android") return platform;
+  } catch {
+    // Parsing failed or method not available - treat as not native
+  }
+  return null;
+}
+
 export function useIsNativeEmbed(): boolean {
   return useSyncExternalStore(
     // Subscribe function - no-op since value doesn't change after initial load

@@ -1,7 +1,8 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
+import { Platform } from "react-native";
+
 import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
-
 import isGrpcError from "@/service/utils/isGrpcError";
 
 const URL =
@@ -60,11 +61,25 @@ class TimeoutInterceptor {
   }
 }
 
+// Tells the backend that requests from this client come from the native app, so it can attribute
+// usage metrics to iOS/Android rather than web.
+class PlatformInterceptor {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown,
+  ) {
+    request.getMetadata()["x-couchers-client-platform"] =
+      Platform.OS === "android" ? "app_android" : "app_ios";
+    return invoker(request);
+  }
+}
+
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
+const platformInterceptor = new PlatformInterceptor();
 
 const opts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor],
+  unaryInterceptors: [authInterceptor, timeoutInterceptor, platformInterceptor],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/

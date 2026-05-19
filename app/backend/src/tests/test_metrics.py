@@ -8,10 +8,11 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import (
     _set_hacky_labeled_gauges_funcs,
+    active_users_by_platform_statement,
     active_users_by_recency_gauge,
     users_per_community_gauge,
 )
-from couchers.models import User
+from couchers.models import ClientPlatform, User, UserActivity
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.test_communities import create_community
@@ -84,3 +85,64 @@ def test_active_users_by_recency_gauge(db):
 
     for bucket in ages:
         assert values[bucket] == 1
+
+
+def _add_activity(user_id: int, client_platform: ClientPlatform | None, age: timedelta = timedelta(minutes=1)) -> None:
+    with session_scope() as session:
+        session.add(UserActivity(user_id=user_id, period=now() - age, client_platform=client_platform, api_calls=1))
+
+
+def _counts_by_platform() -> dict[str, int]:
+    with session_scope() as session:
+        rows = session.execute(active_users_by_platform_statement()).all()
+    # second column is the 5m window count, which all recent test activity falls into
+    return {row[0]: row[1] for row in rows}
+
+
+def test_active_users_by_platform(db):
+    web_desktop_user, _ = generate_user()
+    web_mobile_user, _ = generate_user()
+    ios_user, _ = generate_user()
+    android_user, _ = generate_user()
+    other_user, _ = generate_user()
+
+    _add_activity(web_desktop_user.id, ClientPlatform.web_desktop)
+    _add_activity(web_mobile_user.id, ClientPlatform.web_mobile)
+    _add_activity(ios_user.id, ClientPlatform.app_ios)
+    _add_activity(android_user.id, ClientPlatform.app_android)
+    _add_activity(other_user.id, None)
+
+    assert _counts_by_platform() == {
+        "web_desktop": 1,
+        "web_mobile": 1,
+        "app_ios": 1,
+        "app_android": 1,
+        "other": 1,
+    }
+
+
+def test_active_users_by_platform_excludes_invisible_users(db):
+    visible_user, _ = generate_user()
+    deleted_user, _ = generate_user(delete_user=True)
+
+    _add_activity(visible_user.id, ClientPlatform.web_desktop)
+    _add_activity(deleted_user.id, ClientPlatform.web_desktop)
+
+    assert _counts_by_platform() == {"web_desktop": 1}
+
+
+def test_active_users_by_platform_counts_user_once_per_platform(db):
+    user, _ = generate_user()
+
+    _add_activity(user.id, ClientPlatform.web_desktop)
+    _add_activity(user.id, ClientPlatform.app_ios)
+
+    assert _counts_by_platform() == {"web_desktop": 1, "app_ios": 1}
+
+
+def test_active_users_by_platform_excludes_old_activity(db):
+    user, _ = generate_user()
+
+    _add_activity(user.id, ClientPlatform.app_ios, age=timedelta(days=400))
+
+    assert _counts_by_platform() == {}
