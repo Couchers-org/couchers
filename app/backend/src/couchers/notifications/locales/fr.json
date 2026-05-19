@@ -286,5 +286,13 @@
     "reply": {
       "event_description": "Quelqu’un a répondu à votre commentaire"
     }
+  },
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Notifications push activées",
+        "body": "Vous recevrez désormais des notifications sur cet appareil."
+      }
+    }
   }
 }
