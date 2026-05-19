@@ -213,7 +213,7 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
                 )
                 concat.append(line)
             case _:
-                raise AssertionError(f"Unexpected email block type: {block.__class__}")
+                raise TypeError(f"Unexpected email block type: {block.__class__}")
         previous_block = block
 
     concat.append("\n\n")
@@ -306,7 +306,7 @@ class HTMLRenderer:
                 case ActionBlock():
                     concats.append(self.action_block_template.render(block.__dict__, loc_context))
                 case _:
-                    raise AssertionError(f"Unexpected email block type: {block.__class__}")
+                    raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
         footer_template_args = footer.to_template_args()
