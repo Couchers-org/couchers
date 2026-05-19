@@ -50,7 +50,7 @@ class LocalizationContext:
         # of our attributes are derived from others, so we can't use the default initializer.
         if hasattr(self, "babel_locale"):
             raise FrozenInstanceError(f"Cannot modify attribute {name}.")
-        return setattr(self, name, value)
+        return object.__setattr__(self, name, value)
 
     @property
     def localized_timezone(self) -> str:
