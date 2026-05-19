@@ -1,8 +1,9 @@
-import { StatusCode } from "grpc-web";
+import { Request, StatusCode } from "grpc-web";
 
 import {
   AuthInterceptor,
   setUnauthenticatedErrorHandler,
+  UserAgentInterceptor,
 } from "@/service/client";
 
 describe("AuthInterceptor", () => {
@@ -35,5 +36,21 @@ describe("AuthInterceptor", () => {
       interceptor.intercept(null, invokerMock),
     ).rejects.toMatchObject({ code: StatusCode.NOT_FOUND });
     expect(errorHandler).not.toHaveBeenCalled();
+  });
+});
+
+describe("UserAgentInterceptor", () => {
+  it("sets a CouchersNative User-Agent on the request metadata", async () => {
+    const metadata: Record<string, string> = {};
+    const request = {
+      getMetadata: () => metadata,
+    } as unknown as Request<unknown, unknown>;
+    const invokerMock = jest.fn(() => ({ test: "test" }));
+    const interceptor = new UserAgentInterceptor();
+
+    const response = await interceptor.intercept(request, invokerMock);
+
+    expect(response).toMatchObject({ test: "test" });
+    expect(metadata["User-Agent"]).toContain("CouchersNative/");
   });
 });
