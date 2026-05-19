@@ -330,9 +330,6 @@ export default function HostRequestView({
           onDecline={handleBannerRespond(
             HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
           )}
-          onConfirm={handleBannerRespond(
-            HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-          )}
           onCancel={handleBannerRespond(
             HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
           )}

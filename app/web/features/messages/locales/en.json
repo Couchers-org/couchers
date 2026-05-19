@@ -9,7 +9,7 @@
   "respond_box_description": "Select a response to let this person know immediately. Feel free to follow up with a message.",
   "status_bar_edit_button": "Edit",
   "status_bar_cancel_edit_button": "Cancel",
-  "surfer_bar_pending": "You sent a host request",
+  "surfer_bar_pending": "You sent a host request — waiting for the host to respond.",
   "cancel_request_button": "Cancel request",
   "cancel_request_dialog_title": "Cancel request?",
   "cancel_request_dialog_message": "Are you sure you want to cancel your request? This cannot be undone.",
@@ -30,6 +30,8 @@
     "submit_button": "Submit"
   },
   "confirm_request_button_text": "Confirm",
+  "surfer_confirm_box_title": "The host accepted your request!",
+  "surfer_confirm_box_description": "Confirm to lock in your stay, or cancel if your plans have changed.",
   "host_pending_request_help_text": "<0>Things to consider</0> before responding.",
   "surfer_declined_request_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
   "past_request_help_text": "This request is in the past, you can still send messages but cannot otherwise modify it.",
@@ -179,14 +181,15 @@
     "pending": "This request is still pending",
     "host_status": {
       "accepted": "You have accepted this request",
+      "accepted_waiting": "You have accepted this request — waiting for the surfer to confirm.",
       "cancelled": "You have cancelled this request",
-      "confirmed": "You have confirmed this request",
+      "confirmed": "Have fun! You have accepted and the surfer has confirmed this request.",
       "rejected": "You have declined this request"
     },
     "surfer_status": {
-      "accepted": "Your request was accepted",
+      "accepted": "Have fun! The host has accepted the request.",
       "cancelled": "Your request was cancelled",
-      "confirmed": "Your request was confirmed",
+      "confirmed": "Have fun! The host accepted and you confirmed this request.",
       "rejected": "Your request was declined"
     }
   },

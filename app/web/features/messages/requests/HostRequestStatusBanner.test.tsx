@@ -12,7 +12,6 @@ const defaultCallbacks = {
   isLoading: false,
   onAccept: jest.fn(),
   onDecline: jest.fn(),
-  onConfirm: jest.fn(),
   onCancel: jest.fn(),
 };
 
@@ -29,7 +28,9 @@ describe("HostRequestStatusBanner — host view", () => {
       { wrapper },
     );
     expect(
-      screen.getByText(t("messages:host_request_item.host_status.accepted")),
+      screen.getByText(
+        t("messages:host_request_item.host_status.accepted_waiting"),
+      ),
     ).toBeVisible();
     expect(
       screen.getByRole("button", {
@@ -259,8 +260,8 @@ describe("HostRequestStatusBanner — surfer view", () => {
     expect(defaultCallbacks.onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it("shows accepted message with Confirm and Cancel buttons", () => {
-    render(
+  it("renders nothing for accepted status (confirm card handles this)", () => {
+    const { container } = render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
         isHost={false}
@@ -268,35 +269,7 @@ describe("HostRequestStatusBanner — surfer view", () => {
       />,
       { wrapper },
     );
-    expect(
-      screen.getByText(t("messages:host_request_item.surfer_status.accepted")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", {
-        name: t("messages:confirm_request_button_text"),
-      }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    ).toBeVisible();
-  });
-
-  it("calls onConfirm when Confirm is clicked", async () => {
-    render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost={false}
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
-      />,
-      { wrapper },
-    );
-    const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:confirm_request_button_text"),
-      }),
-    );
-    expect(defaultCallbacks.onConfirm).toHaveBeenCalledTimes(1);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("shows confirmed message with Cancel button only", () => {

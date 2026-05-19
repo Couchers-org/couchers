@@ -105,3 +105,85 @@ describe("HostRequestRespondButtons", () => {
     expect(declineCallback).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("HostRequestRespondButtons — surfer confirm card", () => {
+  it("renders nothing for surfer when status is not accepted", () => {
+    const { container } = render(
+      <HostRequestRespondButtons
+        isHost={false}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+      />,
+      { wrapper },
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows confirm card with Confirm and Cancel request buttons for surfer+accepted", () => {
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+      />,
+      { wrapper },
+    );
+    expect(
+      screen.getByText(t("messages:surfer_confirm_box_title")),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: t("messages:confirm_request_button_text"),
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
+    ).toBeInTheDocument();
+  });
+
+  it("calls confirm callback when Confirm is clicked", async () => {
+    const confirmCallback = jest.fn();
+    const handleStatus = jest
+      .fn()
+      .mockImplementation((status) =>
+        status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+          ? confirmCallback
+          : jest.fn(),
+      );
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        isLoading={false}
+        handleStatus={handleStatus}
+      />,
+      { wrapper },
+    );
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole("button", {
+        name: t("messages:confirm_request_button_text"),
+      }),
+    );
+    expect(confirmCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows cancel confirmation dialog when Cancel request is clicked", async () => {
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+      />,
+      { wrapper },
+    );
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
+    );
+    expect(screen.getByRole("dialog")).toBeVisible();
+  });
+});
