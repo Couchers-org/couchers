@@ -665,7 +665,9 @@ def get_list_unsubscribe_header(notification: Notification) -> str | None:
 
 
 def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> str:
-    assert not topic_action.is_critical
+    if topic_action.is_critical:
+        raise ValueError(f"Notification {topic_action} does not support unsubscription.")
+
     # Not localized because the design will change so avoid useless work by translators.
     match topic_action:
         case NotificationTopicAction.host_request__missed_messages:
@@ -735,18 +737,20 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
         case NotificationTopicAction.general__new_blog_post:
             return "new blog post alerts"
         case _:
-            raise ValueError(f"No topic-action unsubscribe text for {topic_action}")
+            raise NotImplementedError(f"No topic-action unsubscribe text for {topic_action}.")
 
 
 def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str:
-    if can_unsubscribe_topic_key(topic_action):
-        # Not localized because the design will change so avoid useless work by translators.
-        match topic_action:
-            case NotificationTopicAction.chat__message:
-                return "this chat (mute)"
-            case _:
-                pass
-    raise ValueError(f"Topic-action {topic_action} has no unsubscribe text.")
+    if not can_unsubscribe_topic_key(topic_action):
+        raise ValueError(f"Notification {topic_action} does not support topic-key unsubscription.")
+
+    # Not localized because the design will change so avoid useless work by translators.
+    match topic_action:
+        case NotificationTopicAction.chat__message:
+            return "this chat (mute)"
+        case _:
+            raise NotImplementedError(f"No topic-key unsubscribe text for {topic_action}.")
+
 
 
 def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
