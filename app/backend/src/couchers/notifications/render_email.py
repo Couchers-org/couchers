@@ -1,13 +1,20 @@
 import logging
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
+import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
-from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink
+from couchers.email.rendering import (
+    EmailFooter,
+    UnsubscribeInfo,
+    UnsubscribeLink,
+    render_html_body,
+    render_plaintext_body,
+)
 from couchers.i18n import LocalizationContext
-from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
@@ -16,7 +23,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.proto import api_pb2, notification_data_pb2
+from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now, to_aware_datetime
@@ -39,47 +46,113 @@ def render_email_notification(
 ) -> RenderedEmailNotification:
     footer = get_email_footer(user, notification, loc_context)
 
-    # Currently only support custom templated emails,
-    # in the future will also support couchers.email.emails (single generic template).
-    custom_templated = _get_custom_templated_email(notification, loc_context)
+    subject: str
+    body_plaintext: str
+    body_html: str
+    source_data: str | None = None
+    # Progressively migrate to the new email templating system in couchers.email.emails,
+    # which supports localization and uses a single generic html template.
+    if email := _get_generic_templated_email(user.name, notification):
+        subject = email.get_subject_line(loc_context)
+        preview = email.get_preview_line(loc_context)
+        body_blocks = email.get_body_blocks(loc_context)
+        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+        body_html = render_html_body(
+            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
+        )
+        source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
+    else:
+        # Email is still a custom-templated, nonlocalizable email.
+        custom_templated = _get_custom_templated_email(notification, loc_context)
+        subject = custom_templated.subject
 
-    template_args = {
-        **custom_templated.template_args,
-        "header_subject": custom_templated.subject,
-        "header_preview": custom_templated.preview,
-        "user": user,
-        "time": notification.created,
-        **footer.to_template_args(),
-    }
+        template_args = {
+            **custom_templated.template_args,
+            "header_subject": custom_templated.subject,
+            "header_preview": custom_templated.preview,
+            "user": user,
+            "time": notification.created,
+            **footer.to_template_args(),
+        }
 
-    # Format plaintext template
-    plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-    plain = plain_tmplt.render(template_args, loc_context)
+        # Format plaintext template
+        plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
+        plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
+        plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
+        body_plaintext = plain_tmplt.render(template_args, loc_context)
 
-    # Format html template
-    html_tmplt = Jinja2Template(
-        source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(), html=True
-    )
-    html = html_tmplt.render(template_args, loc_context)
+        # Format html template
+        html_tmplt = Jinja2Template(
+            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(),
+            html=True,
+        )
+        body_html = html_tmplt.render(template_args, loc_context)
+
+        source_data = config["VERSION"] + f"/{custom_templated.template_name}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
-    source_data = config["VERSION"] + f"/{custom_templated.template_name}"
-
     if config.get("ENABLE_EMAIL_ICS_ATTACHMENTS"):
         attachment = get_ics_attachment(notification, loc_context)
     else:
         attachment = None
 
     return RenderedEmailNotification(
-        subject=custom_templated.subject,
-        body_plaintext=plain,
-        body_html=html,
+        subject=subject,
+        body_plaintext=body_plaintext,
+        body_html=body_html,
         source_data=source_data,
         list_unsubscribe_header=list_unsubscribe_header,
         attachments=[attachment] if attachment else [],
     )
+
+
+def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
+    match notification.topic_action:
+        case NotificationTopicAction.api_key__create:
+            return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.expiry)
+        case NotificationTopicAction.badge__add:
+            return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=True)
+        case NotificationTopicAction.badge__remove:
+            return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=False)
+        case NotificationTopicAction.birthdate__change:
+            return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
+        case NotificationTopicAction.email_address__change:
+            return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email)
+        case NotificationTopicAction.email_address__verify:
+            return emails.EmailAddressVerifiedEmail(user_name)
+        case NotificationTopicAction.gender__change:
+            return emails.GenderChangedEmail(user_name, new_gender=data.gender)
+        case NotificationTopicAction.modnote__create:
+            return emails.ModeratorNoteEmail(user_name)
+        case NotificationTopicAction.password__change:
+            return emails.PasswordChangedEmail(user_name)
+        case NotificationTopicAction.password_reset__complete:
+            return emails.PasswordResetCompletedEmail(user_name)
+        case NotificationTopicAction.password_reset__start:
+            return emails.PasswordResetStartedEmail(
+                user_name, password_reset_link=urls.password_reset_link(password_reset_token=data.password_reset_token)
+            )
+        case NotificationTopicAction.phone_number__change:
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=False)
+        case NotificationTopicAction.phone_number__verify:
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=True)
+        case NotificationTopicAction.postal_verification__failed:
+            return emails.PostalVerificationFailedEmail(user_name, reason=data.reason)
+        case NotificationTopicAction.postal_verification__postcard_sent:
+            return emails.PostalVerificationPostcardSentEmail(user_name, city=data.city, country=data.country)
+        case NotificationTopicAction.postal_verification__success:
+            return emails.PostalVerificationSucceededEmail(user_name)
+        case NotificationTopicAction.verification__sv_fail:
+            return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
+        case NotificationTopicAction.verification__sv_success:
+            return emails.StrongVerificationSucceededEmail(
+                user_name,
+                donate_link=urls.donation_url() + "?utm_source=strong-verification-email",
+            )
+        case _:
+            # Still implemented as a custom templated email
+            return None
 
 
 @dataclass(kw_only=True)
@@ -190,139 +263,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "other": UserTemplateArgs.from_protobuf_user(data.surfer),
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.password__change:
-        title = "Your password was changed"
-        message = "Your login password for Couchers.org was changed."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.password_reset__start:
-        message = "Someone initiated a password change on your account."
-        return CustomTemplatedEmail(
-            subject="Reset your Couchers.org password",
-            preview=message,
-            template_name="password_reset",
-            template_args={
-                "password_reset_link": urls.password_reset_link(password_reset_token=data.password_reset_token)
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.password_reset__complete:
-        title = "Your password was successfully reset"
-        message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.email_address__change:
-        title = "An email change was initiated on your account"
-        message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.email_address__verify:
-        title = "Email change completed"
-        message = "Your new email address has been verified."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.phone_number__change:
-        title = "Phone verification started"
-        message = f"You started phone number verification with the number <b>{format_phone_number(data.phone)}</b>."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.phone_number__verify:
-        title = "Phone successfully verified"
-        message = f"Your phone was successfully verified as <b>{format_phone_number(data.phone)}</b> on Couchers.org."
-        message_plain = f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.gender__change:
-        title = "Your gender was changed"
-        message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
-        message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.birthdate__change:
-        title = "Your date of birth was changed"
-        birthdate = loc_context.localize_date_from_iso(data.birthdate)
-        message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
-        message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.api_key__create:
-        return CustomTemplatedEmail(
-            subject="Your API key for Couchers.org",
-            preview="We have issued you an API key as per your request.",
-            template_name="api_key",
-            template_args={
-                "api_key": data.api_key,
-                "expiry": data.expiry,
-            },
-        )
-    elif notification.topic_action.display in ["badge:add", "badge:remove"]:
-        actioned = "added to" if notification.action == "add" else "removed from"
-        title = f"The {data.badge_name} badge was {actioned} your profile"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="badge",
-            template_args={
-                "badge_name": data.badge_name,
-                "actioned": actioned,
-                "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
-            },
-        )
     elif notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")
         message = loc_context.localize_string(
@@ -658,89 +598,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 template_name="onboarding2",
                 template_args={
                     "edit_profile_link": urls.edit_profile_link(),
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.modnote__create:
-        title = "You have received a mod note"
-        message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="mod_note",
-            template_args={"title": title},
-        )
-    elif notification.topic_action == NotificationTopicAction.verification__sv_success:
-        title = "Strong Verification succeeded"
-        message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="strong_verification_success",
-            template_args={
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.verification__sv_fail:
-        title = "Strong Verification failed"
-        if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
-            reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
-        elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-            reason_message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
-        elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            reason_message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
-        else:
-            raise Exception("Shouldn't get here")
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": reason_message,
-            },
-        )
-    elif notification.topic == "postal_verification":
-        if notification.action == "postcard_sent":
-            title = "Your verification postcard is on its way"
-            message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=message,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": message,
-                },
-            )
-        elif notification.action == "success":
-            title = "Postal Verification succeeded"
-            message = "You have been verified with Postal Verification! Your address has been confirmed."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=message,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": message,
-                },
-            )
-        elif notification.action == "failed":
-            title = "Postal Verification failed"
-            if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
-                reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
-            elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
-                reason_message = "Too many incorrect code attempts. You can start a new verification attempt."
-            else:
-                reason_message = (
-                    "Your postal verification attempt has failed. You can start a new verification attempt."
-                )
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=title,
-                template_name="security",
-                template_args={
-                    "title": title,
-                    "message": reason_message,
                 },
             )
     elif notification.topic_action == NotificationTopicAction.activeness__probe:
