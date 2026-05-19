@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import FrozenInstanceError, dataclass
 from datetime import UTC, date, datetime, time, tzinfo
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import babel
@@ -16,10 +17,10 @@ from couchers.i18n.localize import (
     localize_timezone,
 )
 from couchers.models.users import User
-from couchers.utils import to_aware_datetime
+from couchers.utils import to_timezone
 
 
-@dataclass(init=False)
+@dataclass(init=False, slots=True)
 class LocalizationContext:
     """
     Specifies regional settings used for localization of strings and date/times.
@@ -45,6 +46,13 @@ class LocalizationContext:
         self.timezone = timezone
         self.babel_locale = get_babel_locale(self.locale_list)
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        # Freeze after initialization. We can't use @dataclass(frozen=True) because some
+        # of our attributes are derived from others, so we can't use the default initializer.
+        if hasattr(self, "babel_locale"):
+            raise FrozenInstanceError(f"Cannot modify attribute {name}.")
+        return setattr(self, name, value)
+
     @property
     def localized_timezone(self) -> str:
         return localize_timezone(self.timezone, self.babel_locale)
@@ -59,7 +67,7 @@ class LocalizationContext:
         self, value: date | datetime, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False
     ) -> str:
         if isinstance(value, datetime):
-            value = value.astimezone(self.timezone).date()
+            value = to_timezone(value, self.timezone).date()
         return localize_date(
             value, self.babel_locale, abbrev=abbrev, with_year=with_year, with_day_of_week=with_day_of_week
         )
@@ -83,13 +91,8 @@ class LocalizationContext:
         with_day_of_week: bool = False,
         with_seconds: bool = False,
     ) -> str:
-        if isinstance(value, Timestamp):
-            value = to_aware_datetime(value)
-        else:
-            value = value.astimezone(self.timezone)
-
         return localize_datetime(
-            value,
+            to_timezone(value, self.timezone),
             self.babel_locale,
             abbrev=abbrev,
             with_year=with_year,
@@ -99,7 +102,7 @@ class LocalizationContext:
 
     def localize_time(self, value: datetime | time, *, with_seconds: bool = False) -> str:
         if isinstance(value, datetime):
-            value = value.astimezone(self.timezone).time()
+            value = to_timezone(value, self.timezone).time()
         return localize_time(value, self.babel_locale, with_seconds=with_seconds)
 
     @staticmethod
