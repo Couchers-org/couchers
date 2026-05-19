@@ -180,9 +180,9 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.DiscussionCreatedEmail(
                 user_name,
                 author=_user_info(data.author),
-                discussion_title=discussion.title,
-                discussion_owner_title=discussion.owner_title,
-                discussion_content=discussion.content,
+                title=discussion.title,
+                parent_context=discussion.owner_title,
+                markdown_text=discussion.content,
                 view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
             )
         case NotificationTopicAction.discussion__comment:
@@ -191,8 +191,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                 user_name,
                 author=_user_info(data.author),
                 discussion_title=discussion.title,
-                discussion_owner_title=discussion.owner_title,
-                reply_content=data.reply.content,
+                discussion_parent_context=discussion.owner_title,
+                markdown_text=data.reply.content,
                 view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
             )
         case _:
