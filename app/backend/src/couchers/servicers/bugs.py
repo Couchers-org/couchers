@@ -47,19 +47,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         issue_title = request.subject
         issue_body = (
-            f"Subject: {request.subject}\n"
-            f"Description:\n"
+            f"# {request.subject}\n"
+            f"## Description\n"
             f"{request.description}\n"
             f"\n"
-            f"Results:\n"
+            f"## Results\n"
             f"{request.results}\n"
             f"\n"
-            f"Backend version: {self._version()}\n"
-            f"Frontend version: {request.frontend_version}\n"
-            f"User Agent: {request.user_agent}\n"
-            f"Screen resolution: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
-            f"Page: {request.page}\n"
-            f"User: {user_details}"
+            f"## Diagnostics\n"
+            f"**Backend version**: `{self._version()}`\n"
+            f"**Frontend version**: `{request.frontend_version}`\n"
+            f"**User Agent**: `{request.user_agent}`\n"
+            f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
+            f"**Page**: {request.page}\n"
+            f"**User**: {user_details}"
         )
         issue_labels = ["bug tool", "bug: triage needed"]
 
