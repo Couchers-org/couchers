@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { service } from "service";
 import {
   filterDuplicatePlaces,
@@ -85,6 +86,9 @@ const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL;
 
 const useGeocodeQuery = () => {
   const isMounted = useIsMounted();
+  const {
+    i18n: { languages: locales },
+  } = useTranslation();
   const [isLoading, setIsLoading] = useSafeState(isMounted, false);
   const [error, setError] = useSafeState<string | undefined>(
     isMounted,
@@ -103,9 +107,16 @@ const useGeocodeQuery = () => {
       setIsLoading(true);
       setError(undefined);
       setResults(undefined);
-      const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
-        value,
-      )}&addressdetails=1`;
+
+      // Refer to https://nominatim.org/release-docs/latest/api/Search/
+      const queryArgs = new URLSearchParams({
+        format: "jsonv2",
+        q: value,
+        addressdetails: "1", // include a breakdown of the address into elements
+        "accept-language": locales.join(","),
+      });
+
+      const url = `${NOMINATIM_URL!}search?${queryArgs}`;
       const fetchOptions = {
         headers: {
           Accept: "application/json",
@@ -160,7 +171,7 @@ const useGeocodeQuery = () => {
       }
       setIsLoading(false);
     },
-    [setError, setIsLoading, setResults],
+    [locales, setError, setIsLoading, setResults],
   );
 
   return { isLoading, error, results, query };
