@@ -3,7 +3,7 @@ Renders HTML and plaintext emails out of well-known blocks.
 """
 
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import lru_cache
 from html import unescape
 from pathlib import Path
@@ -314,7 +314,7 @@ class HTMLRenderer:
         for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
-                    concats.append(self.para_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.para_block_template.render(asdict(block), loc_context))
                 case UserBlock():
                     concats.append(
                         self.user_block_template.render(
@@ -332,9 +332,9 @@ class HTMLRenderer:
                     args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.action_block_template.render(asdict(block), loc_context))
                 case TwoButtonHTMLBlock():
-                    concats.append(self.two_buttons_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.two_buttons_block_template.render(asdict(block), loc_context))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
