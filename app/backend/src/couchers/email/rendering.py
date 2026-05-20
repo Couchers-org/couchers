@@ -358,7 +358,7 @@ class HTMLRenderer:
                     target_url_1=block.target_url,
                     text_1=block.text,
                     target_url_2=next_block.target_url,
-                    text_2=next_block.target_url,
+                    text_2=next_block.text,
                 )
                 blocks.pop(block_index + 1)
 
