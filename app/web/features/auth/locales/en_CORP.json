@@ -1,6 +1,0 @@
-{
-  "change_email_form": {
-    "title": "Update email address",
-    "current_email_message": "The current e-mail address on file for your account is <1>{{email}}</1>."
-  }
-}

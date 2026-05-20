@@ -154,7 +154,7 @@ export default function HostRequestSendField({
       <StyledContainer>
         <TextField
           {...register("text")}
-          value={
+          placeholder={
             isRequestClosed ? t("messages:request_closed_message") : undefined
           }
           disabled={isRequestClosed}

@@ -1,0 +1,88 @@
+# [WIP] Currently fails to add team reviewers
+# Adds reviewers upon publishing a PR based on changed files.
+# Works around limitations of GitHub's CODEOWNERS, which can only match one rule,
+# whereas our changes can straddle frontend and backend, for example.
+name: Add reviewers
+
+# on:
+#   pull_request:
+#     types: [opened, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  add-reviewers:
+    name: Add reviewers
+    runs-on: ubuntu-latest
+    if: "!github.event.pull_request.draft"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/autoreviewers.yml
+
+      - name: Match rules from autoreviewers.yml
+        uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: .github/autoreviewers.yml
+          # Require every glob to match for a rule to match,
+          # otherwise we cannot express exclusions.
+          # e.g. 'app/web/**' + '!**/en.json' needs to be AND, not OR
+          predicate-quantifier: every
+
+      - name: Collect reviewers from matched rules
+        id: collect-reviewers
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          # The "changes" output is a JSON array of filter names.
+          FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
+        run: |
+          # Filter keys are "<name> <reviewer1,reviewer2,...>"; process matched filters.
+          REVIEWERS=()
+          while IFS= read -r entry; do
+            [[ -n "$entry" ]] || continue
+            RULE_NAME="${entry%% *}"
+            REVIEWERS_STR="${entry#* }"
+
+            echo "Matched rule \"$RULE_NAME\" with reviewers: $REVIEWERS_STR"
+            IFS=',' read -ra reviewers <<< "$REVIEWERS_STR"
+            for reviewer in "${reviewers[@]}"; do
+              [[ -n "$reviewer" ]] || continue
+              # The PR author cannot be a reviewer on their own PR
+              [[ "$reviewer" == "$PR_AUTHOR" ]] && continue
+              # Avoid adding the same reviewer twice
+              [[ " ${REVIEWERS[*]} " == *" $reviewer "* ]] && continue
+              REVIEWERS+=("$reviewer")
+            done
+          done < <(echo "$FILTER_CHANGES" | jq -r '.[]')
+
+          if [[ ${#REVIEWERS[@]} -gt 0 ]]; then
+            echo "Collected reviewers: $(IFS=','; echo "${REVIEWERS[*]}")"
+          else
+            echo "No reviewers collected"
+          fi
+
+          echo "reviewers=$(IFS=','; echo "${REVIEWERS[*]}")" >> "$GITHUB_OUTPUT"
+
+      - name: Add reviewers
+        if: steps.collect-reviewers.outputs.reviewers != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEWERS: ${{ steps.collect-reviewers.outputs.reviewers }}
+        run: |
+          GH_PR_EDIT_ARGS=()
+          IFS=',' read -ra reviewers <<< "$REVIEWERS"
+          for reviewer in "${reviewers[@]}"; do
+            GH_PR_EDIT_ARGS+=(--add-reviewer "$reviewer")
+          done
+
+          echo "Adding reviewers: $REVIEWERS"
+          gh pr edit "$PR_NUMBER" "${GH_PR_EDIT_ARGS[@]}"

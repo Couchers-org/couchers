@@ -5,7 +5,8 @@
     "message_label": "Bericht sturen",
     "accept_friend_label": "Accepteren",
     "decline_friend_label": "Afwijzen",
-    "request": "Verzoek"
+    "request": "Verzoek",
+    "add_friend": "Vriend toevoegen"
   },
   "heading": {
     "about_me": "Over mij",

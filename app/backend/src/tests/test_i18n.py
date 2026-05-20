@@ -47,4 +47,4 @@ def test_babel_locales():
             Locale(locale.replace("-", "_"))
         except UnknownLocaleError:
             unknown_locales.add(locale)
-    assert unknown_locales == {"en_CORP"}
+    assert unknown_locales == set()
