@@ -310,24 +310,8 @@ class HTMLRenderer:
             )
         )
 
-        # Merge any two subsequent action blocks into a single two-button block
-        block_index = 0
-        while block_index + 1 < len(blocks):
-            block = blocks[block_index]
-            next_block = blocks[block_index + 1]
-            if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
-                blocks[block_index] = TwoButtonHTMLBlock(
-                    target_url_1=block.target_url,
-                    text_1=block.text,
-                    target_url_2=next_block.target_url,
-                    text_2=next_block.target_url,
-                )
-                del blocks[block_index + 1]
-
-            block_index += 1
-
         # Render each block
-        for block in blocks:
+        for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
                     concats.append(self.para_block_template.render(block.__dict__, loc_context))
@@ -359,6 +343,28 @@ class HTMLRenderer:
         concats.append(self.footer_template.render(footer_template_args, loc_context))
 
         return "\n".join(concats)
+
+    @staticmethod
+    def _merge_action_blocks(blocks: list[EmailBlock]) -> list[EmailBlock]:
+        """Merge any two subsequent action blocks into a single two-button block."""
+        blocks = blocks.copy()
+
+        block_index = 0
+        while block_index + 1 < len(blocks):
+            block = blocks[block_index]
+            next_block = blocks[block_index + 1]
+            if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
+                blocks[block_index] = TwoButtonHTMLBlock(
+                    target_url_1=block.target_url,
+                    text_1=block.text,
+                    target_url_2=next_block.target_url,
+                    text_2=next_block.target_url,
+                )
+                blocks.pop(block_index + 1)
+
+            block_index += 1
+
+        return blocks
 
     @lru_cache(maxsize=1)
     @staticmethod
