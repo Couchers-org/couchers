@@ -41,6 +41,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
 import HostRequestFeedbackCard from "./HostRequestFeedbackCard";
+import HostRequestReferenceCard from "./HostRequestReferenceCard";
 import HostRequestRespondButtons from "./HostRequestRespondButtons";
 import HostRequestStatusBanner from "./HostRequestStatusBanner";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
@@ -333,6 +334,7 @@ export default function HostRequestView({
           onCancel={handleBannerRespond(
             HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
           )}
+          hostName={otherUser ? firstName(otherUser.name) : undefined}
         />
       )}
       {hasError && (
@@ -363,11 +365,13 @@ export default function HostRequestView({
                   status={hostRequest.status}
                   isLoading={respondMutation.isPending}
                   handleStatus={handleBannerRespond}
+                  name={otherUser ? firstName(otherUser.name) : undefined}
                 />
               )}
               {isHost && hostRequest.needHostRequestFeedback && (
                 <HostRequestFeedbackCard hostRequestId={hostRequestId} />
               )}
+              <HostRequestReferenceCard hostRequest={hostRequest} />
             </>
           ) : undefined
         }

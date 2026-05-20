@@ -24,6 +24,7 @@ export default function HostRequestStatusBanner({
   onAccept,
   onDecline,
   onCancel,
+  hostName,
 }: {
   isHost: boolean;
   status: HostRequestStatus;
@@ -31,6 +32,7 @@ export default function HostRequestStatusBanner({
   onAccept: () => void;
   onDecline: () => void;
   onCancel: () => void;
+  hostName?: string;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -64,7 +66,9 @@ export default function HostRequestStatusBanner({
               size="small"
               onClick={() => setIsEditMode(false)}
             >
-              {t("messages:status_bar_cancel_edit_button")}
+              {isRejected
+                ? t("messages:status_bar_close_button")
+                : t("messages:status_bar_cancel_edit_button")}
             </Button>
             <Button
               variant="contained"
@@ -95,9 +99,11 @@ export default function HostRequestStatusBanner({
   // surfer view
   let surferMessage: string | null = null;
   if (status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
-    surferMessage = t("messages:surfer_bar_pending");
+    surferMessage = t("messages:surfer_bar_pending", { name: hostName });
   } else if (status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) {
-    surferMessage = t("messages:host_request_item.surfer_status.confirmed");
+    surferMessage = t("messages:host_request_item.surfer_status.confirmed", {
+      name: hostName,
+    });
   }
 
   if (!surferMessage) return null;
@@ -108,6 +114,8 @@ export default function HostRequestStatusBanner({
       <ConfirmationDialogWrapper
         title={t("messages:cancel_request_dialog_title")}
         message={t("messages:cancel_request_dialog_message")}
+        confirmButtonLabel={t("messages:cancel_request_dialog_confirm_button")}
+        cancelButtonLabel={t("messages:cancel_request_dialog_dismiss_button")}
         onConfirm={onCancel}
       >
         {(setIsOpen) => (

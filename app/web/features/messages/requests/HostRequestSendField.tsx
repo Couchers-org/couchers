@@ -1,21 +1,14 @@
-import { ButtonProps, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import { UseMutationResult } from "@tanstack/react-query";
-import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import Link from "next/link";
-import { HostRequestStatus } from "proto/conversations_pb";
-import { ReferenceType } from "proto/references_pb";
 import { HostRequest } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { referenceTypeRoute, routeToLeaveReference } from "routes";
-import { theme } from "theme";
 
 import FieldButton from "./FieldButton";
 import HostRequestGuideLinks from "./HostRequestGuideLinks";
@@ -28,21 +21,6 @@ interface HostRequestSendFieldProps {
   hostRequest: HostRequest.AsObject;
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
 }
-
-const StyledButtonContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(1),
-  marginTop: theme.spacing(1),
-}));
-
-const StyledButton = styled(Button)<ButtonProps>({
-  display: "flex",
-  flexShrink: 0,
-  marginInlineStart: theme.spacing(1),
-  height: theme.spacing(5),
-  alignItems: "center",
-});
 
 const StyledContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
@@ -60,10 +38,6 @@ export default function HostRequestSendField({
 
   const isHost = hostRequest.hostUserId === authState.userId;
 
-  const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
-  );
-
   const { mutate: handleSend, isPending } = sendMutation;
 
   const { register, handleSubmit, reset, watch } = useForm<MessageFormData>();
@@ -73,27 +47,7 @@ export default function HostRequestSendField({
     reset();
   });
 
-  const isButtonLoading = isPending;
-
   const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
-
-  const isReferenceAvailable =
-    (hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED ||
-      hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) &&
-    availableRefrences &&
-    availableRefrences.availableWriteReferencesList.find(
-      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId,
-    );
-
-  const referenceRoute = routeToLeaveReference(
-    referenceTypeRoute[
-      isHost
-        ? ReferenceType.REFERENCE_TYPE_HOSTED
-        : ReferenceType.REFERENCE_TYPE_SURFED
-    ],
-    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
-    hostRequest.hostRequestId,
-  );
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && event.ctrlKey) {
@@ -109,13 +63,6 @@ export default function HostRequestSendField({
         isHost={isHost}
         status={hostRequest.status}
       />
-      {isReferenceAvailable && (
-        <StyledButtonContainer>
-          <StyledButton color="primary" component={Link} href={referenceRoute}>
-            {t("messages:write_reference_button_text")}
-          </StyledButton>
-        </StyledButtonContainer>
-      )}
       <StyledContainer>
         <TextField
           {...register("text")}
@@ -132,7 +79,7 @@ export default function HostRequestSendField({
         <FieldButton
           callback={onSubmit}
           disabled={!messageText.trim()}
-          isLoading={isButtonLoading}
+          isLoading={isPending}
           isSubmit
         >
           {t("global:send")}

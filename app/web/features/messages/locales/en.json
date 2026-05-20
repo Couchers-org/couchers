@@ -4,15 +4,22 @@
   "mark_all_read_button_text_hosting": "Mark all host requests as read",
   "mark_all_read_button_text_surfing": "Mark all surf requests as read",
   "write_reference_button_text": "Write a Reference",
+  "reference_card": {
+    "title": "Write a reference",
+    "description": "Share your experience to help the community."
+  },
   "close_request_button_text": "Decline",
   "respond_box_title": "Send a response",
-  "respond_box_description": "Select a response to let this person know immediately. Feel free to follow up with a message.",
+  "respond_box_description": "Select a response to let {{name}} know immediately. Feel free to follow up with a message.",
   "status_bar_edit_button": "Edit",
   "status_bar_cancel_edit_button": "Cancel",
-  "surfer_bar_pending": "You sent a host request — waiting for the host to respond.",
+  "status_bar_close_button": "Close",
+  "surfer_bar_pending": "You sent a host request — waiting for {{name}} to respond.",
   "cancel_request_button": "Cancel request",
   "cancel_request_dialog_title": "Cancel request?",
   "cancel_request_dialog_message": "Are you sure you want to cancel your request? This cannot be undone.",
+  "cancel_request_dialog_confirm_button": "Yes, cancel",
+  "cancel_request_dialog_dismiss_button": "No",
   "private_feedback_card": {
     "title": "Feedback on this request",
     "quality_label": "Privately rate this request (Optional):",
@@ -27,10 +34,12 @@
     "reason_other_placeholder": "Please tell us more...",
     "privacy_notice": "Your responses are private and will not be shared with the user. We may use them in an aggregated and anonymous form—combined with many others—to improve feedback for all users.",
     "skip_button": "Skip",
+    "next_button": "Next",
+    "back_button": "Back",
     "submit_button": "Submit"
   },
   "confirm_request_button_text": "Confirm",
-  "surfer_confirm_box_title": "The host accepted your request!",
+  "surfer_confirm_box_title": "{{name}} accepted your request!",
   "surfer_confirm_box_description": "Confirm to lock in your stay, or cancel if your plans have changed.",
   "host_pending_request_help_text": "<0>Things to consider</0> before responding.",
   "surfer_declined_request_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
@@ -187,9 +196,9 @@
       "rejected": "You have declined this request"
     },
     "surfer_status": {
-      "accepted": "Have fun! The host has accepted the request.",
+      "accepted": "Have fun! {{name}} has accepted the request.",
       "cancelled": "Your request was cancelled",
-      "confirmed": "Have fun! The host accepted and you confirmed this request.",
+      "confirmed": "Have fun! {{name}} accepted and you confirmed this request.",
       "rejected": "Your request was declined"
     }
   },

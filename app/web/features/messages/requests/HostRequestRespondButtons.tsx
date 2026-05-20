@@ -28,11 +28,13 @@ export default function HostRequestRespondButtons({
   status,
   isLoading,
   handleStatus,
+  name,
 }: {
   isHost: boolean;
   status: HostRequestStatus;
   isLoading: boolean;
   handleStatus: (status: HostRequestStatus) => () => void;
+  name?: string;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
 
@@ -46,7 +48,7 @@ export default function HostRequestRespondButtons({
             {t("messages:respond_box_title")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {t("messages:respond_box_description")}
+            {t("messages:respond_box_description", { name })}
           </Typography>
         </div>
         <StyledButtonRow>
@@ -78,7 +80,7 @@ export default function HostRequestRespondButtons({
     <StyledCard>
       <div>
         <Typography variant="subtitle2">
-          {t("messages:surfer_confirm_box_title")}
+          {t("messages:surfer_confirm_box_title", { name })}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {t("messages:surfer_confirm_box_description")}
@@ -88,6 +90,10 @@ export default function HostRequestRespondButtons({
         <ConfirmationDialogWrapper
           title={t("messages:cancel_request_dialog_title")}
           message={t("messages:cancel_request_dialog_message")}
+          confirmButtonLabel={t(
+            "messages:cancel_request_dialog_confirm_button",
+          )}
+          cancelButtonLabel={t("messages:cancel_request_dialog_dismiss_button")}
           onConfirm={handleStatus(
             HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
           )}
