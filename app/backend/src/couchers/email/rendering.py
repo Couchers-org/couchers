@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from html import unescape
 from pathlib import Path
-from typing import Any, Self, cast
+from typing import Any, Self
 
 from markupsafe import Markup
 
@@ -320,7 +320,7 @@ class HTMLRenderer:
                     target_url_1=block.target_url,
                     text_1=block.text,
                     target_url_2=next_block.target_url,
-                    text_2=next_block.target_url
+                    text_2=next_block.target_url,
                 )
                 del blocks[block_index + 1]
 
@@ -388,7 +388,7 @@ class HTMLRenderer:
 # Matches a begin-block / end-block pair of comments in the html file containing template blocks.
 _block_regex = re.compile(
     r"""
-<!-- begin-block:(?P<name>\w+) -->\s*
+<!-- begin-block:(?P<name>[\w-]+) -->\s*
 (?P<snippet>[\s\S]*?)
 \s*<!-- end-block:(?P=name) -->
 """.strip(),
