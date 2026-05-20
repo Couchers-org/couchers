@@ -115,13 +115,13 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("RECAPTHCA_SITE_KEY", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
-    # Experimentation (feature flags via Statsig)
+    # Experimentation (feature flags via GrowthBook)
     ("EXPERIMENTATION_ENABLED", bool, "0"),
     # When enabled, all feature gates return True (useful for development/testing)
     ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
-    # Statsig SDK configuration
-    ("STATSIG_SERVER_SECRET_KEY", str, ""),
-    ("STATSIG_ENVIRONMENT", str, "development"),
+    # GrowthBook SDK configuration
+    ("GROWTHBOOK_API_HOST", str, "https://cdn.growthbook.io"),
+    ("GROWTHBOOK_CLIENT_KEY", str, ""),
     # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
     ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
     # User ID of the bot user for automated moderation actions
@@ -171,8 +171,8 @@ def check_config(cfg: dict[str, Any]) -> None:
             raise Exception("MyPostcard API credentials not configured but postal verification enabled")
 
     if cfg["EXPERIMENTATION_ENABLED"]:
-        if not cfg["STATSIG_SERVER_SECRET_KEY"]:
-            raise Exception("No Statsig server secret key but experimentation enabled")
+        if not cfg["GROWTHBOOK_CLIENT_KEY"]:
+            raise Exception("No GrowthBook client key but experimentation enabled")
 
 
 def make_config() -> dict[str, Any]:

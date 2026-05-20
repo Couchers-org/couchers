@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
-import { usePersistedState } from "platform/usePersistedState";
+import { useClearablePersistedState } from "platform/usePersistedState";
 import { service } from "service";
 
 import wrapper from "../../test/hookWrapper";
@@ -15,22 +15,26 @@ const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 
-describe("usePersistedState hook", () => {
+describe("useClearablePersistedState hook", () => {
   it("uses a default value", () => {
     const defaultValue = "Test string";
-    const { result } = renderHook(() => usePersistedState("key", defaultValue));
+    const { result } = renderHook(() =>
+      useClearablePersistedState("key", defaultValue),
+    );
     expect(result.current[0]).toBe(defaultValue);
   });
 
   it("saves then loads a value", () => {
     const value = { test: "Test string" };
-    const { result } = renderHook(() => usePersistedState("key", { test: "" }));
+    const { result } = renderHook(() =>
+      useClearablePersistedState("key", { test: "" }),
+    );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
-      usePersistedState("key", { test: "" }),
+      useClearablePersistedState("key", { test: "" }),
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
@@ -38,21 +42,21 @@ describe("usePersistedState hook", () => {
   it("saves then loads a value from sessionStorage", () => {
     const value = { test: "session test" };
     const { result } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage"),
+      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage"),
+      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("clears a value", () => {
     const { result } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage"),
+      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[2]());

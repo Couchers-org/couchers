@@ -1,8 +1,11 @@
-from typing import NoReturn, cast
+from typing import TYPE_CHECKING, NoReturn, cast
 
 import grpc
 
 from couchers.i18n import LocalizationContext
+
+if TYPE_CHECKING:
+    from growthbook import GrowthBook
 
 
 class NonInteractiveContextException(Exception):
@@ -79,6 +82,7 @@ class CouchersContext:
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
+        self._growthbook: GrowthBook | None = None
 
         if self.__is_interactive:
             if not self._grpc_context:

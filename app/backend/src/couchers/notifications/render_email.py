@@ -11,6 +11,7 @@ from couchers.email.rendering import (
     EmailFooter,
     UnsubscribeInfo,
     UnsubscribeLink,
+    UserInfo,
     render_html_body,
     render_plaintext_body,
 )
@@ -106,9 +107,32 @@ def render_email_notification(
     )
 
 
+def _user_info(user: api_pb2.User) -> UserInfo:
+    return UserInfo(
+        name=user.name,
+        age=user.age,
+        city=user.city,
+        avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
+        profile_url=urls.user_link(username=user.username),
+    )
+
+
 def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
+        case NotificationTopicAction.account_deletion__start:
+            return emails.AccountDeletionStartedEmail(
+                user_name,
+                deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+            )
+        case NotificationTopicAction.account_deletion__complete:
+            return emails.AccountDeletionCompletedEmail(
+                user_name,
+                undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+                days=data.undelete_days,
+            )
+        case NotificationTopicAction.account_deletion__recovered:
+            return emails.AccountDeletionRecoveredEmail(user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.expiry)
         case NotificationTopicAction.badge__add:
@@ -117,10 +141,34 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.BadgeChangedEmail(user_name, badge_name=data.badge_name, added=False)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
+        case NotificationTopicAction.discussion__create:
+            discussion = data.discussion
+            return emails.DiscussionCreatedEmail(
+                user_name,
+                author=_user_info(data.author),
+                title=discussion.title,
+                parent_context=discussion.owner_title,
+                markdown_text=discussion.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
+        case NotificationTopicAction.discussion__comment:
+            discussion = data.discussion
+            return emails.DiscussionCommentEmail(
+                user_name,
+                author=_user_info(data.author),
+                discussion_title=discussion.title,
+                discussion_parent_context=discussion.owner_title,
+                markdown_text=data.reply.content,
+                view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            )
         case NotificationTopicAction.email_address__change:
             return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name)
+        case NotificationTopicAction.friend_request__create:
+            return emails.FriendRequestReceivedEmail(user_name, befriender=_user_info(data.other_user))
+        case NotificationTopicAction.friend_request__accept:
+            return emails.FriendRequestAcceptedEmail(user_name, new_friend=_user_info(data.other_user))
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail(user_name, new_gender=data.gender)
         case NotificationTopicAction.modnote__create:
@@ -143,13 +191,27 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.PostalVerificationPostcardSentEmail(user_name, city=data.city, country=data.country)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name)
+        case NotificationTopicAction.thread__reply:
+            parent = data.WhichOneof("reply_parent")
+            if parent == "event":
+                parent_context = data.event.title
+                view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            elif parent == "discussion":
+                parent_context = data.discussion.title
+                view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+            else:
+                raise Exception("Can only do replies to events and discussions")
+            return emails.ThreadReplyEmail(
+                user_name,
+                author=_user_info(data.author),
+                parent_context=parent_context,
+                markdown_text=data.reply.content,
+                view_link=view_link,
+            )
         case NotificationTopicAction.verification__sv_fail:
             return emails.StrongVerificationFailedEmail(user_name, reason=data.reason)
         case NotificationTopicAction.verification__sv_success:
-            return emails.StrongVerificationSucceededEmail(
-                user_name,
-                donate_link=urls.donation_url() + "?utm_source=strong-verification-email",
-            )
+            return emails.StrongVerificationSucceededEmail(user_name)
         case _:
             # Still implemented as a custom templated email
             return None
@@ -278,61 +340,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.friend_request__create:
-        other = data.other_user
-        preview = f"You've received a friend request from {other.name}"
-        return CustomTemplatedEmail(
-            subject=f"{other.name} wants to be your friend on Couchers.org!",
-            preview=preview,
-            template_name="friend_request",
-            template_args={
-                "friend_requests_link": urls.friend_requests_link(),
-                "other": UserTemplateArgs.from_protobuf_user(other),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.friend_request__accept:
-        other = data.other_user
-        title = f"{other.name} accepted your friend request!"
-        preview = f"{other.name} has accepted your friend request"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=preview,
-            template_name="friend_request_accepted",
-            template_args={
-                "other": UserTemplateArgs.from_protobuf_user(other),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__start:
-        return CustomTemplatedEmail(
-            subject="Confirm your Couchers.org account deletion",
-            preview="Please confirm that you want to delete your Couchers.org account.",
-            template_name="account_deletion_start",
-            template_args={
-                "deletion_link": urls.delete_account_link(account_deletion_token=data.deletion_token),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__complete:
-        title = "Your Couchers.org account has been deleted"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
-            template_name="account_deletion_complete",
-            template_args={
-                "undelete_link": urls.recover_account_link(account_undelete_token=data.undelete_token),
-                "days": data.undelete_days,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.account_deletion__recovered:
-        title = "Your Couchers.org account has been recovered!"
-        subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=subtitle,
-            template_name="account_deletion_recovered",
-            template_args={
-                "app_link": urls.app_link(),
             },
         )
     elif notification.topic_action == NotificationTopicAction.chat__message:
@@ -471,54 +478,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": event_link,
                 },
             )
-    elif notification.topic == "discussion":
-        discussion = data.discussion
-        discussion_link = urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug)
-        if notification.action == "create":
-            return CustomTemplatedEmail(
-                subject=f'{data.author.name} created a discussion: "{discussion.title}"',
-                preview="Someone created a discussion in a community or group you are subscribed to.",
-                template_name="discussion_create",
-                template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
-                    "discussion": discussion,
-                    "view_link": discussion_link,
-                },
-            )
-        elif notification.action == "comment":
-            return CustomTemplatedEmail(
-                subject=f'{data.author.name} commented on "{discussion.title}"',
-                preview="Someone commented on your discussion.",
-                template_name="discussion_comment",
-                template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
-                    "discussion": discussion,
-                    "reply": data.reply,
-                    "view_link": discussion_link,
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.thread__reply:
-        parent = data.WhichOneof("reply_parent")
-        if parent == "event":
-            title = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
-        elif parent == "discussion":
-            title = data.discussion.title
-            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
-        else:
-            raise Exception("Can only do replies to events and discussions")
-
-        return CustomTemplatedEmail(
-            subject=f'{data.author.name} replied in "{title}"',
-            preview="Someone replied in a comment thread you have participated in.",
-            template_name="comment_reply",
-            template_args={
-                "author": UserTemplateArgs.from_protobuf_user(data.author),
-                "title": title,
-                "reply": data.reply,
-                "view_link": view_link,
-            },
-        )
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"

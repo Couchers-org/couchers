@@ -96,8 +96,6 @@ def main() -> None:
     setup_tracing()
 
     # Initialize the experimentation framework for feature flags in the main process.
-    # IMPORTANT: This MUST be called AFTER worker processes are spawned (above).
-    # The underlying SDK uses internal threading that doesn't survive fork().
     # Worker processes initialize their own instance in _run_forever().
     setup_experimentation()
 
