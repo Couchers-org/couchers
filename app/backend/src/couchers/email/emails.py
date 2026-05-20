@@ -716,7 +716,7 @@ class HostRequestStatusChangedEmail(EmailBase):
     def dummy_data(cls) -> HostRequestStatusChangedEmail:
         return HostRequestStatusChangedEmail(
             user_name="Alice",
-            other=UserInfo.dummy_bob(),
+            other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
             new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
