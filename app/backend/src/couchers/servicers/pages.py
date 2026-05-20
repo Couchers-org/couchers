@@ -78,7 +78,7 @@ def page_to_pb(session: Session, page: Page, context: CouchersContext) -> pages_
         owner_user_id=page.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, page.thread_id),
+        thread=thread_to_pb(session, context, page.thread_id),
         title=current_version.title,
         content=current_version.content,
         photo_url=current_version.photo.full_url if current_version.photo_key else None,

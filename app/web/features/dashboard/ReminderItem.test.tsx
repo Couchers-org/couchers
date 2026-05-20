@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ReferenceType } from "proto/references_pb";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
@@ -119,5 +120,25 @@ describe("ReminderItem", () => {
     const { container } = render(<ReminderItem reminder={{}} />, { wrapper });
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("calls onDismiss when the dismiss button is clicked", async () => {
+    const user = userEvent.setup();
+    const onDismiss = jest.fn();
+    render(
+      <ReminderItem
+        reminder={{ completeProfileReminder: {} }}
+        onDismiss={onDismiss}
+      />,
+      { wrapper },
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("dashboard:reminder.carousel_dismiss_button_a11y"),
+      }),
+    );
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

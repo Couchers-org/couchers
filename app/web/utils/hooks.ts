@@ -32,6 +32,10 @@ const nonRegionKeys = [
   "subdivision",
 ];
 
+/**
+ * @deprecated use useIsClient instead. This pattern should only be used as a last resort
+ * (e.g. to avoid hydration errors) as in most cases, render logic should not depend on the client being mounted.
+ */
 function useIsMounted() {
   const isMounted = useRef(false);
 
@@ -61,6 +65,12 @@ function useSafeState<State>(
   );
 
   return [state, safeSetState];
+}
+
+function useIsClient() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  return isClient;
 }
 
 export interface GeocodeResult {
@@ -193,6 +203,7 @@ function useUnsavedChangesWarning({
 
 export {
   useGeocodeQuery,
+  useIsClient,
   useIsMounted,
   useSafeState,
   useUnsavedChangesWarning,

@@ -124,6 +124,26 @@ export async function listDiscussions(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
+export async function listMyCommunitiesDiscussions({
+  pageSize,
+  pageToken,
+}: {
+  pageToken?: string;
+  pageSize?: number;
+}) {
+  const req = new ListDiscussionsReq();
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  const response = await client.discussions.listMyCommunitiesDiscussions(req);
+
+  return response.toObject();
+}
+
 export async function joinCommunity(communityId: number) {
   const req = new JoinCommunityReq();
   req.setCommunityId(communityId);

@@ -97,7 +97,7 @@ message OfflineEventInformation {
 
 enum AttendanceState {
   ATTENDANCE_STATE_NOT_GOING = 0;
-  ATTENDANCE_STATE_MAYBE = 1;
+  // ATTENDANCE_STATE_MAYBE = 1; -- removed, maybe attendance is no longer supported
   ATTENDANCE_STATE_GOING = 2;
 }
 
@@ -146,7 +146,8 @@ message Event {
   bool subscriber = 23;
 
   uint32 going_count = 24;
-  uint32 maybe_count = 25;
+  reserved 25;
+  reserved "maybe_count";
   uint32 organizer_count = 26;
   uint32 subscriber_count = 27;
 

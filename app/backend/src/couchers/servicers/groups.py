@@ -272,12 +272,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         ).scalar_one_or_none()
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        discussions = (
-            cluster.owned_discussions.where(Discussion.id >= next_page_id)
-            .order_by(Discussion.id)
-            .limit(page_size + 1)
-            .all()
-        )
+        query = select(Discussion).where(Discussion.owner_cluster_id == cluster.id).where(Discussion.id >= next_page_id)
+        query = where_moderated_content_visible(query, context, Discussion, is_list_operation=True)
+        discussions = session.execute(query.order_by(Discussion.id).limit(page_size + 1)).scalars().all()
         return groups_pb2.ListDiscussionsRes(
             discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,

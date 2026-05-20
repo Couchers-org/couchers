@@ -17,6 +17,10 @@ service Discussions {
   rpc GetDiscussion(GetDiscussionReq) returns (Discussion) {
     // Retrieve a discussion
   }
+
+  rpc ListMyCommunitiesDiscussions(ListMyCommunitiesDiscussionsReq) returns (ListMyCommunitiesDiscussionsRes) {
+    // List recent discussions from all communities the user belongs to, newest first
+  }
 }
 
 message Discussion {
@@ -48,4 +52,14 @@ message CreateDiscussionReq {
 
 message GetDiscussionReq {
   int64 discussion_id = 1;
+}
+
+message ListMyCommunitiesDiscussionsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListMyCommunitiesDiscussionsRes {
+  repeated Discussion discussions = 1;
+  string next_page_token = 2;
 }

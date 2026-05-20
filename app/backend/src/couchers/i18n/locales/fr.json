@@ -42,6 +42,14 @@
     "event_not_an_organizer": "Ce membre n'est pas un organisateur.",
     "event_not_found": "Impossible de trouver l'événement.",
     "event_transfer_permission_denied": "Vous n'êtes pas autorisé à transférer cet événement.",
-    "events_not_enabled": "Les événements ne sont pas activés dans ce groupe ou dans cette communauté."
+    "events_not_enabled": "Les événements ne sont pas activés dans ce groupe ou dans cette communauté.",
+    "cannot_reinstate_and_set_stopped_date": "Vous ne pouvez pas réactiver un bénévole tout en définissant sa date de fin.",
+    "cant_unsee_messages": "Vous ne pouvez pas marquer un message comme non lu.",
+    "cant_unsub_topic": "Impossible de se désabonner de ce sujet pour l'instant.",
+    "chat_initiation_rate_limit2_one": "Trop de messages envoyés au cours de la dernière heure. Pour prévenir tout abus, l'envoi de nouveaux messages est temporairement bloqué.",
+    "chat_initiation_rate_limit2_many": "Trop de messages envoyés au cours des {{count}} dernières heures. Pour prévenir tout abus, l'envoi de nouveaux messages est temporairement bloqué.",
+    "chat_initiation_rate_limit2_other": "",
+    "date_from_after_one_year": "Veuillez choisir une date de début d'ici un an maximum.",
+    "date_from_after_to": "La date de début ne peut pas être postérieure à la date de fin."
   }
 }

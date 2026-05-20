@@ -132,7 +132,11 @@
     "chat_initiation_rate_limit2_many": "Has enviado mensajes a muchos usuarios en el último {{count}} de horas. Para evitar el spam, no puedes contactar con más usuarios por el momento.",
     "chat_initiation_rate_limit2_other": "Has enviado mensajes a muchos usuarios en las últimas {{count}} horas. Para evitar el spam, no puedes contactar con más usuarios por el momento.",
     "dev_apis_disabled": "Las API de desarrollo no están habilitadas en este servidor.",
-    "event_community_invite_not_found": "No se pudo encontrar esa invitación de la comunidad al evento."
+    "event_community_invite_not_found": "No se pudo encontrar esa invitación de la comunidad al evento.",
+    "friend_request_rate_limit2_one": "Has enviado muchas solicitudes de amistad en la última {{count}} hora. Para evitar el spam, no puedes enviar más por ahora.",
+    "friend_request_rate_limit2_many": "Has enviado muchas solicitudes de amistad en los últimos {{count}} de horas. Para evitar el spam, no puedes enviar más por ahora.",
+    "friend_request_rate_limit2_other": "Has enviado muchas solicitudes de amistad en las últimas {{count}} horas. Para evitar el spam, no puedes enviar más por ahora.",
+    "after_item_not_found": "No se encontró el elemento después del cual colocar."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",

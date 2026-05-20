@@ -1,9 +1,10 @@
+import json
 import logging
 from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
@@ -42,7 +43,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.uploads import has_avatar_photo_expression
+from couchers.models.uploads import Upload, has_avatar_photo_expression
 from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -79,6 +80,7 @@ def log_admin_action(
     target_user: User,
     action_type: str,
     note: str | None = None,
+    data: object | None = None,
     tag: str | None = None,
     level: AdminActionLevel = AdminActionLevel.normal,
 ) -> AdminAction:
@@ -88,6 +90,7 @@ def log_admin_action(
         action_type=action_type,
         level=level,
         note=note,
+        data=data,
         tag=tag,
     )
     session.add(action)
@@ -115,6 +118,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
                 action_type=action.action_type,
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
                 tag=action.tag or "",
                 target_user_id=action.target_user_id,
                 target_username=user.username,
@@ -456,10 +460,28 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        has_note = bool(request.admin_note.strip())
+        has_data = bool(request.data.strip())
+        if has_note == has_data:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "admin_note_requires_exactly_one_of_note_or_data"
+            )
+        data = None
+        if has_data:
+            try:
+                data = json.loads(request.data)
+            except json.JSONDecodeError:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_data_must_be_valid_json")
         level = api2adminactionlevel.get(request.level, AdminActionLevel.normal)
-        log_admin_action(session, context, user, "note", note=request.admin_note, level=level)
+        log_admin_action(
+            session,
+            context,
+            user,
+            "note",
+            note=request.admin_note if has_note else None,
+            data=data,
+            level=level,
+        )
         return _user_to_details(session, user)
 
     def GetContentReport(
@@ -1160,6 +1182,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 action_type=action.action_type,
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
+                data=json.dumps(action.data) if action.data is not None else "",
                 tag=action.tag or "",
                 target_user_id=action.target_user_id,
                 target_username=target_username,
@@ -1170,4 +1193,41 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.ListAdminActionsRes(
             admin_actions=action_pbs,
             next_page_token=str(rows[page_size - 1][0].id) if len(rows) > page_size else None,
+        )
+
+    def ListUserUploads(
+        self, request: admin_pb2.ListUserUploadsReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListUserUploadsRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        statement = select(Upload).where(Upload.creator_user_id == user.id)
+        if request.page_token:
+            cursor_created = session.execute(
+                select(Upload.created).where(Upload.key == request.page_token)
+            ).scalar_one()
+            statement = statement.where(tuple_(Upload.created, Upload.key) < (cursor_created, request.page_token))
+
+        uploads = (
+            session.execute(statement.order_by(Upload.created.desc(), Upload.key.desc()).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.ListUserUploadsRes(
+            uploads=[
+                admin_pb2.UserUpload(
+                    key=upload.key,
+                    filename=upload.filename,
+                    full_url=upload.full_url,
+                    thumbnail_url=upload.thumbnail_url,
+                    credit=upload.credit or "",
+                    created=Timestamp_from_datetime(upload.created),
+                )
+                for upload in uploads[:page_size]
+            ],
+            next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )

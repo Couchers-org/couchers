@@ -105,6 +105,8 @@ service Admin {
   rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
 
   rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
+
+  rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
 }
 
 message AdminActionLog {
@@ -113,11 +115,12 @@ message AdminActionLog {
   int64 admin_user_id = 3;
   string admin_username = 4;
   string action_type = 5;
-  string note = 6;   // optional note/details
+  string note = 6;   // optional human-readable note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
   int64 target_user_id = 9;
   string target_username = 10;
+  string data = 11;  // optional machine-readable JSON payload
 }
 
 message AdminTagInfo {
@@ -250,8 +253,10 @@ message UnshadowUserReq {
 message AddAdminNoteReq {
   // username, email, or user id
   string user = 1;
+  // exactly one of admin_note or data must be provided; data is a JSON-encoded object
   string admin_note = 2;
   AdminActionLevel level = 3;  // defaults to NORMAL if unset
+  string data = 4;
 }
 
 message ContentReport {
@@ -569,5 +574,27 @@ message ListAdminActionsReq {
 
 message ListAdminActionsRes {
   repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
+}
+
+message ListUserUploadsReq {
+  // username, email, or user id
+  string user = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message UserUpload {
+  string key = 1;
+  string filename = 2;
+  string full_url = 3;
+  string thumbnail_url = 4;
+  string credit = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message ListUserUploadsRes {
+  repeated UserUpload uploads = 1;
   string next_page_token = 2;
 }

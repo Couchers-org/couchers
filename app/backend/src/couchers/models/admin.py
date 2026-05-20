@@ -1,8 +1,19 @@
 import enum
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint, func
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+)
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -30,12 +41,16 @@ class AdminAction(Base, kw_only=True):
     level: Mapped[AdminActionLevel] = mapped_column(Enum(AdminActionLevel), server_default="normal")
 
     note: Mapped[str | None] = mapped_column(String, default=None)
+    data: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True), default=None)
     tag: Mapped[str | None] = mapped_column(String, default=None)
 
     admin_user: Mapped[User] = relationship(init=False, foreign_keys="AdminAction.admin_user_id")
     target_user: Mapped[User] = relationship(init=False, foreign_keys="AdminAction.target_user_id")
 
-    __table_args__ = (Index("ix_admin_actions_target_created", target_user_id, created),)
+    __table_args__ = (
+        Index("ix_admin_actions_target_created", target_user_id, created),
+        CheckConstraint("note IS NULL OR data IS NULL", name="note_xor_data"),
+    )
 
 
 class AdminTag(Base, kw_only=True):

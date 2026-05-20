@@ -56,6 +56,14 @@
   "show_map": "Show Map",
   "hero_image_alt": "Hot-air balloons in Capadocia",
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
+  "discussions": {
+    "community_header": "Discussions in your communities",
+    "community_empty_message": "No discussions yet in your communities.",
+    "replies_count_label_one": "{{count}} reply",
+    "replies_count_label_other": "{{count}} replies",
+    "prev_page_label": "Previous page",
+    "next_page_label": "Next page"
+  },
   "events": {
     "your_upcoming_header": "Your upcoming events",
     "see_all_link": "See all →",
@@ -86,6 +94,7 @@
       "title": "Strong verification",
       "description": "Verify your identity for a safer community",
       "button": "Verify your account"
-    }
+    },
+    "carousel_dismiss_button_a11y": "Dismiss reminder"
   }
 }

@@ -10,6 +10,7 @@ from sqlalchemy.sql import expression
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.models.base import Base
 from couchers.models.host_requests import HostRequestStatus
+from couchers.models.moderation import ModerationObjectType
 from couchers.utils import now
 
 if TYPE_CHECKING:
@@ -38,6 +39,7 @@ class GroupChat(Base, kw_only=True):
 
     __tablename__ = "group_chats"
     __moderation_author_column__ = "creator_id"
+    __moderation_object_type__ = ModerationObjectType.group_chat
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
 

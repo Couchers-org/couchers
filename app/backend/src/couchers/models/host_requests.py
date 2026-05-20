@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom
+from couchers.models.moderation import ModerationObjectType
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -41,6 +42,7 @@ class HostRequest(Base, kw_only=True):
 
     __tablename__ = "host_requests"
     __moderation_author_column__ = "initiator_user_id"
+    __moderation_object_type__ = ModerationObjectType.host_request
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)

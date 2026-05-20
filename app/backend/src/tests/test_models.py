@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 from sqlalchemy import select
@@ -24,22 +24,30 @@ def test_user_age(db):
 
 
 def test_user_display_joined():
-    assert make_user(joined=datetime(2020, 7, 10, 16, 34, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
-    assert make_user(joined=datetime(2025, 7, 10, 16, 59, 1, 1)).display_joined == datetime(2025, 7, 10, 16, 0, 0, 0)
-    assert make_user(joined=datetime(2020, 7, 10, 16, 0, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
-    assert make_user(joined=datetime(2020, 7, 10, 0, 0, 0, 0)).display_joined == datetime(2020, 7, 10, 0, 0, 0, 0)
+    assert make_user(joined=datetime(2020, 7, 10, 16, 34, 1, 1, tzinfo=UTC)).display_joined == datetime(
+        2020, 7, 10, 16, 0, 0, 0, tzinfo=UTC
+    )
+    assert make_user(joined=datetime(2025, 7, 10, 16, 59, 1, 1, tzinfo=UTC)).display_joined == datetime(
+        2025, 7, 10, 16, 0, 0, 0, tzinfo=UTC
+    )
+    assert make_user(joined=datetime(2020, 7, 10, 16, 0, 1, 1, tzinfo=UTC)).display_joined == datetime(
+        2020, 7, 10, 16, 0, 0, 0, tzinfo=UTC
+    )
+    assert make_user(joined=datetime(2020, 7, 10, 0, 0, 0, 0, tzinfo=UTC)).display_joined == datetime(
+        2020, 7, 10, 0, 0, 0, 0, tzinfo=UTC
+    )
 
 
 def test_user_display_last_active():
-    assert make_user(last_active=datetime(2020, 7, 10, 16, 34, 1, 1)).display_last_active == datetime(
-        2020, 7, 10, 16, 0, 0, 0
+    assert make_user(last_active=datetime(2020, 7, 10, 16, 34, 1, 1, tzinfo=UTC)).display_last_active == datetime(
+        2020, 7, 10, 16, 0, 0, 0, tzinfo=UTC
     )
-    assert make_user(last_active=datetime(2025, 7, 10, 17, 59, 1, 1)).display_last_active == datetime(
-        2025, 7, 10, 17, 0, 0, 0
+    assert make_user(last_active=datetime(2025, 7, 10, 17, 59, 1, 1, tzinfo=UTC)).display_last_active == datetime(
+        2025, 7, 10, 17, 0, 0, 0, tzinfo=UTC
     )
-    assert make_user(last_active=datetime(2020, 7, 10, 16, 0, 1, 1)).display_last_active == datetime(
-        2020, 7, 10, 16, 0, 0, 0
+    assert make_user(last_active=datetime(2020, 7, 10, 16, 0, 1, 1, tzinfo=UTC)).display_last_active == datetime(
+        2020, 7, 10, 16, 0, 0, 0, tzinfo=UTC
     )
-    assert make_user(last_active=datetime(2020, 7, 10, 0, 0, 0, 0)).display_last_active == datetime(
-        2020, 7, 10, 0, 0, 0, 0
+    assert make_user(last_active=datetime(2020, 7, 10, 0, 0, 0, 0, tzinfo=UTC)).display_last_active == datetime(
+        2020, 7, 10, 0, 0, 0, 0, tzinfo=UTC
     )
