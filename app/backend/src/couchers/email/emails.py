@@ -18,7 +18,7 @@ from couchers.email.rendering import (
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict
 from couchers.i18n.localize import format_phone_number
-from couchers.proto import notification_data_pb2
+from couchers.proto import conversations_pb2, notification_data_pb2
 
 
 @dataclass
@@ -492,6 +492,235 @@ class GenderChangedEmail(EmailBase):
         return GenderChangedEmail(
             user_name="Alice",
             new_gender="Male",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestCreatedEmail(EmailBase):
+    """Sent to a host when a surfer sends them a new host request."""
+
+    surfer: UserInfo
+    from_date: date
+    to_date: date
+    text: str
+    quick_decline_link: str
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "host_request_created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"surfer_name": self.surfer.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"surfer_name": self.surfer.name})
+        builder.user(
+            self.surfer,
+            "date_range",
+            {
+                "from_date": loc_context.localize_date(self.from_date),
+                "to_date": loc_context.localize_date(self.to_date),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, "view_action")
+        builder.action(self.quick_decline_link, "quick_decline_action")
+        builder.para("respond_encouragement")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> HostRequestCreatedEmail:
+        return HostRequestCreatedEmail(
+            user_name="Alice",
+            surfer=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            text="Hey, I'd love to stay for a few nights!",
+            quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
+            view_link="https://couchers.org/requests/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestReminderEmail(EmailBase):
+    """Sent to a host as a reminder to respond to a pending host request."""
+
+    surfer: UserInfo
+    from_date: date
+    to_date: date
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "host_request_reminder"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"surfer_name": self.surfer.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body")
+        builder.user(
+            self.surfer,
+            ".host_request_generic.date_range",
+            {
+                "from_date": loc_context.localize_date(self.from_date),
+                "to_date": loc_context.localize_date(self.to_date),
+            },
+        )
+        builder.action(self.view_link, ".host_request_generic.view_action")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> HostRequestReminderEmail:
+        return HostRequestReminderEmail(
+            user_name="Alice",
+            surfer=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            view_link="https://couchers.org/requests/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestMessageEmail(EmailBase):
+    """Sent when a user sends a message in an existing host request."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    text: str
+    from_host: bool
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        variant = "from_host" if self.from_host else "from_surfer"
+        return f"host_request_message.{variant}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"other_name": self.other_user.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            ".host_request_generic.date_range",
+            {
+                "from_date": loc_context.localize_date(self.from_date),
+                "to_date": loc_context.localize_date(self.to_date),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, ".host_request_generic.view_action")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> HostRequestMessageEmail:
+        return HostRequestMessageEmail(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            text="Looking forward to it, see you soon!",
+            from_host=True,
+            view_link="https://couchers.org/requests/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestMissedMessagesEmail(EmailBase):
+    """Sent as a digest when a user has missed messages in a host request."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    from_host: bool
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        variant = "from_host" if self.from_host else "from_surfer"
+        return f"host_request_missed_messages.{variant}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"other_name": self.other_user.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            ".host_request_generic.date_range",
+            {
+                "from_date": loc_context.localize_date(self.from_date),
+                "to_date": loc_context.localize_date(self.to_date),
+            },
+        )
+        builder.action(self.view_link, ".host_request_generic.view_action")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> HostRequestMissedMessagesEmail:
+        return HostRequestMissedMessagesEmail(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            from_host=True,
+            view_link="https://couchers.org/requests/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestStatusChangedEmail(EmailBase):
+    """Sent when a host request is accepted, declined, confirmed, or cancelled."""
+
+    other: UserInfo
+    from_date: date
+    to_date: date
+    new_status: conversations_pb2.HostRequestStatus.ValueType
+    view_link: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        base_key = "host_request_status_changed"
+        match self.new_status:
+            case conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+                return f"{base_key}.accepted_by_host"
+            case conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
+                return f"{base_key}.rejected_by_host"
+            case conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+                return f"{base_key}.confirmed_by_surfer"
+            case conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
+                return f"{base_key}.cancelled_by_surfer"
+            case _:
+                raise ValueError(f"Unexpected host request status: {self.new_status}")
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject", {"other_name": self.other.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"other_name": self.other.name})
+        builder.user(
+            self.other,
+            ".host_request_generic.date_range",
+            {
+                "from_date": loc_context.localize_date(self.from_date),
+                "to_date": loc_context.localize_date(self.to_date),
+            },
+        )
+        builder.action(self.view_link, ".host_request_generic.view_action")
+        builder.do_not_reply_request_para()
+
+    @classmethod
+    def dummy_data(cls) -> HostRequestStatusChangedEmail:
+        return HostRequestStatusChangedEmail(
+            user_name="Alice",
+            other=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            view_link="https://couchers.org/requests/123",
         )
 
 
