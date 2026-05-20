@@ -71,8 +71,7 @@
     "community_header": "Events in your communities",
     "community_empty_message": "No upcoming events in your communities.",
     "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} attendee",
-    "attendees_count_label_other": "{{count}} attendees"
+    "today_label": "Today"
   },
   "reminder": {
     "respond_to_host_request": {
