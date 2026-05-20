@@ -675,7 +675,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
 class HostRequestStatusChangedEmail(EmailBase):
     """Sent when a host request is accepted, declined, confirmed, or cancelled."""
 
-    other: UserInfo
+    other_user: UserInfo
     from_date: date
     to_date: date
     new_status: conversations_pb2.HostRequestStatus.ValueType
@@ -697,12 +697,12 @@ class HostRequestStatusChangedEmail(EmailBase):
                 raise ValueError(f"Unexpected host request status: {self.new_status}")
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"other_name": self.other.name})
+        return self._localize(loc_context, "subject", {"other_name": self.other_user.name})
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("body", {"other_name": self.other.name})
+        builder.para("body", {"other_name": self.other_user.name})
         builder.user(
-            self.other,
+            self.other_user,
             ".host_request_generic.date_range",
             {
                 "from_date": loc_context.localize_date(self.from_date),

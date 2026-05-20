@@ -173,9 +173,13 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             | NotificationTopicAction.host_request__cancel
             | NotificationTopicAction.host_request__confirm
         ):
+            other_user_is_host = notification.topic_action in (
+                NotificationTopicAction.host_request__accept,
+                NotificationTopicAction.host_request__reject,
+            )
             return emails.HostRequestStatusChangedEmail(
                 user_name,
-                other=_user_info(data.surfer),
+                other_user=_user_info(data.host if other_user_is_host else data.surfer),
                 from_date=date.fromisoformat(data.host_request.from_date),
                 to_date=date.fromisoformat(data.host_request.to_date),
                 new_status=_to_host_request_status(notification.topic_action),
@@ -211,7 +215,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
-        case (NotificationTopicAction.donation__received
+        case (
+            NotificationTopicAction.donation__received
             | NotificationTopicAction.chat__message
             | NotificationTopicAction.chat__missed_messages
             | NotificationTopicAction.event__create_any
@@ -229,7 +234,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             | NotificationTopicAction.reference__reminder_surfed
             | NotificationTopicAction.onboarding__reminder
             | NotificationTopicAction.activeness__probe
-            | NotificationTopicAction.general__new_blog_post):
+            | NotificationTopicAction.general__new_blog_post
+        ):
             # Still implemented as a custom templated email
             return None
         case _:
