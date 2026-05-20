@@ -77,7 +77,9 @@ export default function EventUsers({
           {title}
         </Typography>
         {attendeeCount && (
-          <UsersCountTag size="medium">{attendeeCount?.toString()}</UsersCountTag>
+          <UsersCountTag size="medium">
+            {attendeeCount?.toString()}
+          </UsersCountTag>
         )}
       </StyledTitleContainer>
       <UsersList
