@@ -94,6 +94,7 @@
       "title": "Strong verification",
       "description": "Verify your identity for a safer community",
       "button": "Verify your account"
-    }
+    },
+    "carousel_dismiss_button_a11y": "Dismiss reminder"
   }
 }

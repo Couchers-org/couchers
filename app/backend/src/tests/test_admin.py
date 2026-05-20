@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import grpc
 import pytest
@@ -675,7 +675,8 @@ def test_ListUserIds(db):
     with real_admin_session(super_token) as api:
         res = api.ListUserIds(
             admin_pb2.ListUserIdsReq(
-                start_time=Timestamp_from_datetime(datetime(2000, 1, 1)), end_time=Timestamp_from_datetime(now())
+                start_time=Timestamp_from_datetime(datetime(2000, 1, 1, tzinfo=UTC)),
+                end_time=Timestamp_from_datetime(now()),
             )
         )
         assert len(res.user_ids) == 2

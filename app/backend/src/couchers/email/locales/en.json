@@ -2,7 +2,8 @@
   "generic": {
     "greeting_line": "Hi {{name}},",
     "closing_line": "Best,\nThe Couchers.org Team",
-    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!"
+    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
+    "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request."
   },
   "calendar_events": {
     "title_cancelled": "Cancelled: {{ title }}",
@@ -14,6 +15,27 @@
   "plaintext_formats": {
     "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion_started": {
+    "subject": "Confirm your Couchers.org account deletion",
+    "request_description": "You requested that we delete your account from Couchers.org.",
+    "confirmation_instructions": "To complete this process, please confirm by clicking the following button:",
+    "confirm_action": "Confirm account deletion"
+  },
+  "account_deletion_completed": {
+    "subject": "Your Couchers.org account has been deleted",
+    "confirmation": "You have successfully deleted your account from Couchers.org.",
+    "farewell": "We are sad to see you go, and wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)",
+    "recovery_instructions_days_one": "If you change your mind, <b>you have {{count}} day to recover your account</b> by clicking the following link:",
+    "recovery_instructions_days_other": "If you change your mind, <b>you have {{count}} days to recover your account</b> by clicking the following link:",
+    "recover_action": "Recover account"
+  },
+  "account_deletion_recovered": {
+    "subject": "Your Couchers.org account has been recovered!",
+    "confirmation": "Your account on Couchers.org has been successfully recovered!",
+    "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
+    "login_action": "Log back in",
+    "redelete_instructions": "If you change your mind, you can delete your account at any time."
   },
   "api_key_issued": {
     "subject": "Your API key for Couchers.org",
@@ -34,6 +56,16 @@
     "subject": "Your date of birth was changed",
     "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
+  "discussion_created": {
+    "subject": "{{author}} started a discussion: {{title}}",
+    "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
+    "view_action": "View discussion"
+  },
+  "discussion_comment": {
+    "subject": "{{author}} commented on {{discussion_title}}",
+    "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
+    "view_action": "View discussion"
+  },
   "email_address_change_initiated": {
     "subject": "An email change was initiated on your account",
     "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
@@ -41,6 +73,18 @@
   "email_address_verified": {
     "subject": "Email change completed",
     "body": "Your new email address has been verified."
+  },
+  "friend_request_received": {
+    "subject": "{{name}} wants to be your friend on Couchers.org!",
+    "body": "You've received a friend request from {{name}}.",
+    "view_action": "View friend requests",
+    "closing": "We hope you make a new friend!"
+  },
+  "friend_request_accepted": {
+    "subject": "{{name}} accepted your friend request!",
+    "body": "{{name}} has accepted your friend request.",
+    "view_action": "View their profile",
+    "closing": "We hope you continue making new friends!"
   },
   "gender_changed": {
     "subject": "Your gender was changed",
@@ -99,5 +143,10 @@
     "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
     "donation_request": "If you're able, please consider donating to help keep Couchers.org running and growing.",
     "donate_action": "Donate to support Couchers.org"
+  },
+  "thread_reply": {
+    "subject": "{{author}} replied in {{parent_context}}",
+    "body": "<b>{{author}}</b> replied in <b>{{parent_context}}</b>:",
+    "view_action": "View thread"
   }
 }

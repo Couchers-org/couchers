@@ -14,7 +14,7 @@ from markupsafe import Markup
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import load_locales
-from couchers.templating import Jinja2Template, template_folder
+from couchers.templating import Jinja2Template, _markdown, template_folder
 from couchers.utils import now
 
 
@@ -48,12 +48,23 @@ class UserInfo:
     avatar_url: str
     profile_url: str
 
+    @staticmethod
+    def dummy_bob() -> UserInfo:
+        return UserInfo(
+            name="Bob",
+            age=30,
+            city="Berlin",
+            avatar_url="https://couchers.org/img/icon.png",
+            profile_url="https://couchers.org/user/bob",
+        )
+
 
 @dataclass(kw_only=True)
 class QuoteBlock(EmailBlock):
-    """A quoted message from another user. May not contain markup."""
+    """A quoted message, typically from another user. Either plaintext or markdown."""
 
     text: str
+    markdown: bool
 
 
 @dataclass(kw_only=True)
@@ -81,19 +92,24 @@ class EmailBlocksBuilder:
     def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ParaBlock(text=self._markup(key, substitutions)))
 
-    def quote(self, text: str) -> Self:
-        return self.block(QuoteBlock(text=text))
+    def quote(self, text: str, *, markdown: bool) -> Self:
+        return self.block(QuoteBlock(text=text, markdown=markdown))
 
     def user(
         self,
         info: UserInfo,
-        comment_key: str,
+        comment_key: str | None = None,
         substitutions: SubstitutionDict | None = None,
     ) -> Self:
-        return self.block(UserBlock(info=info, comment=self._markup(comment_key, substitutions)))
+        comment = self._markup(comment_key, substitutions) if comment_key else None
+        return self.block(UserBlock(info=info, comment=comment))
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
+
+    def do_not_reply_request_para(self) -> Self:
+        line = get_emails_i18next().localize_with_markup("generic.do_not_reply_request", self._locale)
+        return self.block(ParaBlock(text=line))
 
     def security_warning_para(self) -> Self:
         line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)
@@ -302,7 +318,8 @@ class HTMLRenderer:
                         )
                     )
                 case QuoteBlock():
-                    concats.append(self.quote_block_template.render(block.__dict__, loc_context))
+                    args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
+                    concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(block.__dict__, loc_context))
                 case _:

@@ -67,6 +67,9 @@ def is_valid_email(field: str) -> bool:
 
 
 def Timestamp_from_datetime(dt: datetime) -> Timestamp:
+    if dt.tzinfo is None:
+        raise ValueError("Cannot convert a naive datetime to a timestamp.")
+
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
