@@ -56,7 +56,7 @@ results
 **User Agent**: `user_agent`
 **Screen resolution**: 1920x1080
 **Page**: page
-**User**: <not logged in>""".strip(),
+**User**: <not logged in>""".strip()
 
             assert json == {
                 "title": "subject",
@@ -116,7 +116,7 @@ results
 **User Agent**: `user_agent`
 **Screen resolution**: 390x844
 **Page**: page
-**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip(),
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()
 
             assert json == {
                 "title": "subject",
