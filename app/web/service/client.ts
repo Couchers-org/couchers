@@ -24,6 +24,7 @@ import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import { getClientPlatform } from "utils/clientPlatform";
 
+import { NativeApiRelayInterceptor } from "./nativeApiRelay";
 import isGrpcError from "./utils/isGrpcError";
 
 const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -90,9 +91,17 @@ class PlatformInterceptor {
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
 const platformInterceptor = new PlatformInterceptor();
+// Innermost interceptor: stands in for the transport when running inside the
+// native mobile app, relaying the call to the native layer.
+const nativeApiRelayInterceptor = new NativeApiRelayInterceptor();
 
 const opts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor, platformInterceptor],
+  unaryInterceptors: [
+    authInterceptor,
+    timeoutInterceptor,
+    platformInterceptor,
+    nativeApiRelayInterceptor,
+  ],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/

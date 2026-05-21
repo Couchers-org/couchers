@@ -24,6 +24,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
+import { relayApiRequest } from "@/service/apiRelay";
 import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
@@ -369,6 +370,14 @@ export default function WebEmbed({
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // WebView file input crashes on mobile; use native picker instead.
         pickImage(sendImagePickResult);
+      } else if (payload?.type === "API_REQUEST") {
+        // The web app's gRPC-web client relays each call here so the request
+        // is performed by native code rather than the WebView's transport.
+        const response = await relayApiRequest(payload.data);
+        webviewRef.current?.injectJavaScript(`
+          window.postMessage(${JSON.stringify({ type: "API_RESPONSE", data: response })}, "*");
+          true;
+        `);
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
@@ -459,7 +468,7 @@ export default function WebEmbed({
             />
           </View>
         )}
-        injectedJavaScriptObject={{ isNativeEmbed: true }}
+        injectedJavaScriptObject={{ isNativeEmbed: true, apiRelay: true }}
         onLoad={() => {
           hasLoadedRef.current = true;
         }}

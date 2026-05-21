@@ -6,20 +6,26 @@ function getReactNativeWebView(): typeof window.ReactNativeWebView {
   }
 }
 
+// Read a single flag the native app injects into the WebView via
+// injectedObjectJson(). Returns undefined when not running in a native embed or
+// the value is absent/unparseable.
+export function getInjectedValue(key: string): unknown {
+  const webview = getReactNativeWebView();
+  if (!webview?.injectedObjectJson) return undefined;
+  try {
+    return JSON.parse(webview.injectedObjectJson())?.[key];
+  } catch {
+    return undefined;
+  }
+}
+
 function isNativeEmbed(): boolean {
   const webview = getReactNativeWebView();
   if (!webview) return false;
 
-  // Android-reliable detection: Check injectedObjectJson() which is more reliable than
-  // just checking for ReactNativeWebView existence due to timing issues on Android
-  try {
-    if (webview.injectedObjectJson) {
-      const injectedData = JSON.parse(webview.injectedObjectJson());
-      if (injectedData?.isNativeEmbed) return true;
-    }
-  } catch {
-    // Parsing failed or method not available - fall through to default behavior
-  }
+  // Android-reliable detection: the injected flag is more reliable than just
+  // checking for ReactNativeWebView existence due to timing issues on Android.
+  if (getInjectedValue("isNativeEmbed")) return true;
 
   // iOS and fallback: If ReactNativeWebView exists, assume we're in native embed
   return true;
