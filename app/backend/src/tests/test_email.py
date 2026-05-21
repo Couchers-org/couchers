@@ -134,6 +134,9 @@ def test_reference_report_email_not_sent(db):
             was_appropriate=True,
             moderation_state_id=moderation_state.id,
         )
+        session.add(reference)
+        session.flush()
+        moderation_state.object_id = reference.id
 
         # no email sent for a positive ref
 
