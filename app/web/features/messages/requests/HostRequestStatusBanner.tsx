@@ -4,7 +4,6 @@ import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/conversations_pb";
-import { useEffect, useState } from "react";
 
 const StyledBanner = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
@@ -35,11 +34,6 @@ export default function HostRequestStatusBanner({
   hostName?: string;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  useEffect(() => {
-    setIsEditMode(false);
-  }, [status]);
 
   if (isHost) {
     let message: string | null = null;
@@ -59,39 +53,18 @@ export default function HostRequestStatusBanner({
     return (
       <StyledBanner>
         <Typography variant="body2">{message}</Typography>
-        {isEditMode ? (
-          <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => setIsEditMode(false)}
-            >
-              {isRejected
-                ? t("messages:status_bar_close_button")
-                : t("messages:status_bar_cancel_edit_button")}
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={isRejected ? onAccept : onDecline}
-              loading={isLoading}
-            >
-              {isRejected
-                ? t("global:accept")
-                : t("messages:close_request_button_text")}
-            </Button>
-          </Box>
-        ) : (
-          <Button
-            variant="text"
-            size="small"
-            color="primary"
-            onClick={() => setIsEditMode(true)}
-          >
-            {t("messages:status_bar_edit_button")}
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          size="small"
+          color="primary"
+          onClick={isRejected ? onAccept : onDecline}
+          loading={isLoading}
+          sx={{ flexShrink: 0 }}
+        >
+          {isRejected
+            ? t("global:accept")
+            : t("messages:close_request_button_text")}
+        </Button>
       </StyledBanner>
     );
   }

@@ -121,17 +121,19 @@ describe("HostRequestRespondButtons — surfer confirm card", () => {
   });
 
   it("shows confirm card with Confirm and Cancel request buttons for surfer+accepted", () => {
+    const name = "Alice";
     render(
       <HostRequestRespondButtons
         isHost={false}
         status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
         isLoading={false}
         handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name={name}
       />,
       { wrapper },
     );
     expect(
-      screen.getByText(t("messages:surfer_confirm_box_title")),
+      screen.getByText(t("messages:surfer_confirm_box_title", { name })),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {

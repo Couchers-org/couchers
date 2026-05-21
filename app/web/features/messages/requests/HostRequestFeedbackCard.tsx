@@ -51,7 +51,6 @@ export default function HostRequestFeedbackCard({
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
 
-  const [step, setStep] = useState<1 | 2>(1);
   const [quality, setQuality] = useState<HostRequestQuality | null>(null);
   const [declineReason, setDeclineReason] = useState<DeclineReason | null>(
     null,
@@ -95,95 +94,71 @@ export default function HostRequestFeedbackCard({
     });
   };
 
-  if (step === 1) {
-    return (
-      <StyledCard>
-        {error && <Alert severity="error">{error.message}</Alert>}
-        <FormControl component="fieldset">
-          <Typography variant="subtitle2" gutterBottom>
-            {t("private_feedback_card.quality_label")}
-          </Typography>
-          <ToggleButtonGroup
-            exclusive
-            value={quality}
-            onChange={(_e, val) => {
-              setQuality(val);
-              if (val !== null) setStep(2);
-            }}
-            aria-label={t("private_feedback_card.quality_label")}
-            size="small"
-            sx={{
-              gap: 1,
-              flexWrap: "wrap",
-              "& .MuiToggleButton-root": {
-                border: "1px solid var(--mui-palette-divider) !important",
-              },
-              "& .MuiToggleButton-root.Mui-selected": {
-                border: "1px solid var(--mui-palette-primary-main) !important",
-              },
-            }}
-          >
-            <ToggleButton
-              value={HostRequestQuality.HOST_REQUEST_QUALITY_LOW}
-              sx={{
-                borderRadius: "2rem !important",
-                px: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.7rem", sm: "0.8125rem" },
-                gap: 0.75,
-                background: "var(--mui-palette-grey-200)",
-              }}
-            >
-              <ThumbDown fontSize="inherit" />
-              {t("private_feedback_card.quality_low")}
-            </ToggleButton>
-            <ToggleButton
-              value={HostRequestQuality.HOST_REQUEST_QUALITY_OKAY}
-              sx={{
-                borderRadius: "2rem !important",
-                px: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.7rem", sm: "0.8125rem" },
-                gap: 0.75,
-                background: "var(--mui-palette-grey-200)",
-              }}
-            >
-              <ThumbsUpDown fontSize="inherit" />
-              {t("private_feedback_card.quality_okay")}
-            </ToggleButton>
-            <ToggleButton
-              value={HostRequestQuality.HOST_REQUEST_QUALITY_HIGH}
-              sx={{
-                borderRadius: "2rem !important",
-                px: { xs: 1, sm: 2 },
-                fontSize: { xs: "0.7rem", sm: "0.8125rem" },
-                gap: 0.75,
-                background: "var(--mui-palette-grey-200)",
-              }}
-            >
-              <ThumbUp fontSize="inherit" />
-              {t("private_feedback_card.quality_high")}
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </FormControl>
-        <Typography variant="caption" color="text.secondary">
-          {t("private_feedback_card.privacy_notice")}
-        </Typography>
-        <StyledActions>
-          <Button
-            variant="text"
-            size="small"
-            onClick={handleSkip}
-            disabled={isPending}
-          >
-            {t("private_feedback_card.skip_button")}
-          </Button>
-        </StyledActions>
-      </StyledCard>
-    );
-  }
-
   return (
     <StyledCard>
       {error && <Alert severity="error">{error.message}</Alert>}
+      <FormControl component="fieldset">
+        <Typography variant="subtitle2" gutterBottom>
+          {t("private_feedback_card.quality_label")}
+        </Typography>
+        <ToggleButtonGroup
+          exclusive
+          value={quality}
+          onChange={(_e, val) => setQuality(val)}
+          aria-label={t("private_feedback_card.quality_label")}
+          size="small"
+          sx={{
+            gap: 1,
+            flexWrap: "wrap",
+            "& .MuiToggleButton-root": {
+              border: "1px solid var(--mui-palette-divider) !important",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              border: "1px solid var(--mui-palette-primary-main) !important",
+            },
+          }}
+        >
+          <ToggleButton
+            value={HostRequestQuality.HOST_REQUEST_QUALITY_LOW}
+            sx={{
+              borderRadius: "2rem !important",
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.7rem", sm: "0.8125rem" },
+              gap: 0.75,
+              background: "var(--mui-palette-grey-200)",
+            }}
+          >
+            <ThumbDown fontSize="inherit" />
+            {t("private_feedback_card.quality_low")}
+          </ToggleButton>
+          <ToggleButton
+            value={HostRequestQuality.HOST_REQUEST_QUALITY_OKAY}
+            sx={{
+              borderRadius: "2rem !important",
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.7rem", sm: "0.8125rem" },
+              gap: 0.75,
+              background: "var(--mui-palette-grey-200)",
+            }}
+          >
+            <ThumbsUpDown fontSize="inherit" />
+            {t("private_feedback_card.quality_okay")}
+          </ToggleButton>
+          <ToggleButton
+            value={HostRequestQuality.HOST_REQUEST_QUALITY_HIGH}
+            sx={{
+              borderRadius: "2rem !important",
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.7rem", sm: "0.8125rem" },
+              gap: 0.75,
+              background: "var(--mui-palette-grey-200)",
+            }}
+          >
+            <ThumbUp fontSize="inherit" />
+            {t("private_feedback_card.quality_high")}
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </FormControl>
       <FormControl component="fieldset">
         <Typography variant="subtitle2" gutterBottom>
           {t("private_feedback_card.decline_reason_label")}
@@ -234,10 +209,10 @@ export default function HostRequestFeedbackCard({
         <Button
           variant="text"
           size="small"
-          onClick={() => setStep(1)}
+          onClick={handleSkip}
           disabled={isPending}
         >
-          {t("private_feedback_card.back_button")}
+          {t("private_feedback_card.skip_button")}
         </Button>
         <Button
           variant="contained"

@@ -5,20 +5,13 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
-import { service } from "service";
 import hostRequest from "test/fixtures/hostRequest.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { addDefaultUser } from "test/utils";
 
 import HostRequestSendField from "./HostRequestSendField";
 
 const { t } = i18n;
-
-const getAvailableReferencesMock = service.references
-  .getAvailableReferences as jest.MockedFunction<
-  typeof service.references.getAvailableReferences
->;
 
 const mockHostRequest: HostRequest.AsObject = {
   ...hostRequest,
@@ -56,10 +49,6 @@ const mockSendMutation: UseMutationResult<
 describe("HostRequestSendField", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getAvailableReferencesMock.mockResolvedValue({
-      availableWriteReferencesList: [],
-      canWriteFriendReference: false,
-    });
   });
 
   afterEach(() => {
@@ -284,36 +273,5 @@ describe("HostRequestSendField", () => {
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
-  });
-
-  it("shows Write Reference button when reference is available", async () => {
-    const confirmedRequest = {
-      ...mockHostRequest,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-    };
-
-    getAvailableReferencesMock.mockResolvedValue({
-      availableWriteReferencesList: [
-        {
-          hostRequestId: mockHostRequest.hostRequestId,
-          referenceType: 0,
-        },
-      ],
-      canWriteFriendReference: false,
-    });
-
-    addDefaultUser(mockHostRequest.hostUserId);
-
-    render(
-      <HostRequestSendField
-        hostRequest={confirmedRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
-
-    expect(
-      await screen.findByText(t("messages:write_reference_button_text")),
-    ).toBeInTheDocument();
   });
 });

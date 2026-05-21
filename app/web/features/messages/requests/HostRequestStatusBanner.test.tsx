@@ -8,6 +8,8 @@ import HostRequestStatusBanner from "./HostRequestStatusBanner";
 
 const { t } = i18n;
 
+const HOST_NAME = "Alice";
+
 const defaultCallbacks = {
   isLoading: false,
   onAccept: jest.fn(),
@@ -18,7 +20,7 @@ const defaultCallbacks = {
 describe("HostRequestStatusBanner — host view", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it("shows accepted message with Edit button", () => {
+  it("shows accepted message with Decline button", () => {
     render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
@@ -34,12 +36,12 @@ describe("HostRequestStatusBanner — host view", () => {
     ).toBeVisible();
     expect(
       screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
+        name: t("messages:close_request_button_text"),
       }),
     ).toBeVisible();
   });
 
-  it("shows declined message with Edit button", () => {
+  it("shows declined message with Accept button", () => {
     render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
@@ -52,13 +54,11 @@ describe("HostRequestStatusBanner — host view", () => {
       screen.getByText(t("messages:host_request_item.host_status.rejected")),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
+      screen.getByRole("button", { name: t("global:accept") }),
     ).toBeVisible();
   });
 
-  it("shows confirmed message with Edit button", () => {
+  it("shows confirmed message with Decline button", () => {
     render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
@@ -69,6 +69,11 @@ describe("HostRequestStatusBanner — host view", () => {
     );
     expect(
       screen.getByText(t("messages:host_request_item.host_status.confirmed")),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", {
+        name: t("messages:close_request_button_text"),
+      }),
     ).toBeVisible();
   });
 
@@ -84,7 +89,7 @@ describe("HostRequestStatusBanner — host view", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows Decline and Cancel buttons in edit mode for accepted", async () => {
+  it("calls onDecline when Decline is clicked on accepted", async () => {
     render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
@@ -94,38 +99,6 @@ describe("HostRequestStatusBanner — host view", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    );
-    expect(
-      screen.getByRole("button", {
-        name: t("messages:close_request_button_text"),
-      }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_cancel_edit_button"),
-      }),
-    ).toBeVisible();
-  });
-
-  it("calls onDecline when Decline is clicked in edit mode on accepted", async () => {
-    render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
-      />,
-      { wrapper },
-    );
-    const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    );
     await user.click(
       screen.getByRole("button", {
         name: t("messages:close_request_button_text"),
@@ -134,7 +107,7 @@ describe("HostRequestStatusBanner — host view", () => {
     expect(defaultCallbacks.onDecline).toHaveBeenCalledTimes(1);
   });
 
-  it("shows Accept and Cancel buttons in edit mode for declined", async () => {
+  it("calls onAccept when Accept is clicked on declined", async () => {
     render(
       <HostRequestStatusBanner
         {...defaultCallbacks}
@@ -144,65 +117,8 @@ describe("HostRequestStatusBanner — host view", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    );
-    expect(
-      screen.getByRole("button", { name: t("global:accept") }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_cancel_edit_button"),
-      }),
-    ).toBeVisible();
-  });
-
-  it("calls onAccept when Accept is clicked in edit mode on declined", async () => {
-    render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
-      />,
-      { wrapper },
-    );
-    const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    );
     await user.click(screen.getByRole("button", { name: t("global:accept") }));
     expect(defaultCallbacks.onAccept).toHaveBeenCalledTimes(1);
-  });
-
-  it("exits edit mode when Cancel is clicked", async () => {
-    render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
-      />,
-      { wrapper },
-    );
-    const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    );
-    await user.click(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_cancel_edit_button"),
-      }),
-    );
-    expect(
-      screen.getByRole("button", {
-        name: t("messages:status_bar_edit_button"),
-      }),
-    ).toBeVisible();
   });
 });
 
@@ -215,10 +131,13 @@ describe("HostRequestStatusBanner — surfer view", () => {
         {...defaultCallbacks}
         isHost={false}
         status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        hostName={HOST_NAME}
       />,
       { wrapper },
     );
-    expect(screen.getByText(t("messages:surfer_bar_pending"))).toBeVisible();
+    expect(
+      screen.getByText(t("messages:surfer_bar_pending", { name: HOST_NAME })),
+    ).toBeVisible();
     expect(
       screen.getByRole("button", { name: t("messages:cancel_request_button") }),
     ).toBeVisible();
@@ -230,6 +149,7 @@ describe("HostRequestStatusBanner — surfer view", () => {
         {...defaultCallbacks}
         isHost={false}
         status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        hostName={HOST_NAME}
       />,
       { wrapper },
     );
@@ -249,6 +169,7 @@ describe("HostRequestStatusBanner — surfer view", () => {
         {...defaultCallbacks}
         isHost={false}
         status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        hostName={HOST_NAME}
       />,
       { wrapper },
     );
@@ -256,7 +177,11 @@ describe("HostRequestStatusBanner — surfer view", () => {
     await user.click(
       screen.getByRole("button", { name: t("messages:cancel_request_button") }),
     );
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(
+      screen.getByRole("button", {
+        name: t("messages:cancel_request_dialog_confirm_button"),
+      }),
+    );
     expect(defaultCallbacks.onCancel).toHaveBeenCalledTimes(1);
   });
 
@@ -278,11 +203,16 @@ describe("HostRequestStatusBanner — surfer view", () => {
         {...defaultCallbacks}
         isHost={false}
         status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
+        hostName={HOST_NAME}
       />,
       { wrapper },
     );
     expect(
-      screen.getByText(t("messages:host_request_item.surfer_status.confirmed")),
+      screen.getByText(
+        t("messages:host_request_item.surfer_status.confirmed", {
+          name: HOST_NAME,
+        }),
+      ),
     ).toBeVisible();
     expect(
       screen.getByRole("button", { name: t("messages:cancel_request_button") }),
