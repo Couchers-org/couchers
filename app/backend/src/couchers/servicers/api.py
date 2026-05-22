@@ -1011,11 +1011,12 @@ def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, goo
         }
 
 
-def get_num_references(session: Session, user_ids: Iterable[int]) -> dict[int, int]:
+def get_num_references(session: Session, context: CouchersContext, user_ids: Iterable[int]) -> dict[int, int]:
+    query = where_moderated_content_visible(
+        select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
+    )
     query = (
-        select(Reference.to_user_id, func.count(Reference.id))
-        .where(Reference.to_user_id.in_(user_ids))
-        .where(Reference.is_deleted == False)
+        query.where(Reference.to_user_id.in_(user_ids))
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
         .group_by(Reference.to_user_id)
@@ -1051,7 +1052,7 @@ def user_model_to_pb(
             f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
-    num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
+    num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)
     lat, lng = db_user.coordinates
 
     pending_friend_request = None

@@ -71,6 +71,7 @@ class ModerationObjectType(enum.Enum):
     comment = enum.auto()
     reply = enum.auto()
     discussion = enum.auto()
+    reference = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):
