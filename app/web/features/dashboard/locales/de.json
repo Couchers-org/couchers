@@ -85,8 +85,6 @@
     "your_upcoming_empty_message": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
     "community_header": "Events in deinen Communitys",
     "community_empty_message": "Keine bevorstehenden Events in deinen Communitys.",
-    "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} Teilnehmende Person",
-    "attendees_count_label_other": "{{count}} Teilnehmende"
+    "location_online_label": "Online"
   }
 }

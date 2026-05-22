@@ -84,8 +84,6 @@
     "your_upcoming_empty_message": "Geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
     "community_header": "Events in jouw communities",
     "community_empty_message": "Geen aankomende events in jouw communities.",
-    "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} deelnemer",
-    "attendees_count_label_other": "{{count}} deelnemers"
+    "location_online_label": "Online"
   }
 }
