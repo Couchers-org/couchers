@@ -56,6 +56,26 @@
     "subject": "Your date of birth was changed",
     "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
+  "chat_message_received": {
+    "direct": {
+      "subject": "{{ author }} sent you a message",
+      "body": "{{ author }} sent you a message:",
+      "view_action": "View this message"
+    },
+    "group": {
+      "subject": "{{ author }} sent a message in <b>{{ group }}</b>",
+      "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
+      "view_action": "View this message"
+    }
+  },
+  "chat_messages_missed": {
+    "subject": "You have unseen messages on Couchers.org!",
+    "in_dm_one": "You missed {{count}} message from {{author}}:",
+    "in_dm_other": "You missed {{count}} messages from {{author}}:",
+    "in_group_one": "You missed {{count}} message in <b>{{group}}</b>:",
+    "in_group_other": "You missed {{count}} messages in <b>{{group}}</b>:",
+    "view_action": "View this message"
+  },
   "discussion_created": {
     "subject": "{{author}} started a discussion: {{title}}",
     "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",

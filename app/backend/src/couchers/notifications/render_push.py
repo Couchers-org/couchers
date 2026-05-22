@@ -279,10 +279,17 @@ def _render_chat__message(
 def _render_chat__missed_messages(
     data: notification_data_pb2.ChatMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # Each message is from a different chat, so this counts conversations.
+    missed_count: int = len(data.messages)
+
+    # Newer version of protos include a per-chat unseen message count (1 or more)
+    if data.messages and data.messages[0].unseen_count:
+        missed_count = sum(message.unseen_count for message in data.messages)
+
     return _get_content(
         NotificationTopicAction.chat__missed_messages,
         loc_context,
-        substitutions={"count": len(data.messages)},
+        substitutions={"count": missed_count},
         action_url=urls.messages_link(),
     )
 

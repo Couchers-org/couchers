@@ -252,6 +252,97 @@ class BirthdateChangedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class ChatMessageReceivedEmail(EmailBase):
+    """Sent to a user when they receive a new chat message."""
+
+    group_chat_title: str | None  # None if direct message
+    author: UserInfo
+    text: str
+    view_url: str
+
+    @property
+    def string_key_prefix(self) -> str:
+        return f"chat_message_received.{'direct' if self.group_chat_title is None else 'group'}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, "subject", {"author": self.author.name, "group": self.group_chat_title or ""}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body", {"author": self.author.name, "group": self.group_chat_title or ""})
+        builder.user(self.author)
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_url, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> ChatMessageReceivedEmail:
+        return ChatMessageReceivedEmail(
+            user_name="Alice",
+            group_chat_title=None,
+            author=UserInfo.dummy_bob(),
+            text="Hi Alice!",
+            view_url="https://couchers.org/messages/chats/123",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class ChatMessagesMissedEmail(EmailBase):
+    """Sent to a user after they've missed new chat messages."""
+
+    @dataclass(kw_only=True, slots=True)
+    class Entry:
+        """Entry for each chat with missed messages."""
+
+        group_chat_title: str | None  # None if direct message
+        missed_count: int
+        latest_message_author: UserInfo
+        latest_message_text: str
+        view_url: str
+
+    entries: list[Entry]
+
+    @property
+    def string_key_prefix(self) -> str:
+        return "chat_messages_missed"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        for entry in self.entries:
+            if entry.group_chat_title:
+                builder.para("in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
+            else:
+                builder.para("in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            builder.user(entry.latest_message_author)
+            builder.quote(entry.latest_message_text, markdown=False)
+            builder.action(entry.view_url, "view_action")
+
+    @classmethod
+    def dummy_data(cls) -> ChatMessagesMissedEmail:
+        return ChatMessagesMissedEmail(
+            user_name="Alice",
+            entries=[
+                ChatMessagesMissedEmail.Entry(
+                    group_chat_title=None,
+                    missed_count=1,
+                    latest_message_author=UserInfo.dummy_bob(),
+                    latest_message_text="Hi Alice!",
+                    view_url="https://couchers.org/messages/chats/123",
+                ),
+                ChatMessagesMissedEmail.Entry(
+                    group_chat_title="Best friends",
+                    missed_count=2,
+                    latest_message_author=UserInfo.dummy_bob(),
+                    latest_message_text="Hi y'all!",
+                    view_url="https://couchers.org/messages/chats/124",
+                ),
+            ],
+        )
+
+
+@dataclass(kw_only=True, slots=True)
 class DiscussionCreatedEmail(EmailBase):
     """Sent to a user when a new discussion is created in a community they follow."""
 

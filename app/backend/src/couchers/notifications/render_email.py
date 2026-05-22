@@ -1,4 +1,5 @@
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any, assert_never
 
@@ -119,6 +120,53 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.BadgeChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.chat__message:
+            group_chat_title: str | None = data.group_chat_title
+            if not group_chat_title:
+                # Backcompat (2026-05): The group name previously was formatted in the message string
+                # msg = f"{message.author.name} sent a message in {group_chat.title}"
+                if match := re.search(" sent a message in (.+)$", data.message or ""):
+                    group_chat_title = match[1]
+                else:
+                    group_chat_title = None
+
+            return emails.ChatMessageReceivedEmail(
+                user_name,
+                author=_user_info(data.author),
+                text=data.text,
+                group_chat_title=group_chat_title,
+                view_url=urls.chat_link(chat_id=data.group_chat_id),
+            )
+        case NotificationTopicAction.chat__missed_messages:
+            missed_entries = []
+            for message in data.messages:
+                group_chat_title = message.group_chat_title
+                missed_count: int = message.unread_count
+
+                # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
+                # msg = f"You missed {count_unseen} message(s) in {group_chat.title}"
+                if not group_chat_title or not missed_count:
+                    if match := re.search(" message(s) in (.+)$", data.message or ""):
+                        group_chat_title = match[1]
+                    else:
+                        group_chat_title = None
+
+                    if match := re.search("^You missed (\d+) message(s)", data.message or ""):
+                        missed_count = int(match[1])
+                    else:
+                        missed_count = 1
+
+                missed_entries.append(
+                    emails.ChatMessagesMissedEmail.Entry(
+                        group_chat_title=group_chat_title,
+                        missed_count=missed_count,
+                        latest_message_author=_user_info(message.author),
+                        latest_message_text=message.text,
+                        view_url=urls.chat_link(chat_id=data.group_chat_id),
+                    )
+                )
+
+            return emails.ChatMessagesMissedEmail(user_name, entries=missed_entries)
         case NotificationTopicAction.discussion__create:
             return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:
@@ -231,35 +279,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.chat__message:
-        return CustomTemplatedEmail(
-            subject=data.message,
-            preview="You received a message on Couchers.org!",
-            template_name="chat_message",
-            template_args={
-                "author": UserTemplateArgs.from_protobuf_user(data.author),
-                "message": data.message,
-                "text": data.text,
-                "view_link": urls.chat_link(chat_id=data.group_chat_id),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.chat__missed_messages:
-        return CustomTemplatedEmail(
-            subject="You have unseen messages on Couchers.org!",
-            preview="You missed some messages on the platform.",
-            template_name="chat_unseen_messages",
-            template_args={
-                "items": [
-                    {
-                        "author": UserTemplateArgs.from_protobuf_user(item.author),
-                        "message": item.message,
-                        "text": item.text,
-                        "view_link": urls.chat_link(chat_id=item.group_chat_id),
-                    }
-                    for item in data.messages
-                ]
             },
         )
     elif notification.topic == "event":
