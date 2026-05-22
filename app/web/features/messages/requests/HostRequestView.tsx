@@ -13,6 +13,7 @@ import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen from "features/messages/useMarkLastSeen";
 import {
@@ -144,6 +145,7 @@ export default function HostRequestView({
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.noMore ? undefined : lastPage.lastMessageId,
+    refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
 
   const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
