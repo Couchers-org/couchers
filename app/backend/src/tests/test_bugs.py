@@ -41,13 +41,26 @@ def test_bugs(db):
         def dud_post(url, auth, json):
             assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
+
+            expected_body = f"""
+# subject
+## Description
+description
+
+## Results
+results
+
+## Diagnostics
+**Backend version**: `{config["VERSION"]}`
+**Frontend version**: `frontend_version`
+**User Agent**: `user_agent`
+**Screen resolution**: 1920x1080
+**Page**: page
+**User**: <not logged in>""".strip()
+
             assert json == {
                 "title": "subject",
-                "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 1920x1080\nPage: page\nUser: <not logged in>"
-                ),
+                "body": expected_body,
                 "labels": ["bug tool", "bug: triage needed"],
             }
 
@@ -88,13 +101,26 @@ def test_bugs_with_user(db):
         def dud_post(url, auth, json):
             assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
+
+            expected_body = f"""
+# subject
+## Description
+description
+
+## Results
+results
+
+## Diagnostics
+**Backend version**: `{config["VERSION"]}`
+**Frontend version**: `frontend_version`
+**User Agent**: `user_agent`
+**Screen resolution**: 390x844
+**Page**: page
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()
+
             assert json == {
                 "title": "subject",
-                "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 390x844\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
-                ),
+                "body": expected_body,
                 "labels": ["bug tool", "bug: triage needed"],
             }
 
