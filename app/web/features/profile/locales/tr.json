@@ -36,7 +36,9 @@
   "my_connections": "Bağlantılarım",
   "cancel": "İptal et",
   "helper_text": {
-    "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle."
+    "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle.",
+    "characters_remaining_one": "<bold>Mesajlaşma ve istekleri açmak için lütfen en az {{count}} karakter daha yazın.</bold> Gerçek profiller güvene dayalı bir topluluk oluşturur. Ne kadar çok paylaşırsanız, bağlantı kurmak o kadar kolay olur!",
+    "characters_remaining_other": "<bold>Mesajlaşma ve istekleri açmak için lütfen en az {{count}} karakter daha yazın.</bold> Gerçek profiller güvene dayalı bir topluluk oluşturur. Ne kadar çok paylaşırsanız, bağlantı kurmak o kadar kolay olur!"
   },
   "section_tabs_a11y_label": "kullanıcı detayları için sekmeler",
   "incomplete_dialog": {
@@ -104,5 +106,9 @@
   "edit_home_questions": {
     "accept_drinking": "İnsanların içki içmesiyle sorunum yok",
     "accept_pets": "Evcil hayvanı olan kişilere ev sahipliği yapar"
+  },
+  "request_form": {
+    "request_chars_remaining_one": "Konaklanma isteği göndermek için lütfen en az {{count}} karakter daha yazın.",
+    "request_chars_remaining_other": "konaklanma isteği göndermek için lütfen en az {{count}} karakter daha yazın."
   }
 }
