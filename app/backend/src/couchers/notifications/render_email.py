@@ -151,7 +151,7 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                     else:
                         group_chat_title = None
 
-                    if match := re.search("^You missed (\d+) message(s)", data.message or ""):
+                    if match := re.search(r"^You missed (\d+) message(s)", data.message or ""):
                         missed_count = int(match[1])
                     else:
                         missed_count = 1
