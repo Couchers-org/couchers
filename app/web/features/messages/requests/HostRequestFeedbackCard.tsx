@@ -1,10 +1,10 @@
 import { ThumbDown, ThumbsUpDown, ThumbUp } from "@mui/icons-material";
 import {
   Box,
+  Checkbox,
   FormControl,
   FormControlLabel,
-  Radio,
-  RadioGroup,
+  FormGroup,
   styled,
   TextField,
   ToggleButton,
@@ -23,9 +23,9 @@ import { useState } from "react";
 import { service } from "service";
 
 type DeclineReason =
-  | "cannot_host"
-  | "low_quality_request"
-  | "good_request_dont_want"
+  | "didnt_read_profile"
+  | "dont_want_to_host"
+  | "not_available"
   | "other";
 
 const StyledCard = styled(Box)(({ theme }) => ({
@@ -52,10 +52,22 @@ export default function HostRequestFeedbackCard({
   const queryClient = useQueryClient();
 
   const [quality, setQuality] = useState<HostRequestQuality | null>(null);
-  const [declineReason, setDeclineReason] = useState<DeclineReason | null>(
-    null,
+  const [declineReasons, setDeclineReasons] = useState<Set<DeclineReason>>(
+    new Set(),
   );
   const [otherText, setOtherText] = useState("");
+
+  const toggleReason = (reason: DeclineReason) => {
+    setDeclineReasons((prev) => {
+      const next = new Set(prev);
+      if (next.has(reason)) {
+        next.delete(reason);
+      } else {
+        next.add(reason);
+      }
+      return next;
+    });
+  };
 
   const {
     mutate: submitFeedback,
@@ -87,10 +99,12 @@ export default function HostRequestFeedbackCard({
   };
 
   const handleSubmit = () => {
+    const reasons = Array.from(declineReasons).map((r) =>
+      r === "other" ? otherText : r,
+    );
     submitFeedback({
       quality: quality ?? HostRequestQuality.HOST_REQUEST_QUALITY_UNSPECIFIED,
-      declineReason:
-        declineReason === "other" ? otherText : (declineReason ?? ""),
+      declineReason: reasons.join(","),
     });
   };
 
@@ -163,32 +177,29 @@ export default function HostRequestFeedbackCard({
         <Typography variant="subtitle2" gutterBottom>
           {t("private_feedback_card.decline_reason_label")}
         </Typography>
-        <RadioGroup
-          value={declineReason}
-          onChange={(e) => setDeclineReason(e.target.value as DeclineReason)}
-        >
-          <FormControlLabel
-            value="cannot_host"
-            control={<Radio size="small" />}
-            label={t("private_feedback_card.reason_cannot_host")}
-          />
-          <FormControlLabel
-            value="low_quality_request"
-            control={<Radio size="small" />}
-            label={t("private_feedback_card.reason_low_quality")}
-          />
-          <FormControlLabel
-            value="good_request_dont_want"
-            control={<Radio size="small" />}
-            label={t("private_feedback_card.reason_good_request")}
-          />
-          <FormControlLabel
-            value="other"
-            control={<Radio size="small" />}
-            label={t("private_feedback_card.reason_other")}
-          />
-        </RadioGroup>
-        {declineReason === "other" && (
+        <FormGroup>
+          {(
+            [
+              "didnt_read_profile",
+              "dont_want_to_host",
+              "not_available",
+              "other",
+            ] as DeclineReason[]
+          ).map((reason) => (
+            <FormControlLabel
+              key={reason}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={declineReasons.has(reason)}
+                  onChange={() => toggleReason(reason)}
+                />
+              }
+              label={t(`private_feedback_card.reason_${reason}`)}
+            />
+          ))}
+        </FormGroup>
+        {declineReasons.has("other") && (
           <TextField
             multiline
             minRows={2}
