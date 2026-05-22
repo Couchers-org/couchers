@@ -177,14 +177,15 @@
   "sign_up_resend_verification_done": "Yes! We hebben je nog een keer gemaild.",
   "sign_up_completed_prompt": "We hebben een bericht met een verificatielink naar je e-mailadres gestuurd. Klik op de link in de mail om je account te activeren.",
   "sign_up_confirmed_prompt": "Klaar! Als je niet automatisch wordt doorgestuurd, probeer dan zelf in te loggen.",
-  "unhandled_sign_up_state": "Error:",
+  "unhandled_sign_up_state": "Fout: onverwerkte status van het aanmeldingsproces.",
   "login_prompt": "Klik hier om in te loggen",
   "about_us": "Over ons",
   "reset_password": "Wachtwoord opnieuw instellen",
   "account_settings_page": {
     "title": "Account-instellingen",
     "gender_section": {
-      "title": "Gender wijzigen"
+      "title": "Gender wijzigen",
+      "explanation": "Onze admins willen je graag helpen bij het aanpassen van je opgegeven gender. Mail ze op support@couchers.org!"
     },
     "birth_date_section": {
       "title": "Geboortedatum wijzigen",
@@ -197,12 +198,19 @@
     },
     "username_section": {
       "title": "Gebruikersnaam",
-      "description": "Jouw gebruikersnaam is <1>{{username}}</1>."
+      "description": "Jouw gebruikersnaam is <1>{{username}}</1>.",
+      "explanation": "Je gebruikersnaam wordt aangemaakt bij het opzetten van je account."
     },
     "appearance_section": {
       "modes": {
-        "system": "Donkere modus (volgt de instellingen van je apparaat)"
-      }
+        "system": "Systeeminstellingen (volgt je apparaat)",
+        "light": "Lichte modus",
+        "dark": "Donkere modus"
+      },
+      "title": "Thema",
+      "current_mode": "Je huidige modus:",
+      "click_to_change": "Klik op onderstaande knop om te schakelen tussen Licht, Donker en Systeemmodus.",
+      "change_mode": "Verander thema modus"
     }
   },
   "feature_preview": {
@@ -295,6 +303,61 @@
         "tip4": "Sommige oudere paspoorten hebben geen NFC-chip en doen het daarom niet",
         "contact": "Lukt het nu nog steeds niet? <1>Laat het ons weten</1> en we helpen je graag."
       }
+    }
+  },
+  "quick_links": {
+    "button_text": "Bevestig actie",
+    "error_message": "Fout: {{message}}",
+    "missing_payload_or_sig": "Ongeldige URL"
+  },
+  "change_phone": {
+    "title": "Telefoonnummer",
+    "need_to_donate": "Je moet eerst <2>doneren</2> voordat je je telefoonverificatie kan afmaken.",
+    "no_phone_description": "Je hebt geen telefoonnummer toegevoegd aan je account. Je kan hem hieronder invullen. We zullen ter bevestiging je een sms sturen.",
+    "phone_label": "Je telefoonnummer",
+    "add_button_text": "Telefoonnummer toevoegen",
+    "add_success": "Telefoonnummer toegevoegd.",
+    "phone_not_verified_description": "We hebben een code gestuurd naar <2>{{phone}}</2>. Voer de code hieronder in om je nummer te verifiëren:",
+    "code_label": "Verificatiecode",
+    "wrong_code": "De code klopt niet.",
+    "verify_button_text": "Telefoonnummer verifiëren",
+    "verify_success": "Telefoonnummer geverifieerd.",
+    "remove_phone_description": "Je telefoonnummer is op dit moment <2>{{phone}}</2>. Je kan dat nummer hieronder verwijderen.",
+    "remove_button_text": "Huidige telefoonnummer verwijderen",
+    "remove_success": "Telefoonnummer verwijderd.",
+    "change_to_different_description": "Om je telefoonnummer te wijzigen, voer hieronder je nieuwe nummer in.",
+    "change_button_text": "Telefoonnummer wijzigen"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Account verwijderen",
+      "description": "Om je account te verwijderen, volg onderstaande stappen. Je krijgt een bevestiging per e-mail.",
+      "confirm_username_explanation": "Je gebruikersnaam is <1>{{ username }}</1>. Typ hieronder nog eens je gebruikersnaam in, om het verwijderen te bevestigen.",
+      "confirm_username_label": "Gebruikersnaam bevestigen",
+      "username_mismatch": "Gebruikersnaam komt niet overeen.",
+      "reason_explanation": "Het zou fijn zijn als je wilt aangeven waarom je je account wilt verwijderen, zodat wij er van kunnen leren.",
+      "reason_label": "Reden voor verwijderen account",
+      "success_message": "Account verwijderen gestart. Om dit proces af te maken, klik dan op de link in de e-mail die we je net hebben gestuurd."
+    },
+    "confirm": {
+      "title": "Bevestig account verwijderen",
+      "error_message": "Account verwijderen niet gelukt: {{message}}",
+      "button_text": "Bevestig account verwijderen",
+      "account_deleted": "Account verwijderd. Bedankt voor het gebruiken van Couchers.org!"
+    },
+    "recover": {
+      "title": "Herstel je account op Couchers.org",
+      "error_message": "Account herstellen mislukt: {{message}}",
+      "button_text": "Herstel je account",
+      "success": "Je account is hersteld, je kunt weer inloggen. Geweldig dat je er weer bent!"
+    }
+  },
+  "profile_visibility": {
+    "title": "Profiel zichtbaarheid",
+    "choose": "Kies welke informatie zichtbaar mag zijn voor mensen die niet zijn ingelogd.",
+    "visiblility_options": {
+      "nothing": "<1>Niks</1>: verberg me volledig",
+      "map_only": "<1>Alleen op de kaart</1>: laat een anonieme pin zien, zonder meer informatie"
     }
   }
 }

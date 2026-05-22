@@ -273,7 +273,9 @@
       "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
       "push": {
         "ios_subtitle": "{{user}}",
-        "body": "{{user}} sizin cevabınızı bekliyor, lütfen isteği kabul edin veya reddedin."
+        "body": "{{user}} sizin cevabınızı bekliyor, lütfen isteği kabul edin veya reddedin.",
+        "title": "{{user}} tarafından bekleyen istek",
+        "ios_title": "Ev Sahipliği İsteği Beklemede"
       }
     },
     "cancel": {
@@ -321,20 +323,24 @@
     "create": {
       "push": {
         "title": "Yeni moderatör notu",
-        "ios_title": "Yeni Moderatör Notu"
+        "ios_title": "Yeni Moderatör Notu",
+        "body": "Bir moderatör notu aldınız. Platformu kullanmaya devam edebilmek için lütfen okuyup onaylayın."
       }
     }
   },
   "onboarding": {
     "reminder": {
-      "event_description": "Kayıt olduktan sonra profilini tamamlamak için hatırlatıcı",
+      "event_description": "Kayıt olduktan sonra profilini tamamlayı hatırlatıyoruz",
       "push": {
         "first": {
           "title": "Couchers'a Hoş Geldin!",
-          "ios_title": "Couchers'a Hoş Geldin!"
+          "ios_title": "Couchers'a Hoş Geldin!",
+          "body": "Lütfen profilinizi bir fotoğraf ve kendiniz hakkında biraz metinle tamamlayın."
         },
         "subsequent": {
-          "title": "Profilini tamamlamayı unutma"
+          "title": "Profilini tamamlamayı unutma",
+          "ios_title": "Profil Hatırlatıcı",
+          "body": "Lütfen profilinizi bir fotoğraf ve kendiniz hakkında biraz metinle tamamlayın."
         }
       }
     }
@@ -344,7 +350,8 @@
       "event_description": "Şifreniz değiştirildi",
       "push": {
         "title": "Şifre değiştirildi",
-        "ios_title": "Şifre Değiştirildi"
+        "ios_title": "Şifre Değiştirildi",
+        "body": "Şifreniz değiştirildi."
       }
     }
   },
@@ -352,8 +359,10 @@
     "complete": {
       "push": {
         "body": "Şifreniz başarıyla sıfırlandı.",
-        "ios_title": "Şifre Sıfırlandı"
-      }
+        "ios_title": "Şifre Sıfırlandı",
+        "title": "Şifre sıfırlandı"
+      },
+      "event_description": "Şifre sıfırlama tamamlandı"
     }
   }
 }

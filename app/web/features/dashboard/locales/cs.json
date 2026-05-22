@@ -72,9 +72,6 @@
     }
   },
   "events": {
-    "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} účastník",
-    "attendees_count_label_few": "{{count}} účastníci",
-    "attendees_count_label_other": "{{count}} účastníků"
+    "location_online_label": "Online"
   }
 }
