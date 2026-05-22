@@ -236,7 +236,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             unseen_messages = session.execute(
                 where_moderated_content_visible(
-                    select(GroupChat, Message, subquery.c.count_unseen)
+                    select(GroupChat, Message, subquery.c.unseen_count)
                     .join(subquery, subquery.c.message_id == Message.id)
                     .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id),
                     context,
