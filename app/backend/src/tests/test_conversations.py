@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from couchers.db import session_scope
 from couchers.jobs.worker import process_job
@@ -1312,6 +1312,42 @@ def test_last_seen(db, moderator):
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.unseen_message_count == 0
+
+
+def test_mark_last_seen_clears_notifications(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
+            )
+        ).group_chat_id
+
+    moderator.approve_group_chat(gcid)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+
+    process_jobs()
+
+    def unseen_notification_count(user_id):
+        with session_scope() as session:
+            return session.execute(
+                select(func.count())
+                .select_from(Notification)
+                .where(Notification.user_id == user_id)
+                .where(Notification.key == str(gcid))
+                .where(Notification.is_seen == False)
+            ).scalar_one()
+
+    assert unseen_notification_count(user2.id) > 0
+
+    with conversations_session(token2) as c:
+        c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
+
+    assert unseen_notification_count(user2.id) == 0
 
 
 def test_one_dm_per_pair(db, moderator):

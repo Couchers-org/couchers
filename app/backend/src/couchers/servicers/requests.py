@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists, select
+from sqlalchemy import exists, select, update
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -29,6 +29,7 @@ from couchers.models import (
     Message,
     MessageType,
     ModerationObjectType,
+    Notification,
     RateLimitAction,
     User,
 )
@@ -938,6 +939,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host_request.recipient_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
             host_request.recipient_last_seen_message_id = request.last_seen_message_id
+
+        session.execute(
+            update(Notification)
+            .values(is_seen=True)
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.key == str(host_request.conversation_id))
+        )
 
         session.commit()
         return empty_pb2.Empty()

@@ -5,7 +5,7 @@ from typing import Any, cast
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql import func, not_, or_
 
@@ -24,6 +24,7 @@ from couchers.models import (
     Message,
     MessageType,
     ModerationObjectType,
+    Notification,
     RateLimitAction,
     User,
 )
@@ -612,6 +613,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
 
         subscription.last_seen_message_id = request.last_seen_message_id
+
+        session.execute(
+            update(Notification)
+            .values(is_seen=True)
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.key == str(request.group_chat_id))
+        )
 
         return empty_pb2.Empty()
 
