@@ -76,7 +76,8 @@
       "title": "Starke Verifizierung",
       "description": "Verifiziere deine Identität für eine sicherere Community",
       "button": "Konto verifizieren"
-    }
+    },
+    "carousel_dismiss_button_a11y": "Erinnerung ausblenden"
   },
   "events": {
     "your_upcoming_header": "Deine kommenden Events",
