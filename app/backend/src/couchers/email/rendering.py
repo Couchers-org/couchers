@@ -11,9 +11,11 @@ from typing import Any, Self
 
 from markupsafe import Markup
 
+from couchers import urls
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import load_locales
+from couchers.proto import api_pb2
 from couchers.templating import Jinja2Template, _markdown, template_folder
 from couchers.utils import now
 
@@ -47,6 +49,16 @@ class UserInfo:
     city: str
     avatar_url: str
     profile_url: str
+
+    @classmethod
+    def from_protobuf(cls, user: api_pb2.User) -> Self:
+        return cls(
+            name=user.name,
+            age=user.age,
+            city=user.city,
+            avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
+            profile_url=urls.user_link(username=user.username),
+        )
 
     @staticmethod
     def dummy_bob() -> UserInfo:
