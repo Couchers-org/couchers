@@ -50,6 +50,8 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
+On iOS: if you get issues about signing, try opening `app/mobile/ios` in Xcode and setting up app signing there.
+
 **After the initial build is installed, use this for daily development:**
 ```bash
 npx expo start
