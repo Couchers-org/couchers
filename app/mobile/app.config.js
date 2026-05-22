@@ -11,118 +11,106 @@ const getGitHash = () => {
   }
 };
 
-// Determine app variant from environment variable
+const ICON_SETS = {
+  default: {
+    icon: "./assets/images/icon.png",
+    ios: "./assets/images/icon_ios.png",
+    adaptiveForeground: "./assets/images/adaptive_icon_foreground.png",
+  },
+  staging: {
+    icon: "./assets/images/icon_staging.png",
+    ios: "./assets/images/icon_ios_staging.png",
+    adaptiveForeground: "./assets/images/adaptive_icon_foreground_staging.png",
+  },
+};
+
+// Per-variant configuration — add a new variant by adding an entry here.
+// `linkHost` is the https domain the app claims for universal/app links;
+// null means no claim (the Dev Tool build routes via its custom scheme only, so
+// it can't steal universal links from the staging app, which shares its backend).
+const VARIANTS = {
+  production: {
+    name: "Couchers",
+    bundleIdentifier: "org.couchers.ios",
+    androidPackage: "org.couchers.android",
+    scheme: "couchers",
+    iconSet: "default",
+    linkHost: "couchers.org",
+  },
+  staging: {
+    name: "Couchers (Staging)",
+    bundleIdentifier: "org.couchers.staging.ios",
+    androidPackage: "org.couchers.staging.android",
+    scheme: "couchers-staging",
+    iconSet: "staging",
+    linkHost: "next.couchershq.org",
+  },
+  devtool: {
+    name: "Couchers (Dev Tool)",
+    bundleIdentifier: "org.couchers.devtool.ios",
+    androidPackage: "org.couchers.devtool.android",
+    scheme: "couchers-devtool",
+    iconSet: "staging",
+    linkHost: null,
+  },
+};
+
 const APP_VARIANT = process.env.APP_VARIANT || "production";
-const IS_STAGING = APP_VARIANT === "staging";
+const variant = VARIANTS[APP_VARIANT] ?? VARIANTS.production;
+const icons = ICON_SETS[variant.iconSet];
 
-// Helper functions for dynamic configuration
-const getAppName = () => {
-  if (IS_STAGING) {
-    return "Couchers (Staging)";
-  }
-  return "Couchers";
-};
+const associatedDomains = variant.linkHost
+  ? [`applinks:${variant.linkHost}`]
+  : [];
 
-const getBundleIdentifier = () => {
-  if (IS_STAGING) {
-    return "org.couchers.staging.ios";
-  }
-  return "org.couchers.ios";
-};
-
-const getAndroidPackage = () => {
-  if (IS_STAGING) {
-    return "org.couchers.staging.android";
-  }
-  return "org.couchers.android";
-};
-
-const getAppScheme = () => {
-  if (IS_STAGING) {
-    return "couchers-staging";
-  }
-  return "couchers";
-};
-
-const getIcon = () => {
-  if (IS_STAGING) {
-    return "./assets/images/icon_staging.png";
-  }
-  return "./assets/images/icon.png";
-};
-
-const getIosIcon = () => {
-  if (IS_STAGING) {
-    return "./assets/images/icon_ios_staging.png";
-  }
-  return "./assets/images/icon_ios.png";
-};
+const intentFilters = variant.linkHost
+  ? [
+      {
+        action: "VIEW",
+        autoVerify: true,
+        data: [{ scheme: "https", host: variant.linkHost, pathPrefix: "/" }],
+        category: ["BROWSABLE", "DEFAULT"],
+      },
+    ]
+  : [];
 
 export default {
-  name: getAppName(),
+  name: variant.name,
   slug: "mobile",
   version: "1.1.20",
   orientation: "portrait",
-  icon: getIcon(),
-  scheme: getAppScheme(),
+  icon: icons.icon,
+  scheme: variant.scheme,
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
+  runtimeVersion: { policy: "fingerprint" },
+  updates: {
+    url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
+  },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: getBundleIdentifier(),
-    icon: getIosIcon(),
-    associatedDomains: IS_STAGING
-      ? ["applinks:next.couchershq.org"]
-      : ["applinks:couchers.org"],
+    bundleIdentifier: variant.bundleIdentifier,
+    icon: icons.ios,
+    associatedDomains,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
   },
   android: {
     edgeToEdgeEnabled: true,
-    package: getAndroidPackage(),
+    package: variant.androidPackage,
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
-      foregroundImage: IS_STAGING
-        ? "./assets/images/adaptive_icon_foreground_staging.png"
-        : "./assets/images/adaptive_icon_foreground.png",
+      foregroundImage: icons.adaptiveForeground,
       backgroundColor: "#E47701",
     },
     notification: {
       icon: "./assets/images/notification_icon.png",
       color: "#E47701",
     },
-    intentFilters: IS_STAGING
-      ? [
-          {
-            action: "VIEW",
-            autoVerify: true,
-            data: [
-              {
-                scheme: "https",
-                host: "next.couchershq.org",
-                pathPrefix: "/",
-              },
-            ],
-            category: ["BROWSABLE", "DEFAULT"],
-          },
-        ]
-      : [
-          {
-            action: "VIEW",
-            autoVerify: true,
-            data: [
-              {
-                scheme: "https",
-                host: "couchers.org",
-                pathPrefix: "/",
-              },
-            ],
-            category: ["BROWSABLE", "DEFAULT"],
-          },
-        ],
+    intentFilters,
   },
   web: {
     bundler: "metro",
