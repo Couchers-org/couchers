@@ -31,6 +31,7 @@
     "@expo/cli": "^55.0.0-canary-20260105-6b962e6",
     "@expo/vector-icons": "^15.0.3",
     "@expo/xcpretty": "^4.3.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/native": "^7.1.6",
     "expo": "~54.0.34",
