@@ -13,26 +13,27 @@ has_custom_cta: true
 
 ## Table of Contents
 
-- [Big picture stuff](#big-picture-stuff)
-- [Mobile App](#mobile-app)
-- [Dashboard 2.0](#dashboard-20)
-- [Messages Overhaul](#messages-overhaul)
-- [Events](#events)
-- [Profiles](#profiles)
-- [Communities](#communities)
-- [UI and Platform Improvements](#ui-and-platform-dynamics-improvements)
-- [Localization](#localization)
-- [Bug Fixes](#bug-fixes)
-- [Preparation for future features](#preparation-for-future-features)
-- [Backend Improvements](#backend-improvements)
-- [Moderation](#moderation)
-- [Donations](#donations)
+- [Mobile App is out for Android and iOS!](#mobile-app-is-out-for-android-and-ios)
+- [Donate devices for mobile testing](#have-an-old-iphone-or-android-donate-devices-for-mobile-testing)
+- [New Features in the Spring Release (v1.3)](#new-features-in-the-spring-release-v13)
+  - [Dashboard 2.0](#dashboard-20)
+  - [Messages Overhaul](#messages-overhaul)
+  - [Events](#events)
+  - [Profiles](#profiles)
+  - [Communities](#communities)
+  - [UI and Platform Improvements](#ui-and-platform-dynamics-improvements)
+  - [Localization](#localization)
+  - [Bug Fixes](#bug-fixes)
+  - [Preparation for future features](#preparation-for-future-features)
+  - [Backend Improvements](#backend-improvements)
+  - [Moderation](#moderation)
+  - [Donations](#donations)
+- [CouchOps Team Updates](#couchops-team-updates)
+- [Updates on Volunteering at Couchers](#updates-on-volunteering-at-couchers)
 
 We've been very productive at Couchers since the winter release! Not only is the mobile app out on iOS and Android, but we're improving the dashboard to help you find and better interact with your communities
 
-## New Features in the Spring Release (v1.3)
-
-### Mobile App is out for Android and iOS!
+## Mobile App is out for Android and iOS!
 
 We've been working on this since last July and it's out now on Android and iOS. Give it a download via the links below and please give us a good rating in the stores if you like it and tell your friends!
 
@@ -67,6 +68,19 @@ We've been working on this since last July and it's out now on Android and iOS. 
 * Fixed profile photo uploads on mobile by implementing native camera and photo library integration by [Nicole](https://couchers.org/user/unsettleddown) [[#7779](https://github.com/Couchers-org/couchers/pull/7779)]
 * Added universal linking support so Couchers links in emails and elsewhere now open directly in the mobile app when installed by [Nicole](https://couchers.org/user/unsettleddown) [[#7755](https://github.com/Couchers-org/couchers/pull/7755)]
 
+## Have an old iPhone or Android? Donate devices for mobile testing
+
+We could use a few devices to help our mobile developers with QA testing. Most of us only have an iPhone or Android which makes it difficult to test across different devices.
+
+Do you have an old phone that is:
+* Not older than 3 years
+* In good working condition
+
+**Note**: If you're in the US, you can deduct the fair market value of your donated device from your taxes!
+
+[Let us know if you have a device to donate by filling out this short form](https://forms.gle/4YDAcweDLDLv3Wpd7)
+
+## New Features in the Spring Release (v1.3)
 
 ### Dashboard 2.0
 
