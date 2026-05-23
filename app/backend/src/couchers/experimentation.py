@@ -19,7 +19,10 @@ once at process startup.
 import json
 import logging
 import threading
+import time
 from collections.abc import Callable
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import urllib3
@@ -42,10 +45,17 @@ _state: dict[str, Any] = {"features": {}, "savedGroups": {}}
 _state_lock = threading.Lock()
 _refresh_stop = threading.Event()
 _refresh_thread: threading.Thread | None = None
+# Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
+# load from the API or seed from the disk cache; drives the staleness metric.
+_last_fetch_time: float | None = None
 
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
+
+
+class GrowthBookUnavailableError(Exception):
+    """Raised at startup when features can't be fetched and there's no usable disk cache to fall back on."""
 
 
 def _fetch_features() -> dict[str, Any] | None:
@@ -74,13 +84,48 @@ def _apply_response(response: dict[str, Any]) -> None:
         _state["savedGroups"] = response.get("savedGroups", {})
 
 
+def _set_last_fetch_time(when: float) -> None:
+    global _last_fetch_time
+    _last_fetch_time = when
+
+
+def seconds_since_last_fetch() -> float | None:
+    """Seconds since the last successful pull, or None if never pulled. Drives the staleness metric."""
+    when = _last_fetch_time
+    if when is None:
+        return None
+    return max(0.0, time.time() - when)
+
+
+def _write_cache(response: dict[str, Any]) -> None:
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    data = json.dumps({"fetched_at": time.time(), "response": response})
+    # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
+    # never sees a half-written cache.
+    with NamedTemporaryFile("w", dir=path.parent, prefix=".growthbook-cache-", suffix=".tmp", delete=False) as f:
+        f.write(data)
+        tmp = Path(f.name)
+    tmp.replace(path)
+
+
+def _read_cache() -> tuple[dict[str, Any], float] | None:
+    """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text())
+    return payload["response"], payload["fetched_at"]
+
+
 def _refresh_loop() -> None:
     while not _refresh_stop.wait(_REFRESH_INTERVAL_SECONDS):
         response = _fetch_features()
         if response is not None:
             _apply_response(response)
+            _write_cache(response)
+            _set_last_fetch_time(time.time())
             logger.debug("GrowthBook features refreshed")
-        # On failure, keep last-known-good state and try again next tick.
+        # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
 def setup_experimentation() -> None:
@@ -107,6 +152,24 @@ def setup_experimentation() -> None:
     response = _fetch_features()
     if response is not None:
         _apply_response(response)
+        _write_cache(response)
+        _set_last_fetch_time(time.time())
+        logger.info("GrowthBook features loaded from API")
+    else:
+        # Unreachable at startup: fall back to the disk cache rather than booting on in-code defaults.
+        cached = _read_cache()
+        if cached is None:
+            raise GrowthBookUnavailableError(
+                "Could not fetch features from GrowthBook and no disk cache is available - refusing to "
+                "start on in-code feature-flag defaults"
+            )
+        cached_response, fetched_at = cached
+        _apply_response(cached_response)
+        _set_last_fetch_time(fetched_at)
+        logger.warning(
+            "GrowthBook unavailable at startup; loaded features from disk cache (%.0fs old)",
+            max(0.0, time.time() - fetched_at),
+        )
 
     with _state_lock:
         smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])

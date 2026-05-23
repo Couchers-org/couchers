@@ -1,3 +1,6 @@
+import json
+
+import pytest
 from growthbook.common_types import FeatureResult
 from sqlalchemy import select
 
@@ -5,7 +8,7 @@ from couchers import experimentation
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.db import session_scope
-from couchers.experimentation import _record_feature_usage
+from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
 from couchers.i18n import LocalizationContext
 from couchers.models.logging import ExperimentExposure, FeatureUsage
 from couchers.proto import bugs_pb2
@@ -145,3 +148,68 @@ def test_global_evaluation_gets_global_force_on_flag(feature_flags):
 
 def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags):
     assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"
+
+
+@pytest.fixture
+def setup_isolation(monkeypatch, tmp_path):
+    """Run setup_experimentation() against a clean module state and a tmp cache path, and make sure the
+    background refresh thread it starts is stopped afterwards."""
+    monkeypatch.setattr(experimentation, "_initialized", False)
+    monkeypatch.setattr(experimentation, "_last_fetch_time", None)
+    monkeypatch.setattr(experimentation, "_state", {"features": {}, "savedGroups": {}})
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "GROWTHBOOK_CACHE_PATH", str(tmp_path / "cache.json"))
+    yield tmp_path / "cache.json"
+    experimentation._refresh_stop.set()
+    if experimentation._refresh_thread is not None:
+        experimentation._refresh_thread.join(timeout=5)
+    experimentation._refresh_stop.clear()
+    experimentation._refresh_thread = None
+
+
+def test_setup_writes_cache_and_records_fetch_time(setup_isolation, monkeypatch):
+    cache = setup_isolation
+    payload = {"features": {"f": {"defaultValue": True}}, "savedGroups": {}}
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: payload)
+
+    setup_experimentation()
+
+    assert experimentation._state["features"] == {"f": {"defaultValue": True}}
+    assert experimentation.seconds_since_last_fetch() is not None
+    written = json.loads(cache.read_text())
+    assert written["response"] == payload
+    assert "fetched_at" in written
+
+
+def test_setup_falls_back_to_disk_cache_when_fetch_fails(setup_isolation, monkeypatch):
+    cache = setup_isolation
+    cached_payload = {"features": {"cached": {"defaultValue": "x"}}, "savedGroups": {}}
+    cache.write_text(json.dumps({"fetched_at": 1000.0, "response": cached_payload}))
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: None)
+
+    setup_experimentation()
+
+    assert experimentation._state["features"] == {"cached": {"defaultValue": "x"}}
+    # fetch time reflects the cached pull time, so staleness is large immediately
+    staleness = experimentation.seconds_since_last_fetch()
+    assert staleness is not None and staleness > 0
+
+
+def test_setup_raises_when_fetch_fails_and_no_cache(setup_isolation, monkeypatch):
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: None)
+
+    with pytest.raises(GrowthBookUnavailableError):
+        setup_experimentation()
+
+
+def test_setup_raises_on_corrupt_cache(setup_isolation, monkeypatch):
+    cache = setup_isolation
+    cache.write_text("this is not json")
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: None)
+
+    with pytest.raises(json.JSONDecodeError):
+        setup_experimentation()
+
+
+def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
+    assert experimentation.seconds_since_last_fetch() is None

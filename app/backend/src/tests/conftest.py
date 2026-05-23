@@ -235,6 +235,7 @@ def testconfig():
     config["EXPERIMENTATION_PASS_ALL_GATES"] = True
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
+    config["GROWTHBOOK_CACHE_PATH"] = ""
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
