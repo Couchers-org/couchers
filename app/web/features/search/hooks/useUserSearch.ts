@@ -2,7 +2,7 @@ import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { makeSearchQueryId } from "features/analytics/searchAttribution";
 import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
-import { useMemo } from "react";
+import { useRef } from "react";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";
@@ -88,13 +88,18 @@ export function useUserSearch(
     totalItems,
   });
 
-  // Stable per searchParams reference: rolls when filters/bbox/query change,
-  // stays put across pagination within the same intent.
-  const searchQueryId = useMemo(
-    () => makeSearchQueryId(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams],
-  );
+  // Rolls when filters/bbox/query change, stays put across pagination within
+  // the same intent. searchParams keeps a stable reference across pagination.
+  const searchQueryIdRef = useRef<string | null>(null);
+  const prevSearchParamsRef = useRef<FilterOptions | null>(null);
+  if (
+    searchQueryIdRef.current === null ||
+    prevSearchParamsRef.current !== searchParams
+  ) {
+    prevSearchParamsRef.current = searchParams;
+    searchQueryIdRef.current = makeSearchQueryId();
+  }
+  const searchQueryId = searchQueryIdRef.current;
 
   return {
     error,

@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
+import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
 import {
   readSearchReferrer,
@@ -22,6 +23,40 @@ import { routeToUser, UserTab } from "routes";
 import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
+
+/**
+ * Logs `profile.tab_viewed` when the viewed tab changes or the page unmounts,
+ * reporting how long the tab was open (`total_ms`) and visible (`foreground_ms`),
+ * plus any search referrer that led the user here.
+ */
+function useProfileTabViewTracking(userId: number | undefined, tab: UserTab) {
+  const logEvent = useLogEvent();
+  const referrerProps = useMemo(
+    () => referrerToProperties(userId ? readSearchReferrer(userId) : null),
+    [userId],
+  );
+
+  useEffect(() => {
+    if (!userId) return;
+    const tracker = createForegroundTracker();
+    document.addEventListener("visibilitychange", tracker.onVisibilityChange);
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        tracker.onVisibilityChange,
+      );
+      const { foregroundMs, totalMs } = tracker.finalize();
+      logEvent("profile.tab_viewed", {
+        user_id: userId,
+        tab,
+        foreground_ms: foregroundMs,
+        total_ms: totalMs,
+        ...referrerProps,
+      });
+    };
+  }, [tab, userId, logEvent, referrerProps]);
+}
 
 export const StyledProfileRoot = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),
@@ -64,47 +99,7 @@ export default function UserPage({
     }
   }, [isRequesting, isMessaging]);
 
-  const logEvent = useLogEvent();
-  const userId = user?.userId;
-  const referrerProps = useMemo(
-    () => referrerToProperties(userId ? readSearchReferrer(userId) : null),
-    [userId],
-  );
-
-  useEffect(() => {
-    if (!userId) return;
-    const startedAt = performance.now();
-    let foregroundAccumMs = 0;
-    let visibleSince: number | null =
-      typeof document !== "undefined" && document.visibilityState === "visible"
-        ? startedAt
-        : null;
-
-    const onVis = () => {
-      const now = performance.now();
-      if (document.visibilityState === "visible") {
-        if (visibleSince === null) visibleSince = now;
-      } else if (visibleSince !== null) {
-        foregroundAccumMs += now - visibleSince;
-        visibleSince = null;
-      }
-    };
-    document.addEventListener("visibilitychange", onVis);
-
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      const now = performance.now();
-      if (visibleSince !== null) foregroundAccumMs += now - visibleSince;
-      const totalMs = now - startedAt;
-      logEvent("profile.tab_viewed", {
-        user_id: userId,
-        tab,
-        foreground_ms: Math.round(foregroundAccumMs),
-        total_ms: Math.round(totalMs),
-        ...referrerProps,
-      });
-    };
-  }, [tab, userId, logEvent, referrerProps]);
+  useProfileTabViewTracking(user?.userId, tab);
 
   return (
     <>

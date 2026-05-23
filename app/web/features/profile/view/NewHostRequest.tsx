@@ -6,6 +6,7 @@ import Datepicker from "components/Datepicker";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import dayjs from "dayjs";
+import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
 import {
   readSearchReferrer,
@@ -15,7 +16,7 @@ import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import React, { useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
@@ -25,10 +26,107 @@ import { isSameOrFutureDate } from "utils/date";
 
 const TYPING_GAP_CAP_MS = 3000;
 
+interface FormValuesSnapshot {
+  text: string;
+  fromDate: dayjs.Dayjs | null;
+  toDate: dayjs.Dayjs | null;
+}
+
 function isFormField(target: EventTarget | null): boolean {
   if (!target || !(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
   return tag === "INPUT" || tag === "TEXTAREA";
+}
+
+/**
+ * Logs `host_request.form_closed` when the form unmounts (closed or submitted),
+ * reporting engagement: time open and visible, time a field was focused, active
+ * typing time and keystroke count, the final draft length and dates, whether it
+ * was submitted, and any search referrer that led the user here.
+ *
+ * Runs once for the form's open/close lifecycle, so it reads the latest form
+ * values and submitted flag from refs rather than re-subscribing on each change.
+ */
+function useHostRequestFormTracking({
+  hostUserId,
+  formRef,
+  getSubmitted,
+  getLatestValues,
+}: {
+  hostUserId: number;
+  formRef: MutableRefObject<HTMLFormElement | null>;
+  getSubmitted: () => boolean;
+  getLatestValues: () => FormValuesSnapshot;
+}) {
+  const logEvent = useLogEvent();
+
+  useEffect(() => {
+    const tracker = createForegroundTracker();
+    let focusAccumMs = 0;
+    let focusSince: number | null = null;
+    let activeTypingMs = 0;
+    let lastKeystroke: number | null = null;
+    let keystrokeCount = 0;
+
+    const onFocusIn = (e: FocusEvent) => {
+      if (!isFormField(e.target)) return;
+      if (focusSince === null) focusSince = performance.now();
+    };
+    const onFocusOut = (e: FocusEvent) => {
+      if (!isFormField(e.target)) return;
+      if (focusSince !== null) {
+        focusAccumMs += performance.now() - focusSince;
+        focusSince = null;
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isFormField(e.target)) return;
+      const now = performance.now();
+      if (lastKeystroke !== null) {
+        const gap = now - lastKeystroke;
+        if (gap <= TYPING_GAP_CAP_MS) activeTypingMs += gap;
+      }
+      lastKeystroke = now;
+      keystrokeCount += 1;
+    };
+
+    document.addEventListener("visibilitychange", tracker.onVisibilityChange);
+    const formEl = formRef.current;
+    formEl?.addEventListener("focusin", onFocusIn);
+    formEl?.addEventListener("focusout", onFocusOut);
+    formEl?.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        tracker.onVisibilityChange,
+      );
+      formEl?.removeEventListener("focusin", onFocusIn);
+      formEl?.removeEventListener("focusout", onFocusOut);
+      formEl?.removeEventListener("keydown", onKeyDown);
+
+      if (focusSince !== null) focusAccumMs += performance.now() - focusSince;
+      const { foregroundMs, totalMs } = tracker.finalize();
+
+      const { text, fromDate, toDate } = getLatestValues();
+      const referrerProps = referrerToProperties(readSearchReferrer(hostUserId));
+
+      logEvent("host_request.form_closed", {
+        host_user_id: hostUserId,
+        submitted: getSubmitted(),
+        form_open_ms: foregroundMs,
+        form_open_total_ms: totalMs,
+        focus_ms: Math.round(focusAccumMs),
+        active_typing_ms: Math.round(activeTypingMs),
+        keystroke_count: keystrokeCount,
+        text_length: text.length,
+        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
+        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
+        ...referrerProps,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
 
 const StyledTitle = styled(Typography)(() => ({
@@ -97,107 +195,25 @@ export default function NewHostRequest({
 
   const textField = watch("text") ?? "";
 
-  const logEvent = useLogEvent();
   const formRef = useRef<HTMLFormElement | null>(null);
   const submittedRef = useRef(false);
-  const latestValuesRef = useRef<{
-    text: string;
-    fromDate: dayjs.Dayjs | null;
-    toDate: dayjs.Dayjs | null;
-  }>({ text: "", fromDate: null, toDate: null });
-  const watchedText = watch("text");
-  const watchedFromDateForRef = watch("fromDate");
-  const watchedToDateForRef = watch("toDate");
+  const latestValuesRef = useRef<FormValuesSnapshot>({
+    text: "",
+    fromDate: null,
+    toDate: null,
+  });
   latestValuesRef.current = {
-    text: watchedText ?? "",
-    fromDate: watchedFromDateForRef ?? null,
-    toDate: watchedToDateForRef ?? null,
+    text: watch("text") ?? "",
+    fromDate: watch("fromDate") ?? null,
+    toDate: watch("toDate") ?? null,
   };
 
-  useEffect(() => {
-    const startedAt = performance.now();
-    let foregroundAccumMs = 0;
-    let visibleSince: number | null =
-      typeof document !== "undefined" && document.visibilityState === "visible"
-        ? startedAt
-        : null;
-    let focusAccumMs = 0;
-    let focusSince: number | null = null;
-    let activeTypingMs = 0;
-    let lastKeystroke: number | null = null;
-    let keystrokeCount = 0;
-
-    const onVis = () => {
-      const now = performance.now();
-      if (document.visibilityState === "visible") {
-        if (visibleSince === null) visibleSince = now;
-      } else if (visibleSince !== null) {
-        foregroundAccumMs += now - visibleSince;
-        visibleSince = null;
-      }
-    };
-    const onFocusIn = (e: FocusEvent) => {
-      if (!isFormField(e.target)) return;
-      if (focusSince === null) focusSince = performance.now();
-    };
-    const onFocusOut = (e: FocusEvent) => {
-      if (!isFormField(e.target)) return;
-      if (focusSince !== null) {
-        focusAccumMs += performance.now() - focusSince;
-        focusSince = null;
-      }
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!isFormField(e.target)) return;
-      const now = performance.now();
-      if (lastKeystroke !== null) {
-        const gap = now - lastKeystroke;
-        if (gap <= TYPING_GAP_CAP_MS) activeTypingMs += gap;
-      }
-      lastKeystroke = now;
-      keystrokeCount += 1;
-    };
-
-    document.addEventListener("visibilitychange", onVis);
-    const formEl = formRef.current;
-    formEl?.addEventListener("focusin", onFocusIn);
-    formEl?.addEventListener("focusout", onFocusOut);
-    formEl?.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      formEl?.removeEventListener("focusin", onFocusIn);
-      formEl?.removeEventListener("focusout", onFocusOut);
-      formEl?.removeEventListener("keydown", onKeyDown);
-
-      const now = performance.now();
-      if (visibleSince !== null) foregroundAccumMs += now - visibleSince;
-      if (focusSince !== null) focusAccumMs += now - focusSince;
-      const totalMs = now - startedAt;
-
-      const { text, fromDate, toDate } = latestValuesRef.current;
-      const referrerProps = referrerToProperties(
-        readSearchReferrer(user.userId),
-      );
-
-      logEvent("host_request.form_closed", {
-        host_user_id: user.userId,
-        submitted: submittedRef.current,
-        form_open_ms: Math.round(foregroundAccumMs),
-        form_open_total_ms: Math.round(totalMs),
-        focus_ms: Math.round(focusAccumMs),
-        active_typing_ms: Math.round(activeTypingMs),
-        keystroke_count: keystrokeCount,
-        text_length: text.length,
-        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
-        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
-        ...referrerProps,
-      });
-    };
-    // Effect intentionally has no deps: it should only run on mount/unmount,
-    // matching the form's open/close lifecycle (Collapse mountOnEnter/unmountOnExit).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useHostRequestFormTracking({
+    hostUserId: user.userId,
+    formRef,
+    getSubmitted: () => submittedRef.current,
+    getLatestValues: () => latestValuesRef.current,
+  });
 
   const { error, mutate } = useMutation({
     mutationFn: (data: CreateHostRequestWrapper) => {

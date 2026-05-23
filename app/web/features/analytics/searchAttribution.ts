@@ -24,16 +24,6 @@ export interface SearchReferrer {
   setAt: number;
 }
 
-function generateId(): string {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-    return crypto.randomUUID();
-  }
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-}
-
 function readSession(): StoredSession | null {
   if (typeof window === "undefined") return null;
   try {
@@ -60,13 +50,13 @@ export function getOrCreateSearchSessionId(): string {
     writeSession({ id: existing.id, lastActiveAt: now });
     return existing.id;
   }
-  const id = generateId();
+  const id = crypto.randomUUID();
   writeSession({ id, lastActiveAt: now });
   return id;
 }
 
 export function makeSearchQueryId(): string {
-  return generateId();
+  return crypto.randomUUID();
 }
 
 export function makeResultId(

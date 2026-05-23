@@ -264,7 +264,7 @@ const SearchResultUserCard = ({
     <StyledCard
       isHighlighted={isHighlighted}
       onClick={handleUserCardClick}
-      onClickCapture={analytics ? handleClickCapture : undefined}
+      onClickCapture={handleClickCapture}
       ref={analytics ? impressionRef : undefined}
     >
       <StyledTopContent>
