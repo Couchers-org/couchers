@@ -8,7 +8,7 @@ from sqlalchemy import null, select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import func, union_all
 
-from couchers import urls
+from couchers import experimentation, urls
 from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
 from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
@@ -116,9 +116,13 @@ def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
         .where(Invoice.created >= start_of_year)
     ).scalar_one()
 
+    # No request user here (public, cached endpoint), so evaluate the drive's goal/offset globally.
+    goal = experimentation.get_global_integer_value("donation_goal_usd", DONATION_GOAL_USD)
+    offset = experimentation.get_global_integer_value("donation_offset_usd", DONATION_OFFSET_USD)
+
     return public_pb2.GetDonationStatsRes(
-        total_donated_ytd=max(int(total_donated - DONATION_OFFSET_USD), 0),
-        goal=DONATION_GOAL_USD,
+        total_donated_ytd=max(int(total_donated - offset), 0),
+        goal=goal,
     )
 
 

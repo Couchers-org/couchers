@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 
 import grpc
@@ -13,7 +13,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import urls
 from couchers.config import config
-from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
 from couchers.crypto import (
     b64decode,
@@ -171,8 +171,15 @@ class Account(account_pb2_grpc.AccountServicer):
         test_gate = context.get_boolean_value("test_growthbook_integration", default=False)
         logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
-        should_show_donation_banner = DONATION_DRIVE_START is not None and (
-            user.last_donated is None or user.last_donated < DONATION_DRIVE_START
+        # The donation drive (and its banner) is controlled by the donation_drive_start flag: an ISO
+        # datetime when a drive is running, or empty when there's no drive. Users who haven't donated
+        # since the drive started see the banner. A naive datetime is treated as UTC.
+        drive_start_raw = context.get_string_value("donation_drive_start", "")
+        drive_start = datetime.fromisoformat(drive_start_raw) if drive_start_raw else None
+        if drive_start is not None and drive_start.tzinfo is None:
+            drive_start = drive_start.replace(tzinfo=UTC)
+        should_show_donation_banner = drive_start is not None and (
+            user.last_donated is None or user.last_donated < drive_start
         )
 
         return account_pb2.GetAccountInfoRes(

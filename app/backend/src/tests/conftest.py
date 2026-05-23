@@ -2,6 +2,7 @@ import os
 import re
 from collections.abc import Generator
 from tempfile import TemporaryDirectory
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -18,6 +19,7 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
         "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
     )
 
+from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
 from couchers.models import Base  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
@@ -254,6 +256,39 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+class FeatureFlags:
+    """Test handle for controlling feature flag values; see the `feature_flags` fixture."""
+
+    def __init__(self, features: dict[str, Any]) -> None:
+        self._features = features
+
+    def set(self, key: str, value: Any) -> None:
+        """Make `key` resolve to `value` for every user (logged in or anonymous)."""
+        self._features[key] = {"defaultValue": value}
+
+    def set_definition(self, key: str, definition: dict[str, Any]) -> None:
+        """Set a raw GrowthBook feature definition, for exercising rollouts/experiments."""
+        self._features[key] = definition
+
+
+@pytest.fixture
+def feature_flags(monkeypatch) -> FeatureFlags:
+    """
+    Enable experimentation with an in-memory snapshot and let tests set flag values by key.
+
+    Usage:
+        def test_x(db, feature_flags):
+            feature_flags.set("my_flag", True)
+            ...
+    """
+    features: dict[str, Any] = {}
+    monkeypatch.setattr(experimentation, "_initialized", True)
+    monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    return FeatureFlags(features)
 
 
 @pytest.fixture

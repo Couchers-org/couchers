@@ -229,6 +229,33 @@ def test_GetDonationStats_excludes_previous_years(db):
             assert res.goal == 5000
 
 
+def test_GetDonationStats_uses_flags(db, feature_flags):
+    """Goal and offset come from the donation_goal_usd / donation_offset_usd flags when configured"""
+    _get_donation_stats.cache_clear()
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.add(
+            Invoice(
+                user_id=user.id,
+                amount=1000,
+                stripe_payment_intent_id="pi_test_flag",
+                stripe_receipt_url="https://example.com/receipt/flag",
+                invoice_type=InvoiceType.on_platform,
+            )
+        )
+
+    feature_flags.set("donation_goal_usd", 12000)
+    feature_flags.set("donation_offset_usd", 300)
+
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        assert res.goal == 12000
+        assert res.total_donated_ytd == 700  # 1000 donated minus the 300 offset
+
+    _get_donation_stats.cache_clear()
+
+
 def test_GetVolunteers_mixed_current_and_past(db):
     """Test GetVolunteers with both current and past volunteers"""
 
