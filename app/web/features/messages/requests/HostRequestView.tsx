@@ -19,6 +19,7 @@ import {
   hostRequestKey,
   hostRequestMessagesKey,
   hostRequestsListKey,
+  pingQueryKey,
 } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -214,6 +215,7 @@ export default function HostRequestView({
       queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
       });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(
