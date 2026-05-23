@@ -7,7 +7,7 @@ Uses GrowthBook under the hood, but abstracts the implementation details.
 import json
 import logging
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import urllib3
 from growthbook import GrowthBook
@@ -17,9 +17,6 @@ from sqlalchemy.dialects.postgresql import insert
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models.logging import ExperimentExposure
-
-if TYPE_CHECKING:
-    from couchers.context import CouchersContext
 
 logger = logging.getLogger(__name__)
 
@@ -110,13 +107,6 @@ def setup_experimentation() -> None:
     logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
 
 
-def _check_initialized() -> None:
-    if config["EXPERIMENTATION_ENABLED"] and not _initialized:
-        raise ExperimentationNotInitializedError(
-            "Experimentation is not initialized - call setup_experimentation() first"
-        )
-
-
 def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: Any) -> None:
     data = {
         "experiment_name": experiment.name,
@@ -144,62 +134,29 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         session.execute(stmt)
 
 
-def _get_growthbook(context: CouchersContext) -> GrowthBook:
+def create_evaluator(user_id: int) -> GrowthBook:
     """
-    Get or create a cached GrowthBook instance for the given context.
+    Build a per-request GrowthBook evaluator for a user over the current feature snapshot.
 
-    Reads the in-memory feature snapshot maintained by the background refresh
-    thread - never does HTTP from the request path. Constructing without
-    `client_key` keeps the GrowthBook a pure evaluator: no callback
-    registration on the library's process-wide singleton.
+    Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
+    from the request path. Constructing without `client_key` keeps the GrowthBook a pure
+    evaluator: no callback registration on the library's process-wide singleton. The caller is
+    responsible for caching this for the lifetime of a request.
     """
-    gb = context._growthbook
-    if gb is None:
-        with _state_lock:
-            features = _state["features"]
-            saved_groups = _state["savedGroups"]
-
-        user_id = context.user_id
-
-        def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
-            _record_exposure(user_id, experiment, result)
-
-        gb = GrowthBook(
-            attributes={"id": str(user_id)},
-            features=features,
-            savedGroups=saved_groups,
-            on_experiment_viewed=on_experiment_viewed,
+    if not _initialized:
+        raise ExperimentationNotInitializedError(
+            "Experimentation is not initialized - call setup_experimentation() first"
         )
-        context._growthbook = gb
-    return gb
+    with _state_lock:
+        features = _state["features"]
+        saved_groups = _state["savedGroups"]
 
+    def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+        _record_exposure(user_id, experiment, result)
 
-def evaluate_boolean(context: CouchersContext, flag_key: str, default: bool) -> bool:
-    """
-    Evaluate a boolean feature gate for the user in this context.
-
-    Mirrors OpenFeature's get_boolean_value. Returns True if EXPERIMENTATION_PASS_ALL_GATES
-    is set, the in-code default if experimentation is disabled or the flag isn't set up in
-    GrowthBook, otherwise the gate's value. Goes through get_feature_value (not is_on) so the
-    default is honored for not-yet-created flags.
-    """
-    _check_initialized()
-    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        return True
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return default
-    return bool(_get_growthbook(context).get_feature_value(flag_key, default))
-
-
-def evaluate_value[T](context: CouchersContext, flag_key: str, default: T) -> T:
-    """
-    Evaluate a non-boolean feature value for the user in this context.
-
-    Mirrors OpenFeature's get_string_value/get_integer_value/get_float_value/get_object_value.
-    The default's type determines the return type; it's returned verbatim when experimentation
-    is disabled or the flag isn't set up in GrowthBook.
-    """
-    _check_initialized()
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return default
-    return _get_growthbook(context).get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+    return GrowthBook(
+        attributes={"id": str(user_id)},
+        features=features,
+        savedGroups=saved_groups,
+        on_experiment_viewed=on_experiment_viewed,
+    )

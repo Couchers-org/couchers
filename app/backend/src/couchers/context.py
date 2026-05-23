@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, NoReturn, cast
 import grpc
 
 from couchers import experimentation
+from couchers.config import config
 from couchers.i18n import LocalizationContext
 
 if TYPE_CHECKING:
@@ -180,21 +181,34 @@ class CouchersContext:
     def localization(self) -> LocalizationContext:
         return self.__localization
 
-    # Feature-flag evaluation methods mirror the OpenFeature evaluation API.
+    # Feature-flag evaluation methods mirror the OpenFeature evaluation API. The in-code default is
+    # honored even for flags not yet set up in GrowthBook, since get_feature_value falls back to it.
     def get_boolean_value(self, flag_key: str, default: bool) -> bool:
-        return experimentation.evaluate_boolean(self, flag_key, default)
+        if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+            return True
+        return self._get_feature_value(flag_key, default)
 
     def get_string_value(self, flag_key: str, default: str) -> str:
-        return experimentation.evaluate_value(self, flag_key, default)
+        return self._get_feature_value(flag_key, default)
 
     def get_integer_value(self, flag_key: str, default: int) -> int:
-        return experimentation.evaluate_value(self, flag_key, default)
+        return self._get_feature_value(flag_key, default)
 
     def get_float_value(self, flag_key: str, default: float) -> float:
-        return experimentation.evaluate_value(self, flag_key, default)
+        return self._get_feature_value(flag_key, default)
 
     def get_object_value[T](self, flag_key: str, default: T) -> T:
-        return experimentation.evaluate_value(self, flag_key, default)
+        return self._get_feature_value(flag_key, default)
+
+    def _get_feature_value[T](self, flag_key: str, default: T) -> T:
+        if not config["EXPERIMENTATION_ENABLED"]:
+            return default
+        return self._get_growthbook().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+
+    def _get_growthbook(self) -> GrowthBook:
+        if self._growthbook is None:
+            self._growthbook = experimentation.create_evaluator(self.user_id)
+        return self._growthbook
 
 
 def make_interactive_context(
