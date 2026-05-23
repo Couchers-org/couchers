@@ -4,7 +4,7 @@ import WebEmbed from "@/components/WebEmbed";
 import { detailRouteOriginRef } from "@/state/webViewState";
 
 export default function CatchAllScreen() {
-  const { slug } = useLocalSearchParams<{ slug?: string[] }>();
+  const { slug, ...rest } = useLocalSearchParams<{ slug?: string[] }>();
   const router = useRouter();
 
   // slug is undefined/empty when nav state is restored without a valid path
@@ -14,7 +14,17 @@ export default function CatchAllScreen() {
     return <Redirect href="/(tabs)/dashboard" />;
   }
 
-  const path = `/${slug.join("/")}`;
+  // Forward query params the deep link carried (e.g. ?token=, ?code=); the slug
+  // segments only cover the path, so without this they'd be silently dropped.
+  const query = rest as Record<string, string | string[]>;
+  const queryString = Object.entries(query)
+    .flatMap(([key, value]) =>
+      (Array.isArray(value) ? value : [value]).map(
+        (v) => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`,
+      ),
+    )
+    .join("&");
+  const path = `/${slug.join("/")}${queryString ? `?${queryString}` : ""}`;
   return (
     <WebEmbed
       key={path}
