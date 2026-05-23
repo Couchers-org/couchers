@@ -8,7 +8,9 @@ from couchers.context import make_background_user_context, make_logged_out_conte
 from couchers.db import session_scope
 from couchers.experimentation import _record_feature_usage
 from couchers.i18n import LocalizationContext
-from couchers.models.logging import FeatureUsage
+from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.proto import bugs_pb2
+from tests.fixtures.sessions import bugs_session
 
 
 @pytest.fixture
@@ -21,6 +23,12 @@ def experimentation_snapshot(monkeypatch):
         "rollout_flag": {"defaultValue": "control", "rules": [{"force": "treatment", "coverage": 1.0}]},
         # A global force with no coverage: applies to everyone, including anonymous users.
         "global_flag": {"defaultValue": False, "rules": [{"force": True}]},
+        # An actual experiment: a logged-in user gets bucketed (coverage 1), which fires the exposure
+        # tracking callback unless it's explicitly suppressed.
+        "experiment_flag": {
+            "defaultValue": "control",
+            "rules": [{"key": "my_experiment", "variations": ["control", "treatment"], "coverage": 1.0}],
+        },
     }
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
     monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
@@ -46,6 +54,36 @@ def test_anonymous_user_still_gets_global_force_on_flag(experimentation_snapshot
 def test_unknown_feature_returns_in_code_default(experimentation_snapshot):
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("does_not_exist", "my_default") == "my_default"
+
+
+def test_value_method_returns_in_code_default_when_disabled(monkeypatch, experimentation_snapshot):
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
+    context = make_background_user_context(123)
+    assert context.get_string_value("global_flag", "off") == "off"
+
+
+def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, experimentation_snapshot):
+    # Evaluating an experiment-backed flag for a bucketed user records exactly one exposure - this is
+    # the whole point of per-flag evaluation: exposure is logged only for flags the user actually hits.
+    context = make_background_user_context(123)
+    assert context.get_object_value("experiment_flag", "control") in {"control", "treatment"}
+
+    with session_scope() as session:
+        rows = session.execute(select(ExperimentExposure).where(ExperimentExposure.user_id == 123)).scalars().all()
+        assert len(rows) == 1
+        assert rows[0].experiment_key == "my_experiment"
+
+
+def test_evaluate_feature_flag_servicer_returns_value(experimentation_snapshot, db):
+    with bugs_session() as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="global_flag"))
+    assert res.value.bool_value is True
+
+
+def test_evaluate_feature_flag_servicer_unknown_leaves_value_unset(experimentation_snapshot, db):
+    with bugs_session() as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="does_not_exist"))
+    assert not res.HasField("value")
 
 
 def _get_usage(session, user_id):
