@@ -1,75 +1,48 @@
 /**
  * Experimentation framework for feature flags and experiments.
  *
- * Uses GrowthBook under the hood, but abstracts the implementation details.
+ * Flags are evaluated server-side (remote evaluation) and exposed through OpenFeature. Always pass
+ * an in-code default; it's returned when the flag isn't configured server-side.
  *
  * Usage:
  *   import { useGate, useFeatureValue } from "experimentation";
  *
- *   // Feature gates (boolean flags)
+ *   // Feature gates (boolean flags), default off
  *   const isFeatureEnabled = useGate("my_feature_gate");
  *
  *   // Typed feature values (strings, numbers, JSON, experiment variations)
  *   const buttonColor = useFeatureValue("button_color", "blue");
  */
 
-import {
-  JSONValue,
-  useFeatureIsOn,
-  useFeatureValue as useGrowthBookFeatureValue,
-  WidenPrimitives,
-} from "@growthbook/growthbook-react";
+import { useBooleanFlagValue, useFlag } from "@openfeature/react-sdk";
+import { ConstrainedFlagKey, JsonValue } from "@openfeature/web-sdk";
 
 /**
- * Check if experimentation is enabled.
- * Returns false if the SDK key is not configured.
- */
-export function isExperimentationEnabled(): boolean {
-  return !!process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY;
-}
-
-/**
- * Check if all gates should pass (for development/testing).
- * When enabled, useGate() always returns true.
+ * Whether all gates should pass (for development/testing). Applied to boolean resolutions by the
+ * remote-evaluation provider, mirroring the backend's boolean-only pass-all-gates behavior.
  */
 export function shouldPassAllGates(): boolean {
-  return process.env.NEXT_PUBLIC_GROWTHBOOK_PASS_ALL_GATES === "1";
+  return process.env.NEXT_PUBLIC_EXPERIMENTATION_PASS_ALL_GATES === "1";
 }
 
 /**
- * Check if a feature gate is enabled for the current user.
- *
- * Returns true if NEXT_PUBLIC_GROWTHBOOK_PASS_ALL_GATES is set, false if
- * experimentation is disabled. Otherwise looks the gate up in GrowthBook.
+ * Whether a feature gate is enabled for the current user. Gates default to off.
  */
 export function useGate(gateName: string): boolean {
-  const value = useFeatureIsOn(gateName);
-
-  if (shouldPassAllGates()) {
-    return true;
-  }
-  if (!isExperimentationEnabled()) {
-    return false;
-  }
-  return value;
+  return useBooleanFlagValue(gateName, false);
 }
 
 /**
  * Get the value of a feature for the current user.
  *
- * Use this for non-boolean features: strings, numbers, JSON configs, experiment
- * variations - anything other than a simple on/off gate. The default's type
- * determines the return type and is returned verbatim when experimentation is
- * disabled.
+ * Use this for non-boolean features: strings, numbers, JSON configs, experiment variations. The
+ * default's type determines the return type and is returned when the flag isn't configured.
  */
-export function useFeatureValue<T extends JSONValue>(
+export function useFeatureValue<T extends JsonValue>(
   featureName: string,
   defaultValue: T,
-): WidenPrimitives<T> {
-  const value = useGrowthBookFeatureValue<T>(featureName, defaultValue);
-
-  if (!isExperimentationEnabled()) {
-    return defaultValue as WidenPrimitives<T>;
-  }
-  return value;
+): T {
+  // useFlag picks the resolver from the default's runtime type. ConstrainedFlagKey<T> resolves to
+  // string for every concrete T, but TS can't prove that for an abstract T, hence the cast.
+  return useFlag(featureName as ConstrainedFlagKey<T>, defaultValue).value as T;
 }

@@ -5,6 +5,7 @@ package org.couchers.bugs;
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
@@ -42,6 +43,12 @@ service Bugs {
   rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
 
   rpc ReportDiagnostics(ReportDiagnosticsReq) returns (google.protobuf.Empty) {}
+
+  rpc EvaluateFeatureFlag(EvaluateFeatureFlagReq) returns (EvaluateFeatureFlagRes) {
+    // Remotely evaluate a single feature flag for the current session's user (anonymously when
+    // logged out) and return the resolved value. Evaluated one flag at a time, on demand, so the
+    // server only evaluates flags the client actually uses - which keeps exposure logging accurate.
+  }
 }
 
 message VersionInfo {
@@ -104,4 +111,14 @@ message DiagnosticInfo {
 message ReportDiagnosticsReq {
   string frontend_version = 1;
   repeated DiagnosticInfo infos = 2;
+}
+
+message EvaluateFeatureFlagReq {
+  string flag_key = 1;
+}
+
+message EvaluateFeatureFlagRes {
+  // The flag's resolved value (bool, string, number, or JSON object/array). Unset when the flag
+  // isn't configured server-side, so the frontend's in-code default applies.
+  google.protobuf.Value value = 1;
 }

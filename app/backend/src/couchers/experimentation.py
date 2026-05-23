@@ -3,25 +3,33 @@ Experimentation framework for feature flags and experiments.
 
 Uses GrowthBook under the hood, but abstracts the implementation details.
 
-Don't evaluate flags by calling into this module directly - go through the CouchersContext methods
-(context.get_boolean_value, get_string_value, etc.), which own the per-request evaluator cache and
-the enabled / pass-all-gates gating. The underscore-prefixed helpers here are internal to that
-wiring; setup_experimentation() is the only public entry point, called once at process startup.
+Two ways to evaluate a flag:
+  - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
+    etc.), which evaluate for the context's user and own the per-request evaluator cache.
+  - Global (no user/request): use the module-level get_global_boolean_value / get_global_string_value
+    / ... below. Use these ONLY when there is genuinely no user to evaluate for and no way to thread
+    one through - per-user evaluation is impossible here, not merely that you don't expect the value
+    to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
+    per-user path can do percentage rollouts, experiments, and feature-usage tracking.
+
+Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
+once at process startup.
 """
 
 import json
 import logging
 import threading
+from collections.abc import Callable
 from typing import Any
 
 import urllib3
 from growthbook import GrowthBook
-from growthbook.common_types import Experiment, Result
+from growthbook.common_types import Experiment, FeatureResult, Result
 from sqlalchemy.dialects.postgresql import insert
 
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models.logging import ExperimentExposure
+from couchers.models.logging import ExperimentExposure, FeatureUsage
 
 logger = logging.getLogger(__name__)
 
@@ -139,13 +147,18 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         session.execute(stmt)
 
 
+def _record_feature_usage(user_id: int, key: str, result: FeatureResult, **_: Any) -> None:
+    with session_scope() as session:
+        session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
+
+
 def _create_evaluator(user_id: int | None) -> GrowthBook:
     """
     Build a per-request GrowthBook evaluator over the current feature snapshot.
 
     Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
     can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
-    through to their defaults. No exposure is recorded without a user.
+    through to their defaults. No exposure or usage is recorded without a user.
 
     Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
     from the request path. Constructing without `client_key` keeps the GrowthBook a pure
@@ -164,9 +177,60 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
         if user_id is not None:
             _record_exposure(user_id, experiment, result)
 
+    def on_feature_usage(key: str, result: FeatureResult, *args: Any, **kwargs: Any) -> None:
+        if user_id is not None:
+            _record_feature_usage(user_id, key, result)
+
     return GrowthBook(
         attributes={"id": str(user_id)} if user_id is not None else {},
         features=features,
         savedGroups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,
+        on_feature_usage=on_feature_usage,
     )
+
+
+def _global_evaluator() -> GrowthBook:
+    """Build an anonymous evaluator for flag evaluation with no user/request context."""
+    return _create_evaluator(None)
+
+
+# These two helpers are the single home of the gating logic, shared by the global functions below
+# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
+# invoked once gating passes, so it stays lazy.
+def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
+    if not config["EXPERIMENTATION_ENABLED"]:
+        return default
+    return get_evaluator().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+
+
+def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
+    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+        return True
+    return _feature_value(flag_key, default, get_evaluator)
+
+
+# Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
+# no way to thread one through - per-user evaluation is impossible here, not merely that you don't
+# expect the value to vary per user. If a user is (or could reasonably be) available, use the
+# CouchersContext methods instead: only the per-user path does percentage rollouts, experiments, and
+# feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
+# through to their in-code defaults unless a rule forces a value globally.
+def get_global_boolean_value(flag_key: str, default: bool) -> bool:
+    return _boolean_value(flag_key, default, _global_evaluator)
+
+
+def get_global_string_value(flag_key: str, default: str) -> str:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_integer_value(flag_key: str, default: int) -> int:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_float_value(flag_key: str, default: float) -> float:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_object_value[T](flag_key: str, default: T) -> T:
+    return _feature_value(flag_key, default, _global_evaluator)

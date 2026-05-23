@@ -1,11 +1,11 @@
 import json
 import time
 from datetime import UTC, datetime
-from typing import cast
+from typing import Any, cast
 
 import grpc
 import requests
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, struct_pb2
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -137,3 +137,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         self, request: bugs_pb2.GeolocationClickInfoReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         return empty_pb2.Empty()
+
+    def EvaluateFeatureFlag(
+        self, request: bugs_pb2.EvaluateFeatureFlagReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.EvaluateFeatureFlagRes:
+        # None default: an unconfigured flag comes back as None and the value field is left unset, so
+        # the frontend applies its own in-code default. get_object_value is the generic typed
+        # accessor; like every value method it fires exposure/usage logging as a side effect, here
+        # for exactly the one flag the client is reading.
+        value: Any = context.get_object_value(request.flag_key, None)
+        res = bugs_pb2.EvaluateFeatureFlagRes()
+        if value is not None:
+            # google.protobuf.Value has no direct constructor from a Python value; round-trip
+            # through a Struct, which knows how to encode bool/number/str/list/dict.
+            holder = struct_pb2.Struct()
+            holder["value"] = value
+            res.value.CopyFrom(holder.fields["value"])
+        return res
