@@ -90,8 +90,7 @@ def _set_last_fetch_time(when: float) -> None:
 
 
 def seconds_since_last_fetch() -> float | None:
-    """Seconds since features were last successfully pulled from GrowthBook, or None if never pulled
-    (e.g. experimentation disabled). Drives the staleness metric so a stalled refresh is observable."""
+    """Seconds since the last successful pull, or None if never pulled. Drives the staleness metric."""
     when = _last_fetch_time
     if when is None:
         return None
@@ -99,18 +98,10 @@ def seconds_since_last_fetch() -> float | None:
 
 
 def _write_cache(response: dict[str, Any]) -> None:
-    """Persist a freshly fetched payload to disk for use as a cold-start fallback.
-
-    Written to a temp file in the same directory and then renamed (Path.replace is atomic), so a
-    concurrent reader never sees a partial file and concurrent writers from the api/worker/scheduler
-    processes resolve to a last-writer-wins of identical content. Failures are not swallowed: a disk
-    problem here is real and must surface.
-    """
     path = Path(config["GROWTHBOOK_CACHE_PATH"])
     data = json.dumps({"fetched_at": time.time(), "response": response})
-    # Write to a temp file in the same directory, then rename over the target: rename is atomic only
-    # within a filesystem, so the temp must live next to the target, and a reader either sees the whole
-    # old file or the whole new one - never a half-written cache that would fail our strict parse.
+    # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
+    # never sees a half-written cache.
     with NamedTemporaryFile("w", dir=path.parent, prefix=".growthbook-cache-", suffix=".tmp", delete=False) as f:
         f.write(data)
         tmp = Path(f.name)
@@ -118,9 +109,7 @@ def _write_cache(response: dict[str, Any]) -> None:
 
 
 def _read_cache() -> tuple[dict[str, Any], float] | None:
-    """Load the persisted payload as (response, fetched_at). Returns None only when no cache file
-    exists yet (e.g. the very first deploy). A file that exists but can't be parsed raises - a corrupt
-    cache is a hard failure, not something to paper over by falling through to in-code defaults."""
+    """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
     path = Path(config["GROWTHBOOK_CACHE_PATH"])
     if not path.exists():
         return None
@@ -136,8 +125,7 @@ def _refresh_loop() -> None:
             _write_cache(response)
             _set_last_fetch_time(time.time())
             logger.debug("GrowthBook features refreshed")
-        # On a failed fetch, keep last-known-good state and try again next tick. seconds_since_last_fetch
-        # climbs until a fetch succeeds, so the degradation surfaces via the staleness metric.
+        # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
 def setup_experimentation() -> None:
@@ -168,8 +156,7 @@ def setup_experimentation() -> None:
         _set_last_fetch_time(time.time())
         logger.info("GrowthBook features loaded from API")
     else:
-        # GrowthBook is unreachable at startup. Fall back to the last-known-good snapshot from disk
-        # rather than coming up healthy on in-code defaults. With no usable cache either, fail loudly.
+        # Unreachable at startup: fall back to the disk cache rather than booting on in-code defaults.
         cached = _read_cache()
         if cached is None:
             raise GrowthBookUnavailableError(

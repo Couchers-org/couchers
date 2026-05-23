@@ -634,12 +634,10 @@ postcards_sent_counter: Counter = Counter(
 )
 
 
-# Seconds since feature flags were last successfully pulled from GrowthBook. Recomputed at scrape time
-# via the hacky-gauge mechanism so it reflects live age, not the value at the last refresh. 0 when
-# experimentation is disabled or flags have never been pulled.
+# Recomputed at scrape time via the hacky-gauge mechanism, so it reflects live age. 0 when disabled
+# or never pulled.
 def _feature_flags_staleness_seconds() -> float:
-    age = experimentation.seconds_since_last_fetch()
-    return age if age is not None else 0.0
+    return experimentation.seconds_since_last_fetch() or 0.0
 
 
 feature_flags_staleness_gauge: Gauge = Gauge(
