@@ -1,3 +1,4 @@
+import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -50,6 +51,8 @@ export default function DevSettingsScreen() {
   const [apiBaseUrl, setApiBaseUrl] = useState(paramApi ?? getApiBaseUrl());
   const [webBaseUrl, setWebBaseUrl] = useState(paramWeb ?? getWebBaseUrl());
   const [history, setHistory] = useState<UrlOverrides[]>([]);
+  const [linkExpanded, setLinkExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Apply incoming deep-link params (e.g. a scanned QR opening the app while
   // this screen is already mounted).
@@ -72,6 +75,7 @@ export default function DevSettingsScreen() {
       : theme.palette.text.secondary,
     border: isDark ? theme.dark.grey[100] : theme.palette.grey[200],
     inputBackground: isDark ? theme.dark.background.default : "#fff",
+    muted: isDark ? theme.dark.grey[100] : theme.palette.grey[50],
     primary: isDark ? theme.dark.primary.main : theme.palette.primary.main,
   };
 
@@ -143,6 +147,13 @@ export default function DevSettingsScreen() {
 
   const handleClearHistory = () => {
     clearUrlHistory().then(() => setHistory([]));
+  };
+
+  const handleCopyLink = async () => {
+    if (!shareLink) return;
+    await Clipboard.setStringAsync(shareLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
@@ -266,22 +277,35 @@ export default function DevSettingsScreen() {
 
           {shareLink && (
             <View style={styles.shareSection}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                Share via QR
-              </Text>
-              <Text style={[styles.hint, { color: colors.textSecondary }]}>
-                Make a QR of this link and scan it with a phone camera to open
-                another device with these URLs filled in.
-              </Text>
-              <Text
-                selectable
-                style={[
-                  styles.link,
-                  { color: colors.text, borderColor: colors.border },
-                ]}
+              <Pressable
+                onPress={() => setLinkExpanded((v) => !v)}
+                style={styles.shareHeader}
               >
-                {shareLink}
-              </Text>
+                <Text style={[styles.shareTitle, { color: colors.textSecondary }]}>
+                  {linkExpanded ? "▾" : "▸"} Share via link
+                </Text>
+              </Pressable>
+              {linkExpanded && (
+                <>
+                  <Pressable onPress={handleCopyLink}>
+                    <Text
+                      style={[
+                        styles.link,
+                        {
+                          color: colors.text,
+                          borderColor: colors.border,
+                          backgroundColor: colors.muted,
+                        },
+                      ]}
+                    >
+                      {shareLink}
+                    </Text>
+                  </Pressable>
+                  <Text style={[styles.hint, { color: colors.textSecondary }]}>
+                    {copied ? "Copied to clipboard" : "Tap the link to copy it"}
+                  </Text>
+                </>
+              )}
             </View>
           )}
         </ScrollView>
@@ -466,6 +490,13 @@ const styles = StyleSheet.create({
   },
   shareSection: {
     marginTop: 24,
+  },
+  shareHeader: {
+    paddingVertical: 8,
+  },
+  shareTitle: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   link: {
     fontSize: 13,

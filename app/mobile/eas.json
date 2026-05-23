@@ -68,7 +68,7 @@
     },
     "devtool": {
       "ios": {
-        "ascAppId": "REPLACE_WITH_DEVTOOL_ASC_APP_ID"
+        "ascAppId": "6772371797"
       },
       "android": {
         "track": "internal",
