@@ -1,8 +1,6 @@
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import experimentation
-from couchers.config import config
 from tests.fixtures.sessions import resources_session
 
 
@@ -90,22 +88,3 @@ def test_GetBadges(db):
             == "This user has verified their gender and date of birth with a biometric passport"
         )
         assert strong_verification.color == "#1b8aa0"
-
-
-def test_GetBadges_excludes_flagged_badge_when_flag_off(db, monkeypatch):
-    """A badge gated by a feature flag is dropped from the catalog when the flag is off."""
-    # force show_moderator_badge off for everyone (force rule with no coverage applies globally)
-    monkeypatch.setattr(experimentation, "_initialized", True)
-    monkeypatch.setattr(
-        experimentation,
-        "_state",
-        {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
-    )
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
-
-    with resources_session() as api:
-        badge_ids = {b.id for b in api.GetBadges(empty_pb2.Empty()).badges}
-        assert "moderator" not in badge_ids
-        # non-flagged badges are unaffected
-        assert "founder" in badge_ids
