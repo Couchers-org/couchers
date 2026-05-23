@@ -103,13 +103,6 @@ PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
 GHOST_USERNAME = "ghost"
 
-# In-code defaults for the donation flags, used when a flag isn't configured in GrowthBook. The drive
-# itself (and whether the banner shows) is controlled by the donation_drive_start flag; these two are
-# the defaults for the donation_goal_usd / donation_offset_usd flags.
-DONATION_GOAL_USD = 5000
-# exclude big donations from Aapeli + Itsi that we're hoping to do without :)
-DONATION_OFFSET_USD = 2000
-
 # Photo gallery limits
 GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
 GALLERY_MAX_PHOTOS_VERIFIED = 5

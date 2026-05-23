@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import func, union_all
 
 from couchers import experimentation, urls
-from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
 from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
 from couchers.models import (
@@ -117,8 +116,9 @@ def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
     ).scalar_one()
 
     # No request user here (public, cached endpoint), so evaluate the drive's goal/offset globally.
-    goal = experimentation.get_global_integer_value("donation_goal_usd", DONATION_GOAL_USD)
-    offset = experimentation.get_global_integer_value("donation_offset_usd", DONATION_OFFSET_USD)
+    # The defaults reproduce the historical drive config; the offset excludes large one-off donations.
+    goal = experimentation.get_global_integer_value("donation_goal_usd", 5000)
+    offset = experimentation.get_global_integer_value("donation_offset_usd", 2000)
 
     return public_pb2.GetDonationStatsRes(
         total_donated_ytd=max(int(total_donated - offset), 0),
