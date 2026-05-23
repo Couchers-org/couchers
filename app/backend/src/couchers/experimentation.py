@@ -2,6 +2,11 @@
 Experimentation framework for feature flags and experiments.
 
 Uses GrowthBook under the hood, but abstracts the implementation details.
+
+Don't evaluate flags by calling into this module directly - go through the CouchersContext methods
+(context.get_boolean_value, get_string_value, etc.), which own the per-request evaluator cache and
+the enabled / pass-all-gates gating. The underscore-prefixed helpers here are internal to that
+wiring; setup_experimentation() is the only public entry point, called once at process startup.
 """
 
 import json
@@ -134,9 +139,13 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         session.execute(stmt)
 
 
-def create_evaluator(user_id: int) -> GrowthBook:
+def _create_evaluator(user_id: int | None) -> GrowthBook:
     """
-    Build a per-request GrowthBook evaluator for a user over the current feature snapshot.
+    Build a per-request GrowthBook evaluator over the current feature snapshot.
+
+    Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
+    can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
+    through to their defaults. No exposure is recorded without a user.
 
     Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
     from the request path. Constructing without `client_key` keeps the GrowthBook a pure
@@ -152,10 +161,11 @@ def create_evaluator(user_id: int) -> GrowthBook:
         saved_groups = _state["savedGroups"]
 
     def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
-        _record_exposure(user_id, experiment, result)
+        if user_id is not None:
+            _record_exposure(user_id, experiment, result)
 
     return GrowthBook(
-        attributes={"id": str(user_id)},
+        attributes={"id": str(user_id)} if user_id is not None else {},
         features=features,
         savedGroups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,

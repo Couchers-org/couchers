@@ -207,7 +207,7 @@ class CouchersContext:
 
     def _get_growthbook(self) -> GrowthBook:
         if self._growthbook is None:
-            self._growthbook = experimentation.create_evaluator(self.user_id)
+            self._growthbook = experimentation._create_evaluator(self._user_id)
         return self._growthbook
 
 
