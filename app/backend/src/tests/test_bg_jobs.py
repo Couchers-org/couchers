@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
+from couchers import experimentation
 from couchers.config import config
 from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
@@ -1340,6 +1341,50 @@ def test_update_badges(db, push_collector: PushCollector):
     push = push_collector.pop_for_user(user5.id, last=True)
     assert push.content.title == "New profile badge: Verified Phone"
     assert push.content.body == "The Verified Phone badge was added to your profile."
+
+
+def test_update_badges_awards_moderator_to_superuser(db):
+    """The show_moderator_badge flag defaults on, so superusers are awarded the moderator badge."""
+    superuser, _ = generate_user(is_superuser=True, last_donated=None)
+
+    update_badges(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(UserBadge)
+                .where(UserBadge.user_id == superuser.id, UserBadge.badge_id == "moderator")
+            ).scalar()
+            == 1
+        )
+
+
+def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
+    """With show_moderator_badge forced off, superusers are not awarded the moderator badge."""
+    # force show_moderator_badge off for everyone (force rule with no coverage applies globally)
+    monkeypatch.setattr(experimentation, "_initialized", True)
+    monkeypatch.setattr(
+        experimentation,
+        "_state",
+        {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
+    )
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+
+    superuser, _ = generate_user(is_superuser=True, last_donated=None)
+
+    update_badges(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(UserBadge)
+                .where(UserBadge.user_id == superuser.id, UserBadge.badge_id == "moderator")
+            ).scalar()
+            == 0
+        )
 
 
 def test_send_request_notifications_blocked_users_no_notification(db, moderator):

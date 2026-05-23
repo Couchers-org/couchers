@@ -73,5 +73,6 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
                     color=badge.color,
                 )
                 for badge in get_badge_dict().values()
+                if badge.flag is None or context.get_boolean_value(badge.flag, default=True)
             ]
         )

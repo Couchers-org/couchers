@@ -77,6 +77,9 @@ class Badge:
     id: str
     color: str
     admin_editable: bool
+    # if set, the badge is only awarded and listed while this feature flag is on (the flag defaults
+    # to on, so the badge stays visible until the flag is turned off)
+    flag: str | None = None
 
 
 @functools.cache

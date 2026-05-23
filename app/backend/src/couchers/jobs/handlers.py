@@ -38,7 +38,7 @@ from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
-from couchers.context import make_background_user_context
+from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -53,6 +53,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
+from couchers.i18n import LocalizationContext
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -835,9 +836,13 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
 
 def update_badges(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
+        # feature flags that gate a badge are evaluated globally (no per-user request here)
+        flag_context = make_logged_out_context(LocalizationContext.en_utc())
 
         def update_badge(badge_id: str, members: Sequence[int]) -> None:
             badge = get_badge_dict()[badge_id]
+            if badge.flag is not None and not flag_context.get_boolean_value(badge.flag, default=True):
+                members = []
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
             actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
