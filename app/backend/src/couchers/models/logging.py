@@ -156,3 +156,33 @@ class ExperimentExposure(Base, kw_only=True):
         Index("ix_logging_experiment_exposures_user_id_created", "user_id", "created"),
         {"schema": "logging"},
     )
+
+
+class FeatureUsage(Base, kw_only=True):
+    """
+    Append-only log of feature flag evaluations.
+
+    Populated by GrowthBook's on_feature_usage callback - one row per check.
+    """
+
+    __tablename__ = "feature_usage"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the feature was checked
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # user the feature was checked for
+    user_id: Mapped[int] = mapped_column(BigInteger)
+
+    # feature identifier from GrowthBook
+    feature_key: Mapped[str] = mapped_column(String)
+
+    # the feature value the user received
+    value: Mapped[Any] = mapped_column(JSONB)
+
+    __table_args__ = (
+        Index("ix_logging_feature_usage_feature_key_time", "feature_key", "time"),
+        Index("ix_logging_feature_usage_user_id_time", "user_id", "time"),
+        {"schema": "logging"},
+    )
