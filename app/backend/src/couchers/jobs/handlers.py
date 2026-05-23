@@ -839,8 +839,8 @@ def update_badges(payload: empty_pb2.Empty) -> None:
 
         def update_badge(badge_id: str, members: Sequence[int]) -> None:
             badge = get_badge_dict()[badge_id]
-            # a flag that gates a badge is evaluated globally (no per-user request here)
-            if badge.flag is not None and not experimentation.get_boolean_value(badge.flag, default=True):
+            # this batch job has no per-user context to evaluate the gate against, so it's global
+            if badge.flag is not None and not experimentation.get_global_boolean_value(badge.flag, default=True):
                 members = []
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db

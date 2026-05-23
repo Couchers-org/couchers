@@ -6,8 +6,11 @@ Uses GrowthBook under the hood, but abstracts the implementation details.
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
     etc.), which evaluate for the context's user and own the per-request evaluator cache.
-  - Global (no user/request): use the module-level get_boolean_value / get_string_value / ... below.
-    These evaluate anonymously and are for background jobs and other code with no CouchersContext.
+  - Global (no user/request): use the module-level get_global_boolean_value / get_global_string_value
+    / ... below. Use these ONLY when there is genuinely no user to evaluate for and no way to thread
+    one through - per-user evaluation is impossible here, not merely that you don't expect the value
+    to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
+    per-user path can do percentage rollouts, experiments, and feature-usage tracking.
 
 Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
 once at process startup.
@@ -207,24 +210,27 @@ def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], Gro
     return _feature_value(flag_key, default, get_evaluator)
 
 
-# Global (no user/request) flag evaluation. Mirrors the CouchersContext.get_*_value API but
-# evaluates anonymously: experiments and percentage rollouts are skipped (no user to bucket), so
-# flags fall through to their in-code defaults unless a rule forces a value globally.
-def get_boolean_value(flag_key: str, default: bool) -> bool:
+# Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
+# no way to thread one through - per-user evaluation is impossible here, not merely that you don't
+# expect the value to vary per user. If a user is (or could reasonably be) available, use the
+# CouchersContext methods instead: only the per-user path does percentage rollouts, experiments, and
+# feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
+# through to their in-code defaults unless a rule forces a value globally.
+def get_global_boolean_value(flag_key: str, default: bool) -> bool:
     return _boolean_value(flag_key, default, _global_evaluator)
 
 
-def get_string_value(flag_key: str, default: str) -> str:
+def get_global_string_value(flag_key: str, default: str) -> str:
     return _feature_value(flag_key, default, _global_evaluator)
 
 
-def get_integer_value(flag_key: str, default: int) -> int:
+def get_global_integer_value(flag_key: str, default: int) -> int:
     return _feature_value(flag_key, default, _global_evaluator)
 
 
-def get_float_value(flag_key: str, default: float) -> float:
+def get_global_float_value(flag_key: str, default: float) -> float:
     return _feature_value(flag_key, default, _global_evaluator)
 
 
-def get_object_value[T](flag_key: str, default: T) -> T:
+def get_global_object_value[T](flag_key: str, default: T) -> T:
     return _feature_value(flag_key, default, _global_evaluator)
