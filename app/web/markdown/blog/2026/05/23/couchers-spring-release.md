@@ -222,7 +222,7 @@ Our volunteers, especially [Tristan](https://couchers.org/user/tristanlabelle), 
 
 ### Moderation
 
-Our volunteers [Aapeli](https://couchers.org/user/aapeli) and [Jesse](https://couchers.org/user/jesse) have been working hard on moderation tooling to ensure we can scale to more users while keeping up with moderation needs. Moderation tooling has been improved. We now moderate away 95% of scams before they even reach users.
+Our volunteers [Aapeli](https://couchers.org/user/aapeli) and [Jesse](https://couchers.org/user/jesse) have been working hard on moderation and safety systems to ensure we can sustainably scale to a higher user count. Moderation tooling has been improved. Our moderation system is able to catch an estimated 95% of scams before they even reach users.
 
 ### Donations
 * Added IRS-required tax acknowledgment text to donation receipt emails so donors can use them for tax-deductible charitable contributions by [Aapeli](https://couchers.org/user/aapeli) with assistance from [Tristan](https://couchers.org/user/tristanlabelle) [[#8365](https://github.com/Couchers-org/couchers/pull/8365)]
