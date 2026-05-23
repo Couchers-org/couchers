@@ -109,7 +109,9 @@ function useHostRequestFormTracking({
       const { foregroundMs, totalMs } = tracker.finalize();
 
       const { text, fromDate, toDate } = getLatestValues();
-      const referrerProps = referrerToProperties(readSearchReferrer(hostUserId));
+      const referrerProps = referrerToProperties(
+        readSearchReferrer(hostUserId),
+      );
 
       logEvent("host_request.form_closed", {
         host_user_id: hostUserId,
