@@ -180,7 +180,6 @@ def testconfig():
     config["STRIPE_WEBHOOK_SECRET"] = ""
     config["STRIPE_RECURRING_PRODUCT_ID"] = ""
 
-    config["ENABLE_STRONG_VERIFICATION"] = False
     config["IRIS_ID_PUBKEY"] = ""
     config["IRIS_ID_SECRET"] = ""
     # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272

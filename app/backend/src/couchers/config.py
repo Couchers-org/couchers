@@ -44,8 +44,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("STRIPE_API_KEY", str),
     ("STRIPE_WEBHOOK_SECRET", str),
     ("STRIPE_RECURRING_PRODUCT_ID", str),
-    # Strong verification through Iris ID
-    ("ENABLE_STRONG_VERIFICATION", bool),
+    # Strong verification through Iris ID (gated at runtime by the `strong_verification_enabled` feature flag)
     ("IRIS_ID_PUBKEY", str),
     ("IRIS_ID_SECRET", str),
     ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
@@ -153,14 +152,16 @@ def check_config(cfg: dict[str, Any]) -> None:
             raise Exception("Production site must have SMS enabled")
         if cfg["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
+
         # Donations are gated at runtime by the `donations_enabled` feature flag, which can be flipped on
         # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
         if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
             raise Exception("Stripe credentials must be configured in production")
 
-    if cfg["ENABLE_STRONG_VERIFICATION"]:
+        # Strong verification is gated at runtime by the `strong_verification_enabled` feature flag, which
+        # can be flipped on remotely at any time, so prod must always have the Iris ID credentials present.
         if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
-            raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+            raise Exception("Iris ID credentials must be configured in production")
 
     if cfg["ENABLE_POSTAL_VERIFICATION"]:
         if (
