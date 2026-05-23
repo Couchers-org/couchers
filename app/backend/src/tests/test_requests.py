@@ -5,7 +5,7 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy_utils import refresh_materialized_view
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
@@ -20,6 +20,7 @@ from couchers.models import (
     MessageType,
     Node,
     NodeType,
+    Notification,
     RateLimitAction,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
@@ -1082,6 +1083,44 @@ def test_mark_last_seen(db, moderator):
     with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
+
+
+def test_mark_last_seen_clears_notifications(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Test message"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    def unseen_notification_count(user_id):
+        with session_scope() as session:
+            return session.execute(
+                select(func.count())
+                .select_from(Notification)
+                .where(Notification.user_id == user_id)
+                .where(Notification.key == str(host_request_id))
+                .where(Notification.is_seen == False)
+            ).scalar_one()
+
+    assert unseen_notification_count(user2.id) > 0
+
+    with requests_session(token2) as api:
+        api.MarkLastSeenHostRequest(
+            requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=1)
+        )
+
+    assert unseen_notification_count(user2.id) == 0
 
 
 def test_response_rate(db, moderator):

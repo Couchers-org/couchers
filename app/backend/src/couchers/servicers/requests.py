@@ -35,7 +35,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
@@ -938,6 +938,22 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host_request.recipient_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
             host_request.recipient_last_seen_message_id = request.last_seen_message_id
+
+        mark_notifications_seen(
+            session,
+            user_id=context.user_id,
+            key=str(host_request.conversation_id),
+            topic_actions=[
+                NotificationTopicAction.host_request__create,
+                NotificationTopicAction.host_request__accept,
+                NotificationTopicAction.host_request__reject,
+                NotificationTopicAction.host_request__confirm,
+                NotificationTopicAction.host_request__cancel,
+                NotificationTopicAction.host_request__message,
+                NotificationTopicAction.host_request__missed_messages,
+                NotificationTopicAction.host_request__reminder,
+            ],
+        )
 
         session.commit()
         return empty_pb2.Empty()
