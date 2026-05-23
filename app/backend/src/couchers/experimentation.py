@@ -3,15 +3,20 @@ Experimentation framework for feature flags and experiments.
 
 Uses GrowthBook under the hood, but abstracts the implementation details.
 
-Don't evaluate flags by calling into this module directly - go through the CouchersContext methods
-(context.get_boolean_value, get_string_value, etc.), which own the per-request evaluator cache and
-the enabled / pass-all-gates gating. The underscore-prefixed helpers here are internal to that
-wiring; setup_experimentation() is the only public entry point, called once at process startup.
+Two ways to evaluate a flag:
+  - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
+    etc.), which evaluate for the context's user and own the per-request evaluator cache.
+  - Global (no user/request): use the module-level get_boolean_value / get_string_value / ... below.
+    These evaluate anonymously and are for background jobs and other code with no CouchersContext.
+
+Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
+once at process startup.
 """
 
 import json
 import logging
 import threading
+from collections.abc import Callable
 from typing import Any
 
 import urllib3
@@ -180,3 +185,46 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
         on_experiment_viewed=on_experiment_viewed,
         on_feature_usage=on_feature_usage,
     )
+
+
+def _global_evaluator() -> GrowthBook:
+    """Build an anonymous evaluator for flag evaluation with no user/request context."""
+    return _create_evaluator(None)
+
+
+# These two helpers are the single home of the gating logic, shared by the global functions below
+# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
+# invoked once gating passes, so it stays lazy.
+def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
+    if not config["EXPERIMENTATION_ENABLED"]:
+        return default
+    return get_evaluator().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+
+
+def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
+    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+        return True
+    return _feature_value(flag_key, default, get_evaluator)
+
+
+# Global (no user/request) flag evaluation. Mirrors the CouchersContext.get_*_value API but
+# evaluates anonymously: experiments and percentage rollouts are skipped (no user to bucket), so
+# flags fall through to their in-code defaults unless a rule forces a value globally.
+def get_boolean_value(flag_key: str, default: bool) -> bool:
+    return _boolean_value(flag_key, default, _global_evaluator)
+
+
+def get_string_value(flag_key: str, default: str) -> str:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_integer_value(flag_key: str, default: int) -> int:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_float_value(flag_key: str, default: float) -> float:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_object_value[T](flag_key: str, default: T) -> T:
+    return _feature_value(flag_key, default, _global_evaluator)
