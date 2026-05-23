@@ -18,11 +18,11 @@ once at process startup.
 
 import json
 import logging
-import os
-import tempfile
 import threading
 import time
 from collections.abc import Callable
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import urllib3
@@ -86,15 +86,13 @@ def _apply_response(response: dict[str, Any]) -> None:
 
 def _set_last_fetch_time(when: float) -> None:
     global _last_fetch_time
-    with _state_lock:
-        _last_fetch_time = when
+    _last_fetch_time = when
 
 
 def seconds_since_last_fetch() -> float | None:
     """Seconds since features were last successfully pulled from GrowthBook, or None if never pulled
     (e.g. experimentation disabled). Drives the staleness metric so a stalled refresh is observable."""
-    with _state_lock:
-        when = _last_fetch_time
+    when = _last_fetch_time
     if when is None:
         return None
     return max(0.0, time.time() - when)
@@ -103,36 +101,30 @@ def seconds_since_last_fetch() -> float | None:
 def _write_cache(response: dict[str, Any]) -> None:
     """Persist a freshly fetched payload to disk for use as a cold-start fallback.
 
-    Written atomically (temp file + os.replace) so a concurrent reader never sees a partial file, and
-    so concurrent writers from the api/worker/scheduler processes just resolve to a last-writer-wins of
-    identical content. Failures are not swallowed: a disk problem here is real and must surface.
+    Written to a temp file in the same directory and then renamed (Path.replace is atomic), so a
+    concurrent reader never sees a partial file and concurrent writers from the api/worker/scheduler
+    processes resolve to a last-writer-wins of identical content. Failures are not swallowed: a disk
+    problem here is real and must surface.
     """
-    path = config["GROWTHBOOK_CACHE_PATH"]
-    data = json.dumps({"fetched_at": time.time(), "response": response}).encode("utf-8")
-    directory = os.path.dirname(os.path.abspath(path))
-    fd, tmp_path = tempfile.mkstemp(dir=directory, prefix=".growthbook-cache-", suffix=".json.tmp")
-    try:
-        with os.fdopen(fd, "wb") as f:
-            f.write(data)
-        os.replace(tmp_path, path)
-    except BaseException:
-        # Clean up the temp file, but never mask the underlying write error.
-        try:
-            os.unlink(tmp_path)
-        except FileNotFoundError:
-            pass
-        raise
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    data = json.dumps({"fetched_at": time.time(), "response": response})
+    # Write to a temp file in the same directory, then rename over the target: rename is atomic only
+    # within a filesystem, so the temp must live next to the target, and a reader either sees the whole
+    # old file or the whole new one - never a half-written cache that would fail our strict parse.
+    with NamedTemporaryFile("w", dir=path.parent, prefix=".growthbook-cache-", suffix=".tmp", delete=False) as f:
+        f.write(data)
+        tmp = Path(f.name)
+    tmp.replace(path)
 
 
 def _read_cache() -> tuple[dict[str, Any], float] | None:
     """Load the persisted payload as (response, fetched_at). Returns None only when no cache file
     exists yet (e.g. the very first deploy). A file that exists but can't be parsed raises - a corrupt
     cache is a hard failure, not something to paper over by falling through to in-code defaults."""
-    path = config["GROWTHBOOK_CACHE_PATH"]
-    if not os.path.exists(path):
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    if not path.exists():
         return None
-    with open(path, "rb") as f:
-        payload = json.loads(f.read().decode("utf-8"))
+    payload = json.loads(path.read_text())
     return payload["response"], payload["fetched_at"]
 
 
