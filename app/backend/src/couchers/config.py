@@ -40,8 +40,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("GEOLITE2_ASN_MMDB_FILE_LOCATION", str, ""),
     # Whether to try adding dummy data
     ("ADD_DUMMY_DATA", bool),
-    # Donations
-    ("ENABLE_DONATIONS", bool),
+    # Donations (gated at runtime by the `donations_enabled` feature flag)
     ("STRIPE_API_KEY", str),
     ("STRIPE_WEBHOOK_SECRET", str),
     ("STRIPE_RECURRING_PRODUCT_ID", str),
@@ -151,10 +150,10 @@ def check_config(cfg: dict[str, Any]) -> None:
             raise Exception("Production site must have SMS enabled")
         if cfg["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
-
-    if cfg["ENABLE_DONATIONS"]:
+        # Donations are gated at runtime by the `donations_enabled` feature flag, which can be flipped on
+        # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
         if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
-            raise Exception("No Stripe API key/recurring donation ID but donations enabled")
+            raise Exception("Stripe credentials must be configured in production")
 
     if cfg["ENABLE_STRONG_VERIFICATION"]:
         if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:

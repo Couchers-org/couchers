@@ -176,7 +176,6 @@ def testconfig():
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
     config["ENABLE_EMAIL_ICS_ATTACHMENTS"] = True
 
-    config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""
     config["STRIPE_WEBHOOK_SECRET"] = ""
     config["STRIPE_RECURRING_PRODUCT_ID"] = ""
