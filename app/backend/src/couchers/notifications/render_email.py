@@ -146,12 +146,12 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                 # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
                 # msg = f"You missed {unseen_count} message(s) in {group_chat.title}"
                 if not group_chat_title or not missed_count:
-                    if match := re.search(" message(s) in (.+)$", data.message or ""):
+                    if match := re.search(" message(s) in (.+)$", message.message or ""):
                         group_chat_title = match[1]
                     else:
                         group_chat_title = None
 
-                    if match := re.search(r"^You missed (\d+) message(s)", data.message or ""):
+                    if match := re.search(r"^You missed (\d+) message(s)", message.message or ""):
                         missed_count = int(match[1])
                     else:
                         missed_count = 1
