@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, NoReturn, cast
 
 import grpc
 
+from couchers import experimentation
+from couchers.config import config
 from couchers.i18n import LocalizationContext
 
 if TYPE_CHECKING:
@@ -178,6 +180,36 @@ class CouchersContext:
     @property
     def localization(self) -> LocalizationContext:
         return self.__localization
+
+    # Feature-flag evaluation methods mirror the OpenFeature evaluation API. The in-code default is
+    # honored even for flags not yet set up in GrowthBook, since get_feature_value falls back to it.
+    def get_boolean_value(self, flag_key: str, default: bool) -> bool:
+        if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+            return True
+        return self._get_feature_value(flag_key, default)
+
+    def get_string_value(self, flag_key: str, default: str) -> str:
+        return self._get_feature_value(flag_key, default)
+
+    def get_integer_value(self, flag_key: str, default: int) -> int:
+        return self._get_feature_value(flag_key, default)
+
+    def get_float_value(self, flag_key: str, default: float) -> float:
+        return self._get_feature_value(flag_key, default)
+
+    def get_object_value[T](self, flag_key: str, default: T) -> T:
+        return self._get_feature_value(flag_key, default)
+
+    def _get_feature_value[T](self, flag_key: str, default: T) -> T:
+        if not config["EXPERIMENTATION_ENABLED"]:
+            return default
+        return self._get_growthbook().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+
+    def _get_growthbook(self) -> GrowthBook:
+        if self._growthbook is None:
+            # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
+            self._growthbook = experimentation._create_evaluator(self._user_id)
+        return self._growthbook
 
 
 def make_interactive_context(

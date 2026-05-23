@@ -14,6 +14,9 @@ from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Invoice,
     InvoiceType,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     ProfilePublicVisibility,
     Reference,
     ReferenceType,
@@ -509,16 +512,25 @@ def test_GetPublicUser_limited_visibility(db):
     # Add a reference to test reference counting
     referrer, _ = generate_user(username="referrer")
     with session_scope() as session:
-        session.add(
-            Reference(
-                from_user_id=referrer.id,
-                to_user_id=user.id,
-                reference_type=ReferenceType.friend,
-                text="Great host!",
-                rating=0.8,
-                was_appropriate=True,
-            )
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.reference,
+            object_id=0,
+            visibility=ModerationVisibility.visible,
         )
+        session.add(moderation_state)
+        session.flush()
+        reference = Reference(
+            from_user_id=referrer.id,
+            to_user_id=user.id,
+            reference_type=ReferenceType.friend,
+            text="Great host!",
+            rating=0.8,
+            was_appropriate=True,
+            moderation_state_id=moderation_state.id,
+        )
+        session.add(reference)
+        session.flush()
+        moderation_state.object_id = reference.id
 
     with public_session() as public:
         res = public.GetPublicUser(public_pb2.GetPublicUserReq(user="limited_user"))

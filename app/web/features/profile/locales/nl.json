@@ -160,7 +160,7 @@
   "report_reason": "Reden",
   "report_user": "Meld deze gebruiker",
   "leave_reference": {
-    "add_a_reference": "Voeg een referentie toe naar het profiel van {{name}}",
+    "add_a_reference": "Voeg een referentie toe op het profiel van {{name}}",
     "appropriate_question": "Voelde je je veilig bij het gedrag van deze persoon?",
     "by_writing_thoughtful": "Weet je niet zeker wat je moet schrijven? Lees onze tips <1>hier</1>. Door een gedetailleerd en eerlijk verslag te schrijven over deze persoon, kan je andere leden helpen. Zo werken we samen aan een veilige en vertrouwde Couchers-community.",
     "did_stay_confirmation": {

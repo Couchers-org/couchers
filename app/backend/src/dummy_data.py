@@ -28,6 +28,7 @@ from couchers.models import (
     Message,
     MessageType,
     ModerationObjectType,
+    ModerationState,
     ModerationVisibility,
     Node,
     Page,
@@ -167,15 +168,29 @@ def add_dummy_users() -> None:
                 if reference["type"] == "hosted"
                 else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
             )
+            from_user_id = session.execute(select(User).where(User.username == reference["from"])).scalar_one().id
+            to_user_id = session.execute(select(User).where(User.username == reference["to"])).scalar_one().id
+
+            moderation_state = ModerationState(
+                object_type=ModerationObjectType.reference,
+                object_id=0,
+                visibility=ModerationVisibility.visible,
+            )
+            session.add(moderation_state)
+            session.flush()
+
             new_reference = Reference(
-                from_user_id=session.execute(select(User).where(User.username == reference["from"])).scalar_one().id,
-                to_user_id=session.execute(select(User).where(User.username == reference["to"])).scalar_one().id,
+                from_user_id=from_user_id,
+                to_user_id=to_user_id,
                 reference_type=reference_type,
                 text=reference["text"],
                 rating=reference["rating"],
                 was_appropriate=reference["was_appropriate"],
+                moderation_state_id=moderation_state.id,
             )
             session.add(new_reference)
+            session.flush()
+            moderation_state.object_id = new_reference.id
 
         session.commit()
 

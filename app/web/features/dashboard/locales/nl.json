@@ -76,7 +76,8 @@
       "title": "Sterke verificatie",
       "description": "Verifieer je identiteit voor een veiligere community",
       "button": "Account verifiëren"
-    }
+    },
+    "carousel_dismiss_button_a11y": "Herinnering verbergen"
   },
   "events": {
     "your_upcoming_header": "Je aankomende events",
@@ -85,7 +86,14 @@
     "community_header": "Events in jouw communities",
     "community_empty_message": "Geen aankomende events in jouw communities.",
     "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} deelnemer",
-    "attendees_count_label_other": "{{count}} deelnemers"
+    "today_label": "Vandaag"
+  },
+  "discussions": {
+    "community_header": "Discussies in jouw communities",
+    "community_empty_message": "Nog geen discussies in jouw communities.",
+    "replies_count_label_one": "{{count}} reactie",
+    "replies_count_label_other": "{{count}} reacties",
+    "prev_page_label": "Vorige pagina",
+    "next_page_label": "Volgende pagina"
   }
 }

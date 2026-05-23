@@ -13,6 +13,9 @@ from couchers.db import session_scope
 from couchers.models import (
     ContentReport,
     Email,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Reference,
     ReferenceType,
     SignupFlow,
@@ -115,6 +118,13 @@ def test_reference_report_email_not_sent(db):
     make_friends(from_user, to_user)
 
     with session_scope() as session:
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.reference,
+            object_id=0,
+            visibility=ModerationVisibility.visible,
+        )
+        session.add(moderation_state)
+        session.flush()
         reference = Reference(
             from_user_id=from_user.id,
             to_user_id=to_user.id,
@@ -122,7 +132,11 @@ def test_reference_report_email_not_sent(db):
             text="This person was very nice to me.",
             rating=0.9,
             was_appropriate=True,
+            moderation_state_id=moderation_state.id,
         )
+        session.add(reference)
+        session.flush()
+        moderation_state.object_id = reference.id
 
         # no email sent for a positive ref
 
@@ -139,6 +153,13 @@ def test_reference_report_email(db):
     make_friends(from_user, to_user)
 
     with session_scope() as session:
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.reference,
+            object_id=0,
+            visibility=ModerationVisibility.visible,
+        )
+        session.add(moderation_state)
+        session.flush()
         reference = Reference(
             from_user_id=from_user.id,
             to_user_id=to_user.id,
@@ -147,9 +168,11 @@ def test_reference_report_email(db):
             rating=0.3,
             was_appropriate=False,
             private_text="This is some private text for support",
+            moderation_state_id=moderation_state.id,
         )
         session.add(reference)
         session.flush()
+        moderation_state.object_id = reference.id
 
         with mock_notification_email() as mock:
             maybe_send_reference_report_email(session, reference)

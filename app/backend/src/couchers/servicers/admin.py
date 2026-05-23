@@ -185,7 +185,6 @@ def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
         host_request_id=reference.host_request_id or 0,
         rating=reference.rating,
         was_appropriate=reference.was_appropriate,
-        is_deleted=reference.is_deleted,
     )
 
 
@@ -802,16 +801,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def DeleteReference(
         self, request: admin_pb2.DeleteReferenceReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
-
-        if reference is None:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "reference_not_found")
-
-        reference.is_deleted = True
-        # Log action against the reference author
-        author = session.execute(select(User).where(User.id == reference.from_user_id)).scalar_one()
-        log_admin_action(session, context, author, "delete_reference", note=f"Deleted reference {reference.id}")
-        return empty_pb2.Empty()
+        context.abort_with_error_code(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "deletereference_deprecated_use_ums",
+        )
 
     def GetUserReferences(
         self, request: admin_pb2.GetUserReferencesReq, context: CouchersContext, session: Session
