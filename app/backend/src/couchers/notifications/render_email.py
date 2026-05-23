@@ -162,7 +162,7 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
                         missed_count=missed_count,
                         latest_message_author=_user_info(message.author),
                         latest_message_text=message.text,
-                        view_url=urls.chat_link(chat_id=data.group_chat_id),
+                        view_url=urls.chat_link(chat_id=message.group_chat_id),
                     )
                 )
 
