@@ -231,6 +231,7 @@ export default function HostRequestListItem({
                     isHost={isHost}
                     requestStatus={hostRequest.status}
                     isPast={isPast}
+                    hostName={!isHost ? firstName(otherUser?.name) : undefined}
                   />
                 )}
               </StyledHostStatusContainer>
