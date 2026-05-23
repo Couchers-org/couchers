@@ -54,6 +54,7 @@ results
 **Backend version**: `{config["VERSION"]}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
+**Locale**: `en`
 **Screen resolution**: 1920x1080
 **Page**: page
 **User**: <not logged in>""".strip()
@@ -114,6 +115,7 @@ results
 **Backend version**: `{config["VERSION"]}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
+**Locale**: `en`
 **Screen resolution**: 390x844
 **Page**: page
 **User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()

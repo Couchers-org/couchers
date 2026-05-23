@@ -6,6 +6,7 @@ from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
+from typing import TYPE_CHECKING
 
 from alembic import command
 from alembic.config import Config
@@ -19,7 +20,6 @@ from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS, WORKER_THREADS
-from couchers.context import CouchersContext
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -32,6 +32,9 @@ from couchers.models import (
     User,
 )
 from couchers.sql import where_users_column_visible
+
+if TYPE_CHECKING:
+    from couchers.context import CouchersContext
 
 # Register psycopg (psycopg3) as the default driver for postgresql:// URLs
 # This must happen before any engine is created
