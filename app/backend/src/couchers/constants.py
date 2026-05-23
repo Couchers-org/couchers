@@ -103,14 +103,6 @@ PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
 GHOST_USERNAME = "ghost"
 
-# Donation drive start date - set to None to disable donation drive banner
-# When set, users who haven't donated since this date will see a donation banner
-DONATION_DRIVE_START: datetime | None = None
-
-DONATION_GOAL_USD = 5000
-# exclude big donations from Aapeli + Itsi that we're hoping to do without :)
-DONATION_OFFSET_USD = 2000
-
 # Photo gallery limits
 GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
 GALLERY_MAX_PHOTOS_VERIFIED = 5
