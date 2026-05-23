@@ -4,6 +4,7 @@
   "version": "1.1.20",
   "scripts": {
     "start": "expo start",
+    "start:devtool": "APP_VARIANT=devtool expo start --dev-client --scheme couchers-devtool",
     "start:localhost": "expo start --localhost",
     "build:protos": "bash ./ci-build-protos.sh",
     "eas-build-pre-install": "npm run build:protos",
@@ -36,6 +37,7 @@
     "@react-navigation/native": "^7.1.6",
     "expo": "~54.0.34",
     "expo-build-properties": "^1.0.10",
+    "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.11",
     "expo-dev-client": "~6.0.21",
     "expo-device": "~8.0.10",
