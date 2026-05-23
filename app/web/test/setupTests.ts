@@ -72,6 +72,15 @@ global.crypto = {
   },
 };
 
+// jsdom's Crypto has no randomUUID; back it with Node's implementation.
+if (typeof global.crypto.randomUUID !== "function") {
+  Object.defineProperty(global.crypto, "randomUUID", {
+    configurable: true,
+    writable: true,
+    value: () => crypto.randomUUID(),
+  });
+}
+
 // Polyfill TextDecoder and TextEncoder for maplibre-gl
 // @ts-expect-error Polyfilling for test environment
 global.TextDecoder = TextDecoder;
