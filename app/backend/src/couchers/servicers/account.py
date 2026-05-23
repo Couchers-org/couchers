@@ -27,7 +27,6 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.event_log import log_event
-from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -169,7 +168,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # Test experimentation integration - check if user is in the test gate
         # Create 'test_growthbook_integration' in GrowthBook to test
-        test_gate = check_gate(context, "test_growthbook_integration")
+        test_gate = context.get_boolean_value("test_growthbook_integration", default=False)
         logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
         should_show_donation_banner = DONATION_DRIVE_START is not None and (

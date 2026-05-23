@@ -174,29 +174,32 @@ def _get_growthbook(context: CouchersContext) -> GrowthBook:
     return gb
 
 
-def check_gate(context: CouchersContext, gate_name: str) -> bool:
+def evaluate_boolean(context: CouchersContext, flag_key: str, default: bool) -> bool:
     """
-    Check if a feature gate is enabled for the user in this context.
+    Evaluate a boolean feature gate for the user in this context.
 
-    Returns False if experimentation is disabled, True if EXPERIMENTATION_PASS_ALL_GATES is set.
+    Mirrors OpenFeature's get_boolean_value. Returns True if EXPERIMENTATION_PASS_ALL_GATES
+    is set, the in-code default if experimentation is disabled or the flag isn't set up in
+    GrowthBook, otherwise the gate's value. Goes through get_feature_value (not is_on) so the
+    default is honored for not-yet-created flags.
     """
     _check_initialized()
     if config["EXPERIMENTATION_PASS_ALL_GATES"]:
         return True
     if not config["EXPERIMENTATION_ENABLED"]:
-        return False
-    return _get_growthbook(context).is_on(gate_name)
+        return default
+    return bool(_get_growthbook(context).get_feature_value(flag_key, default))
 
 
-def get_feature_value[T](context: CouchersContext, feature_name: str, default: T) -> T:
+def evaluate_value[T](context: CouchersContext, flag_key: str, default: T) -> T:
     """
-    Get the value of a feature for the user in this context.
+    Evaluate a non-boolean feature value for the user in this context.
 
-    Use this for non-boolean features: strings, numbers, dicts, experiment variations,
-    dynamic configs - anything other than a simple on/off gate. The default's type
-    determines the return type and is returned verbatim when experimentation is disabled.
+    Mirrors OpenFeature's get_string_value/get_integer_value/get_float_value/get_object_value.
+    The default's type determines the return type; it's returned verbatim when experimentation
+    is disabled or the flag isn't set up in GrowthBook.
     """
     _check_initialized()
     if not config["EXPERIMENTATION_ENABLED"]:
         return default
-    return _get_growthbook(context).get_feature_value(feature_name, default)  # type: ignore[no-any-return]
+    return _get_growthbook(context).get_feature_value(flag_key, default)  # type: ignore[no-any-return]

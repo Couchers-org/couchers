@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, NoReturn, cast
 
 import grpc
 
+from couchers import experimentation
 from couchers.i18n import LocalizationContext
 
 if TYPE_CHECKING:
@@ -178,6 +179,22 @@ class CouchersContext:
     @property
     def localization(self) -> LocalizationContext:
         return self.__localization
+
+    # Feature-flag evaluation methods mirror the OpenFeature evaluation API.
+    def get_boolean_value(self, flag_key: str, default: bool) -> bool:
+        return experimentation.evaluate_boolean(self, flag_key, default)
+
+    def get_string_value(self, flag_key: str, default: str) -> str:
+        return experimentation.evaluate_value(self, flag_key, default)
+
+    def get_integer_value(self, flag_key: str, default: int) -> int:
+        return experimentation.evaluate_value(self, flag_key, default)
+
+    def get_float_value(self, flag_key: str, default: float) -> float:
+        return experimentation.evaluate_value(self, flag_key, default)
+
+    def get_object_value[T](self, flag_key: str, default: T) -> T:
+        return experimentation.evaluate_value(self, flag_key, default)
 
 
 def make_interactive_context(
