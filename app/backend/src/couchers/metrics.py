@@ -19,6 +19,7 @@ from sqlalchemy import and_, case, select
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
+from couchers import experimentation
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
@@ -631,6 +632,22 @@ postcards_sent_counter: Counter = Counter(
     "Number of postcards sent via MyPostcard",
     labelnames=["country_code"],
 )
+
+
+# Seconds since feature flags were last successfully pulled from GrowthBook. Recomputed at scrape time
+# via the hacky-gauge mechanism so it reflects live age, not the value at the last refresh. 0 when
+# experimentation is disabled or flags have never been pulled.
+def _feature_flags_staleness_seconds() -> float:
+    age = experimentation.seconds_since_last_fetch()
+    return age if age is not None else 0.0
+
+
+feature_flags_staleness_gauge: Gauge = Gauge(
+    "couchers_feature_flags_staleness_seconds",
+    "Seconds since feature flags were last successfully fetched from GrowthBook",
+    multiprocess_mode="mostrecent",
+)
+_set_hacky_gauges_funcs.append((feature_flags_staleness_gauge, _feature_flags_staleness_seconds))
 
 
 def create_prometheus_server(port: int) -> Any:

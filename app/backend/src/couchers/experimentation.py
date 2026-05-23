@@ -18,7 +18,10 @@ once at process startup.
 
 import json
 import logging
+import os
+import tempfile
 import threading
+import time
 from collections.abc import Callable
 from typing import Any
 
@@ -42,10 +45,17 @@ _state: dict[str, Any] = {"features": {}, "savedGroups": {}}
 _state_lock = threading.Lock()
 _refresh_stop = threading.Event()
 _refresh_thread: threading.Thread | None = None
+# Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
+# load from the API or seed from the disk cache; drives the staleness metric.
+_last_fetch_time: float | None = None
 
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
+
+
+class GrowthBookUnavailableError(Exception):
+    """Raised at startup when features can't be fetched and there's no usable disk cache to fall back on."""
 
 
 def _fetch_features() -> dict[str, Any] | None:
@@ -74,13 +84,68 @@ def _apply_response(response: dict[str, Any]) -> None:
         _state["savedGroups"] = response.get("savedGroups", {})
 
 
+def _set_last_fetch_time(when: float) -> None:
+    global _last_fetch_time
+    with _state_lock:
+        _last_fetch_time = when
+
+
+def seconds_since_last_fetch() -> float | None:
+    """Seconds since features were last successfully pulled from GrowthBook, or None if never pulled
+    (e.g. experimentation disabled). Drives the staleness metric so a stalled refresh is observable."""
+    with _state_lock:
+        when = _last_fetch_time
+    if when is None:
+        return None
+    return max(0.0, time.time() - when)
+
+
+def _write_cache(response: dict[str, Any]) -> None:
+    """Persist a freshly fetched payload to disk for use as a cold-start fallback.
+
+    Written atomically (temp file + os.replace) so a concurrent reader never sees a partial file, and
+    so concurrent writers from the api/worker/scheduler processes just resolve to a last-writer-wins of
+    identical content. Failures are not swallowed: a disk problem here is real and must surface.
+    """
+    path = config["GROWTHBOOK_CACHE_PATH"]
+    data = json.dumps({"fetched_at": time.time(), "response": response}).encode("utf-8")
+    directory = os.path.dirname(os.path.abspath(path))
+    fd, tmp_path = tempfile.mkstemp(dir=directory, prefix=".growthbook-cache-", suffix=".json.tmp")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
+        os.replace(tmp_path, path)
+    except BaseException:
+        # Clean up the temp file, but never mask the underlying write error.
+        try:
+            os.unlink(tmp_path)
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _read_cache() -> tuple[dict[str, Any], float] | None:
+    """Load the persisted payload as (response, fetched_at). Returns None only when no cache file
+    exists yet (e.g. the very first deploy). A file that exists but can't be parsed raises - a corrupt
+    cache is a hard failure, not something to paper over by falling through to in-code defaults."""
+    path = config["GROWTHBOOK_CACHE_PATH"]
+    if not os.path.exists(path):
+        return None
+    with open(path, "rb") as f:
+        payload = json.loads(f.read().decode("utf-8"))
+    return payload["response"], payload["fetched_at"]
+
+
 def _refresh_loop() -> None:
     while not _refresh_stop.wait(_REFRESH_INTERVAL_SECONDS):
         response = _fetch_features()
         if response is not None:
             _apply_response(response)
+            _write_cache(response)
+            _set_last_fetch_time(time.time())
             logger.debug("GrowthBook features refreshed")
-        # On failure, keep last-known-good state and try again next tick.
+        # On a failed fetch, keep last-known-good state and try again next tick. seconds_since_last_fetch
+        # climbs until a fetch succeeds, so the degradation surfaces via the staleness metric.
 
 
 def setup_experimentation() -> None:
@@ -107,6 +172,25 @@ def setup_experimentation() -> None:
     response = _fetch_features()
     if response is not None:
         _apply_response(response)
+        _write_cache(response)
+        _set_last_fetch_time(time.time())
+        logger.info("GrowthBook features loaded from API")
+    else:
+        # GrowthBook is unreachable at startup. Fall back to the last-known-good snapshot from disk
+        # rather than coming up healthy on in-code defaults. With no usable cache either, fail loudly.
+        cached = _read_cache()
+        if cached is None:
+            raise GrowthBookUnavailableError(
+                "Could not fetch features from GrowthBook and no disk cache is available - refusing to "
+                "start on in-code feature-flag defaults"
+            )
+        cached_response, fetched_at = cached
+        _apply_response(cached_response)
+        _set_last_fetch_time(fetched_at)
+        logger.warning(
+            "GrowthBook unavailable at startup; loaded features from disk cache (%.0fs old)",
+            max(0.0, time.time() - fetched_at),
+        )
 
     with _state_lock:
         smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])

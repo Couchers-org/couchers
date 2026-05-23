@@ -122,6 +122,9 @@ CONFIG_OPTIONS: CONFIG_T = [
     # GrowthBook SDK configuration
     ("GROWTHBOOK_API_HOST", str, "https://cdn.growthbook.io"),
     ("GROWTHBOOK_CLIENT_KEY", str, ""),
+    # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
+    # is unreachable. Required when experimentation is enabled so we never start on in-code defaults.
+    ("GROWTHBOOK_CACHE_PATH", str, ""),
     # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
     ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
     # User ID of the bot user for automated moderation actions
@@ -173,6 +176,8 @@ def check_config(cfg: dict[str, Any]) -> None:
     if cfg["EXPERIMENTATION_ENABLED"]:
         if not cfg["GROWTHBOOK_CLIENT_KEY"]:
             raise Exception("No GrowthBook client key but experimentation enabled")
+        if not cfg["GROWTHBOOK_CACHE_PATH"]:
+            raise Exception("No GrowthBook cache path but experimentation enabled")
 
 
 def make_config() -> dict[str, Any]:

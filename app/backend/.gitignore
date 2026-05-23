@@ -19,3 +19,6 @@ htmlcov/
 
 # test artifacts
 test_artifacts/
+
+# GrowthBook feature-flag disk cache (GROWTHBOOK_CACHE_PATH)
+growthbook-features-cache.json
