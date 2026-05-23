@@ -207,6 +207,7 @@ class CouchersContext:
 
     def _get_growthbook(self) -> GrowthBook:
         if self._growthbook is None:
+            # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
             self._growthbook = experimentation._create_evaluator(self._user_id)
         return self._growthbook
 
