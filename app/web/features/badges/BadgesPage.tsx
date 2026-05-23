@@ -9,7 +9,6 @@ import {
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import { useFeatureValue } from "experimentation";
 import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
@@ -63,12 +62,6 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // the catalog still lists the moderator badge; the award job stops granting it once
-  // show_moderator_badge is off, so hide it from the explorer to match.
-  const showModeratorBadge = useFeatureValue("show_moderator_badge", true);
-  const isHiddenBadge = (badgeId: string) =>
-    badgeId === "moderator" && !showModeratorBadge;
-
   return (
     <>
       <HtmlMeta title={t("global:nav.badges")} />
@@ -80,13 +73,11 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
       <ParentFlexDiv>
         <div>
           {badges &&
-            Object.values(badges)
-              .filter((badge) => !isHiddenBadge(badge.id))
-              .map((badge) => (
-                <BadgeListItem key={badge.id}>
-                  <Badge badge={badge} />
-                </BadgeListItem>
-              ))}
+            Object.values(badges).map((badge) => (
+              <BadgeListItem key={badge.id}>
+                <Badge badge={badge} />
+              </BadgeListItem>
+            ))}
         </div>
         <StyledDivider
           orientation={isMobile ? "horizontal" : "vertical"}
@@ -96,7 +87,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
           <ContentDiv>
             {isBadgesLoading ? (
               <CenteredSpinner />
-            ) : badges && badgeId in badges && !isHiddenBadge(badgeId) ? (
+            ) : badges && badgeId in badges ? (
               <>
                 <FlexDiv>
                   <Badge badge={badges[badgeId]} />
