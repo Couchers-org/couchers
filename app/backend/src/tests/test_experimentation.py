@@ -96,3 +96,16 @@ def test_record_feature_usage_none_value(db):
         rows = _get_usage(session, 1)
         assert len(rows) == 1
         assert rows[0].value is None
+
+
+def test_global_evaluation_excluded_from_rollout_gets_feature_default(experimentation_snapshot):
+    # global (no-user) evaluation can't bucket into a rollout, so it gets the feature default
+    assert experimentation.get_global_string_value("rollout_flag", "fallback") == "control"
+
+
+def test_global_evaluation_gets_global_force_on_flag(experimentation_snapshot):
+    assert experimentation.get_global_boolean_value("global_flag", default=False) is True
+
+
+def test_global_evaluation_unknown_feature_returns_in_code_default(experimentation_snapshot):
+    assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"

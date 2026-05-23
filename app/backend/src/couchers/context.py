@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, NoReturn, cast
 import grpc
 
 from couchers import experimentation
-from couchers.config import config
 from couchers.i18n import LocalizationContext
 
 if TYPE_CHECKING:
@@ -181,29 +180,23 @@ class CouchersContext:
     def localization(self) -> LocalizationContext:
         return self.__localization
 
-    # Feature-flag evaluation methods mirror the OpenFeature evaluation API. The in-code default is
-    # honored even for flags not yet set up in GrowthBook, since get_feature_value falls back to it.
+    # Feature-flag evaluation methods mirror the OpenFeature evaluation API, evaluating for this
+    # context's user. The gating lives in experimentation; we just pass our cached per-request
+    # evaluator. The in-code default is honored even for flags not yet set up in GrowthBook.
     def get_boolean_value(self, flag_key: str, default: bool) -> bool:
-        if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-            return True
-        return self._get_feature_value(flag_key, default)
+        return experimentation._boolean_value(flag_key, default, self._get_growthbook)
 
     def get_string_value(self, flag_key: str, default: str) -> str:
-        return self._get_feature_value(flag_key, default)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_integer_value(self, flag_key: str, default: int) -> int:
-        return self._get_feature_value(flag_key, default)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_float_value(self, flag_key: str, default: float) -> float:
-        return self._get_feature_value(flag_key, default)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_object_value[T](self, flag_key: str, default: T) -> T:
-        return self._get_feature_value(flag_key, default)
-
-    def _get_feature_value[T](self, flag_key: str, default: T) -> T:
-        if not config["EXPERIMENTATION_ENABLED"]:
-            return default
-        return self._get_growthbook().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def _get_growthbook(self) -> GrowthBook:
         if self._growthbook is None:
