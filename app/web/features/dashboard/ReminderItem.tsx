@@ -7,6 +7,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Reminder } from "proto/account_pb";
+import { ReferenceType } from "proto/references_pb";
 import {
   referenceTypeRoute,
   routeToEditProfile,
@@ -44,9 +45,12 @@ export default function ReminderItem({
     const { hostRequestId, otherUser, referenceType } =
       reminder.writeReferenceReminder;
     title = t("reminder.write_reference.title");
-    description = t("reminder.write_reference.description", {
-      name: otherUser.name,
-    });
+    description = t(
+      referenceType === ReferenceType.REFERENCE_TYPE_SURFED
+        ? "reminder.write_reference.description_surfed"
+        : "reminder.write_reference.description_hosted",
+      { name: otherUser.name },
+    );
     buttonText = t("reminder.write_reference.button");
     href = routeToLeaveReference(
       referenceTypeRoute[referenceType],
