@@ -84,6 +84,11 @@
       "description": "Leave a reference for {{name}}'s stay",
       "button": "Write reference"
     },
+    "complete_my_home": {
+      "title": "Complete your profile \"My Home\" section",
+      "description": "Fill in your sleeping arrangements, house rules, and a description of your place",
+      "button": "Edit your home"
+    },
     "complete_profile": {
       "title": "Complete your profile",
       "description": "Fill in your \"Who I Am\" section and upload a profile photo",

@@ -80,6 +80,24 @@ describe("ReminderItem", () => {
     );
   });
 
+  it("renders a 'complete my home' card with a link to the home edit tab", () => {
+    render(<ReminderItem reminder={{ completeMyHomeReminder: {} }} />, {
+      wrapper,
+    });
+
+    expect(
+      screen.getByText(t("dashboard:reminder.complete_my_home.title")),
+    ).toBeVisible();
+    expect(
+      screen.getByText(t("dashboard:reminder.complete_my_home.description")),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", {
+        name: t("dashboard:reminder.complete_my_home.button"),
+      }),
+    ).toHaveAttribute("href", "/profile/edit/home");
+  });
+
   it("renders a 'complete profile' card with a link to edit the profile", () => {
     render(<ReminderItem reminder={{ completeProfileReminder: {} }} />, {
       wrapper,
