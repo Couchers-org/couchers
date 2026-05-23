@@ -70,7 +70,8 @@ def test_donation_banner_never_donated(db, feature_flags):
     # Explicitly set last_donated=None since generate_user defaults to now()
     user, token = generate_user(last_donated=None)
 
-    feature_flags.set("donation_drive_start", "2025-11-01T00:00:00+00:00")
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.should_show_donation_banner
@@ -85,7 +86,8 @@ def test_donation_banner_donated_before_drive(db, feature_flags):
         last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
         session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-    feature_flags.set("donation_drive_start", "2025-11-01T00:00:00+00:00")
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.should_show_donation_banner
@@ -100,7 +102,8 @@ def test_donation_banner_donated_after_drive(db, feature_flags):
         last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
         session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-    feature_flags.set("donation_drive_start", "2025-11-01T00:00:00+00:00")
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert not res.should_show_donation_banner
@@ -116,7 +119,7 @@ def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
 
-    feature_flags.set("donation_drive_start", drive_start.isoformat())
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert not res.should_show_donation_banner
