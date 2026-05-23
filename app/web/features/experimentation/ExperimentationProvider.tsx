@@ -1,7 +1,9 @@
-import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
-import { isExperimentationEnabled } from "experimentation";
+import { OpenFeatureProvider } from "@openfeature/react-sdk";
+import { OpenFeature } from "@openfeature/web-sdk";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useEffect } from "react";
+
+import { CouchersFlagProvider } from "./CouchersFlagProvider";
 
 export default function ExperimentationProvider({
   children,
@@ -10,30 +12,20 @@ export default function ExperimentationProvider({
 }) {
   const { authState } = useAuthContext();
 
-  const gb = useMemo(
-    () =>
-      new GrowthBook({
-        apiHost: process.env.NEXT_PUBLIC_GROWTHBOOK_API_HOST,
-        clientKey: process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY,
-        enableDevMode: process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
-      }),
-    [],
-  );
-
+  // Set the provider on the client only (it makes a network call on init, which can't run on the
+  // server). Until it's ready, hooks return their in-code defaults.
   useEffect(() => {
-    if (isExperimentationEnabled()) {
-      gb.init({ timeout: 2000 });
-    }
-    return () => {
-      gb.destroy();
-    };
-  }, [gb]);
+    OpenFeature.setProvider(new CouchersFlagProvider());
+  }, []);
 
+  // The backend identifies the user from the session cookie; the targeting key just triggers a
+  // re-evaluation when the user logs in or out.
   useEffect(() => {
-    gb.setAttributes({
-      id: authState.userId?.toString() ?? undefined,
-    });
-  }, [gb, authState.userId]);
+    const userId = authState.userId;
+    OpenFeature.setContext(
+      userId != null ? { targetingKey: userId.toString() } : {},
+    );
+  }, [authState.userId]);
 
-  return <GrowthBookProvider growthbook={gb}>{children}</GrowthBookProvider>;
+  return <OpenFeatureProvider>{children}</OpenFeatureProvider>;
 }
