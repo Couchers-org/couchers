@@ -281,7 +281,9 @@ export default function DevSettingsScreen() {
                 onPress={() => setLinkExpanded((v) => !v)}
                 style={styles.shareHeader}
               >
-                <Text style={[styles.shareTitle, { color: colors.textSecondary }]}>
+                <Text
+                  style={[styles.shareTitle, { color: colors.textSecondary }]}
+                >
                   {linkExpanded ? "▾" : "▸"} Share via link
                 </Text>
               </Pressable>
