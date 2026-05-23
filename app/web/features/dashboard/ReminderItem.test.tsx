@@ -65,7 +65,7 @@ describe("ReminderItem", () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        t("dashboard:reminder.write_reference.description", {
+        t("dashboard:reminder.write_reference.description_hosted", {
           name: surferUser.name,
         }),
       ),
