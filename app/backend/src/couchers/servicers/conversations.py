@@ -5,7 +5,7 @@ from typing import Any, cast
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql import func, not_, or_
 
@@ -24,13 +24,12 @@ from couchers.models import (
     Message,
     MessageType,
     ModerationObjectType,
-    Notification,
     RateLimitAction,
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
@@ -614,11 +613,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         subscription.last_seen_message_id = request.last_seen_message_id
 
-        session.execute(
-            update(Notification)
-            .values(is_seen=True)
-            .where(Notification.user_id == context.user_id)
-            .where(Notification.key == str(request.group_chat_id))
+        mark_notifications_seen(
+            session,
+            user_id=context.user_id,
+            key=str(request.group_chat_id),
+            topic_actions=[
+                NotificationTopicAction.chat__message,
+                NotificationTopicAction.chat__missed_messages,
+            ],
         )
 
         return empty_pb2.Empty()
