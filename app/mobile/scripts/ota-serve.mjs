@@ -20,7 +20,7 @@ const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, cur, i, a) => {
     if (cur.startsWith("--")) acc.push([cur.slice(2), a[i + 1]]);
     return acc;
-  }, [])
+  }, []),
 );
 const DIR = path.resolve(args.dir ?? "ota-out");
 const PORT = parseInt(args.port ?? "8099", 10);
@@ -43,12 +43,18 @@ const LOG_HEADERS = [
 function platforms() {
   return fs
     .readdirSync(DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && fs.existsSync(path.join(DIR, d.name, "manifest.json")))
+    .filter(
+      (d) =>
+        d.isDirectory() &&
+        fs.existsSync(path.join(DIR, d.name, "manifest.json")),
+    )
     .map((d) => d.name);
 }
 
 function loadManifest(platform, host) {
-  const raw = JSON.parse(fs.readFileSync(path.join(DIR, platform, "manifest.json"), "utf8"));
+  const raw = JSON.parse(
+    fs.readFileSync(path.join(DIR, platform, "manifest.json"), "utf8"),
+  );
   const rewrite = (u) => `http://${host}${new URL(u).pathname}`;
   raw.launchAsset.url = rewrite(raw.launchAsset.url);
   raw.assets = raw.assets.map((a) => ({ ...a, url: rewrite(a.url) }));
@@ -56,10 +62,15 @@ function loadManifest(platform, host) {
 }
 
 function contentTypeMap(platform) {
-  const m = JSON.parse(fs.readFileSync(path.join(DIR, platform, "manifest.json"), "utf8"));
+  const m = JSON.parse(
+    fs.readFileSync(path.join(DIR, platform, "manifest.json"), "utf8"),
+  );
   const map = new Map();
   for (const a of m.assets) map.set(a.key, a.contentType);
-  map.set(path.basename(new URL(m.launchAsset.url).pathname), m.launchAsset.contentType);
+  map.set(
+    path.basename(new URL(m.launchAsset.url).pathname),
+    m.launchAsset.contentType,
+  );
   return map;
 }
 
@@ -71,8 +82,16 @@ function multipartBody(manifest) {
     `content-type: ${contentType}\r\n\r\n` +
     `${body}\r\n`;
   const body =
-    part("manifest", JSON.stringify(manifest), "application/json; charset=utf-8") +
-    part("extensions", JSON.stringify({ assetRequestHeaders: {} }), "application/json") +
+    part(
+      "manifest",
+      JSON.stringify(manifest),
+      "application/json; charset=utf-8",
+    ) +
+    part(
+      "extensions",
+      JSON.stringify({ assetRequestHeaders: {} }),
+      "application/json",
+    ) +
     `--${boundary}--\r\n`;
   return { body, contentType: `multipart/mixed; boundary=${boundary}` };
 }
@@ -89,7 +108,11 @@ function chooseFraming(req, url) {
   const q = url.searchParams.get("framing");
   if (q === "json" || q === "multipart") return q;
   const accept = req.headers["accept"] ?? "";
-  if (accept.includes("multipart/mixed") || req.headers["expo-protocol-version"]) return "multipart";
+  if (
+    accept.includes("multipart/mixed") ||
+    req.headers["expo-protocol-version"]
+  )
+    return "multipart";
   return "json";
 }
 
@@ -155,14 +178,17 @@ const server = http.createServer((req, res) => {
       const { body, contentType } = multipartBody(manifest);
       // OTA_NO_PROTO_HEADERS mimics raw S3, which can set content-type but not
       // arbitrary response headers like expo-protocol-version / expo-sfv-version.
-      const headers = { "content-type": contentType, "cache-control": "private, max-age=0" };
+      const headers = {
+        "content-type": contentType,
+        "cache-control": "private, max-age=0",
+      };
       if (!process.env.OTA_NO_PROTO_HEADERS) {
         headers["expo-protocol-version"] = "1";
         headers["expo-sfv-version"] = "0";
       }
       res.writeHead(200, headers);
       console.log(
-        `    -> 200 multipart (${body.length} bytes)${process.env.OTA_NO_PROTO_HEADERS ? " [no proto headers / S3-mimic]" : ""}`
+        `    -> 200 multipart (${body.length} bytes)${process.env.OTA_NO_PROTO_HEADERS ? " [no proto headers / S3-mimic]" : ""}`,
       );
       res.end(body);
     } else {
@@ -180,8 +206,10 @@ const server = http.createServer((req, res) => {
 
   // bundle / assets
   let filePath = null;
-  if (parts[1] === "bundle.hbc") filePath = path.join(DIR, platform, "bundle.hbc");
-  else if (parts[1] === "assets" && parts[2]) filePath = path.join(DIR, platform, "assets", parts[2]);
+  if (parts[1] === "bundle.hbc")
+    filePath = path.join(DIR, platform, "bundle.hbc");
+  else if (parts[1] === "assets" && parts[2])
+    filePath = path.join(DIR, platform, "assets", parts[2]);
 
   if (filePath && fs.existsSync(filePath)) {
     const name = path.basename(filePath);
@@ -197,6 +225,8 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`OTA test server on http://0.0.0.0:${PORT}  (platforms: ${platforms().join(", ") || "none"})`);
+  console.log(
+    `OTA test server on http://0.0.0.0:${PORT}  (platforms: ${platforms().join(", ") || "none"})`,
+  );
   console.log(`Open on the phone:  http://<this-mac-LAN-ip>:${PORT}/`);
 });

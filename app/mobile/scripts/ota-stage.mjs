@@ -67,7 +67,16 @@ function sha256HexToUuid(buf) {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
 }
 
-function assetMetadata({ distDir, filePath, ext, isLaunchAsset, baseUrl, platform, outDir, staged }) {
+function assetMetadata({
+  distDir,
+  filePath,
+  ext,
+  isLaunchAsset,
+  baseUrl,
+  platform,
+  outDir,
+  staged,
+}) {
   const abs = path.join(distDir, filePath);
   const buf = fs.readFileSync(abs);
   const key = md5Hex(buf);
@@ -112,13 +121,20 @@ function main() {
   const metadataBuf = fs.readFileSync(path.join(distDir, "metadata.json"));
   const metadata = JSON.parse(metadataBuf.toString("utf8"));
   const pf = metadata.fileMetadata?.[platform];
-  if (!pf) throw new Error(`No fileMetadata for platform ${platform} in metadata.json`);
+  if (!pf)
+    throw new Error(
+      `No fileMetadata for platform ${platform} in metadata.json`,
+    );
 
   let expoClient = {};
   if (args["expo-config"]) {
-    expoClient = JSON.parse(fs.readFileSync(path.resolve(args["expo-config"]), "utf8"));
+    expoClient = JSON.parse(
+      fs.readFileSync(path.resolve(args["expo-config"]), "utf8"),
+    );
   } else {
-    console.warn("WARN: no --expo-config given; extra.expoClient will be empty {}");
+    console.warn(
+      "WARN: no --expo-config given; extra.expoClient will be empty {}",
+    );
   }
 
   const staged = new Set();
@@ -132,7 +148,7 @@ function main() {
       platform,
       outDir,
       staged,
-    })
+    }),
   );
   const launchAsset = assetMetadata({
     distDir,
@@ -155,7 +171,10 @@ function main() {
     extra: { expoClient },
   };
 
-  fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(
+    path.join(outDir, "manifest.json"),
+    JSON.stringify(manifest, null, 2),
+  );
 
   // Emit the protocol-v1 multipart/mixed framing that the dev client requires, as
   // a static file S3 can serve verbatim, plus the content-type (with the matching
@@ -168,18 +187,30 @@ function main() {
     `content-type: ${ct}\r\n\r\n` +
     `${body}\r\n`;
   const multipart =
-    part("manifest", JSON.stringify(manifest), "application/json; charset=utf-8") +
-    part("extensions", JSON.stringify({ assetRequestHeaders: {} }), "application/json") +
+    part(
+      "manifest",
+      JSON.stringify(manifest),
+      "application/json; charset=utf-8",
+    ) +
+    part(
+      "extensions",
+      JSON.stringify({ assetRequestHeaders: {} }),
+      "application/json",
+    ) +
     `--${boundary}--\r\n`;
   fs.writeFileSync(path.join(outDir, "manifest"), multipart);
-  fs.writeFileSync(path.join(outDir, "manifest.content-type"), `multipart/mixed; boundary=${boundary}`);
+  fs.writeFileSync(
+    path.join(outDir, "manifest.content-type"),
+    `multipart/mixed; boundary=${boundary}`,
+  );
 
   // GitHub strips custom-scheme (couchers-devtool://) links from comments, so the PR
   // comment links to this https page, which redirects to the dev-launcher deep link
   // once opened on the device.
   const manifestUrl = `${baseUrl}/${platform}/manifest`;
   const deepLink =
-    "couchers-devtool://expo-development-client/?url=" + encodeURIComponent(manifestUrl);
+    "couchers-devtool://expo-development-client/?url=" +
+    encodeURIComponent(manifestUrl);
   const openHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -198,11 +229,21 @@ function main() {
   console.log(`staged ${platform} -> ${outDir}`);
   console.log(`  id              ${manifest.id}`);
   console.log(`  runtimeVersion  ${runtimeVersion}`);
-  console.log(`  launchAsset     ${launchAsset.key} (${launchAsset.contentType})`);
-  console.log(`  assets          ${assets.length} entries, ${staged.size - 1} unique files`);
-  console.log(`  manifest.json   ${path.join(outDir, "manifest.json")} (object, for local server)`);
-  console.log(`  manifest        ${path.join(outDir, "manifest")} (multipart body, for S3)`);
-  console.log(`  open.html       ${path.join(outDir, "open.html")} (https -> deep link redirect)`);
+  console.log(
+    `  launchAsset     ${launchAsset.key} (${launchAsset.contentType})`,
+  );
+  console.log(
+    `  assets          ${assets.length} entries, ${staged.size - 1} unique files`,
+  );
+  console.log(
+    `  manifest.json   ${path.join(outDir, "manifest.json")} (object, for local server)`,
+  );
+  console.log(
+    `  manifest        ${path.join(outDir, "manifest")} (multipart body, for S3)`,
+  );
+  console.log(
+    `  open.html       ${path.join(outDir, "open.html")} (https -> deep link redirect)`,
+  );
 }
 
 main();
