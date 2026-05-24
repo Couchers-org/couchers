@@ -85,7 +85,7 @@ const updates =
   APP_VARIANT === "devtool"
     ? { enabled: true }
     : APP_VARIANT === "staging"
-      ? { url: "https://dev-api.couchershq.org/mobile/ota/manifest" }
+      ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
       : { url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413" };
 
 export default {

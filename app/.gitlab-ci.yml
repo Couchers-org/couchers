@@ -981,6 +981,72 @@ build:devtool-native:
         - app/proto/**/*
         - app/mobile/**/*
 
+# Staging OTA auto-deploy. Mirrors the web staging deploy (build a static bundle,
+# publish to dev-assets, serve from there): bundle the staging variant, stage the
+# (unsigned) Expo Updates output, upload bundle+assets to the dev-assets CDN under
+# an immutable per-SHA prefix, and print the native_ota_bundles JSON. The staging
+# backend (dev-api.couchershq.org/native/ota/manifest) builds the served manifest
+# from that flag, with asset URLs pointing at what this job uploaded. Runs on
+# develop only. Production publishing goes through the tools/ ops deploy.
+build:mobile-ota-staging:
+  needs: ["protos"]
+  stage: build
+  image: node:22
+  inherit:
+    default: false
+  variables:
+    APP_VARIANT: staging
+    EXPO_PUBLIC_COUCHERS_ENV: preview
+    EXPO_PUBLIC_API_BASE_URL: https://dev-api.couchershq.org
+    EXPO_PUBLIC_WEB_BASE_URL: https://next.couchershq.org
+    OTA_PLATFORMS: "ios android"
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx expo config --type public --json > ota-expo-config.json
+    - |
+      for P in $OTA_PLATFORMS; do
+        rm -rf dist
+        npx expo export --platform "$P"
+        RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
+        echo "fingerprint($P) = $RV"
+        # The asset URLs baked into the manifest must resolve to the upload location
+        # below; the CDN host maps <sha>--ota-staging -> the /ota-staging/<sha>/ prefix.
+        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota-staging.$PREVIEW_DOMAIN" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+      done
+    - node scripts/ota-growthbook-flag.mjs --out ota-staging-out --platforms "$OTA_PLATFORMS" | tee ota-staging-out/native_ota_bundles.json
+  artifacts:
+    paths:
+      - app/mobile/ota-staging-out/
+    expire_in: 1 week
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+
+deploy:mobile-ota-staging:
+  needs: ["build:mobile-ota-staging"]
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  variables:
+    OTA_PLATFORMS: "ios android"
+  script:
+    - |
+      for P in $OTA_PLATFORMS; do
+        D="app/mobile/ota-staging-out/$P"
+        # Only the bundle + assets go on the CDN; the manifest is served by the backend.
+        aws s3 cp "$D/bundle.hbc" "s3://$AWS_PREVIEW_BUCKET/ota-staging/$CI_COMMIT_SHORT_SHA/$P/bundle.hbc" --content-type application/javascript
+        if [ -d "$D/assets" ]; then
+          aws s3 cp "$D/assets/" "s3://$AWS_PREVIEW_BUCKET/ota-staging/$CI_COMMIT_SHORT_SHA/$P/assets/" --recursive
+        fi
+      done
+    - echo "Bundle + assets uploaded. Paste this into the staging GrowthBook 'native_ota_bundles' flag:"
+    - cat app/mobile/ota-staging-out/native_ota_bundles.json
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+
 preview:protos:
   needs: ["protos"]
   stage: preview
