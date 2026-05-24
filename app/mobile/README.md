@@ -207,22 +207,33 @@ Open the **Couchers Dev Tool** app and connect to the Metro server (same network
 
 ### Releasing a new Dev Tool build
 
+**Automatic (CI).** Every push to the configured build branch (`DEVTOOL_BUILD_BRANCH` in `app/.gitlab-ci.yml` — `mobile/v1.1.20` while validating, then `develop`) runs `build:devtool-native`, which recomputes the Expo fingerprint and, **only if it changed since the last-built client**, builds a fresh client on EAS. JS/TS-only changes don't change the fingerprint, so they're skipped — those load over the air (see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md)). The last-built fingerprint is recorded per platform under `s3://<dev-assets>/devtool-builds/` and only updated after a successful build, so a failed build is retried next pipeline.
+
+- **iOS** → EAS build + auto-submit to **TestFlight**; invited devs update from the TestFlight app.
+- **Android** → EAS builds a sideloadable **APK** (the `devtool-apk` profile), which CI downloads and publishes to the dev-assets bucket at a stable URL: **`https://android--devtool-builds.preview.couchershq.org/`**. Devs bookmark that page and re-download to update. Google Play has no TestFlight-style channel for a dev-client APK (Play distributes AABs through release tracks, not installers), so we host it ourselves.
+
+**Manual** (same EAS builds, run locally):
+
 ```bash
-npm run release:ios:devtool       # iOS → TestFlight
-npm run release:android:devtool   # Android → Play internal testing
+npm run release:ios:devtool       # iOS → TestFlight (auto-submit)
+npm run release:android:devtool   # Android → APK (EAS gives a download link/QR)
 ```
 
-Once submitted, the build appears in TestFlight after Apple's automated processing (no full App Review for internal testers). Invited devs update from the TestFlight app.
+Once submitted, the iOS build appears in TestFlight after Apple's automated processing (no full App Review for internal testers).
 
 ### One-time setup (maintainers)
 
-Before the first release, the **Couchers Dev Tool** app records must exist:
+Before the first release:
 
-1. Create the app in [App Store Connect](https://appstoreconnect.apple.com) with bundle ID `org.couchers.devtool.ios`, and create the matching app in [Google Play Console](https://play.google.com/console) with package `org.couchers.devtool.android`.
-2. Replace `REPLACE_WITH_DEVTOOL_ASC_APP_ID` in `eas.json` (`submit.devtool.ios.ascAppId`) with the new App Store Connect app ID.
+1. Create the app in [App Store Connect](https://appstoreconnect.apple.com) with bundle ID `org.couchers.devtool.ios`. (No Google Play Console app is needed — the Android Dev Tool is a self-hosted APK, not a Play release.)
+2. Set `submit.devtool.ios.ascAppId` in `eas.json` to the App Store Connect app ID.
 3. Invite developers as internal TestFlight testers — no per-device UDID registration is required (unlike EAS internal/ad-hoc distribution).
 
-> **Coming next:** with the Dev Tool installed, we can wire up per-PR JavaScript previews — a CI job publishes each PR's bundle via `eas update` and posts a QR code on the PR. Scanning it in the Dev Tool loads that branch's changes, the mobile analog of our Vercel web previews. (JS-only; the `runtimeVersion: fingerprint` policy ensures a PR that changes native code won't load a mismatched bundle.)
+For the **automatic CI rebuild** (`build:devtool-native`), additionally:
+
+4. Add an Expo robot token (build + submit scope) as the masked, protected GitLab CI/CD variable **`EXPO_TOKEN`**. The Android APK is signed with the keystore EAS already holds for the `devtool` builds, so no extra Android credentials are required.
+
+Per-PR JavaScript previews (the OTA QR posted on PRs) are already wired up; see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md).
 
 ## Updating Dependencies
 

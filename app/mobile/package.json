@@ -17,7 +17,7 @@
     "release:ios:devtool": "eas build --platform ios --profile devtool --auto-submit",
     "release:ios:staging": "eas build --platform ios --profile staging --auto-submit",
     "release:ios:production": "eas build --platform ios --profile production --auto-submit",
-    "release:android:devtool": "eas build --platform android --profile devtool --auto-submit",
+    "release:android:devtool": "eas build --platform android --profile devtool-apk",
     "release:android:staging": "eas build --platform android --profile staging --auto-submit",
     "release:android:production": "eas build --platform android --profile production --auto-submit"
   },
