@@ -55,7 +55,7 @@ On iOS: if you get issues about signing, try opening `app/mobile/ios` in Xcode a
 
 > **Tip:** If you only work on JavaScript/TypeScript, you can skip the local
 > native build (and Xcode/Android Studio) entirely — install the prebuilt
-> **Couchers (Dev Tool)** app from TestFlight and run `npx expo start` against it.
+> **Couchers Dev Tool** app from TestFlight and run `npx expo start` against it.
 > See [Dev Tool (TestFlight)](#dev-tool-testflight). You only
 > need a local native build when changing native dependencies or `app.config.js`.
 
@@ -181,7 +181,7 @@ We maintain **three separate apps** that can coexist on the same device:
 
 | Variant | App Name | iOS Bundle ID | Android Package | API Server |
 |---------|----------|---------------|-----------------|------------|
-| **Dev Tool** | Couchers (Dev Tool) | `org.couchers.devtool.ios` | `org.couchers.devtool.android` | `dev-api.couchershq.org` |
+| **Dev Tool** | Couchers Dev Tool | `org.couchers.devtool.ios` | `org.couchers.devtool.android` | `dev-api.couchershq.org` |
 | **Staging** | Couchers (Staging) | `org.couchers.staging.ios` | `org.couchers.staging.android` | `dev-api.couchershq.org` |
 | **Production** | Couchers | `org.couchers.ios` | `org.couchers.android` | `api.couchers.org` |
 
@@ -193,7 +193,7 @@ The **Dev Tool** variant is a [development build](#dev-tool-testflight) (it reus
 
 ## Dev Tool (TestFlight)
 
-The **Couchers (Dev Tool)** variant is a [development build](https://docs.expo.dev/develop/development-builds/introduction/) — essentially "Expo Go, but with our own native modules." It bundles every native dependency in the project plus the Expo dev launcher, and points at the staging backend. Devs install it once from TestFlight and load JavaScript over the air, so they never need Xcode, CocoaPods, or a local native build for day-to-day JS/TS work. The "Dev Tool" name signals it's a developer utility, not another release flavor like staging or production.
+The **Couchers Dev Tool** variant is a [development build](https://docs.expo.dev/develop/development-builds/introduction/) — essentially "Expo Go, but with our own native modules." It bundles every native dependency in the project plus the Expo dev launcher, and points at the staging backend. Devs install it once from TestFlight and load JavaScript over the air, so they never need Xcode, CocoaPods, or a local native build for day-to-day JS/TS work. The "Dev Tool" name signals it's a developer utility, not another release flavor like staging or production.
 
 **Daily workflow (no Xcode needed):**
 
@@ -201,7 +201,7 @@ The **Couchers (Dev Tool)** variant is a [development build](https://docs.expo.d
 npx expo start
 ```
 
-Open the **Couchers (Dev Tool)** app and connect to the Metro server (same network), or scan the QR code. JS/TS changes hot-reload exactly as they do with a locally built development build.
+Open the **Couchers Dev Tool** app and connect to the Metro server (same network), or scan the QR code. JS/TS changes hot-reload exactly as they do with a locally built development build.
 
 **When a new Dev Tool build is required:** only when the set of native dependencies changes (adding/removing a native package, changing `app.config.js`, or bumping the Expo SDK). Pure JS/TS changes never need a rebuild — they load over the air.
 
@@ -216,7 +216,7 @@ Once submitted, the build appears in TestFlight after Apple's automated processi
 
 ### One-time setup (maintainers)
 
-Before the first release, the **Couchers (Dev Tool)** app records must exist:
+Before the first release, the **Couchers Dev Tool** app records must exist:
 
 1. Create the app in [App Store Connect](https://appstoreconnect.apple.com) with bundle ID `org.couchers.devtool.ios`, and create the matching app in [Google Play Console](https://play.google.com/console) with package `org.couchers.devtool.android`.
 2. Replace `REPLACE_WITH_DEVTOOL_ASC_APP_ID` in `eas.json` (`submit.devtool.ios.ascAppId`) with the new App Store Connect app ID.
