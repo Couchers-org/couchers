@@ -46,7 +46,7 @@ const VARIANTS = {
     linkHost: "next.couchershq.org",
   },
   devtool: {
-    name: "Couchers (Dev Tool)",
+    name: "Couchers Dev Tool",
     bundleIdentifier: "org.couchers.devtool.ios",
     androidPackage: "org.couchers.devtool.android",
     scheme: "couchers-devtool",
