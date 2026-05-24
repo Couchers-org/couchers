@@ -15,8 +15,10 @@ from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
     BackgroundJob,
+    HostingStatus,
     InviteCode,
     PhotoGalleryItem,
+    SleepingArrangement,
     Upload,
     User,
 )
@@ -1133,6 +1135,38 @@ def test_reminders(db, moderator):
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_my_home_reminder(db):
+    # can_host with incomplete my home (max_guests not set) → reminder shown
+    can_host_incomplete, token1 = generate_user(hosting_status=HostingStatus.can_host)
+    # maybe with incomplete my home → reminder shown
+    maybe_incomplete, token2 = generate_user(hosting_status=HostingStatus.maybe)
+    # cant_host → no reminder regardless of my home completion
+    cant_host, token3 = generate_user(hosting_status=HostingStatus.cant_host)
+    # can_host with fully completed my home → no reminder
+    can_host_complete, token4 = generate_user(
+        hosting_status=HostingStatus.can_host,
+        max_guests=2,
+        sleeping_arrangement=SleepingArrangement.private,
+        # about_place is set by default in make_user
+    )
+
+    with account_session(token1) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_my_home_reminder",
+        ]
+
+    with account_session(token2) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_my_home_reminder",
+        ]
+
+    with account_session(token3) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+    with account_session(token4) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
 
 def test_volunteer_stuff(db):

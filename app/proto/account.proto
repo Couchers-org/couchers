@@ -309,6 +309,8 @@ message ListInviteCodesRes {
 
 message CompleteProfileReminder {}
 
+message CompleteMyHomeReminder {}
+
 message CompleteVerificationReminder {}
 
 message RespondToHostRequestReminder {
@@ -328,6 +330,7 @@ message Reminder {
     CompleteVerificationReminder complete_verification_reminder = 2;
     RespondToHostRequestReminder respond_to_host_request_reminder = 3;
     WriteReferenceReminder write_reference_reminder  = 4;
+    CompleteMyHomeReminder complete_my_home_reminder = 5;
   }
 }
 

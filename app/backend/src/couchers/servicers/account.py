@@ -43,6 +43,7 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    HostingStatus,
     HostRequest,
     HostRequestStatus,
     InviteCode,
@@ -788,6 +789,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not has_completed_profile(session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
+
+        if user.hosting_status in (HostingStatus.can_host, HostingStatus.maybe) and not user.has_completed_my_home:
+            reminders.append(account_pb2.Reminder(complete_my_home_reminder=account_pb2.CompleteMyHomeReminder()))
 
         return account_pb2.GetRemindersRes(reminders=reminders)
 
