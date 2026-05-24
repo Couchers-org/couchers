@@ -22,6 +22,53 @@ from couchers.proto.google.api import httpbody_pb2
 
 _start_time = time.monotonic()
 
+# --- Hardcoded OTA manifest scaffolding (cut 1: validate protocol + transport) ---
+# These point at a real staging bundle staged with ota-stage.mjs and uploaded to
+# the CDN. They are filled in after that export; until then the client accepts the
+# manifest framing but the bundle download 404s (which still proves the endpoint).
+# Per-user selection, signing, and the release registry come later.
+_OTA_BASE_URL = "https://couchers-dev-assets.s3.amazonaws.com/ota/prod-test"
+
+# Per-platform hardcoded update. `id` must differ from the build's embedded update
+# id or the client no-ops; `runtimeVersion` is echoed from the request so the
+# fingerprint always matches during validation.
+_OTA_BUNDLES: dict[str, dict[str, Any]] = {
+    "ios": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "launch_asset": {"key": "PLACEHOLDER", "url": f"{_OTA_BASE_URL}/ios/bundle.hbc"},
+        "assets": [],
+    },
+    "android": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "launch_asset": {"key": "PLACEHOLDER", "url": f"{_OTA_BASE_URL}/android/bundle.hbc"},
+        "assets": [],
+    },
+}
+
+# Boundary baked into both the body and the content-type, matching ota-stage.mjs.
+_OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
+
+
+def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
+    # Protocol-v1 multipart/mixed: the `manifest` (or `directive`) part + an
+    # `extensions` part, with the exact CRLF framing the dev client verified
+    # on-device (ota-serve.mjs). field_name is "manifest" for an update or
+    # "directive" for a noUpdateAvailable/rollBackToEmbedded directive.
+    def part(name: str, body: str, content_type: str) -> str:
+        return (
+            f"--{_OTA_BOUNDARY}\r\n"
+            f'content-disposition: form-data; name="{name}"\r\n'
+            f"content-type: {content_type}\r\n\r\n"
+            f"{body}\r\n"
+        )
+
+    body = (
+        part(field_name, json.dumps(content), "application/json; charset=utf-8")
+        + part("extensions", json.dumps({"assetRequestHeaders": {}}), "application/json")
+        + f"--{_OTA_BOUNDARY}--\r\n"
+    )
+    return body.encode("utf-8")
+
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self) -> str:
@@ -93,6 +140,49 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         return httpbody_pb2.HttpBody(
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
+        )
+
+    def GetMobileUpdateManifest(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        def header(name: str) -> str:
+            value = context.headers.get(name, "")
+            return value.decode() if isinstance(value, bytes) else value
+
+        # The Expo Updates client requires these response headers or it rejects the
+        # manifest before fetching. Envoy forwards initial metadata as HTTP response
+        # headers (same path as set-cookie).
+        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
+
+        platform = header("expo-platform") or "ios"
+        runtime_version = header("expo-runtime-version")
+
+        bundle = _OTA_BUNDLES.get(platform)
+        if bundle is None or runtime_version == "":
+            # Unknown platform or no fingerprint: tell the client to keep its bundle.
+            directive = {"type": "noUpdateAvailable"}
+            return httpbody_pb2.HttpBody(
+                content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+                data=_ota_multipart_body("directive", directive),
+            )
+
+        manifest = {
+            "id": bundle["id"],
+            "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "runtimeVersion": runtime_version,
+            "launchAsset": {
+                "key": bundle["launch_asset"]["key"],
+                "contentType": "application/javascript",
+                "url": bundle["launch_asset"]["url"],
+            },
+            "assets": bundle["assets"],
+            "metadata": {},
+            "extra": {"expoClient": {}},
+        }
+
+        return httpbody_pb2.HttpBody(
+            content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+            data=_ota_multipart_body("manifest", manifest),
         )
 
     def ReportDiagnostics(
