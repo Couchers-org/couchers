@@ -19,7 +19,6 @@ from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select
 from sqlalchemy.sql import and_, func
 
-from couchers.base_url_override import use_base_url_override_for_user
 from couchers.constants import (
     CALL_CANCELLED_ERROR_MESSAGE,
     COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
@@ -319,7 +318,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             with session_scope() as session:
                 try:
-                    with use_base_url_override_for_user(session, auth_info.user_id if auth_info else None):
+                    with couchers_context.use_base_url_override(session):
                         _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
                     finished = perf_counter_ns()

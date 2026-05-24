@@ -26,9 +26,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_base_url_overrides_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_base_url_overrides")),
     )
-    op.create_index(op.f("ix_base_url_overrides_user_id"), "base_url_overrides", ["user_id"], unique=False)
+    op.create_index("ix_base_url_overrides_active", "base_url_overrides", ["user_id", "created"], unique=False)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_base_url_overrides_user_id"), table_name="base_url_overrides")
+    op.drop_index("ix_base_url_overrides_active", table_name="base_url_overrides")
     op.drop_table("base_url_overrides")

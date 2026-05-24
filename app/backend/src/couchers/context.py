@@ -1,9 +1,12 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, NoReturn, cast
 
 import grpc
+from sqlalchemy.orm import Session
 
 from couchers import experimentation
-from couchers.base_url_override import base_url_override
+from couchers.base_url_override import base_url_override, get_active_base_url_override
 from couchers.config import config
 from couchers.i18n import LocalizationContext
 
@@ -211,6 +214,27 @@ class CouchersContext:
             # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
             self._growthbook = experimentation._create_evaluator(self._user_id)
         return self._growthbook
+
+    @contextmanager
+    def use_base_url_override(self, session: Session) -> Iterator[None]:
+        """
+        Point links built via couchers.urls at this context's user's active base url override (if any) for the
+        duration of the block. Gated by ENABLE_DEV_APIS, so it's a no-op in real prod. See
+        couchers.base_url_override.
+        """
+        override = None
+        if config["ENABLE_DEV_APIS"] and self._user_id is not None:
+            override = get_active_base_url_override(session, self._user_id)
+
+        if not override:
+            yield
+            return
+
+        token = base_url_override.set(override)
+        try:
+            yield
+        finally:
+            base_url_override.reset(token)
 
 
 def make_interactive_context(

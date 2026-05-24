@@ -626,10 +626,14 @@ class BaseUrlOverride(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    # the base url to use, e.g. "https://my-preview.vercel.app". Empty string clears the override (records that
-    # the user explicitly went back to the configured BASE_URL).
+    # the base url to use, e.g. "https://my-preview.vercel.app"
     base_url: Mapped[str] = mapped_column(String)
 
     user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (
+        # serves the active-override lookup: filter by user_id, range on created, ordered by created desc
+        Index("ix_base_url_overrides_active", user_id, created),
+    )

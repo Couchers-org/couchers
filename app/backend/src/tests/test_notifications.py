@@ -15,7 +15,6 @@ from couchers.base_url_override import (
     BASE_URL_OVERRIDE_TTL,
     base_url_override,
     get_active_base_url_override,
-    use_base_url_override_for_user,
 )
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -1942,24 +1941,16 @@ def test_get_active_base_url_override(db):
         session.flush()
         assert get_active_base_url_override(session, user.id) == "https://b.example"
 
-        # an empty base_url is an explicit clear
-        session.add(BaseUrlOverride(user_id=user.id, base_url=""))
-        session.flush()
-        assert get_active_base_url_override(session, user.id) is None
-
-        # an expired override is ignored
-        expired = BaseUrlOverride(user_id=user.id, base_url="https://c.example")
-        session.add(expired)
-        session.flush()
+        # expired overrides are ignored
         session.execute(
             update(BaseUrlOverride)
-            .where(BaseUrlOverride.id == expired.id)
+            .where(BaseUrlOverride.user_id == user.id)
             .values(created=now() - BASE_URL_OVERRIDE_TTL - timedelta(minutes=1))
         )
         assert get_active_base_url_override(session, user.id) is None
 
 
-def test_use_base_url_override_for_user(db):
+def test_context_use_base_url_override(db):
     user, _ = generate_user()
     with session_scope() as session:
         session.add(BaseUrlOverride(user_id=user.id, base_url="https://preview.example.org"))
@@ -1968,16 +1959,16 @@ def test_use_base_url_override_for_user(db):
         context = make_background_user_context(user.id)
 
         # inert unless dev APIs are enabled
-        with use_base_url_override_for_user(session, user.id):
+        with context.use_base_url_override(session):
             assert context.base_url == config["BASE_URL"]
 
         with patch.dict(config, {"ENABLE_DEV_APIS": True}):
-            with use_base_url_override_for_user(session, user.id):
+            with context.use_base_url_override(session):
                 assert context.base_url == "https://preview.example.org"
             # restored on exit
             assert context.base_url == config["BASE_URL"]
-            # a missing user is a no-op
-            with use_base_url_override_for_user(session, None):
+            # a logged-out context is a no-op
+            with make_logged_out_context(LocalizationContext.en_utc()).use_base_url_override(session):
                 assert context.base_url == config["BASE_URL"]
 
 
@@ -1995,17 +1986,13 @@ def test_SetBaseUrlOverride_and_GetBaseUrlOverrides(db):
     assert res.overrides[1].active is False
 
 
-def test_SetBaseUrlOverride_clear(db):
+def test_SetBaseUrlOverride_rejects_empty(db):
     user, token = generate_user()
     with patch.dict(config, {"ENABLE_DEV_APIS": True}):
         with notifications_session(token) as notifications:
-            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url="https://a.example"))
-            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url=""))
-            res = notifications.GetBaseUrlOverrides(empty_pb2.Empty())
-
-    # clearing records a row but nothing is active
-    assert [o.base_url for o in res.overrides] == ["", "https://a.example"]
-    assert all(not o.active for o in res.overrides)
+            with pytest.raises(grpc.RpcError) as e:
+                notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url=""))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SetBaseUrlOverride_dev_apis_disabled(db):

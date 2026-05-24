@@ -185,8 +185,8 @@ message DebugRedeliverPushNotificationReq {
 }
 
 message SetBaseUrlOverrideReq {
-  // the base url to point generated links at, e.g. "https://my-preview.vercel.app".
-  // An empty string clears the override (links go back to the configured BASE_URL).
+  // the base url to point generated links at, e.g. "https://my-preview.vercel.app". Must be non-empty; the
+  // override applies for ~15 min, after which links go back to the configured BASE_URL.
   string base_url = 1;
 }
 

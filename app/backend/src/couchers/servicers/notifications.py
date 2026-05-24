@@ -366,6 +366,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         if not config["ENABLE_DEV_APIS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
 
+        if not request.base_url:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "base_url must not be empty")
+
         session.add(BaseUrlOverride(user_id=context.user_id, base_url=request.base_url))
         return empty_pb2.Empty()
 
@@ -385,14 +388,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             .all()
         )
 
-        # The active override is the most recent row within the TTL, and only if it's non-empty (an empty
-        # base_url is an explicit clear). This mirrors base_url_override.get_active_base_url_override.
+        # The active override is the most recent row within the TTL. Mirrors get_active_base_url_override.
         cutoff = now() - BASE_URL_OVERRIDE_TTL
-        active_id = None
-        for override in overrides:
-            if override.created > cutoff:
-                active_id = override.id if override.base_url else None
-                break
+        active_id = next((o.id for o in overrides if o.created > cutoff), None)
 
         return notifications_pb2.GetBaseUrlOverridesRes(
             overrides=[
