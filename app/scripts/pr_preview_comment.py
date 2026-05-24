@@ -43,15 +43,15 @@ def mobile_ota_section(short_sha, domain, platforms):
     lines = [
         "### Mobile Dev Tool preview",
         "",
-        "Scan with your phone camera (or tap the deep link on the device) to open this "
-        "branch in the installed **Dev Tool** dev client.",
+        "Scan the QR with your phone camera, or tap **Open in Dev Tool** on the device, "
+        "to open this branch in the installed **Dev Tool** dev client.",
     ]
     for platform in platforms:
         base = f"https://{short_sha}--ota.{domain}/{platform}"
         link = deep_link(f"{base}/manifest")
         lines += [
             "",
-            f"**{platform}**",
+            f"**{platform}** — [Open in Dev Tool]({base}/open.html)",
             "",
             f'<img src="{base}/qr.png" alt="QR to open the {platform} build" width="180" height="180" />',
             "",
