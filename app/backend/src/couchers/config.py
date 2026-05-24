@@ -168,10 +168,6 @@ def check_config(cfg: dict[str, Any]) -> None:
         if not cfg["RECAPTHCA_PROJECT_ID"] or not cfg["RECAPTHCA_API_KEY"] or not cfg["RECAPTHCA_SITE_KEY"]:
             raise Exception("reCAPTCHA credentials must be configured in production")
 
-    if cfg["ENABLE_DONATIONS"]:
-        if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
-            raise Exception("No Stripe API key/recurring donation ID but donations enabled")
-
     if cfg["EXPERIMENTATION_ENABLED"]:
         if not cfg["GROWTHBOOK_CLIENT_KEY"]:
             raise Exception("No GrowthBook client key but experimentation enabled")
