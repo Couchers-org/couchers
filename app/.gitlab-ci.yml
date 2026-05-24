@@ -865,6 +865,9 @@ build:mobile-ota:
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
         node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+        # QR encodes the dev-launcher deep link so the PR comment can show a scannable image.
+        # npx (not a package.json dep) keeps it out of the fingerprint sources.
+        npx --yes qrcode -o "ota-out/$P/qr.png" "couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest" < /dev/null
       done
   artifacts:
     paths:
@@ -898,6 +901,7 @@ preview:mobile-ota:
         aws s3 cp "$D/manifest" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/manifest" --content-type "$CT"
         aws s3 cp "$D/bundle.hbc" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/bundle.hbc" --content-type application/javascript
         aws s3 cp "$D/assets/" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/assets/" --recursive
+        aws s3 cp "$D/qr.png" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/qr.png" --content-type image/png
         echo "Done $P. Manifest: https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest"
         echo "  deep link: couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest"
       done
@@ -925,7 +929,7 @@ preview:pr-comment:
   variables:
     OTA_PLATFORMS: "ios"
   script:
-    - pip install --quiet --no-cache-dir "qrcode[pil]" requests boto3
+    - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
