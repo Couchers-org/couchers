@@ -34,7 +34,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.metrics import observe_in_servicer_duration_histogram
-from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.models import APICall, User, UserActivity, UserSession, Volunteer
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -63,6 +63,8 @@ class UserAuthInfo:
     token_expiry: datetime
     ui_language_preference: str | None
     timezone: str | None
+    enable_experimental_features: bool
+    is_volunteer: bool
     token: str = field(repr=False)
     is_api_key: bool
 
@@ -89,8 +91,9 @@ def _try_get_and_update_user_details(
         return None
 
     with session_scope() as session:
+        is_volunteer_col = select(Volunteer.id).where(Volunteer.user_id == User.id).exists().label("is_volunteer")
         result = session.execute(
-            select(User, UserSession, UserActivity)
+            select(User, UserSession, UserActivity, is_volunteer_col)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
             .outerjoin(
@@ -111,7 +114,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session, user_activity = result._tuple()
+        user, user_session, user_activity, is_volunteer = result._tuple()
 
         # update user last active time if it's been a while
         if now() - user.last_active > timedelta(minutes=5):
@@ -144,9 +147,21 @@ def _try_get_and_update_user_details(
             token_expiry=user_session.expiry,
             ui_language_preference=user.ui_language_preference,
             timezone=user.timezone,
+            enable_experimental_features=user.enable_experimental_features,
+            is_volunteer=is_volunteer,
             token=token,
             is_api_key=is_api_key,
         )
+
+
+def _experimentation_attributes(auth_info: UserAuthInfo | None) -> dict[str, Any]:
+    """Per-user GrowthBook targeting attributes, taken from the request's already-loaded auth info."""
+    if auth_info is None:
+        return {}
+    return {
+        "experimental_features_enabled": auth_info.enable_experimental_features,
+        "is_volunteer": auth_info.is_volunteer,
+    }
 
 
 def abort_handler[T, R](
@@ -314,6 +329,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 token=auth_info.token if auth_info else None,
                 localization=loc_context,
                 sofa=sofa,
+                experimentation_attributes=_experimentation_attributes(auth_info),
             )
 
             with session_scope() as session:

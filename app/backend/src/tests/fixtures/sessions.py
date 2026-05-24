@@ -14,6 +14,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
+    _experimentation_attributes,
     _try_get_and_update_user_details,
     check_permissions,
     find_auth_level,
@@ -183,6 +184,7 @@ class FakeChannel:
                         locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
                         timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
                     ),
+                    experimentation_attributes=_experimentation_attributes(auth_info),
                 )
 
                 response = handler.unary_unary(request, context, session)

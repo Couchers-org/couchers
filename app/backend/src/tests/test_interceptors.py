@@ -812,6 +812,8 @@ def test_check_auth_open_service_with_auth():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -832,6 +834,8 @@ def test_check_auth_secure_service_with_normal_auth():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -847,6 +851,8 @@ def test_check_auth_secure_service_with_jailed_user():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -863,6 +869,8 @@ def test_check_auth_jailed_service_with_jailed_user():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -883,6 +891,8 @@ def test_check_auth_editor_service_without_editor():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -899,6 +909,8 @@ def test_check_auth_editor_service_with_editor():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -914,6 +926,8 @@ def test_check_auth_admin_service_without_superuser():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )
@@ -930,6 +944,8 @@ def test_check_auth_admin_service_with_superuser():
         token_expiry=now(),
         ui_language_preference="en",
         timezone="Etc/UTC",
+        enable_experimental_features=False,
+        is_volunteer=False,
         token="abc123",
         is_api_key=False,
     )

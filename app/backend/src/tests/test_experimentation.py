@@ -49,34 +49,38 @@ def test_logged_in_user_is_bucketed_into_rollout(db, feature_flags):
 
 def test_experimental_features_enabled_attribute_reaches_evaluator(db, feature_flags):
     feature_flags.set_definition("experimental_features_flag", _EXPERIMENTAL_FEATURES_FLAG)
-    user, _ = generate_user()
+    user, token = generate_user()
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(enable_experimental_features=True))
-    context = make_background_user_context(user.id)
-    assert context.get_string_value("experimental_features_flag", "fallback") == "on"
+    with bugs_session(token) as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="experimental_features_flag"))
+    assert res.value.string_value == "on"
 
 
 def test_experimental_features_disabled_by_default(db, feature_flags):
     feature_flags.set_definition("experimental_features_flag", _EXPERIMENTAL_FEATURES_FLAG)
-    user, _ = generate_user()
-    context = make_background_user_context(user.id)
-    assert context.get_string_value("experimental_features_flag", "fallback") == "off"
+    _, token = generate_user()
+    with bugs_session(token) as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="experimental_features_flag"))
+    assert res.value.string_value == "off"
 
 
 def test_is_volunteer_attribute_reaches_evaluator(db, feature_flags):
     feature_flags.set_definition("volunteer_flag", _VOLUNTEER_FLAG)
-    user, _ = generate_user()
+    user, token = generate_user()
     with session_scope() as session:
         session.add(make_volunteer(user_id=user.id, role="Tester", started_volunteering=date(2020, 6, 1)))
-    context = make_background_user_context(user.id)
-    assert context.get_string_value("volunteer_flag", "fallback") == "on"
+    with bugs_session(token) as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="volunteer_flag"))
+    assert res.value.string_value == "on"
 
 
 def test_is_volunteer_false_for_non_volunteer(db, feature_flags):
     feature_flags.set_definition("volunteer_flag", _VOLUNTEER_FLAG)
-    user, _ = generate_user()
-    context = make_background_user_context(user.id)
-    assert context.get_string_value("volunteer_flag", "fallback") == "off"
+    _, token = generate_user()
+    with bugs_session(token) as bugs:
+        res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="volunteer_flag"))
+    assert res.value.string_value == "off"
 
 
 def test_anonymous_user_excluded_from_rollout_gets_feature_default(feature_flags):

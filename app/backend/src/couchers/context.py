@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, NoReturn, cast
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 import grpc
 
@@ -72,6 +72,7 @@ class CouchersContext:
         token: str | None,
         localization: LocalizationContext,
         sofa: str | None = None,
+        experimentation_attributes: dict[str, Any] | None = None,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self._grpc_context = grpc_context
@@ -85,6 +86,9 @@ class CouchersContext:
         self.__cookies: list[str] = []
         self.__response_headers: list[tuple[str, str]] = []
         self._growthbook: GrowthBook | None = None
+        # Extra per-user GrowthBook targeting attributes (beyond the user id), sourced from the
+        # request's already-loaded auth info so the evaluator needs no DB query of its own.
+        self._experimentation_attributes = experimentation_attributes or {}
 
         if self.__is_interactive:
             if not self._grpc_context:
@@ -209,7 +213,7 @@ class CouchersContext:
     def _get_growthbook(self) -> GrowthBook:
         if self._growthbook is None:
             # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
-            self._growthbook = experimentation._create_evaluator(self._user_id)
+            self._growthbook = experimentation._create_evaluator(self._user_id, self._experimentation_attributes)
         return self._growthbook
 
 
@@ -220,6 +224,7 @@ def make_interactive_context(
     token: str | None,
     localization: LocalizationContext,
     sofa: str | None = None,
+    experimentation_attributes: dict[str, Any] | None = None,
 ) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
@@ -229,6 +234,7 @@ def make_interactive_context(
         token=token,
         localization=localization,
         sofa=sofa,
+        experimentation_attributes=experimentation_attributes,
     )
 
 

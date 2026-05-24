@@ -28,14 +28,11 @@ from typing import Any
 import urllib3
 from growthbook import GrowthBook
 from growthbook.common_types import Experiment, FeatureResult, Result
-from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models.logging import ExperimentExposure, FeatureUsage
-from couchers.models.rest import Volunteer
-from couchers.models.users import User
 
 logger = logging.getLogger(__name__)
 
@@ -218,13 +215,18 @@ def _record_feature_usage(user_id: int, key: str, result: FeatureResult, **_: An
         session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
 
 
-def _create_evaluator(user_id: int | None) -> GrowthBook:
+def _create_evaluator(user_id: int | None, user_attributes: dict[str, Any] | None = None) -> GrowthBook:
     """
     Build a per-request GrowthBook evaluator over the current feature snapshot.
 
     Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
     can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
     through to their defaults. No exposure or usage is recorded without a user.
+
+    `user_attributes` are extra GrowthBook targeting attributes for the user (e.g.
+    experimental_features_enabled, is_volunteer); the caller supplies them - typically from the
+    request's already-loaded auth info - so this never queries the database. Ignored when user_id
+    is None.
 
     Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
     from the request path. Constructing without `client_key` keeps the GrowthBook a pure
@@ -239,19 +241,7 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
         features = _state["features"]
         saved_groups = _state["savedGroups"]
 
-    attributes: dict[str, Any] = {}
-    if user_id is not None:
-        attributes = {"id": str(user_id)}
-        with session_scope() as session:
-            row = session.execute(
-                select(User.enable_experimental_features, Volunteer.id)
-                .outerjoin(Volunteer, Volunteer.user_id == User.id)
-                .where(User.id == user_id)
-            ).one_or_none()
-        if row is not None:
-            enable_experimental_features, volunteer_id = row
-            attributes["experimental_features_enabled"] = enable_experimental_features
-            attributes["is_volunteer"] = volunteer_id is not None
+    attributes: dict[str, Any] = {"id": str(user_id), **(user_attributes or {})} if user_id is not None else {}
 
     def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
         if user_id is not None:
