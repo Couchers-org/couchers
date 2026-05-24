@@ -210,17 +210,16 @@ def test_create_request(db, moderator):
     assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
-def test_create_host_request_date_valid_in_requester_timezone(db):
-    # Simulate a moment where the host's timezone (Europe/Helsinki, UTC+2) has
-    # already rolled over to the next day while UTC is still on the previous day.
-    # A from_date that equals "today" in UTC is valid from the requester's
-    # perspective and must not be rejected just because the host is in a later
-    # timezone.  See: https://github.com/Couchers-org/couchers/issues/XXXX
+def test_create_host_request_rejects_date_past_in_host_timezone(db):
+    # When the host's timezone has already rolled over to the next day, a
+    # from_date of "today in UTC" is in the past from the host's perspective and
+    # must be rejected. The frontend blocks this date before submission; the
+    # backend enforces the same rule for consistency.
     user1, token1 = generate_user()
     # geom inside the fake Europe/Helsinki timezone polygon used in tests
     user2, _ = generate_user(geom=create_coordinate(61, 25))
 
-    # Helsinki is already on 2026-01-16; everything else is still 2026-01-15.
+    # Helsinki is already on 2026-01-16; requester submits 2026-01-15.
     fake_today_by_tz = {"Europe/Helsinki": date(2026, 1, 16)}
 
     with patch(
@@ -228,18 +227,16 @@ def test_create_host_request_date_valid_in_requester_timezone(db):
         side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
     ):
         with requests_session(token1) as api:
-            # 2026-01-15 is "today" in UTC but already "yesterday" in Helsinki.
-            # The request should succeed — the requester must not be penalised
-            # for the host happening to live in a later timezone.
-            res = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date="2026-01-15",
-                    to_date="2026-01-18",
-                    text=valid_request_text(),
+            with pytest.raises(grpc.RpcError) as e:
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=user2.id,
+                        from_date="2026-01-15",
+                        to_date="2026-01-18",
+                        text=valid_request_text(),
+                    )
                 )
-            )
-            assert res.host_request_id
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_host_request_date_valid_when_host_behind_requester(db):
