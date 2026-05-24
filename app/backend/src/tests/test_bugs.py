@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 from unittest.mock import patch
 
@@ -11,8 +12,9 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2
+from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import bugs_session
+from tests.fixtures.sessions import bugs_session, real_bugs_session
 
 
 @pytest.fixture(autouse=True)
@@ -391,3 +393,56 @@ def test_report_diagnostics_frontend_version(db):
         events = _get_events(session)
         assert len(events) == 1
         assert events[0].version == "abc-def-123"
+
+
+def _multipart_part_json(body, name):
+    """Extract and parse the JSON body of a named part from a multipart/mixed body."""
+    marker = f'name="{name}"'
+    start = body.index("\r\n\r\n", body.index(marker)) + 4
+    end = body.index("\r\n--", start)
+    return json.loads(body[start:end])
+
+
+def test_mobile_update_manifest(db):
+    with real_bugs_session() as (bugs, metadata_interceptor):
+        res = bugs.GetMobileUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "my-fingerprint")),
+        )
+
+    assert res.content_type.startswith("multipart/mixed; boundary=")
+    body = res.data.decode()
+
+    manifest = _multipart_part_json(body, "manifest")
+    # the manifest echoes the build's fingerprint so the client never rejects it
+    assert manifest["runtimeVersion"] == "my-fingerprint"
+    assert manifest["launchAsset"]["contentType"] == "application/javascript"
+    assert manifest["launchAsset"]["url"].endswith("/ios/bundle.hbc")
+    assert _multipart_part_json(body, "extensions") == {"assetRequestHeaders": {}}
+
+    # the client requires these response headers or it rejects the manifest
+    assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
+    assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
+
+
+def test_mobile_update_manifest_android(db):
+    with real_bugs_session() as (bugs, _metadata_interceptor):
+        res = bugs.GetMobileUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(("expo-platform", "android"), ("expo-runtime-version", "fp")),
+        )
+
+    manifest = _multipart_part_json(res.data.decode(), "manifest")
+    assert manifest["launchAsset"]["url"].endswith("/android/bundle.hbc")
+
+
+def test_mobile_update_manifest_without_runtime_version_returns_directive(db):
+    with real_bugs_session() as (bugs, metadata_interceptor):
+        res = bugs.GetMobileUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(("expo-platform", "ios"),),
+        )
+
+    body = res.data.decode()
+    assert _multipart_part_json(body, "directive") == {"type": "noUpdateAvailable"}
+    assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
