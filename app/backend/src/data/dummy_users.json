@@ -264,6 +264,35 @@
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
+      "username": "kiritimati",
+      "email": "kiritimati@couchers.org",
+      "password": null,
+      "name": "Kiri",
+      "location": {
+        "city": "Kiritimati Island, Kiribati",
+        "lat": 1.87,
+        "lng": -157.47,
+        "radius": 500
+      },
+      "verification": 0.85,
+      "community_standing": 0.8,
+      "gender": "Female",
+      "birthdate": {
+        "year": 1992,
+        "month": 6,
+        "day": 15
+      },
+      "languages": [
+        ["eng", "fluent"]
+      ],
+      "occupation": "Marine Biologist",
+      "about_me": "Living on the world's most ahead-of-time island — UTC+14 means I'm always first to see the new day!",
+      "about_place": "A spare room on the most easterly timezone on Earth.",
+      "regions_visited": ["AUS", "NZL", "USA"],
+      "regions_lived": ["AUS"],
+      "hosting_status": "HOSTING_STATUS_CAN_HOST"
+    },
+    {
       "username": "chagai",
       "email": "chagai95@gmail.com",
       "password": null,

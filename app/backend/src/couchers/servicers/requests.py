@@ -214,7 +214,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(recipient.timezone)
+        # Use UTC-12 (the most behind timezone) so any date that's "today"
+        # anywhere on Earth is accepted. Prevents rejecting valid requests from
+        # users whose timezone is behind the host's.
+        today = today_in_timezone("Etc/GMT+12")
 
         # request starts from the past
         if from_date < today:
