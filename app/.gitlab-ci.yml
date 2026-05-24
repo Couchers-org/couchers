@@ -14,6 +14,10 @@ variables:
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
+  # Branch on which a fingerprint change triggers an automatic Dev Tool native
+  # rebuild (build:devtool-native). Set to mobile/v1.1.20 while validating the
+  # machinery; switch to develop (i.e. $RELEASE_BRANCH) once it's trusted.
+  DEVTOOL_BUILD_BRANCH: mobile/v1.1.20
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
@@ -938,6 +942,44 @@ preview:pr-comment:
         - app/proto/**/*
         - app/mobile/**/*
         - app/scripts/**/*
+
+# Rebuild the Dev Tool *native* client when its fingerprint changes — a native
+# dep / app.config.js / Expo SDK change, the ~5% case OTA can't serve (a
+# fingerprint mismatch makes the dev client silently ignore branch bundles; see
+# docs/mobile-dev-tool-ota.md). scripts/devtool-build.sh builds on EAS:
+# iOS -> TestFlight (auto-submit); Android -> a sideloadable APK published to
+# s3://$AWS_PREVIEW_BUCKET/devtool-builds/android/ (Google Play has no
+# TestFlight-style channel for a dev-client APK). It no-ops when the freshly
+# computed fingerprint matches the last-built client, recorded per platform under
+# s3://$AWS_PREVIEW_BUCKET/devtool-builds/. Requires the EXPO_TOKEN CI variable.
+# Runs only on $DEVTOOL_BUILD_BRANCH while validating; point that at develop once
+# trusted.
+build:devtool-native:
+  needs: ["protos"]
+  stage: build
+  image: node:22
+  inherit:
+    default: false
+  variables:
+    # Compute the fingerprint as the devtool variant so it matches the EAS build
+    # (app.config.js branches on APP_VARIANT for bundle id / scheme / manifest).
+    APP_VARIANT: devtool
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm install -g eas-cli
+    # Separate lines (not a loop) so an iOS failure fails the job instead of being
+    # masked by a later Android success.
+    - bash scripts/devtool-build.sh ios
+    - bash scripts/devtool-build.sh android
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $DEVTOOL_BUILD_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
 
 preview:protos:
   needs: ["protos"]

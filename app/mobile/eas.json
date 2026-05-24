@@ -44,6 +44,13 @@
         "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
         "EXPO_PUBLIC_COUCHERS_ENV": "preview"
       }
+    },
+    "devtool-apk": {
+      "extends": "devtool",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {
@@ -69,11 +76,6 @@
     "devtool": {
       "ios": {
         "ascAppId": "6772371797"
-      },
-      "android": {
-        "track": "internal",
-        "releaseStatus": "completed",
-        "changesNotSentForReview": true
       }
     }
   }

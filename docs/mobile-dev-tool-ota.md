@@ -392,6 +392,45 @@ RN-shell bundle, and the WebView inside uses whatever web/API override is persis
 
 ---
 
+## 11. Native rebuilds — the 5% fingerprint-change case
+
+OTA covers everything that *doesn't* change the fingerprint. The complement —
+native deps, `app.config.js`, an Expo SDK bump — changes the fingerprint, and the
+dev client then **silently ignores** every branch bundle (§4 safety net). Those
+need a fresh native Dev Tool client. That rebuild is automated, gated on the
+fingerprint actually changing so it doesn't fire on JS-only commits:
+
+- **`build:devtool-native`** (`app/.gitlab-ci.yml`, `node:22`) runs on
+  `$DEVTOOL_BUILD_BRANCH` (`mobile/v1.1.20` while validating; point at `develop`
+  once trusted). For each platform it calls **`scripts/devtool-build.sh`**, which:
+  1. computes the fingerprint with `npx expo-updates fingerprint:generate`
+     (`APP_VARIANT=devtool`, so it matches the EAS build — same `.fingerprintignore`
+     as §8);
+  2. compares it to the last-built fingerprint stored at
+     `s3://$AWS_PREVIEW_BUCKET/devtool-builds/<platform>.fingerprint`;
+  3. on a change, builds on EAS (GitLab only triggers it; no macOS/Android runners):
+     - **iOS** → `eas build --profile devtool --auto-submit` → **TestFlight**.
+     - **Android** → `eas build --profile devtool-apk` → a sideloadable **APK**,
+       which CI downloads and publishes to `s3://$AWS_PREVIEW_BUCKET/devtool-builds/android/`
+       (an immutable `couchers-devtool-<sha>.apk` plus a stable `index.html` devs
+       bookmark at `https://android--devtool-builds.$PREVIEW_DOMAIN/`). Google Play
+       has **no TestFlight-equivalent** for a dev-client APK — Play distributes AABs
+       through release tracks, not installers — so we host the APK ourselves.
+  4. writes the new fingerprint to the marker **only after** the build (and, for
+     Android, the publish) succeeds, so a failed build retries on the next pipeline
+     rather than being marked done.
+- The build waits to completion (these are rare) so the marker is only advanced on
+  success. Per-platform markers because iOS and Android fingerprints differ.
+- **Prerequisites:** the `EXPO_TOKEN` CI variable (build + submit scope). No Play
+  credentials are needed — Android is self-hosted. See `app/mobile/README.md` →
+  *Releasing a new Dev Tool build*.
+
+This is the missing half of the loop: OTA serves JS branches against an installed
+client; this keeps that installed client's native layer current so OTA stays
+loadable.
+
+---
+
 ## References
 
 - Expo Updates protocol spec: https://docs.expo.dev/technical-specs/expo-updates-1/
