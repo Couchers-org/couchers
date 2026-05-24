@@ -164,7 +164,6 @@ def testconfig():
     config["CONSOLE_BASE_URL"] = "http://localhost:8888"
     config["COOKIE_DOMAIN"] = "localhost"
 
-    config["ENABLE_SMS"] = False
     config["SMS_SENDER_ID"] = "invalid"
 
     config["ENABLE_EMAIL"] = False
@@ -187,7 +186,6 @@ def testconfig():
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    config["ENABLE_POSTAL_VERIFICATION"] = False
     config["MYPOSTCARD_API_KEY"] = "test-api-key"
     config["MYPOSTCARD_USERNAME"] = "test-username"
     config["MYPOSTCARD_PASSWORD"] = "test-password"
@@ -224,7 +222,6 @@ def testconfig():
 
     config["ACTIVENESS_PROBES_ENABLED"] = True
 
-    config["RECAPTHCA_ENABLED"] = False
     config["RECAPTHCA_PROJECT_ID"] = "..."
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."

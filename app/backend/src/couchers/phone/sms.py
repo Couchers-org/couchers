@@ -4,7 +4,7 @@ from typing import cast
 import boto3
 import luhn
 
-from couchers import crypto
+from couchers import crypto, experimentation
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import SMS
@@ -32,7 +32,7 @@ def send_sms(number: str, message: str) -> str:
 
     assert len(message) <= 140, "Message too long"
 
-    if not config["ENABLE_SMS"]:
+    if not experimentation.get_global_boolean_value("sms_enabled", default=False):
         logger.info(f"SMS not enabled, need to send to {number}: {message}")
         return "SMS not enabled."
 

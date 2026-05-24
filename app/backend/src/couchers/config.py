@@ -48,16 +48,13 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("IRIS_ID_PUBKEY", str),
     ("IRIS_ID_SECRET", str),
     ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
-    # Postal verification
-    ("ENABLE_POSTAL_VERIFICATION", bool),
-    # MyPostcard API credentials
+    # Postal verification (MyPostcard API; gated at runtime by the `postal_verification_enabled` feature flag)
     ("MYPOSTCARD_API_KEY", str),
     ("MYPOSTCARD_USERNAME", str),
     ("MYPOSTCARD_PASSWORD", str),
     ("MYPOSTCARD_PRODUCT_CODE", str),
     ("MYPOSTCARD_CAMPAIGN_ID", str),
-    # SMS
-    ("ENABLE_SMS", bool),
+    # SMS (gated at runtime by the `sms_enabled` feature flag)
     ("SMS_SENDER_ID", str),
     # Email
     ("ENABLE_EMAIL", bool),
@@ -106,8 +103,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
     ("LISTMONK_LIST_ID", int),
-    # Google recaptcha antibot
-    ("RECAPTHCA_ENABLED", bool),
+    # Google recaptcha antibot (gated at runtime by the `recaptcha_enabled` feature flag)
     ("RECAPTHCA_PROJECT_ID", str),
     ("RECAPTHCA_API_KEY", str),
     ("RECAPTHCA_SITE_KEY", str),
@@ -148,8 +144,6 @@ def check_config(cfg: dict[str, Any]) -> None:
             raise Exception("Production site must be over HTTPS")
         if not cfg["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
-        if not cfg["ENABLE_SMS"]:
-            raise Exception("Production site must have SMS enabled")
         if cfg["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
 
@@ -158,12 +152,11 @@ def check_config(cfg: dict[str, Any]) -> None:
         if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
             raise Exception("Stripe credentials must be configured in production")
 
-        # Strong verification is gated at runtime by the `strong_verification_enabled` feature flag, which
-        # can be flipped on remotely at any time, so prod must always have the Iris ID credentials present.
+        # The following features are gated at runtime by feature flags (`strong_verification_enabled`,
+        # `postal_verification_enabled`, `recaptcha_enabled`), which can be flipped on remotely at any
+        # time, so prod must always have their credentials present.
         if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("Iris ID credentials must be configured in production")
-
-    if cfg["ENABLE_POSTAL_VERIFICATION"]:
         if (
             not cfg["MYPOSTCARD_API_KEY"]
             or not cfg["MYPOSTCARD_USERNAME"]
@@ -171,7 +164,13 @@ def check_config(cfg: dict[str, Any]) -> None:
             or not cfg["MYPOSTCARD_PRODUCT_CODE"]
             or not cfg["MYPOSTCARD_CAMPAIGN_ID"]
         ):
-            raise Exception("MyPostcard API credentials not configured but postal verification enabled")
+            raise Exception("MyPostcard API credentials must be configured in production")
+        if not cfg["RECAPTHCA_PROJECT_ID"] or not cfg["RECAPTHCA_API_KEY"] or not cfg["RECAPTHCA_SITE_KEY"]:
+            raise Exception("reCAPTCHA credentials must be configured in production")
+
+    if cfg["ENABLE_DONATIONS"]:
+        if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
+            raise Exception("No Stripe API key/recurring donation ID but donations enabled")
 
     if cfg["EXPERIMENTATION_ENABLED"]:
         if not cfg["GROWTHBOOK_CLIENT_KEY"]:
