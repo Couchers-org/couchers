@@ -116,18 +116,14 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             data=get_descriptors_pb(),
         )
 
-    def GetMobileUpdateManifest(
+    def GetNativeUpdateManifest(
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
-        def header(name: str) -> str:
-            value = context.headers.get(name, "")
-            return value.decode() if isinstance(value, bytes) else value
-
         # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
         context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
 
-        platform = header("expo-platform") or "ios"
-        runtime_version = header("expo-runtime-version")
+        platform = cast(str, context.headers.get("expo-platform", "")) or "ios"
+        runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
 
         bundles: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
         bundle = bundles.get(platform)

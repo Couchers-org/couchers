@@ -417,10 +417,10 @@ _OTA_BUNDLES = {
 }
 
 
-def test_mobile_update_manifest(db, feature_flags):
+def test_native_update_manifest(db, feature_flags):
     feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
     with real_bugs_session() as (bugs, metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
+        res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
             metadata=(("expo-platform", "ios"), ("expo-runtime-version", "my-fingerprint")),
         )
@@ -440,10 +440,10 @@ def test_mobile_update_manifest(db, feature_flags):
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_mobile_update_manifest_android(db, feature_flags):
+def test_native_update_manifest_android(db, feature_flags):
     feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
     with real_bugs_session() as (bugs, _metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
+        res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
             metadata=(("expo-platform", "android"), ("expo-runtime-version", "fp")),
         )
@@ -452,9 +452,9 @@ def test_mobile_update_manifest_android(db, feature_flags):
     assert manifest["launchAsset"]["url"].endswith("/android/bundle.hbc")
 
 
-def test_mobile_update_manifest_without_runtime_version_returns_directive(db):
+def test_native_update_manifest_without_runtime_version_returns_directive(db):
     with real_bugs_session() as (bugs, metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
+        res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
             metadata=(("expo-platform", "ios"),),
         )
