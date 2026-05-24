@@ -1,0 +1,9 @@
+# google-services.json is provided only as an EAS file env secret
+# (GOOGLE_SERVICES_JSON, preview environment), so it's present on EAS builds but
+# absent locally and in CI. Expo hashes it into the fingerprint by contents, which
+# makes the runtime version (fingerprint policy) differ between the EAS-built Dev
+# Tool client and our per-branch OTA bundles / local builds. Exclude it everywhere
+# so the fingerprint is reproducible; a Firebase/FCM config change needs a fresh
+# native build regardless.
+google-services.json
+**/eas-environment-secrets/**

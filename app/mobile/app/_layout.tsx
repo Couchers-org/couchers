@@ -21,12 +21,15 @@ import * as Notifications from "expo-notifications";
 import { Href, router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import DevSettingsButton from "@/components/DevSettingsButton";
+import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { reconfigureApiClient } from "@/service/client";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
 // Module-level Set to track handled notification IDs (persists across component remounts)
@@ -80,6 +83,7 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
       </Stack.Protected>
       {/* Accessible regardless of auth state */}
       <Stack.Screen name="confirm-email" />
+      <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
     </Stack>
   );
 }
@@ -97,7 +101,17 @@ export default function RootLayout() {
     Ubuntu_700Bold_Italic,
   });
 
-  if (!fontsLoaded) {
+  // Load any persisted backend URL override and re-point the gRPC client before
+  // rendering, so the first auth check and webview loads hit the chosen backend.
+  const [configLoaded, setConfigLoaded] = useState(false);
+  useEffect(() => {
+    hydrateUrlOverrides().then(() => {
+      reconfigureApiClient();
+      setConfigLoaded(true);
+    });
+  }, []);
+
+  if (!fontsLoaded || !configLoaded) {
     return null;
   }
 
@@ -109,6 +123,7 @@ export default function RootLayout() {
         <AuthProvider>
           <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
+          <DevSettingsButton />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
