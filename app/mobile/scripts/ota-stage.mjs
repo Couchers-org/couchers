@@ -174,6 +174,27 @@ function main() {
   fs.writeFileSync(path.join(outDir, "manifest"), multipart);
   fs.writeFileSync(path.join(outDir, "manifest.content-type"), `multipart/mixed; boundary=${boundary}`);
 
+  // GitHub strips custom-scheme (couchers-devtool://) links from comments, so the PR
+  // comment links to this https page, which redirects to the dev-launcher deep link
+  // once opened on the device.
+  const manifestUrl = `${baseUrl}/${platform}/manifest`;
+  const deepLink =
+    "couchers-devtool://expo-development-client/?url=" + encodeURIComponent(manifestUrl);
+  const openHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open in Dev Tool</title>
+<script>location.replace(${JSON.stringify(deepLink)})</script>
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 3em">
+<p>Opening this branch in the Dev Tool… <a href="${deepLink}">tap here if nothing happens</a>.</p>
+</body>
+</html>
+`;
+  fs.writeFileSync(path.join(outDir, "open.html"), openHtml);
+
   console.log(`staged ${platform} -> ${outDir}`);
   console.log(`  id              ${manifest.id}`);
   console.log(`  runtimeVersion  ${runtimeVersion}`);
@@ -181,6 +202,7 @@ function main() {
   console.log(`  assets          ${assets.length} entries, ${staged.size - 1} unique files`);
   console.log(`  manifest.json   ${path.join(outDir, "manifest.json")} (object, for local server)`);
   console.log(`  manifest        ${path.join(outDir, "manifest")} (multipart body, for S3)`);
+  console.log(`  open.html       ${path.join(outDir, "open.html")} (https -> deep link redirect)`);
 }
 
 main();

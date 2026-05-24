@@ -6,9 +6,7 @@ import {
   Appearance,
   BackHandler,
   Linking,
-  Text,
   useColorScheme,
-  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -124,32 +122,6 @@ export default function LoginScreen() {
           }
         }}
       />
-      {/* TEMPORARY OTA pipeline test marker — remove before merge */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: "absolute",
-          top: 60,
-          left: 0,
-          right: 0,
-          alignItems: "center",
-        }}
-      >
-        <Text
-          style={{
-            backgroundColor: "#E4017B",
-            color: "#fff",
-            fontSize: 16,
-            fontWeight: "700",
-            paddingVertical: 6,
-            paddingHorizontal: 14,
-            borderRadius: 8,
-            overflow: "hidden",
-          }}
-        >
-          OTA TEST BUNDLE — CI
-        </Text>
-      </View>
     </SafeAreaView>
   );
 }

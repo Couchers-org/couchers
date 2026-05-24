@@ -851,8 +851,7 @@ build:mobile-ota:
     EXPO_PUBLIC_COUCHERS_ENV: preview
     EXPO_PUBLIC_API_BASE_URL: https://dev-api.couchershq.org
     EXPO_PUBLIC_WEB_BASE_URL: https://next.couchershq.org
-    # Add "android" once the iOS path is validated end-to-end.
-    OTA_PLATFORMS: "ios"
+    OTA_PLATFORMS: "ios android"
   script:
     - cd app/mobile
     - npm ci
@@ -889,7 +888,7 @@ preview:mobile-ota:
     # no docker login
     default: false
   variables:
-    OTA_PLATFORMS: "ios"
+    OTA_PLATFORMS: "ios android"
   script:
     - |
       for P in $OTA_PLATFORMS; do
@@ -902,6 +901,7 @@ preview:mobile-ota:
         aws s3 cp "$D/bundle.hbc" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/bundle.hbc" --content-type application/javascript
         aws s3 cp "$D/assets/" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/assets/" --recursive
         aws s3 cp "$D/qr.png" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/qr.png" --content-type image/png
+        aws s3 cp "$D/open.html" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/open.html" --content-type "text/html; charset=utf-8"
         echo "Done $P. Manifest: https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest"
         echo "  deep link: couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest"
       done
@@ -927,7 +927,7 @@ preview:pr-comment:
   inherit:
     default: false
   variables:
-    OTA_PLATFORMS: "ios"
+    OTA_PLATFORMS: "ios android"
   script:
     - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py
