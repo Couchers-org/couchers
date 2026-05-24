@@ -234,6 +234,9 @@ class User(Base, kw_only=True):
     # whether the user has filled in the contributor form
     filled_contributor_form: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
+    # whether the user has opted into experimental/preview features
+    enable_experimental_features: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+
     # number of onboarding emails sent
     onboarding_emails_sent: Mapped[int] = mapped_column(Integer, server_default="0", init=False)
     last_onboarding_email_sent: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)

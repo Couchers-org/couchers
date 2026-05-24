@@ -28,11 +28,14 @@ from typing import Any
 import urllib3
 from growthbook import GrowthBook
 from growthbook.common_types import Experiment, FeatureResult, Result
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.models.rest import Volunteer
+from couchers.models.users import User
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +239,20 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
         features = _state["features"]
         saved_groups = _state["savedGroups"]
 
+    attributes: dict[str, Any] = {}
+    if user_id is not None:
+        attributes = {"id": str(user_id)}
+        with session_scope() as session:
+            row = session.execute(
+                select(User.enable_experimental_features, Volunteer.id)
+                .outerjoin(Volunteer, Volunteer.user_id == User.id)
+                .where(User.id == user_id)
+            ).one_or_none()
+        if row is not None:
+            enable_experimental_features, volunteer_id = row
+            attributes["experimental_features_enabled"] = enable_experimental_features
+            attributes["is_volunteer"] = volunteer_id is not None
+
     def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
         if user_id is not None:
             _record_exposure(user_id, experiment, result)
@@ -245,7 +262,7 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
             _record_feature_usage(user_id, key, result)
 
     return GrowthBook(
-        attributes={"id": str(user_id)} if user_id is not None else {},
+        attributes=attributes,
         features=features,
         savedGroups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,

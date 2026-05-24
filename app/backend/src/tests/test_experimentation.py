@@ -1,8 +1,9 @@
 import json
+from datetime import date
 
 import pytest
 from growthbook.common_types import FeatureResult
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers import experimentation
 from couchers.config import config
@@ -11,7 +12,9 @@ from couchers.db import session_scope
 from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
 from couchers.i18n import LocalizationContext
 from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.models.users import User
 from couchers.proto import bugs_pb2
+from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.sessions import bugs_session
 
 # Raw GrowthBook feature definitions for exercising the framework's own bucketing/exposure mechanics.
@@ -26,12 +29,54 @@ _EXPERIMENT_FLAG = {
     "defaultValue": "control",
     "rules": [{"key": "my_experiment", "variations": ["control", "treatment"], "coverage": 1.0}],
 }
+# Flags that only force "on" when the matching per-user evaluator attribute is set - used to assert
+# that experimental_features_enabled and is_volunteer actually reach the GrowthBook evaluator.
+_EXPERIMENTAL_FEATURES_FLAG = {
+    "defaultValue": "off",
+    "rules": [{"condition": {"experimental_features_enabled": True}, "force": "on"}],
+}
+_VOLUNTEER_FLAG = {
+    "defaultValue": "off",
+    "rules": [{"condition": {"is_volunteer": True}, "force": "on"}],
+}
 
 
 def test_logged_in_user_is_bucketed_into_rollout(db, feature_flags):
     feature_flags.set_definition("rollout_flag", _ROLLOUT_FLAG)
     context = make_background_user_context(123)
     assert context.get_string_value("rollout_flag", "fallback") == "treatment"
+
+
+def test_experimental_features_enabled_attribute_reaches_evaluator(db, feature_flags):
+    feature_flags.set_definition("experimental_features_flag", _EXPERIMENTAL_FEATURES_FLAG)
+    user, _ = generate_user()
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(enable_experimental_features=True))
+    context = make_background_user_context(user.id)
+    assert context.get_string_value("experimental_features_flag", "fallback") == "on"
+
+
+def test_experimental_features_disabled_by_default(db, feature_flags):
+    feature_flags.set_definition("experimental_features_flag", _EXPERIMENTAL_FEATURES_FLAG)
+    user, _ = generate_user()
+    context = make_background_user_context(user.id)
+    assert context.get_string_value("experimental_features_flag", "fallback") == "off"
+
+
+def test_is_volunteer_attribute_reaches_evaluator(db, feature_flags):
+    feature_flags.set_definition("volunteer_flag", _VOLUNTEER_FLAG)
+    user, _ = generate_user()
+    with session_scope() as session:
+        session.add(make_volunteer(user_id=user.id, role="Tester", started_volunteering=date(2020, 6, 1)))
+    context = make_background_user_context(user.id)
+    assert context.get_string_value("volunteer_flag", "fallback") == "on"
+
+
+def test_is_volunteer_false_for_non_volunteer(db, feature_flags):
+    feature_flags.set_definition("volunteer_flag", _VOLUNTEER_FLAG)
+    user, _ = generate_user()
+    context = make_background_user_context(user.id)
+    assert context.get_string_value("volunteer_flag", "fallback") == "off"
 
 
 def test_anonymous_user_excluded_from_rollout_gets_feature_default(feature_flags):
