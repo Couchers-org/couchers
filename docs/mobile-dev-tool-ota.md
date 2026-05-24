@@ -4,8 +4,10 @@ How we let anyone open a specific mobile branch on a phone by scanning a QR in
 the PR, **without** an App Store / TestFlight build per branch, and without
 paying for EAS Update.
 
-**Status:** design decided, implementation in progress. Scope is the **Dev Tool
-build only** — never production.
+**Status:** implemented. iOS validated end-to-end on a real device against the
+real S3 + CloudFront (2026-05-24); the Android publish pipeline is live, with
+on-device Android validation still pending. Scope is the **Dev Tool build only** —
+never production.
 
 This supersedes the earlier exploration in `tools/lambdas/expo-ota.md` (which
 weighed a hand-rolled edge function vs. the `expo-open-ota` server). We evaluated
@@ -179,9 +181,9 @@ invalidation is ever needed**. (This is the big simplification over a mutable
 
 A manifest is per-platform (one `launchAsset`). Two options:
 
-- **No Lambda change (start here):** publish both platforms and use
+- **No Lambda change (implemented):** publish both platforms and use
   platform-specific URLs — `/ios/manifest` and `/android/manifest`. The PR
-  comment renders an iOS QR and an Android QR.
+  comment renders an iOS section and an Android section, each with its own QR.
 - **One-URL nicety (optional):** extend the viewer-request Lambda so that when
   `db2 === "ota"` it reads the `expo-platform` request header and rewrites to
   `/ota/<sha>/<platform>/manifest`. Then a single QR works on both. Small, isolated
@@ -220,14 +222,14 @@ multipart body with only the content-type (no `expo-protocol-version` /
 `expo-sfv-version`) makes the client reject the manifest before fetching anything
 ("failed to load app from …"); it does not infer the protocol from the content-type.
 
-So the manifest response needs the header injected at the edge. **Extend the
-existing `preview-origin-response.js` Lambda@Edge** to add `expo-protocol-version: 1`
-(and `expo-sfv-version: 0`) on responses whose key is the OTA manifest
-(`/ota/<sha>/<platform>/manifest`) — scoped by path, mirroring its current `/web/`
-branch, so web previews are unaffected. This reuses infra we already deploy; no new
-function. (A CloudFront response-headers policy also works but attaches per cache
-behavior, so it can't scope by path/host as cleanly given the host→prefix routing
-lives in the viewer-request Lambda.)
+So the manifest response needs the header injected at the edge. The existing
+`tools/lambdas/preview-origin-response.js` Lambda@Edge now adds
+`expo-protocol-version: 1` (and `expo-sfv-version: 0`) on responses whose key is
+the OTA manifest (`/ota/<sha>/<platform>/manifest`) — scoped by path, mirroring its
+`/web/` branch, so web previews are unaffected. This reuses infra we already
+deploy; no new function. (A CloudFront response-headers policy also works but
+attaches per cache behavior, so it can't scope by path/host as cleanly given the
+host→prefix routing lives in the viewer-request Lambda.)
 
 ---
 
@@ -251,31 +253,43 @@ All asset/bundle URLs baked into the manifest point back at
 
 ---
 
-## 7. CI publish job
+## 7. CI publish jobs
 
-A job (GitLab CI, gated on `app/mobile/**` changes; or a GitHub Action under
-`tools/.github/workflows/` reusing the existing Lambda-deploy AWS creds pattern)
-that, per mobile PR:
+Implemented as three GitLab CI jobs in `app/.gitlab-ci.yml`, gated on
+`app/proto/**`, `app/mobile/**`, `app/scripts/**` changes (and always on the
+`develop` release branch). The GitHub Action option was dropped in favour of
+keeping everything in the existing GitLab pipeline, so the comment job can `needs:`
+the upload job and only post once the links are live.
 
-1. For each platform: `APP_VARIANT=devtool npx expo export --platform <p>` →
-   `dist/` (bundle at `dist/_expo/static/js/<p>/entry-<hash>.hbc`, assets at
-   `dist/assets/<metro-hash>`, and `dist/metadata.json` which lists the bundle +
-   each asset's `{path, ext}`). NOTE: SDK 54's export does **not** emit a
-   `dist/expoConfig.json`; get the public config from
-   `APP_VARIANT=devtool npx expo config --type public --json` for `extra.expoClient`.
-2. Compute the fingerprint `runtimeVersion` (`npx @expo/fingerprint` /
-   `npx expo-updates fingerprint:generate --platform <p>` — verify the exact
-   invocation for our toolchain). It must equal the installed Dev Tool build's
-   fingerprint.
-3. Generate the manifest from `metadata.json` + `expo config --type public --json`:
-   mint a UUID `id`, set `runtimeVersion`, compute each asset's base64url SHA-256
-   (this is its manifest `key`), and rewrite every path to its
-   `<sha>--ota.preview.couchershq.org` URL. Wrap as `multipart/mixed` (Phase 2
-   confirms whether the dev launcher requires this or accepts plain JSON).
-4. `aws s3 cp` the bundle, assets, and manifest under `ota/<sha>/<platform>/`,
-   with correct `--content-type` on each.
-5. No CloudFront invalidation needed (immutable keys).
-6. Post / update the PR comment with the QR(s) — see §9.
+**`build:mobile-ota`** (`node:22`) — for each platform in `OTA_PLATFORMS`
+(`ios android`):
+
+1. `APP_VARIANT=devtool npx expo export --platform <p>` → `dist/` (bundle, assets,
+   and `dist/metadata.json` listing the bundle + each asset's `{path, ext}`). SDK
+   54's export does **not** emit `dist/expoConfig.json`, so the public config comes
+   from `npx expo config --type public --json` (`ota-expo-config.json`) for
+   `extra.expoClient`.
+2. `npx expo-updates fingerprint:generate --platform <p>` → `.hash` for
+   `runtimeVersion`. Must equal the installed Dev Tool build's fingerprint — see §8
+   on `.fingerprintignore`.
+3. `node scripts/ota-stage.mjs` builds the manifest from `metadata.json` +
+   `ota-expo-config.json`: content-addressed asset keys (base64url SHA-256),
+   rewrites every URL to `<sha>--ota.preview.couchershq.org/<platform>/…`, and
+   writes both the `manifest.json` object and the protocol-v1 `multipart/mixed`
+   `manifest` body (+ its `manifest.content-type`). It also writes `open.html`, an
+   https redirect to the dev-launcher deep link (see §9).
+4. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
+   `package.json` dep) keeps `qrcode` out of the fingerprint sources.
+
+**`preview:mobile-ota`** (`aws-base`) — `aws s3 cp` the `manifest` (with its
+multipart content-type), `bundle.hbc`, `assets/`, `qr.png`, and `open.html` to
+`s3://couchers-dev-assets/ota/<sha>/<platform>/`. No CloudFront invalidation
+(immutable keys).
+
+**`preview:pr-comment`** (`python:3.12-slim`) — `needs:` the upload job so every
+link is already live, then runs `app/scripts/pr_preview_comment.py` to post/update
+the sticky PR comment (§9). No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no
+open PR, so it never reds the pipeline.
 
 ---
 
@@ -285,6 +299,18 @@ In `app/mobile/app.config.js`, **devtool variant only**:
 
 - **Keep** `runtimeVersion: { policy: "fingerprint" }` and `updates.enabled: true`
   (the launcher uses the fingerprint to gate updates).
+- **Add `app/mobile/.fingerprintignore`** excluding `google-services.json` and
+  `**/eas-environment-secrets/**`. The devtool build receives `google-services.json`
+  only as an EAS file env secret (`GOOGLE_SERVICES_JSON`, preview environment), so
+  it's present on EAS builds but absent locally and in CI. Expo hashes it into the
+  fingerprint by **contents** (`@expo/fingerprint` tags it
+  `expoConfigExternalFile:contentsOnly`), which made the runtime version diverge
+  between the EAS-built client and our local/CI computation — the client would then
+  ignore every OTA. The ignore drops it everywhere (ignored sources get a null hash
+  and are skipped entirely), so the fingerprint is reproducible without the secret.
+  The native build still uses the file normally; a Firebase/FCM config change needs
+  a fresh native build regardless. The secret is write-only on EAS, so it can't be
+  pulled to reproduce locally — exclusion is the only no-secret-distribution fix.
 - **Remove** `codeSigningCertificate` + `codeSigningMetadata` (no signing — §3).
   Correspondingly revert the `.gitignore` exception and the committed
   `certs/certificate.pem`; they were for the server approach.
@@ -304,23 +330,31 @@ Production and staging stay on EAS Update (`u.expo.dev`) untouched.
 
 ## 9. PR comment + QR
 
-The phone camera opens a custom-scheme deep link; the existing
-`app/mobile/dev-url-qr.html` already proves this pattern for the web/API axis.
-Per PR, the comment renders QR(s) by change type:
+`preview:pr-comment` posts one **sticky** comment per PR (marked with the HTML
+comment `<!-- couchers-preview-bot -->`; `app/scripts/pr_preview_comment.py`
+resolves the PR from the commit SHA via the GitHub API, then upserts the comment).
+It's assembled from **sections**, so more previews (web, coverage, …) can be
+appended as the pipeline grows.
 
-- **Web-only PR** → set the WebView target, no OTA:
-  `couchers-devtool://dev-settings?api=<dev-api>&web=<vercel preview url>`
-  (handled by `app/mobile/app/dev-settings.tsx` → `config/urls.ts` override,
-  persisted in AsyncStorage).
-- **RN-shell PR** → load the branch bundle:
+**Implemented today — the RN-shell OTA section**, one block per platform with:
+
+- a **QR** (`qr.png`) encoding the dev-launcher deep link
   `couchers-devtool://expo-development-client/?url=<encoded manifest url>`
-  (`https://<sha>--ota.preview.couchershq.org/<platform>/manifest`), one QR per
-  platform unless the one-URL Lambda nicety (§5) is in place.
+  (`https://<sha>--ota.preview.couchershq.org/<platform>/manifest`) — scan with the
+  phone camera to open the branch directly in the installed Dev Tool;
+- a clickable **Open in Dev Tool** link. GitHub's comment sanitiser strips
+  custom-scheme (`couchers-devtool://`) hrefs, so the link targets the hosted
+  `open.html` (https), which `location.replace`s to the deep link on the device;
+- the raw deep link in a `<details>` block for copy/paste.
 
-The two axes compose: scanning the RN-shell QR loads the branch's native shell;
-the WebView inside it uses whatever web/API override is persisted (or the
-devtool's configured `EXPO_PUBLIC_WEB_BASE_URL`). To pin both, set the
-dev-settings link first, then load the bundle.
+**Designed, not yet wired in — the web/API axis.** The Dev Tool also supports
+repointing its WebView via
+`couchers-devtool://dev-settings?api=<dev-api>&web=<vercel preview url>`
+(`app/mobile/app/dev-settings.tsx` → `config/urls.ts`, persisted in AsyncStorage;
+the `app/mobile/dev-url-qr.html` precedent proves the pattern). It's orthogonal to
+the OTA shell and can be added as another section. The two axes compose: load the
+RN-shell bundle, and the WebView inside uses whatever web/API override is persisted
+(or the devtool's configured `EXPO_PUBLIC_WEB_BASE_URL`).
 
 ---
 
@@ -329,7 +363,10 @@ dev-settings link first, then load the bundle.
 - **Fingerprint match is the #1 failure cause.** The exported `runtimeVersion`
   must equal the installed Dev Tool build's, or the client silently ignores the
   update. JS-only branches built from the same native config match
-  deterministically; native changes don't (by design — the safety net).
+  deterministically; native changes don't (by design — the safety net). One real
+  trap hit in practice: config files supplied only as EAS file env secrets (e.g.
+  `google-services.json`) are hashed into the fingerprint on EAS but absent
+  locally/in CI — handled by `.fingerprintignore` (§8).
 - **CloudFront must forward the `expo-*` headers** to origin/function as needed,
   and not cache the manifest keyed in a way that ignores platform. Per-SHA keys
   are immutable, so caching is otherwise free.
@@ -342,9 +379,11 @@ dev-settings link first, then load the bundle.
   `npx expo-updates fingerprint:generate --platform <p>` → `.hash`; the device's
   `expo-runtime-version` matched the value computed from the tree (resolved).
   The `expo-protocol-version: 1` *response header* is **required** (§5 — confirmed:
-  without it the client rejects the manifest before fetching). Remaining: the same
-  end-to-end run against the real S3 bucket + CloudFront with the header injected by
-  an extended `preview-origin-response.js`.
+  without it the client rejects the manifest before fetching). The full iOS
+  end-to-end run against the real S3 bucket + CloudFront, with the header injected
+  by the deployed `preview-origin-response.js`, also succeeded (2026-05-24).
+  **Remaining:** the same on-device validation for **Android** — the publish
+  pipeline is live, but no Android Dev Tool client has loaded a branch OTA yet.
 - **Going to production (out of scope now):** would add code signing (private key
   signs manifests, build embeds the public cert), staged rollouts, and instant
   rollback (protocol v1 directives). At that point reconsider `expo-open-ota`
@@ -363,5 +402,9 @@ dev-settings link first, then load the bundle.
 - App config / channels: `app/mobile/app.config.js`, `app/mobile/eas.json`
 - In-app web/API override: `app/mobile/config/urls.ts`, `app/mobile/app/dev-settings.tsx`
 - QR pattern precedent: `app/mobile/dev-url-qr.html`
+- CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota`, `preview:mobile-ota`, `preview:pr-comment`)
+- Manifest/QR/open.html staging: `app/mobile/scripts/ota-stage.mjs`
+- PR comment generator: `app/scripts/pr_preview_comment.py`
+- Fingerprint exclusion: `app/mobile/.fingerprintignore`
 - Dev-launcher load path (source): `app/mobile/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m`, `.../EXDevLauncherUpdatesHelper.m`, `.../Manifest/EXDevLauncherManifestParser.m`, `.../android/.../helpers/DevLauncherUpdatesHelper.kt`
 - Dev-client API disablement (source): `app/mobile/node_modules/expo-updates/.../UpdatesDevLauncherController.kt`
