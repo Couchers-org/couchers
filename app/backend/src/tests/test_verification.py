@@ -7,7 +7,6 @@ from sqlalchemy import select, update
 
 import couchers.phone.sms
 from couchers.config import config
-from couchers.context import make_background_user_context
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import SMS, User
@@ -44,7 +43,7 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
         assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
 
         # Test with operator not supported by SMS backend
-        def deny_operator(context, phone, message):
+        def deny_operator(phone, message):
             assert phone == "+46701740605"
             return "unsupported operator"
 
@@ -55,7 +54,7 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
         assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
 
         # Test with successfully sent SMS
-        def succeed(context, phone, message):
+        def succeed(phone, message):
             assert phone == "+46701740605"
             return "success"
 
@@ -95,7 +94,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
     user_id = user.id
     with account_session(token) as account:
 
-        def succeed(context, phone, message):
+        def succeed(phone, message):
             return "success"
 
         monkeypatch.setattr(couchers.phone.sms, "send_sms", succeed)
@@ -167,7 +166,7 @@ def test_phone_uniqueness(monkeypatch):
     user2, token2 = generate_user()
     with account_session(token1) as account1, account_session(token2) as account2:
 
-        def succeed(context, phone, message):
+        def succeed(phone, message):
             return "success"
 
         monkeypatch.setattr(couchers.phone.sms, "send_sms", succeed)
@@ -218,10 +217,7 @@ def test_send_sms(db, monkeypatch):
         sns.publish.return_value = {"MessageId": msg_id}
         mock.client.return_value = sns
 
-        assert (
-            couchers.phone.sms.send_sms(make_background_user_context(1), "+46701740605", "Testing SMS message")
-            == "success"
-        )
+        assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "success"
 
         mock.client.assert_called_once_with("sns")
         sns.publish.assert_called_once_with(
@@ -241,12 +237,17 @@ def test_send_sms(db, monkeypatch):
         assert sms.message == "Testing SMS message"
 
 
-def test_send_sms_disabled(db, feature_flags):
+def test_ChangePhone_sms_disabled(db, feature_flags):
     feature_flags.set("sms_enabled", False)
-    assert (
-        couchers.phone.sms.send_sms(make_background_user_context(1), "+46701740605", "Testing SMS message")
-        == "SMS not enabled."
-    )
+    user, token = generate_user()
+    with account_session(token) as account:
+        # Setting a new number requires sending an SMS, which is gated.
+        with pytest.raises(grpc.RpcError) as e:
+            account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+        # Removing a number doesn't send an SMS, so it's still allowed.
+        account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
 
 
 def test_sms_verification_no_donation():

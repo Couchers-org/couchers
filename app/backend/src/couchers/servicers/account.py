@@ -342,6 +342,10 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_attempts = 0
             return empty_pb2.Empty()
 
+        # Removing a number is always allowed; sending a verification SMS is gated.
+        if not context.get_boolean_value("sms_enabled", default=False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "sms_disabled")
+
         if not is_known_operator(phone):
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "unrecognized_phone_number")
 
@@ -349,7 +353,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "reverification_too_early")
 
         token = sms.generate_random_code()
-        result = sms.send_sms(context, phone, sms.format_message(token))
+        result = sms.send_sms(phone, sms.format_message(token))
 
         if result == "success":
             user.phone = phone
