@@ -147,7 +147,9 @@ def abort_on_invalid_password(password: str, context: CouchersContext) -> None:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "insecure_password")
 
 
-def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.GetMyVolunteerInfoRes:
+def _volunteer_info_to_pb(
+    volunteer: Volunteer, username: str, context: CouchersContext
+) -> account_pb2.GetMyVolunteerInfoRes:
     return account_pb2.GetMyVolunteerInfoRes(
         display_name=volunteer.display_name,
         display_location=volunteer.display_location,
@@ -155,7 +157,7 @@ def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.Ge
         started_volunteering=date_to_api(volunteer.started_volunteering),
         stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
         show_on_team_page=volunteer.show_on_team_page,
-        **format_volunteer_link(volunteer, username),
+        **format_volunteer_link(context, volunteer, username),
     )
 
 
@@ -259,7 +261,7 @@ class Account(account_pb2_grpc.AccountServicer):
         user.new_email_token_created = now()
         user.new_email_token_expiry = now() + timedelta(hours=2)
 
-        send_email_changed_confirmation_to_new_email(session, user)
+        send_email_changed_confirmation_to_new_email(context, session, user)
 
         # will still go into old email
         notify(
@@ -489,7 +491,7 @@ class Account(account_pb2_grpc.AccountServicer):
         redirect_params = {
             "token": token,
             "redirect_url": urls.complete_strong_verification_url(
-                verification_attempt_token=verification_attempt_token
+                context, verification_attempt_token=verification_attempt_token
             ),
         }
         redirect_url = "https://passportreader.app/open?" + urlencode(redirect_params)
@@ -697,7 +699,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return account_pb2.CreateInviteCodeRes(
             code=code,
-            url=urls.invite_code_link(code=code),
+            url=urls.invite_code_link(context, code=code),
         )
 
     def DisableInviteCode(
@@ -738,7 +740,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     created=Timestamp_from_datetime(created),
                     disabled=Timestamp_from_datetime(disabled) if disabled else None,
                     uses=len_users,
-                    url=urls.invite_code_link(code=code_id),
+                    url=urls.invite_code_link(context, code=code_id),
                 )
                 for code_id, created, disabled, len_users in results
             ]
@@ -803,7 +805,7 @@ class Account(account_pb2_grpc.AccountServicer):
         ).one()
         if not volunteer:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "not_a_volunteer")
-        return _volunteer_info_to_pb(volunteer, user.username)
+        return _volunteer_info_to_pb(volunteer, user.username, context)
 
     def UpdateMyVolunteerInfo(
         self, request: account_pb2.UpdateMyVolunteerInfoReq, context: CouchersContext, session: Session
@@ -851,7 +853,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         session.flush()
 
-        return _volunteer_info_to_pb(volunteer, user.username)
+        return _volunteer_info_to_pb(volunteer, user.username, context)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

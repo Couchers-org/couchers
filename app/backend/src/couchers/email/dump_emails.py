@@ -11,6 +11,7 @@ from datetime import UTC
 from pathlib import Path
 
 import couchers.email.emails
+from couchers.context import CouchersContext, make_logged_out_context
 from couchers.email.emails import EmailBase
 from couchers.email.rendering import (
     EmailFooter,
@@ -43,7 +44,7 @@ class CommandLineArgs:
 
 def main() -> None:
     args = CommandLineArgs.parse(sys.argv[1:])
-    loc_context = LocalizationContext(locale=args.locale, timezone=UTC)
+    context = make_logged_out_context(LocalizationContext(locale=args.locale, timezone=UTC))
 
     footer = EmailFooter(
         timezone_name="UTC",
@@ -59,14 +60,14 @@ def main() -> None:
     for _, klass in inspect.getmembers(couchers.email.emails, lambda o: inspect.isclass(o) and o.__base__ == EmailBase):
         email_class: type[EmailBase] = klass
         if filter_regex.fullmatch(email_class.__name__):
-            dump_email(email_class.dummy_data(), footer, loc_context, args.outdir)
+            dump_email(email_class.dummy_data(), footer, context, args.outdir)
 
 
-def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, outdir: Path) -> None:
+def dump_email(email: EmailBase, footer: EmailFooter, context: CouchersContext, outdir: Path) -> None:
     """Dumps an email's subject and plaintext+html body to a file."""
-    subject_line = email.get_subject_line(loc_context)
-    preview_line = email.get_preview_line(loc_context)
-    blocks = email.get_body_blocks(loc_context)
+    subject_line = email.get_subject_line(context)
+    preview_line = email.get_preview_line(context)
+    blocks = email.get_body_blocks(context)
 
     outdir.mkdir(exist_ok=True)
 
@@ -76,13 +77,13 @@ def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationC
     html_path = outdir / f"{email.__class__.__name__}.html"
     print(f"  Rendering html to {html_path}...")
     html = render_html_body(
-        subject=subject_line, preview=preview_line, blocks=blocks, footer=footer, loc_context=loc_context
+        subject=subject_line, preview=preview_line, blocks=blocks, footer=footer, loc_context=context.localization
     )
     html_path.write_text(html)
 
     plaintext_path = outdir / f"{email.__class__.__name__}.txt"
     print(f"  Rendering plaintext to {plaintext_path}...")
-    plaintext = render_plaintext_body(blocks=blocks, footer=footer, loc_context=loc_context)
+    plaintext = render_plaintext_body(blocks=blocks, footer=footer, loc_context=context.localization)
     plaintext_path.write_text(plaintext)
 
 

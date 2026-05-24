@@ -44,7 +44,7 @@ def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
     return geom
 
 
-def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunteer:
+def volunteer_to_pb(session: Session, volunteer: Volunteer, context: CouchersContext) -> editor_pb2.Volunteer:
     """Convert a Volunteer model to the editor protobuf message."""
     lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
     board_members = set(get_static_badge_dict()["board_member"])
@@ -61,7 +61,7 @@ def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunt
         started_volunteering=date_to_api(volunteer.started_volunteering),
         stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
         show_on_team_page=volunteer.show_on_team_page,
-        **format_volunteer_link(volunteer, lite_user.username),
+        **format_volunteer_link(context, volunteer, lite_user.username),
     )
 
 
@@ -150,7 +150,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
             return editor_pb2.EventCommunityInviteRequest(
                 event_community_invite_request_id=request.id,
                 user_id=request.user_id,
-                event_url=urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
+                event_url=urls.event_link(
+                    context, occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
+                ),
                 approx_users_to_notify=len(users_to_notify),
                 community_id=node_id,
             )
@@ -251,7 +253,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         session.add(volunteer)
         session.flush()
 
-        return volunteer_to_pb(session, volunteer)
+        return volunteer_to_pb(session, volunteer, context)
 
     def UpdateVolunteer(
         self, request: editor_pb2.UpdateVolunteerReq, context: CouchersContext, session: Session
@@ -293,7 +295,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         session.flush()
 
-        return volunteer_to_pb(session, volunteer)
+        return volunteer_to_pb(session, volunteer, context)
 
     def ListVolunteers(
         self, request: editor_pb2.ListVolunteersReq, context: CouchersContext, session: Session
@@ -315,7 +317,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         volunteers = session.execute(query).scalars().all()
 
         return editor_pb2.ListVolunteersRes(
-            volunteers=[volunteer_to_pb(session, volunteer) for volunteer in volunteers]
+            volunteers=[volunteer_to_pb(session, volunteer, context) for volunteer in volunteers]
         )
 
     def ListPostcards(

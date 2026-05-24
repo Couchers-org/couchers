@@ -868,7 +868,7 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(req)
         session.flush()
 
-        send_event_community_invite_request_email(session, req)
+        send_event_community_invite_request_email(context, session, req)
 
         return empty_pb2.Empty()
 

@@ -5,6 +5,7 @@ from typing import Any
 import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
 from couchers.email.rendering import (
     EmailFooter,
@@ -13,7 +14,6 @@ from couchers.email.rendering import (
     render_html_body,
     render_plaintext_body,
 )
-from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
@@ -41,9 +41,9 @@ class RenderedEmailNotification:
 
 
 def render_email_notification(
-    user: User, notification: Notification, loc_context: LocalizationContext, *, include_ics_attachments: bool
+    user: User, notification: Notification, context: CouchersContext, *, include_ics_attachments: bool
 ) -> RenderedEmailNotification:
-    footer = get_email_footer(user, notification, loc_context)
+    footer = get_email_footer(user, notification, context)
 
     subject: str
     body_plaintext: str
@@ -51,18 +51,18 @@ def render_email_notification(
     source_data: str | None = None
     # Progressively migrate to the new email templating system in couchers.email.emails,
     # which supports localization and uses a single generic html template.
-    if email := _get_generic_templated_email(user.name, notification):
-        subject = email.get_subject_line(loc_context)
-        preview = email.get_preview_line(loc_context)
-        body_blocks = email.get_body_blocks(loc_context)
-        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+    if email := _get_generic_templated_email(user.name, notification, context):
+        subject = email.get_subject_line(context)
+        preview = email.get_preview_line(context)
+        body_blocks = email.get_body_blocks(context)
+        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=context.localization)
         body_html = render_html_body(
-            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
+            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=context.localization
         )
         source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
     else:
         # Email is still a custom-templated, nonlocalizable email.
-        custom_templated = _get_custom_templated_email(notification, loc_context)
+        custom_templated = _get_custom_templated_email(notification, context)
         subject = custom_templated.subject
 
         template_args = {
@@ -78,20 +78,20 @@ def render_email_notification(
         plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
         plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
         plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-        body_plaintext = plain_tmplt.render(template_args, loc_context)
+        body_plaintext = plain_tmplt.render(template_args, context.localization)
 
         # Format html template
         html_tmplt = Jinja2Template(
             source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(),
             html=True,
         )
-        body_html = html_tmplt.render(template_args, loc_context)
+        body_html = html_tmplt.render(template_args, context.localization)
 
         source_data = config["VERSION"] + f"/{custom_templated.template_name}"
 
-    list_unsubscribe_header = get_list_unsubscribe_header(notification)
+    list_unsubscribe_header = get_list_unsubscribe_header(context, notification)
     if include_ics_attachments:
-        attachment = get_ics_attachment(notification, loc_context)
+        attachment = get_ics_attachment(notification, context)
     else:
         attachment = None
 
@@ -105,37 +105,39 @@ def render_email_notification(
     )
 
 
-def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
+def _get_generic_templated_email(
+    user_name: str, notification: Notification, context: CouchersContext
+) -> emails.EmailBase | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
         case NotificationTopicAction.account_deletion__start:
-            return emails.AccountDeletionStartedEmail.from_notification(data, user_name=user_name)
+            return emails.AccountDeletionStartedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.account_deletion__complete:
-            return emails.AccountDeletionCompletedEmail.from_notification(data, user_name=user_name)
+            return emails.AccountDeletionCompletedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.account_deletion__recovered:
             return emails.AccountDeletionRecoveredEmail(user_name=user_name)
         case NotificationTopicAction.api_key__create:
-            return emails.APIKeyIssuedEmail.from_notification(data, user_name=user_name)
+            return emails.APIKeyIssuedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.badge__add:
-            return emails.BadgeChangedEmail.from_add_notification(data, user_name=user_name)
+            return emails.BadgeChangedEmail.from_add_notification(context, data, user_name=user_name)
         case NotificationTopicAction.badge__remove:
-            return emails.BadgeChangedEmail.from_remove_notification(data, user_name=user_name)
+            return emails.BadgeChangedEmail.from_remove_notification(context, data, user_name=user_name)
         case NotificationTopicAction.birthdate__change:
-            return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
+            return emails.BirthdateChangedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.discussion__create:
-            return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
+            return emails.DiscussionCreatedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:
-            return emails.DiscussionCommentEmail.from_notification(data, user_name=user_name)
+            return emails.DiscussionCommentEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.email_address__change:
-            return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
+            return emails.EmailAddressChangedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
         case NotificationTopicAction.friend_request__create:
-            return emails.FriendRequestReceivedEmail.from_notification(data, user_name=user_name)
+            return emails.FriendRequestReceivedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.friend_request__accept:
-            return emails.FriendRequestAcceptedEmail.from_notification(data, user_name=user_name)
+            return emails.FriendRequestAcceptedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.gender__change:
-            return emails.GenderChangedEmail.from_notification(data, user_name=user_name)
+            return emails.GenderChangedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.modnote__create:
             return emails.ModeratorNoteEmail(user_name=user_name)
         case NotificationTopicAction.password__change:
@@ -143,21 +145,21 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.password_reset__complete:
             return emails.PasswordResetCompletedEmail(user_name=user_name)
         case NotificationTopicAction.password_reset__start:
-            return emails.PasswordResetStartedEmail.from_notification(data, user_name=user_name)
+            return emails.PasswordResetStartedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.phone_number__change:
-            return emails.PhoneNumberChangeEmail.from_change_notification(data, user_name=user_name)
+            return emails.PhoneNumberChangeEmail.from_change_notification(context, data, user_name=user_name)
         case NotificationTopicAction.phone_number__verify:
-            return emails.PhoneNumberChangeEmail.from_verify_notification(data, user_name=user_name)
+            return emails.PhoneNumberChangeEmail.from_verify_notification(context, data, user_name=user_name)
         case NotificationTopicAction.postal_verification__failed:
-            return emails.PostalVerificationFailedEmail.from_notification(data, user_name=user_name)
+            return emails.PostalVerificationFailedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.postal_verification__postcard_sent:
-            return emails.PostalVerificationPostcardSentEmail.from_notification(data, user_name=user_name)
+            return emails.PostalVerificationPostcardSentEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name=user_name)
         case NotificationTopicAction.thread__reply:
-            return emails.ThreadReplyEmail.from_notification(data, user_name=user_name)
+            return emails.ThreadReplyEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.verification__sv_fail:
-            return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
+            return emails.StrongVerificationFailedEmail.from_notification(context, data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
         case _:
@@ -179,10 +181,10 @@ class CustomTemplatedEmail:
 
 # Gets the data necessary to template an email for which we have a custom template,
 # e.g. not yet using couchers.email.emails.
-def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
+def _get_custom_templated_email(notification: Notification, context: CouchersContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
-        view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
+        view_link = urls.host_request(context, host_request_id=data.host_request.host_request_id)
         if notification.action == "missed_messages":
             their_your = "their" if data.am_host else "your"
             other = data.user
@@ -196,7 +198,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
+                    "other": UserTemplateArgs.from_protobuf_user(context, other),
                 },
             )
         elif notification.action == "create":
@@ -208,10 +210,10 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 template_name="host_request__new",
                 template_args={
                     "view_link": view_link,
-                    "quick_decline_link": generate_quick_decline_link(data.host_request),
+                    "quick_decline_link": generate_quick_decline_link(context, data.host_request),
                     "host_request": data.host_request,
                     "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
+                    "other": UserTemplateArgs.from_protobuf_user(context, other),
                     "text": data.text,
                 },
             )
@@ -229,7 +231,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
+                    "other": UserTemplateArgs.from_protobuf_user(context, other),
                     "text": data.text,
                 },
             )
@@ -256,7 +258,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
+                    "other": UserTemplateArgs.from_protobuf_user(context, other),
                 },
             )
         elif notification.action == "reminder":
@@ -270,12 +272,12 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": description,
-                    "other": UserTemplateArgs.from_protobuf_user(data.surfer),
+                    "other": UserTemplateArgs.from_protobuf_user(context, data.surfer),
                 },
             )
     elif notification.topic_action == NotificationTopicAction.donation__received:
-        title = loc_context.localize_string("notifications.donation_received.title")
-        message = loc_context.localize_string(
+        title = context.localization.localize_string("notifications.donation_received.title")
+        message = context.localization.localize_string(
             "notifications.donation_received.thanks_amount",
             substitutions={
                 "amount": data.amount,
@@ -296,10 +298,10 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             preview="You received a message on Couchers.org!",
             template_name="chat_message",
             template_args={
-                "author": UserTemplateArgs.from_protobuf_user(data.author),
+                "author": UserTemplateArgs.from_protobuf_user(context, data.author),
                 "message": data.message,
                 "text": data.text,
-                "view_link": urls.chat_link(chat_id=data.group_chat_id),
+                "view_link": urls.chat_link(context, chat_id=data.group_chat_id),
             },
         )
     elif notification.topic_action == NotificationTopicAction.chat__missed_messages:
@@ -310,10 +312,10 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "items": [
                     {
-                        "author": UserTemplateArgs.from_protobuf_user(item.author),
+                        "author": UserTemplateArgs.from_protobuf_user(context, item.author),
                         "message": item.message,
                         "text": item.text,
-                        "view_link": urls.chat_link(chat_id=item.group_chat_id),
+                        "view_link": urls.chat_link(context, chat_id=item.group_chat_id),
                     }
                     for item in data.messages
                 ]
@@ -321,10 +323,10 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
         )
     elif notification.topic == "event":
         event = data.event
-        start_time = loc_context.localize_datetime(event.start_time)
-        end_time = loc_context.localize_datetime(event.end_time)
+        start_time = context.localization.localize_datetime(event.start_time)
+        end_time = context.localization.localize_datetime(event.end_time)
         time_display = f"{start_time} - {end_time}"
-        event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+        event_link = urls.event_link(context, occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:
             # create_approved = invitation, approved by mods
             # create_any = new event created by anyone (no need for approval) -- off by default
@@ -335,7 +337,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 subject = f'{data.inviting_user.name} created an event called "{event.title}"'
                 start_text = "A new event was created"
             community_link = (
-                urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
+                urls.community_link(context, node_id=data.in_community.community_id, slug=data.in_community.slug)
                 if data.in_community
                 else None
             )
@@ -344,7 +346,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview=f"{start_text} on Couchers.org!",
                 template_name="event_create",
                 template_args={
-                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
+                    "inviting_user": UserTemplateArgs.from_protobuf_user(context, data.inviting_user),
                     "time_display": time_display,
                     "start_text": start_text,
                     "nearby": "nearby" if data.nearby else None,
@@ -361,7 +363,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="An event you are subscribed to was updated.",
                 template_name="event_update",
                 template_args={
-                    "updating_user": UserTemplateArgs.from_protobuf_user(data.updating_user),
+                    "updating_user": UserTemplateArgs.from_protobuf_user(context, data.updating_user),
                     "time_display": time_display,
                     "event": event,
                     "updated_text": updated_text,
@@ -374,7 +376,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="An event you are subscribed to has been cancelled.",
                 template_name="event_cancel",
                 template_args={
-                    "cancelling_user": UserTemplateArgs.from_protobuf_user(data.cancelling_user),
+                    "cancelling_user": UserTemplateArgs.from_protobuf_user(context, data.cancelling_user),
                     "time_display": time_display,
                     "event": event,
                     "view_link": event_link,
@@ -396,7 +398,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="You were invited to co-organize an event on Couchers.org.",
                 template_name="event_invite_organizer",
                 template_args={
-                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
+                    "inviting_user": UserTemplateArgs.from_protobuf_user(context, data.inviting_user),
                     "time_display": time_display,
                     "event": event,
                     "view_link": event_link,
@@ -408,7 +410,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="Someone commented on an event you are attending.",
                 template_name="event_comment",
                 template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
+                    "author": UserTemplateArgs.from_protobuf_user(context, data.author),
                     "time_display": time_display,
                     "event": event,
                     "content": data.reply.content,
@@ -434,8 +436,8 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview=data.text,
                 template_name="friend_reference",
                 template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
-                    "profile_references_link": urls.profile_references_link(),
+                    "from_user": UserTemplateArgs.from_protobuf_user(context, data.from_user),
+                    "profile_references_link": urls.profile_references_link(context),
                     "text": data.text,
                 },
             )
@@ -444,11 +446,12 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             # what was my type? i surfed with them if i received a "hosted" request
             surfed = notification.action == "receive_hosted"
             leave_reference_link = urls.leave_reference_link(
+                context,
                 reference_type="surfed" if surfed else "hosted",
                 to_user_id=data.from_user.user_id,
                 host_request_id=data.host_request_id,
             )
-            profile_references_link = urls.profile_references_link()
+            profile_references_link = urls.profile_references_link(context)
             if data.text:
                 preview = data.text
             else:
@@ -458,7 +461,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview=preview,
                 template_name="host_reference",
                 template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
+                    "from_user": UserTemplateArgs.from_protobuf_user(context, data.from_user),
                     "leave_reference_link": leave_reference_link,
                     "profile_references_link": profile_references_link,
                     "text": data.text,
@@ -470,6 +473,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             # what was my type? i surfed with them if i get a surfed reminder
             surfed = notification.action == "reminder_surfed"
             leave_reference_link = urls.leave_reference_link(
+                context,
                 reference_type="surfed" if surfed else "hosted",
                 to_user_id=data.other_user.user_id,
                 host_request_id=data.host_request_id,
@@ -481,7 +485,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview=preview,
                 template_name="reference_reminder",
                 template_args={
-                    "other_user": UserTemplateArgs.from_protobuf_user(data.other_user),
+                    "other_user": UserTemplateArgs.from_protobuf_user(context, data.other_user),
                     "leave_reference_link": leave_reference_link,
                     "days_left": str(data.days_left),
                     "surfed": surfed,
@@ -494,8 +498,8 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="We are so excited to have you join our community!",
                 template_name="onboarding1",
                 template_args={
-                    "app_link": urls.app_link(),
-                    "edit_profile_link": urls.edit_profile_link(),
+                    "app_link": urls.app_link(context),
+                    "edit_profile_link": urls.edit_profile_link(context),
                 },
             )
         elif notification.key == "2":
@@ -504,7 +508,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                 preview="We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
                 template_name="onboarding2",
                 template_args={
-                    "edit_profile_link": urls.edit_profile_link(),
+                    "edit_profile_link": urls.edit_profile_link(context),
                 },
             )
     elif notification.topic_action == NotificationTopicAction.activeness__probe:
@@ -514,7 +518,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             preview=title,
             template_name="activeness_probe",
             template_args={
-                "app_link": urls.app_link(),
+                "app_link": urls.app_link(context),
                 "days_left": (to_aware_datetime(data.deadline) - now()).days,
             },
         )
@@ -534,29 +538,29 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
 
-def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachment | None:
+def get_ics_attachment(notification: Notification, context: CouchersContext) -> EmailAttachment | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
         # so the accept notification is our last opportunity to provide them with a calendar event.
         return create_host_request_attachment(
-            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+            data.host_request, other_name=data.host.name, hosting=False, context=context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.surfer.name, hosting=True, context=context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         return create_host_request_cancellation_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.surfer.name, hosting=True, context=context
         )
     else:
         return None
 
 
-def get_list_unsubscribe_header(notification: Notification) -> str | None:
+def get_list_unsubscribe_header(context: CouchersContext, notification: Notification) -> str | None:
     if notification.topic_action.is_critical:
         return None
 
@@ -564,9 +568,9 @@ def get_list_unsubscribe_header(notification: Notification) -> str | None:
     # Prefer topic-key unsubscription as it is more specific than topic-action (e.g. current chat, not all chats).
     list_unsubscribe_url: str
     if can_unsubscribe_topic_key(notification.topic_action):
-        list_unsubscribe_url = generate_unsub_topic_key(notification)
+        list_unsubscribe_url = generate_unsub_topic_key(context, notification)
     else:
-        list_unsubscribe_url = generate_unsub_topic_action(notification)
+        list_unsubscribe_url = generate_unsub_topic_action(context, notification)
 
     return f"<{list_unsubscribe_url}>"
 
@@ -659,20 +663,20 @@ def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str
             raise NotImplementedError(f"No topic-key unsubscribe text for {topic_action}.")
 
 
-def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
+def get_email_footer(user: User, notification: Notification, context: CouchersContext) -> EmailFooter:
     return EmailFooter(
-        timezone_name=loc_context.localized_timezone,
+        timezone_name=context.localization.localized_timezone,
         copyright_year=now().year,
         unsubscribe_info=UnsubscribeInfo(
-            manage_notifications_url=urls.notification_settings_link(),
-            do_not_email_url=generate_do_not_email(user),
+            manage_notifications_url=urls.notification_settings_link(context),
+            do_not_email_url=generate_do_not_email(context, user),
             topic_action_link=UnsubscribeLink(
                 text=get_topic_action_unsubscribe_text(notification.topic_action),
-                url=generate_unsub_topic_action(notification),
+                url=generate_unsub_topic_action(context, notification),
             ),
             topic_key_link=UnsubscribeLink(
                 text=get_topic_key_unsubscribe_text(notification.topic_action),
-                url=generate_unsub_topic_key(notification),
+                url=generate_unsub_topic_key(context, notification),
             )
             if can_unsubscribe_topic_key(notification.topic_action)
             else None,
@@ -696,11 +700,11 @@ class UserTemplateArgs:
     profile_url: str
 
     @staticmethod
-    def from_protobuf_user(user: api_pb2.User) -> UserTemplateArgs:
+    def from_protobuf_user(context: CouchersContext, user: api_pb2.User) -> UserTemplateArgs:
         return UserTemplateArgs(
             name=user.name,
             age=user.age,
             city=user.city,
-            avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
-            profile_url=urls.user_link(username=user.username),
+            avatar_url=user.avatar_thumbnail_url or urls.icon_url(context),
+            profile_url=urls.user_link(context, username=user.username),
         )

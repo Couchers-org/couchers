@@ -1263,7 +1263,9 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
         user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
 
+        context = make_background_user_context(attempt.user_id)
         job_id = send_postcard(
+            context,
             recipient_name=user_name,
             address_line_1=attempt.address_line_1,
             address_line_2=attempt.address_line_2,
@@ -1280,7 +1282,6 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
         postcards_sent_counter.labels(country_code=attempt.country_code).inc()
 
-        context = make_background_user_context(attempt.user_id)
         log_event(
             context,
             session,

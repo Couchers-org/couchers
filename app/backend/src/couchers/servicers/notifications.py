@@ -10,7 +10,7 @@ from sqlalchemy.sql import or_
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     DeviceType,
@@ -47,7 +47,8 @@ def get_vapid_public_key() -> str:
 
 
 def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
-    content = render_push_notification(notification, LocalizationContext.from_user(user))
+    context = make_background_user_context(user.id, LocalizationContext.from_user(user))
+    content = render_push_notification(notification, context)
     return notifications_pb2.Notification(
         notification_id=notification.id,
         created=Timestamp_from_datetime(notification.created),
@@ -190,6 +191,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         session.flush()
         push_to_subscription(
             session,
+            context=context,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:setup",
@@ -210,6 +212,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         push_to_user(
             session,
+            context=context,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -258,9 +261,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         session.add(subscription)
         session.flush()
 
-        push_content = render_adhoc_push_notification("push_enabled", context.localization)
+        push_content = render_adhoc_push_notification("push_enabled", context)
         push_to_subscription(
             session,
+            context=context,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:push_enabled",
@@ -277,6 +281,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         push_to_user(
             session,
+            context=context,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -299,6 +304,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         push_to_user(
             session,
+            context=context,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -337,11 +343,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         if not notification:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "notification_not_found")
 
+        render_context = make_background_user_context(user.id, LocalizationContext.from_user(user))
         push_to_user(
             session,
+            context=context,
             user_id=context.user_id,
             topic_action=notification.topic_action.display,
-            content=render_push_notification(notification, LocalizationContext.from_user(user)),
+            content=render_push_notification(notification, render_context),
             key=notification.key,
         )
 

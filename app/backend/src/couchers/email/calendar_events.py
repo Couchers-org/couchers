@@ -6,8 +6,8 @@ from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.email.rendering import get_emails_i18next
-from couchers.i18n import LocalizationContext
 from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.proto.requests_pb2 import HostRequest
 
@@ -15,24 +15,22 @@ HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
 
 def create_host_request_attachment(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: HostRequest, other_name: str, hosting: bool, context: CouchersContext
 ) -> EmailAttachment:
-    ics = create_host_request_ics(host_request, other_name, hosting, loc_context)
+    ics = create_host_request_ics(host_request, other_name, hosting, context)
     return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
 
 
-def create_host_request_ics(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> str:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context)
+def create_host_request_ics(host_request: HostRequest, other_name: str, hosting: bool, context: CouchersContext) -> str:
+    event = create_host_request_event(host_request, other_name, hosting, context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # It allows for later cancellation, and doesn't expose accept/decline functionality.
-    return event_to_ics(event, "PUBLISH", loc_context)
+    return event_to_ics(event, "PUBLISH", context)
 
 
 def create_host_request_event(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext, sequence: int = 0
+    host_request: HostRequest, other_name: str, hosting: bool, context: CouchersContext, sequence: int = 0
 ) -> Event:
     """Creates an ics event for a host request."""
 
@@ -44,11 +42,11 @@ def create_host_request_event(
 
     if hosting:
         event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_host", loc_context.locale, {"name": other_name}
+            "calendar_events.host_requests.title_host", context.localization.locale, {"name": other_name}
         )
     else:
         event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_surfer", loc_context.locale, {"name": other_name}
+            "calendar_events.host_requests.title_surfer", context.localization.locale, {"name": other_name}
         )
 
     # Our to_date is inclusive, iCalendar's DTEND is exclusive (for full-day events)
@@ -58,7 +56,7 @@ def create_host_request_event(
     event.make_all_day()
 
     event.location = host_request.hosting_city
-    event.url = urls.host_request(host_request_id=str(host_request.host_request_id))
+    event.url = urls.host_request(context, host_request_id=str(host_request.host_request_id))
 
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
     event.description = event.url
@@ -67,30 +65,30 @@ def create_host_request_event(
 
 
 def create_host_request_cancellation_attachment(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: HostRequest, other_name: str, hosting: bool, context: CouchersContext
 ) -> EmailAttachment:
-    ics = create_host_request_cancellation_ics(host_request, other_name, hosting, loc_context)
+    ics = create_host_request_cancellation_ics(host_request, other_name, hosting, context)
     return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
 
 
 def create_host_request_cancellation_ics(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: HostRequest, other_name: str, hosting: bool, context: CouchersContext
 ) -> str:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
+    event = create_host_request_event(host_request, other_name, hosting, context, sequence=1)
     event.name = get_emails_i18next().localize(
-        "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
+        "calendar_events.title_cancelled", context.localization.locale, {"title": event.name}
     )
     event.status = "CANCELLED"
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # Gmail™ will immediately remove the event from the user's calendar.
     # METHOD:CANCEL might leave the event in cancelled state or not work.
-    return event_to_ics(event, "PUBLISH", loc_context)
+    return event_to_ics(event, "PUBLISH", context)
 
 
-def event_to_ics(event: Event, method: str | None, loc_context: LocalizationContext) -> str:
+def event_to_ics(event: Event, method: str | None, context: CouchersContext) -> str:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
-    calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
+    calendar = Calendar(creator=f"-//Couchers.org//Couchers//{context.localization.locale.upper()}")
     if method:
         calendar.method = method
     calendar.events.add(event)

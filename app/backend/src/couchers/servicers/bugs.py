@@ -41,7 +41,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         if context.is_logged_in():
             username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
-            user_details = f"[@{username}]({urls.user_link(username=username)}) ({context.user_id})"
+            user_details = f"[@{username}]({urls.user_link(context, username=username)}) ({context.user_id})"
         else:
             user_details = "<not logged in>"
 

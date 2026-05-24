@@ -36,59 +36,63 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def _generate_quick_link(payload: Message) -> str:
+def _generate_quick_link(context: CouchersContext, payload: Message) -> str:
     payload.created.FromDatetime(now())  # type: ignore[attr-defined]
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
-    return urls.quick_link(payload=b64encode(msg), sig=b64encode(sig))
+    return urls.quick_link(context, payload=b64encode(msg), sig=b64encode(sig))
 
 
-def generate_do_not_email(user: User) -> str:
+def generate_do_not_email(context: CouchersContext, user: User) -> str:
     return _generate_quick_link(
+        context,
         unsubscribe_pb2.UnsubscribePayload(
             user_id=user.id,
             do_not_email=unsubscribe_pb2.DoNotEmail(),
-        )
+        ),
     )
 
 
-def generate_unsub_topic_key(notification: Notification) -> str:
+def generate_unsub_topic_key(context: CouchersContext, notification: Notification) -> str:
     if not notification.key:
         raise ValueError(
             f"Cannot generate topic_key unsubscribe link for notification with empty key "
             f"(topic_action={notification.topic_action})"
         )
     return _generate_quick_link(
+        context,
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
             topic_key=unsubscribe_pb2.UnsubscribeTopicKey(
                 topic=notification.topic,
                 key=notification.key,
             ),
-        )
+        ),
     )
 
 
-def generate_unsub_topic_action(notification: Notification) -> str:
+def generate_unsub_topic_action(context: CouchersContext, notification: Notification) -> str:
     return _generate_quick_link(
+        context,
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
             topic_action=unsubscribe_pb2.UnsubscribeTopicAction(
                 topic=notification.topic,
                 action=notification.action,
             ),
-        )
+        ),
     )
 
 
-def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
+def generate_quick_decline_link(context: CouchersContext, host_request: requests_pb2.HostRequest) -> str:
     return _generate_quick_link(
+        context,
         unsubscribe_pb2.UnsubscribePayload(
             user_id=host_request.host_user_id,
             host_request_quick_decline=unsubscribe_pb2.HostRequestQuickDecline(
                 host_request_id=host_request.host_request_id,
             ),
-        )
+        ),
     )
 
 

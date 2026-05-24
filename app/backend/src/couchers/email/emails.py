@@ -8,6 +8,7 @@ from datetime import UTC, date, datetime
 from typing import Self
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.email.rendering import (
     EmailBlock,
     EmailBlocksBuilder,
@@ -15,7 +16,6 @@ from couchers.email.rendering import (
     UserInfo,
     get_emails_i18next,
 )
-from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict
 from couchers.i18n.localize import format_phone_number
 from couchers.proto import notification_data_pb2
@@ -34,29 +34,31 @@ class EmailBase(ABC):
     @abstractmethod
     def string_key_prefix(self) -> str: ...
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+    def get_subject_line(self, context: CouchersContext) -> str:
         """Gets the subject line header of the email."""
-        return self._localize(loc_context, "subject")
+        return self._localize(context, "subject")
 
-    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+    def get_preview_line(self, context: CouchersContext) -> str | None:
         """Gets the line that gets shown as a preview next to the title in users' inboxes."""
         return None
 
-    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+    def get_body_blocks(self, context: CouchersContext) -> list[EmailBlock]:
         """Gets the blocks that form the body of the email."""
 
         # Delegate to build_body, but wrap with greetings and closing lines common to all emails.
         i18next = get_emails_i18next()
-        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_prefix=self.string_key_prefix)
+        builder = EmailBlocksBuilder(locale=context.localization.locale, string_key_prefix=self.string_key_prefix)
         builder.block(
-            ParaBlock(text=i18next.localize("generic.greeting_line", loc_context.locale, {"name": self.user_name}))
+            ParaBlock(
+                text=i18next.localize("generic.greeting_line", context.localization.locale, {"name": self.user_name})
+            )
         )
-        self.build_body(builder, loc_context)
-        builder.block(ParaBlock(text=i18next.localize("generic.closing_line", loc_context.locale)))
+        self.build_body(builder, context)
+        builder.block(ParaBlock(text=i18next.localize("generic.closing_line", context.localization.locale)))
         return builder.blocks
 
     @abstractmethod
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None: ...
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None: ...
 
     @classmethod
     @abstractmethod
@@ -65,14 +67,12 @@ class EmailBase(ABC):
         ...
 
     # Helpers for localizing email-specific strings
-    def _localize(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> str:
+    def _localize(self, context: CouchersContext, key: str, substitutions: SubstitutionDict | None = None) -> str:
         key = f"{self.string_key_prefix}.{key}"
-        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
+        return get_emails_i18next().localize(key, context.localization.locale, substitutions)
 
-    def _body_builder(self, loc_context: LocalizationContext) -> EmailBlocksBuilder:
-        return EmailBlocksBuilder(locale=loc_context.locale, string_key_prefix=self.string_key_prefix)
+    def _body_builder(self, context: CouchersContext) -> EmailBlocksBuilder:
+        return EmailBlocksBuilder(locale=context.localization.locale, string_key_prefix=self.string_key_prefix)
 
 
 # Specific email definitions
@@ -88,17 +88,19 @@ class AccountDeletionStartedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "account_deletion_started"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("request_description")
         builder.para("confirmation_instructions")
         builder.action(self.deletion_link, "confirm_action")
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.AccountDeletionStart, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.AccountDeletionStart, *, user_name: str
+    ) -> Self:
         return cls(
             user_name=user_name,
-            deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+            deletion_link=urls.delete_account_link(context, account_deletion_token=data.deletion_token),
         )
 
     @classmethod
@@ -120,7 +122,7 @@ class AccountDeletionCompletedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "account_deletion_completed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("confirmation")
         builder.para("farewell")
         builder.para("recovery_instructions_days", {"count": self.days})
@@ -128,10 +130,12 @@ class AccountDeletionCompletedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.AccountDeletionComplete, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.AccountDeletionComplete, *, user_name: str
+    ) -> Self:
         return cls(
             user_name=user_name,
-            undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+            undelete_link=urls.recover_account_link(context, account_undelete_token=data.undelete_token),
             days=data.undelete_days,
         )
 
@@ -152,10 +156,10 @@ class AccountDeletionRecoveredEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "account_deletion_recovered"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("confirmation")
         builder.para("login_instructions")
-        builder.action(urls.app_link(), "login_action")
+        builder.action(urls.app_link(context), "login_action")
         builder.para("redelete_instructions")
         builder.security_warning_para()
 
@@ -175,16 +179,18 @@ class APIKeyIssuedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "api_key_issued"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("header")
         builder.quote(self.api_key, markdown=False)
-        builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
+        builder.para("expiry", {"datetime": context.localization.localize_datetime(self.expiry)})
         builder.para("usage_warning")
         builder.para("policy_warning")
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.ApiKeyCreate, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.ApiKeyCreate, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, api_key=data.api_key, expiry=data.expiry.ToDatetime(tzinfo=UTC))
 
     @classmethod
@@ -205,18 +211,22 @@ class BadgeChangedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "badge_added" if self.added else "badge_removed"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"badge_name": self.badge_name})
+    def get_subject_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "subject", {"badge_name": self.badge_name})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"badge_name": self.badge_name})
 
     @classmethod
-    def from_add_notification(cls, data: notification_data_pb2.BadgeAdd, *, user_name: str) -> Self:
+    def from_add_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.BadgeAdd, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, badge_name=data.badge_name, added=True)
 
     @classmethod
-    def from_remove_notification(cls, data: notification_data_pb2.BadgeRemove, *, user_name: str) -> Self:
+    def from_remove_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.BadgeRemove, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, badge_name=data.badge_name, added=False)
 
     @classmethod
@@ -234,12 +244,14 @@ class BirthdateChangedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "birthdate_changed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para("body", {"date": loc_context.localize_date(self.new_birthdate)})
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
+        builder.para("body", {"date": context.localization.localize_date(self.new_birthdate)})
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.BirthdateChange, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.BirthdateChange, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, new_birthdate=date.fromisoformat(data.birthdate))
 
     @classmethod
@@ -264,10 +276,10 @@ class DiscussionCreatedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "discussion_created"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"author": self.author.name, "title": self.title})
+    def get_subject_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "subject", {"author": self.author.name, "title": self.title})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para(
             "body",
             {
@@ -281,15 +293,17 @@ class DiscussionCreatedEmail(EmailBase):
         builder.action(self.view_link, "view_action")
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.DiscussionCreate, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.DiscussionCreate, *, user_name: str
+    ) -> Self:
         discussion = data.discussion
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_protobuf(context, data.author),
             title=discussion.title,
             parent_context=discussion.owner_title,
             markdown_text=discussion.content,
-            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            view_link=urls.discussion_link(context, discussion_id=discussion.discussion_id, slug=discussion.slug),
         )
 
     @classmethod
@@ -318,12 +332,12 @@ class DiscussionCommentEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "discussion_comment"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+    def get_subject_line(self, context: CouchersContext) -> str:
         return self._localize(
-            loc_context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title}
+            context, "subject", {"author": self.author.name, "discussion_title": self.discussion_title}
         )
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para(
             "body",
             {
@@ -337,15 +351,17 @@ class DiscussionCommentEmail(EmailBase):
         builder.action(self.view_link, "view_action")
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.DiscussionComment, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.DiscussionComment, *, user_name: str
+    ) -> Self:
         discussion = data.discussion
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_protobuf(context, data.author),
             discussion_title=discussion.title,
             discussion_parent_context=discussion.owner_title,
             markdown_text=data.reply.content,
-            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+            view_link=urls.discussion_link(context, discussion_id=discussion.discussion_id, slug=discussion.slug),
         )
 
     @classmethod
@@ -370,12 +386,14 @@ class EmailAddressChangedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "email_address_change_initiated"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"email_address": self.new_email})
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.EmailAddressChange, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.EmailAddressChange, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, new_email=data.new_email)
 
     @classmethod
@@ -391,7 +409,7 @@ class EmailAddressVerifiedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "email_address_verified"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body")
         builder.security_warning_para()
 
@@ -410,22 +428,24 @@ class FriendRequestReceivedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "friend_request_received"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"name": self.befriender.name})
+    def get_subject_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "subject", {"name": self.befriender.name})
 
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "body", {"name": self.befriender.name})
+    def get_preview_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "body", {"name": self.befriender.name})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"name": self.befriender.name})
         builder.user(self.befriender)
-        builder.action(urls.friend_requests_link(), "view_action")
+        builder.action(urls.friend_requests_link(context), "view_action")
         builder.para("closing")
         builder.do_not_reply_request_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.FriendRequestCreate, *, user_name: str) -> Self:
-        return cls(user_name=user_name, befriender=UserInfo.from_protobuf(data.other_user))
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.FriendRequestCreate, *, user_name: str
+    ) -> Self:
+        return cls(user_name=user_name, befriender=UserInfo.from_protobuf(context, data.other_user))
 
     @classmethod
     def dummy_data(cls) -> FriendRequestReceivedEmail:
@@ -445,21 +465,23 @@ class FriendRequestAcceptedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "friend_request_accepted"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject", {"name": self.new_friend.name})
+    def get_subject_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "subject", {"name": self.new_friend.name})
 
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "body", {"name": self.new_friend.name})
+    def get_preview_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "body", {"name": self.new_friend.name})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"name": self.new_friend.name})
         builder.user(self.new_friend)
         builder.action(self.new_friend.profile_url, "view_action")
         builder.para("closing")
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.FriendRequestAccept, *, user_name: str) -> Self:
-        return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(data.other_user))
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.FriendRequestAccept, *, user_name: str
+    ) -> Self:
+        return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(context, data.other_user))
 
     @classmethod
     def dummy_data(cls) -> FriendRequestAcceptedEmail:
@@ -479,12 +501,14 @@ class GenderChangedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "gender_changed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"gender": self.new_gender})
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.GenderChange, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.GenderChange, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, new_gender=data.gender)
 
     @classmethod
@@ -503,7 +527,7 @@ class ModeratorNoteEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "moderator_note"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body")
 
     @classmethod
@@ -519,7 +543,7 @@ class PasswordChangedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "password_changed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body")
         builder.security_warning_para()
 
@@ -536,7 +560,7 @@ class PasswordResetCompletedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "password_reset_completed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body")
         builder.security_warning_para()
 
@@ -555,17 +579,19 @@ class PasswordResetStartedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "password_reset_started"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("request_description")
         builder.para("confirmation_instructions")
         builder.action(self.password_reset_link, "reset_action")
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.PasswordResetStart, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.PasswordResetStart, *, user_name: str
+    ) -> Self:
         return cls(
             user_name=user_name,
-            password_reset_link=urls.password_reset_link(password_reset_token=data.password_reset_token),
+            password_reset_link=urls.password_reset_link(context, password_reset_token=data.password_reset_token),
         )
 
     @classmethod
@@ -584,16 +610,20 @@ class PhoneNumberChangeEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "phone_number_verified" if self.completed else "phone_number_verification_started"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"phone_number": format_phone_number(self.new_phone_number)})
         builder.security_warning_para()
 
     @classmethod
-    def from_change_notification(cls, data: notification_data_pb2.PhoneNumberChange, *, user_name: str) -> Self:
+    def from_change_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.PhoneNumberChange, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, new_phone_number=data.phone, completed=False)
 
     @classmethod
-    def from_verify_notification(cls, data: notification_data_pb2.PhoneNumberVerify, *, user_name: str) -> Self:
+    def from_verify_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.PhoneNumberVerify, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, new_phone_number=data.phone, completed=True)
 
     @classmethod
@@ -615,7 +645,7 @@ class PostalVerificationFailedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "postal_verification_failed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         match self.reason:
             case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
                 reason_string_key = "reason_code_expired"
@@ -627,7 +657,9 @@ class PostalVerificationFailedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.PostalVerificationFailed, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.PostalVerificationFailed, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, reason=data.reason)
 
     @classmethod
@@ -649,12 +681,14 @@ class PostalVerificationPostcardSentEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "postal_verification_postcard_sent"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"city": self.city, "country": self.country})
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.PostalVerificationPostcardSent, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.PostalVerificationPostcardSent, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, city=data.city, country=data.country)
 
     @classmethod
@@ -670,7 +704,7 @@ class PostalVerificationSucceededEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "postal_verification_succeeded"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body")
         builder.security_warning_para()
 
@@ -689,7 +723,7 @@ class StrongVerificationFailedEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "strong_verification_failed"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         match self.reason:
             case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
                 reason_string_key = "reason_wrong_birthdate_or_gender"
@@ -703,7 +737,9 @@ class StrongVerificationFailedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.VerificationSVFail, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.VerificationSVFail, *, user_name: str
+    ) -> Self:
         return cls(user_name=user_name, reason=data.reason)
 
     @classmethod
@@ -722,12 +758,12 @@ class StrongVerificationSucceededEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "strong_verification_succeeded"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("success_message")
         builder.para("thanks_message")
         builder.para("cost_explanation")
         builder.para("donation_request")
-        donate_link = urls.donation_url() + "?utm_source=strong-verification-email"
+        donate_link = urls.donation_url(context) + "?utm_source=strong-verification-email"
         builder.action(donate_link, "donate_action")
         builder.security_warning_para()
 
@@ -749,31 +785,33 @@ class ThreadReplyEmail(EmailBase):
     def string_key_prefix(self) -> str:
         return "thread_reply"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(
-            loc_context, "subject", {"author": self.author.name, "parent_context": self.parent_context}
-        )
+    def get_subject_line(self, context: CouchersContext) -> str:
+        return self._localize(context, "subject", {"author": self.author.name, "parent_context": self.parent_context})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def build_body(self, builder: EmailBlocksBuilder, context: CouchersContext) -> None:
         builder.para("body", {"author": self.author.name, "parent_context": self.parent_context})
         builder.user(self.author)
         builder.quote(self.markdown_text, markdown=True)
         builder.action(self.view_link, "view_action")
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.ThreadReply, *, user_name: str) -> Self:
+    def from_notification(
+        cls, context: CouchersContext, data: notification_data_pb2.ThreadReply, *, user_name: str
+    ) -> Self:
         parent = data.WhichOneof("reply_parent")
         if parent == "event":
             parent_context = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            view_link = urls.event_link(context, occurrence_id=data.event.event_id, slug=data.event.slug)
         elif parent == "discussion":
             parent_context = data.discussion.title
-            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+            view_link = urls.discussion_link(
+                context, discussion_id=data.discussion.discussion_id, slug=data.discussion.slug
+            )
         else:
             raise Exception("Can only do replies to events and discussions")
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_protobuf(context, data.author),
             parent_context=parent_context,
             markdown_text=data.reply.content,
             view_link=view_link,

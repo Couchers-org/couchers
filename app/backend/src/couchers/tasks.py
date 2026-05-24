@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
+from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.queuing import queue_system_email, queue_userless_email
@@ -33,24 +34,24 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(session: Session, flow: SignupFlow) -> None:
+def send_signup_email(context: CouchersContext, session: Session, flow: SignupFlow) -> None:
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
     email_sent_before = flow.email_sent
     if flow.email_verified:
         # we just send a link to continue, not a verification link
-        signup_link = urls.signup_link(token=flow.flow_token)
+        signup_link = urls.signup_link(context, token=flow.flow_token)
     elif flow.email_token and flow.token_is_valid:
         # if the verification email was sent and still is not expired, just resend the verification email
-        signup_link = urls.signup_link(token=flow.email_token)
+        signup_link = urls.signup_link(context, token=flow.email_token)
     else:
         # otherwise send a fresh email with a new token
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
         flow.email_token_expiry = now() + SIGNUP_EMAIL_TOKEN_VALIDITY
-        signup_link = urls.signup_link(token=flow.email_token)
+        signup_link = urls.signup_link(context, token=flow.email_token)
 
     flow.email_sent = True
 
@@ -63,7 +64,7 @@ def send_signup_email(session: Session, flow: SignupFlow) -> None:
     )
 
 
-def send_email_changed_confirmation_to_new_email(session: Session, user: User) -> None:
+def send_email_changed_confirmation_to_new_email(context: CouchersContext, session: Session, user: User) -> None:
     """
     Send an email to the user's new email address requesting confirmation of email change
     """
@@ -77,7 +78,7 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
     elif not user.new_email:
         raise ValueError(f"No new email for {user.id}")
 
-    confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
+    confirmation_link = urls.change_email_link(context, confirmation_token=user.new_email_token)
     queue_userless_email(
         session,
         user.new_email,
@@ -161,14 +162,18 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
         )
 
 
-def send_event_community_invite_request_email(session: Session, request: EventCommunityInviteRequest) -> None:
+def send_event_community_invite_request_email(
+    context: CouchersContext, session: Session, request: EventCommunityInviteRequest
+) -> None:
     queue_system_email(
         session,
         config["MODS_EMAIL_RECIPIENT"],
         "event_community_invite_request",
         template_args={
-            "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
-            "user_link": urls.user_link(username=request.user.username),
+            "event_link": urls.event_link(
+                context, occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
+            ),
+            "user_link": urls.user_link(context, username=request.user.username),
             "view_link": urls.console_link(page="tools/community-invites"),
         },
     )

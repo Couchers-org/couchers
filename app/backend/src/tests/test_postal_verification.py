@@ -11,8 +11,10 @@ from couchers.constants import (
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
     POSTAL_VERIFICATION_RATE_LIMIT,
 )
+from couchers.context import make_logged_out_context
 from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
+from couchers.i18n import LocalizationContext
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
@@ -690,7 +692,7 @@ def test_generate_postcard_images():
     """
     code = "ABC123"
     front = get_postcard_front_image()
-    back = _generate_back_left_side_png(code)
+    back = _generate_back_left_side_png(make_logged_out_context(LocalizationContext.en_utc()), code)
 
     assert len(front) > 0
     assert len(back) > 0

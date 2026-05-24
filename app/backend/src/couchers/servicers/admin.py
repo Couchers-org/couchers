@@ -1000,7 +1000,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         session.add(token)
         log_admin_action(session, context, user, "create_account_deletion_link", level=AdminActionLevel.high)
         return admin_pb2.CreateAccountDeletionLinkRes(
-            account_deletion_confirm_url=urls.delete_account_link(account_deletion_token=token.token)
+            account_deletion_confirm_url=urls.delete_account_link(context, account_deletion_token=token.token)
         )
 
     def AccessStats(

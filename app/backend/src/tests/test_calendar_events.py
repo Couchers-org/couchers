@@ -4,6 +4,7 @@ from datetime import timedelta
 import ics
 import pytest
 
+from couchers.context import make_logged_out_context
 from couchers.email.calendar_events import create_host_request_cancellation_ics, create_host_request_ics
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import conversations_pb2, requests_pb2
@@ -26,7 +27,7 @@ def test_initial_ics_content():
     )
 
     ics = create_host_request_ics(
-        host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+        host_request, other_name="Bob", hosting=True, context=make_logged_out_context(LocalizationContext.en_utc())
     )
     assert _normalize_ics(ics) == _normalize_ics("""
 BEGIN:VCALENDAR
@@ -53,7 +54,7 @@ def test_cancellation_ics_content():
     )
 
     ics = create_host_request_cancellation_ics(
-        host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+        host_request, other_name="Bob", hosting=True, context=make_logged_out_context(LocalizationContext.en_utc())
     )
     assert _normalize_ics(ics) == _normalize_ics("""
 BEGIN:VCALENDAR

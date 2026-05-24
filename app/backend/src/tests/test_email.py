@@ -8,8 +8,10 @@ from sqlalchemy import func, select, update
 import couchers.email
 import couchers.jobs.handlers
 from couchers.config import config
+from couchers.context import make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContentReport,
     Email,
@@ -56,7 +58,7 @@ def test_signup_verification_email(db):
 
     with session_scope() as session:
         with mock_notification_email() as mock:
-            send_signup_email(session, flow)
+            send_signup_email(make_logged_out_context(LocalizationContext.en_utc()), session, flow)
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -232,7 +234,9 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     user.new_email_token = confirmation_token
     with session_scope() as session:
         with mock_notification_email() as mock:
-            send_email_changed_confirmation_to_new_email(session, user)
+            send_email_changed_confirmation_to_new_email(
+                make_logged_out_context(LocalizationContext.en_utc()), session, user
+            )
 
     assert mock.call_count == 1
     e = email_fields(mock)

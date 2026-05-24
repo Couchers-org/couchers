@@ -7,6 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
@@ -108,6 +109,7 @@ class PushNotificationContent:
 def push_to_subscription(
     session: Session,
     *,
+    context: CouchersContext,
     push_notification_subscription_id: int,
     user_id: int,
     topic_action: str,
@@ -118,7 +120,7 @@ def push_to_subscription(
     # TODO(#7617): Support iOS-style title/subtitles
     title = config["NOTIFICATION_PREFIX"] + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
     body = content.body[: PushNotificationContent.MAX_BODY_LENGTH]
-    icon_url = content.icon_url or urls.icon_url()
+    icon_url = content.icon_url or urls.icon_url(context)
     action_url = content.action_url or ""
     queue_job(
         session,
@@ -142,6 +144,7 @@ def push_to_subscription(
 
 def _push_to_user(
     session: Session,
+    context: CouchersContext,
     user_id: int,
     topic_action: str,
     content: PushNotificationContent,
@@ -163,6 +166,7 @@ def _push_to_user(
     for sub_id in sub_ids:
         push_to_subscription(
             session,
+            context=context,
             push_notification_subscription_id=sub_id,
             user_id=user_id,
             topic_action=topic_action,
@@ -175,6 +179,7 @@ def _push_to_user(
 def push_to_user(
     session: Session,
     *,
+    context: CouchersContext,
     user_id: int,
     topic_action: str,
     content: PushNotificationContent,
@@ -186,6 +191,7 @@ def push_to_user(
     """
     _push_to_user(
         session,
+        context,
         user_id=user_id,
         topic_action=topic_action,
         content=content,

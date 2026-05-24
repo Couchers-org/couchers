@@ -215,7 +215,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_flow:
-                    send_signup_email(session, existing_flow)
+                    send_signup_email(context, session, existing_flow)
                     session.commit()
                     context.abort_with_error_code(
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
@@ -330,7 +330,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
-                send_signup_email(session, flow)
+                send_signup_email(context, session, flow)
 
             session.flush()
 
@@ -472,7 +472,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
-                send_signup_email(session, signup_flow)
+                send_signup_email(context, session, signup_flow)
                 session.commit()
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup")
             logger.debug("Didn't find user")
@@ -784,5 +784,5 @@ class Auth(auth_pb2_grpc.AuthServicer):
             name=user.name,
             username=user.username,
             avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
-            url=urls.invite_code_link(code=request.code),
+            url=urls.invite_code_link(context, code=request.code),
         )

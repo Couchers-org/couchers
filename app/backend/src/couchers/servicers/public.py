@@ -10,6 +10,7 @@ from sqlalchemy.sql import func, union_all
 
 from couchers import experimentation, urls
 from couchers.context import CouchersContext, make_logged_out_context
+from couchers.i18n import LocalizationContext
 from couchers.materialized_views import LiteUser
 from couchers.models import (
     Cluster,
@@ -32,7 +33,7 @@ from couchers.utils import Timestamp_from_datetime, not_none, now
 logger = logging.getLogger(__name__)
 
 
-def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]:
+def format_volunteer_link(context: CouchersContext, volunteer: Volunteer, username: str) -> dict[str, str]:
     """Format volunteer link information into a dict with link_type, link_text, and link_url."""
     if volunteer.link_type:
         return dict(
@@ -44,7 +45,7 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
         return dict(
             link_type="couchers",
             link_text=f"@{username}",
-            link_url=urls.user_link(username=username),
+            link_url=urls.user_link(context, username=username),
         )
 
 
@@ -142,6 +143,9 @@ def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
 
     board_members = set(get_static_badge_dict()["board_member"])
 
+    # The team page is public and cached identically for everyone, so links use the canonical base URL.
+    context = make_logged_out_context(LocalizationContext.en_utc())
+
     def format_volunteer(volunteer: Volunteer, lite_user: LiteUser) -> public_pb2.Volunteer:
         return public_pb2.Volunteer(
             name=volunteer.display_name or lite_user.name,
@@ -152,7 +156,7 @@ def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
             img=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
             if lite_user.avatar_filename
             else None,
-            **format_volunteer_link(volunteer, lite_user.username),
+            **format_volunteer_link(context, volunteer, lite_user.username),
         )
 
     return public_pb2.GetVolunteersRes(

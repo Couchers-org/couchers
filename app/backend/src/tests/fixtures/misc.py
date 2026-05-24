@@ -45,7 +45,7 @@ class PushCollector:
         self.by_user: dict[int, list[Push]] = {}
         """Collected notifications by user id, chronologically."""
 
-    def push_to_user(self, session: Session, user_id: int, **kwargs: Any) -> None:
+    def push_to_user(self, session: Session, context: Any, user_id: int, **kwargs: Any) -> None:
         if user_id not in self.by_user:
             self.by_user[user_id] = []
         self.by_user[user_id].append(Push(**kwargs))

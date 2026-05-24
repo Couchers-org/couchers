@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.resources import (
     get_postcard_back_left_template,
     get_postcard_font,
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://www.mypostcard.com/api/v1"
 
 
-def _generate_back_left_side_png(verification_code: str) -> bytes:
+def _generate_back_left_side_png(context: CouchersContext, verification_code: str) -> bytes:
     """
     Generates the back left side image (780x1016 px PNG at 300 DPI).
 
@@ -37,7 +38,7 @@ def _generate_back_left_side_png(verification_code: str) -> bytes:
 
     # Generate QR code
     qr = qrcode.QRCode(box_size=10, border=0)
-    qr.add_data(urls.postal_verification_link(code=verification_code))
+    qr.add_data(urls.postal_verification_link(context, code=verification_code))
     qr.make(fit=True)
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
 
@@ -126,6 +127,7 @@ def _place_order(
 
 
 def send_postcard(
+    context: CouchersContext,
     recipient_name: str,
     address_line_1: str,
     address_line_2: str | None,
@@ -166,7 +168,7 @@ def send_postcard(
         recipient["state"] = state
 
     result = _place_order(
-        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side_png(verification_code)
+        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side_png(context, verification_code)
     )
     logger.info(f"MyPostcard order placed successfully: {result}")
     return int(result["job_id"])

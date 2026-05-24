@@ -8,8 +8,10 @@ from sqlalchemy import select, update
 from sqlalchemy.sql import delete, func
 
 from couchers import urls
+from couchers.context import make_logged_out_context
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContributeOption,
     ContributorForm,
@@ -1196,7 +1198,7 @@ def test_GetInviteCodeInfo(db):
         assert res.avatar_url.endswith(".jpg")
         # Verify the hashed filename looks correct (64 char hex hash)
         assert len(res.avatar_url.split("/")[-1].replace(".jpg", "")) == 64
-        assert res.url == urls.invite_code_link(code=code)
+        assert res.url == urls.invite_code_link(make_logged_out_context(LocalizationContext.en_utc()), code=code)
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
@@ -1210,7 +1212,7 @@ def test_GetInviteCodeInfo_no_avatar(db):
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url == ""
-        assert res.url == urls.invite_code_link(code=code)
+        assert res.url == urls.invite_code_link(make_logged_out_context(LocalizationContext.en_utc()), code=code)
 
 
 def test_GetInviteCodeInfo_not_found(db):

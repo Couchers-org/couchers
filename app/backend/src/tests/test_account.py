@@ -8,8 +8,10 @@ from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers import urls
+from couchers.context import make_logged_out_context
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     AccountDeletionReason,
@@ -960,7 +962,7 @@ def test_CreateInviteCode(db):
         invite = session.execute(select(InviteCode).where(InviteCode.id == code)).scalar_one()
         assert invite.creator_user_id == user.id
         assert invite.disabled is None
-        assert res.url == urls.invite_code_link(code=res.code)
+        assert res.url == urls.invite_code_link(make_logged_out_context(LocalizationContext.en_utc()), code=res.code)
 
 
 def test_DisableInviteCode(db):
@@ -991,7 +993,9 @@ def test_ListInviteCodes(db):
         assert len(res.invite_codes) == 1
         assert res.invite_codes[0].code == code
         assert res.invite_codes[0].uses == 1
-        assert res.invite_codes[0].url == urls.invite_code_link(code=code)
+        assert res.invite_codes[0].url == urls.invite_code_link(
+            make_logged_out_context(LocalizationContext.en_utc()), code=code
+        )
 
 
 def test_reminders(db, moderator):

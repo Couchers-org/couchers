@@ -41,16 +41,15 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is deleted")
         return
 
-    context = make_background_user_context(user.id)
-
     loc_context = LocalizationContext.from_user(user)
+    context = make_background_user_context(user.id, loc_context)
     if not context.get_boolean_value("notification_translations_enabled", default=False):
-        loc_context = dataclasses.replace(loc_context, locale="en")
+        context = make_background_user_context(user.id, dataclasses.replace(loc_context, locale="en"))
 
     rendered = render_email_notification(
         user,
         notification,
-        loc_context,
+        context,
         include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
     )
 
@@ -73,9 +72,11 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
-    content = render_push_notification(notification, LocalizationContext.from_user(user))
+    context = make_background_user_context(user.id, LocalizationContext.from_user(user))
+    content = render_push_notification(notification, context)
     push_to_user(
         session,
+        context=context,
         user_id=user.id,
         topic_action=notification.topic_action.display,
         content=content,

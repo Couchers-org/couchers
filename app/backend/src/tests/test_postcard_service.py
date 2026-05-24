@@ -3,6 +3,8 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
+from couchers.context import make_logged_out_context
+from couchers.i18n import LocalizationContext
 from couchers.postal.my_postcard import send_postcard
 from couchers.resources import get_postcard_front_image
 
@@ -10,6 +12,9 @@ from couchers.resources import get_postcard_front_image
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+_context = make_logged_out_context(LocalizationContext.en_utc())
 
 
 def test_get_postcard_front_image_returns_png():
@@ -30,6 +35,7 @@ def test_send_postcard_success():
         mock_order.return_value = {"job_id": 12345}
 
         job_id = send_postcard(
+            _context,
             recipient_name="Test User",
             address_line_1="123 Main St",
             address_line_2="Apt 4",
@@ -56,6 +62,7 @@ def test_send_postcard_builds_recipient_correctly():
         mock_order.return_value = {"job_id": 123}
 
         send_postcard(
+            _context,
             recipient_name="Test User",
             address_line_1="123 Main St",
             address_line_2="Apt 4",
@@ -86,6 +93,7 @@ def test_send_postcard_excludes_none_optional_fields():
         mock_order.return_value = {"job_id": 123}
 
         send_postcard(
+            _context,
             recipient_name="Test User",
             address_line_1="123 Main St",
             address_line_2=None,
@@ -112,6 +120,7 @@ def test_send_postcard_auth_failure():
 
         with pytest.raises(RequestException, match="Connection refused"):
             send_postcard(
+                _context,
                 recipient_name="Test User",
                 address_line_1="123 Main St",
                 address_line_2=None,
@@ -135,6 +144,7 @@ def test_send_postcard_order_failure():
 
         with pytest.raises(RequestException, match="500 Server Error"):
             send_postcard(
+                _context,
                 recipient_name="Test User",
                 address_line_1="123 Main St",
                 address_line_2=None,

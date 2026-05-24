@@ -12,6 +12,7 @@ from typing import Any, Self
 from markupsafe import Markup
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import load_locales
@@ -51,13 +52,13 @@ class UserInfo:
     profile_url: str
 
     @classmethod
-    def from_protobuf(cls, user: api_pb2.User) -> Self:
+    def from_protobuf(cls, context: CouchersContext, user: api_pb2.User) -> Self:
         return cls(
             name=user.name,
             age=user.age,
             city=user.city,
-            avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
-            profile_url=urls.user_link(username=user.username),
+            avatar_url=user.avatar_thumbnail_url or urls.icon_url(context),
+            profile_url=urls.user_link(context, username=user.username),
         )
 
     @staticmethod

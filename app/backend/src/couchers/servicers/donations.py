@@ -76,8 +76,8 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             # Stripe actually allows None, but the signature says it's either a string or not passed.
             submit_type="donate" if not request.recurring else None,  # type: ignore[arg-type]
             customer=not_none(user.stripe_customer_id),
-            success_url=urls.donation_success_url(),
-            cancel_url=urls.donation_cancelled_url(),
+            success_url=urls.donation_success_url(context),
+            cancel_url=urls.donation_cancelled_url(context),
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],  # type: ignore[list-item]
@@ -118,7 +118,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         stripe_session = stripe.billing_portal.Session.create(
             customer=not_none(user.stripe_customer_id),
-            return_url=urls.donation_url(),
+            return_url=urls.donation_url(context),
             api_key=config["STRIPE_API_KEY"],
         )
 
@@ -155,7 +155,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
                     user_add_badge(session, user.id, "swagster")
-                    user_link = urls.user_link(username=user.username)
+                    user_link = urls.user_link(context, username=user.username)
                     customer_info = f"<{user_link}|{user.name}>"
                 else:
                     customer_info = customer_email
@@ -199,7 +199,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 # Recurring donations go through Stripe invoices, one-time don't
                 is_recurring = data_object.get("invoice") is not None
                 donation_type = "recurring" if is_recurring else "one-time"
-                user_link = urls.user_link(username=user.username)
+                user_link = urls.user_link(context, username=user.username)
                 try:
                     send_slack_message(
                         config["SLACK_DONATIONS_CHANNEL"],
