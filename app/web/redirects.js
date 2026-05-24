@@ -6,6 +6,12 @@ module.exports = {
       permanent: false,
     },
     {
+      source: "/rules",
+      destination:
+        "https://help.couchers.org/hc/couchersorg-help-center/en/categories/community-values-safety-and-trust",
+      permanent: false,
+    },
+    {
       source: "/volunteer/form",
       destination:
         "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
