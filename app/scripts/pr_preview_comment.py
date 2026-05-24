@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs in GitLab CI after the preview/upload jobs so every link it posts is already
-live. Currently surfaces the per-branch mobile Dev Tool OTA preview (QR + deep
-link); each preview is a section, so web/coverage/etc. can be appended as the
-pipeline grows. No-ops (exit 0) when there is no token or no open PR, so it never
-turns a pipeline red.
+Runs in GitLab CI after the upload jobs so every link it posts is already live.
+Each preview is a section, so web/coverage/etc. can be appended as the pipeline
+grows. The mobile QR PNG is generated and uploaded by the OTA build/upload jobs;
+this script only assembles markdown and talks to the GitHub API. No-ops (exit 0)
+when there is no token or no open PR, so it never turns a pipeline red.
 """
 
-import io
 import os
 import sys
 import urllib.parse
 
-import boto3
-import qrcode
 import requests
 
 MARKER = "<!-- couchers-preview-bot -->"
@@ -42,18 +39,7 @@ def deep_link(manifest_url):
     )
 
 
-def make_qr_png(data):
-    qr = qrcode.QRCode(
-        border=2, box_size=8, error_correction=qrcode.constants.ERROR_CORRECT_M
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
-    buf = io.BytesIO()
-    qr.make_image(fill_color="black", back_color="white").save(buf, format="PNG")
-    return buf.getvalue()
-
-
-def mobile_ota_section(s3, bucket, short_sha, domain, platforms):
+def mobile_ota_section(short_sha, domain, platforms):
     lines = [
         "### Mobile Dev Tool preview",
         "",
@@ -61,20 +47,13 @@ def mobile_ota_section(s3, bucket, short_sha, domain, platforms):
         "branch in the installed **Dev Tool** dev client.",
     ]
     for platform in platforms:
-        manifest_url = f"https://{short_sha}--ota.{domain}/{platform}/manifest"
-        link = deep_link(manifest_url)
-        s3.put_object(
-            Bucket=bucket,
-            Key=f"ota/{short_sha}/{platform}/qr.png",
-            Body=make_qr_png(link),
-            ContentType="image/png",
-        )
-        qr_url = f"https://{short_sha}--ota.{domain}/{platform}/qr.png"
+        base = f"https://{short_sha}--ota.{domain}/{platform}"
+        link = deep_link(f"{base}/manifest")
         lines += [
             "",
             f"**{platform}**",
             "",
-            f'<img src="{qr_url}" alt="QR to open the {platform} build" width="180" height="180" />',
+            f'<img src="{base}/qr.png" alt="QR to open the {platform} build" width="180" height="180" />',
             "",
             "<details><summary>Deep link</summary>",
             "",
@@ -154,10 +133,7 @@ def main():
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
-    s3 = boto3.client("s3")
-    bucket = env("AWS_PREVIEW_BUCKET", required=True)
-
-    sections = [mobile_ota_section(s3, bucket, short_sha, domain, platforms)]
+    sections = [mobile_ota_section(short_sha, domain, platforms)]
     url = upsert_comment(repo, pr, build_body(sections, sha, pipeline_url), token)
     print(f"Posted preview comment to PR #{pr}: {url}")
 
