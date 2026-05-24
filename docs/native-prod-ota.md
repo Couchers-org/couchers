@@ -125,12 +125,12 @@ metadata.** `CouchersContext.set_response_headers([...])` queues the headers and
 `_send_cookies()` emits them alongside cookies in the single
 `send_initial_metadata` call (`context.py`). Envoy forwards this initial metadata
 downstream as HTTP response headers — confirmed by curling
-`/mobile/ota/manifest` through the local proxy: the response carries
+`/native/ota/manifest` through the local proxy: the response carries
 `expo-protocol-version: 1` and `expo-sfv-version: 0` (same mechanism that already
 delivers `set-cookie`).
 
 > **Note — the route-scoped Envoy approach does NOT work here.** A `match: { path:
-> "/mobile/ota/manifest" }` route with `response_headers_to_add` never matches,
+> "/native/ota/manifest" }` route with `response_headers_to_add` never matches,
 > because `grpc_json_transcoder` rewrites the request `:path` to the gRPC method
 > path (`/org.couchers.bugs.Bugs/GetMobileUpdateManifest`) *before* route
 > selection, so the request falls through to the catch-all `prefix: "/"` route.
@@ -143,7 +143,7 @@ delivers `set-cookie`).
 
 ```
                  cold start / periodic
-  ┌───────────┐  GET /mobile/ota/manifest        ┌──────────────────────────┐
+  ┌───────────┐  GET /native/ota/manifest        ┌──────────────────────────┐
   │  prod app │ ───────────────────────────────► │ Envoy (grpc_json_         │
   │ expo-     │   headers:                        │ transcoder, auto_mapping) │
   │ updates   │     expo-runtime-version          └────────────┬─────────────┘
@@ -228,7 +228,7 @@ and already Envoy-allowlisted):
 import "google/api/httpbody.proto";
 
 rpc GetMobileUpdateManifest(google.api.HttpBody) returns (google.api.HttpBody) {
-  option (google.api.http) = { get : "/mobile/ota/manifest" };
+  option (google.api.http) = { get : "/native/ota/manifest" };
 }
 ```
 
@@ -397,8 +397,8 @@ In `app.config.js`, **production (and staging) variants** — currently
 `updates = { url: "https://u.expo.dev/fb4fc9aa-…" }`:
 
 - Set `updates.url` to the backend endpoint, e.g.
-  `https://api.couchers.org/mobile/ota/manifest` (staging →
-  `https://dev-api.couchershq.org/mobile/ota/manifest`).
+  `https://api.couchers.org/native/ota/manifest` (staging →
+  `https://dev-api.couchershq.org/native/ota/manifest`).
 - Add `updates.codeSigningCertificate` (committed public PEM) +
   `updates.codeSigningMetadata` (§7).
 - **Do NOT** set `disableAntiBrickingMeasures` — we keep anti-bricking (§2).

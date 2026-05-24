@@ -403,7 +403,22 @@ def _multipart_part_json(body, name):
     return json.loads(body[start:end])
 
 
-def test_mobile_update_manifest(db):
+_OTA_BUNDLES = {
+    "ios": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "launch_asset": {"key": "ios-key", "url": "https://cdn.example/ios/bundle.hbc"},
+        "assets": [],
+    },
+    "android": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "launch_asset": {"key": "android-key", "url": "https://cdn.example/android/bundle.hbc"},
+        "assets": [],
+    },
+}
+
+
+def test_mobile_update_manifest(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
     with real_bugs_session() as (bugs, metadata_interceptor):
         res = bugs.GetMobileUpdateManifest(
             httpbody_pb2.HttpBody(),
@@ -425,7 +440,8 @@ def test_mobile_update_manifest(db):
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_mobile_update_manifest_android(db):
+def test_mobile_update_manifest_android(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
     with real_bugs_session() as (bugs, _metadata_interceptor):
         res = bugs.GetMobileUpdateManifest(
             httpbody_pb2.HttpBody(),

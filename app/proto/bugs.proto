@@ -41,7 +41,7 @@ service Bugs {
   rpc GetMobileUpdateManifest(google.api.HttpBody) returns (google.api.HttpBody) {
     // Serves the Expo Updates protocol (v1) manifest for the mobile app
     option (google.api.http) = {
-      get : "/mobile/ota/manifest"
+      get : "/native/ota/manifest"
     };
   }
 
