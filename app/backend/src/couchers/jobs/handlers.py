@@ -1309,7 +1309,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    if not config["ENABLE_POSTAL_VERIFICATION"]:
+    if not experimentation.get_global_boolean_value("postal_verification_enabled", default=False):
         return
 
     with session_scope() as session:

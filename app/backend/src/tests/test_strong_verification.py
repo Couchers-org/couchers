@@ -238,7 +238,6 @@ def do_and_check_sv(
 
 def monkeypatch_sv_config(monkeypatch):
     new_config = config.copy()
-    new_config["ENABLE_STRONG_VERIFICATION"] = True
     new_config["IRIS_ID_PUBKEY"] = "dummy_pubkey"
     new_config["IRIS_ID_SECRET"] = "dummy_secret"
     new_config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
@@ -637,7 +636,8 @@ def test_strong_verification_regression2(db, monkeypatch):
         )
 
 
-def test_strong_verification_disabled(db):
+def test_strong_verification_disabled(db, feature_flags):
+    feature_flags.set("strong_verification_enabled", False)
     user, token = generate_user()
 
     with account_session(token) as account:

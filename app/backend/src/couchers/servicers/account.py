@@ -428,7 +428,7 @@ class Account(account_pb2_grpc.AccountServicer):
     def InitiateStrongVerification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.InitiateStrongVerificationRes:
-        if not config["ENABLE_STRONG_VERIFICATION"]:
+        if not context.get_boolean_value("strong_verification_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()

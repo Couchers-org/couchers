@@ -6,8 +6,6 @@ import grpc
 import pytest
 from sqlalchemy import select
 
-import couchers.servicers.postal_verification
-from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
@@ -31,12 +29,6 @@ def _(testconfig):
     pass
 
 
-def _monkeypatch_postal_verification_config(monkeypatch):
-    new_config = config.copy()
-    new_config["ENABLE_POSTAL_VERIFICATION"] = True
-    monkeypatch.setattr(couchers.servicers.postal_verification, "config", new_config)
-
-
 def test_generate_postal_verification_code():
     """Test that generated codes meet requirements."""
     allowed = set("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
@@ -49,8 +41,9 @@ def test_generate_postal_verification_code():
             assert char not in code
 
 
-def test_postal_verification_disabled(db):
-    """Test that postal verification is disabled by default."""
+def test_postal_verification_disabled(db, feature_flags):
+    """Test that postal verification is disabled."""
+    feature_flags.set("postal_verification_enabled", False)
     user, token = generate_user()
 
     with postal_verification_session(token) as pv:
@@ -67,10 +60,8 @@ def test_postal_verification_disabled(db):
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
-def test_postal_verification_happy_path(db, monkeypatch):
+def test_postal_verification_happy_path(db):
     """Test the complete happy path for postal verification."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Check initial status
@@ -152,10 +143,8 @@ def test_postal_verification_happy_path(db, monkeypatch):
         assert has_postal_verification(session, db_user)
 
 
-def test_postal_verification_wrong_code(db, monkeypatch):
+def test_postal_verification_wrong_code(db):
     """Test entering wrong verification codes."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate and confirm
@@ -200,10 +189,8 @@ def test_postal_verification_wrong_code(db, monkeypatch):
         assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED
 
 
-def test_postal_verification_code_expiry(db, monkeypatch):
+def test_postal_verification_code_expiry(db):
     """Test that codes expire after the configured lifetime."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate and confirm
@@ -246,10 +233,8 @@ def test_postal_verification_code_expiry(db, monkeypatch):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_postal_verification_rate_limit(db, monkeypatch):
+def test_postal_verification_rate_limit(db):
     """Test rate limiting on postal verification attempts."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # First attempt
@@ -292,10 +277,8 @@ def test_postal_verification_rate_limit(db, monkeypatch):
         assert status.next_attempt_allowed_at.seconds > 0
 
 
-def test_postal_verification_already_in_progress(db, monkeypatch):
+def test_postal_verification_already_in_progress(db):
     """Test that you can't start a new attempt while one is in progress."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # First attempt
@@ -325,10 +308,8 @@ def test_postal_verification_already_in_progress(db, monkeypatch):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_postal_verification_cancel(db, monkeypatch):
+def test_postal_verification_cancel(db):
     """Test cancelling a postal verification attempt."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate
@@ -357,10 +338,8 @@ def test_postal_verification_cancel(db, monkeypatch):
         assert not status.has_active_attempt
 
 
-def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
+def test_postal_verification_can_cancel_after_postcard_sent(db):
     """Test that you CAN cancel after the postcard is sent (e.g., if postcard is lost)."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate and confirm
@@ -405,10 +384,8 @@ def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
         assert not status.has_active_attempt
 
 
-def test_postal_verification_list_attempts(db, monkeypatch):
+def test_postal_verification_list_attempts(db):
     """Test listing postal verification attempts."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Create first attempt and cancel it
@@ -458,10 +435,8 @@ def test_postal_verification_list_attempts(db, monkeypatch):
         assert res.attempts[1].postal_verification_attempt_id == attempt_id_1
 
 
-def test_postal_verification_address_validation(db, monkeypatch):
+def test_postal_verification_address_validation(db):
     """Test address validation errors."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Missing required fields
@@ -503,10 +478,8 @@ def test_postal_verification_address_validation(db, monkeypatch):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_postal_verification_postcard_send_failure(db, monkeypatch):
+def test_postal_verification_postcard_send_failure(db):
     """Test handling of postcard send failure."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate and confirm
@@ -539,10 +512,8 @@ def test_postal_verification_postcard_send_failure(db, monkeypatch):
         assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
 
 
-def test_postal_verification_code_case_insensitive(db, monkeypatch):
+def test_postal_verification_code_case_insensitive(db):
     """Test that verification codes are case insensitive."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initiate and confirm
@@ -583,10 +554,8 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
         assert res.success
 
 
-def test_postal_verification_attempt_not_found(db, monkeypatch):
+def test_postal_verification_attempt_not_found(db):
     """Test accessing non-existent attempts."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     with postal_verification_session(token) as pv:
@@ -605,10 +574,8 @@ def test_postal_verification_attempt_not_found(db, monkeypatch):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
-def test_postal_verification_other_user_attempt(db, monkeypatch):
+def test_postal_verification_other_user_attempt(db):
     """Test that users cannot access other users' attempts."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -642,10 +609,8 @@ def test_postal_verification_other_user_attempt(db, monkeypatch):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
-def test_has_postal_verification_helper(db, monkeypatch):
+def test_has_postal_verification_helper(db):
     """Test the has_postal_verification helper function."""
-    _monkeypatch_postal_verification_config(monkeypatch)
-
     user, token = generate_user()
 
     # Initially no verification

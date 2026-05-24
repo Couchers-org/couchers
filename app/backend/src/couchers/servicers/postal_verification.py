@@ -6,7 +6,6 @@ from google.protobuf import empty_pb2
 from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
-from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
@@ -58,7 +57,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         """
         Step 1: User submits address for validation.
         """
-        if not config["ENABLE_POSTAL_VERIFICATION"]:
+        if not context.get_boolean_value("postal_verification_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
 
         # Check if there's an active attempt
