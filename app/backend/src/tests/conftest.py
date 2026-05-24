@@ -173,7 +173,6 @@ def testconfig():
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
-    config["ENABLE_EMAIL_ICS_ATTACHMENTS"] = True
 
     config["STRIPE_API_KEY"] = ""
     config["STRIPE_WEBHOOK_SECRET"] = ""
@@ -245,8 +244,6 @@ def testconfig():
     config["SLACK_BOT_TOKEN"] = ""
     config["SLACK_DONATIONS_CHANNEL"] = ""
     config["SLACK_MERCH_CHANNEL"] = ""
-
-    config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
 
     yield None
 

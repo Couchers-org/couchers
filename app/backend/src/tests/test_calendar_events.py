@@ -175,6 +175,44 @@ def test_host_request_attachments(db, moderator: Moderator):
     assert ics_event.status == "CANCELLED"
 
 
+def test_host_request_attachments_disabled(db, feature_flags, moderator: Moderator):
+    feature_flags.set("email_ics_attachments_enabled", False)
+
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    with mock_notification_email():
+        moderator.approve_host_request(hr_id)
+
+    # Host accepts: normally the surfer would get a calendar attachment, but the flag is off
+    with requests_session(host_token) as api:
+        with mock_notification_email() as mock:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=hr_id,
+                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    text="Accepting host request",
+                )
+            )
+
+    e = email_fields(mock)
+    assert "accept" in e.subject and host.name in e.subject
+    assert not e.attachments
+
+
 def _get_email_ics_attachment_calendar_event(e) -> ics.Event:
     assert len(e.attachments or []) == 1
     ics_attachment = e.attachments[0]
