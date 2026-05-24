@@ -349,7 +349,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "reverification_too_early")
 
         token = sms.generate_random_code()
-        result = sms.send_sms(phone, sms.format_message(token))
+        result = sms.send_sms(context, phone, sms.format_message(token))
 
         if result == "success":
             user.phone = phone

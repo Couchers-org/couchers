@@ -15,7 +15,7 @@ from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.worker import process_job
 from couchers.models import User
-from couchers.models.postal_verification import PostalVerificationAttempt
+from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
@@ -56,6 +56,32 @@ def test_postal_verification_disabled(db, feature_flags):
                         country_code="US",
                     )
                 )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+
+def test_postal_verification_confirm_disabled(db, feature_flags):
+    """Confirming (which queues the paid postcard) must respect the flag, not just initiation."""
+    feature_flags.set("postal_verification_enabled", False)
+    user, token = generate_user()
+
+    # Seed a pending attempt directly, since initiation is gated by the same flag.
+    with session_scope() as session:
+        attempt = PostalVerificationAttempt(
+            user_id=user.id,
+            status=PostalVerificationStatus.pending_address_confirmation,
+            address_line_1="123 Main St",
+            city="Test City",
+            country_code="US",
+        )
+        session.add(attempt)
+        session.flush()
+        attempt_id = attempt.id
+
+    with postal_verification_session(token) as pv:
+        with pytest.raises(grpc.RpcError) as e:
+            pv.ConfirmPostalAddress(
+                postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
             )
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
