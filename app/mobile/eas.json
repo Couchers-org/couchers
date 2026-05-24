@@ -35,6 +35,9 @@
     "devtool": {
       "developmentClient": true,
       "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      },
       "autoIncrement": true,
       "channel": "development",
       "environment": "preview",
