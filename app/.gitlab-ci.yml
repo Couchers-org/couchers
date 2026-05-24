@@ -834,6 +834,79 @@ preview:web-next:
       changes:
       - app/web/**/*
 
+# Per-branch Dev Tool OTA preview: bundle the devtool variant and stage the Expo
+# Updates manifest (see docs/mobile-dev-tool-ota.md), then publish to the existing
+# dev-assets bucket under an immutable per-SHA prefix. The installed Dev Tool dev
+# client loads it via couchers-devtool://expo-development-client/?url=...
+build:mobile-ota:
+  needs: ["protos"]
+  stage: build
+  image: node:22
+  inherit:
+    default: false
+  variables:
+    # Must build the devtool variant so the fingerprint matches the installed
+    # Dev Tool dev client; a mismatch makes the client silently ignore the update.
+    APP_VARIANT: devtool
+    EXPO_PUBLIC_COUCHERS_ENV: preview
+    EXPO_PUBLIC_API_BASE_URL: https://dev-api.couchershq.org
+    EXPO_PUBLIC_WEB_BASE_URL: https://next.couchershq.org
+    # Add "android" once the iOS path is validated end-to-end.
+    OTA_PLATFORMS: "ios"
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx expo config --type public --json > ota-expo-config.json
+    - |
+      for P in $OTA_PLATFORMS; do
+        rm -rf dist
+        npx expo export --platform "$P"
+        RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
+        echo "fingerprint($P) = $RV"
+        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+      done
+  artifacts:
+    paths:
+      - app/mobile/ota-out/
+    expire_in: 1 week
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
+preview:mobile-ota:
+  needs: ["build:mobile-ota"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  variables:
+    OTA_PLATFORMS: "ios"
+  script:
+    - |
+      for P in $OTA_PLATFORMS; do
+        D="app/mobile/ota-out/$P"
+        CT="$(cat "$D/manifest.content-type")"
+        # manifest is the protocol-v1 multipart body; its content-type carries the
+        # boundary. The expo-protocol-version response header is injected by the
+        # preview-origin-response Lambda@Edge (S3 can't set it).
+        aws s3 cp "$D/manifest" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/manifest" --content-type "$CT"
+        aws s3 cp "$D/bundle.hbc" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/bundle.hbc" --content-type application/javascript
+        aws s3 cp "$D/assets/" "s3://$AWS_PREVIEW_BUCKET/ota/$CI_COMMIT_SHORT_SHA/$P/assets/" --recursive
+        echo "Done $P. Manifest: https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest"
+        echo "  deep link: couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest"
+      done
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 preview:protos:
   needs: ["protos"]
   stage: preview
