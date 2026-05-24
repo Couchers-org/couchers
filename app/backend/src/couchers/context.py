@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, NoReturn, cast
 import grpc
 
 from couchers import experimentation
+from couchers.base_url_override import base_url_override
 from couchers.config import config
 from couchers.i18n import LocalizationContext
 
@@ -184,7 +185,8 @@ class CouchersContext:
     @property
     def base_url(self) -> str:
         # Single choke point for the frontend base URL of links built (via couchers.urls) for this context.
-        return cast(str, config["BASE_URL"])
+        # base_url_override is only ever set behind ENABLE_DEV_APIS, so in real prod this is always BASE_URL.
+        return base_url_override.get() or cast(str, config["BASE_URL"])
 
     # Feature-flag evaluation methods mirror the OpenFeature evaluation API, evaluating for this
     # context's user. The gating lives in experimentation; we just pass our cached per-request

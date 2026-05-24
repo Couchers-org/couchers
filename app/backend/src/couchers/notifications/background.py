@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
+from couchers.base_url_override import use_base_url_override_for_user
 from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
@@ -140,7 +141,8 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
                 session.flush()
-                _send_email_notification(session, user, notification)
+                with use_base_url_override_for_user(session, user.id):
+                    _send_email_notification(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
                 session.add(
@@ -160,7 +162,8 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     )
                 )
                 session.flush()
-                _send_push_notification(session, user, notification)
+                with use_base_url_override_for_user(session, user.id):
+                    _send_push_notification(session, user, notification)
 
 
 def handle_email_digests(payload: empty_pb2.Empty) -> None:

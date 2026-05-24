@@ -9,6 +9,7 @@ import {
 import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { BaseUrlOverrideSync } from "components/BaseUrlOverrideSync";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
@@ -88,6 +89,7 @@ function MyApp(props: AppWithLayoutProps) {
                       <CssBaseline />
                       <NativeColorSchemeSync />
                       <NativeMobileNavigationHandler />
+                      <BaseUrlOverrideSync />
                       <EnvironmentBanner />
                       <HtmlMeta />
                       <ProfileSheetProvider>

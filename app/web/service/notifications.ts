@@ -7,6 +7,7 @@ import {
   Notification,
   RegisterMobilePushNotificationSubscriptionReq,
   RegisterPushNotificationSubscriptionReq,
+  SetBaseUrlOverrideReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
 } from "proto/notifications_pb";
@@ -69,6 +70,13 @@ export async function registerPushNotificationSubscription(
 
 export async function sendTestPushNotification() {
   await client.notifications.sendTestPushNotification(new Empty());
+}
+
+// Dev/preview only (server-gated by ENABLE_DEV_APIS): point backend-generated links at the given base URL.
+export async function setBaseUrlOverride(baseUrl: string) {
+  const req = new SetBaseUrlOverrideReq();
+  req.setBaseUrl(baseUrl);
+  await client.notifications.setBaseUrlOverride(req);
 }
 
 export async function registerMobilePushNotificationSubscription({

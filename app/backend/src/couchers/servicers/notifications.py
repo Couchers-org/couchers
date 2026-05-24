@@ -8,11 +8,13 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
+from couchers.base_url_override import BASE_URL_OVERRIDE_TTL
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.i18n import LocalizationContext
 from couchers.models import (
+    BaseUrlOverride,
     DeviceType,
     HostingStatus,
     MeetupStatus,
@@ -354,3 +356,51 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
 
         return empty_pb2.Empty()
+
+    def SetBaseUrlOverride(
+        self,
+        request: notifications_pb2.SetBaseUrlOverrideReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> empty_pb2.Empty:
+        if not config["ENABLE_DEV_APIS"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
+
+        session.add(BaseUrlOverride(user_id=context.user_id, base_url=request.base_url))
+        return empty_pb2.Empty()
+
+    def GetBaseUrlOverrides(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> notifications_pb2.GetBaseUrlOverridesRes:
+        if not config["ENABLE_DEV_APIS"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
+
+        overrides = (
+            session.execute(
+                select(BaseUrlOverride)
+                .where(BaseUrlOverride.user_id == context.user_id)
+                .order_by(BaseUrlOverride.created.desc(), BaseUrlOverride.id.desc())
+            )
+            .scalars()
+            .all()
+        )
+
+        # The active override is the most recent row within the TTL, and only if it's non-empty (an empty
+        # base_url is an explicit clear). This mirrors base_url_override.get_active_base_url_override.
+        cutoff = now() - BASE_URL_OVERRIDE_TTL
+        active_id = None
+        for override in overrides:
+            if override.created > cutoff:
+                active_id = override.id if override.base_url else None
+                break
+
+        return notifications_pb2.GetBaseUrlOverridesRes(
+            overrides=[
+                notifications_pb2.BaseUrlOverrideEntry(
+                    base_url=override.base_url,
+                    created=Timestamp_from_datetime(override.created),
+                    active=override.id == active_id,
+                )
+                for override in overrides
+            ]
+        )

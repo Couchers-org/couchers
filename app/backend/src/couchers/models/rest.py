@@ -608,3 +608,28 @@ class Volunteer(Base, kw_only=True):
             name="link_type_text",
         ),
     )
+
+
+class BaseUrlOverride(Base, kw_only=True):
+    """
+    A dev/testing override of BASE_URL for a given user, used so links the platform generates (notifications,
+    emails, redirect URLs, ...) point back at whatever frontend a developer is testing on (e.g. a Vercel preview
+    or mobile dev build) rather than the configured BASE_URL.
+
+    Append-only history: each set inserts a new row. The "active" override for a user is the most recent row
+    created within BASE_URL_OVERRIDE_TTL. Only settable via the ENABLE_DEV_APIS-gated debug API, so it is inert
+    in real prod (no rows are ever created there).
+    """
+
+    __tablename__ = "base_url_overrides"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    # the base url to use, e.g. "https://my-preview.vercel.app". Empty string clears the override (records that
+    # the user explicitly went back to the configured BASE_URL).
+    base_url: Mapped[str] = mapped_column(String)
+
+    user: Mapped[User] = relationship(init=False)

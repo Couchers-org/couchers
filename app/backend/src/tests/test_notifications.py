@@ -10,15 +10,23 @@ import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 from sqlalchemy import select, update
 
+from couchers import urls
+from couchers.base_url_override import (
+    BASE_URL_OVERRIDE_TTL,
+    base_url_override,
+    get_active_base_url_override,
+    use_base_url_override_for_user,
+)
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
-from couchers.context import make_background_user_context
+from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
+    BaseUrlOverride,
     DeviceType,
     HostingStatus,
     MeetupStatus,
@@ -1900,3 +1908,155 @@ def test_handle_notification_multiple_delivery_types(db, push_collector: PushCol
                 assert delivery.delivered is not None
             elif delivery.delivery_type == NotificationDeliveryType.digest:
                 assert delivery.delivered is None
+
+
+def test_base_url_override_contextvar():
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    # falls back to config when unset
+    assert context.base_url == config["BASE_URL"]
+    assert urls.profile_link(context) == config["BASE_URL"] + "/profile"
+
+    token = base_url_override.set("https://preview.example.org")
+    try:
+        assert context.base_url == "https://preview.example.org"
+        assert urls.profile_link(context) == "https://preview.example.org/profile"
+        # non-BASE_URL helpers are unaffected
+        assert urls.console_link(page="x") == config["CONSOLE_BASE_URL"] + "/x"
+    finally:
+        base_url_override.reset(token)
+
+    assert context.base_url == config["BASE_URL"]
+
+
+def test_get_active_base_url_override(db):
+    user, _ = generate_user()
+    with session_scope() as session:
+        assert get_active_base_url_override(session, user.id) is None
+
+        session.add(BaseUrlOverride(user_id=user.id, base_url="https://a.example"))
+        session.flush()
+        assert get_active_base_url_override(session, user.id) == "https://a.example"
+
+        # the most recently set override wins
+        session.add(BaseUrlOverride(user_id=user.id, base_url="https://b.example"))
+        session.flush()
+        assert get_active_base_url_override(session, user.id) == "https://b.example"
+
+        # an empty base_url is an explicit clear
+        session.add(BaseUrlOverride(user_id=user.id, base_url=""))
+        session.flush()
+        assert get_active_base_url_override(session, user.id) is None
+
+        # an expired override is ignored
+        expired = BaseUrlOverride(user_id=user.id, base_url="https://c.example")
+        session.add(expired)
+        session.flush()
+        session.execute(
+            update(BaseUrlOverride)
+            .where(BaseUrlOverride.id == expired.id)
+            .values(created=now() - BASE_URL_OVERRIDE_TTL - timedelta(minutes=1))
+        )
+        assert get_active_base_url_override(session, user.id) is None
+
+
+def test_use_base_url_override_for_user(db):
+    user, _ = generate_user()
+    with session_scope() as session:
+        session.add(BaseUrlOverride(user_id=user.id, base_url="https://preview.example.org"))
+        session.flush()
+
+        context = make_background_user_context(user.id)
+
+        # inert unless dev APIs are enabled
+        with use_base_url_override_for_user(session, user.id):
+            assert context.base_url == config["BASE_URL"]
+
+        with patch.dict(config, {"ENABLE_DEV_APIS": True}):
+            with use_base_url_override_for_user(session, user.id):
+                assert context.base_url == "https://preview.example.org"
+            # restored on exit
+            assert context.base_url == config["BASE_URL"]
+            # a missing user is a no-op
+            with use_base_url_override_for_user(session, None):
+                assert context.base_url == config["BASE_URL"]
+
+
+def test_SetBaseUrlOverride_and_GetBaseUrlOverrides(db):
+    user, token = generate_user()
+    with patch.dict(config, {"ENABLE_DEV_APIS": True}):
+        with notifications_session(token) as notifications:
+            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url="https://a.example"))
+            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url="https://b.example"))
+            res = notifications.GetBaseUrlOverrides(empty_pb2.Empty())
+
+    # most recent first, only the latest is active
+    assert [o.base_url for o in res.overrides] == ["https://b.example", "https://a.example"]
+    assert res.overrides[0].active is True
+    assert res.overrides[1].active is False
+
+
+def test_SetBaseUrlOverride_clear(db):
+    user, token = generate_user()
+    with patch.dict(config, {"ENABLE_DEV_APIS": True}):
+        with notifications_session(token) as notifications:
+            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url="https://a.example"))
+            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url=""))
+            res = notifications.GetBaseUrlOverrides(empty_pb2.Empty())
+
+    # clearing records a row but nothing is active
+    assert [o.base_url for o in res.overrides] == ["", "https://a.example"]
+    assert all(not o.active for o in res.overrides)
+
+
+def test_SetBaseUrlOverride_dev_apis_disabled(db):
+    user, token = generate_user()
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SetBaseUrlOverride(notifications_pb2.SetBaseUrlOverrideReq(base_url="https://a.example"))
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+
+def test_notification_links_follow_base_url_override(db, push_collector: PushCollector):
+    user, _ = generate_user()
+    with patch.dict(config, {"ENABLE_DEV_APIS": True}):
+        with session_scope() as session:
+            session.add(BaseUrlOverride(user_id=user.id, base_url="https://preview.example.org"))
+
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=NotificationTopicAction.badge__add,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+        process_job()
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.action_url == "https://preview.example.org/profile"
+
+
+def test_notification_links_use_base_url_without_override(db, push_collector: PushCollector):
+    user, _ = generate_user()
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.badge__add,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
+
+    process_job()
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.action_url == config["BASE_URL"] + "/profile"
