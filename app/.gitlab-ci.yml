@@ -1022,6 +1022,8 @@ build:mobile-ota-staging:
     expire_in: 1 week
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    # TEMP: run on this branch to validate the pipeline; revert before merge.
+    - if: $CI_COMMIT_BRANCH == "mobile/feature/ota-staging-publish"
 
 deploy:mobile-ota-staging:
   needs: ["build:mobile-ota-staging"]
@@ -1046,6 +1048,8 @@ deploy:mobile-ota-staging:
     - cat app/mobile/ota-staging-out/native_ota_bundles.json
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    # TEMP: run on this branch to validate the pipeline; revert before merge.
+    - if: $CI_COMMIT_BRANCH == "mobile/feature/ota-staging-publish"
 
 preview:protos:
   needs: ["protos"]
