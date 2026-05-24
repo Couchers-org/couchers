@@ -74,6 +74,15 @@ const intentFilters = variant.linkHost
     ]
   : [];
 
+// Dev Tool branches load OTA through the dev launcher's deep-link load path
+// (couchers-devtool://expo-development-client/?url=...), so no update URL is
+// baked in and manifests are served unsigned over HTTPS. Staging and production
+// stay on EAS Update.
+const updates =
+  APP_VARIANT === "devtool"
+    ? { enabled: true }
+    : { url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413" };
+
 export default {
   name: variant.name,
   slug: "mobile",
@@ -84,9 +93,7 @@ export default {
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   runtimeVersion: { policy: "fingerprint" },
-  updates: {
-    url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
-  },
+  updates,
   ios: {
     supportsTablet: true,
     bundleIdentifier: variant.bundleIdentifier,

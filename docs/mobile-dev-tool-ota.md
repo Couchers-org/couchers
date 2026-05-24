@@ -134,7 +134,7 @@ the JSON body shape):
       "url": "https://<sha>--ota.preview.couchershq.org/ios/assets/<hash>" }
   ],
   "metadata": {},
-  "extra": { "expoClient": { "...": "from dist/expoConfig.json" } }
+  "extra": { "expoClient": { "...": "from `npx expo config --type public --json`" } }
 }
 ```
 
@@ -190,19 +190,44 @@ A manifest is per-platform (one `launchAsset`). Two options:
 
 ### Manifest response headers / framing
 
-Target protocol v1: store the manifest object as a `multipart/mixed` body with
-`Content-Type: multipart/mixed; boundary=<b>` (set at upload via
-`aws s3 cp --content-type`). S3 cannot emit a real `expo-protocol-version: 1`
-response header on its own — if the client requires it, add a tiny
-**origin-response Lambda@Edge** that injects it, mirroring
-`preview-origin-response.js`.
+**CONFIRMED on-device** (SDK 54 / `expo-updates ~29`, iOS dev client, 2026-05-23,
+served from a local static-mimicking server over plain HTTP):
 
-> ⚠️ **Empirical check (do this on-device before finalizing):** confirm what
-> `expo-updates ~29` (SDK 54) actually requires from the dev-launcher load path.
-> If it accepts a protocol-0 `application/expo+json` JSON manifest, we can skip
-> the origin-response Lambda entirely. If it demands v1 multipart + the response
-> header, add the one-function origin-response Lambda. The failure mode is a
-> generic "Couldn't parse the manifest" alert with no detail, so test early.
+The dev launcher load is a two-step request to the manifest URL:
+
+1. `HEAD <url>` — classification probe. Sends `accept: application/expo+json,application/json`,
+   `expo-platform`, `Expo-Dev-Client-ID`. We answer non-2xx (`405`) so it's treated
+   as a published-manifest URL, not a Metro dev server.
+2. `GET <url>` — the actual update fetch. Sends
+   `accept: multipart/mixed,application/expo+json,application/json`,
+   `expo-protocol-version: 1`, `expo-platform`, `expo-runtime-version: <fingerprint>`,
+   `Expo-Updates-Environment: DEVELOPMENT`, `Expo-Dev-Client-ID`, `eas-client-id`.
+   No `expo-channel-name`. No `expo-expect-signature`.
+
+So the client wants **protocol v1 `multipart/mixed`** (a `manifest` part + an
+`extensions` part) — *not* plain JSON. We serve it with
+`content-type: multipart/mixed; boundary=<b>`, `expo-protocol-version: 1`,
+`expo-sfv-version: 0`. The fingerprint in `expo-runtime-version` must equal the
+manifest's `runtimeVersion` or the update is silently ignored. No signature is
+requested, so unsigned manifests load. Cleartext HTTP is accepted by the dev
+client (no ATS block) — production uses HTTPS via CloudFront anyway.
+
+For S3: the multipart body is a static file uploaded with
+`--content-type "multipart/mixed; boundary=<b>"` (boundary baked in CI, matching
+the body). S3 cannot emit the `expo-protocol-version: 1` *response header* on its
+own, and **that header is required** — CONFIRMED on-device: serving the exact same
+multipart body with only the content-type (no `expo-protocol-version` /
+`expo-sfv-version`) makes the client reject the manifest before fetching anything
+("failed to load app from …"); it does not infer the protocol from the content-type.
+
+So the manifest response needs the header injected at the edge. **Extend the
+existing `preview-origin-response.js` Lambda@Edge** to add `expo-protocol-version: 1`
+(and `expo-sfv-version: 0`) on responses whose key is the OTA manifest
+(`/ota/<sha>/<platform>/manifest`) — scoped by path, mirroring its current `/web/`
+branch, so web previews are unaffected. This reuses infra we already deploy; no new
+function. (A CloudFront response-headers policy also works but attaches per cache
+behavior, so it can't scope by path/host as cleanly given the host→prefix routing
+lives in the viewer-request Lambda.)
 
 ---
 
@@ -233,16 +258,20 @@ A job (GitLab CI, gated on `app/mobile/**` changes; or a GitHub Action under
 that, per mobile PR:
 
 1. For each platform: `APP_VARIANT=devtool npx expo export --platform <p>` →
-   `dist/` (bundle at `dist/_expo/static/js/<p>/index-<hash>.hbc`,
-   `dist/assets/<hash>`, `dist/metadata.json`, `dist/expoConfig.json`).
+   `dist/` (bundle at `dist/_expo/static/js/<p>/entry-<hash>.hbc`, assets at
+   `dist/assets/<metro-hash>`, and `dist/metadata.json` which lists the bundle +
+   each asset's `{path, ext}`). NOTE: SDK 54's export does **not** emit a
+   `dist/expoConfig.json`; get the public config from
+   `APP_VARIANT=devtool npx expo config --type public --json` for `extra.expoClient`.
 2. Compute the fingerprint `runtimeVersion` (`npx @expo/fingerprint` /
    `npx expo-updates fingerprint:generate --platform <p>` — verify the exact
    invocation for our toolchain). It must equal the installed Dev Tool build's
    fingerprint.
-3. Generate the manifest from `metadata.json` + `expoConfig.json`: mint a UUID
-   `id`, set `runtimeVersion`, compute each asset's base64url SHA-256, and rewrite
-   every path to its `<sha>--ota.preview.couchershq.org` URL. Wrap as
-   `multipart/mixed`.
+3. Generate the manifest from `metadata.json` + `expo config --type public --json`:
+   mint a UUID `id`, set `runtimeVersion`, compute each asset's base64url SHA-256
+   (this is its manifest `key`), and rewrite every path to its
+   `<sha>--ota.preview.couchershq.org` URL. Wrap as `multipart/mixed` (Phase 2
+   confirms whether the dev launcher requires this or accepts plain JSON).
 4. `aws s3 cp` the bundle, assets, and manifest under `ota/<sha>/<platform>/`,
    with correct `--content-type` on each.
 5. No CloudFront invalidation needed (immutable keys).
@@ -304,10 +333,18 @@ dev-settings link first, then load the bundle.
 - **CloudFront must forward the `expo-*` headers** to origin/function as needed,
   and not cache the manifest keyed in a way that ignores platform. Per-SHA keys
   are immutable, so caching is otherwise free.
-- **Empirical checks remaining:** (a) the protocol/response-header question in §5;
-  (b) confirm the launcher accepts our static manifest end-to-end on a real
-  device against the bucket; (c) the exact `@expo/fingerprint` invocation for our
-  toolchain.
+- **Empirical checks — mostly resolved (2026-05-23, on a real iOS dev client):**
+  (a) framing is v1 `multipart/mixed` — see §5 (resolved); (b) end-to-end load
+  confirmed against a static-mimicking local server: manifest → bundle → all assets
+  downloaded, the JS bundle ran and rendered, and a JS edit re-exported with a new
+  manifest `id` hot-reloaded onto the device (only `bundle.hbc` re-downloaded,
+  unchanged assets stayed cached) (resolved); (c) fingerprint command is
+  `npx expo-updates fingerprint:generate --platform <p>` → `.hash`; the device's
+  `expo-runtime-version` matched the value computed from the tree (resolved).
+  The `expo-protocol-version: 1` *response header* is **required** (§5 — confirmed:
+  without it the client rejects the manifest before fetching). Remaining: the same
+  end-to-end run against the real S3 bucket + CloudFront with the header injected by
+  an extended `preview-origin-response.js`.
 - **Going to production (out of scope now):** would add code signing (private key
   signs manifests, build embeds the public cert), staged rollouts, and instant
   rollback (protocol v1 directives). At that point reconsider `expo-open-ota`
