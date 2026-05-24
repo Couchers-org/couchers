@@ -44,14 +44,14 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     context = make_background_user_context(user.id)
 
     loc_context = LocalizationContext.from_user(user)
-    if not context.get_boolean_value("notification_translations_enabled", default=True):
+    if not context.get_boolean_value("notification_translations_enabled", default=False):
         loc_context = dataclasses.replace(loc_context, locale="en")
 
     rendered = render_email_notification(
         user,
         notification,
         loc_context,
-        include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=True),
+        include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
     )
 
     queue_email(
