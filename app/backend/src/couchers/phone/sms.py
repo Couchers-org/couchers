@@ -1,15 +1,12 @@
-import logging
 from typing import cast
 
 import boto3
 import luhn
 
-from couchers import crypto, experimentation
+from couchers import crypto
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import SMS
-
-logger = logging.getLogger(__name__)
 
 
 def generate_random_code() -> str:
@@ -31,10 +28,6 @@ def send_sms(number: str, message: str) -> str:
     string for any other error."""
 
     assert len(message) <= 140, "Message too long"
-
-    if not experimentation.get_global_boolean_value("sms_enabled", default=False):
-        logger.info(f"SMS not enabled, need to send to {number}: {message}")
-        return "SMS not enabled."
 
     sns = boto3.client("sns")
     sender_id = config["SMS_SENDER_ID"]

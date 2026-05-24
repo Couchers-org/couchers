@@ -237,9 +237,17 @@ def test_send_sms(db, monkeypatch):
         assert sms.message == "Testing SMS message"
 
 
-def test_send_sms_disabled(db, feature_flags):
+def test_ChangePhone_sms_disabled(db, feature_flags):
     feature_flags.set("sms_enabled", False)
-    assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "SMS not enabled."
+    user, token = generate_user()
+    with account_session(token) as account:
+        # Setting a new number requires sending an SMS, which is gated.
+        with pytest.raises(grpc.RpcError) as e:
+            account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+        # Removing a number doesn't send an SMS, so it's still allowed.
+        account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
 
 
 def test_sms_verification_no_donation():

@@ -168,6 +168,11 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         """
         Step 2: User confirms address, we generate code and send postcard.
         """
+        # Gate the step that actually commits to sending a (paid) postcard, not just the initial
+        # address validation - otherwise turning the flag off wouldn't stop postcards mid-flow.
+        if not context.get_boolean_value("postal_verification_enabled", default=False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
+
         attempt = session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
