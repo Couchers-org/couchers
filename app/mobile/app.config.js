@@ -76,12 +76,17 @@ const intentFilters = variant.linkHost
 
 // Dev Tool branches load OTA through the dev launcher's deep-link load path
 // (couchers-devtool://expo-development-client/?url=...), so no update URL is
-// baked in and manifests are served unsigned over HTTPS. Staging and production
-// stay on EAS Update.
+// baked in and manifests are served unsigned over HTTPS.
+//
+// Staging points at our self-hosted OTA backend (cut 1: validating the Expo
+// Updates protocol + native<->backend transport, unsigned). Production stays on
+// EAS Update until staging is proven, then flips here too.
 const updates =
   APP_VARIANT === "devtool"
     ? { enabled: true }
-    : { url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413" };
+    : APP_VARIANT === "staging"
+      ? { url: "https://dev-api.couchershq.org/mobile/ota/manifest" }
+      : { url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413" };
 
 export default {
   name: variant.name,
