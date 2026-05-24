@@ -224,6 +224,7 @@ export default function NewHostRequest({
 
     onSuccess: () => {
       submittedRef.current = true;
+      reset();
       setIsRequesting(false);
       setIsRequestSuccess(true);
     },
@@ -233,7 +234,6 @@ export default function NewHostRequest({
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
-    reset();
   });
 
   const watchFromDate = watch("fromDate", undefined);
