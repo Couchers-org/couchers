@@ -22,6 +22,27 @@ from couchers.proto.google.api import httpbody_pb2
 
 _start_time = time.monotonic()
 
+_OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
+
+
+def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
+    # Expo Updates protocol v1 multipart/mixed framing. field_name is "manifest" for
+    # an update or "directive" for a noUpdateAvailable/rollBackToEmbedded directive.
+    def part(name: str, body: str, content_type: str) -> str:
+        return (
+            f"--{_OTA_BOUNDARY}\r\n"
+            f'content-disposition: form-data; name="{name}"\r\n'
+            f"content-type: {content_type}\r\n\r\n"
+            f"{body}\r\n"
+        )
+
+    body = (
+        part(field_name, json.dumps(content), "application/json; charset=utf-8")
+        + part("extensions", json.dumps({"assetRequestHeaders": {}}), "application/json")
+        + f"--{_OTA_BOUNDARY}--\r\n"
+    )
+    return body.encode("utf-8")
+
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self) -> str:
@@ -93,6 +114,47 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         return httpbody_pb2.HttpBody(
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
+        )
+
+    def GetMobileUpdateManifest(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        def header(name: str) -> str:
+            value = context.headers.get(name, "")
+            return value.decode() if isinstance(value, bytes) else value
+
+        # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
+        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
+
+        platform = header("expo-platform") or "ios"
+        runtime_version = header("expo-runtime-version")
+
+        bundles: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
+        bundle = bundles.get(platform)
+        if bundle is None or runtime_version == "":
+            directive = {"type": "noUpdateAvailable"}
+            return httpbody_pb2.HttpBody(
+                content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+                data=_ota_multipart_body("directive", directive),
+            )
+
+        manifest = {
+            "id": bundle["id"],
+            "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "runtimeVersion": runtime_version,
+            "launchAsset": {
+                "key": bundle["launch_asset"]["key"],
+                "contentType": "application/javascript",
+                "url": bundle["launch_asset"]["url"],
+            },
+            "assets": bundle.get("assets", []),
+            "metadata": {},
+            "extra": {"expoClient": {}},
+        }
+
+        return httpbody_pb2.HttpBody(
+            content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+            data=_ota_multipart_body("manifest", manifest),
         )
 
     def ReportDiagnostics(

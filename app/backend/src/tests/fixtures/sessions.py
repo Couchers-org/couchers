@@ -307,6 +307,17 @@ def real_iris_session():
 
 
 @contextmanager
+def real_bugs_session():
+    """
+    Bugs over a real server so requests can carry metadata (HTTP request headers)
+    and the response's initial metadata (HTTP response headers) can be asserted.
+    """
+    with run_server() as (server, channel, metadata_interceptor):
+        bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), server)
+        yield bugs_pb2_grpc.BugsStub(channel), metadata_interceptor
+
+
+@contextmanager
 def media_session(bearer_token: str):
     """
     Create a fresh Media API for testing, uses the bearer token for media auth

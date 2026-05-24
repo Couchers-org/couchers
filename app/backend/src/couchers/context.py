@@ -83,6 +83,7 @@ class CouchersContext:
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
+        self.__response_headers: list[tuple[str, str]] = []
         self._growthbook: GrowthBook | None = None
 
         if self.__is_interactive:
@@ -139,8 +140,15 @@ class CouchersContext:
         self.__verify_interactive()
         self.__cookies += cookies
 
+    def set_response_headers(self, headers: list[tuple[str, str]]) -> None:
+        """
+        Sets extra HTTP response headers (forwarded by Envoy as gRPC initial metadata)
+        """
+        self.__verify_interactive()
+        self.__response_headers += headers
+
     def _send_cookies(self) -> None:
-        data = tuple([("set-cookie", cookie) for cookie in self.__cookies])
+        data = tuple([("set-cookie", cookie) for cookie in self.__cookies]) + tuple(self.__response_headers)
         self._grpc_context.send_initial_metadata(data)  # type: ignore[union-attr]
 
     @property
