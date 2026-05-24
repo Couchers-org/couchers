@@ -876,6 +876,7 @@ build:mobile-ota:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/scripts/**/*
 
 preview:mobile-ota:
   needs: ["build:mobile-ota"]
@@ -906,6 +907,33 @@ preview:mobile-ota:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/scripts/**/*
+
+# Aggregate per-PR preview links into one sticky GitHub PR comment. Runs after the
+# upload jobs (needs) so every link/QR it posts is already live on CloudFront.
+# Currently surfaces the mobile Dev Tool OTA preview; add more sections (web,
+# coverage, ...) in app/scripts/pr_preview_comment.py as previews grow. No-ops when
+# GITHUB_PREVIEW_TOKEN is unset or there's no open PR, so it never reds the pipeline.
+preview:pr-comment:
+  needs:
+    - job: preview:mobile-ota
+      artifacts: false
+  stage: preview
+  image: python:3.12-slim
+  inherit:
+    default: false
+  variables:
+    OTA_PLATFORMS: "ios"
+  script:
+    - pip install --quiet --no-cache-dir "qrcode[pil]" requests boto3
+    - python app/scripts/pr_preview_comment.py
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+        - app/scripts/**/*
 
 preview:protos:
   needs: ["protos"]
