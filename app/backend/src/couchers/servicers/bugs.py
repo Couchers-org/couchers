@@ -45,12 +45,16 @@ def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
     return body.encode("utf-8")
 
 
+def _native_ota_manifest_url(*, cdn_root: str, version: str, platform: str) -> str:
+    return f"{cdn_root}/{version}/{platform}/manifest"
+
+
 @lru_cache(maxsize=64)
-def _fetch_signed_manifest(version: str, platform: str) -> tuple[str, bytes]:
+def _fetch_signed_manifest(url: str) -> tuple[str, bytes]:
     # The publish job signs each manifest and uploads it under its immutable version, so the
     # bytes never change once published: fetch once, cache forever, and serve them (signature
     # and all) untouched so the on-device signature check sees exactly what was signed.
-    response = requests.get(urls.native_ota_manifest(version=version, platform=platform), timeout=10)
+    response = requests.get(url, timeout=10)
     response.raise_for_status()
     return response.headers["content-type"], response.content
 
@@ -150,7 +154,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                 data=_ota_multipart_body("directive", directive),
             )
 
-        content_type, body = _fetch_signed_manifest(release["version"], platform)
+        cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
+        url = _native_ota_manifest_url(cdn_root=cdn_root, version=release["version"], platform=platform)
+        content_type, body = _fetch_signed_manifest(url)
         return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
     def ReportDiagnostics(

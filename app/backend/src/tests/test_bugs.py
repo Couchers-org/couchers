@@ -425,6 +425,7 @@ def _fake_cdn_response():
 
 def test_native_update_manifest_serves_cdn_manifest_verbatim(db, feature_flags):
     feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
     _fetch_signed_manifest.cache_clear()
     with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
         with real_bugs_session() as (bugs, metadata_interceptor):
@@ -447,6 +448,7 @@ def test_native_update_manifest_serves_cdn_manifest_verbatim(db, feature_flags):
 
 def test_native_update_manifest_android(db, feature_flags):
     feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
     _fetch_signed_manifest.cache_clear()
     with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
         with real_bugs_session() as (bugs, _metadata_interceptor):
