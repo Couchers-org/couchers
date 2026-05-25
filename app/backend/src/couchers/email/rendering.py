@@ -3,7 +3,7 @@ Renders HTML and plaintext emails out of well-known blocks.
 """
 
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import lru_cache
 from html import unescape
 from pathlib import Path
@@ -27,14 +27,14 @@ class EmailBlock:
     pass
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class ParaBlock(EmailBlock):
     """A paragraph of text which may contain span-level HTML."""
 
     text: str | Markup
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class UserBlock(EmailBlock):
     """A banner with another user's profile information, for example preceding a quoted message."""
 
@@ -42,7 +42,7 @@ class UserBlock(EmailBlock):
     comment: str | Markup | None
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class UserInfo:
     name: str
     age: int
@@ -71,7 +71,7 @@ class UserInfo:
         )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class QuoteBlock(EmailBlock):
     """A quoted message, typically from another user. Either plaintext or markdown."""
 
@@ -79,12 +79,22 @@ class QuoteBlock(EmailBlock):
     markdown: bool
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class ActionBlock(EmailBlock):
     """An action that can be performed by the user in response to the email."""
 
     text: str
     target_url: str
+
+
+@dataclass(kw_only=True, slots=True)
+class TwoButtonHTMLBlock(EmailBlock):
+    """An HTML-only block for rendering as side-by-side buttons."""
+
+    text_1: str
+    target_url_1: str
+    text_2: str
+    target_url_2: str
 
 
 class EmailBlocksBuilder:
@@ -288,6 +298,7 @@ class HTMLRenderer:
     user_block_template: Jinja2Template
     quote_block_template: Jinja2Template
     action_block_template: Jinja2Template
+    two_buttons_block_template: Jinja2Template
 
     def render(
         self,
@@ -312,10 +323,10 @@ class HTMLRenderer:
         )
 
         # Render each block
-        for block in blocks:
+        for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
-                    concats.append(self.para_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.para_block_template.render(asdict(block), loc_context))
                 case UserBlock():
                     concats.append(
                         self.user_block_template.render(
@@ -333,7 +344,9 @@ class HTMLRenderer:
                     args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.action_block_template.render(asdict(block), loc_context))
+                case TwoButtonHTMLBlock():
+                    concats.append(self.two_buttons_block_template.render(asdict(block), loc_context))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
@@ -342,6 +355,28 @@ class HTMLRenderer:
         concats.append(self.footer_template.render(footer_template_args, loc_context))
 
         return "\n".join(concats)
+
+    @staticmethod
+    def _merge_action_blocks(blocks: list[EmailBlock]) -> list[EmailBlock]:
+        """Merge any two subsequent action blocks into a single two-button block."""
+        blocks = blocks.copy()
+
+        block_index = 0
+        while block_index + 1 < len(blocks):
+            block = blocks[block_index]
+            next_block = blocks[block_index + 1]
+            if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
+                blocks[block_index] = TwoButtonHTMLBlock(
+                    target_url_1=block.target_url,
+                    text_1=block.text,
+                    target_url_2=next_block.target_url,
+                    text_2=next_block.text,
+                )
+                blocks.pop(block_index + 1)
+
+            block_index += 1
+
+        return blocks
 
     @lru_cache(maxsize=1)
     @staticmethod
@@ -364,13 +399,14 @@ class HTMLRenderer:
             user_block_template=Jinja2Template(source=block_templates["user"], html=True),
             quote_block_template=Jinja2Template(source=block_templates["quote"], html=True),
             action_block_template=Jinja2Template(source=block_templates["action"], html=True),
+            two_buttons_block_template=Jinja2Template(source=block_templates["two-buttons"], html=True),
         )
 
 
 # Matches a begin-block / end-block pair of comments in the html file containing template blocks.
 _block_regex = re.compile(
     r"""
-<!-- begin-block:(?P<name>\w+) -->\s*
+<!-- begin-block:(?P<name>[\w-]+) -->\s*
 (?P<snippet>[\s\S]*?)
 \s*<!-- end-block:(?P=name) -->
 """.strip(),
