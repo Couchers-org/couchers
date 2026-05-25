@@ -64,8 +64,6 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("NOTIFICATION_EMAIL_ADDRESS", str),
     # An optional prefix for email subject, e.g. [STAGING]
     ("NOTIFICATION_PREFIX", str, ""),
-    ("ENABLE_NOTIFICATION_TRANSLATIONS", bool),
-    ("ENABLE_EMAIL_ICS_ATTACHMENTS", bool),
     # Address to send emails about reported users
     ("REPORTS_EMAIL_RECIPIENT", str),
     # Address to send contributor forms when users sign up/fill the form

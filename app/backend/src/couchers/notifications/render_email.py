@@ -41,7 +41,7 @@ class RenderedEmailNotification:
 
 
 def render_email_notification(
-    user: User, notification: Notification, loc_context: LocalizationContext
+    user: User, notification: Notification, loc_context: LocalizationContext, *, include_ics_attachments: bool
 ) -> RenderedEmailNotification:
     footer = get_email_footer(user, notification, loc_context)
 
@@ -90,7 +90,7 @@ def render_email_notification(
         source_data = config["VERSION"] + f"/{custom_templated.template_name}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
-    if config.get("ENABLE_EMAIL_ICS_ATTACHMENTS"):
+    if include_ics_attachments:
         attachment = get_ics_attachment(notification, loc_context)
     else:
         attachment = None
