@@ -45,6 +45,7 @@ We've been working on this since last July and it's out now on Android and iOS. 
 ![Couchers mobile app release image](/img/blog/20260515_couchers_mobile_app_release.png)
 
 </div>
+
 Credit to [George](https://couchers.org/user/georgeryang) who created the app demo images.
 
 * Added App Store and Google Play download buttons to the landing page and footer so it’s easier to find and install the Couchers mobile app by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Jesse](https://couchers.org/user/jesse) [[#8634](https://github.com/Couchers-org/couchers/pull/8634)]
