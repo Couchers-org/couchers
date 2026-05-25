@@ -3,7 +3,7 @@ is_blog_post: true
 title: "Couchers.org Spring Release: What's New in v1.3?"
 slug: couchers-spring-release
 description: "The Couchers.org mobile app is now live on iOS and Android. Plus: a redesigned dashboard, messaging overhaul, better events, and 40+ improvements in one of our biggest releases yet."
-date: 2026/05/23
+date: 2026/05/25
 author: Nicole
 author_username: unsettleddown
 has_custom_cta: true
@@ -45,6 +45,7 @@ We've been working on this since last July and it's out now on Android and iOS. 
 ![Couchers mobile app release image](/img/blog/20260515_couchers_mobile_app_release.png)
 
 </div>
+Credit to [George](https://couchers.org/user/georgeryang) who created the app demo images.
 
 * Added App Store and Google Play download buttons to the landing page and footer so it’s easier to find and install the Couchers mobile app by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Jesse](https://couchers.org/user/jesse) [[#8634](https://github.com/Couchers-org/couchers/pull/8634)]
 * Improved the mobile app with profile previews that open without losing your place, faster language switching across tabs, Samsung interaction fixes, and a fix for editing community info on mobile by [Nicole](https://couchers.org/user/unsettleddown) [[#8563](https://github.com/Couchers-org/couchers/pull/8563)]
@@ -230,14 +231,14 @@ Our volunteers [Aapeli](https://couchers.org/user/aapeli) and [Jesse](https://co
 
 ### Translations
 
-In the past 6 months the number of available languages increased from 4 to 12! Shoutout to our amazing translators for this!
+In the past 6 months the number of available languages increased from 4 to 12! Shoutout to our many amazing translators for this!
 
 ## Current Volunteer Needs at Couchers
 
 Want to help us make Couchers thrive? We especially need:
 
 * **Senior Mobile Developers with Expo and React Native experience** Now that the app is out, we could really use some support with bug fixes and refactoring away from webviews to more native features in React Native with Expo.
-* **Mid and Senior Backend Python Developer** who are able to specifically do feature work, coding the backend of features to prepare for the frontend work. Some upcoming backend features you could work on: Improving/rate limiting message notifications, public events, recurring events, leading creation of a feature request board, overhauling our location architecture to prepare for more community features
+* **Mid and Senior Backend Python Developer** who are able to specifically do feature work, coding the backend of features to prepare for the frontend work. Some upcoming backend features you could work on: Improving message notification frequency, public events, recurring events, leading creation of a feature request board, overhauling our location architecture to prepare for more community features.
 * **Mid and Senior Frontend Developers** with familiarity with Typescript and React. Especially people who feel capable of owning a whole feature and/or are willing to help with package upgrades so not only one volunteer gets stuck with them!
 * **Journalists who can pitch us to relevant media outlets** If you understand the vibe of the couch surfing community and are interested in brainstorming ideas including Couchers and pitching to appropriate publications and media outlets, we'd love your help!
 * **Marketers and Social Media people with couch surfing experience** If you understand the couch surfing ethos and have experience leading things like ad campaigns, coming up with social media post ideas on Instagram, TikTok, organizing couch crashes, improving our signup email flow, etc. we could really use help with this! We're specifically looking for people who have ideas and could lead these pushes.
