@@ -32,6 +32,12 @@ mkdir -p "$(dirname "$OUTPUT_PATH")"
 
 BASE="https://${CI_COMMIT_SHORT_SHA}--native-ota.${PREVIEW_DOMAIN}"
 
+# Descriptive, immutable release name the publish step uses as the CDN path
+# segment, e.g. v1.2.18355.fc38c23d — the release display version (app/version
+# + commit number) plus the short commit hash. Built from clean components so it
+# keeps this form regardless of which branch the bundle was built on.
+OTA_VERSION="$(cat app/version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
+
 cat > "$OUTPUT_PATH" <<EOF
 {
   "commit_sha": "${CI_COMMIT_SHA}",
@@ -39,6 +45,7 @@ cat > "$OUTPUT_PATH" <<EOF
   "commit_number": ${COMMIT_NUMBER},
   "slug": "${SLUG}",
   "display_version": "${DISPLAY_VERSION}",
+  "ota_version": "${OTA_VERSION}",
   "branch": "${CI_COMMIT_REF_NAME}",
   "timestamp": "${CI_COMMIT_TIMESTAMP}",
   "pipeline_id": "${CI_PIPELINE_ID}",
