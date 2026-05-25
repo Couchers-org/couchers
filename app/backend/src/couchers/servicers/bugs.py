@@ -1,11 +1,11 @@
 import json
 import time
 from datetime import UTC, datetime
-from typing import cast
+from typing import Any, cast
 
 import grpc
 import requests
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, struct_pb2
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -21,6 +21,27 @@ from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
 _start_time = time.monotonic()
+
+_OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
+
+
+def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
+    # Expo Updates protocol v1 multipart/mixed framing. field_name is "manifest" for
+    # an update or "directive" for a noUpdateAvailable/rollBackToEmbedded directive.
+    def part(name: str, body: str, content_type: str) -> str:
+        return (
+            f"--{_OTA_BOUNDARY}\r\n"
+            f'content-disposition: form-data; name="{name}"\r\n'
+            f"content-type: {content_type}\r\n\r\n"
+            f"{body}\r\n"
+        )
+
+    body = (
+        part(field_name, json.dumps(content), "application/json; charset=utf-8")
+        + part("extensions", json.dumps({"assetRequestHeaders": {}}), "application/json")
+        + f"--{_OTA_BOUNDARY}--\r\n"
+    )
+    return body.encode("utf-8")
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -47,19 +68,21 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         issue_title = request.subject
         issue_body = (
-            f"Subject: {request.subject}\n"
-            f"Description:\n"
+            f"# {request.subject}\n"
+            f"## Description\n"
             f"{request.description}\n"
             f"\n"
-            f"Results:\n"
+            f"## Results\n"
             f"{request.results}\n"
             f"\n"
-            f"Backend version: {self._version()}\n"
-            f"Frontend version: {request.frontend_version}\n"
-            f"User Agent: {request.user_agent}\n"
-            f"Screen resolution: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
-            f"Page: {request.page}\n"
-            f"User: {user_details}"
+            f"## Diagnostics\n"
+            f"**Backend version**: `{self._version()}`\n"
+            f"**Frontend version**: `{request.frontend_version}`\n"
+            f"**User Agent**: `{request.user_agent}`\n"
+            f"**Locale**: `{context.localization.locale}`\n"
+            f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
+            f"**Page**: {request.page}\n"
+            f"**User**: {user_details}"
         )
         issue_labels = ["bug tool", "bug: triage needed"]
 
@@ -91,6 +114,43 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         return httpbody_pb2.HttpBody(
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
+        )
+
+    def GetNativeUpdateManifest(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
+        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
+
+        platform = cast(str, context.headers.get("expo-platform", "")) or "ios"
+        runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
+
+        bundles: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
+        bundle = bundles.get(platform)
+        if bundle is None or runtime_version == "":
+            directive = {"type": "noUpdateAvailable"}
+            return httpbody_pb2.HttpBody(
+                content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+                data=_ota_multipart_body("directive", directive),
+            )
+
+        manifest = {
+            "id": bundle["id"],
+            "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "runtimeVersion": runtime_version,
+            "launchAsset": {
+                "key": bundle["launch_asset"]["key"],
+                "contentType": "application/javascript",
+                "url": bundle["launch_asset"]["url"],
+            },
+            "assets": bundle.get("assets", []),
+            "metadata": {},
+            "extra": {"expoClient": {}},
+        }
+
+        return httpbody_pb2.HttpBody(
+            content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+            data=_ota_multipart_body("manifest", manifest),
         )
 
     def ReportDiagnostics(
@@ -135,3 +195,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         self, request: bugs_pb2.GeolocationClickInfoReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         return empty_pb2.Empty()
+
+    def EvaluateFeatureFlag(
+        self, request: bugs_pb2.EvaluateFeatureFlagReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.EvaluateFeatureFlagRes:
+        # None default: an unconfigured flag comes back as None and the value field is left unset, so
+        # the frontend applies its own in-code default. get_object_value is the generic typed
+        # accessor; like every value method it fires exposure/usage logging as a side effect, here
+        # for exactly the one flag the client is reading.
+        value: Any = context.get_object_value(request.flag_key, None)
+        res = bugs_pb2.EvaluateFeatureFlagRes()
+        if value is not None:
+            # google.protobuf.Value has no direct constructor from a Python value; round-trip
+            # through a Struct, which knows how to encode bool/number/str/list/dict.
+            holder = struct_pb2.Struct()
+            holder["value"] = value
+            res.value.CopyFrom(holder.fields["value"])
+        return res

@@ -55,28 +55,37 @@ export function useDurationEvent(
 }
 
 /**
- * Returns a callback ref. When the element enters the viewport,
- * fires the event once via IntersectionObserver.
+ * Returns a callback ref. Fires the event once via IntersectionObserver after
+ * the element has been continuously >= `threshold` visible for `minDurationMs`
+ * (default 0 = fires on first intersection).
  *
- * `properties` and `threshold` are stored in refs so callers don't
- * need to memoize them — the observer is only recreated when `eventType` changes.
+ * `properties`, `threshold`, and `minDurationMs` are stored in refs so callers
+ * don't need to memoize them — the observer is only recreated when
+ * `eventType` changes.
  */
 export function useImpressionRef(
   eventType: string,
   properties: Record<string, unknown> = {},
-  options?: { threshold?: number },
+  options?: { threshold?: number; minDurationMs?: number },
 ) {
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const visibleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasFiredRef = useRef(false);
   const propsRef = useRef(properties);
   propsRef.current = properties;
   const thresholdRef = useRef(options?.threshold ?? 0.5);
   thresholdRef.current = options?.threshold ?? 0.5;
+  const minDurationRef = useRef(options?.minDurationMs ?? 0);
+  minDurationRef.current = options?.minDurationMs ?? 0;
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       observerRef.current?.disconnect();
+      if (visibleTimerRef.current) {
+        clearTimeout(visibleTimerRef.current);
+        visibleTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -84,17 +93,38 @@ export function useImpressionRef(
     (node: HTMLElement | null) => {
       // Disconnect previous observer
       observerRef.current?.disconnect();
+      if (visibleTimerRef.current) {
+        clearTimeout(visibleTimerRef.current);
+        visibleTimerRef.current = null;
+      }
 
       if (!node || hasFiredRef.current) return;
+
+      const fire = () => {
+        if (hasFiredRef.current) return;
+        hasFiredRef.current = true;
+        logEvent(eventType, propsRef.current);
+        observerRef.current?.disconnect();
+      };
 
       observerRef.current = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting && !hasFiredRef.current) {
-              hasFiredRef.current = true;
-              logEvent(eventType, propsRef.current);
-              observerRef.current?.disconnect();
-              break;
+            if (hasFiredRef.current) return;
+            if (entry.isIntersecting) {
+              if (minDurationRef.current === 0) {
+                fire();
+                return;
+              }
+              if (!visibleTimerRef.current) {
+                visibleTimerRef.current = setTimeout(() => {
+                  visibleTimerRef.current = null;
+                  fire();
+                }, minDurationRef.current);
+              }
+            } else if (visibleTimerRef.current) {
+              clearTimeout(visibleTimerRef.current);
+              visibleTimerRef.current = null;
             }
           }
         },

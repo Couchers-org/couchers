@@ -29,6 +29,7 @@ from sqlalchemy.sql import (
     update,
 )
 
+from couchers import experimentation
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -838,6 +839,9 @@ def update_badges(payload: empty_pb2.Empty) -> None:
 
         def update_badge(badge_id: str, members: Sequence[int]) -> None:
             badge = get_badge_dict()[badge_id]
+            # this batch job has no per-user context to evaluate the gate against, so it's global
+            if badge.flag is not None and not experimentation.get_global_boolean_value(badge.flag, default=True):
+                members = []
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
             actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
@@ -1305,7 +1309,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    if not config["ENABLE_POSTAL_VERIFICATION"]:
+    if not experimentation.get_global_boolean_value("postal_verification_enabled", default=False):
         return
 
     with session_scope() as session:

@@ -4,7 +4,6 @@ from sqlalchemy import ColumnElement, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
-from couchers.context import CouchersContext
 from couchers.models import (
     ModerationState,
     ModerationVisibility,
@@ -16,6 +15,7 @@ from couchers.models import (
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
+    from couchers.context import CouchersContext
     from couchers.materialized_views import LiteUser
     from couchers.models.moderation import ModeratedContent
 

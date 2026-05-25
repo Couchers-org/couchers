@@ -95,6 +95,13 @@ class AccountDeletionStartedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.AccountDeletionStart, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+        )
+
+    @classmethod
     def dummy_data(cls) -> AccountDeletionStartedEmail:
         return AccountDeletionStartedEmail(
             user_name="Alice",
@@ -119,6 +126,14 @@ class AccountDeletionCompletedEmail(EmailBase):
         builder.para("recovery_instructions_days", {"count": self.days})
         builder.action(self.undelete_link, "recover_action")
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.AccountDeletionComplete, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+            days=data.undelete_days,
+        )
 
     @classmethod
     def dummy_data(cls) -> AccountDeletionCompletedEmail:
@@ -169,6 +184,10 @@ class APIKeyIssuedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.ApiKeyCreate, *, user_name: str) -> Self:
+        return cls(user_name=user_name, api_key=data.api_key, expiry=data.expiry.ToDatetime(tzinfo=UTC))
+
+    @classmethod
     def dummy_data(cls) -> APIKeyIssuedEmail:
         return APIKeyIssuedEmail(
             user_name="Alice", api_key="my_api_key_123", expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC)
@@ -193,6 +212,14 @@ class BadgeChangedEmail(EmailBase):
         builder.para("body", {"badge_name": self.badge_name})
 
     @classmethod
+    def from_add_notification(cls, data: notification_data_pb2.BadgeAdd, *, user_name: str) -> Self:
+        return cls(user_name=user_name, badge_name=data.badge_name, added=True)
+
+    @classmethod
+    def from_remove_notification(cls, data: notification_data_pb2.BadgeRemove, *, user_name: str) -> Self:
+        return cls(user_name=user_name, badge_name=data.badge_name, added=False)
+
+    @classmethod
     def dummy_data(cls) -> BadgeChangedEmail:
         return BadgeChangedEmail(user_name="Alice", badge_name="Founder", added=True)
 
@@ -210,6 +237,10 @@ class BirthdateChangedEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body", {"date": loc_context.localize_date(self.new_birthdate)})
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.BirthdateChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_birthdate=date.fromisoformat(data.birthdate))
 
     @classmethod
     def dummy_data(cls) -> BirthdateChangedEmail:
@@ -248,6 +279,18 @@ class DiscussionCreatedEmail(EmailBase):
         builder.user(self.author)
         builder.quote(self.markdown_text, markdown=True)
         builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.DiscussionCreate, *, user_name: str) -> Self:
+        discussion = data.discussion
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            title=discussion.title,
+            parent_context=discussion.owner_title,
+            markdown_text=discussion.content,
+            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+        )
 
     @classmethod
     def dummy_data(cls) -> DiscussionCreatedEmail:
@@ -294,6 +337,18 @@ class DiscussionCommentEmail(EmailBase):
         builder.action(self.view_link, "view_action")
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.DiscussionComment, *, user_name: str) -> Self:
+        discussion = data.discussion
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            discussion_title=discussion.title,
+            discussion_parent_context=discussion.owner_title,
+            markdown_text=data.reply.content,
+            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+        )
+
+    @classmethod
     def dummy_data(cls) -> DiscussionCommentEmail:
         return DiscussionCommentEmail(
             user_name="Alice",
@@ -318,6 +373,10 @@ class EmailAddressChangedEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body", {"email_address": self.new_email})
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EmailAddressChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_email=data.new_email)
 
     @classmethod
     def dummy_data(cls) -> EmailAddressChangedEmail:
@@ -365,6 +424,10 @@ class FriendRequestReceivedEmail(EmailBase):
         builder.do_not_reply_request_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.FriendRequestCreate, *, user_name: str) -> Self:
+        return cls(user_name=user_name, befriender=UserInfo.from_protobuf(data.other_user))
+
+    @classmethod
     def dummy_data(cls) -> FriendRequestReceivedEmail:
         return FriendRequestReceivedEmail(
             user_name="Alice",
@@ -395,6 +458,10 @@ class FriendRequestAcceptedEmail(EmailBase):
         builder.para("closing")
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.FriendRequestAccept, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(data.other_user))
+
+    @classmethod
     def dummy_data(cls) -> FriendRequestAcceptedEmail:
         return FriendRequestAcceptedEmail(
             user_name="Alice",
@@ -415,6 +482,10 @@ class GenderChangedEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body", {"gender": self.new_gender})
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.GenderChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_gender=data.gender)
 
     @classmethod
     def dummy_data(cls) -> GenderChangedEmail:
@@ -491,6 +562,13 @@ class PasswordResetStartedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.PasswordResetStart, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            password_reset_link=urls.password_reset_link(password_reset_token=data.password_reset_token),
+        )
+
+    @classmethod
     def dummy_data(cls) -> PasswordResetStartedEmail:
         return PasswordResetStartedEmail(user_name="Alice", password_reset_link="https://couchers.org/reset-password")
 
@@ -509,6 +587,14 @@ class PhoneNumberChangeEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body", {"phone_number": format_phone_number(self.new_phone_number)})
         builder.security_warning_para()
+
+    @classmethod
+    def from_change_notification(cls, data: notification_data_pb2.PhoneNumberChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_phone_number=data.phone, completed=False)
+
+    @classmethod
+    def from_verify_notification(cls, data: notification_data_pb2.PhoneNumberVerify, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_phone_number=data.phone, completed=True)
 
     @classmethod
     def dummy_data(cls) -> PhoneNumberChangeEmail:
@@ -541,6 +627,10 @@ class PostalVerificationFailedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.PostalVerificationFailed, *, user_name: str) -> Self:
+        return cls(user_name=user_name, reason=data.reason)
+
+    @classmethod
     def dummy_data(cls) -> PostalVerificationFailedEmail:
         return PostalVerificationFailedEmail(
             user_name="Alice",
@@ -562,6 +652,10 @@ class PostalVerificationPostcardSentEmail(EmailBase):
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para("body", {"city": self.city, "country": self.country})
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PostalVerificationPostcardSent, *, user_name: str) -> Self:
+        return cls(user_name=user_name, city=data.city, country=data.country)
 
     @classmethod
     def dummy_data(cls) -> PostalVerificationPostcardSentEmail:
@@ -607,6 +701,10 @@ class StrongVerificationFailedEmail(EmailBase):
                 raise Exception("Shouldn't get here")
         builder.para(reason_string_key)
         builder.security_warning_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.VerificationSVFail, *, user_name: str) -> Self:
+        return cls(user_name=user_name, reason=data.reason)
 
     @classmethod
     def dummy_data(cls) -> StrongVerificationFailedEmail:
@@ -661,6 +759,25 @@ class ThreadReplyEmail(EmailBase):
         builder.user(self.author)
         builder.quote(self.markdown_text, markdown=True)
         builder.action(self.view_link, "view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ThreadReply, *, user_name: str) -> Self:
+        parent = data.WhichOneof("reply_parent")
+        if parent == "event":
+            parent_context = data.event.title
+            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+        elif parent == "discussion":
+            parent_context = data.discussion.title
+            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+        else:
+            raise Exception("Can only do replies to events and discussions")
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            parent_context=parent_context,
+            markdown_text=data.reply.content,
+            view_link=view_link,
+        )
 
     @classmethod
     def dummy_data(cls) -> ThreadReplyEmail:

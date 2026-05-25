@@ -16,6 +16,21 @@
 </mj-section>
 <!-- end-block:action -->
 
+<!-- begin-block:two-buttons -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_1 }}">
+      <b>{{ text_1 }}</b>
+    </mj-button>
+  </mj-column>
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_2 }}">
+      <b>{{ text_2 }}</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<!-- end-block:two-buttons -->
+
 <!-- begin-block:user -->
 <mj-section padding="0px" text-align="left">
   <mj-column>

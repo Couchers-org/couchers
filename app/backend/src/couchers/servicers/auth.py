@@ -708,7 +708,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not config["RECAPTHCA_ENABLED"]:
+        if not context.get_boolean_value("recaptcha_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
         ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
@@ -756,7 +756,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if config["RECAPTHCA_ENABLED"]:
+        if context.get_boolean_value("recaptcha_enabled", default=False):
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:

@@ -132,7 +132,9 @@
       "press_enter_to_search": "Aramak için enter tuşuna bas",
       "display_location_label": "Gösterilen konum",
       "search_location_label": "Konum ara",
-      "display_location_not_empty": "Lütfen gösterilen konum alanını doldurun"
+      "display_location_not_empty": "Lütfen gösterilen konum alanını doldurun",
+      "radius_text2_one": "{{count}} metre",
+      "radius_text2_other": "{{count}} metre"
     },
     "datepicker": {
       "change_date": "Tarihi değiştir"
@@ -232,7 +234,9 @@
     },
     "error": {
       "fetch_invite_info": "Davet kodu detayları alınamadı"
-    }
+    },
+    "number_of_uses_one": "Kullanım: {{count}} tamamlanmış kayıt",
+    "number_of_uses_other": "Kullanım: {{count}} tamamlanmış kayıt"
   },
   "strong_verification": {
     "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"

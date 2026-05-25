@@ -8,12 +8,14 @@ interface HostRequestStatusTextProps {
   isHost: boolean;
   requestStatus: HostRequestStatus;
   isPast: boolean;
+  hostName?: string;
 }
 
 export default function HostRequestStatusText({
   isHost,
   requestStatus,
   isPast,
+  hostName,
 }: HostRequestStatusTextProps) {
   const { t } = useTranslation(MESSAGES);
 
@@ -42,13 +44,17 @@ export default function HostRequestStatusText({
   } else {
     switch (requestStatus) {
       case HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED:
-        statusText = t("host_request_item.surfer_status.accepted");
+        statusText = t("host_request_item.surfer_status.accepted", {
+          name: hostName,
+        });
         break;
       case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
         statusText = t("host_request_item.surfer_status.cancelled");
         break;
       case HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED:
-        statusText = t("host_request_item.surfer_status.confirmed");
+        statusText = t("host_request_item.surfer_status.confirmed", {
+          name: hostName,
+        });
         break;
       case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
         statusText = t("host_request_item.surfer_status.rejected");
