@@ -1,6 +1,6 @@
 # Release Checklist
 
-Here are all the steps that need tp be done for each official Couchers release.
+Here are all the steps that need to be done for each official Couchers release.
 
 ## Before you start
 [] Do a post in the #couchops channel for any operations, translation, merch, etc. accomplishments that should also be included in the release blog post.
