@@ -45,6 +45,15 @@ export default function Dashboard() {
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
                 New blog post:{" "}
+                <StyledLink href={dashboardNews["2026-05-25"].link}>
+                  {dashboardNews["2026-05-25"].title}
+                </StyledLink>
+              </Typography>
+            </Alert>
+
+            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
+              <Typography variant="body1">
+                New blog post:{" "}
                 <StyledLink href={dashboardNews["2026-05-15"].link}>
                   {dashboardNews["2026-05-15"].title}
                 </StyledLink>
