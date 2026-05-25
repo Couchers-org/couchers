@@ -79,14 +79,15 @@ const intentFilters = variant.linkHost
 // baked in and manifests are served unsigned over HTTPS.
 //
 // Staging points at our self-hosted OTA backend (cut 1: validating the Expo
-// Updates protocol + native<->backend transport, unsigned). Production stays on
-// EAS Update until staging is proven, then flips here too.
+// Updates protocol + native<->backend transport, unsigned). Production has OTA
+// disabled until the self-hosted backend is proven on staging, then it points
+// here too.
 const updates =
   APP_VARIANT === "devtool"
     ? { enabled: true }
     : APP_VARIANT === "staging"
       ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
-      : { url: "https://u.expo.dev/fb4fc9aa-d8b2-45a5-82aa-be05e99b0413" };
+      : { enabled: false };
 
 export default {
   name: variant.name,
