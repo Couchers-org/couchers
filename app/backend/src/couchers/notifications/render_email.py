@@ -18,11 +18,10 @@ from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
     generate_do_not_email,
-    generate_quick_decline_link,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.proto import api_pb2, conversations_pb2
+from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now, to_aware_datetime
@@ -116,10 +115,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.AccountDeletionRecoveredEmail(user_name=user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.badge__add:
-            return emails.BadgeChangedEmail.from_add_notification(data, user_name=user_name)
-        case NotificationTopicAction.badge__remove:
-            return emails.BadgeChangedEmail.from_remove_notification(data, user_name=user_name)
+        case NotificationTopicAction.badge__add | NotificationTopicAction.badge__remove:
+            return emails.BadgeChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__create:
@@ -131,60 +128,20 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
         case NotificationTopicAction.host_request__create:
-            return emails.HostRequestCreatedEmail(
-                user_name,
-                surfer=_user_info(data.surfer),
-                from_date=date.fromisoformat(data.host_request.from_date),
-                to_date=date.fromisoformat(data.host_request.to_date),
-                text=data.text,
-                quick_decline_link=generate_quick_decline_link(data.host_request),
-                view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            )
+            return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
-            return emails.HostRequestReminderEmail(
-                user_name,
-                surfer=_user_info(data.surfer),
-                from_date=date.fromisoformat(data.host_request.from_date),
-                to_date=date.fromisoformat(data.host_request.to_date),
-                view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            )
+            return emails.HostRequestReminderEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__message:
-            return emails.HostRequestMessageEmail(
-                user_name,
-                other_user=_user_info(data.user),
-                from_date=date.fromisoformat(data.host_request.from_date),
-                to_date=date.fromisoformat(data.host_request.to_date),
-                text=data.text,
-                from_host=not data.am_host,
-                view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            )
+            return emails.HostRequestMessageEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__missed_messages:
-            return emails.HostRequestMissedMessagesEmail(
-                user_name,
-                other_user=_user_info(data.user),
-                from_date=date.fromisoformat(data.host_request.from_date),
-                to_date=date.fromisoformat(data.host_request.to_date),
-                from_host=not data.am_host,
-                view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            )
+            return emails.HostRequestMissedMessagesEmail.from_notification(data, user_name=user_name)
         case (
             NotificationTopicAction.host_request__accept
             | NotificationTopicAction.host_request__reject
             | NotificationTopicAction.host_request__cancel
             | NotificationTopicAction.host_request__confirm
         ):
-            other_user_is_host = notification.topic_action in (
-                NotificationTopicAction.host_request__accept,
-                NotificationTopicAction.host_request__reject,
-            )
-            return emails.HostRequestStatusChangedEmail(
-                user_name,
-                other_user=_user_info(data.host if other_user_is_host else data.surfer),
-                from_date=date.fromisoformat(data.host_request.from_date),
-                to_date=date.fromisoformat(data.host_request.to_date),
-                new_status=_to_host_request_status(notification.topic_action),
-                view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            )
+            return emails.HostRequestStatusChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__create:
             return emails.FriendRequestReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__accept:
@@ -241,20 +198,6 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case _:
             # Enable mypy's exhaustiveness checking
             assert_never("Unexpected NotificationTopicAction enumerant")
-
-
-def _to_host_request_status(topic_action: NotificationTopicAction) -> conversations_pb2.HostRequestStatus.ValueType:
-    match topic_action:
-        case NotificationTopicAction.host_request__accept:
-            return conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-        case NotificationTopicAction.host_request__reject:
-            return conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-        case NotificationTopicAction.host_request__confirm:
-            return conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-        case NotificationTopicAction.host_request__cancel:
-            return conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
-        case _:
-            raise ValueError(f"Unexpected host status changed notification: {topic_action}")
 
 
 @dataclass(kw_only=True)

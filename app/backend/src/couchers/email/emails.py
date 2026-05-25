@@ -5,7 +5,7 @@ Defines data models for each email we sent out to users.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from typing import Self
+from typing import Self, assert_never
 
 from couchers import urls
 from couchers.email.rendering import (
@@ -18,6 +18,7 @@ from couchers.email.rendering import (
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict
 from couchers.i18n.localize import format_phone_number
+from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, notification_data_pb2
 
 
@@ -212,12 +213,12 @@ class BadgeChangedEmail(EmailBase):
         builder.para("body", {"badge_name": self.badge_name})
 
     @classmethod
-    def from_add_notification(cls, data: notification_data_pb2.BadgeAdd, *, user_name: str) -> Self:
-        return cls(user_name=user_name, badge_name=data.badge_name, added=True)
-
-    @classmethod
-    def from_remove_notification(cls, data: notification_data_pb2.BadgeRemove, *, user_name: str) -> Self:
-        return cls(user_name=user_name, badge_name=data.badge_name, added=False)
+    def from_notification(
+        cls, data: notification_data_pb2.BadgeAdd | notification_data_pb2.BadgeRemove, *, user_name: str
+    ) -> Self:
+        return cls(
+            user_name=user_name, badge_name=data.badge_name, added=isinstance(data, notification_data_pb2.BadgeAdd)
+        )
 
     @classmethod
     def dummy_data(cls) -> BadgeChangedEmail:
@@ -530,6 +531,18 @@ class HostRequestCreatedEmail(EmailBase):
         builder.do_not_reply_request_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            surfer=UserInfo.from_protobuf(data.surfer),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            quick_decline_link=generate_quick_decline_link(data.host_request),
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
     def dummy_data(cls) -> HostRequestCreatedEmail:
         return HostRequestCreatedEmail(
             user_name="Alice",
@@ -570,6 +583,16 @@ class HostRequestReminderEmail(EmailBase):
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
         builder.do_not_reply_request_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            surfer=UserInfo.from_protobuf(data.surfer),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
 
     @classmethod
     def dummy_data(cls) -> HostRequestReminderEmail:
@@ -616,6 +639,18 @@ class HostRequestMessageEmail(EmailBase):
         builder.do_not_reply_request_para()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            other_user=UserInfo.from_protobuf(data.user),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            from_host=not data.am_host,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
     def dummy_data(cls) -> HostRequestMessageEmail:
         return HostRequestMessageEmail(
             user_name="Alice",
@@ -658,6 +693,17 @@ class HostRequestMissedMessagesEmail(EmailBase):
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
         builder.do_not_reply_request_para()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            other_user=UserInfo.from_protobuf(data.user),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            from_host=not data.am_host,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
 
     @classmethod
     def dummy_data(cls) -> HostRequestMissedMessagesEmail:
@@ -711,6 +757,44 @@ class HostRequestStatusChangedEmail(EmailBase):
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
         builder.do_not_reply_request_para()
+
+    @classmethod
+    def from_notification(
+        cls,
+        data: notification_data_pb2.HostRequestAccept
+        | notification_data_pb2.HostRequestReject
+        | notification_data_pb2.HostRequestConfirm
+        | notification_data_pb2.HostRequestCancel,
+        *,
+        user_name: str,
+    ) -> Self:
+        other_user: UserInfo
+        new_status: conversations_pb2.HostRequestStatus.ValueType
+        match data:
+            case notification_data_pb2.HostRequestAccept():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+            case notification_data_pb2.HostRequestReject():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+            case notification_data_pb2.HostRequestConfirm():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+            case notification_data_pb2.HostRequestCancel():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+            case _:
+                # Enable mypy's exhaustiveness checking
+                assert_never("Unexpected host request status changed notification data type.")
+
+        return cls(
+            user_name,
+            other_user=other_user,
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            new_status=new_status,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
 
     @classmethod
     def dummy_data(cls) -> HostRequestStatusChangedEmail:
