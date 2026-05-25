@@ -86,6 +86,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("BUG_TOOL_GITHUB_REPO", str),
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
+    # Native (mobile) OTA updates: root the pre-signed Expo manifests are published under
+    ("NATIVE_OTA_CDN_ROOT", str, "https://cdn.couchers.org/native/ota"),
     # Sentry
     ("SENTRY_ENABLED", bool),
     ("SENTRY_URL", str),

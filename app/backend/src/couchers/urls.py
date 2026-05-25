@@ -149,3 +149,7 @@ def invite_code_link(*, code: str) -> str:
 
 def postal_verification_link(*, code: str) -> str:
     return f"{config['BASE_URL']}/verify-postal?c={code}"
+
+
+def native_ota_manifest(*, version: str, platform: str) -> str:
+    return f"{config['NATIVE_OTA_CDN_ROOT']}/{version}/{platform}/manifest"

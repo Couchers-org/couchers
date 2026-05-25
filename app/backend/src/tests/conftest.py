@@ -209,6 +209,8 @@ def testconfig():
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 
+    config["NATIVE_OTA_CDN_ROOT"] = "https://cdn.testing.invalid/native/ota"
+
     config["LISTMONK_ENABLED"] = False
     config["LISTMONK_BASE_URL"] = "https://localhost"
     config["LISTMONK_API_USERNAME"] = "..."
