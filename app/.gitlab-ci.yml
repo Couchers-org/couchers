@@ -1063,11 +1063,12 @@ deploy:mobile-ota-staging:
 # job, so a JS-only over-the-air update ships without a backend/web deploy.
 #
 # CI only stages UNSIGNED bundles. Signing and the push to the prod CDN happen
-# later, in the tools/ publish_native_ota lambda — the private signing key never
-# touches CI. The manifest's asset URLs are baked with the literal placeholder
-# __OTA_BUNDLE_BASE__; the publish lambda substitutes the real prod CDN base
-# (<cdn-root>/<update-id>) before signing, so it alone owns where the bundle
-# lives and the URLs can't drift from the upload path.
+# later, in the tools/ deploy lambda's publish_native_ota action — the private
+# signing key never touches CI. The manifest's asset URLs are baked with the
+# literal placeholder __OTA_BUNDLE_BASE__; the publish step substitutes the real
+# prod CDN base (<cdn-root>/<ota-version>, e.g. v1.2.18355.fc38c23d) before
+# signing, so it alone owns where the bundle lives and the URLs can't drift from
+# the upload path.
 build:mobile-ota-prod:
   needs: ["protos"]
   stage: build
