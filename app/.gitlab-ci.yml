@@ -1027,7 +1027,7 @@ build:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/feature/ota-staging-publish"
+    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 deploy:mobile-ota-staging:
   needs: ["build:mobile-ota-staging"]
@@ -1053,7 +1053,7 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/feature/ota-staging-publish"
+    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 preview:protos:
   needs: ["protos"]
