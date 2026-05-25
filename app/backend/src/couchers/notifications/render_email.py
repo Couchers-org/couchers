@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import dataclass, field
 from typing import Any, assert_never
 
@@ -121,52 +120,9 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.chat__message:
-            group_chat_title: str | None = data.group_chat_title
-            if not group_chat_title:
-                # Backcompat (2026-05): The group name previously was formatted in the message string
-                # msg = f"{message.author.name} sent a message in {group_chat.title}"
-                if match := re.search(" sent a message in (.+)$", data.message or ""):
-                    group_chat_title = match[1]
-                else:
-                    group_chat_title = None
-
-            return emails.ChatMessageReceivedEmail(
-                user_name,
-                author=_user_info(data.author),
-                text=data.text,
-                group_chat_title=group_chat_title,
-                view_url=urls.chat_link(chat_id=data.group_chat_id),
-            )
+            return emails.ChatMessageReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.chat__missed_messages:
-            missed_entries = []
-            for message in data.messages:
-                group_chat_title = message.group_chat_title
-                missed_count: int = message.unseen_count
-
-                # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
-                # msg = f"You missed {unseen_count} message(s) in {group_chat.title}"
-                if not group_chat_title or not missed_count:
-                    if match := re.search(" message(s) in (.+)$", message.message or ""):
-                        group_chat_title = match[1]
-                    else:
-                        group_chat_title = None
-
-                    if match := re.search(r"^You missed (\d+) message(s)", message.message or ""):
-                        missed_count = int(match[1])
-                    else:
-                        missed_count = 1
-
-                missed_entries.append(
-                    emails.ChatMessagesMissedEmail.Entry(
-                        group_chat_title=group_chat_title,
-                        missed_count=missed_count,
-                        latest_message_author=_user_info(message.author),
-                        latest_message_text=message.text,
-                        view_url=urls.chat_link(chat_id=message.group_chat_id),
-                    )
-                )
-
-            return emails.ChatMessagesMissedEmail(user_name, entries=missed_entries)
+            return emails.ChatMessagesMissedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__create:
             return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:

@@ -2,6 +2,7 @@
 Defines data models for each email we sent out to users.
 """
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
@@ -276,6 +277,25 @@ class ChatMessageReceivedEmail(EmailBase):
         builder.action(self.view_url, "view_action")
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.ChatMessage, *, user_name: str) -> Self:
+        group_chat_title: str | None = data.group_chat_title
+        if not group_chat_title:
+            # Backcompat (2026-05): The group name previously was formatted in the message string
+            # msg = f"{message.author.name} sent a message in {group_chat.title}"
+            if match := re.search(" sent a message in (.+)$", data.message or ""):
+                group_chat_title = match[1]
+            else:
+                group_chat_title = None
+
+        return cls(
+            user_name,
+            author=UserInfo.from_protobuf(data.author),
+            text=data.text,
+            group_chat_title=group_chat_title,
+            view_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+
+    @classmethod
     def dummy_data(cls) -> ChatMessageReceivedEmail:
         return ChatMessageReceivedEmail(
             user_name="Alice",
@@ -318,6 +338,38 @@ class ChatMessagesMissedEmail(EmailBase):
             builder.user(entry.latest_message_author)
             builder.quote(entry.latest_message_text, markdown=False)
             builder.action(entry.view_url, "view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
+        missed_entries = []
+        for message in data.messages:
+            group_chat_title: str | None = message.group_chat_title
+            missed_count: int = message.unseen_count
+
+            # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
+            # msg = f"You missed {unseen_count} message(s) in {group_chat.title}"
+            if not group_chat_title or not missed_count:
+                if match := re.search(" message(s) in (.+)$", message.message or ""):
+                    group_chat_title = match[1]
+                else:
+                    group_chat_title = None
+
+                if match := re.search(r"^You missed (\d+) message(s)", message.message or ""):
+                    missed_count = int(match[1])
+                else:
+                    missed_count = 1
+
+            missed_entries.append(
+                cls.Entry(
+                    group_chat_title=group_chat_title,
+                    missed_count=missed_count,
+                    latest_message_author=UserInfo.from_protobuf(message.author),
+                    latest_message_text=message.text,
+                    view_url=urls.chat_link(chat_id=message.group_chat_id),
+                )
+            )
+
+        return cls(user_name, entries=missed_entries)
 
     @classmethod
     def dummy_data(cls) -> ChatMessagesMissedEmail:
