@@ -70,7 +70,8 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "completed"
+        "releaseStatus": "completed",
+        "changesNotSentForReview": true
       }
     },
     "devtool": {

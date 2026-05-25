@@ -1059,42 +1059,94 @@ deploy:mobile-ota-staging:
 # native counterpart to the OTA publish below. A signed OTA only applies to an
 # installed build whose runtimeVersion (Expo fingerprint) matches, so a native dep
 # / app.config.js / Expo SDK change (the ~5% case OTA can't serve) needs a fresh
-# store build carrying the new fingerprint. scripts/production-build.sh builds on
-# EAS and auto-submits:
+# store build carrying the new fingerprint; pure JS/TS changes ship over the air.
+#
+# Split per platform and per phase: the `build` phase builds on EAS
+# (scripts/production-build.sh, fingerprint-gated, emitting the build id to a
+# dotenv artifact), and the `deploy` phase submits that build
+# (scripts/production-submit.sh):
 #   iOS     -> App Store Connect (lands in TestFlight + as an available build; it
 #              is NOT submitted for App Store review and no release notes change —
 #              do that by hand in App Store Connect).
 #   Android -> the Play *internal* testing track (submit profile `production`,
 #              track: internal); promote to public production by hand in the Play
 #              Console.
-# Neither path makes anything public on its own. It no-ops when the freshly
-# computed fingerprint matches the last-built app, recorded per platform under
-# s3://$AWS_PREVIEW_BUCKET/production-builds/. Requires the EXPO_TOKEN CI variable.
-build:production-native:
-  needs: ["protos"]
-  stage: build
+# Neither path makes anything public on its own. The build no-ops (and the submit
+# in turn) when the freshly computed fingerprint matches the last-submitted app,
+# recorded per platform under s3://$AWS_PREVIEW_BUCKET/production-builds/. Requires
+# the EXPO_TOKEN CI variable.
+.production-native:
   image: node:22
   inherit:
     default: false
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    # TEMP: run on this branch to validate the pipeline; revert before merge.
+    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
+
+build:production-native-ios:
+  extends: .production-native
+  needs: ["protos"]
+  stage: build
   variables:
     # Compute the fingerprint as the production variant so it matches the EAS build
     # (app.config.js branches on APP_VARIANT) and the OTA publish job's fingerprint.
     APP_VARIANT: production
-  before_script:
-    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
   script:
     - cd app/mobile
     - npm ci
     - npm run build:protos
     - npm install -g eas-cli
-    # Separate lines (not a loop) so an iOS failure fails the job instead of being
-    # masked by a later Android success.
     - bash scripts/production-build.sh ios
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-ios.env
+
+build:production-native-android:
+  extends: .production-native
+  needs: ["protos"]
+  stage: build
+  variables:
+    APP_VARIANT: production
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm install -g eas-cli
     - bash scripts/production-build.sh android
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-android.env
+
+deploy:production-native-ios:
+  extends: .production-native
+  needs: ["build:production-native-ios"]
+  stage: deploy
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/production-submit.sh ios
+  # Submit only on the real release branch — disabled on the temp validation branch
+  # so we build (above) without pushing anything to the stores yet.
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
+
+deploy:production-native-android:
+  extends: .production-native
+  needs: ["build:production-native-android"]
+  stage: deploy
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/production-submit.sh android
+  # Submit only on the real release branch — disabled on the temp validation branch
+  # so we build (above) without pushing anything to the stores yet.
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 # ─── Production native OTA publish (decoupled from the backend/web deploy) ───
 #
