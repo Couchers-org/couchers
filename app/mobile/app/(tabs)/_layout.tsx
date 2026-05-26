@@ -1,3 +1,4 @@
+import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import { Tabs } from "expo-router";
 import * as Updates from "expo-updates";
@@ -61,7 +62,9 @@ export default function TabLayout() {
     );
     if (tapTimestamps.current.length < 3) return;
     tapTimestamps.current = [];
-    setDebugToast(getDebugInfo());
+    const info = getDebugInfo();
+    void Clipboard.setStringAsync(info);
+    setDebugToast(`${info}\n\nCopied to clipboard`);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setDebugToast(null), 6000);
   }, []);
