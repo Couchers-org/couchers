@@ -1,11 +1,7 @@
 {
-  "request_closed_message": "Diese Host-Anfrage wurde geschlossen. Sende dieser Person eine normale Nachricht um die Unterhaltung fortzuführen.",
   "host_pending_request_help_text": "<0>Das solltest du beachten</0>, bevor du antwortest.",
   "mark_all_read_button_text": "Alle als gelesen markieren",
   "write_reference_button_text": "Schreibe eine Referenz",
-  "close_request_dialog_title": "Bist du fertig mit dem Schreiben?",
-  "close_request_dialog_host": "Bitte vergewissere dich, dass die Unterhaltung beendet ist, bevor du die Anfrage ablehnst.",
-  "close_request_dialog_surfer": "Bitte vergewissere dich, dass die Unterhaltung beendet ist, bevor du deine Anfrage zurückziehst.",
   "close_request_button_text": "Ablehnen",
   "messages_page": {
     "tabs": {

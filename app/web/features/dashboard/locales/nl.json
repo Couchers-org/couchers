@@ -64,7 +64,6 @@
     },
     "write_reference": {
       "title": "Schrijf een referentie",
-      "description": "Laat een referentie achter voor het verblijf van {{name}}",
       "button": "Schrijf referentie"
     },
     "complete_profile": {

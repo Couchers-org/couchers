@@ -64,7 +64,6 @@
     },
     "write_reference": {
       "title": "Schreibe eine Referenz",
-      "description": "Hinterlasse eine Bewertung für den Aufenthalt von {{name}}",
       "button": "Referenz schreiben"
     },
     "complete_profile": {

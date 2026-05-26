@@ -93,8 +93,6 @@
     "request_duration_many": "{{count}} de noches",
     "request_duration_other": "{{count}} noches"
   },
-  "close_request_dialog_title": "¿Has terminado de enviar mensajes?",
-  "close_request_dialog_surfer": "Por favor, asegúrate de que has terminado la conversación antes de cancelar tu solicitud.",
   "admins_dialog": {
     "step_down_confirmation_dialog": {
       "title": "¿Dejar de ser administrador?",
@@ -156,9 +154,7 @@
       "rejected": "Tu solicitud fue declinada"
     }
   },
-  "close_request_dialog_host": "Por favor, asegúrate de que has terminado la conversación antes de declinar su solicitud.",
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
-  "request_closed_message": "Esta solicitud de alojamiento está cerrada. Para continuar hablando, envía a la otra persona un mensaje normal.",
   "mark_all_read_button_text_chats": "Marcar todas las conversaciones como leídas",
   "mark_all_read_button_text_hosting": "Marcar todas las solicitudes de alojamiento como leídas",
   "mark_all_read_button_text_surfing": "Marcar todas las solicitudes de hospedaje como leídas",
