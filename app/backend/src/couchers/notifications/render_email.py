@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, assert_never
 
 import couchers.email.emails as emails
 from couchers import urls
@@ -18,7 +18,6 @@ from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
     generate_do_not_email,
-    generate_quick_decline_link,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
@@ -116,10 +115,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.AccountDeletionRecoveredEmail(user_name=user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.badge__add:
-            return emails.BadgeChangedEmail.from_add_notification(data, user_name=user_name)
-        case NotificationTopicAction.badge__remove:
-            return emails.BadgeChangedEmail.from_remove_notification(data, user_name=user_name)
+        case NotificationTopicAction.badge__add | NotificationTopicAction.badge__remove:
+            return emails.BadgeChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__create:
@@ -130,6 +127,21 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
+        case NotificationTopicAction.host_request__create:
+            return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.host_request__reminder:
+            return emails.HostRequestReminderEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.host_request__message:
+            return emails.HostRequestMessageEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.host_request__missed_messages:
+            return emails.HostRequestMissedMessagesEmail.from_notification(data, user_name=user_name)
+        case (
+            NotificationTopicAction.host_request__accept
+            | NotificationTopicAction.host_request__reject
+            | NotificationTopicAction.host_request__cancel
+            | NotificationTopicAction.host_request__confirm
+        ):
+            return emails.HostRequestStatusChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__create:
             return emails.FriendRequestReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__accept:
@@ -160,9 +172,32 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
-        case _:
+        case (
+            NotificationTopicAction.donation__received
+            | NotificationTopicAction.chat__message
+            | NotificationTopicAction.chat__missed_messages
+            | NotificationTopicAction.event__create_any
+            | NotificationTopicAction.event__create_approved
+            | NotificationTopicAction.event__reminder
+            | NotificationTopicAction.event__comment
+            | NotificationTopicAction.event__update
+            | NotificationTopicAction.event__invite_organizer
+            | NotificationTopicAction.event__cancel
+            | NotificationTopicAction.event__delete
+            | NotificationTopicAction.reference__receive_friend
+            | NotificationTopicAction.reference__receive_hosted
+            | NotificationTopicAction.reference__receive_surfed
+            | NotificationTopicAction.reference__reminder_hosted
+            | NotificationTopicAction.reference__reminder_surfed
+            | NotificationTopicAction.onboarding__reminder
+            | NotificationTopicAction.activeness__probe
+            | NotificationTopicAction.general__new_blog_post
+        ):
             # Still implemented as a custom templated email
             return None
+        case _:
+            # Enable mypy's exhaustiveness checking
+            assert_never("Unexpected NotificationTopicAction enumerant")
 
 
 @dataclass(kw_only=True)
@@ -181,99 +216,7 @@ class CustomTemplatedEmail:
 # e.g. not yet using couchers.email.emails.
 def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    if notification.topic == "host_request":
-        view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
-        if notification.action == "missed_messages":
-            their_your = "their" if data.am_host else "your"
-            other = data.user
-            # "declined your host request", or similar
-            message = f"{other.name} sent you message(s) in {their_your} host request"
-            return CustomTemplatedEmail(
-                subject=message,
-                preview=message,
-                template_name="host_request__plain",
-                template_args={
-                    "view_link": view_link,
-                    "host_request": data.host_request,
-                    "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
-                },
-            )
-        elif notification.action == "create":
-            other = data.surfer
-            message = f"{other.name} sent you a host request"
-            return CustomTemplatedEmail(
-                subject=message,
-                preview=message,
-                template_name="host_request__new",
-                template_args={
-                    "view_link": view_link,
-                    "quick_decline_link": generate_quick_decline_link(data.host_request),
-                    "host_request": data.host_request,
-                    "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
-                    "text": data.text,
-                },
-            )
-        elif notification.action == "message":
-            other = data.user
-            if data.am_host:
-                message = f"{other.name} sent you a message in their host request"
-            else:
-                message = f"{other.name} sent you a message in your host request"
-            return CustomTemplatedEmail(
-                subject=message,
-                preview=message,
-                template_name="host_request__message",
-                template_args={
-                    "view_link": view_link,
-                    "host_request": data.host_request,
-                    "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
-                    "text": data.text,
-                },
-            )
-        elif notification.action in ["accept", "reject", "confirm", "cancel"]:
-            if notification.action in ["accept", "reject"]:
-                other = data.host
-                their_your = "your"
-            else:
-                other = data.surfer
-                their_your = "their"
-            actioned = {
-                "accept": "accepted",
-                "reject": "declined",
-                "confirm": "confirmed",
-                "cancel": "cancelled",
-            }[notification.action]
-            # "declined your host request", or similar
-            message = f"{other.name} {actioned} {their_your} host request"
-            return CustomTemplatedEmail(
-                subject=message,
-                preview=message,
-                template_name="host_request__plain",
-                template_args={
-                    "view_link": view_link,
-                    "host_request": data.host_request,
-                    "message": message,
-                    "other": UserTemplateArgs.from_protobuf_user(other),
-                },
-            )
-        elif notification.action == "reminder":
-            message = f"You have a pending host request from {data.surfer.name}!"
-            description = "Please respond to the request!"
-            return CustomTemplatedEmail(
-                subject=message,
-                preview=description,
-                template_name="host_request__plain",
-                template_args={
-                    "view_link": view_link,
-                    "host_request": data.host_request,
-                    "message": description,
-                    "other": UserTemplateArgs.from_protobuf_user(data.surfer),
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.donation__received:
+    if notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")
         message = loc_context.localize_string(
             "notifications.donation_received.thanks_amount",
