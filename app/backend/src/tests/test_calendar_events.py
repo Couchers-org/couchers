@@ -4,7 +4,7 @@ from datetime import timedelta
 import ics
 import pytest
 
-from couchers.email.calendar_events import create_host_request_cancellation_ics, create_host_request_ics
+from couchers.email.calendar_events import create_host_request_calendar, create_host_request_cancellation_calendar
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.proto.requests_pb2 import HostRequest
@@ -25,9 +25,9 @@ def test_initial_ics_content():
         host_request_id=42, from_date="2000-01-01", to_date="2000-01-02", hosting_city="New York"
     )
 
-    ics = create_host_request_ics(
+    ics: str = create_host_request_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
-    )
+    ).serialize()
     assert _normalize_ics(ics) == _normalize_ics("""
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -52,9 +52,9 @@ def test_cancellation_ics_content():
         host_request_id=42, from_date="2000-01-01", to_date="2000-01-02", hosting_city="New York"
     )
 
-    ics = create_host_request_cancellation_ics(
+    ics: str = create_host_request_cancellation_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
-    )
+    ).serialize()
     assert _normalize_ics(ics) == _normalize_ics("""
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -216,8 +216,9 @@ def test_host_request_attachments_disabled(db, feature_flags, moderator: Moderat
 def _get_email_ics_attachment_calendar_event(e) -> ics.Event:
     assert len(e.attachments or []) == 1
     ics_attachment = e.attachments[0]
-    assert ics_attachment.filename.endswith(".ics")
+    assert ics_attachment.content_type.startswith("text/calendar")
     ics_calendar = ics.Calendar(ics_attachment.data.decode("utf-8"))
+    assert f"method={ics_calendar.method}" in ics_attachment.content_type
     assert len(ics_calendar.events) == 1
     return next(iter(ics_calendar.events))
 
