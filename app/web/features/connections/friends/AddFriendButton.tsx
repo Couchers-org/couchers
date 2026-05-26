@@ -1,3 +1,4 @@
+import { Link } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import {
@@ -12,7 +13,6 @@ import { doAntibot } from "features/antibot/antibot";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Link } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -124,7 +124,10 @@ export default function AddFriendButton({
           />
         </DialogContent>
         <DialogActions>
-          <Button variant="outlined" onClick={() => setShowConfirmDialog(false)}>
+          <Button
+            variant="outlined"
+            onClick={() => setShowConfirmDialog(false)}
+          >
             {t("global:cancel")}
           </Button>
           <Button variant="contained" loading={isPending} onClick={onConfirm}>
