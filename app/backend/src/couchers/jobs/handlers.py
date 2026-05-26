@@ -614,7 +614,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
 
 
 def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
-    if not config["LISTMONK_ENABLED"]:
+    if not experimentation.get_global_boolean_value("listmonk_enabled", default=False):
         logger.info("Not adding users to mailing list")
         return
 

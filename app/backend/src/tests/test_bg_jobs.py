@@ -1217,9 +1217,9 @@ def test_send_host_request_reminders(db, moderator):
             assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_add_users_to_email_list(db):
+def test_add_users_to_email_list(db, feature_flags):
+    feature_flags.set("listmonk_enabled", True)
     new_config = config.copy()
-    new_config["LISTMONK_ENABLED"] = True
     new_config["LISTMONK_BASE_URL"] = "https://example.com"
     new_config["LISTMONK_API_USERNAME"] = "test_user"
     new_config["LISTMONK_API_KEY"] = "dummy_api_key"
