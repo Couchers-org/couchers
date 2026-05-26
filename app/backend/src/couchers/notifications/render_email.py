@@ -178,8 +178,6 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
         case (
             NotificationTopicAction.donation__received
-            | NotificationTopicAction.chat__message
-            | NotificationTopicAction.chat__missed_messages
             | NotificationTopicAction.event__create_any
             | NotificationTopicAction.event__create_approved
             | NotificationTopicAction.event__reminder
