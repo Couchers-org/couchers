@@ -35,7 +35,7 @@ const COMMENT_REFETCH_INTERVAL_MS = 30_000;
 
 interface CommentTreeProps {
   threadId: number;
-  discussionId: number;
+  discussionId?: number;
 }
 
 export default function CommentTree({
