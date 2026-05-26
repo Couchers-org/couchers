@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Any, cast
 
 import grpc
@@ -42,6 +43,20 @@ def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
         + f"--{_OTA_BOUNDARY}--\r\n"
     )
     return body.encode("utf-8")
+
+
+def _native_ota_manifest_url(*, cdn_root: str, version: str, platform: str) -> str:
+    return f"{cdn_root}/{version}/{platform}/manifest"
+
+
+@lru_cache(maxsize=64)
+def _fetch_signed_manifest(url: str) -> tuple[str, bytes]:
+    # The publish job signs each manifest and uploads it under its immutable version, so the
+    # bytes never change once published: fetch once, cache forever, and serve them (signature
+    # and all) untouched so the on-device signature check sees exactly what was signed.
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+    return response.headers["content-type"], response.content
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -125,33 +140,24 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         platform = cast(str, context.headers.get("expo-platform", "")) or "ios"
         runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
 
-        bundles: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
-        bundle = bundles.get(platform)
-        if bundle is None or runtime_version == "":
+        # {platform: {"version": <ota_version>, "runtime_version": <fingerprint>}}: which published
+        # OTA is live per platform, and the build fingerprint it was cut for.
+        releases: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
+        release = releases.get(platform)
+
+        # A signed manifest carries a fixed runtimeVersion and Expo rejects it on a build with any
+        # other fingerprint, so we only point a client at the OTA published for its own build.
+        if release is None or runtime_version == "" or release.get("runtime_version") != runtime_version:
             directive = {"type": "noUpdateAvailable"}
             return httpbody_pb2.HttpBody(
                 content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
                 data=_ota_multipart_body("directive", directive),
             )
 
-        manifest = {
-            "id": bundle["id"],
-            "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-            "runtimeVersion": runtime_version,
-            "launchAsset": {
-                "key": bundle["launch_asset"]["key"],
-                "contentType": "application/javascript",
-                "url": bundle["launch_asset"]["url"],
-            },
-            "assets": bundle.get("assets", []),
-            "metadata": {},
-            "extra": {"expoClient": {}},
-        }
-
-        return httpbody_pb2.HttpBody(
-            content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
-            data=_ota_multipart_body("manifest", manifest),
-        )
+        cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
+        url = _native_ota_manifest_url(cdn_root=cdn_root, version=release["version"], platform=platform)
+        content_type, body = _fetch_signed_manifest(url)
+        return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
     def ReportDiagnostics(
         self, request: bugs_pb2.ReportDiagnosticsReq, context: CouchersContext, session: Session
