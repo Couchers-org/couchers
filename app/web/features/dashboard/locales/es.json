@@ -65,7 +65,9 @@
     },
     "write_reference": {
       "title": "Escribe una referencia",
-      "button": "Escribir referencia"
+      "button": "Escribir referencia",
+      "description_surfed": "Deja una reseña sobre tu estancia con {{name}}",
+      "description_hosted": "Deja una reseña sobre la estancia de {{name}}"
     },
     "complete_profile": {
       "title": "Completa tu perfil",
@@ -76,7 +78,13 @@
       "title": "Verificación robusta",
       "description": "Verifica tu identidad para una comunidad más segura",
       "button": "Verifica tu cuenta"
-    }
+    },
+    "complete_my_home": {
+      "title": "Completa la sección \"Mi hogar\" de tu perfil",
+      "description": "Completa la organización para dormir, las normas de la casa y una descripción de tu alojamiento",
+      "button": "Edita tu hogar"
+    },
+    "carousel_dismiss_button_a11y": "Descartar recordatorio"
   },
   "events": {
     "your_upcoming_header": "Tus próximos eventos",
@@ -84,6 +92,16 @@
     "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
     "community_header": "Eventos en tus comunidades",
     "community_empty_message": "No hay próximos eventos en tus comunidades.",
-    "location_online_label": "En línea"
+    "location_online_label": "En línea",
+    "today_label": "Hoy"
+  },
+  "discussions": {
+    "community_header": "Discusiones en tus comunidades",
+    "community_empty_message": "Aún no hay discusiones en tus comunidades.",
+    "replies_count_label_one": "{{count}} respuesta",
+    "replies_count_label_many": "{{count}} de respuestas",
+    "replies_count_label_other": "{{count}} respuestas",
+    "prev_page_label": "Página anterior",
+    "next_page_label": "Página siguiente"
   }
 }
