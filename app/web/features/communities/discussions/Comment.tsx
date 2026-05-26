@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestamp2Date } from "utils/date";
+import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import { timeAgo } from "utils/timeAgo";
 
@@ -287,10 +287,11 @@ export default function Comment({
                       {" "}
                       {"•"}{" "}
                       {t("communities:comment_edited_date", {
-                        dateOnly: localizeDateTime(
-                          timestamp2Date(comment.lastEdited),
-                          { locale, includeTime: false },
-                        ),
+                        timeAgo: timeAgo({
+                          since: timestamp2Date(comment.lastEdited),
+                          t,
+                          locale,
+                        }),
                       })}
                     </>
                   )}

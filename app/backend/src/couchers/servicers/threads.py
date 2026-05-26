@@ -20,6 +20,7 @@ from couchers.models import (
     Thread,
     User,
 )
+from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
@@ -455,6 +456,29 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         if obj.author_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "reply_edit_permission_denied")
 
+        old_content = obj.content
+
+        if depth == 1:
+            session.add(
+                CommentVersion(
+                    comment_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=content,
+                )
+            )
+        else:
+            session.add(
+                ReplyVersion(
+                    reply_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=content,
+                )
+            )
+
         obj.content = content
         obj.last_edited = now()
 
@@ -487,6 +511,27 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reply_deleted")
         if obj.author_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "reply_delete_permission_denied")
+
+        if depth == 1:
+            session.add(
+                CommentVersion(
+                    comment_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.delete,
+                    old_content=obj.content,
+                    new_content=None,
+                )
+            )
+        else:
+            session.add(
+                ReplyVersion(
+                    reply_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.delete,
+                    old_content=obj.content,
+                    new_content=None,
+                )
+            )
 
         obj.deleted = now()
 

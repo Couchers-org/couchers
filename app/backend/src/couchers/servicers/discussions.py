@@ -10,6 +10,7 @@ from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
+from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
@@ -196,24 +197,38 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if context.user_id != discussion.creator_user_id:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_edit_permission_denied")
 
-        updated = False
+        old_title = discussion.title
+        old_content = discussion.content
 
         if request.HasField("title"):
             new_title = request.title.value.strip()
             if not new_title:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
             discussion.title = new_title
-            updated = True
 
         if request.HasField("content"):
             new_content = request.content.value.strip()
             if not new_content:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
             discussion.content = new_content
-            updated = True
 
-        if not updated:
+        title_changed = discussion.title != old_title
+        content_changed = discussion.content != old_content
+
+        if not title_changed and not content_changed:
             return discussion_to_pb(session, discussion, context)
+
+        session.add(
+            DiscussionVersion(
+                discussion_id=discussion.id,
+                editor_user_id=context.user_id,
+                change_type=ContentChangeType.edit,
+                old_title=old_title if title_changed else None,
+                new_title=discussion.title if title_changed else None,
+                old_content=old_content if content_changed else None,
+                new_content=discussion.content if content_changed else None,
+            )
+        )
 
         discussion.last_edited = now()
 
@@ -241,6 +256,18 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         if context.user_id != discussion.creator_user_id:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_delete_permission_denied")
+
+        session.add(
+            DiscussionVersion(
+                discussion_id=discussion.id,
+                editor_user_id=context.user_id,
+                change_type=ContentChangeType.delete,
+                old_title=discussion.title,
+                new_title=None,
+                old_content=discussion.content,
+                new_content=None,
+            )
+        )
 
         discussion.deleted = now()
 

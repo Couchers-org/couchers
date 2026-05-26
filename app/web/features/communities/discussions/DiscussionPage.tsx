@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
 import { localizeDateTime, timestamp2Date } from "utils/date";
+import { timeAgo } from "utils/timeAgo";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
@@ -303,13 +304,11 @@ export default function DiscussionPage({
                             {discussion.lastEdited && (
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
-                                  dateOnly: localizeDateTime(
-                                    timestamp2Date(discussion.lastEdited),
-                                    {
-                                      locale,
-                                      includeTime: false,
-                                    },
-                                  ),
+                                  timeAgo: timeAgo({
+                                    since: timestamp2Date(discussion.lastEdited),
+                                    t,
+                                    locale,
+                                  }),
                                 })}
                               </Typography>
                             )}

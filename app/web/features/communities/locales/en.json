@@ -23,7 +23,7 @@
   "comment_deleted": "This comment has been deleted.",
   "edit_comment": "Edit comment",
   "delete_comment": "Delete comment",
-  "comment_edited_date": "Edited {{dateOnly}}",
+  "comment_edited_date": "Edited {{timeAgo}}",
   "comments": "Comments",
   "comments_count": "Comments | {{count}}",
   "fill_out_comment": "You need to type something first!",
@@ -34,7 +34,7 @@
   "edit_info_page_success_message": "The community page has been successfully updated.",
   "community_tabs_a11y_label": "Tabs for community sub-pages",
   "discussion_creation_date": "Created on {{dateOnly}}",
-  "discussion_edited_date": "Edited on {{dateOnly}}",
+  "discussion_edited_date": "Edited {{timeAgo}}",
   "discussion_deleted": "This discussion has been deleted.",
   "delete_discussion": "Delete discussion",
   "delete_discussion_dialog": {

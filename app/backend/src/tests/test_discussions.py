@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import ModerationObjectType, ModerationState, ModerationVisibility
+from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
@@ -703,3 +704,159 @@ def test_list_my_communities_discussions_respects_moderation(db, moderator: Mode
     with discussions_session(other_token) as api:
         res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
         assert [d.title for d in res.discussions] == ["hello"]
+
+
+def test_update_discussion_creates_version_record(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
+        community_id = community.id
+
+    with discussions_session(token) as api:
+        res = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="Original title",
+                content="Original content",
+                owner_community_id=community_id,
+            )
+        )
+        discussion_id = res.discussion_id
+
+    with discussions_session(token) as api:
+        api.UpdateDiscussion(
+            discussions_pb2.UpdateDiscussionReq(
+                discussion_id=discussion_id,
+                title=StringValue(value="Updated title"),
+                content=StringValue(value="Updated content"),
+            )
+        )
+
+    with session_scope() as session:
+        versions = (
+            session.execute(select(DiscussionVersion).where(DiscussionVersion.discussion_id == discussion_id))
+            .scalars()
+            .all()
+        )
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.edit
+        assert v.old_title == "Original title"
+        assert v.new_title == "Updated title"
+        assert v.old_content == "Original content"
+        assert v.new_content == "Updated content"
+        assert v.editor_user_id == user.id
+
+
+def test_update_discussion_multiple_edits_creates_multiple_version_records(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
+        community_id = community.id
+
+    with discussions_session(token) as api:
+        discussion_id = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="v1 title",
+                content="v1 content",
+                owner_community_id=community_id,
+            )
+        ).discussion_id
+
+    with discussions_session(token) as api:
+        api.UpdateDiscussion(
+            discussions_pb2.UpdateDiscussionReq(
+                discussion_id=discussion_id,
+                title=StringValue(value="v2 title"),
+                content=StringValue(value="v2 content"),
+            )
+        )
+
+    with discussions_session(token) as api:
+        api.UpdateDiscussion(
+            discussions_pb2.UpdateDiscussionReq(
+                discussion_id=discussion_id,
+                title=StringValue(value="v3 title"),
+                content=StringValue(value="v3 content"),
+            )
+        )
+
+    with session_scope() as session:
+        versions = (
+            session.execute(
+                select(DiscussionVersion)
+                .where(DiscussionVersion.discussion_id == discussion_id)
+                .order_by(DiscussionVersion.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert len(versions) == 2
+        assert versions[0].old_title == "v1 title"
+        assert versions[0].new_title == "v2 title"
+        assert versions[1].old_title == "v2 title"
+        assert versions[1].new_title == "v3 title"
+
+
+def test_delete_discussion_creates_version_record(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
+        community_id = community.id
+
+    with discussions_session(token) as api:
+        discussion_id = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="To be deleted",
+                content="Some content",
+                owner_community_id=community_id,
+            )
+        ).discussion_id
+        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+
+    with session_scope() as session:
+        versions = (
+            session.execute(select(DiscussionVersion).where(DiscussionVersion.discussion_id == discussion_id))
+            .scalars()
+            .all()
+        )
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.delete
+        assert v.old_title == "To be deleted"
+        assert v.new_title is None
+        assert v.old_content == "Some content"
+        assert v.new_content is None
+        assert v.editor_user_id == user.id
+
+
+def test_admin_delete_discussion_creates_version_record(db):
+    user, token = generate_user()
+    admin, admin_token = generate_user(is_superuser=True)
+    with session_scope() as session:
+        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
+        community_id = community.id
+
+    with discussions_session(token) as api:
+        discussion_id = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="Admin will delete this",
+                content="Some content",
+                owner_community_id=community_id,
+            )
+        ).discussion_id
+
+    with real_admin_session(admin_token) as api:
+        api.DeleteDiscussion(admin_pb2.AdminDeleteDiscussionReq(discussion_id=discussion_id))
+
+    with session_scope() as session:
+        versions = (
+            session.execute(select(DiscussionVersion).where(DiscussionVersion.discussion_id == discussion_id))
+            .scalars()
+            .all()
+        )
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.delete
+        assert v.old_title == "Admin will delete this"
+        assert v.new_title is None
+        assert v.editor_user_id == admin.id

@@ -45,6 +45,12 @@ from couchers.models import (
     UserAdminTag,
     UserBadge,
 )
+from couchers.models.discussions import (
+    CommentVersion,
+    ContentChangeType,
+    DiscussionVersion,
+    ReplyVersion,
+)
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import Upload, has_avatar_photo_expression
 from couchers.notifications.notify import notify
@@ -997,6 +1003,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
         if discussion.deleted is not None:
             return empty_pb2.Empty()
+        session.add(
+            DiscussionVersion(
+                discussion_id=discussion.id,
+                editor_user_id=context.user_id,
+                change_type=ContentChangeType.delete,
+                old_title=discussion.title,
+                new_title=None,
+                old_content=discussion.content,
+                new_content=None,
+            )
+        )
         discussion.deleted = now()
         return empty_pb2.Empty()
 
@@ -1013,7 +1030,29 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         if not obj:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "object_not_found")
-        obj.content = request.new_content.strip()
+        old_content = obj.content
+        new_content = request.new_content.strip()
+        if depth == 1:
+            session.add(
+                CommentVersion(
+                    comment_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=new_content,
+                )
+            )
+        else:
+            session.add(
+                ReplyVersion(
+                    reply_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=new_content,
+                )
+            )
+        obj.content = new_content
         return empty_pb2.Empty()
 
     def AddUsersToModerationUserList(
