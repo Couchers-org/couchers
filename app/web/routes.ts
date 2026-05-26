@@ -223,6 +223,8 @@ export const helpCenterHowToLeaveGoodReferenceUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1717360836-how-to";
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
+export const helpCenterFriendRequestsURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-can-i-add-anyone-as-a-friend";
 export const communityGuidelinesURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715121703-couchers-org-community-guidelines";
 // Note: Url must end with financials year digits
