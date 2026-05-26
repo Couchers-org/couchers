@@ -1317,10 +1317,8 @@ class EventInfo:
         loc_context: LocalizationContext,
     ) -> None:
         # TODO(#8695): Support localized time ranges
-        start_time_display = loc_context.localize_datetime(self.start_time,
-            with_year=False, with_day_of_week=True)
-        end_time_display = loc_context.localize_datetime(self.end_time,
-            with_year=False, with_day_of_week=True)
+        start_time_display = loc_context.localize_datetime(self.start_time, with_year=False, with_day_of_week=True)
+        end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
         time_range_display = f"{start_time_display} - {end_time_display}"
 
         if self.online_link:
@@ -1337,7 +1335,8 @@ class EventInfo:
             )
         else:
             builder.para(
-                ".event_generic.event_info_without_location", {"title": self.title, "datetime_range": time_range_display}
+                ".event_generic.event_info_without_location",
+                {"title": self.title, "datetime_range": time_range_display},
             )
 
     @classmethod
