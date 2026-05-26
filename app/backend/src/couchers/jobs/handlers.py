@@ -618,6 +618,26 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
         logger.info("Not adding users to mailing list")
         return
 
+    sess = requests.Session()
+    sess.auth = (config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"])
+
+    def sync_subscriber(user: User, status: str) -> None:
+        r = sess.post(
+            config["LISTMONK_BASE_URL"] + "/api/subscribers",
+            json={
+                "email": user.email,
+                "name": user.name,
+                "lists": [config["LISTMONK_LIST_ID"]],
+                "preconfirm_subscriptions": True,
+                "attribs": {"couchers_user_id": user.id},
+                "status": status,
+            },
+            timeout=10,
+        )
+        # the API returns 409 if the subscriber already exists
+        if r.status_code not in (200, 409):
+            raise Exception("Failed to update user mailing list status")
+
     logger.info("Adding users to mailing list")
 
     while True:
@@ -627,32 +647,39 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
             ).scalar_one_or_none()
             if not user:
                 logger.info("Finished adding users to mailing list")
-                return
+                break
 
-            if user.opt_out_of_newsletter:
-                user.in_sync_with_newsletter = True
-                session.commit()
-                continue
+            if not user.opt_out_of_newsletter:
+                sync_subscriber(user, "enabled")
 
-            r = requests.post(
-                config["LISTMONK_BASE_URL"] + "/api/subscribers",
-                auth=(config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"]),
-                json={
-                    "email": user.email,
-                    "name": user.name,
-                    "lists": [config["LISTMONK_LIST_ID"]],
-                    "preconfirm_subscriptions": True,
-                    "attribs": {"couchers_user_id": user.id},
-                    "status": "enabled",
-                },
-                timeout=10,
+            user.in_sync_with_newsletter = True
+            session.commit()
+
+    if experimentation.get_global_boolean_value("remove_removed_users_from_mailing_list_enabled", default=False):
+        with session_scope() as session:
+            session.execute(
+                update(User)
+                .where(~User.is_visible | User.is_shadowed)
+                .where(User.opt_out_of_newsletter == False)
+                .values(opt_out_of_newsletter=True, in_sync_with_newsletter=False)
             )
-            # the API returns if the user is already subscribed
-            if r.status_code == 200 or r.status_code == 409:
+            session.commit()
+
+        while True:
+            with session_scope() as session:
+                user = session.execute(
+                    select(User)
+                    .where(~User.is_visible | User.is_shadowed)
+                    .where(User.in_sync_with_newsletter == False)
+                    .limit(1)
+                ).scalar_one_or_none()
+                if not user:
+                    logger.info("Finished removing users from mailing list")
+                    return
+
+                sync_subscriber(user, "blocklisted")
                 user.in_sync_with_newsletter = True
                 session.commit()
-            else:
-                raise Exception("Failed to add users to mailing list")
 
 
 def enforce_community_membership(payload: empty_pb2.Empty) -> None:
