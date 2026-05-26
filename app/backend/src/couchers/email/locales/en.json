@@ -94,6 +94,45 @@
     "subject": "Email change completed",
     "body": "Your new email address has been verified."
   },
+  "event_generic": {
+    "event_info_with_location": "<b>{{title}}</b><br>{{datetime_range}}<br>{{location}}",
+    "event_info_without_location": "<b>{{title}}</b><br>{{datetime_range}}",
+    "view_action": "View event"
+  },
+  "event_created": {
+    "any_body_in_community": "A new event was created in the {{community}} community:",
+    "any_body_nearby": "A new event was created nearby:",
+    "any_subject": "{{inviting_user}} created an event called \"{{event_title}}\"",
+    "invite_body_in_community": "You've been invited to a new event in the {{community}} community:",
+    "invite_body_nearby": "You've been invited to a new event nearby:",
+    "invite_subject": "{{inviting_user}} invited you to \"{{event_title}}\""
+  },
+  "event_updated": {
+    "body_intro": "An event you are subscribed to was updated.",
+    "body_updated_items": "The following information was updated: <b>{{updated_items}}</b>. Here is the updated event:",
+    "subject": "{{updating_user}} updated \"{{event_title}}\""
+  },
+  "event_organizer_invited": {
+    "body": "<b>{{inviting_user}}</b> invited you to co-organize \"{{event_title}}\". The event information is below:",
+    "subject": "{{inviting_user}} invited you to co-organize \"{{event_title}}\""
+  },
+  "event_comment": {
+    "body": "<b>{{author}}</b> commented on the event <b>{{event_title}}</b>:",
+    "event_details": "Here are the details of the event:",
+    "subject": "{{author}} commented on \"{{event_title}}\""
+  },
+  "event_reminder": {
+    "body": "This is a reminder that the following event is starting in less than 24 hours:",
+    "subject": "Reminder: \"{{event_title}}\" starts soon"
+  },
+  "event_cancel": {
+    "body": "An event you are subscribed to has been cancelled:",
+    "subject": "{{cancelling_user}} cancelled \"{{event_title}}\""
+  },
+  "event_deleted": {
+    "body": "An event you are subscribed to has been deleted by the moderators:",
+    "subject": "A moderator deleted \"{{event_title}}\""
+  },
   "friend_request_received": {
     "subject": "{{name}} wants to be your friend on Couchers.org!",
     "body": "You've received a friend request from {{name}}.",
