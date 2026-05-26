@@ -1129,10 +1129,11 @@ deploy:production-native-ios:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/production-submit.sh ios
-  # Submit only on the real release branch — disabled on the temp validation branch
-  # so we build (above) without pushing anything to the stores yet.
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    # TEMP: submit to TestFlight from this branch to test the OTA on-device handshake;
+    # revert before merge so submits only happen on the release branch.
+    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 deploy:production-native-android:
   extends: .production-native
