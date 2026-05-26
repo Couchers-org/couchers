@@ -305,7 +305,9 @@ export default function DiscussionPage({
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
                                   timeAgo: timeAgo({
-                                    since: timestamp2Date(discussion.lastEdited),
+                                    since: timestamp2Date(
+                                      discussion.lastEdited,
+                                    ),
                                     t,
                                     locale,
                                   }),
