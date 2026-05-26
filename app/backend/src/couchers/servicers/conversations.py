@@ -196,11 +196,6 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             .all()
         )
 
-        if group_chat.is_dm:
-            msg = f"{message.author.name} sent you a message"
-        else:
-            msg = f"{message.author.name} sent a message in {group_chat.title}"
-
         for user_id in user_ids_to_notify:
             notify(
                 session,
@@ -213,9 +208,10 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                         session,
                         make_background_user_context(user_id=user_id),
                     ),
-                    message=msg,
                     text=message.text,
                     group_chat_id=message.conversation_id,
+                    group_chat_title=group_chat.title,
+                    # unseen_count irrelevant for this notification
                 ),
                 moderation_state_id=group_chat.moderation_state_id,
             )

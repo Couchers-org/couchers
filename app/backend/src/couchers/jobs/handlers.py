@@ -211,7 +211,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             GroupChatSubscription.group_chat_id.label("group_chat_id"),
                             func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                             func.max(Message.id).label("message_id"),
-                            func.count(Message.id).label("count_unseen"),
+                            func.count(Message.id).label("unseen_count"),
                         )
                         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id),
@@ -236,7 +236,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             unseen_messages = session.execute(
                 where_moderated_content_visible(
-                    select(GroupChat, Message, subquery.c.count_unseen)
+                    select(GroupChat, Message, subquery.c.unseen_count)
                     .join(subquery, subquery.c.message_id == Message.id)
                     .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id),
                     context,
@@ -249,12 +249,6 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 continue
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
-
-            def format_title(message: Message, group_chat: GroupChat, count_unseen: int) -> str:
-                if group_chat.is_dm:
-                    return f"You missed {count_unseen} message(s) from {message.author.name}"
-                else:
-                    return f"You missed {count_unseen} message(s) in {group_chat.title}"
 
             notify(
                 session,
@@ -269,11 +263,12 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                                 session,
                                 context,
                             ),
-                            message=format_title(message, group_chat, count_unseen),
                             text=message.text,
                             group_chat_id=message.conversation_id,
+                            group_chat_title=group_chat.title,
+                            unseen_count=unseen_count,
                         )
-                        for group_chat, message, count_unseen in unseen_messages
+                        for group_chat, message, unseen_count in unseen_messages
                     ],
                 ),
             )

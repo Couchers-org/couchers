@@ -119,6 +119,10 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.BadgeChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.chat__message:
+            return emails.ChatMessageReceivedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.chat__missed_messages:
+            return emails.ChatMessagesMissedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__create:
             return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:
@@ -174,8 +178,6 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
         case (
             NotificationTopicAction.donation__received
-            | NotificationTopicAction.chat__message
-            | NotificationTopicAction.chat__missed_messages
             | NotificationTopicAction.event__create_any
             | NotificationTopicAction.event__create_approved
             | NotificationTopicAction.event__reminder
@@ -231,35 +233,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.chat__message:
-        return CustomTemplatedEmail(
-            subject=data.message,
-            preview="You received a message on Couchers.org!",
-            template_name="chat_message",
-            template_args={
-                "author": UserTemplateArgs.from_protobuf_user(data.author),
-                "message": data.message,
-                "text": data.text,
-                "view_link": urls.chat_link(chat_id=data.group_chat_id),
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.chat__missed_messages:
-        return CustomTemplatedEmail(
-            subject="You have unseen messages on Couchers.org!",
-            preview="You missed some messages on the platform.",
-            template_name="chat_unseen_messages",
-            template_args={
-                "items": [
-                    {
-                        "author": UserTemplateArgs.from_protobuf_user(item.author),
-                        "message": item.message,
-                        "text": item.text,
-                        "view_link": urls.chat_link(chat_id=item.group_chat_id),
-                    }
-                    for item in data.messages
-                ]
             },
         )
     elif notification.topic == "event":
