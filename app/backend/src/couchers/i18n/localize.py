@@ -3,24 +3,35 @@ Defines low-level localization functions for strings, dates, etc.
 Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
-from collections.abc import Callable, Mapping
+import re
+from collections.abc import Mapping
 from datetime import date, datetime, time, tzinfo
 from functools import lru_cache
 from pathlib import Path
+from typing import cast
 
+import babel
 import phonenumbers
-from babel.dates import format_date, format_datetime, format_time, get_timezone_name
-from google.protobuf.timestamp_pb2 import Timestamp
+from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.locales import DEFAULT_LOCALE, get_locale_fallbacks, load_locales
-from couchers.utils import to_aware_datetime
+from couchers.i18n.locales import DEFAULT_LOCALE, load_locales
 
 
 @lru_cache(maxsize=1)
 def get_main_i18next() -> I18Next:
     """Gets the I18Next instance for the main locales files."""
     return load_locales(Path(__file__).parent / "locales")
+
+
+def get_babel_locale(locale_list: list[str]) -> babel.Locale:
+    """Resolves a babel.Locale object from a list of locale candidates."""
+    for locale in locale_list:
+        try:
+            return babel.Locale.parse(locale)
+        except babel.UnknownLocaleError:
+            continue
+    raise LookupError(f"No babel locale found for locales {', '.join(locale_list)}")
 
 
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
@@ -38,83 +49,108 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
     return get_main_i18next().localize(key, lang or DEFAULT_LOCALE, substitutions)
 
 
-def localize_date(value: date, locale: str) -> str:
+def localize_date(
+    value: date, locale: babel.Locale, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False
+) -> str:
     """Formats a time- and timezone-agnostic date for the given locale."""
-    return _localize_with_fallbacks(
-        locale,
-        lambda candidate_locale: format_date(value, locale=candidate_locale),
-        lambda: value.strftime("%A %-d %B %Y"),
-    )
+    pattern = _get_cldr_date_pattern(locale, abbrev=abbrev, with_year=with_year, with_day_of_week=with_day_of_week)
+    return parse_pattern(pattern).apply(value, locale)
 
 
-def localize_date_from_iso(value: str, locale: str) -> str:
-    """Formats a date in ISO YYYY-MM-DD format for the given locale."""
-    return localize_date(date.fromisoformat(value), locale)
-
-
-def localize_time(value: time, locale: str) -> str:
+def localize_time(value: time, locale: babel.Locale, *, with_seconds: bool = False) -> str:
     """Formats a date- and timezone-agnostic time for the given locale."""
-    return _localize_with_fallbacks(
-        locale,
-        lambda candidate_locale: format_time(value, locale=candidate_locale),
-        lambda: value.strftime("%-I:%M %p (%H:%M)"),
-    )
+    pattern = _get_cldr_time_pattern(locale, with_seconds=with_seconds)
+    return parse_pattern(pattern).apply(value, locale)
 
 
-def localize_datetime(value: datetime | Timestamp, timezone: tzinfo | None, locale: str) -> str:
-    """
-    Formats a date and time for the given locale.
-
-    Args:
-        datetime: The datetime or timestamp to be formatted.
-        timezone: An optional timezone in which to interpret the date. If None, uses datetime's timezone.
-        locale: The locale for which to format the date.
-
-    Returns:
-        The localized date and time string.
-    """
-    if isinstance(value, Timestamp):
-        value = to_aware_datetime(value)
-
+def localize_datetime(
+    value: datetime,
+    locale: babel.Locale,
+    *,
+    abbrev: bool = False,
+    with_year: bool = True,
+    with_day_of_week: bool = False,
+    with_seconds: bool = False,
+) -> str:
+    """Formats a date and time for the given locale."""
     # A timezone-unaware datetime is almost certainly a bug, so we don't support it.
     assert value.tzinfo is not None, "Cannot localize a timezone-unaware datetime."
 
-    if timezone is not None:
-        value = value.astimezone(timezone)
-
-    return _localize_with_fallbacks(
+    pattern = _combine_cldr_date_time_patterns(
         locale,
-        lambda candidate_locale: format_datetime(value, locale=candidate_locale),
-        lambda: localize_date(value.date(), locale) + " " + localize_time(value.time(), locale),
+        _get_cldr_date_pattern(locale, abbrev=abbrev, with_year=with_year, with_day_of_week=with_day_of_week),
+        _get_cldr_time_pattern(locale, with_seconds=with_seconds),
     )
+    return parse_pattern(pattern).apply(value, locale)
 
 
-def localize_timezone(timezone: tzinfo, locale: str) -> str:
-    return _localize_with_fallbacks(
-        locale,
-        lambda candidate_locale: get_timezone_name(timezone, locale=candidate_locale),
-        lambda: datetime.now(tz=timezone).strftime("%Z/UTC%z"),
-    )
-
-
-def _localize_with_fallbacks(
-    locale: str, localize: Callable[[str], str], fallback: Callable[[], str] | None = None
+def _get_cldr_date_pattern(
+    locale: babel.Locale, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False
 ) -> str:
-    """
-    Attempts to localize a value using fallback locales if the locale is unavailable, or a final unlocalized fallback.
-    """
-    exception: Exception | None
-    for candidate_locale in [locale] + get_locale_fallbacks(locale):
-        try:
-            return localize(candidate_locale.replace("-", "_"))  # Babel expects "en_US", not "en-US".
-        except Exception as e:
-            exception = e
-            pass
+    # First build a Unicode CLDR datetime pattern skeleton, which is locale and order-agnostic,
+    # and only indicates the components we're interested in formatting.
+    # This is similar to Intl.DateTimeFormat in Javascript.
+    # See https://cldr.unicode.org/translation/date-time/date-time-symbols.
+    requested_skeleton = ""
 
-    if fallback:
-        return fallback()
+    if with_year:
+        requested_skeleton += "y"
+    requested_skeleton += "MMM" if abbrev else "MMMM"
+    requested_skeleton += "d"
+    if with_day_of_week:
+        requested_skeleton += "EEE" if abbrev else "EEEE"
 
-    raise exception or Exception(f"Failed to localize to {locale}.")
+    # Next, match that skeleton to a similar locale-supported skeleton,
+    # which allows us to lower it to a datetime pattern (locale and order-specific).
+    matched_skeleton = match_skeleton(requested_skeleton, options=locale.datetime_skeletons)
+    if not matched_skeleton:
+        raise ValueError(f"Locale {locale.english_name} has no matching datetime skeleton for '{requested_skeleton}'")
+
+    pattern: str = locale.datetime_skeletons[matched_skeleton].pattern
+
+    # By CLDR rules, skeleton matching might return a pattern with abbreviations where
+    # we asked for non-abbreviated forms, in which case we can update the returned pattern.
+    if not abbrev:
+        # Abbreviated to non-abbreviated month (MMM = abbreviated)
+        pattern = re.sub(r"(?<!M)MMM(?!M)", "MMMM", pattern)
+        if with_day_of_week:
+            # Abbreviated to non-abbreviated day of week (E = EEE = abbreviated)
+            pattern = re.sub(r"(?<!E)E{1,3}(?!E)", "EEEE", pattern)
+
+    return pattern
+
+
+def _get_cldr_time_pattern(locale: babel.Locale, *, with_seconds: bool = False) -> str:
+    # Use a reference format pattern to figure out if it's using 24h clock
+    reference_time_pattern: str = locale.time_formats["medium"].pattern
+
+    # Remove literals like 'of'
+    reference_time_pattern = re.sub("'[^']*'", "", reference_time_pattern)
+
+    # Extract only the hours, minutes and am/pm patterns.
+    requested_skeleton = re.sub("[^hHkKma]+", "", reference_time_pattern)
+    if with_seconds:
+        requested_skeleton += "ss"
+
+    # Next, match that skeleton to a similar locale-supported skeleton,
+    # which allows us to lower it to a datetime pattern (locale and order-specific).
+    matched_skeleton = match_skeleton(requested_skeleton, options=locale.datetime_skeletons)
+    if not matched_skeleton:
+        raise ValueError(f"Locale {locale.english_name} has no matching datetime skeleton for '{requested_skeleton}'")
+
+    return cast(str, locale.datetime_skeletons[matched_skeleton].pattern)  # "pattern" is Any-typed
+
+
+def _combine_cldr_date_time_patterns(locale: babel.Locale, date_pattern: str, time_pattern: str) -> str:
+    # get_datetime_format's return value is statically mistyped
+    combining_format = cast(str, get_datetime_format(locale=locale))
+
+    # CLDR defines {0} to be the time and {1} to be the date
+    return combining_format.replace("{1}", date_pattern).replace("{0}", time_pattern)
+
+
+def localize_timezone(timezone: tzinfo, locale: babel.Locale, *, short: bool = False) -> str:
+    return get_timezone_name(timezone, width="short" if short else "long", locale=locale)
 
 
 def format_phone_number(value: str) -> str:

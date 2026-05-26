@@ -6,6 +6,8 @@ import logging
 from datetime import date
 from typing import Any, assert_never
 
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from couchers import urls
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import LocalizationError
@@ -365,7 +367,7 @@ def _render_event__create_any(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -380,7 +382,7 @@ def _render_event__create_approved(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -440,7 +442,7 @@ def _render_event__reminder(
         loc_context,
         substitutions={
             "title": data.event.title,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -522,7 +524,7 @@ def _render_host_request__create(
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "start_date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
             "count": night_count,
         },
         icon_user=data.surfer,
@@ -575,7 +577,7 @@ def _render_host_request__accept(
         loc_context,
         substitutions={
             "user": data.host.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.host,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -590,7 +592,7 @@ def _render_host_request__reject(
         loc_context,
         substitutions={
             "user": data.host.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.host,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -605,7 +607,7 @@ def _render_host_request__cancel(
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -620,7 +622,7 @@ def _render_host_request__confirm(
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -861,3 +863,15 @@ def _render_verification__sv_fail(
         body=_get_string(NotificationTopicAction.verification__sv_fail, body_key, loc_context),
         action_url=urls.account_settings_link(),
     )
+
+
+def _format_host_request_start_date(date: str, loc_context: LocalizationContext) -> str:
+    # Events are typically in the near future future,
+    # so the year is not useful but the day of week is.
+    return loc_context.localize_date_from_iso(date, with_year=False, with_day_of_week=True)
+
+
+def _format_event_start_datetime(timestamp: Timestamp, loc_context: LocalizationContext) -> str:
+    # Events are typically in the near future future,
+    # so the year is not useful but the day of week is.
+    return loc_context.localize_datetime(timestamp, with_year=False, with_day_of_week=True)
