@@ -22,7 +22,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_key,
 )
 from couchers.proto import api_pb2
-from couchers.proto.internal.jobs_pb2 import EmailAttachment
+from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now, to_aware_datetime
 
@@ -36,7 +36,7 @@ class RenderedEmailNotification:
     body_html: str | None
     source_data: str | None
     list_unsubscribe_header: str | None
-    attachments: list[EmailAttachment] = field(default_factory=list)
+    attachments: list[EmailAttachmentV2] = field(default_factory=list)
 
 
 def render_email_notification(
@@ -477,7 +477,7 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
 
-def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachment | None:
+def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachmentV2 | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,

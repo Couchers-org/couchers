@@ -57,11 +57,6 @@ def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str)
 
     if payload.attachments:
         for attachment in payload.attachments:
-            # Versioning (2026-05): ignore older SendEmailPayload that did not specify headers.
-            # They were used for incorrectly formatted ics attachments.
-            if not attachment.content_type or not attachment.content_disposition:
-                continue
-
             # Create with generic Content-Type/Content-Disposition headers,
             # then overwrite them with the headers specified by the caller.
             msg.add_attachment(

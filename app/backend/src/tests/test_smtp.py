@@ -1,5 +1,5 @@
 from couchers.email.smtp import email_proto_to_message
-from couchers.proto.internal.jobs_pb2 import EmailAttachment, SendEmailPayload
+from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2, SendEmailPayload
 
 
 def test_verbatim_attachment_headers():
@@ -15,7 +15,7 @@ def test_verbatim_attachment_headers():
         subject="greeting",
         plain="hello",
         attachments=[
-            EmailAttachment(
+            EmailAttachmentV2(
                 data=bytes([0, 255]),  # Force base64 encoding
                 content_type='maintype/subtype; quoted-header="value"; unquoted-header=value',
                 content_disposition="attachment",
