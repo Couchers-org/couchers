@@ -236,7 +236,8 @@
     "request": "Verzoek",
     "request_description": "Deel je plannen voor het bezoek en vermeld waarom je juist bij deze host wilt logeren.",
     "request_description_empty": "Schrijf alsjeblieft een verzoekbericht.",
-    "success": "Verzoek verzonden!"
+    "success": "Verzoek verzonden!",
+    "arrival_date_before_host_today": "Deze datum is al geweest voor {{name}}."
   },
   "message_form": {
     "hosting_request_hint": "Een hosting-verzoek doen? Gebruik in plaats daarvan de <request>Verzoek</request>-knop.",

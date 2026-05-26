@@ -199,7 +199,8 @@
     "success": "¡Solicitud enviada!",
     "request_chars_remaining_one": "Por favor, escribe al menos {{count}} carácter más para enviar una solicitud de hospedaje.",
     "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
-    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
+    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje.",
+    "arrival_date_before_host_today": "Esta fecha ya ha pasado para {{name}}."
   },
   "message_form": {
     "hosting_request_hint": "¿Estas enviando una solicitud de alojamiento? Usa el botón <request>Solicitar</request> en su lugar.",

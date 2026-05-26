@@ -1,5 +1,4 @@
 {
-  "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envia uma mensagem normal à outra pessoa.",
   "mark_all_read_button_text": "Marcar todos como lidos",
   "create_chat": {
     "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
@@ -24,7 +23,6 @@
     },
     "pending": "Este pedido ainda está pendente"
   },
-  "close_request_dialog_surfer": "Por favor, certifica-te que terminaste de conversar antes de cancelares o pedido.",
   "chat_view": {
     "muted_icon": {
       "a11y_label": "Silenciado"
@@ -129,8 +127,6 @@
     "error_message": "ID de pedido de hospedagem inválido"
   },
   "write_reference_button_text": "Escreve uma Referência",
-  "close_request_dialog_title": "Já terminaste de enviar mensagens?",
-  "close_request_dialog_host": "Por favor, certifica-te de que terminaste de conversar antes de rejeitares o pedido.",
   "close_request_button_text": "Rejeitar",
   "confirm_request_button_text": "Confirmar",
   "messages_page": {

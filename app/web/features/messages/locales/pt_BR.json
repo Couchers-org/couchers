@@ -140,11 +140,7 @@
   },
   "unknown_user": "Usuário desconhecido",
   "mark_all_read_button_text": "Marcar tudo como lido",
-  "request_closed_message": "Esta solicitação de hospedagem está encerrada. Para continuar a conversar, envie uma mensagem normal para a outra pessoa.",
-  "close_request_dialog_host": "Certifique-se de que a conversa terminou antes de recusar a solicitação.",
-  "close_request_dialog_surfer": "Certifique-se de que a conversa terminou antes de cancelar a solicitação.",
   "write_reference_button_text": "Escrever uma Referência",
-  "close_request_dialog_title": "Terminaram as mensagens?",
   "close_request_button_text": "Recusar",
   "messages_page": {
     "title": "Mensagens",
