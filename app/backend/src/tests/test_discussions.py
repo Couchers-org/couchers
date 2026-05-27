@@ -191,6 +191,7 @@ def test_update_discussion(db):
         assert res.title == "Updated title"
         assert res.content == "Updated content"
         assert res.last_edited is not None
+        assert res.can_edit
 
 
 def test_update_discussion_permission_denied(db):
