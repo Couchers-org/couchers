@@ -12,7 +12,6 @@ from couchers import urls
 from couchers.email.rendering import (
     EmailBlock,
     EmailBlocksBuilder,
-    ParaBlock,
     UserInfo,
     get_emails_i18next,
 )
@@ -48,13 +47,10 @@ class EmailBase(ABC):
         """Gets the blocks that form the body of the email."""
 
         # Delegate to build_body, but wrap with greetings and closing lines common to all emails.
-        i18next = get_emails_i18next()
         builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
-        builder.block(
-            ParaBlock(text=i18next.localize("generic.greeting_line", loc_context.locale, {"name": self.user_name}))
-        )
+        builder.para("generic.greeting_line", {"name": self.user_name})
         self.build_body(builder, loc_context)
-        builder.block(ParaBlock(text=i18next.localize("generic.closing_line", loc_context.locale)))
+        builder.para("generic.closing_line")
         return builder.blocks
 
     @abstractmethod
@@ -89,6 +85,10 @@ class EmailBase(ABC):
         return EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
 
 
+# Common string keys
+_do_not_reply_request_string_key = "generic.do_not_reply_request"
+_security_warning_string_key = "generic.security_warning_contact_support"
+
 # Specific email definitions
 
 
@@ -106,7 +106,7 @@ class AccountDeletionStartedEmail(EmailBase):
         builder.para(".request_description")
         builder.para(".confirmation_instructions")
         builder.action(self.deletion_link, ".confirm_action")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.AccountDeletionStart, *, user_name: str) -> Self:
@@ -139,7 +139,7 @@ class AccountDeletionCompletedEmail(EmailBase):
         builder.para(".farewell")
         builder.para(".recovery_instructions_days", {"count": self.days})
         builder.action(self.undelete_link, ".recover_action")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.AccountDeletionComplete, *, user_name: str) -> Self:
@@ -171,7 +171,7 @@ class AccountDeletionRecoveredEmail(EmailBase):
         builder.para(".login_instructions")
         builder.action(urls.app_link(), ".login_action")
         builder.para(".redelete_instructions")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> AccountDeletionRecoveredEmail:
@@ -195,7 +195,7 @@ class APIKeyIssuedEmail(EmailBase):
         builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para(".usage_warning")
         builder.para(".policy_warning")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ApiKeyCreate, *, user_name: str) -> Self:
@@ -255,7 +255,7 @@ class BirthdateChangedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body", {"date": loc_context.localize_date(self.new_birthdate)})
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.BirthdateChange, *, user_name: str) -> Self:
@@ -541,7 +541,7 @@ class EmailAddressChangedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body", {"email_address": self.new_email})
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EmailAddressChange, *, user_name: str) -> Self:
@@ -562,7 +562,7 @@ class EmailAddressVerifiedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> EmailAddressVerifiedEmail:
@@ -590,7 +590,7 @@ class FriendRequestReceivedEmail(EmailBase):
         builder.user(self.befriender)
         builder.action(urls.friend_requests_link(), ".view_action")
         builder.para(".closing")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.FriendRequestCreate, *, user_name: str) -> Self:
@@ -650,7 +650,7 @@ class GenderChangedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body", {"gender": self.new_gender})
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.GenderChange, *, user_name: str) -> Self:
@@ -696,7 +696,7 @@ class HostRequestCreatedEmail(EmailBase):
         builder.action(self.view_link, ".view_action")
         builder.action(self.quick_decline_link, ".quick_decline_action")
         builder.para(".respond_encouragement")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
@@ -750,7 +750,7 @@ class HostRequestReminderEmail(EmailBase):
             },
         )
         builder.action(self.view_link, "host_request_generic.view_action")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
@@ -804,7 +804,7 @@ class HostRequestMessageEmail(EmailBase):
         )
         builder.quote(self.text, markdown=False)
         builder.action(self.view_link, "host_request_generic.view_action")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
@@ -865,7 +865,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
             },
         )
         builder.action(self.view_link, "host_request_generic.view_action")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
@@ -934,7 +934,7 @@ class HostRequestStatusChangedEmail(EmailBase):
             },
         )
         builder.action(self.view_link, "host_request_generic.view_action")
-        builder.do_not_reply_request_para()
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
     def from_notification(
@@ -1022,7 +1022,7 @@ class PasswordChangedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> PasswordChangedEmail:
@@ -1039,7 +1039,7 @@ class PasswordResetCompletedEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> PasswordResetCompletedEmail:
@@ -1060,7 +1060,7 @@ class PasswordResetStartedEmail(EmailBase):
         builder.para(".request_description")
         builder.para(".confirmation_instructions")
         builder.action(self.password_reset_link, ".reset_action")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.PasswordResetStart, *, user_name: str) -> Self:
@@ -1087,7 +1087,7 @@ class PhoneNumberChangeEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body", {"phone_number": format_phone_number(self.new_phone_number)})
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_change_notification(cls, data: notification_data_pb2.PhoneNumberChange, *, user_name: str) -> Self:
@@ -1130,7 +1130,7 @@ class PostalVerificationFailedEmail(EmailBase):
             case _:
                 reason_string_key = ".reason_unknown"
         builder.para(reason_string_key)
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.PostalVerificationFailed, *, user_name: str) -> Self:
@@ -1166,7 +1166,7 @@ class PostalVerificationPostcardSentEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body", {"city": self.city, "country": self.country})
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.PostalVerificationPostcardSent, *, user_name: str) -> Self:
@@ -1187,7 +1187,7 @@ class PostalVerificationSucceededEmail(EmailBase):
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".body")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> PostalVerificationSucceededEmail:
@@ -1215,7 +1215,7 @@ class StrongVerificationFailedEmail(EmailBase):
             case _:
                 raise Exception("Shouldn't get here")
         builder.para(reason_string_key)
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.VerificationSVFail, *, user_name: str) -> Self:
@@ -1253,7 +1253,7 @@ class StrongVerificationSucceededEmail(EmailBase):
         builder.para(".donation_request")
         donate_link = urls.donation_url() + "?utm_source=strong-verification-email"
         builder.action(donate_link, ".donate_action")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
     def dummy_data(cls) -> StrongVerificationSucceededEmail:

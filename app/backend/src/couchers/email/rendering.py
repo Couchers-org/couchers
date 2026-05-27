@@ -99,7 +99,7 @@ class TwoButtonHTMLBlock(EmailBlock):
 
 class EmailBlocksBuilder:
     """
-    Builder object for constructing a list of EmailBlock's to form the body of an email.
+    Builder object for constructing a list of localized EmailBlock's to form the body of an email.
     """
 
     _locale: str
@@ -128,14 +128,6 @@ class EmailBlocksBuilder:
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
-
-    def do_not_reply_request_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.do_not_reply_request", self._locale)
-        return self.block(ParaBlock(text=line))
-
-    def security_warning_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)
-        return self.block(ParaBlock(text=line))
 
     def block(self, block: EmailBlock) -> Self:
         self.blocks.append(block)
