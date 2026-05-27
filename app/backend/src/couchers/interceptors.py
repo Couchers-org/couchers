@@ -365,6 +365,15 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
+                        sentry_sdk.set_tag("user_agent", headers.user_agent)
+                        sentry_sdk.set_tag("ui_lang", loc_context.locale)
+                        sentry_sdk.set_user(
+                            {
+                                "id": couchers_context._user_id,
+                                "ip_address": headers.ip_address,
+                                "sofa": sofa[:12],
+                            }
+                        )
                         sentry_sdk.capture_exception(e)
 
                     raise e
