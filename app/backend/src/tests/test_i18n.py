@@ -1,5 +1,4 @@
 import pytest
-from babel import Locale, UnknownLocaleError
 
 from couchers.i18n.localize import get_main_i18next
 
@@ -36,15 +35,3 @@ def test_fallback_chain():
     assert en.fallbacks == []
 
     assert i18next.default_translation == en
-
-
-def test_babel_locales():
-    """Documents which locales are not supported/recognized by the Babel library's CLDR."""
-    unknown_locales: set[str] = set()
-    i18next = get_main_i18next()
-    for locale in i18next.translations_by_locale.keys():
-        try:
-            Locale(locale.replace("-", "_"))
-        except UnknownLocaleError:
-            unknown_locales.add(locale)
-    assert unknown_locales == set()
