@@ -97,7 +97,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"**Locale**: `{context.localization.locale}`\n"
             f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
             f"**Page**: {request.page}\n"
-            f"**User**: {user_details} / `{context._sofa[:12]}`"
+            f"**User**: {user_details} / `{(context._sofa or '')[:12]}`"
         )
         issue_labels = ["bug tool", "bug: triage needed"]
 
