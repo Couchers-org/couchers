@@ -176,6 +176,14 @@ export default {
           "Allow Couchers to access your camera to take profile photos.",
       },
     ],
+    [
+      "@sentry/react-native/expo",
+      {
+        url: "https://sentry.io/",
+        project: "native",
+        organization: "couchers",
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
@@ -186,6 +194,7 @@ export default {
       projectId: "fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
     },
     gitHash: getGitHash(),
+    appVariant: APP_VARIANT,
   },
   owner: "couchers-org",
 };
