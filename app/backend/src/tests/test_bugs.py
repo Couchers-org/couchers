@@ -60,7 +60,7 @@ results
 **Locale**: `en`
 **Screen resolution**: 1920x1080
 **Page**: page
-**User**: <not logged in>""".strip()
+**User**: <not logged in> / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
@@ -121,7 +121,7 @@ results
 **Locale**: `en`
 **Screen resolution**: 390x844
 **Page**: page
-**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1) / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
