@@ -53,3 +53,5 @@ app-example
 .env.local
 submit/
 proto/**
+
+.env.local

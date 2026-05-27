@@ -4,8 +4,8 @@
 Runs in GitLab CI after the upload jobs so every link it posts is already live.
 Each preview is a section, so web/coverage/etc. can be appended as the pipeline
 grows. The mobile QR PNG is generated and uploaded by the OTA build/upload jobs;
-this script only assembles markdown and talks to the GitHub API. No-ops (exit 0)
-when there is no token or no open PR, so it never turns a pipeline red.
+this script only assembles markdown and talks to the GitHub API. Requires
+GITHUB_PREVIEW_TOKEN; no-ops (exit 0) when there is no open PR for the commit.
 """
 
 import os
@@ -116,11 +116,7 @@ def upsert_comment(repo, pr, body, token):
 
 
 def main():
-    token = env("GITHUB_PREVIEW_TOKEN")
-    if not token:
-        print("GITHUB_PREVIEW_TOKEN not set - skipping preview comment.")
-        return
-
+    token = env("GITHUB_PREVIEW_TOKEN", required=True)
     repo = env("GITHUB_REPO", "Couchers-org/couchers")
     sha = env("CI_COMMIT_SHA", required=True)
     short_sha = env("CI_COMMIT_SHORT_SHA", required=True)

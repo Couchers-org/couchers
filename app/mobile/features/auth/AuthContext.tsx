@@ -1,6 +1,8 @@
+import * as Sentry from "@sentry/react-native";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
-  ReactNode,
   createContext,
+  ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -8,7 +10,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import client from "@/service/client";
 
@@ -68,6 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuthStatus();
   }, []);
+
+  useEffect(() => {
+    Sentry.setUser(userId === null ? null : { id: String(userId) });
+  }, [userId]);
 
   const markAuthenticated = useCallback(() => {
     isAuthenticatedRef.current = true;
