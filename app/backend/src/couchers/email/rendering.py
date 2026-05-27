@@ -13,7 +13,7 @@ from markupsafe import Markup
 
 from couchers import urls
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import I18Next, SubstitutionDict
+from couchers.i18n.i18next import I18Next, SubstitutionDict, full_string_key
 from couchers.i18n.locales import load_locales
 from couchers.proto import api_pb2
 from couchers.templating import Jinja2Template, _markdown, template_folder
@@ -103,13 +103,13 @@ class EmailBlocksBuilder:
     """
 
     _locale: str
-    _string_key_prefix: str
+    _string_key_base: str
     blocks: list[EmailBlock]
 
-    def __init__(self, locale: str, string_key_prefix: str):
+    def __init__(self, locale: str, string_key_base: str):
         self.blocks = []
         self._locale = locale
-        self._string_key_prefix = string_key_prefix
+        self._string_key_base = string_key_base
 
     def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ParaBlock(text=self._markup(key, substitutions)))
@@ -142,20 +142,12 @@ class EmailBlocksBuilder:
         return self
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:
-        full_key = self._to_full_string_key(key)
-        return get_emails_i18next().localize(full_key, self._locale, substitutions)
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize(key, self._locale, substitutions)
 
     def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
-        full_key = self._to_full_string_key(key)
-        return get_emails_i18next().localize_with_markup(full_key, self._locale, substitutions)
-
-    def _to_full_string_key(self, key: str) -> str:
-        # It's convenient to have a default key prefix,
-        # but sometimes we need to access something outside of it.
-        if key.startswith("."):  # Escape hatch. Think rooted '/dir/file' paths in unix.
-            return key[1:]
-        else:
-            return f"{self._string_key_prefix}.{key}"
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize_with_markup(key, self._locale, substitutions)
 
 
 @dataclass(kw_only=True)
