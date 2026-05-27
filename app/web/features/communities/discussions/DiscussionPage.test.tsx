@@ -53,6 +53,20 @@ const postReplyMock = service.threads.postReply as MockedService<
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
+const updateDiscussionMock = service.discussions
+  .updateDiscussion as MockedService<
+  typeof service.discussions.updateDiscussion
+>;
+const deleteDiscussionMock = service.discussions
+  .deleteDiscussion as MockedService<
+  typeof service.discussions.deleteDiscussion
+>;
+const updateReplyMock = service.threads.updateReply as MockedService<
+  typeof service.threads.updateReply
+>;
+const deleteReplyMock = service.threads.deleteReply as MockedService<
+  typeof service.threads.deleteReply
+>;
 
 function renderDiscussion() {
   mockRouter.setCurrentUrl(
@@ -114,6 +128,18 @@ describe("Discussion page", () => {
       threadId: 999,
     });
     getAccountInfoMock.mockImplementation(getAccountInfo); //ModVisibleCompobnent calls this in Comment.tsx
+    updateDiscussionMock.mockResolvedValue(discussions[0]);
+    deleteDiscussionMock.mockResolvedValue(undefined);
+    updateReplyMock.mockResolvedValue({
+      threadId: 6,
+      content: "updated",
+      authorUserId: 1,
+      numReplies: 0,
+      deleted: false,
+      canEdit: true,
+      createdTime: { seconds: 1578000000, nanos: 0 },
+    });
+    deleteReplyMock.mockResolvedValue(undefined);
   });
 
   it("renders the discussion successfully", async () => {
@@ -429,6 +455,199 @@ describe("Discussion page", () => {
       );
 
       await assertErrorAlert(errorMessage);
+    });
+  });
+
+  describe("Editing a discussion", () => {
+    async function openEditForm() {
+      renderDiscussion();
+      const user = userEvent.setup();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      user.click(screen.getByTestId("discussion-page-more-options"));
+      user.click(await screen.findByTestId("discussion-page-edit-discussion"));
+      await screen.findByLabelText(t("communities:new_discussion_title"));
+      return user;
+    }
+
+    it("shows the ellipsis menu button when the user can edit", async () => {
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      expect(screen.getByTestId("discussion-page-more-options")).toBeVisible();
+    });
+
+    it("does not show the ellipsis menu when the user cannot edit or moderate", async () => {
+      getDiscussionMock.mockResolvedValue(discussions[1]);
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      await screen.findByRole("heading", {
+        level: 1,
+        name: discussions[1].title,
+      });
+      expect(
+        screen.queryByTestId("discussion-page-more-options"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("opens the inline edit form pre-filled with current values", async () => {
+      await openEditForm();
+      expect(
+        screen.getByLabelText(t("communities:new_discussion_title")),
+      ).toHaveValue(discussions[0].title);
+      expect(screen.getByTestId("content-input")).toBeVisible();
+    });
+
+    it("calls updateDiscussion when saved", async () => {
+      const user = await openEditForm();
+      user.click(screen.getByRole("button", { name: t("global:save") }));
+      await waitFor(() => {
+        expect(updateDiscussionMock).toHaveBeenCalledWith(
+          discussions[0].discussionId,
+          discussions[0].title,
+          discussions[0].content,
+        );
+      });
+    });
+
+    it("does not call updateDiscussion when Cancel is clicked", async () => {
+      const user = await openEditForm();
+      user.click(screen.getByRole("button", { name: t("global:cancel") }));
+      await waitFor(() => {
+        expect(
+          screen.queryByLabelText(t("communities:new_discussion_title")),
+        ).not.toBeInTheDocument();
+      });
+      expect(updateDiscussionMock).not.toHaveBeenCalled();
+    });
+
+    it("shows an error alert if the update fails", async () => {
+      mockConsoleError();
+      updateDiscussionMock.mockRejectedValue(new Error("Update failed"));
+      const user = await openEditForm();
+      user.click(screen.getByRole("button", { name: t("global:save") }));
+      await assertErrorAlert("Update failed");
+    });
+  });
+
+  describe("Deleting a discussion", () => {
+    async function openDeleteDialog() {
+      renderDiscussion();
+      const user = userEvent.setup();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      user.click(screen.getByTestId("discussion-page-more-options"));
+      user.click(
+        await screen.findByTestId("discussion-page-delete-discussion"),
+      );
+      await screen.findByRole("heading", {
+        name: t("communities:delete_discussion_dialog.title"),
+      });
+      return user;
+    }
+
+    it("opens the delete confirmation dialog", async () => {
+      await openDeleteDialog();
+      expect(
+        screen.getByText(t("communities:delete_discussion_dialog.message")),
+      ).toBeVisible();
+    });
+
+    it("calls deleteDiscussion when confirmed", async () => {
+      const user = await openDeleteDialog();
+      user.click(
+        screen.getByRole("button", {
+          name: t("communities:delete_discussion_dialog.confirm"),
+        }),
+      );
+      await waitFor(() => {
+        expect(deleteDiscussionMock).toHaveBeenCalledWith(
+          discussions[0].discussionId,
+        );
+      });
+    });
+
+    it("does not call deleteDiscussion when Cancel is clicked", async () => {
+      const user = await openDeleteDialog();
+      user.click(
+        screen.getByRole("button", {
+          name: t("communities:delete_discussion_dialog.cancel"),
+        }),
+      );
+      expect(deleteDiscussionMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Editing and deleting a comment", () => {
+    const editableComment = {
+      threadId: 6,
+      content: "My editable comment",
+      authorUserId: 1,
+      createdTime: { seconds: 1578000000, nanos: 0 },
+      numReplies: 0,
+      deleted: false,
+      canEdit: true,
+    };
+
+    beforeEach(() => {
+      getThreadMock.mockImplementation(async (threadId) => {
+        if (threadId === 2) {
+          return { nextPageToken: "", repliesList: [editableComment] };
+        }
+        return { nextPageToken: "", repliesList: [] };
+      });
+    });
+
+    it("shows the ellipsis menu for a comment the user can edit", async () => {
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      expect(
+        await screen.findByTestId(
+          `comment-${editableComment.threadId}-more-options`,
+        ),
+      ).toBeVisible();
+    });
+
+    it("calls updateReply when the comment edit form is submitted", async () => {
+      renderDiscussion();
+      const user = userEvent.setup();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      user.click(
+        await screen.findByTestId(
+          `comment-${editableComment.threadId}-more-options`,
+        ),
+      );
+      user.click(
+        await screen.findByTestId(
+          `comment-${editableComment.threadId}-edit-comment`,
+        ),
+      );
+      await screen.findByTestId(
+        `comment-${editableComment.threadId}-edit-input`,
+      );
+      user.click(screen.getByRole("button", { name: t("global:save") }));
+      await waitFor(() => {
+        expect(updateReplyMock).toHaveBeenCalledWith(
+          editableComment.threadId,
+          editableComment.content,
+        );
+      });
+    });
+
+    it("calls deleteReply when 'Delete comment' is selected", async () => {
+      renderDiscussion();
+      const user = userEvent.setup();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      user.click(
+        await screen.findByTestId(
+          `comment-${editableComment.threadId}-more-options`,
+        ),
+      );
+      user.click(
+        await screen.findByTestId(
+          `comment-${editableComment.threadId}-delete-comment`,
+        ),
+      );
+      await waitFor(() => {
+        expect(deleteReplyMock).toHaveBeenCalledWith(editableComment.threadId);
+      });
     });
   });
 

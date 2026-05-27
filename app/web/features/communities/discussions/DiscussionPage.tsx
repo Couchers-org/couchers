@@ -161,33 +161,28 @@ export default function DiscussionPage({
     setIsEditing(false);
   };
 
-  const isNonProd = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
-
-  const ellipsisMenuItems: EllipsisMenuItem[] = isNonProd
-    ? [
-        ...(discussion?.canEdit && !discussion.deleted
-          ? ([
-              {
-                icon: EditOutlined,
-                label: t("communities:edit_discussion"),
-                onClick: () => setIsEditing(true),
-                id: "edit-discussion",
-              },
-            ] as EllipsisMenuItem[])
-          : []),
-        ...((discussion?.canEdit || discussion?.canModerate) &&
-        !discussion?.deleted
-          ? ([
-              {
-                icon: DeleteOutlined,
-                label: t("communities:delete_discussion"),
-                onClick: () => setDeleteDialogOpen(true),
-                id: "delete-discussion",
-              },
-            ] as EllipsisMenuItem[])
-          : []),
-      ]
-    : [];
+  const ellipsisMenuItems: EllipsisMenuItem[] = [
+    ...(discussion?.canEdit && !discussion.deleted
+      ? ([
+          {
+            icon: EditOutlined,
+            label: t("communities:edit_discussion"),
+            onClick: () => setIsEditing(true),
+            id: "edit-discussion",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
+    ...((discussion?.canEdit || discussion?.canModerate) && !discussion?.deleted
+      ? ([
+          {
+            icon: DeleteOutlined,
+            label: t("communities:delete_discussion"),
+            onClick: () => setDeleteDialogOpen(true),
+            id: "delete-discussion",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
+  ];
 
   return (
     <>

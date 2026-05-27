@@ -223,25 +223,22 @@ export default function Comment({
     : undefined;
   const postedTime = replyDate ? timeAgo({ since: replyDate, t, locale }) : "";
 
-  const isNonProd = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
-
-  const ellipsisMenuItems: EllipsisMenuItem[] =
-    isNonProd && comment.canEdit
-      ? [
-          {
-            icon: EditOutlined,
-            label: t("communities:edit_comment"),
-            onClick: () => setIsEditing(true),
-            id: "edit-comment",
-          },
-          {
-            icon: DeleteOutlined,
-            label: t("communities:delete_comment"),
-            onClick: () => deleteReply(),
-            id: "delete-comment",
-          },
-        ]
-      : [];
+  const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
+    ? [
+        {
+          icon: EditOutlined,
+          label: t("communities:edit_comment"),
+          onClick: () => setIsEditing(true),
+          id: "edit-comment",
+        },
+        {
+          icon: DeleteOutlined,
+          label: t("communities:delete_comment"),
+          onClick: () => deleteReply(),
+          id: "delete-comment",
+        },
+      ]
+    : [];
 
   if (isDeleting) {
     return null;
