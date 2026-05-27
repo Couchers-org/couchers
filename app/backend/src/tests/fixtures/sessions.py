@@ -183,6 +183,7 @@ class FakeChannel:
                         locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
                         timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
                     ),
+                    sofa="test_sofa_cookie_value",
                 )
 
                 response = handler.unary_unary(request, context, session)
