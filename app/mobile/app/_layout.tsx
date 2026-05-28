@@ -1,6 +1,7 @@
 import "react-native-reanimated";
 import "@/i18n";
 import "@/service/sentry";
+import "@/service/updateExtraParams";
 
 import {
   Ubuntu_300Light,
