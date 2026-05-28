@@ -33,6 +33,7 @@ def get_babel_locale(locale_list: list[str]) -> babel.Locale:
             continue
     raise LookupError(f"No babel locale found for locales {', '.join(locale_list)}")
 
+
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
     """
     Retrieves a translated string and performs substitutions.
