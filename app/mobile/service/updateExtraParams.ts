@@ -1,7 +1,17 @@
 import * as Sentry from "@sentry/react-native";
-import * as Application from "expo-application";
-import Constants from "expo-constants";
 import * as Updates from "expo-updates";
+
+import {
+  appVariant,
+  nativeBuiltAt,
+  nativeDebugVersion,
+  nativeDisplayVersion,
+  nativeGitHash,
+  otaCreatedAt,
+  otaDebugVersion,
+  otaDisplayVersion,
+  otaGitHash,
+} from "@/service/buildInfo";
 
 // Stamp the running bundle's identity into the manifest request via the
 // Expo-Extra-Params header (Updates.setExtraParamAsync persists natively and
@@ -16,12 +26,6 @@ import * as Updates from "expo-updates";
 // JS runs setExtraParamAsync (checkAutomatically=ON_LOAD); from the next
 // launch onward it's accurate.
 
-const extra = Constants.expoConfig?.extra as
-  | { gitHash?: string; appVariant?: string }
-  | undefined;
-const gitHash = extra?.gitHash ?? "unknown";
-const appVariant = extra?.appVariant ?? "unknown";
-
 // Only the store-distributed staging and production apps talk to the OTA
 // manifest server. The dev tool loads bundles via the dev-launcher deep link
 // and local dev has no manifest server, so setting params there is a no-op
@@ -30,14 +34,19 @@ const enabled = appVariant === "production" || appVariant === "staging";
 
 if (enabled) {
   (async () => {
-    await Updates.setExtraParamAsync("git-hash", gitHash);
+    // Native store-binary identity (fixed across OTAs)
     await Updates.setExtraParamAsync(
-      "native-version",
-      Application.nativeApplicationVersion ?? null,
+      "native-display-version",
+      nativeDisplayVersion,
     );
-    await Updates.setExtraParamAsync(
-      "native-build",
-      Application.nativeBuildVersion ?? null,
-    );
+    await Updates.setExtraParamAsync("native-debug-version", nativeDebugVersion);
+    await Updates.setExtraParamAsync("native-git-hash", nativeGitHash);
+    await Updates.setExtraParamAsync("native-built-at", nativeBuiltAt);
+
+    // OTA bundle identity (varies per OTA)
+    await Updates.setExtraParamAsync("ota-display-version", otaDisplayVersion);
+    await Updates.setExtraParamAsync("ota-debug-version", otaDebugVersion);
+    await Updates.setExtraParamAsync("ota-git-hash", otaGitHash);
+    await Updates.setExtraParamAsync("ota-created-at", otaCreatedAt);
   })().catch((err) => Sentry.captureException(err));
 }

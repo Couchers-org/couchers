@@ -11,6 +11,11 @@ const getGitHash = () => {
   }
 };
 
+// The OTA bundle's display version. CI sets DISPLAY_VERSION (computed from
+// app/version + git rev-list count, e.g. v1.2.18402); local builds get
+// "development" so they're never confused with a real release.
+const getOtaDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
+
 const ICON_SETS = {
   default: {
     icon: "./assets/images/icon.png",
@@ -184,6 +189,7 @@ export default {
         organization: "couchers",
       },
     ],
+    "./plugins/withNativeBuildInfo",
   ],
   experiments: {
     typedRoutes: true,
@@ -194,6 +200,7 @@ export default {
       projectId: "fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
     },
     gitHash: getGitHash(),
+    otaDisplayVersion: getOtaDisplayVersion(),
     appVariant: APP_VARIANT,
   },
   owner: "couchers-org",

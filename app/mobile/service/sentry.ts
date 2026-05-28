@@ -1,24 +1,26 @@
 import * as Sentry from "@sentry/react-native";
-import * as Application from "expo-application";
-import Constants from "expo-constants";
-import * as Updates from "expo-updates";
 
 import { getDefaultApiBaseUrl, getDefaultWebBaseUrl } from "@/config/urls";
+import {
+  appVariant,
+  isEmbeddedLaunch,
+  nativeBuiltAt,
+  nativeDebugVersion,
+  nativeDisplayVersion,
+  nativeGitHash,
+  otaCreatedAt,
+  otaDebugVersion,
+  otaDisplayVersion,
+  otaGitHash,
+  runtimeVersion,
+  updateChannel,
+  updateId,
+} from "@/service/buildInfo";
 
-const extra = Constants.expoConfig?.extra as
-  | { gitHash?: string; appVariant?: string }
-  | undefined;
-const gitHash = extra?.gitHash ?? "unknown";
-const appVariant = extra?.appVariant ?? "unknown";
 // The backend/web the build is wired to. Read the build defaults rather than
 // the runtime getters, since Sentry inits before any dev URL override hydrates.
 const apiBaseUrl = getDefaultApiBaseUrl();
 const webBaseUrl = getDefaultWebBaseUrl();
-// The native binary downloaded from the App Store / Play Store. This stays
-// fixed across OTA updates, unlike Constants.expoConfig.version which is read
-// from the (possibly OTA-updated) JS bundle.
-const nativeAppVersion = Application.nativeApplicationVersion ?? "unknown";
-const nativeBuildVersion = Application.nativeBuildVersion ?? "unknown";
 
 // Only report from the store-distributed staging and production apps. The dev
 // tool (a dev client) and local dev builds would otherwise pollute the project
@@ -41,14 +43,22 @@ if (sentryEnabled) {
     initialScope: {
       tags: {
         appVariant,
-        gitHash,
-        nativeAppVersion,
-        nativeBuildVersion,
+        // Native store-binary identity (fixed across OTAs)
+        nativeDisplayVersion,
+        nativeDebugVersion,
+        nativeGitHash,
+        nativeBuiltAt,
+        // OTA bundle identity (varies per OTA)
+        otaDisplayVersion,
+        otaDebugVersion,
+        otaGitHash,
+        otaCreatedAt,
+        runtimeVersion,
+        updateChannel,
+        launchSource: isEmbeddedLaunch ? "embedded" : "ota",
+        // Backend/web wiring
         apiBaseUrl,
         webBaseUrl,
-        runtimeVersion: Updates.runtimeVersion ?? "unknown",
-        updateChannel: Updates.channel ?? "none",
-        launchSource: Updates.isEmbeddedLaunch ? "embedded" : "ota",
       },
       contexts: {
         config: {
@@ -56,16 +66,20 @@ if (sentryEnabled) {
           webBaseUrl,
         },
         store_build: {
-          nativeApplicationVersion: nativeAppVersion,
-          nativeBuildVersion,
-          gitHash,
+          displayVersion: nativeDisplayVersion,
+          debugVersion: nativeDebugVersion,
+          gitHash: nativeGitHash,
+          builtAt: nativeBuiltAt,
         },
         ota: {
-          updateId: Updates.updateId ?? "none",
-          channel: Updates.channel ?? "none",
-          runtimeVersion: Updates.runtimeVersion ?? "unknown",
-          isEmbeddedLaunch: Updates.isEmbeddedLaunch,
-          createdAt: Updates.createdAt?.toISOString() ?? "unknown",
+          displayVersion: otaDisplayVersion,
+          debugVersion: otaDebugVersion,
+          gitHash: otaGitHash,
+          updateId,
+          channel: updateChannel,
+          runtimeVersion,
+          isEmbeddedLaunch,
+          createdAt: otaCreatedAt,
         },
       },
     },
