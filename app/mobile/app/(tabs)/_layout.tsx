@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-native";
 import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import { Tabs } from "expo-router";
@@ -64,7 +65,13 @@ export default function TabLayout() {
     tapTimestamps.current = [];
     const info = getDebugInfo();
     void Clipboard.setStringAsync(info);
-    setDebugToast(`${info}\n\nCopied to clipboard`);
+    // Confirms the device can reach Sentry; the event also carries the
+    // version/OTA/gitHash tags set in the global scope at init.
+    Sentry.captureMessage("debug.triple-tap", {
+      level: "info",
+      contexts: { debug: { info } },
+    });
+    setDebugToast(`${info}\n\nCopied to clipboard & sent to Sentry`);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setDebugToast(null), 6000);
   }, []);
