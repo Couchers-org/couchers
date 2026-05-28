@@ -10,7 +10,7 @@ import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
-from sqlalchemy import select, update
+from sqlalchemy import select, text, update
 
 from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
@@ -32,7 +32,8 @@ from couchers.interceptors import (
     validate_auth_level,
 )
 from couchers.metrics import servicer_duration_histogram, servicer_setup_errors_counter
-from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
+from couchers.perf import _is_write
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -227,6 +228,38 @@ def test_tracing_interceptor_ok_open(db):
         assert not trace.traceback
 
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
+
+
+def test_is_write():
+    assert _is_write("INSERT INTO foo VALUES (1)")
+    assert _is_write("UPDATE foo SET a = 1")
+    assert _is_write("DELETE FROM foo")
+    assert _is_write("  \n  insert into foo values (1)")
+    assert not _is_write("SELECT 1")
+    assert not _is_write("  SELECT * FROM foo")
+    assert not _is_write("WITH x AS (SELECT 1) SELECT * FROM x")
+
+
+def test_tracing_interceptor_perf_accounting(db):
+    # handler runs a known number of statements - three reads, one write
+    def TestRpc(request, context, session):
+        for _ in range(3):
+            session.execute(text("SELECT 1"))
+        session.execute(text("UPDATE logging.api_calls SET method = method WHERE false"))
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-client-platform", "web_mobile"),))
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.query_count == 4
+        assert trace.write_query_count == 1
+        assert trace.db_time_ms is not None and trace.db_time_ms >= 0
+        assert trace.cpu_ms is not None and trace.cpu_ms >= 0
+        # the handler's DB work can't exceed the whole-request wall time
+        assert trace.db_time_ms <= trace.duration
+        assert trace.client_platform == ClientPlatform.web_mobile
 
 
 def test_tracing_interceptor_sensitive(db):

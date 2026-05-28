@@ -31,6 +31,7 @@ from couchers.models import (
     TimezoneArea,
     User,
 )
+from couchers.perf import register_perf_listeners
 from couchers.sql import where_users_column_visible
 
 if TYPE_CHECKING:
@@ -60,7 +61,7 @@ def apply_migrations() -> None:
 
 @functools.cache
 def _get_base_engine() -> Engine:
-    return create_engine(
+    engine = create_engine(
         config["DATABASE_CONNECTION_STRING"],
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
@@ -70,6 +71,8 @@ def _get_base_engine() -> Engine:
         # main threads + a few extra in case
         pool_size=SERVER_THREADS + WORKER_THREADS + 12,
     )
+    register_perf_listeners(engine)
+    return engine
 
 
 @contextmanager

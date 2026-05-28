@@ -10,6 +10,7 @@ from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+from couchers.models.rest import ClientPlatform
 
 
 class EventSource(enum.Enum):
@@ -63,6 +64,16 @@ class APICall(Base, kw_only=True):
 
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
+
+    # per-request resource accounting, covering the handler span (see couchers/perf.py). Null for the rare row logged
+    # without accounting armed. Wall time is `duration`; residual wait = duration - cpu_ms - db_time_ms.
+    query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
+    cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
+
+    # client platform the call came from, from the x-couchers-client-platform header
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
 
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
