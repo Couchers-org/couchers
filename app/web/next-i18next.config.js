@@ -19,19 +19,6 @@ const debugLogging = process.env.NODE_ENV === "development";
 // flood Sentry on every render/navigation.
 const reportedMissingKeys = new Set();
 
-// Inlined (can't import the TS util here: this config is required by Node at
-// build time, outside webpack). Mirrors utils/nativeLink.ts#isNativeEmbed.
-function inNativeEmbed() {
-  if (typeof window === "undefined" || !window.ReactNativeWebView) return false;
-  try {
-    const injected = window.ReactNativeWebView.injectedObjectJson;
-    if (injected) return !!JSON.parse(injected()).isNativeEmbed;
-  } catch {
-    // fall through
-  }
-  return true;
-}
-
 // Fires whenever a key resolves to nothing across the whole fallback chain.
 // At build time this fails the build so a missing key never ships; in the
 // browser it reports to Sentry to catch what the build can't see (soft-nav
@@ -64,7 +51,6 @@ function missingKeyHandler(lngs, ns, key) {
       i18n_namespace: ns,
       i18n_key: key,
       i18n_language: (lngs && lngs[0]) || "unknown",
-      native_embed: inNativeEmbed(),
     },
     extra: {
       languages_tried: lngs,
