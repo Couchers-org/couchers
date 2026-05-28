@@ -93,11 +93,12 @@ def main() -> None:
         for _ in range(config["BACKGROUND_WORKER_COUNT"]):
             start_jobs_worker()
 
-    setup_tracing()
-
     # Initialize the experimentation framework for feature flags in the main process.
     # Worker processes initialize their own instance in _run_forever().
+    # Must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
     setup_experimentation()
+
+    setup_tracing()
 
     if config["ROLE"] in ["api", "all"]:
         server = create_main_server(port=1751)
