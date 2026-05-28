@@ -18,14 +18,9 @@ depends_on = None
 
 def upgrade() -> None:
     op.add_column("user_activity", sa.Column("sofa", sa.String(), nullable=True))
-    op.add_column(
-        "user_activity",
-        sa.Column(
-            "client_platform",
-            sa.Enum("web_desktop", "web_mobile", "app_ios", "app_android", name="clientplatform"),
-            nullable=True,
-        ),
-    )
+    clientplatform = sa.Enum("web_desktop", "web_mobile", "app_ios", "app_android", name="clientplatform")
+    clientplatform.create(op.get_bind(), checkfirst=True)
+    op.add_column("user_activity", sa.Column("client_platform", clientplatform, nullable=True))
     op.drop_index(op.f("ix_user_activity_user_id_period_ip_address_user_agent"), table_name="user_activity")
     op.create_index(
         "ix_user_activity_user_id_period_ip_address_user_agent_sofa",
@@ -88,3 +83,4 @@ def downgrade() -> None:
     )
     op.drop_column("user_activity", "client_platform")
     op.drop_column("user_activity", "sofa")
+    sa.Enum(name="clientplatform").drop(op.get_bind(), checkfirst=True)
