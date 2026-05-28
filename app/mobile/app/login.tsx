@@ -1,15 +1,8 @@
 import { useFocusEffect } from "@react-navigation/native";
-import * as Sentry from "@sentry/react-native";
 import { Href, useRouter } from "expo-router";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useState } from "react";
-import {
-  Appearance,
-  BackHandler,
-  Button,
-  Linking,
-  useColorScheme,
-} from "react-native";
+import { Appearance, BackHandler, Linking, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -122,12 +115,6 @@ export default function LoginScreen() {
           if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
             Linking.openURL(targetUrl).catch(() => {});
           }
-        }}
-      />
-      <Button
-        title="Try!"
-        onPress={() => {
-          Sentry.captureException(new Error("First error"));
         }}
       />
     </SafeAreaView>
