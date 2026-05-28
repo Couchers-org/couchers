@@ -453,10 +453,7 @@ export default function WebEmbed({
             />
           </View>
         )}
-        injectedJavaScriptObject={{
-          isNativeEmbed: true,
-          nativePlatform: Platform.OS,
-        }}
+        injectedJavaScriptObject={{ isNativeEmbed: true }}
         onLoad={() => {
           hasLoadedRef.current = true;
         }}

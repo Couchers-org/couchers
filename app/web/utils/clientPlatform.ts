@@ -1,5 +1,4 @@
 import { theme } from "theme";
-import { getNativePlatform } from "utils/nativeLink";
 
 export type ClientPlatform =
   | "web_desktop"
@@ -15,11 +14,9 @@ function isMobileViewport(): boolean {
 }
 
 // The client platform a request is coming from, or null when it can't be
-// determined (e.g. during server-side rendering).
+// determined (e.g. during server-side rendering). Requests from web views inside
+// the native app are reported as web_desktop/web_mobile based on viewport.
 export function getClientPlatform(): ClientPlatform | null {
-  const nativePlatform = getNativePlatform();
-  if (nativePlatform === "ios") return "app_ios";
-  if (nativePlatform === "android") return "app_android";
   if (typeof window === "undefined" || !window.matchMedia) return null;
   return isMobileViewport() ? "web_mobile" : "web_desktop";
 }

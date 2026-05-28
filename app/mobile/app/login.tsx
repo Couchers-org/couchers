@@ -2,13 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useState } from "react";
-import {
-  Appearance,
-  BackHandler,
-  Linking,
-  Platform,
-  useColorScheme,
-} from "react-native";
+import { Appearance, BackHandler, Linking, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -105,10 +99,7 @@ export default function LoginScreen() {
         key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
         applicationNameForUserAgent={applicationNameForUserAgent}
-        injectedJavaScriptObject={{
-          isNativeEmbed: true,
-          nativePlatform: Platform.OS,
-        }}
+        injectedJavaScriptObject={{ isNativeEmbed: true }}
         sharedCookiesEnabled
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
