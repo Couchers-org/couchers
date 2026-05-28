@@ -25,6 +25,7 @@ from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.models import (
     BackgroundJob,
+    ClientPlatform,
     Cluster,
     EventOccurrenceAttendee,
     HostingStatus,
@@ -34,6 +35,7 @@ from couchers.models import (
     NodeType,
     Reference,
     User,
+    UserActivity,
 )
 from couchers.models.moderation import (
     ModerationAction,
@@ -142,20 +144,22 @@ def _make_labeled_gauge_from_query(
     return gauge
 
 
+_active_user_periods: list[tuple[str, str, timedelta]] = [
+    ("5m", "5 min", timedelta(minutes=5)),
+    ("24h", "24 hours", timedelta(hours=24)),
+    ("1month", "1 month", timedelta(weeks=4)),
+    ("3month", "3 months", timedelta(weeks=13)),
+    ("6month", "6 months", timedelta(weeks=26)),
+    ("12month", "12 months", timedelta(days=365)),
+]
+
 active_users_gauges: list[Gauge] = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
         f"Number of active users in the last {description}",
         (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
     )
-    for name, description, interval in [
-        ("5m", "5 min", timedelta(minutes=5)),
-        ("24h", "24 hours", timedelta(hours=24)),
-        ("1month", "1 month", timedelta(days=31)),
-        ("3month", "3 months", timedelta(days=92)),
-        ("6month", "6 months", timedelta(days=183)),
-        ("12month", "12 months", timedelta(days=365)),
-    ]
+    for name, description, interval in _active_user_periods
 ]
 
 users_gauge: Gauge = _make_gauge_from_query(
@@ -181,8 +185,8 @@ users_per_community_gauge: Gauge = _make_labeled_gauge_from_query(
 _active_users_buckets: list[tuple[str, timedelta | None]] = [
     ("<1d", timedelta(days=1)),
     ("1d-1w", timedelta(days=7)),
-    ("1w-1m", timedelta(days=31)),
-    ("1m-6m", timedelta(days=183)),
+    ("1w-1m", timedelta(weeks=4)),
+    ("1m-6m", timedelta(weeks=26)),
     ("6m-12m", timedelta(days=365)),
     ("12m-24m", timedelta(days=730)),
     ("24m+", None),
@@ -206,6 +210,63 @@ active_users_by_recency_gauge: Gauge = _make_labeled_gauge_from_query(
     ),
     default_label_values=[label for label, _ in _active_users_buckets],
 )
+
+# Window for the per-platform daily-active-user metrics. Kept to 24h so the user_activity scan stays cheap (an index
+# scan of just the last day's rows), letting these gauges be computed inline on every scrape.
+_ACTIVE_USERS_BY_PLATFORM_WINDOW = timedelta(hours=24)
+# Platforms counted as "mobile" for the mobile-share fraction (native apps plus the mobile web viewport).
+_MOBILE_PLATFORMS = [ClientPlatform.web_mobile, ClientPlatform.app_ios, ClientPlatform.app_android]
+
+
+def active_users_by_platform_statement() -> Select[Any]:
+    # one scan of the last 24h of user_activity: distinct active users in total, the mobile subset (for the share
+    # fraction), and a breakdown per platform. client_platform is set from a header the client explicitly sends; it's
+    # null for some other client (e.g. an API key script) or activity from before the header existed, so the
+    # per-platform counts don't sum to the total and "mobile" needs its own union count rather than summing labels.
+    distinct_users = func.count(distinct(UserActivity.user_id))
+    return (
+        select(
+            distinct_users.label("total"),
+            distinct_users.filter(UserActivity.client_platform.in_(_MOBILE_PLATFORMS)).label("mobile"),
+            *[
+                distinct_users.filter(UserActivity.client_platform == platform).label(platform.name)
+                for platform in ClientPlatform
+            ],
+        )
+        .select_from(UserActivity)
+        .join(User, User.id == UserActivity.user_id)
+        .where(User.is_visible)
+        .where(UserActivity.period > func.now() - _ACTIVE_USERS_BY_PLATFORM_WINDOW)
+    )
+
+
+# Distinct active users in the last 24h, split by client platform.
+active_users_by_platform_gauge: Gauge = Gauge(
+    "couchers_active_users_by_platform",
+    "Distinct active users in the last 24h, split by client platform (web_desktop, web_mobile, app_ios, app_android)",
+    labelnames=["platform"],
+    multiprocess_mode="mostrecent",
+)
+
+# Fraction of the last 24h's distinct active users who had any mobile activity. The headline "mobile is key" number.
+active_users_mobile_fraction_gauge: Gauge = Gauge(
+    "couchers_active_users_mobile_fraction",
+    "Fraction of distinct active users in the last 24h with any mobile activity (web_mobile, app_ios, app_android)",
+    multiprocess_mode="mostrecent",
+)
+
+
+def _set_active_users_by_platform(gauge: Gauge) -> None:
+    with tracer.start_as_current_span("metric.couchers_active_users_by_platform"):
+        with session_scope() as session:
+            row = session.execute(active_users_by_platform_statement()).one()._mapping
+    for platform in ClientPlatform:
+        gauge.labels(platform.name).set(row[platform.name])
+    total = row["total"]
+    active_users_mobile_fraction_gauge.set(row["mobile"] / total if total else 0.0)
+
+
+_set_hacky_labeled_gauges_funcs.append((active_users_by_platform_gauge, _set_active_users_by_platform))
 
 man_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_man",

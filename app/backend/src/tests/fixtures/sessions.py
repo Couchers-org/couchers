@@ -164,7 +164,12 @@ class FakeChannel:
 
         def fake_handler(request):
             auth_info = _try_get_and_update_user_details(
-                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                self._token,
+                is_api_key=False,
+                ip_address="127.0.0.1",
+                user_agent="Testing User-Agent",
+                sofa=None,
+                client_platform=None,
             )
             auth_level = find_auth_level(self._pool, method)
             check_permissions(auth_info, auth_level)

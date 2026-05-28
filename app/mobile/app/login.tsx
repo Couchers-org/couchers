@@ -99,6 +99,7 @@ export default function LoginScreen() {
         key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
         applicationNameForUserAgent={applicationNameForUserAgent}
+        injectedJavaScriptObject={{ isNativeEmbed: true }}
         sharedCookiesEnabled
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
