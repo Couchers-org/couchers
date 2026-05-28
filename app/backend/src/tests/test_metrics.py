@@ -8,8 +8,10 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import (
     _set_hacky_labeled_gauges_funcs,
+    active_users_by_platform_gauge,
     active_users_by_platform_statement,
     active_users_by_recency_gauge,
+    active_users_mobile_fraction_gauge,
     users_per_community_gauge,
 )
 from couchers.models import ClientPlatform, User, UserActivity
@@ -92,11 +94,13 @@ def _add_activity(user_id: int, client_platform: ClientPlatform | None, age: tim
         session.add(UserActivity(user_id=user_id, period=now() - age, client_platform=client_platform, api_calls=1))
 
 
-def _counts_by_platform() -> dict[str, int]:
+def _platform_metrics() -> dict[str, int]:
     with session_scope() as session:
-        rows = session.execute(active_users_by_platform_statement()).all()
-    # second column is the 5m window count, which all recent test activity falls into
-    return {row[0]: row[1] for row in rows}
+        return dict(session.execute(active_users_by_platform_statement()).one()._mapping)
+
+
+def _gauge_value(gauge) -> float:
+    return float(next(sample.value for metric in gauge.collect() for sample in metric.samples))
 
 
 def test_active_users_by_platform(db):
@@ -112,12 +116,15 @@ def test_active_users_by_platform(db):
     _add_activity(android_user.id, ClientPlatform.app_android)
     _add_activity(other_user.id, None)
 
-    assert _counts_by_platform() == {
+    # the "other" (null platform) user is counted in the total but in no platform bucket, and mobile is the union of
+    # web_mobile + app_ios + app_android
+    assert _platform_metrics() == {
+        "total": 5,
+        "mobile": 3,
         "web_desktop": 1,
         "web_mobile": 1,
         "app_ios": 1,
         "app_android": 1,
-        "other": 1,
     }
 
 
@@ -128,7 +135,14 @@ def test_active_users_by_platform_excludes_invisible_users(db):
     _add_activity(visible_user.id, ClientPlatform.web_desktop)
     _add_activity(deleted_user.id, ClientPlatform.web_desktop)
 
-    assert _counts_by_platform() == {"web_desktop": 1}
+    assert _platform_metrics() == {
+        "total": 1,
+        "mobile": 0,
+        "web_desktop": 1,
+        "web_mobile": 0,
+        "app_ios": 0,
+        "app_android": 0,
+    }
 
 
 def test_active_users_by_platform_counts_user_once_per_platform(db):
@@ -137,12 +151,44 @@ def test_active_users_by_platform_counts_user_once_per_platform(db):
     _add_activity(user.id, ClientPlatform.web_desktop)
     _add_activity(user.id, ClientPlatform.app_ios)
 
-    assert _counts_by_platform() == {"web_desktop": 1, "app_ios": 1}
+    # the user is counted once in the total and once in mobile (they had app_ios activity), but appears in both the
+    # web_desktop and app_ios breakdowns
+    assert _platform_metrics() == {
+        "total": 1,
+        "mobile": 1,
+        "web_desktop": 1,
+        "web_mobile": 0,
+        "app_ios": 1,
+        "app_android": 0,
+    }
 
 
 def test_active_users_by_platform_excludes_old_activity(db):
     user, _ = generate_user()
 
-    _add_activity(user.id, ClientPlatform.app_ios, age=timedelta(days=400))
+    _add_activity(user.id, ClientPlatform.app_ios, age=timedelta(days=2))
 
-    assert _counts_by_platform() == {}
+    assert _platform_metrics() == {
+        "total": 0,
+        "mobile": 0,
+        "web_desktop": 0,
+        "web_mobile": 0,
+        "app_ios": 0,
+        "app_android": 0,
+    }
+
+
+def test_active_users_mobile_fraction_gauge(db):
+    desktop_user, _ = generate_user()
+    mobile_web_user, _ = generate_user()
+    ios_user, _ = generate_user()
+    android_user, _ = generate_user()
+
+    _add_activity(desktop_user.id, ClientPlatform.web_desktop)
+    _add_activity(mobile_web_user.id, ClientPlatform.web_mobile)
+    _add_activity(ios_user.id, ClientPlatform.app_ios)
+    _add_activity(android_user.id, ClientPlatform.app_android)
+
+    # populating the breakdown gauge also sets the mobile fraction gauge: 3 of 4 active users are on mobile
+    _populate(active_users_by_platform_gauge)
+    assert _gauge_value(active_users_mobile_fraction_gauge) == pytest.approx(0.75)
