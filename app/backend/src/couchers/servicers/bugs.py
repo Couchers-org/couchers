@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -20,6 +21,8 @@ from couchers.models import User
 from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+
+logger = logging.getLogger(__name__)
 
 _start_time = time.monotonic()
 
@@ -134,6 +137,13 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def GetNativeUpdateManifest(
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
+        if context.get_boolean_value("log_native_ota_requests", False):
+            logger.info(
+                "OTA GetNativeUpdateManifest: content_type=%r headers=%s body=%r",
+                request.content_type,
+                dict(context.headers),
+                request.data,
+            )
         # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
         context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
 
