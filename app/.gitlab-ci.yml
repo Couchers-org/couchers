@@ -1125,6 +1125,13 @@ build:production-native-android:
   artifacts:
     reports:
       dotenv: app/mobile/native-build-android.env
+  # Override .production-native's TEMP rule: the Android submit is disabled on the
+  # temp branch (deploy:production-native-android is release-only), so there's no
+  # marker write and this would otherwise rebuild on every pipeline. Build Android
+  # only on the release branch, where build+submit+marker work end to end. Drop
+  # this override when the TEMP rules are reverted (see TEMP-MOBILE.md).
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 deploy:production-native-ios:
   extends: .production-native
