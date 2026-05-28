@@ -57,5 +57,14 @@ BUILD_ID="$(printf '%s' "$BUILD_JSON" | json_field '[0].id')"
   echo "could not determine the EAS build id from the build output" >&2
   exit 1
 }
+# `eas build` exits 0 even when the build ends up canceled or errored, so check
+# the terminal status ourselves; otherwise a failed build would still write the
+# dotenv and let the submit job ship nothing. Normalize case in case the CLI
+# returns FINISHED rather than finished.
+BUILD_STATUS="$(printf '%s' "$BUILD_JSON" | json_field '[0].status' | tr '[:upper:]' '[:lower:]')"
+if [ "$BUILD_STATUS" != "finished" ]; then
+  echo "EAS build $BUILD_ID did not finish (status: ${BUILD_STATUS:-unknown})" >&2
+  exit 1
+fi
 echo "EAS_BUILD_ID=$BUILD_ID" >> "$DOTENV"
 echo "Built $PLATFORM production app: $BUILD_ID"
