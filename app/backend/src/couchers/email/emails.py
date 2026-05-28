@@ -4,7 +4,7 @@ Defines data models for each email we sent out to users.
 
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from typing import Self, assert_never
 
@@ -65,6 +65,18 @@ class EmailBase(ABC):
     def dummy_data(cls) -> Self:
         """Returns an instance filled with dummy data that can be used for testing."""
         ...
+
+    @classmethod
+    def dummy_variants(cls) -> list[Self]:
+        """
+        Returns dummy instances covering every distinct rendering variant of this email.
+
+        Emails whose subject or body depends on internal state (e.g. a status enum or a
+        boolean) build their localization keys dynamically, so a single dummy instance only
+        exercises one branch. Such emails override this to return one instance per branch,
+        ensuring the rendering tests resolve every localization key the class can produce.
+        """
+        return [cls.dummy_data()]
 
     # Helpers for localizing email-specific strings
     def _localize(
@@ -225,6 +237,11 @@ class BadgeChangedEmail(EmailBase):
     def dummy_data(cls) -> BadgeChangedEmail:
         return BadgeChangedEmail(user_name="Alice", badge_name="Founder", added=True)
 
+    @classmethod
+    def dummy_variants(cls) -> list[BadgeChangedEmail]:
+        base = cls.dummy_data()
+        return [replace(base, added=True), replace(base, added=False)]
+
 
 @dataclass(kw_only=True, slots=True)
 class BirthdateChangedEmail(EmailBase):
@@ -304,6 +321,14 @@ class ChatMessageReceivedEmail(EmailBase):
             text="Hi Alice!",
             view_url="https://couchers.org/messages/chats/123",
         )
+
+    @classmethod
+    def dummy_variants(cls) -> list[ChatMessageReceivedEmail]:
+        base = cls.dummy_data()
+        return [
+            replace(base, group_chat_title=None),
+            replace(base, group_chat_title="Best friends"),
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -805,6 +830,11 @@ class HostRequestMessageEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
         )
 
+    @classmethod
+    def dummy_variants(cls) -> list[HostRequestMessageEmail]:
+        base = cls.dummy_data()
+        return [replace(base, from_host=True), replace(base, from_host=False)]
+
 
 @dataclass(kw_only=True, slots=True)
 class HostRequestMissedMessagesEmail(EmailBase):
@@ -858,6 +888,11 @@ class HostRequestMissedMessagesEmail(EmailBase):
             from_host=True,
             view_link="https://couchers.org/requests/123",
         )
+
+    @classmethod
+    def dummy_variants(cls) -> list[HostRequestMissedMessagesEmail]:
+        base = cls.dummy_data()
+        return [replace(base, from_host=True), replace(base, from_host=False)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -949,6 +984,16 @@ class HostRequestStatusChangedEmail(EmailBase):
             new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             view_link="https://couchers.org/requests/123",
         )
+
+    @classmethod
+    def dummy_variants(cls) -> list[HostRequestStatusChangedEmail]:
+        base = cls.dummy_data()
+        return [
+            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1060,6 +1105,11 @@ class PhoneNumberChangeEmail(EmailBase):
             completed=False,
         )
 
+    @classmethod
+    def dummy_variants(cls) -> list[PhoneNumberChangeEmail]:
+        base = cls.dummy_data()
+        return [replace(base, completed=False), replace(base, completed=True)]
+
 
 @dataclass(kw_only=True, slots=True)
 class PostalVerificationFailedEmail(EmailBase):
@@ -1092,6 +1142,15 @@ class PostalVerificationFailedEmail(EmailBase):
             user_name="Alice",
             reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED,
         )
+
+    @classmethod
+    def dummy_variants(cls) -> list[PostalVerificationFailedEmail]:
+        base = cls.dummy_data()
+        return [
+            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED),
+            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS),
+            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN),
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1168,6 +1227,15 @@ class StrongVerificationFailedEmail(EmailBase):
             user_name="Alice",
             reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT,
         )
+
+    @classmethod
+    def dummy_variants(cls) -> list[StrongVerificationFailedEmail]:
+        base = cls.dummy_data()
+        return [
+            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER),
+            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT),
+            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
