@@ -912,7 +912,7 @@ class HostRequestStatusChangedEmail(EmailBase):
             case conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 return f"{base_key}.accepted_by_host"
             case conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
-                return f"{base_key}.rejected_by_host"
+                return f"{base_key}.declined_by_host"
             case conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 return f"{base_key}.confirmed_by_surfer"
             case conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
