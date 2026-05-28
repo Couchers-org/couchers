@@ -28,7 +28,7 @@ def get_babel_locale(locale_list: list[str]) -> babel.Locale:
     """Resolves a babel.Locale object from a list of locale candidates."""
     for locale in locale_list:
         try:
-            return babel.Locale.parse(locale)
+            return babel.Locale.parse(locale, sep="-")
         except babel.UnknownLocaleError:
             continue
     raise LookupError(f"No babel locale found for locales {', '.join(locale_list)}")
