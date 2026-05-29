@@ -19,6 +19,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("BACKGROUND_WORKER_COUNT", int, 2),
     # Version string
     ("VERSION", str, "unknown"),
+    # ISO 8601 timestamp of the deployed commit (CI_COMMIT_TIMESTAMP), empty outside CI builds
+    ("COMMIT_TIMESTAMP", str, ""),
     # Base URL of frontend, e.g. https://couchers.org
     ("BASE_URL", str),
     # URL of the backend, e.g. https://api.couchers.org
