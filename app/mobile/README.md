@@ -51,6 +51,8 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
+> **Note:** Local builds default to the `devtool` variant (`org.couchers.devtool.ios` / `org.couchers.devtool.android`), keeping them isolated from the production and staging apps. Production notifications won't open your local build.
+
 On iOS: if you get issues about signing, try opening `app/mobile/ios` in Xcode and setting up app signing there.
 
 > **Tip:** If you only work on JavaScript/TypeScript, you can skip the local
@@ -74,9 +76,30 @@ Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes wi
 
 ### Testing Web App Changes on Mobile
 
-If you need to test local web or backend changes on your phone, run everything locally and configure environment variables to point to your computer's IP address.
+If you need to test local web or backend changes on your phone, run the setup script — it auto-detects your IP and updates all config files at once:
 
-**[Follow the local development guide](../../docs/run-local-app-on-mobile.md)** for detailed instructions.
+```bash
+npm run setup:local
+```
+
+Then restart everything from the repo root, each in a separate terminal:
+
+```bash
+# Terminal 1 — backend (requires Docker)
+docker compose up --build
+
+# Terminal 2 — web frontend
+cd app/web && yarn start
+
+# Terminal 3 — Expo
+cd app/mobile && npx expo start
+```
+
+When done, restore with:
+
+```bash
+npm run setup:local:restore
+```
 
 ### Quick Development (Mobile Code Only)
 

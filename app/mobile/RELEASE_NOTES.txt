@@ -1,5 +1,4 @@
 Bug fixes and improvements:
-- Tapping a user avatar or name opens their profile in a bottom sheet to save your place
-- Language changes now apply immediately across all tabs
-- Samsung specific fixes for some interaction issues
-- Fixed community info edit page on mobile
+- Links from emails (account verification, password recovery, postal verification) now open correctly in the app
+- On Android, pressing back while viewing a member's profile now closes it instead of leaving the page
+- You can now swipe down on a member's profile card to dismiss it

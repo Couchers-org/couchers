@@ -1,5 +1,5 @@
 import { ArrowBack, Close } from "@mui/icons-material";
-import { Collapse, Drawer, IconButton, styled } from "@mui/material";
+import { Collapse, IconButton, styled, SwipeableDrawer } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Snackbar from "components/Snackbar";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
@@ -13,12 +13,16 @@ import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { UserTab } from "routes";
-import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import { ProfileUserProvider } from "./hooks/useProfileUser";
 import { useProfileSheet } from "./ProfileSheetContext";
 
-const StyledDrawer = styled(Drawer)({
+const iOS =
+  typeof navigator !== "undefined" &&
+  /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+const StyledDrawer = styled(SwipeableDrawer)({
   "& .MuiDrawer-paper": {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -30,11 +34,22 @@ const StyledDrawer = styled(Drawer)({
   },
 });
 
+const Puller = styled("div")({
+  width: 30,
+  height: 6,
+  backgroundColor: "var(--mui-palette-grey-300)",
+  borderRadius: 3,
+  position: "absolute",
+  top: 8,
+  left: "calc(50% - 15px)",
+});
+
 const SheetHeader = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "flex-end",
   padding: theme.spacing(1, 1, 0),
   flexShrink: 0,
+  position: "relative",
   backgroundColor: "var(--mui-palette-background-paper)",
 }));
 
@@ -47,7 +62,7 @@ const ScrollContent = styled("div")({
 const REQUEST_ID = "request";
 
 export default function ProfileSheet() {
-  const isNativeEmbed = useIsNativeEmbed();
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const {
     openProfileUserId,
     closeProfileSheet,
@@ -77,6 +92,26 @@ export default function ProfileSheet() {
     return () => router.events.off("routeChangeStart", closeProfileSheet);
   }, [router.events, closeProfileSheet]);
 
+  // On Android, the hardware back gesture triggers webview.goBack() in the native
+  // layer. Push a history entry when the sheet opens so goBack() fires popstate
+  // here instead of routing to the previous page.
+  useEffect(() => {
+    if (!isMobile || openProfileUserId === null) return;
+
+    window.history.pushState({ profileSheetOpen: true }, "");
+
+    const handlePopState = () => closeProfileSheet();
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      // Sheet closed via button — our pushed state is still on top, pop it.
+      if (window.history.state?.profileSheetOpen) {
+        window.history.back();
+      }
+    };
+  }, [openProfileUserId, closeProfileSheet, isMobile]);
+
   useLayoutEffect(() => {
     if (isRequesting || isMessaging) {
       const el = scrollRef.current?.querySelector(`#${REQUEST_ID}`);
@@ -84,15 +119,20 @@ export default function ProfileSheet() {
     }
   }, [isRequesting, isMessaging]);
 
-  if (!isNativeEmbed) return null;
+  if (!isMobile) return null;
 
   return (
     <StyledDrawer
       anchor="bottom"
       open={openProfileUserId !== null}
       onClose={closeProfileSheet}
+      onOpen={() => {}}
+      disableSwipeToOpen
+      disableBackdropTransition={!iOS}
+      disableDiscovery={iOS}
     >
       <SheetHeader>
+        <Puller />
         <IconButton
           onClick={openGroupChatId ? closeGroupChat : closeProfileSheet}
           aria-label={openGroupChatId ? t("global:back") : t("global:close")}

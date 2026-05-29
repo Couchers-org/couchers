@@ -71,7 +71,7 @@ const VARIANTS = {
   },
 };
 
-const APP_VARIANT = process.env.APP_VARIANT || "production";
+const APP_VARIANT = process.env.APP_VARIANT || "devtool";
 const variant = VARIANTS[APP_VARIANT] ?? VARIANTS.production;
 const icons = ICON_SETS[variant.iconSet];
 
