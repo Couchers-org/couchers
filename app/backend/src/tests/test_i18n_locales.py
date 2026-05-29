@@ -1,6 +1,12 @@
 import pytest
 
-from couchers.i18n.localize import get_main_i18next
+from couchers.i18n.locales import (
+    DEFAULT_LOCALE,
+    get_babel_locale,
+    get_main_i18next,
+    get_supported_locales,
+    to_supported_locale,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -19,6 +25,27 @@ def test_translations_loaded():
 
     # Other languages should also exist
     assert len(i18next.translations_by_locale) > 1
+
+
+def test_to_supported_locale():
+    # No-ops
+    assert to_supported_locale("en") == "en"
+    assert to_supported_locale("fr") == "fr"
+    assert to_supported_locale("fr-CA") == "fr-CA"
+    assert to_supported_locale("zh-Hans") == "zh-Hans"
+
+    # Normalization
+    assert to_supported_locale("") == DEFAULT_LOCALE
+    assert to_supported_locale("xx") == DEFAULT_LOCALE
+    assert to_supported_locale("FR-ca") == "fr-CA"
+    assert to_supported_locale("en-UK") == "en"
+    assert to_supported_locale("en-Shorthand") == "en"
+    assert to_supported_locale("fr-CA-Shorthand") == "fr-CA"
+
+
+def test_all_supported_locales_have_babel_locales():
+    for locale in get_supported_locales():
+        assert get_babel_locale(locale), f"Locale {locale} does not have a valid Babel locale"
 
 
 def test_fallback_chain():

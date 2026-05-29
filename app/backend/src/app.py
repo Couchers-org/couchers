@@ -24,7 +24,7 @@ from couchers.config import check_config, config
 from couchers.constants import API_BASE_PORT, API_WORKER_COUNT, GRACEFUL_SHUTDOWN_TIMEOUT, MEDIA_PORT
 from couchers.db import apply_migrations, db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
-from couchers.i18n.localize import get_main_i18next
+from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server
