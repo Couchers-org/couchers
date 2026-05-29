@@ -1470,10 +1470,10 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert host.name in e.html
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert surfer_loc_context.localize_date(today_plus_2) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_2) in e.html
-    assert surfer_loc_context.localize_date(today_plus_3) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_3) in e.html
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in e.plain
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in e.html
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in e.plain
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
