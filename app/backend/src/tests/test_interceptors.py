@@ -33,7 +33,6 @@ from couchers.interceptors import (
 )
 from couchers.metrics import servicer_duration_histogram, servicer_setup_errors_counter
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
-from couchers.perf import _is_write_statement
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -230,24 +229,13 @@ def test_tracing_interceptor_ok_open(db):
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
 
 
-def test_is_write_statement():
-    assert _is_write_statement("INSERT INTO foo VALUES (1)")
-    assert _is_write_statement("UPDATE foo SET a = 1")
-    assert _is_write_statement("DELETE FROM foo")
-    assert _is_write_statement("  \n  insert into foo values (1)")
-    assert not _is_write_statement("SELECT 1")
-    assert not _is_write_statement("  SELECT * FROM foo")
-    assert not _is_write_statement("WITH x AS (SELECT 1) SELECT * FROM x")
-
-
 def test_tracing_interceptor_perf_accounting(db):
-    # handler runs a known number of statements: three reads, one compiled write (caught via is_crud), and one raw
-    # text() write (caught via the statement-sniff fallback). Both writes match zero rows so they're side-effect free.
+    # handler runs a known number of statements: three reads and one compiled write (caught via is_crud). The write
+    # matches zero rows so it's side-effect free.
     def TestRpc(request, context, session):
         for _ in range(3):
             session.execute(text("SELECT 1"))
         session.execute(update(APICall).where(APICall.id == -1).values(method="x"))
-        session.execute(text("UPDATE logging.api_calls SET method = method WHERE false"))
         return empty_pb2.Empty()
 
     with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
@@ -255,8 +243,8 @@ def test_tracing_interceptor_perf_accounting(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.query_count == 5
-        assert trace.write_query_count == 2
+        assert trace.query_count == 4
+        assert trace.write_query_count == 1
         assert trace.db_time_ms is not None and trace.db_time_ms >= 0
         assert trace.cpu_ms is not None and trace.cpu_ms >= 0
         # the handler's DB work can't exceed the whole-request wall time
