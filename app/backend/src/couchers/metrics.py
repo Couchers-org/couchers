@@ -115,6 +115,56 @@ def observe_in_servicer_setup_errors_counter(method: str, exception_type: str) -
     servicer_setup_errors_counter.labels(method, exception_type).inc()
 
 
+# Per-request resource accounting (see couchers/perf.py), labelled by method only to keep cardinality modest. The
+# histogram _sum gives the cost rate per endpoint via rate() (DB-seconds/sec, CPU-seconds/sec); the buckets give the
+# per-call distribution.
+servicer_db_time_histogram: Histogram = Histogram(
+    "couchers_servicer_db_time_seconds",
+    "Time spent in DB cursor execution per gRPC call",
+    labelnames=["method"],
+)
+servicer_cpu_time_histogram: Histogram = Histogram(
+    "couchers_servicer_cpu_seconds",
+    "Backend thread CPU time per gRPC call",
+    labelnames=["method"],
+)
+# Fibonacci bucket boundaries: roughly exponential, good resolution for an unbounded value
+servicer_db_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_db_query_count",
+    "Number of SQL statements executed per gRPC call",
+    labelnames=["method"],
+    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
+)
+servicer_db_write_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_db_write_query_count",
+    "Number of INSERT/UPDATE/DELETE statements executed per gRPC call",
+    labelnames=["method"],
+    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
+)
+
+
+def observe_in_servicer_perf_histograms(
+    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
+) -> None:
+    servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
+    servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
+    servicer_db_query_count_histogram.labels(method).observe(db_query_count)
+    servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+
+
+# Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and
+# answers "how much traffic comes from each platform".
+api_calls_counter: Counter = Counter(
+    "couchers_api_calls_total",
+    "Number of gRPC API calls",
+    labelnames=["method", "platform"],
+)
+
+
+def observe_api_call(method: str, client_platform: ClientPlatform | None) -> None:
+    api_calls_counter.labels(method, client_platform.name if client_platform is not None else "unknown").inc()
+
+
 # list of gauge names and function to execute to set value to
 # the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
 # before collection with this

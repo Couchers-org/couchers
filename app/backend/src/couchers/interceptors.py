@@ -33,8 +33,14 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.metrics import observe_in_servicer_duration_histogram, observe_in_servicer_setup_errors_counter
+from couchers.metrics import (
+    observe_api_call,
+    observe_in_servicer_duration_histogram,
+    observe_in_servicer_perf_histograms,
+    observe_in_servicer_setup_errors_counter,
+)
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
+from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -219,6 +225,8 @@ def _store_log(
     response: Message | None,
     traceback: str | None = None,
     perf_report: str | None = None,
+    perf: PerfResult | None = None,
+    client_platform: ClientPlatform | None = None,
     ip_address: str | None,
     user_agent: str | None,
     sofa: str | None,
@@ -243,6 +251,11 @@ def _store_log(
                 response_truncated=response_truncated,
                 traceback=traceback,
                 perf_report=perf_report,
+                db_query_count=perf.db_query_count if perf else None,
+                db_write_query_count=perf.db_write_query_count if perf else None,
+                db_time_ms=perf.db_time_ms if perf else None,
+                cpu_ms=perf.cpu_ms if perf else None,
+                client_platform=client_platform,
                 ip_address=ip_address,
                 user_agent=user_agent,
                 sofa=sofa,
@@ -339,9 +352,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                start_perf()
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
+                    # flush so pending ORM writes execute (and are counted) before we snapshot; a handler that only
+                    # session.add(...)s and returns would otherwise flush at commit, after read_perf()
+                    session.flush()
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -351,12 +369,20 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
+                    observe_api_call(method, headers.client_platform)
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
                 except Exception as e:
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
 
@@ -376,6 +402,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         request=req,
                         response=None,
                         traceback=traceback,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
@@ -383,6 +411,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
+                    observe_api_call(method, headers.client_platform)
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")

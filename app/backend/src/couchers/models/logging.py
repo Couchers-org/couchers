@@ -10,6 +10,7 @@ from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+from couchers.models.rest import ClientPlatform
 
 
 class EventSource(enum.Enum):
@@ -63,6 +64,15 @@ class APICall(Base, kw_only=True):
 
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
+
+    # per-request resource accounting, covering the handler span (see couchers/perf.py)
+    db_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    # counts only SQLAlchemy rendered insert/update/delete
+    db_write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
+    cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
+
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
 
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(String, default=None)

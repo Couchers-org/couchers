@@ -10,7 +10,7 @@ import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
-from sqlalchemy import select, update
+from sqlalchemy import select, text, update
 
 from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
@@ -31,8 +31,13 @@ from couchers.interceptors import (
     parse_headers,
     validate_auth_level,
 )
-from couchers.metrics import servicer_duration_histogram, servicer_setup_errors_counter
-from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.metrics import (
+    api_calls_counter,
+    servicer_db_query_count_histogram,
+    servicer_duration_histogram,
+    servicer_setup_errors_counter,
+)
+from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -227,6 +232,75 @@ def test_tracing_interceptor_ok_open(db):
         assert not trace.traceback
 
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
+
+
+def _get_db_query_count_histogram(method):
+    return sum(
+        s.value
+        for m in servicer_db_query_count_histogram.collect()
+        for s in m.samples
+        if s.name == "couchers_servicer_db_query_count_count" and s.labels.get("method") == method
+    )
+
+
+def _get_api_call_count(method, platform):
+    return sum(
+        s.value
+        for m in api_calls_counter.collect()
+        for s in m.samples
+        if s.name == "couchers_api_calls_total"
+        and s.labels.get("method") == method
+        and s.labels.get("platform") == platform
+    )
+
+
+def test_tracing_interceptor_perf_accounting(db):
+    method = "/org.couchers.auth.Auth/SignupFlow"
+    hist_count_before = _get_db_query_count_histogram(method)
+    api_call_count_before = _get_api_call_count(method, "web_mobile")
+
+    # handler runs a known number of statements: three reads and one compiled write. The write matches zero rows so
+    # it's side-effect free.
+    def TestRpc(request, context, session):
+        for _ in range(3):
+            session.execute(text("SELECT 1"))
+        session.execute(update(APICall).where(APICall.id == -1).values(method="x"))
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-client-platform", "web_mobile"),))
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.db_query_count == 4
+        assert trace.db_write_query_count == 1
+        assert trace.db_time_ms is not None and trace.db_time_ms >= 0
+        assert trace.cpu_ms is not None and trace.cpu_ms >= 0
+        # the handler's DB work can't exceed the whole-request wall time
+        assert trace.db_time_ms <= trace.duration
+        assert trace.client_platform == ClientPlatform.web_mobile
+
+    # the call was also observed into the Prometheus per-request resource histograms and the per-platform call counter
+    assert _get_db_query_count_histogram(method) == hist_count_before + 1
+    assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
+
+
+def test_tracing_interceptor_perf_accounting_orm_write(db):
+    # a handler that only session.add(...)s and returns: the INSERT flushes at commit, after read_perf(), so without
+    # the interceptor's explicit flush it would be missed from the write/query counts
+    method = "/org.couchers.auth.Auth/SignupFlow"
+
+    def TestRpc(request, context, session):
+        session.add(APICall(method="handler-insert", duration=0.0, is_api_key=False, response_truncated=False))
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty())
+
+    with session_scope() as session:
+        log = session.execute(select(APICall).where(APICall.method == method)).scalar_one()
+        assert log.db_query_count == 1
+        assert log.db_write_query_count == 1
 
 
 def test_tracing_interceptor_sensitive(db):
