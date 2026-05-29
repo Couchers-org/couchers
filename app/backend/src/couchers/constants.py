@@ -57,14 +57,14 @@ SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 DATETIME_MINUS_INFINITY = datetime(1, 1, 1, tzinfo=UTC)
 DATETIME_INFINITY = datetime(9876, 12, 31, hour=23, minute=59, second=59, tzinfo=UTC)
 
-# per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
-SERVER_THREADS = 8
-
 # the api workers listen on API_BASE_PORT .. API_BASE_PORT + API_WORKER_COUNT - 1; must stay in sync with
 # proxy/envoy.yaml and docker-compose.prod.yml
 API_WORKER_COUNT = 4
 API_BASE_PORT = 1761
 MEDIA_PORT = 1753
+
+# per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
+SERVER_THREADS = 8
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
