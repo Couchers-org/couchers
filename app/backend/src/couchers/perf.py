@@ -46,9 +46,9 @@ def read_perf() -> PerfResult | None:
     )
 
 
-def _is_write(statement: str) -> bool:
-    # INSERT/UPDATE/DELETE are all 6 chars; OTel's SQL commenter appends comments at the end, so the leading token is
-    # still the verb.
+def _is_write_statement(statement: str) -> bool:
+    # Fallback for raw text() SQL, which SQLAlchemy doesn't compile and so leaves is_crud False. INSERT/UPDATE/DELETE
+    # are all 6 chars; OTel's SQL commenter appends comments at the end, so the leading token is still the verb.
     return statement.lstrip()[:6].upper().startswith(("INSERT", "UPDATE", "DELETE"))
 
 
@@ -68,7 +68,8 @@ def _after_cursor_execute(conn, cursor, statement, parameters, context, executem
         return
     acc.query_count += 1
     acc.db_time_ms += elapsed_ms
-    if _is_write(statement):
+    # is_crud is set by SQLAlchemy when it compiled an INSERT/UPDATE/DELETE; the statement sniff only catches raw text().
+    if context.is_crud or _is_write_statement(statement):
         acc.write_query_count += 1
 
 
