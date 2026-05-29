@@ -62,12 +62,14 @@ start_time_gauge: Gauge = Gauge(
 )
 start_time_gauge.set(time.time())
 
-commit_timestamp_gauge: Gauge = Gauge(
-    "couchers_commit_timestamp_seconds",
-    "Unix timestamp of the deployed commit",
-    multiprocess_mode="max",
-)
+# Only registered when COMMIT_TIMESTAMP is set (i.e. a CI build); otherwise an unset multiprocess gauge would
+# export 0.0, which looks like a commit from 1970 and skews any "time since deploy" query.
 if config["COMMIT_TIMESTAMP"]:
+    commit_timestamp_gauge: Gauge = Gauge(
+        "couchers_commit_timestamp_seconds",
+        "Unix timestamp of the deployed commit",
+        multiprocess_mode="max",
+    )
     commit_timestamp_gauge.set(datetime.fromisoformat(config["COMMIT_TIMESTAMP"]).timestamp())
 
 jobs_duration_histogram: Histogram = Histogram(
