@@ -31,6 +31,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import DevSettingsButton from "@/components/DevSettingsButton";
 import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
@@ -219,5 +220,6 @@ function useNotificationObserver() {
 function PushNotificationsRegistrar() {
   useRegisterPushNotifications();
   useNotificationObserver();
+  useNativeDiagnostics();
   return null;
 }
