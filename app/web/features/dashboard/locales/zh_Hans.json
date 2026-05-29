@@ -70,7 +70,6 @@
     },
     "write_reference": {
       "title": "写评语",
-      "description": "为 {{name}} 的住宿经历留下评语",
       "button": "写评语"
     },
     "complete_profile": {

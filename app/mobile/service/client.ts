@@ -1,4 +1,6 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
+import { Platform } from "react-native";
+
 import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
 

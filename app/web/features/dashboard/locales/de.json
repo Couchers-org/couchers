@@ -64,8 +64,9 @@
     },
     "write_reference": {
       "title": "Schreibe eine Referenz",
-      "description": "Hinterlasse eine Bewertung für den Aufenthalt von {{name}}",
-      "button": "Referenz schreiben"
+      "button": "Referenz schreiben",
+      "description_surfed": "Schreibe eine Referenz für deinen Aufenthalt bei {{name}}",
+      "description_hosted": "Schreibe eine Referenz für den Aufenthalt von {{name}}"
     },
     "complete_profile": {
       "title": "Profil vervollständigen",
@@ -77,7 +78,12 @@
       "description": "Verifiziere deine Identität für eine sicherere Community",
       "button": "Konto verifizieren"
     },
-    "carousel_dismiss_button_a11y": "Erinnerung ausblenden"
+    "carousel_dismiss_button_a11y": "Erinnerung ausblenden",
+    "complete_my_home": {
+      "title": "Vervollständige den Abschnitt „Mein Zuhause“ deines Profils",
+      "description": "Trage deine Schlafmöglichkeiten, Hausregeln und eine Beschreibung deiner Wohnung ein",
+      "button": "Bearbeite dein Zuhause"
+    }
   },
   "events": {
     "your_upcoming_header": "Deine kommenden Events",

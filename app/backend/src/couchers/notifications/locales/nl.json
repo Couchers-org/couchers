@@ -1,31 +1,65 @@
 {
   "account_deletion": {
     "complete": {
-      "event_description": "Je account is verwijderd"
+      "event_description": "Je account is verwijderd",
+      "push": {
+        "title": "Account verwijderd",
+        "ios_title": "Account verwijderd"
+      }
     },
     "recovered": {
-      "event_description": "Je account is hersteld (en niet meer verwijderd)"
+      "event_description": "Je account is hersteld (en niet meer verwijderd)",
+      "push": {
+        "title": "Account hersteld",
+        "ios_title": "Account hersteld",
+        "body": "Welkom terug!"
+      }
     },
     "start": {
-      "event_description": "Je bent begonnen met het verwijderen van je account"
+      "event_description": "Je bent begonnen met het verwijderen van je account",
+      "push": {
+        "title": "Verzoek verwijderen account",
+        "ios_title": "Verzoek verwijderen account",
+        "body": "Klik op de link die we je hebben gemaild om te bevestigen."
+      }
     }
   },
   "api_key": {
     "create": {
-      "event_description": "Er is een API-sleutel aangemaakt voor je account"
+      "event_description": "Er is een API-sleutel aangemaakt voor je account",
+      "push": {
+        "title": "API-sleutel aangemaakt",
+        "ios_title": "API-sleutel aangemaakt",
+        "body": "Details zijn via e-mail naar je gestuurd."
+      }
     }
   },
   "badge": {
     "add": {
-      "event_description": "Er is een badge aan je account toegevoegd"
+      "event_description": "Er is een badge aan je account toegevoegd",
+      "push": {
+        "title": "Nieuwe profiel-badge: {{badge_name}}",
+        "ios_title": "Nieuwe profiel-badge",
+        "body": "De {{badge_name}} badge is toegevoegd aan je profiel."
+      }
     },
     "remove": {
-      "event_description": "Een badge is van je account verwijderd"
+      "event_description": "Een badge is van je account verwijderd",
+      "push": {
+        "title": "Profiel-badge verwijderd",
+        "ios_title": "Profiel-badge verwijderd",
+        "body": "De {{badge_name}} badge is verwijderd van je profiel."
+      }
     }
   },
   "birthdate": {
     "change": {
-      "event_description": "Je geboortedatum is gewijzigd"
+      "event_description": "Je geboortedatum is gewijzigd",
+      "push": {
+        "title": "Geboortedatum gewijzigd",
+        "ios_title": "Geboortedatum gewijzigd",
+        "body": "Een van onze admins heeft je geboortedatum gewijzigd naar {{birthdate}}."
+      }
     }
   },
   "chat": {
@@ -33,7 +67,11 @@
       "event_description": "Iemand heeft je een bericht gestuurd"
     },
     "missed_messages": {
-      "event_description": "Je hebt berichten in een chat gemist"
+      "event_description": "Je hebt berichten in een chat gemist",
+      "push": {
+        "title_one": "{{count}} gemist bericht",
+        "title_other": "{{count}} gemiste berichten"
+      }
     }
   },
   "discussion": {
@@ -173,6 +211,25 @@
   "thread": {
     "reply": {
       "event_description": "Iemand reageert op jouw comment"
+    }
+  },
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Pushmeldingen ingeschakeld",
+        "ios_title": "Pushmeldingen ingeschakeld",
+        "body": "Je ontvangt nu meldingen op dit apparaat."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "Je accepteert gasten, maar hebt al een tijdje niet meer ingelogd",
+      "push": {
+        "title": "Wil je nog steeds hosten?",
+        "ios_title": "Wil je nog steeds hosten?",
+        "body": "Meld je aan om je hosting-status te bevestigen."
+      }
     }
   }
 }

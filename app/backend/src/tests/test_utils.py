@@ -1,13 +1,14 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
+from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, wrap_coordinate
+from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, to_timezone, wrap_coordinate
 from tests.fixtures.db import generate_user
 
 
@@ -148,3 +149,18 @@ def test_wrap_coordinate():
     for coords, coords_expected in test_coords:
         coords_wrapped = wrap_coordinate(*coords)
         assert coords_expected == coords_wrapped
+
+
+def test_to_timezone():
+    utc_plus_one = timezone(offset=timedelta(hours=1))
+
+    epoch_utc = to_timezone(Timestamp(seconds=0), UTC)
+    assert epoch_utc.isoformat() == "1970-01-01T00:00:00+00:00"
+
+    # With Timestamp
+    epoch_utc_plus_one = to_timezone(Timestamp(seconds=0), utc_plus_one)
+    assert epoch_utc_plus_one.isoformat() == "1970-01-01T01:00:00+01:00"
+
+    # With datetime
+    epoch_utc_plus_one = to_timezone(epoch_utc, utc_plus_one)
+    assert epoch_utc_plus_one.isoformat() == "1970-01-01T01:00:00+01:00"

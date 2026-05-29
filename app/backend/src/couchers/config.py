@@ -19,6 +19,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("BACKGROUND_WORKER_COUNT", int, 2),
     # Version string
     ("VERSION", str, "unknown"),
+    # ISO 8601 timestamp of the deployed commit (CI_COMMIT_TIMESTAMP), empty outside CI builds
+    ("COMMIT_TIMESTAMP", str, ""),
     # Base URL of frontend, e.g. https://couchers.org
     ("BASE_URL", str),
     # URL of the backend, e.g. https://api.couchers.org
@@ -95,8 +97,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
     # Whether to initiate new activeness probes
     ("ACTIVENESS_PROBES_ENABLED", bool),
-    # Listmonk (mailing list)
-    ("LISTMONK_ENABLED", bool),
+    # Listmonk (mailing list, gated at runtime by the `listmonk_enabled` feature flag)
     ("LISTMONK_BASE_URL", str),
     ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
@@ -149,6 +150,16 @@ def check_config(cfg: dict[str, Any]) -> None:
         # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
         if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
             raise Exception("Stripe credentials must be configured in production")
+
+        # Listmonk is gated at runtime by the `listmonk_enabled` feature flag, which can be flipped on
+        # remotely at any time, so prod must always have the Listmonk credentials present.
+        if (
+            not cfg["LISTMONK_BASE_URL"]
+            or not cfg["LISTMONK_API_USERNAME"]
+            or not cfg["LISTMONK_API_KEY"]
+            or not cfg["LISTMONK_LIST_ID"]
+        ):
+            raise Exception("Listmonk credentials must be configured in production")
 
         # The following features are gated at runtime by feature flags (`strong_verification_enabled`,
         # `postal_verification_enabled`, `recaptcha_enabled`), which can be flipped on remotely at any

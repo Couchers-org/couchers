@@ -1,6 +1,6 @@
 import json
 from datetime import UTC, datetime
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import grpc
 import pytest
@@ -13,6 +13,7 @@ from couchers.db import session_scope
 from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
+from couchers.servicers.bugs import _fetch_signed_manifest
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import bugs_session, real_bugs_session
 
@@ -59,7 +60,7 @@ results
 **Locale**: `en`
 **Screen resolution**: 1920x1080
 **Page**: page
-**User**: <not logged in>""".strip()
+**User**: <not logged in> / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
@@ -120,7 +121,7 @@ results
 **Locale**: `en`
 **Screen resolution**: 390x844
 **Page**: page
-**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1) / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
@@ -403,58 +404,82 @@ def _multipart_part_json(body, name):
     return json.loads(body[start:end])
 
 
-_OTA_BUNDLES = {
-    "ios": {
-        "id": "00000000-0000-0000-0000-000000000000",
-        "launch_asset": {"key": "ios-key", "url": "https://cdn.example/ios/bundle.hbc"},
-        "assets": [],
-    },
-    "android": {
-        "id": "00000000-0000-0000-0000-000000000000",
-        "launch_asset": {"key": "android-key", "url": "https://cdn.example/android/bundle.hbc"},
-        "assets": [],
-    },
+_OTA_RELEASES = {
+    "ios": {"version": "v1.2.18355.fc38c23d", "runtime_version": "ios-fingerprint"},
+    "android": {"version": "v1.2.18356.ab12cd34", "runtime_version": "android-fingerprint"},
 }
 
+# A stand-in for the pre-signed multipart body the CDN serves; the servicer must hand it back
+# byte-for-byte, signature and all, so the test asserts on identity rather than on its contents.
+_SIGNED_MANIFEST = b'--COUCHERS_OTA_BOUNDARY\r\ncontent-disposition: form-data; name="manifest"\r\nexpo-signature: sig="abc", keyid="main", alg="rsa-v1_5-sha256"\r\n\r\n{}\r\n--COUCHERS_OTA_BOUNDARY--\r\n'
+_CDN_CONTENT_TYPE = "multipart/mixed; boundary=COUCHERS_OTA_BOUNDARY"
 
-def test_mobile_update_manifest(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
-    with real_bugs_session() as (bugs, metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
-            httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "my-fingerprint")),
-        )
 
-    assert res.content_type.startswith("multipart/mixed; boundary=")
-    body = res.data.decode()
+def _fake_cdn_response():
+    response = MagicMock()
+    response.headers = {"content-type": _CDN_CONTENT_TYPE}
+    response.content = _SIGNED_MANIFEST
+    response.raise_for_status = MagicMock()
+    return response
 
-    manifest = _multipart_part_json(body, "manifest")
-    # the manifest echoes the build's fingerprint so the client never rejects it
-    assert manifest["runtimeVersion"] == "my-fingerprint"
-    assert manifest["launchAsset"]["contentType"] == "application/javascript"
-    assert manifest["launchAsset"]["url"].endswith("/ios/bundle.hbc")
-    assert _multipart_part_json(body, "extensions") == {"assetRequestHeaders": {}}
+
+def test_native_update_manifest_serves_cdn_manifest_verbatim(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+    _fetch_signed_manifest.cache_clear()
+    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
+        with real_bugs_session() as (bugs, metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            )
+
+    # the signed manifest is forwarded untouched, content type and bytes
+    assert res.content_type == _CDN_CONTENT_TYPE
+    assert res.data == _SIGNED_MANIFEST
+    # fetched from the live release's immutable per-platform CDN path
+    mock_get.assert_called_once()
+    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18355.fc38c23d/ios/manifest"
 
     # the client requires these response headers or it rejects the manifest
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_mobile_update_manifest_android(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_BUNDLES)
-    with real_bugs_session() as (bugs, _metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
-            httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "android"), ("expo-runtime-version", "fp")),
-        )
+def test_native_update_manifest_android(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+    _fetch_signed_manifest.cache_clear()
+    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(("expo-platform", "android"), ("expo-runtime-version", "android-fingerprint")),
+            )
 
-    manifest = _multipart_part_json(res.data.decode(), "manifest")
-    assert manifest["launchAsset"]["url"].endswith("/android/bundle.hbc")
+    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18356.ab12cd34/android/manifest"
 
 
-def test_mobile_update_manifest_without_runtime_version_returns_directive(db):
+def test_native_update_manifest_runtime_mismatch_returns_directive(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+    _fetch_signed_manifest.cache_clear()
+    # the live release targets a different build fingerprint than this client is running
+    with patch("couchers.servicers.bugs.requests.get") as mock_get:
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "some-other-fingerprint")),
+            )
+
+    assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+    # a mismatch must not even fetch — the manifest would be rejected on this build
+    mock_get.assert_not_called()
+
+
+def test_native_update_manifest_without_runtime_version_returns_directive(db, feature_flags):
+    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
     with real_bugs_session() as (bugs, metadata_interceptor):
-        res = bugs.GetMobileUpdateManifest(
+        res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
             metadata=(("expo-platform", "ios"),),
         )
@@ -462,3 +487,14 @@ def test_mobile_update_manifest_without_runtime_version_returns_directive(db):
     body = res.data.decode()
     assert _multipart_part_json(body, "directive") == {"type": "noUpdateAvailable"}
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
+
+
+def test_native_update_manifest_unconfigured_platform_returns_directive(db, feature_flags):
+    feature_flags.set("native_ota_bundles", {})
+    with real_bugs_session() as (bugs, _metadata_interceptor):
+        res = bugs.GetNativeUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+        )
+
+    assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}

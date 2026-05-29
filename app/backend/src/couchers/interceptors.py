@@ -34,7 +34,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.metrics import observe_in_servicer_duration_histogram
-from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -76,7 +76,12 @@ def _binned_now() -> Function[Any]:
 
 
 def _try_get_and_update_user_details(
-    token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
+    token: str | None,
+    is_api_key: bool,
+    ip_address: str | None,
+    user_agent: str | None,
+    sofa: str | None,
+    client_platform: ClientPlatform | None,
 ) -> UserAuthInfo | None:
     """
     Tries to get session and user info corresponding to this token.
@@ -100,6 +105,7 @@ def _try_get_and_update_user_details(
                     UserActivity.period == _binned_now(),
                     UserActivity.ip_address == ip_address,
                     UserActivity.user_agent == user_agent,
+                    UserActivity.sofa == sofa,
                 ),
             )
             .where(User.is_visible)
@@ -123,6 +129,8 @@ def _try_get_and_update_user_details(
 
         if user_activity:
             user_activity.api_calls += 1
+            if client_platform is not None:
+                user_activity.client_platform = client_platform
         else:
             session.add(
                 UserActivity(
@@ -130,6 +138,8 @@ def _try_get_and_update_user_details(
                     period=_binned_now(),
                     ip_address=ip_address,
                     user_agent=user_agent,
+                    sofa=sofa,
+                    client_platform=client_platform,
                     api_calls=1,
                 )
             )
@@ -281,7 +291,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
 
         auth_info = _try_get_and_update_user_details(
-            headers.token, headers.is_api_key, headers.ip_address, headers.user_agent
+            headers.token,
+            headers.is_api_key,
+            headers.ip_address,
+            headers.user_agent,
+            headers.sofa,
+            headers.client_platform,
         )
 
         try:
@@ -365,6 +380,15 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
+                        sentry_sdk.set_tag("user_agent", headers.user_agent)
+                        sentry_sdk.set_tag("ui_lang", loc_context.locale)
+                        sentry_sdk.set_user(
+                            {
+                                "id": couchers_context._user_id,
+                                "ip_address": headers.ip_address,
+                                "sofa": sofa[:12],
+                            }
+                        )
                         sentry_sdk.capture_exception(e)
 
                     raise e
@@ -401,6 +425,7 @@ class CouchersHeaders:
     is_api_key: bool
     ip_address: str | None
     user_agent: str | None
+    client_platform: ClientPlatform | None
     ui_lang: str | None
     user_id: str | None
     sofa: str | None
@@ -423,6 +448,14 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
     ip_address = headers.get("x-couchers-real-ip")
     user_agent = headers.get("user-agent")
 
+    # the client (web app or native app) declares its platform via this header
+    client_platform_raw = headers.get("x-couchers-client-platform")
+    client_platform = (
+        ClientPlatform[client_platform_raw]
+        if isinstance(client_platform_raw, str) and client_platform_raw in ClientPlatform.__members__
+        else None
+    )
+
     ui_lang = parse_ui_lang_cookie(headers)
     user_id = parse_user_id_cookie(headers)
     sofa = parse_sofa_cookie(headers)
@@ -432,6 +465,7 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
         is_api_key=is_api_key,
         ip_address=ip_address if isinstance(ip_address, str) else None,
         user_agent=user_agent if isinstance(user_agent, str) else None,
+        client_platform=client_platform,
         ui_lang=ui_lang,
         user_id=user_id,
         sofa=sofa,

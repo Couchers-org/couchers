@@ -56,6 +56,26 @@
     "subject": "Your date of birth was changed",
     "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
+  "chat_message_received": {
+    "direct": {
+      "subject": "{{ author }} sent you a message",
+      "body": "{{ author }} sent you a message:",
+      "view_action": "View this message"
+    },
+    "group": {
+      "subject": "{{ author }} sent a message in <b>{{ group }}</b>",
+      "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
+      "view_action": "View this message"
+    }
+  },
+  "chat_messages_missed": {
+    "subject": "You have unseen messages on Couchers.org!",
+    "in_dm_one": "You missed {{count}} message from {{author}}:",
+    "in_dm_other": "You missed {{count}} messages from {{author}}:",
+    "in_group_one": "You missed {{count}} message in <b>{{group}}</b>:",
+    "in_group_other": "You missed {{count}} messages in <b>{{group}}</b>:",
+    "view_action": "View this message"
+  },
   "discussion_created": {
     "subject": "{{author}} started a discussion: {{title}}",
     "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
@@ -89,6 +109,60 @@
   "gender_changed": {
     "subject": "Your gender was changed",
     "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
+  },
+  "host_request_created": {
+    "subject": "{{surfer_name}} sent you a host request",
+    "body": "<b>{{surfer_name}}</b> sent you a host request:",
+    "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
+    "view_action": "View host request",
+    "quick_decline_action": "Quick decline (no login needed)",
+    "respond_encouragement": "Please respond to this request, even a quick decline is better than no response!"
+  },
+  "host_request_generic": {
+    "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
+    "view_action": "View host request"
+  },
+  "host_request_reminder": {
+    "subject": "You have a pending host request from {{surfer_name}}!",
+    "body": "Please respond to the request!"
+  },
+  "host_request_message": {
+    "from_host": {
+      "subject": "{{other_name}} sent you a message in your host request",
+      "body": "<b>{{other_name}}</b> sent you a message in your host request:"
+    },
+    "from_surfer": {
+      "subject": "{{other_name}} sent you a message in their host request",
+      "body": "<b>{{other_name}}</b> sent you a message in their host request:"
+    }
+  },
+  "host_request_missed_messages": {
+    "from_host": {
+      "subject": "{{other_name}} sent you message(s) in your host request",
+      "body": "<b>{{other_name}}</b> sent you message(s) in your host request:"
+    },
+    "from_surfer": {
+      "subject": "{{other_name}} sent you message(s) in their host request",
+      "body": "<b>{{other_name}}</b> sent you message(s) in their host request:"
+    }
+  },
+  "host_request_status_changed": {
+    "accepted_by_host": {
+      "subject": "{{other_name}} accepted your host request",
+      "body": "<b>{{other_name}}</b> accepted your host request:"
+    },
+    "declined_by_host": {
+      "subject": "{{other_name}} declined your host request",
+      "body": "<b>{{other_name}}</b> declined your host request:"
+    },
+    "confirmed_by_surfer": {
+      "subject": "{{other_name}} confirmed their host request",
+      "body": "<b>{{other_name}}</b> confirmed their host request:"
+    },
+    "cancelled_by_surfer": {
+      "subject": "{{other_name}} cancelled their host request",
+      "body": "<b>{{other_name}}</b> cancelled their host request:"
+    }
   },
   "moderator_note": {
     "subject": "You have received a mod note",

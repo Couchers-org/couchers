@@ -224,6 +224,7 @@
     "guide_link_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
     "arrival_date": "Arrival Date",
     "arrival_date_empty": "Please specify an arrival date.",
+    "arrival_date_before_host_today": "This date has already passed for {{name}}.",
     "departure_date": "Departure Date",
     "departure_date_empty": "Please specify a departure date.",
     "request": "Request",

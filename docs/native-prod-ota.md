@@ -132,7 +132,7 @@ delivers `set-cookie`).
 > **Note — the route-scoped Envoy approach does NOT work here.** A `match: { path:
 > "/native/ota/manifest" }` route with `response_headers_to_add` never matches,
 > because `grpc_json_transcoder` rewrites the request `:path` to the gRPC method
-> path (`/org.couchers.bugs.Bugs/GetMobileUpdateManifest`) *before* route
+> path (`/org.couchers.bugs.Bugs/GetNativeUpdateManifest`) *before* route
 > selection, so the request falls through to the catch-all `prefix: "/"` route.
 > The servicer-metadata path sidesteps this entirely and needs no `envoy.yaml`
 > change — only the regenerated `descriptors.pb` (so the route transcodes at all).
@@ -219,7 +219,7 @@ check would bucket every install on `id="None"` — no per-user rollout split.
 
 ---
 
-## 6. The manifest endpoint (`Bugs.GetMobileUpdateManifest`)
+## 6. The manifest endpoint (`Bugs.GetNativeUpdateManifest`)
 
 Add to `app/proto/bugs.proto` (the `Bugs` service is already `AUTH_LEVEL_OPEN`
 and already Envoy-allowlisted):
@@ -227,7 +227,7 @@ and already Envoy-allowlisted):
 ```proto
 import "google/api/httpbody.proto";
 
-rpc GetMobileUpdateManifest(google.api.HttpBody) returns (google.api.HttpBody) {
+rpc GetNativeUpdateManifest(google.api.HttpBody) returns (google.api.HttpBody) {
   option (google.api.http) = { get : "/native/ota/manifest" };
 }
 ```

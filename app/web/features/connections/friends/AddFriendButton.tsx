@@ -1,15 +1,23 @@
+import { Link } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "components/Dialog";
 import { PersonAddIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { doAntibot } from "features/antibot/antibot";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { PROFILE } from "i18n/namespaces";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "i18n";
+import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import React, { useState } from "react";
+import { helpCenterFriendRequestsURL } from "routes";
 import { service } from "service";
 
 import { SetMutationError } from ".";
@@ -24,9 +32,10 @@ export default function AddFriendButton({
   userId,
 }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([PROFILE, CONNECTIONS, GLOBAL]);
   const [showCantFriendDialog, setShowCantFriendDialog] =
     useState<boolean>(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
     useAccountInfo();
@@ -76,8 +85,13 @@ export default function AddFriendButton({
     if (!accountInfo?.profileComplete) {
       setShowCantFriendDialog(true);
     } else {
-      sendFriendRequest({ setMutationError, userId });
+      setShowConfirmDialog(true);
     }
+  };
+
+  const onConfirm = () => {
+    setShowConfirmDialog(false);
+    sendFriendRequest({ setMutationError, userId });
   };
 
   return (
@@ -87,6 +101,40 @@ export default function AddFriendButton({
         onClose={() => setShowCantFriendDialog(false)}
         attempted_action="send_friend_request"
       />
+      <Dialog
+        aria-labelledby="add-friend-confirm-dialog"
+        open={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+      >
+        <DialogTitle id="add-friend-confirm-dialog">
+          {t("connections:add_friend_confirmation_dialog.title")}
+        </DialogTitle>
+        <DialogContent>
+          <Trans
+            i18nKey="connections:add_friend_confirmation_dialog.message"
+            components={{
+              helpCenterLink: (
+                <Link
+                  href={helpCenterFriendRequestsURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              ),
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            onClick={() => setShowConfirmDialog(false)}
+          >
+            {t("global:cancel")}
+          </Button>
+          <Button variant="contained" loading={isPending} onClick={onConfirm}>
+            {t("connections:add_friend_confirmation_dialog.confirm")}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Button
         startIcon={<PersonAddIcon />}
         onClick={onClick}

@@ -1217,18 +1217,19 @@ def test_send_host_request_reminders(db, moderator):
             assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_add_users_to_email_list(db):
+def test_add_users_to_email_list(db, feature_flags):
+    feature_flags.set("listmonk_enabled", True)
     new_config = config.copy()
-    new_config["LISTMONK_ENABLED"] = True
     new_config["LISTMONK_BASE_URL"] = "https://example.com"
     new_config["LISTMONK_API_USERNAME"] = "test_user"
     new_config["LISTMONK_API_KEY"] = "dummy_api_key"
     new_config["LISTMONK_LIST_ID"] = 6
 
     with patch("couchers.jobs.handlers.config", new_config):
-        with patch("couchers.jobs.handlers.requests.post") as mock:
+        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+            mock_session_cls.return_value.post.return_value.status_code = 200
             add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_not_called()
+        mock_session_cls.return_value.post.assert_not_called()
 
         generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
         generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
@@ -1237,15 +1238,14 @@ def test_add_users_to_email_list(db):
             in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
         )
 
-        with patch("couchers.jobs.handlers.requests.post") as mock:
-            ret = mock.return_value
-            ret.status_code = 200
+        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+            mock_sess = mock_session_cls.return_value
+            mock_sess.post.return_value.status_code = 200
             add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_has_calls(
+        mock_sess.post.assert_has_calls(
             [
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing1@couchers.invalid",
                         "name": "Tester1",
@@ -1258,7 +1258,6 @@ def test_add_users_to_email_list(db):
                 ),
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing3@couchers.invalid",
                         "name": "Tester3 von test",
@@ -1273,9 +1272,10 @@ def test_add_users_to_email_list(db):
             any_order=True,
         )
 
-        with patch("couchers.jobs.handlers.requests.post") as mock:
+        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+            mock_session_cls.return_value.post.return_value.status_code = 200
             add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_not_called()
+        mock_session_cls.return_value.post.assert_not_called()
 
 
 def test_update_recommendation_scores(db):

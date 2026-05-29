@@ -34,7 +34,7 @@ class Conversation(Base, kw_only=True):
 
 class GroupChat(Base, kw_only=True):
     """
-    Group chat
+    Group chat or direct message.
     """
 
     __tablename__ = "group_chats"

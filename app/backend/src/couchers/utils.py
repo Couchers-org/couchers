@@ -2,7 +2,7 @@ import http.cookies
 import re
 import typing
 from collections.abc import Mapping, Sequence
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
 from zoneinfo import ZoneInfo
@@ -100,6 +100,18 @@ def to_aware_datetime(ts: Timestamp) -> datetime:
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
     return ts.ToDatetime(tzinfo=UTC)
+
+
+def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
+    """Returns an instant in time as a datetime in a given timezone."""
+    if isinstance(value, Timestamp):
+        return value.ToDatetime(timezone)
+
+    if value.tzinfo is None:
+        # A naive datetime does not represent a point in time.
+        raise ValueError("Cannot convert a naive datetime to a timezone.")
+
+    return value.astimezone(timezone)
 
 
 def now() -> datetime:

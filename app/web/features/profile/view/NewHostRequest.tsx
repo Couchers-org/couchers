@@ -5,7 +5,6 @@ import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
-import dayjs from "dayjs";
 import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
 import {
@@ -23,6 +22,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { theme } from "theme";
 import { isSameOrFutureDate } from "utils/date";
+import dayjs from "utils/dayjs";
 
 const TYPING_GAP_CAP_MS = 3000;
 
@@ -224,6 +224,7 @@ export default function NewHostRequest({
 
     onSuccess: () => {
       submittedRef.current = true;
+      reset();
       setIsRequesting(false);
       setIsRequestSuccess(true);
     },
@@ -233,10 +234,16 @@ export default function NewHostRequest({
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
-    reset();
   });
 
+  const hostToday = user.timezone
+    ? dayjs().tz(user.timezone).startOf("day")
+    : dayjs().startOf("day");
+
   const watchFromDate = watch("fromDate", undefined);
+  const arrivalBeforeHostToday =
+    !!watchFromDate && dayjs(watchFromDate).isBefore(hostToday);
+
   useEffect(() => {
     if (
       watchFromDate &&
@@ -271,11 +278,27 @@ export default function NewHostRequest({
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
                 defaultValue={null}
+                minDate={hostToday}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
-                  validate: (stringDate) => stringDate !== "",
+                  validate: {
+                    notEmpty: (date) => !date || date !== "",
+                    notBeforeHostToday: (date) =>
+                      !date ||
+                      !dayjs(date).isBefore(hostToday) ||
+                      t("profile:request_form.arrival_date_before_host_today", {
+                        name: user.name,
+                      }),
+                  },
                 }}
               />
+              {arrivalBeforeHostToday && (
+                <Alert severity="error">
+                  {t("profile:request_form.arrival_date_before_host_today", {
+                    name: user.name,
+                  })}
+                </Alert>
+              )}
               <StyledDatepicker
                 control={control}
                 error={!!errors.toDate}

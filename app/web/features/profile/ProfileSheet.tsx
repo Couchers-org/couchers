@@ -9,7 +9,7 @@ import Overview from "features/profile/view/Overview";
 import UserCard from "features/profile/view/UserCard";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { UserTab } from "routes";
@@ -69,7 +69,7 @@ export default function ProfileSheet() {
     openGroupChatId,
     closeGroupChat,
   } = useProfileSheet();
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
   const scrollRef = useRef<HTMLDivElement>(null);

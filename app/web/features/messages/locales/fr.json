@@ -43,10 +43,6 @@
       "a11y_label": "Muet.te"
     }
   },
-  "close_request_dialog_title": "Avez-vous fini de discuter ?",
-  "request_closed_message": "Cette demande d’hôte est fermée. Pour continuer à discuter, envoyez un message normal au destinataire.",
-  "close_request_dialog_host": "Veuillez vous assurer d'avoir terminé la conversation avant de refuser leur demande.",
-  "close_request_dialog_surfer": "Veuillez vous assurer d'avoir terminé de discuter avant d'annuler votre demande.",
   "past_request_help_text": "Cette demande est passée ; vous pourrez toujours envoyer des messages, mais vous ne pourrez pas la modifier autrement.",
   "host_pending_request_help_text": "<0>Les choses à prendre en compte</0> avant de répondre.",
   "surfer_declined_request_help_text": "<0>Consultez notre guide</0> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",

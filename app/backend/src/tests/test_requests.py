@@ -1,6 +1,7 @@
 import html
 import re
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
@@ -207,6 +208,61 @@ def test_create_request(db, moderator):
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "You cannot request to stay with someone for longer than one year."
+
+
+def test_create_host_request_rejects_date_past_in_host_timezone(db):
+    # When the host's timezone has already rolled over to the next day, a
+    # from_date of "today in UTC" is in the past from the host's perspective and
+    # must be rejected. The frontend blocks this date before submission; the
+    # backend enforces the same rule for consistency.
+    user1, token1 = generate_user()
+    # geom inside the fake Europe/Helsinki timezone polygon used in tests
+    user2, _ = generate_user(geom=create_coordinate(61, 25))
+
+    # Helsinki is already on 2026-01-16; requester submits 2026-01-15.
+    fake_today_by_tz = {"Europe/Helsinki": date(2026, 1, 16)}
+
+    with patch(
+        "couchers.servicers.requests.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
+    ):
+        with requests_session(token1) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=user2.id,
+                        from_date="2026-01-15",
+                        to_date="2026-01-18",
+                        text=valid_request_text(),
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_create_host_request_date_valid_when_host_behind_requester(db):
+    # Simulate the opposite timezone direction: the host (America/New_York) is
+    # still on 2026-01-15 while the requester has already rolled into 2026-01-16.
+    # A from_date of 2026-01-16 is "today" for the requester and "tomorrow" for
+    # the host — must be accepted without issue.
+    user1, token1 = generate_user()
+    user2, _ = generate_user()  # default geom resolves to America/New_York
+
+    fake_today_by_tz = {"America/New_York": date(2026, 1, 15)}
+
+    with patch(
+        "couchers.servicers.requests.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
+    ):
+        with requests_session(token1) as api:
+            res = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date="2026-01-16",
+                    to_date="2026-01-20",
+                    text=valid_request_text(),
+                )
+            )
+            assert res.host_request_id
 
 
 def test_create_request_incomplete_profile(db):
