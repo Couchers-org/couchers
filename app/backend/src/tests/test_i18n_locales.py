@@ -34,9 +34,12 @@ def test_to_supported_locale():
     assert to_supported_locale("fr-CA") == "fr-CA"
     assert to_supported_locale("zh-Hans") == "zh-Hans"
 
-    # Normalization
+    # Bogus locales
     assert to_supported_locale("") == DEFAULT_LOCALE
     assert to_supported_locale("xx") == DEFAULT_LOCALE
+    assert to_supported_locale("------------------") == DEFAULT_LOCALE
+
+    # Normalization
     assert to_supported_locale("FR-ca") == "fr-CA"
     assert to_supported_locale("en-UK") == "en"
     assert to_supported_locale("en-Shorthand") == "en"
