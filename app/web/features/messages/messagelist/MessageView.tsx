@@ -18,7 +18,6 @@ const RootContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
 })<{ isCurrentUser: boolean; isLoading: boolean }>(
   ({ theme, isCurrentUser, isLoading }) => ({
-    "& > :first-of-type": { marginRight: theme.spacing(2) },
     display: "flex",
 
     ...(isLoading && {
@@ -40,15 +39,16 @@ const StyledCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "isLoading" && prop !== "isCurrentUser",
 })<{ isLoading: boolean; isCurrentUser: boolean }>(
   ({ theme, isCurrentUser, isLoading }) => ({
+    width: "fit-content",
+    minWidth: 0,
     [theme.breakpoints.up("xs")]: {
-      width: "100%",
+      maxWidth: "100%",
     },
     [theme.breakpoints.up("sm")]: {
-      width: "80%",
+      maxWidth: "80%",
     },
     [theme.breakpoints.up("md")]: {
-      width: "70%",
-      maxWidth: "75rem",
+      maxWidth: "min(70%, 75rem)",
     },
     border: "1px solid",
     borderRadius: theme.shape.borderRadius * 3,
@@ -76,21 +76,33 @@ const StyledLeftOfMessage = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  marginRight: theme.spacing(2),
 }));
 
-const StyledHeader = styled("div")(({ theme }) => ({
-  alignItems: "center",
+const StyledHeader = styled("div", {
+  shouldForwardProp: (prop) => prop !== "isCurrentUser",
+})<{ isCurrentUser: boolean }>(({ theme, isCurrentUser }) => ({
+  alignItems: "baseline",
   display: "flex",
+  gap: theme.spacing(2),
   padding: theme.spacing(2),
   paddingBottom: theme.spacing(1),
+
+  ...(isCurrentUser && { justifyContent: "flex-end" }),
 }));
 
 const StyledNameTypography = styled(Typography)(({ theme }) => ({
   ...theme.typography.body2,
   flexGrow: 1,
+  minWidth: 0,
   fontWeight: "bold",
   margin: 0,
 }));
+
+const StyledTimeInterval = styled(TimeInterval)({
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+});
 
 const StyledMessageBody = styled(CardContent)(({ theme }) => ({
   "&:last-of-type": { paddingBottom: theme.spacing(2) },
@@ -99,14 +111,6 @@ const StyledMessageBody = styled(CardContent)(({ theme }) => ({
   paddingTop: 0,
   overflowWrap: "break-word",
   whiteSpace: "pre-wrap",
-}));
-
-const StyledFooter = styled("div")(({ theme }) => ({
-  display: "flex",
-  justifyContent: "flex-end",
-  paddingBottom: theme.spacing(2),
-  paddingInlineEnd: theme.spacing(2),
-  paddingInlineStart: theme.spacing(2),
 }));
 
 export interface MessageProps {
@@ -155,21 +159,19 @@ export default function MessageView({
         </StyledLeftOfMessage>
       )}
       <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser}>
-        <StyledHeader>
-          {author && !isAuthorLoading && (
+        <StyledHeader isCurrentUser={isCurrentUser}>
+          {!isCurrentUser && author && !isAuthorLoading && (
             <StyledNameTypography variant="h5">
               {author.name}
             </StyledNameTypography>
           )}
-          {isAuthorLoading && <Skeleton width={100} />}
-          {!author && !isAuthorLoading && (
+          {!isCurrentUser && isAuthorLoading && <Skeleton width={100} />}
+          {!isCurrentUser && !author && !isAuthorLoading && (
             <StyledNameTypography variant="h5">
               {t("unknown_user")}
             </StyledNameTypography>
           )}
-          {!isCurrentUser && (
-            <TimeInterval date={timestamp2Date(message.time!)} />
-          )}
+          <StyledTimeInterval date={timestamp2Date(message.time!)} />
         </StyledHeader>
         <StyledMessageBody>
           <TextBody>
@@ -179,17 +181,7 @@ export default function MessageView({
             />
           </TextBody>
         </StyledMessageBody>
-        {isCurrentUser && (
-          <StyledFooter>
-            <TimeInterval date={timestamp2Date(message.time!)} />
-          </StyledFooter>
-        )}
       </StyledCard>
-      {author && isCurrentUser && <StyledAvatar user={author} />}
-      {isCurrentUserLoading && (
-        <Skeleton variant="rounded" width={40} height={40} />
-      )}
-      {!author && !isAuthorLoading && <StyledAvatar />}
     </RootContainer>
   );
 }
