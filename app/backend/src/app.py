@@ -95,9 +95,6 @@ def common_init() -> None:
 
 
 def main() -> None:
-    # used to export metrics
-    create_prometheus_server(8000)
-
     logger.info("Running DB migrations")
 
     apply_migrations()
@@ -121,6 +118,10 @@ def main() -> None:
     if config["ROLE"] in ["api", "all"]:
         for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
             start_api_worker(port)
+
+    # started after all forks so children never inherit the metrics HTTP server thread (a thread holding a
+    # lock at fork time would deadlock in the child); the parent aggregates the children's metrics
+    create_prometheus_server(8000)
 
     # Initialize the experimentation framework for feature flags in the main process.
     # Worker and API processes initialize their own instance post-fork.
