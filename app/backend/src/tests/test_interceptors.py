@@ -31,7 +31,11 @@ from couchers.interceptors import (
     parse_headers,
     validate_auth_level,
 )
-from couchers.metrics import servicer_duration_histogram, servicer_setup_errors_counter
+from couchers.metrics import (
+    servicer_duration_histogram,
+    servicer_query_count_histogram,
+    servicer_setup_errors_counter,
+)
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
@@ -229,7 +233,20 @@ def test_tracing_interceptor_ok_open(db):
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
 
 
+def _get_query_count_histogram(method):
+    samples = {
+        s.name: s.value
+        for m in servicer_query_count_histogram.collect()
+        for s in m.samples
+        if s.labels.get("method") == method and s.name in ("couchers_servicer_query_count_count",)
+    }
+    return samples.get("couchers_servicer_query_count_count", 0)
+
+
 def test_tracing_interceptor_perf_accounting(db):
+    method = "/org.couchers.auth.Auth/SignupFlow"
+    hist_count_before = _get_query_count_histogram(method)
+
     # handler runs a known number of statements: three reads and one compiled write (caught via is_crud). The write
     # matches zero rows so it's side-effect free.
     def TestRpc(request, context, session):
@@ -250,6 +267,9 @@ def test_tracing_interceptor_perf_accounting(db):
         # the handler's DB work can't exceed the whole-request wall time
         assert trace.db_time_ms <= trace.duration
         assert trace.client_platform == ClientPlatform.web_mobile
+
+    # the call was also observed into the Prometheus per-request resource histograms
+    assert _get_query_count_histogram(method) == hist_count_before + 1
 
 
 def test_tracing_interceptor_sensitive(db):

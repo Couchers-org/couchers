@@ -115,6 +115,33 @@ def observe_in_servicer_setup_errors_counter(method: str, exception_type: str) -
     servicer_setup_errors_counter.labels(method, exception_type).inc()
 
 
+# Per-request resource accounting (see couchers/perf.py), labelled by method only to keep cardinality modest. The
+# histogram _sum gives the cost rate per endpoint via rate() (DB-seconds/sec, CPU-seconds/sec); the buckets give the
+# per-call distribution.
+servicer_db_time_histogram: Histogram = Histogram(
+    "couchers_servicer_db_time_seconds",
+    "Time spent in DB cursor execution per gRPC call",
+    labelnames=["method"],
+)
+servicer_cpu_time_histogram: Histogram = Histogram(
+    "couchers_servicer_cpu_seconds",
+    "Backend thread CPU time per gRPC call",
+    labelnames=["method"],
+)
+servicer_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_query_count",
+    "Number of SQL statements executed per gRPC call",
+    labelnames=["method"],
+    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, _INF),
+)
+
+
+def observe_in_servicer_perf_histograms(method: str, query_count: int, db_time_ms: float, cpu_ms: float) -> None:
+    servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
+    servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
+    servicer_query_count_histogram.labels(method).observe(query_count)
+
+
 # list of gauge names and function to execute to set value to
 # the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
 # before collection with this

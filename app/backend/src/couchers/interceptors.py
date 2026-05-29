@@ -33,7 +33,11 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.metrics import observe_in_servicer_duration_histogram, observe_in_servicer_setup_errors_counter
+from couchers.metrics import (
+    observe_in_servicer_duration_histogram,
+    observe_in_servicer_perf_histograms,
+    observe_in_servicer_setup_errors_counter,
+)
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
@@ -351,6 +355,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -360,13 +365,15 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
-                        perf=read_perf(),
+                        perf=perf,
                         client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(method, perf.query_count, perf.db_time_ms, perf.cpu_ms)
                 except Exception as e:
                     perf = read_perf()
                     finished = perf_counter_ns()
@@ -397,6 +404,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(method, perf.query_count, perf.db_time_ms, perf.cpu_ms)
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
