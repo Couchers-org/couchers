@@ -3,6 +3,7 @@ import { Platform } from "react-native";
 
 import { getApiBaseUrl } from "@/config/urls";
 import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
+import { BugsPromiseClient } from "@/proto/bugs_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
 import isGrpcError from "@/service/utils/isGrpcError";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
@@ -104,6 +105,7 @@ function buildClients(url: string) {
   }
   return {
     auth: new AuthPromiseClient(url, null, opts),
+    bugs: new BugsPromiseClient(url, null, opts),
     notifications: new NotificationsPromiseClient(url, null, opts),
   };
 }
@@ -123,7 +125,7 @@ export function reconfigureApiClient(): void {
 if (!IS_PROD && typeof window !== "undefined") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
-  grpcWebTools([client.auth, client.notifications]);
+  grpcWebTools([client.auth, client.bugs, client.notifications]);
 }
 
 export default client;
