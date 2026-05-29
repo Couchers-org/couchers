@@ -1,32 +1,34 @@
 import * as Sentry from "@sentry/react-native";
 import * as Clipboard from "expo-clipboard";
-import Constants from "expo-constants";
 import { Tabs } from "expo-router";
-import * as Updates from "expo-updates";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Platform, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
+import {
+  embeddedDebugVersion,
+  isEmbeddedLaunch,
+  runningDebugVersionOTA,
+  runningDisplayVersion,
+  updateChannel,
+} from "@/service/buildInfo";
 import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 
 // Tapping the Home tab three times in quick succession surfaces a debug toast.
-// The expo-updates fields tell you which JS bundle is actually running (embedded
-// store build vs an OTA), which is how we confirm an over-the-air update applied.
+// It reports both bundle identities (see service/buildInfo.ts): the embedded
+// store build and the JS bundle currently running, which is how we confirm an
+// over-the-air update applied.
 const TRIPLE_TAP_WINDOW_MS = 800;
 
 function getDebugInfo(): string {
-  const extra = Constants.expoConfig?.extra as { gitHash?: string } | undefined;
-  const gitHash = extra?.gitHash ?? "unknown";
-  const version = Constants.expoConfig?.version ?? "unknown";
   return [
-    `Version: ${version} (${gitHash})`,
-    `Runtime: ${Updates.runtimeVersion ?? "unknown"}`,
-    `Update: ${Updates.updateId ?? "none"}`,
-    `Source: ${Updates.isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
-    `Channel: ${Updates.channel ?? "none"}`,
-    `Published: ${Updates.createdAt?.toISOString() ?? "unknown"}`,
+    `Version: ${runningDisplayVersion}`,
+    `Running: ${runningDebugVersionOTA}`,
+    `Embedded: ${embeddedDebugVersion}`,
+    `Source: ${isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
+    `Channel: ${updateChannel}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
   ].join("\n");
 }
