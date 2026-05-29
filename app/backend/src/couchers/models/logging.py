@@ -65,8 +65,7 @@ class APICall(Base, kw_only=True):
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
-    # per-request resource accounting, covering the handler span (see couchers/perf.py). Null for the rare row logged
-    # without accounting armed. Wall time is `duration`; residual wait = duration - cpu_ms - db_time_ms.
+    # per-request resource accounting, covering the handler span (see couchers/perf.py)
     query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
     write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
     db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
