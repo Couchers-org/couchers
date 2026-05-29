@@ -1,20 +1,31 @@
 const { execSync } = require("child_process");
 
-// Capture git hash at build time (8 chars)
-const getGitHash = () => {
+const git = (cmd) => {
   try {
-    return execSync("git rev-parse --short=8 HEAD", {
+    return execSync(`git ${cmd}`, {
       encoding: "utf-8",
+      env: { ...process.env, TZ: "UTC" },
     }).trim();
   } catch {
     return "unknown";
   }
 };
 
-// The OTA bundle's display version. CI sets DISPLAY_VERSION (computed from
-// app/version + git rev-list count, e.g. v1.2.18402); local builds get
-// "development" so they're never confused with a real release.
-const getOtaDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
+// This bundle's display version, matching the website footer. CI sets
+// DISPLAY_VERSION (app/version + git rev-list count, e.g. v1.2.18410); local
+// builds get "development" so they're never confused with a real release.
+const getDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
+
+// This bundle's debug version: {displayVersion}.{gitHash}.{gitCommitTime}, e.g.
+// v1.2.18410.1156180a.20260528Z0533. CI composes it (DEBUG_VERSION); local
+// builds reconstruct the same shape from local git. Baked into the JS bundle so
+// each OTA bundle carries its own; the runtime appends the OTA suffix
+// (-{fingerprint}-{assetId}-{createdAt}) in service/buildInfo.ts.
+const getDebugVersion = () =>
+  process.env.DEBUG_VERSION ||
+  `${getDisplayVersion()}.${git("rev-parse --short=8 HEAD")}.${git(
+    "show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD",
+  )}`;
 
 const ICON_SETS = {
   default: {
@@ -199,8 +210,8 @@ export default {
     eas: {
       projectId: "fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
     },
-    gitHash: getGitHash(),
-    otaDisplayVersion: getOtaDisplayVersion(),
+    displayVersion: getDisplayVersion(),
+    debugVersion: getDebugVersion(),
     appVariant: APP_VARIANT,
   },
   owner: "couchers-org",

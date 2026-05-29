@@ -3,14 +3,11 @@ import * as Updates from "expo-updates";
 
 import {
   appVariant,
-  nativeBuiltAt,
-  nativeDebugVersion,
-  nativeDisplayVersion,
-  nativeGitHash,
-  otaCreatedAt,
-  otaDebugVersion,
-  otaDisplayVersion,
-  otaGitHash,
+  embeddedDebugVersion,
+  embeddedDisplayVersion,
+  runningDebugVersion,
+  runningDebugVersionOTA,
+  runningDisplayVersion,
 } from "@/service/buildInfo";
 
 // Stamp the running bundle's identity into the manifest request via the
@@ -34,19 +31,28 @@ const enabled = appVariant === "production" || appVariant === "staging";
 
 if (enabled) {
   (async () => {
-    // Native store-binary identity (fixed across OTAs)
+    // Embedded store-binary identity (fixed across OTAs)
     await Updates.setExtraParamAsync(
-      "native-display-version",
-      nativeDisplayVersion,
+      "embedded-display-version",
+      embeddedDisplayVersion,
     );
-    await Updates.setExtraParamAsync("native-debug-version", nativeDebugVersion);
-    await Updates.setExtraParamAsync("native-git-hash", nativeGitHash);
-    await Updates.setExtraParamAsync("native-built-at", nativeBuiltAt);
+    await Updates.setExtraParamAsync(
+      "embedded-debug-version",
+      embeddedDebugVersion,
+    );
 
-    // OTA bundle identity (varies per OTA)
-    await Updates.setExtraParamAsync("ota-display-version", otaDisplayVersion);
-    await Updates.setExtraParamAsync("ota-debug-version", otaDebugVersion);
-    await Updates.setExtraParamAsync("ota-git-hash", otaGitHash);
-    await Updates.setExtraParamAsync("ota-created-at", otaCreatedAt);
+    // Running bundle identity (varies per OTA)
+    await Updates.setExtraParamAsync(
+      "running-display-version",
+      runningDisplayVersion,
+    );
+    await Updates.setExtraParamAsync(
+      "running-debug-version",
+      runningDebugVersion,
+    );
+    await Updates.setExtraParamAsync(
+      "running-debug-version-ota",
+      runningDebugVersionOTA,
+    );
   })().catch((err) => Sentry.captureException(err));
 }
