@@ -66,8 +66,9 @@ class APICall(Base, kw_only=True):
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
     # per-request resource accounting, covering the handler span (see couchers/perf.py)
-    query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
-    write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    db_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    # counts only SQLAlchemy rendered insert/update/delete
+    db_write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
     db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
     cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
 

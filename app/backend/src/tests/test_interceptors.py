@@ -33,8 +33,8 @@ from couchers.interceptors import (
 )
 from couchers.metrics import (
     api_calls_counter,
+    servicer_db_query_count_histogram,
     servicer_duration_histogram,
-    servicer_query_count_histogram,
     servicer_setup_errors_counter,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
@@ -234,12 +234,12 @@ def test_tracing_interceptor_ok_open(db):
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "") == val + 1
 
 
-def _get_query_count_histogram(method):
+def _get_db_query_count_histogram(method):
     return sum(
         s.value
-        for m in servicer_query_count_histogram.collect()
+        for m in servicer_db_query_count_histogram.collect()
         for s in m.samples
-        if s.name == "couchers_servicer_query_count_count" and s.labels.get("method") == method
+        if s.name == "couchers_servicer_db_query_count_count" and s.labels.get("method") == method
     )
 
 
@@ -256,11 +256,11 @@ def _get_api_call_count(method, platform):
 
 def test_tracing_interceptor_perf_accounting(db):
     method = "/org.couchers.auth.Auth/SignupFlow"
-    hist_count_before = _get_query_count_histogram(method)
+    hist_count_before = _get_db_query_count_histogram(method)
     api_call_count_before = _get_api_call_count(method, "web_mobile")
 
-    # handler runs a known number of statements: three reads and one compiled write (caught via is_crud). The write
-    # matches zero rows so it's side-effect free.
+    # handler runs a known number of statements: three reads and one compiled write. The write matches zero rows so
+    # it's side-effect free.
     def TestRpc(request, context, session):
         for _ in range(3):
             session.execute(text("SELECT 1"))
@@ -272,8 +272,8 @@ def test_tracing_interceptor_perf_accounting(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.query_count == 4
-        assert trace.write_query_count == 1
+        assert trace.db_query_count == 4
+        assert trace.db_write_query_count == 1
         assert trace.db_time_ms is not None and trace.db_time_ms >= 0
         assert trace.cpu_ms is not None and trace.cpu_ms >= 0
         # the handler's DB work can't exceed the whole-request wall time
@@ -281,7 +281,7 @@ def test_tracing_interceptor_perf_accounting(db):
         assert trace.client_platform == ClientPlatform.web_mobile
 
     # the call was also observed into the Prometheus per-request resource histograms and the per-platform call counter
-    assert _get_query_count_histogram(method) == hist_count_before + 1
+    assert _get_db_query_count_histogram(method) == hist_count_before + 1
     assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
 
 
@@ -299,8 +299,8 @@ def test_tracing_interceptor_perf_accounting_orm_write(db):
 
     with session_scope() as session:
         log = session.execute(select(APICall).where(APICall.method == method)).scalar_one()
-        assert log.query_count == 1
-        assert log.write_query_count == 1
+        assert log.db_query_count == 1
+        assert log.db_write_query_count == 1
 
 
 def test_tracing_interceptor_sensitive(db):

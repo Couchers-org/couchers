@@ -12,18 +12,18 @@ from sqlalchemy import Engine, event
 _local = threading.local()
 
 
-@dataclass
+@dataclass(slots=True)
 class _PerfAccumulator:
     cpu_start_ns: int
-    query_count: int = 0
-    write_query_count: int = 0
+    db_query_count: int = 0
+    db_write_query_count: int = 0
     db_time_ms: float = 0.0
 
 
 @dataclass(frozen=True, slots=True)
 class PerfResult:
-    query_count: int
-    write_query_count: int
+    db_query_count: int
+    db_write_query_count: int
     db_time_ms: float
     cpu_ms: float
 
@@ -34,13 +34,18 @@ def start_perf() -> None:
 
 
 def read_perf() -> PerfResult | None:
-    """Snapshot the current thread's accumulator, or None if accounting wasn't armed."""
+    """Snapshot and clear the current thread's accumulator, or None if accounting wasn't armed.
+
+    Clearing means queries that run after this (e.g. the _store_log insert, or background work reusing the thread)
+    aren't attributed to the just-finished request.
+    """
     acc: _PerfAccumulator | None = getattr(_local, "acc", None)
     if acc is None:
         return None
+    _local.acc = None
     return PerfResult(
-        query_count=acc.query_count,
-        write_query_count=acc.write_query_count,
+        db_query_count=acc.db_query_count,
+        db_write_query_count=acc.db_write_query_count,
         db_time_ms=acc.db_time_ms,
         cpu_ms=(thread_time_ns() - acc.cpu_start_ns) / 1e6,
     )
@@ -60,11 +65,11 @@ def _after_cursor_execute(conn, cursor, statement, parameters, context, executem
     if acc is None:
         # Query on a thread with no active request (background job, metrics scrape, etc.) - don't attribute it.
         return
-    acc.query_count += 1
+    acc.db_query_count += 1
     acc.db_time_ms += elapsed_ms
-    # is_crud is set by SQLAlchemy when it compiled an INSERT/UPDATE/DELETE.
-    if context.is_crud:
-        acc.write_query_count += 1
+    # SQLAlchemy sets these when it compiled an INSERT/UPDATE/DELETE.
+    if context.isinsert or context.isupdate or context.isdelete:
+        acc.db_write_query_count += 1
 
 
 def register_perf_listeners(engine: Engine) -> None:

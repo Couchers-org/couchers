@@ -251,8 +251,8 @@ def _store_log(
                 response_truncated=response_truncated,
                 traceback=traceback,
                 perf_report=perf_report,
-                query_count=perf.query_count if perf else None,
-                write_query_count=perf.write_query_count if perf else None,
+                db_query_count=perf.db_query_count if perf else None,
+                db_write_query_count=perf.db_write_query_count if perf else None,
                 db_time_ms=perf.db_time_ms if perf else None,
                 cpu_ms=perf.cpu_ms if perf else None,
                 client_platform=client_platform,
@@ -379,7 +379,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
-                            method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
                         )
                 except Exception as e:
                     perf = read_perf()
@@ -414,7 +414,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
-                            method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
                         )
 
                     if not code:

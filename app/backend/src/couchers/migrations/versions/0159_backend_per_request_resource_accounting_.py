@@ -17,8 +17,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("api_calls", sa.Column("query_count", sa.BigInteger(), nullable=True), schema="logging")
-    op.add_column("api_calls", sa.Column("write_query_count", sa.BigInteger(), nullable=True), schema="logging")
+    op.add_column("api_calls", sa.Column("db_query_count", sa.BigInteger(), nullable=True), schema="logging")
+    op.add_column("api_calls", sa.Column("db_write_query_count", sa.BigInteger(), nullable=True), schema="logging")
     op.add_column("api_calls", sa.Column("db_time_ms", sa.Float(), nullable=True), schema="logging")
     op.add_column("api_calls", sa.Column("cpu_ms", sa.Float(), nullable=True), schema="logging")
     op.add_column(
@@ -36,5 +36,5 @@ def downgrade() -> None:
     op.drop_column("api_calls", "client_platform", schema="logging")
     op.drop_column("api_calls", "cpu_ms", schema="logging")
     op.drop_column("api_calls", "db_time_ms", schema="logging")
-    op.drop_column("api_calls", "write_query_count", schema="logging")
-    op.drop_column("api_calls", "query_count", schema="logging")
+    op.drop_column("api_calls", "db_write_query_count", schema="logging")
+    op.drop_column("api_calls", "db_query_count", schema="logging")

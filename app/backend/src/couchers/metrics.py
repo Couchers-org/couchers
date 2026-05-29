@@ -128,14 +128,15 @@ servicer_cpu_time_histogram: Histogram = Histogram(
     "Backend thread CPU time per gRPC call",
     labelnames=["method"],
 )
-servicer_query_count_histogram: Histogram = Histogram(
-    "couchers_servicer_query_count",
+# Fibonacci bucket boundaries: roughly exponential, good resolution for an unbounded value
+servicer_db_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_db_query_count",
     "Number of SQL statements executed per gRPC call",
     labelnames=["method"],
     buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
 )
-servicer_write_query_count_histogram: Histogram = Histogram(
-    "couchers_servicer_write_query_count",
+servicer_db_write_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_db_write_query_count",
     "Number of INSERT/UPDATE/DELETE statements executed per gRPC call",
     labelnames=["method"],
     buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
@@ -143,12 +144,12 @@ servicer_write_query_count_histogram: Histogram = Histogram(
 
 
 def observe_in_servicer_perf_histograms(
-    method: str, query_count: int, write_query_count: int, db_time_ms: float, cpu_ms: float
+    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
 ) -> None:
     servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
     servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
-    servicer_query_count_histogram.labels(method).observe(query_count)
-    servicer_write_query_count_histogram.labels(method).observe(write_query_count)
+    servicer_db_query_count_histogram.labels(method).observe(db_query_count)
+    servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
 
 
 # Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and
