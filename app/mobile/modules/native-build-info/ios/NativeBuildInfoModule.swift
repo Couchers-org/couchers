@@ -5,12 +5,10 @@ public class NativeBuildInfoModule: Module {
     Name("NativeBuildInfo")
 
     Constants([
-      "nativeDisplayVersion":
+      "embeddedDisplayVersion":
         Bundle.main.infoDictionary?["CouchersNativeDisplayVersion"] as? String ?? "unknown",
-      "nativeGitHash":
-        Bundle.main.infoDictionary?["CouchersNativeGitHash"] as? String ?? "unknown",
-      "nativeBuiltAt":
-        Bundle.main.infoDictionary?["CouchersNativeBuiltAt"] as? String ?? "unknown",
+      "embeddedDebugVersion":
+        Bundle.main.infoDictionary?["CouchersNativeDebugVersion"] as? String ?? "unknown",
     ])
   }
 }

@@ -10,9 +10,8 @@ class NativeBuildInfoModule : Module() {
 
     Constants {
       val context = appContext.reactContext ?: return@Constants mapOf(
-        "nativeDisplayVersion" to "unknown",
-        "nativeGitHash" to "unknown",
-        "nativeBuiltAt" to "unknown",
+        "embeddedDisplayVersion" to "unknown",
+        "embeddedDebugVersion" to "unknown",
       )
 
       val metaData = try {
@@ -24,9 +23,8 @@ class NativeBuildInfoModule : Module() {
       }
 
       mapOf(
-        "nativeDisplayVersion" to (metaData?.getString("CouchersNativeDisplayVersion") ?: "unknown"),
-        "nativeGitHash" to (metaData?.getString("CouchersNativeGitHash") ?: "unknown"),
-        "nativeBuiltAt" to (metaData?.getString("CouchersNativeBuiltAt") ?: "unknown"),
+        "embeddedDisplayVersion" to (metaData?.getString("CouchersNativeDisplayVersion") ?: "unknown"),
+        "embeddedDebugVersion" to (metaData?.getString("CouchersNativeDebugVersion") ?: "unknown"),
       )
     }
   }

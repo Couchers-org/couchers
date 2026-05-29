@@ -1,71 +1,61 @@
 // Centralises the two version identities the app reports for debugging:
 //
-//   * native — the store-distributed binary, fixed across OTAs. Sources:
-//       displayVersion, gitHash, builtAt from Info.plist / AndroidManifest
-//         (stamped at native build time by plugins/withNativeBuildInfo.js from
-//          CI's DISPLAY_VERSION / NATIVE_GIT_HASH / NATIVE_BUILT_AT env vars,
-//          or "dev"/local fallbacks);
-//       embeddedUpdateId from expo-updates (UUID of the JS bundle baked into
-//         the store binary at native build time).
+//   * embedded — the bundle baked into the store binary, fixed across OTAs.
+//       displayVersion / debugVersion are stamped into Info.plist /
+//       AndroidManifest at native build time (plugins/withNativeBuildInfo.js,
+//       from CI's DISPLAY_VERSION / DEBUG_VERSION) and read back via the
+//       native-build-info module. This is how the app reports which store build
+//       it's running on even after an OTA has replaced the running JS.
 //
-//   * ota — the JS bundle currently running. Replaced when an OTA applies.
-//       displayVersion, gitHash from Constants.expoConfig.extra (baked into
-//         the JS bundle at bundle time, so OTA bundles carry their own values);
-//       updateId, createdAt from expo-updates (set by tools/'s publish lambda
-//         at restamp time — see _restamp_manifest_part in tools/lambdas).
+//   * running — the JS bundle currently executing. Replaced when an OTA applies.
+//       displayVersion / debugVersion are baked into the bundle's
+//       Constants.expoConfig.extra at export time, so each OTA bundle carries
+//       its own. debugVersionOTA appends the OTA-specific suffix
+//       (-{fingerprint}-{assetId}-{createdAt}) from expo-updates; fingerprint is
+//       the runtimeVersion, assetId the update UUID, and createdAt is re-stamped
+//       on every publish (tools/), which is what lets us roll forward to an old
+//       bundle and still tell two publishes of it apart.
 //
-// Both identities follow the same debug-version shape:
-//   {displayVersion}-{gitHash}-{bundleIdShort}-{mintTimestampCompact}
+// Version shapes:
+//   displayVersion:    v1.2.18410                      (matches the website footer)
+//   debugVersion:      v1.2.18410.1156180a.20260528Z0533
+//   debugVersionOTA:   <debugVersion>-{fingerprint}-{assetId}-{createdAt}
 
 import Constants from "expo-constants";
 import * as Updates from "expo-updates";
 
 import {
-  nativeBuiltAt,
-  nativeDisplayVersion,
-  nativeGitHash,
+  embeddedDebugVersion,
+  embeddedDisplayVersion,
 } from "native-build-info";
 
 const extra = Constants.expoConfig?.extra as
-  | { gitHash?: string; appVariant?: string; otaDisplayVersion?: string }
+  | { appVariant?: string; displayVersion?: string; debugVersion?: string }
   | undefined;
 
 export const appVariant = extra?.appVariant ?? "unknown";
 
-// --- Native (embedded store-binary) identity ---
+// --- Embedded (store-binary) bundle identity, fixed across OTAs ---
 
-export { nativeBuiltAt, nativeDisplayVersion, nativeGitHash };
+export { embeddedDisplayVersion, embeddedDebugVersion };
 
-// First 8 chars of the embedded bundle's UUID. Fixed across OTAs.
-const embeddedUpdateId =
-  (Updates as unknown as { embeddedUpdateId?: string }).embeddedUpdateId ??
-  (Updates.isEmbeddedLaunch ? Updates.updateId : null) ??
-  "none";
-const embeddedUpdateIdShort = shortenUuid(embeddedUpdateId);
+// --- Running (currently-executing) bundle identity ---
 
-export const nativeDebugVersion = composeDebugVersion(
-  nativeDisplayVersion,
-  nativeGitHash,
-  embeddedUpdateIdShort,
-  nativeBuiltAt,
-);
+export const runningDisplayVersion = extra?.displayVersion ?? "unknown";
+export const runningDebugVersion = extra?.debugVersion ?? "unknown";
 
-// --- OTA (currently-running bundle) identity ---
-
-export const otaDisplayVersion = extra?.otaDisplayVersion ?? "unknown";
-export const otaGitHash = extra?.gitHash ?? "unknown";
-
+// Raw expo-updates values describing the running bundle, surfaced for reporting.
 export const updateId = Updates.updateId ?? "none";
 export const updateChannel = Updates.channel ?? "none";
 export const runtimeVersion = Updates.runtimeVersion ?? "unknown";
 export const isEmbeddedLaunch = Updates.isEmbeddedLaunch;
-export const otaCreatedAt = Updates.createdAt?.toISOString() ?? "unknown";
+export const createdAt = Updates.createdAt?.toISOString() ?? "unknown";
 
-export const otaDebugVersion = composeDebugVersion(
-  otaDisplayVersion,
-  otaGitHash,
+export const runningDebugVersionOTA = composeDebugVersionOTA(
+  runningDebugVersion,
+  runtimeVersion,
   shortenUuid(updateId),
-  otaCreatedAt,
+  createdAt,
 );
 
 // --- Helpers ---
@@ -75,18 +65,18 @@ function shortenUuid(id: string): string {
   return id.split("-")[0] ?? id;
 }
 
-// "2026-05-27T14:32:10.123Z" -> "20260527T143210Z"
+// "2026-05-27T14:32:10.123Z" -> "20260527Z143210" (always UTC; toISOString is)
 function compactTimestamp(iso: string): string {
-  if (iso === "unknown" || iso === "dev") return iso;
-  return iso.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return iso;
+  return `${m[1]}${m[2]}${m[3]}Z${m[4]}${m[5]}${m[6]}`;
 }
 
-function composeDebugVersion(
-  displayVersion: string,
-  gitHash: string,
-  bundleIdShort: string,
-  mintTimestamp: string,
+function composeDebugVersionOTA(
+  debugVersion: string,
+  fingerprint: string,
+  assetId: string,
+  createdAtIso: string,
 ): string {
-  const hash = gitHash && gitHash !== "unknown" ? gitHash : "dev";
-  return `${displayVersion}-${hash}-${bundleIdShort}-${compactTimestamp(mintTimestamp)}`;
+  return `${debugVersion}-${fingerprint}-${assetId}-${compactTimestamp(createdAtIso)}`;
 }

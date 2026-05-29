@@ -57,14 +57,25 @@ default:
     if [ "$GIT_DEPTH" == "0" ]; then
         export COMMIT_NUMBER=$(git rev-list --count "origin/$RELEASE_BRANCH")
         export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.${COMMIT_NUMBER}"; else echo "${base_ver}-$SLUG"; fi)
+        # Debug version: {displayVersion}.{gitHash}.{gitCommitTime}, e.g.
+        # v1.2.18410.1156180a.20260528Z0533. The git hash and commit time pin the
+        # exact source the bundle was built from; both are stable per commit (not
+        # build time) so the same source always yields the same DEBUG_VERSION.
+        # CI_COMMIT_SHORT_SHA is GitLab's first-8-chars short SHA; the commit time
+        # is formatted via git since busybox `date` can't reliably reparse the
+        # offset-bearing CI_COMMIT_TIMESTAMP into UTC.
+        export GIT_COMMIT_TIME=$(TZ=UTC git show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD)
+        export DEBUG_VERSION="${DISPLAY_VERSION}.${CI_COMMIT_SHORT_SHA}.${GIT_COMMIT_TIME}"
         echo $DISPLAY_VERSION
+        echo $DEBUG_VERSION
     fi
 
     docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-# Reusable DISPLAY_VERSION computation for jobs that opt out of the default
-# before_script via `inherit: default: false` (mobile jobs skip docker login).
-# Splice via `before_script: [!reference [.compute-display-version, before_script]]`
+# Reusable DISPLAY_VERSION / DEBUG_VERSION computation for jobs that opt out of
+# the default before_script via `inherit: default: false` (mobile jobs skip
+# docker login). Splice via
+# `before_script: [!reference [.compute-display-version, before_script]]`
 # and set `GIT_DEPTH: 0` so git rev-list has full history.
 .compute-display-version:
   before_script:
@@ -77,7 +88,19 @@ default:
       else
         export DISPLAY_VERSION="${base_ver}-${SLUG}"
       fi
+      # Debug version: {displayVersion}.{gitHash}.{gitCommitTime}, e.g.
+      # v1.2.18410.1156180a.20260528Z0533. Both components are stable per commit
+      # (not build time), so the same source always yields the same DEBUG_VERSION.
+      # CI_COMMIT_SHORT_SHA is GitLab's first-8-chars short SHA; the commit time is
+      # formatted via git since busybox `date` can't reliably reparse the
+      # offset-bearing CI_COMMIT_TIMESTAMP into UTC. The OTA bundle later appends
+      # -{fingerprint}-{assetId}-{createdAt} at runtime (assetId/createdAt come
+      # from the served manifest, which tools/ re-stamps on every publish — see
+      # service/buildInfo.ts).
+      export GIT_COMMIT_TIME=$(TZ=UTC git show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD)
+      export DEBUG_VERSION="${DISPLAY_VERSION}.${CI_COMMIT_SHORT_SHA}.${GIT_COMMIT_TIME}"
       echo "DISPLAY_VERSION=$DISPLAY_VERSION"
+      echo "DEBUG_VERSION=$DEBUG_VERSION"
 
 .common_functions: &common_functions |
     # Build a Docker image using cache from latest "develop" build.
