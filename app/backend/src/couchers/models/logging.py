@@ -71,7 +71,6 @@ class APICall(Base, kw_only=True):
     db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
     cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
 
-    # client platform the call came from, from the x-couchers-client-platform header
     client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
 
     # details of the browser, if available
