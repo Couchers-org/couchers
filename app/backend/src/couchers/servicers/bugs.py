@@ -202,6 +202,19 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         return empty_pb2.Empty()
 
+    def CheckNativeStatus(
+        self, request: bugs_pb2.CheckNativeStatusReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.CheckNativeStatusRes:
+        # Stub: log the ping for now. TODO: persist it and decide whether to force-update.
+        logger.info("CheckNativeStatus: user_id=%s debug=%s", context._user_id, request.debug_json)
+
+        return bugs_pb2.CheckNativeStatusRes(
+            update_info=bugs_pb2.NativeUpdateInfo(
+                action=bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
+                required=False,
+            )
+        )
+
     def GeolocationSearchInfo(
         self, request: bugs_pb2.GeolocationSearchInfoReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:

@@ -396,6 +396,31 @@ def test_report_diagnostics_frontend_version(db):
         assert events[0].version == "abc-def-123"
 
 
+def test_check_native_status_anonymous(db):
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                debug_json=json.dumps({"app_version": "1.1.20", "platform": "ios", "user_state": "logged_out"})
+            )
+        )
+
+    # Stub backend: the ping is logged and the response asks for no update for now.
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
+    assert res.update_info.required is False
+
+
+def test_check_native_status_authenticated(db):
+    _, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(debug_json=json.dumps({"platform": "android", "user_state": "authenticated"}))
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
+    assert res.update_info.required is False
+
+
 def _multipart_part_json(body, name):
     """Extract and parse the JSON body of a named part from a multipart/mixed body."""
     marker = f'name="{name}"'
