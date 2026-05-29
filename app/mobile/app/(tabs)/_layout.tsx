@@ -7,6 +7,7 @@ import { Platform, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
 import {
+  createdAt,
   embeddedDebugVersion,
   isEmbeddedLaunch,
   runningDebugVersionOTA,
@@ -29,6 +30,7 @@ function getDebugInfo(): string {
     `Embedded: ${embeddedDebugVersion}`,
     `Source: ${isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
     `Channel: ${updateChannel}`,
+    `Published: ${createdAt}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
   ].join("\n");
 }
