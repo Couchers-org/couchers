@@ -356,6 +356,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
+                    # flush so pending ORM writes execute (and are counted) before we snapshot; a handler that only
+                    # session.add(...)s and returns would otherwise flush at commit, after read_perf()
+                    session.flush()
                     perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms

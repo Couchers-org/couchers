@@ -285,6 +285,24 @@ def test_tracing_interceptor_perf_accounting(db):
     assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
 
 
+def test_tracing_interceptor_perf_accounting_orm_write(db):
+    # a handler that only session.add(...)s and returns: the INSERT flushes at commit, after read_perf(), so without
+    # the interceptor's explicit flush it would be missed from the write/query counts
+    method = "/org.couchers.auth.Auth/SignupFlow"
+
+    def TestRpc(request, context, session):
+        session.add(APICall(method="handler-insert", duration=0.0, is_api_key=False, response_truncated=False))
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty())
+
+    with session_scope() as session:
+        log = session.execute(select(APICall).where(APICall.method == method)).scalar_one()
+        assert log.query_count == 1
+        assert log.write_query_count == 1
+
+
 def test_tracing_interceptor_sensitive(db):
     val = _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "", "")
 
