@@ -34,6 +34,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.metrics import (
+    observe_api_call,
     observe_in_servicer_duration_histogram,
     observe_in_servicer_perf_histograms,
     observe_in_servicer_setup_errors_counter,
@@ -372,6 +373,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
+                    observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
                             method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms
@@ -406,6 +408,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
+                    observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
                             method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms

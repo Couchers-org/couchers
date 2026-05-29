@@ -32,6 +32,7 @@ from couchers.interceptors import (
     validate_auth_level,
 )
 from couchers.metrics import (
+    api_calls_counter,
     servicer_duration_histogram,
     servicer_query_count_histogram,
     servicer_setup_errors_counter,
@@ -234,18 +235,29 @@ def test_tracing_interceptor_ok_open(db):
 
 
 def _get_query_count_histogram(method):
-    samples = {
-        s.name: s.value
+    return sum(
+        s.value
         for m in servicer_query_count_histogram.collect()
         for s in m.samples
-        if s.labels.get("method") == method and s.name in ("couchers_servicer_query_count_count",)
-    }
-    return samples.get("couchers_servicer_query_count_count", 0)
+        if s.name == "couchers_servicer_query_count_count" and s.labels.get("method") == method
+    )
+
+
+def _get_api_call_count(method, platform):
+    return sum(
+        s.value
+        for m in api_calls_counter.collect()
+        for s in m.samples
+        if s.name == "couchers_api_calls_total"
+        and s.labels.get("method") == method
+        and s.labels.get("platform") == platform
+    )
 
 
 def test_tracing_interceptor_perf_accounting(db):
     method = "/org.couchers.auth.Auth/SignupFlow"
     hist_count_before = _get_query_count_histogram(method)
+    api_call_count_before = _get_api_call_count(method, "web_mobile")
 
     # handler runs a known number of statements: three reads and one compiled write (caught via is_crud). The write
     # matches zero rows so it's side-effect free.
@@ -268,8 +280,9 @@ def test_tracing_interceptor_perf_accounting(db):
         assert trace.db_time_ms <= trace.duration
         assert trace.client_platform == ClientPlatform.web_mobile
 
-    # the call was also observed into the Prometheus per-request resource histograms
+    # the call was also observed into the Prometheus per-request resource histograms and the per-platform call counter
     assert _get_query_count_histogram(method) == hist_count_before + 1
+    assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
 
 
 def test_tracing_interceptor_sensitive(db):

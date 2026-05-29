@@ -151,6 +151,19 @@ def observe_in_servicer_perf_histograms(
     servicer_write_query_count_histogram.labels(method).observe(write_query_count)
 
 
+# Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and
+# answers "how much traffic comes from each platform".
+api_calls_counter: Counter = Counter(
+    "couchers_api_calls_total",
+    "Number of gRPC API calls",
+    labelnames=["method", "platform"],
+)
+
+
+def observe_api_call(method: str, client_platform: ClientPlatform | None) -> None:
+    api_calls_counter.labels(method, client_platform.name if client_platform is not None else "unknown").inc()
+
+
 # list of gauge names and function to execute to set value to
 # the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
 # before collection with this
