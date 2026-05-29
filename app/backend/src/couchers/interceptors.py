@@ -33,7 +33,7 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.metrics import observe_in_servicer_duration_histogram
+from couchers.metrics import observe_in_servicer_duration_histogram, observe_in_servicer_setup_errors_counter
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
@@ -280,46 +280,58 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
+        # The setup phase below (auth, header parsing, the user-details DB call, permission checks, handler
+        # resolution, sofa generation, localization) runs *before* function_without_couchers_stuff, so the metric +
+        # logging + Sentry instrumentation inside that handler never sees failures here. The expected early-exit cases
+        # (AbortError, BadHeaders) return as before; any *unexpected* exception is caught below so it doesn't escape
+        # uninstrumented as an opaque UNKNOWN.
         try:
-            auth_level = find_auth_level(self._pool, method)
-        except AbortError as ae:
-            return abort_handler(ae.msg, ae.code)
+            try:
+                auth_level = find_auth_level(self._pool, method)
+            except AbortError as ae:
+                return abort_handler(ae.msg, ae.code)
 
-        try:
-            headers = parse_headers(dict(handler_call_details.invocation_metadata))
-        except BadHeaders:
-            return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
+            try:
+                headers = parse_headers(dict(handler_call_details.invocation_metadata))
+            except BadHeaders:
+                return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
 
-        auth_info = _try_get_and_update_user_details(
-            headers.token,
-            headers.is_api_key,
-            headers.ip_address,
-            headers.user_agent,
-            headers.sofa,
-            headers.client_platform,
-        )
+            auth_info = _try_get_and_update_user_details(
+                headers.token,
+                headers.is_api_key,
+                headers.ip_address,
+                headers.user_agent,
+                headers.sofa,
+                headers.client_platform,
+            )
 
-        try:
-            check_permissions(auth_info, auth_level)
-        except AbortError as ae:
-            return unauthenticated_handler(ae.msg, ae.code)
+            try:
+                check_permissions(auth_info, auth_level)
+            except AbortError as ae:
+                return unauthenticated_handler(ae.msg, ae.code)
 
-        if not (handler := continuation(handler_call_details)):
-            raise RuntimeError(f"No handler in '{method}'")
+            if not (handler := continuation(handler_call_details)):
+                raise RuntimeError(f"No handler in '{method}'")
 
-        if not (prev_function := handler.unary_unary):
-            raise RuntimeError(f"No prev_function in '{method}', {handler}")
+            if not (prev_function := handler.unary_unary):
+                raise RuntimeError(f"No prev_function in '{method}', {handler}")
 
-        if headers.sofa:
-            sofa = headers.sofa
-            new_sofa_cookie = None
-        else:
-            sofa, new_sofa_cookie = generate_sofa_cookie()
+            if headers.sofa:
+                sofa = headers.sofa
+                new_sofa_cookie = None
+            else:
+                sofa, new_sofa_cookie = generate_sofa_cookie()
 
-        loc_context = LocalizationContext(
-            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
-            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-        )
+            loc_context = LocalizationContext(
+                locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
+                timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+            )
+        except Exception as e:
+            observe_in_servicer_setup_errors_counter(method, type(e).__name__)
+            sentry_sdk.set_tag("context", "servicer_setup")
+            sentry_sdk.set_tag("method", method)
+            sentry_sdk.capture_exception(e)
+            return abort_handler(UNKNOWN_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
