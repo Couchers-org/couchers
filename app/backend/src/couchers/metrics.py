@@ -58,7 +58,7 @@ _INF: float = float("inf")
 start_time_gauge: Gauge = Gauge(
     "couchers_start_time_seconds",
     "Unix timestamp of when the process started",
-    multiprocess_mode="min",
+    multiprocess_mode="max",
 )
 start_time_gauge.set(time.time())
 
