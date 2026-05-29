@@ -13,8 +13,6 @@ if __name__ == "__main__":
     prometheus_multiproc_dir = TemporaryDirectory()
     environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
-# must be set before grpc is imported (transitively, via couchers.server)
-environ["GRPC_ENABLE_FORK_SUPPORT"] = "1"
 # ruff: noqa: E402
 
 import sentry_sdk
