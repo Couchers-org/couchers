@@ -85,17 +85,14 @@ function randomHex(bytes: number): string {
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Injects a W3C Trace Context header so each call can be correlated end-to-end
-// (browser -> envoy -> backend -> DB) in a single Jaeger trace. We only inject the
-// header here; the browser doesn't export spans of its own. The trailing "-01" flag
-// marks the trace as sampled so envoy records it.
+// Injects a W3C Trace Context header so calls can be correlated end-to-end in Jaeger.
 class TraceInterceptor {
   async intercept(
     request: Request<unknown, unknown>,
     invoker: (request: unknown) => unknown,
   ) {
-    const traceId = randomHex(16); // 32 hex chars
-    const spanId = randomHex(8); // 16 hex chars
+    const traceId = randomHex(16);
+    const spanId = randomHex(8);
     request.getMetadata()["traceparent"] = `00-${traceId}-${spanId}-01`;
     return invoker(request);
   }

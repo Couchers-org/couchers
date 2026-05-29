@@ -19,10 +19,6 @@ static_resources:
           codec_type: auto
           stat_prefix: ingress_http
           tracing:
-            # continues the trace context coming in from the browser (traceparent
-            # header) and propagates it upstream to the backend, while emitting an
-            # envoy span. The gap between this span and the backend span is the
-            # dispatch/queue time that's otherwise invisible.
             provider:
               name: envoy.tracers.opentelemetry
               typed_config:
@@ -201,7 +197,6 @@ static_resources:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
         explicit_http_config:
           http2_protocol_options: {}
-  # OTLP/gRPC sink for envoy's own spans (jaeger all-in-one has COLLECTOR_OTLP_ENABLED)
   - name: jaeger
     connect_timeout: 1s
     type: logical_dns
