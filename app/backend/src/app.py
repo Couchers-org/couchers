@@ -38,19 +38,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# API worker ports must stay in sync with proxy/envoy.yaml and docker-compose.prod.yml
-API_BASE_PORT = 1751
+# the api workers listen on API_BASE_PORT .. API_BASE_PORT + API_WORKER_COUNT - 1; this must stay in sync with
+# proxy/envoy.yaml and docker-compose.prod.yml
+API_WORKER_COUNT = 4
+API_BASE_PORT = 1761
 MEDIA_PORT = 1753
-
-
-def _api_worker_ports(count: int) -> list[int]:
-    ports: list[int] = []
-    port = API_BASE_PORT
-    while len(ports) < count:
-        if port != MEDIA_PORT:
-            ports.append(port)
-        port += 1
-    return ports
 
 
 def _run_api_server(port: int) -> None:
@@ -132,7 +124,7 @@ def main() -> None:
     # fork the API workers before the parent touches gRPC (media server below + OTLP exporter); each child
     # creates its own gRPC server post-fork, spreading request handling across cores instead of one GIL
     if config["ROLE"] in ["api", "all"]:
-        for port in _api_worker_ports(config["API_WORKER_COUNT"]):
+        for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
             start_api_worker(port)
 
     # Initialize the experimentation framework for feature flags in the main process.

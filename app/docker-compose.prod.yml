@@ -33,10 +33,10 @@ services:
       - "./data/cache/:/data/cache/"
     expose:
       # api workers (match API_WORKER_COUNT / envoy.yaml)
-      - 1751
-      - 1752
-      - 1754
-      - 1755
+      - 1761
+      - 1762
+      - 1763
+      - 1764
       # media
       - 1753
     depends_on:

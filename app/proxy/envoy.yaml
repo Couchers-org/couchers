@@ -150,13 +150,13 @@ static_resources:
       endpoints:
       - lb_endpoints:
         - endpoint:
-            address: { socket_address: { address: backend, port_value: 1751 }}
+            address: { socket_address: { address: backend, port_value: 1761 }}
         - endpoint:
-            address: { socket_address: { address: backend, port_value: 1752 }}
+            address: { socket_address: { address: backend, port_value: 1762 }}
         - endpoint:
-            address: { socket_address: { address: backend, port_value: 1754 }}
+            address: { socket_address: { address: backend, port_value: 1763 }}
         - endpoint:
-            address: { socket_address: { address: backend, port_value: 1755 }}
+            address: { socket_address: { address: backend, port_value: 1764 }}
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions

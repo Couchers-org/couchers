@@ -60,8 +60,6 @@ DATETIME_INFINITY = datetime(9876, 12, 31, hour=23, minute=59, second=59, tzinfo
 # per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
 SERVER_THREADS = 8
 
-WORKER_THREADS = 1
-
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
 
