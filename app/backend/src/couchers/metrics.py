@@ -1,6 +1,7 @@
 import threading
+import time
 from collections.abc import Callable
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from opentelemetry import trace
@@ -20,6 +21,7 @@ from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
 from couchers import experimentation
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
@@ -52,6 +54,21 @@ registry: CollectorRegistry = CollectorRegistry()
 multiprocess.MultiProcessCollector(registry)  # type: ignore[no-untyped-call]
 
 _INF: float = float("inf")
+
+start_time_gauge: Gauge = Gauge(
+    "couchers_start_time_seconds",
+    "Unix timestamp of when the process started",
+    multiprocess_mode="min",
+)
+start_time_gauge.set(time.time())
+
+commit_timestamp_gauge: Gauge = Gauge(
+    "couchers_commit_timestamp_seconds",
+    "Unix timestamp of the deployed commit",
+    multiprocess_mode="max",
+)
+if config["COMMIT_TIMESTAMP"]:
+    commit_timestamp_gauge.set(datetime.fromisoformat(config["COMMIT_TIMESTAMP"]).timestamp())
 
 jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
