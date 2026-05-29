@@ -34,25 +34,33 @@ import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
+import { currentActiveWebPathRef } from "@/state/webViewState";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
 // Module-level Set to track handled notification IDs (persists across component remounts)
 const handledNotificationIds = new Set<string>();
 
-const IS_PROD =
-  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+// Suppress foreground notification banners when the user is already viewing
+// the relevant content. Badge and notification list always update regardless.
+Notifications.setNotificationHandler({
+  handleNotification: async (notification) => {
+    const url = notification.request.content.data?.url as string | undefined;
+    const notificationPath = url ? getNotificationPath(url) : null;
+    const currentPath = currentActiveWebPathRef.current;
 
-if (!IS_PROD) {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-      shouldShowBanner: true,
+    const isViewingTarget =
+      notificationPath !== null &&
+      currentPath !== null &&
+      currentPath.split("?")[0].startsWith(notificationPath.split("?")[0]);
+
+    return {
+      shouldShowBanner: !isViewingTarget,
       shouldShowList: true,
-    }),
-  });
-}
+      shouldPlaySound: !isViewingTarget,
+      shouldSetBadge: true,
+    };
+  },
+});
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

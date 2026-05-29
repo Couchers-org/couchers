@@ -328,7 +328,12 @@ export default function WebEmbed({
         // mode can be "light", "dark", or null (follow system)
         const mode = payload.mode;
         if (mode === "light" || mode === "dark" || mode === null) {
-          Appearance.setColorScheme(mode);
+          // Guard against calling setColorScheme with the same value — on some
+          // Samsung/Android builds this fires a system event that propagates
+          // back into the WebView's prefers-color-scheme, causing a loop.
+          if (mode === null || Appearance.getColorScheme() !== mode) {
+            Appearance.setColorScheme(mode);
+          }
         }
       } else if (payload?.type === "NATIVE_BACK") {
         if (canGoBackRef.current && webviewRef.current) {
