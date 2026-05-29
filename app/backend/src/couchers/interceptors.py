@@ -373,7 +373,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                     if perf is not None:
-                        observe_in_servicer_perf_histograms(method, perf.query_count, perf.db_time_ms, perf.cpu_ms)
+                        observe_in_servicer_perf_histograms(
+                            method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
                 except Exception as e:
                     perf = read_perf()
                     finished = perf_counter_ns()
@@ -405,7 +407,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
                     if perf is not None:
-                        observe_in_servicer_perf_histograms(method, perf.query_count, perf.db_time_ms, perf.cpu_ms)
+                        observe_in_servicer_perf_histograms(
+                            method, perf.query_count, perf.write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")

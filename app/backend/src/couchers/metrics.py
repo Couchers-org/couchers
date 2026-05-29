@@ -132,14 +132,23 @@ servicer_query_count_histogram: Histogram = Histogram(
     "couchers_servicer_query_count",
     "Number of SQL statements executed per gRPC call",
     labelnames=["method"],
-    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, _INF),
+    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
+)
+servicer_write_query_count_histogram: Histogram = Histogram(
+    "couchers_servicer_write_query_count",
+    "Number of INSERT/UPDATE/DELETE statements executed per gRPC call",
+    labelnames=["method"],
+    buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
 )
 
 
-def observe_in_servicer_perf_histograms(method: str, query_count: int, db_time_ms: float, cpu_ms: float) -> None:
+def observe_in_servicer_perf_histograms(
+    method: str, query_count: int, write_query_count: int, db_time_ms: float, cpu_ms: float
+) -> None:
     servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
     servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
     servicer_query_count_histogram.labels(method).observe(query_count)
+    servicer_write_query_count_histogram.labels(method).observe(write_query_count)
 
 
 # list of gauge names and function to execute to set value to
