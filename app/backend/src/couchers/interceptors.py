@@ -280,11 +280,6 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
-        # The setup phase below (auth, header parsing, the user-details DB call, permission checks, handler
-        # resolution, sofa generation, localization) runs *before* function_without_couchers_stuff, so the metric +
-        # logging + Sentry instrumentation inside that handler never sees failures here. The expected early-exit cases
-        # (AbortError, BadHeaders) return as before; any *unexpected* exception is caught below so it doesn't escape
-        # uninstrumented as an opaque UNKNOWN.
         try:
             try:
                 auth_level = find_auth_level(self._pool, method)

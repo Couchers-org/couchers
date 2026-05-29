@@ -309,10 +309,6 @@ def test_tracing_interceptor_exception(db):
 
 
 def test_setup_phase_exception_observed(db):
-    # An unexpected exception during the interceptor setup phase (here: building the LocalizationContext, the exact
-    # spot of the observed zh-hans crash) happens before function_without_couchers_stuff runs, so the handler-level
-    # instrumentation never sees it. It must instead bump the setup-errors counter, hit Sentry, and surface as a
-    # sanitized INTERNAL rather than escaping as an opaque UNKNOWN.
     method = "/org.couchers.auth.Auth/SignupFlow"
     val = _get_setup_errors_value(method, "ValueError")
 
