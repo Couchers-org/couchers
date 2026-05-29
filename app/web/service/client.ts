@@ -75,12 +75,44 @@ class PlatformInterceptor {
   }
 }
 
+function randomHex(bytes: number): string {
+  const arr = new Uint8Array(bytes);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(arr);
+  } else {
+    for (let i = 0; i < bytes; i++) arr[i] = Math.floor(Math.random() * 256);
+  }
+  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Injects a W3C Trace Context header so each call can be correlated end-to-end
+// (browser -> envoy -> backend -> DB) in a single Jaeger trace. We only inject the
+// header here; the browser doesn't export spans of its own. The trailing "-01" flag
+// marks the trace as sampled so envoy records it.
+class TraceInterceptor {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown,
+  ) {
+    const traceId = randomHex(16); // 32 hex chars
+    const spanId = randomHex(8); // 16 hex chars
+    request.getMetadata()["traceparent"] = `00-${traceId}-${spanId}-01`;
+    return invoker(request);
+  }
+}
+
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
 const platformInterceptor = new PlatformInterceptor();
+const traceInterceptor = new TraceInterceptor();
 
 const opts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor, platformInterceptor],
+  unaryInterceptors: [
+    traceInterceptor,
+    authInterceptor,
+    timeoutInterceptor,
+    platformInterceptor,
+  ],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/

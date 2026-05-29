@@ -645,6 +645,8 @@ test:proxy:
   needs: ["build:proxy"]
   stage: test
   script:
+    # statically validate the config (fully loads/validates it without opening listeners)
+    - docker run --rm --entrypoint /usr/local/bin/envoy $PROXY_TAG -c /etc/envoy/envoy.yaml --mode validate
     - docker run --name envoy-config-test -d -p 8888:8888 -p 9901:9901 $PROXY_TAG
     - sleep 10
     - |
