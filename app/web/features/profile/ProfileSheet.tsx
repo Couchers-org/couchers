@@ -1,4 +1,4 @@
-import { ArrowBack, Close } from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
 import { Collapse, IconButton, styled, SwipeableDrawer } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Snackbar from "components/Snackbar";
@@ -9,7 +9,7 @@ import Overview from "features/profile/view/Overview";
 import UserCard from "features/profile/view/UserCard";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
-import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
+import { CONNECTIONS, GLOBAL, MESSAGES, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { UserTab } from "routes";
@@ -48,6 +48,7 @@ const SheetHeader = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "flex-end",
   padding: theme.spacing(1, 1, 0),
+  minHeight: theme.spacing(4),
   flexShrink: 0,
   position: "relative",
   backgroundColor: "var(--mui-palette-background-paper)",
@@ -63,13 +64,21 @@ const REQUEST_ID = "request";
 
 export default function ProfileSheet() {
   const isMobile = useIsScreenSizeOrSmaller("mobile");
+  const { t, i18n } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
+
+  // ProfileSheet lives in the app shell and can open on any page, many of which
+  // don't pre-load PROFILE or CONNECTIONS. Eagerly load them so translations
+  // are ready before the sheet opens, avoiding the key-instead-of-text race.
+  useEffect(() => {
+    i18n.loadNamespaces([PROFILE, CONNECTIONS, MESSAGES]);
+  }, [i18n]);
+
   const {
     openProfileUserId,
     closeProfileSheet,
     openGroupChatId,
     closeGroupChat,
   } = useProfileSheet();
-  const { t } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -88,8 +97,17 @@ export default function ProfileSheet() {
   }, [openProfileUserId]);
 
   useEffect(() => {
-    router.events.on("routeChangeStart", closeProfileSheet);
-    return () => router.events.off("routeChangeStart", closeProfileSheet);
+    const handleRouteChange = () => {
+      // If the sheet pushed a history entry for the back-gesture handler,
+      // replace it with a clean state now so the pushState cleanup effect
+      // doesn't call history.back() and fight against the incoming navigation.
+      if (window.history.state?.profileSheetOpen) {
+        window.history.replaceState(null, "");
+      }
+      closeProfileSheet();
+    };
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => router.events.off("routeChangeStart", handleRouteChange);
   }, [router.events, closeProfileSheet]);
 
   // On Android, the hardware back gesture triggers webview.goBack() in the native
@@ -133,13 +151,15 @@ export default function ProfileSheet() {
     >
       <SheetHeader>
         <Puller />
-        <IconButton
-          onClick={openGroupChatId ? closeGroupChat : closeProfileSheet}
-          aria-label={openGroupChatId ? t("global:back") : t("global:close")}
-          size="small"
-        >
-          {openGroupChatId ? <ArrowBack /> : <Close />}
-        </IconButton>
+        {openGroupChatId && (
+          <IconButton
+            onClick={closeGroupChat}
+            aria-label={t("global:back")}
+            size="small"
+          >
+            <ArrowBack />
+          </IconButton>
+        )}
       </SheetHeader>
       {openGroupChatId ? (
         <GroupChatView chatId={openGroupChatId} embedded />
@@ -162,6 +182,7 @@ export default function ProfileSheet() {
                 setIsRequesting={setIsRequesting}
                 setIsMessaging={setIsMessaging}
                 tab={tab}
+                isInSheet
               />
               <UserCard
                 tab={tab}

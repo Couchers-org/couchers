@@ -12,17 +12,23 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 
-const StyledRoot = styled("div")({
+const StyledRoot = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
-});
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+  },
+}));
 
-const StyledInfoColumn = styled("div")({
+const StyledInfoColumn = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
   width: "50%",
-});
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+  },
+}));
 
 const StyledSpacedDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(3),

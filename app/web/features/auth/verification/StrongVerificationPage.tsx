@@ -22,12 +22,14 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 export default function StrongVerificationInstructions() {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const {
     error,
@@ -36,8 +38,15 @@ export default function StrongVerificationInstructions() {
   } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>({
     mutationFn: () => service.account.initiateStrongVerification(),
     onSuccess: async (data) => {
-      // Open Iris ID in a new tab so user can keep these instructions open
-      window.open(data.redirectUrl, "_blank");
+      if (isNativeEmbed) {
+        // In the WebView, window.open() is unreliable. Using location.href
+        // triggers handleShouldStartLoad which opens the URL in the system
+        // browser via Linking.openURL() while keeping the WebView in place.
+        window.location.href = data.redirectUrl;
+      } else {
+        // Open Iris ID in a new tab so user can keep these instructions open
+        window.open(data.redirectUrl, "_blank");
+      }
     },
   });
 

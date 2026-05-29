@@ -28,7 +28,6 @@ export default function ProfileLink({
   const isNativeEmbed = useIsNativeEmbed();
   const isMobile = useIsScreenSizeOrSmaller("mobile");
   const { openProfileSheet } = useProfileSheet();
-
   if ((isNativeEmbed || isMobile) && userId !== undefined) {
     return (
       <ButtonBase
