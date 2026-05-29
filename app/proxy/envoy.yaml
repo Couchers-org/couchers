@@ -142,13 +142,24 @@ static_resources:
   clusters:
   - name: couchers_service
     connect_timeout: 0.25s
-    type: logical_dns
+    type: strict_dns
+    # The backend runs several API worker processes, each on its own port (see API_WORKER_COUNT). Round-robin
+    # distributes requests across them at the request level (independent of the downstream HTTP/2 connection),
+    # which is what actually spreads load across the backend's cores. Keep these endpoints in sync with
+    # API_WORKER_COUNT and the exposed ports in docker-compose.prod.yml.
+    lb_policy: round_robin
     load_assignment:
       cluster_name: couchers_service
       endpoints:
       - lb_endpoints:
         - endpoint:
             address: { socket_address: { address: backend, port_value: 1751 }}
+        - endpoint:
+            address: { socket_address: { address: backend, port_value: 1752 }}
+        - endpoint:
+            address: { socket_address: { address: backend, port_value: 1754 }}
+        - endpoint:
+            address: { socket_address: { address: backend, port_value: 1755 }}
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions

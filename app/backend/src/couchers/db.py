@@ -19,7 +19,7 @@ from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
-from couchers.constants import SERVER_THREADS, WORKER_THREADS
+from couchers.constants import SERVER_THREADS
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -66,10 +66,14 @@ def _get_base_engine() -> Engine:
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
         pool_pre_ping=True,
-        # one connection per thread
         poolclass=QueuePool,
-        # main threads + a few extra in case
-        pool_size=SERVER_THREADS + WORKER_THREADS + 12,
+        # Each process (every API worker, every background worker, the scheduler, the parent) keeps its own pool,
+        # so the total connection count is roughly (number of processes) * pool_size and must stay under postgres
+        # max_connections. A single request can hold two connections at once (the handler's session plus the
+        # APICall write that _store_log opens while the handler session is still open), so size for ~2 per server
+        # thread, and pin the ceiling (no overflow) so the fleet-wide budget stays predictable.
+        pool_size=2 * SERVER_THREADS + 4,
+        max_overflow=0,
     )
     register_perf_listeners(engine)
     return engine

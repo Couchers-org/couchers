@@ -32,7 +32,12 @@ services:
       # persistent GrowthBook feature-flag cache (GROWTHBOOK_CACHE_PATH), survives deploys
       - "./data/cache/:/data/cache/"
     expose:
+      # API worker ports (must match API_WORKER_COUNT and the couchers_service endpoints in proxy/envoy.yaml)
       - 1751
+      - 1752
+      - 1754
+      - 1755
+      # media server
       - 1753
     depends_on:
       - postgres

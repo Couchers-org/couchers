@@ -1,6 +1,7 @@
 import logging
 import signal
 import sys
+from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
 from types import TracebackType
@@ -11,6 +12,10 @@ from types import TracebackType
 if __name__ == "__main__":
     prometheus_multiproc_dir = TemporaryDirectory()
     environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
+
+# Enable gRPC's fork support so the API worker processes we fork below can each create their own gRPC server
+# after fork(). Must be set before grpc is imported (it is, transitively, via couchers.server).
+environ["GRPC_ENABLE_FORK_SUPPORT"] = "1"
 # ruff: noqa: E402
 
 import sentry_sdk
@@ -18,7 +23,7 @@ from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
-from couchers.db import apply_migrations, session_scope
+from couchers.db import apply_migrations, db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
 from couchers.i18n.localize import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
@@ -33,6 +38,41 @@ logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+# The API worker processes listen on consecutive ports starting here, skipping MEDIA_PORT. These must stay in
+# sync with the `couchers_service` endpoints in proxy/envoy.yaml and the exposed ports in docker-compose.prod.yml.
+API_BASE_PORT = 1751
+MEDIA_PORT = 1753
+
+
+def _api_worker_ports(count: int) -> list[int]:
+    ports: list[int] = []
+    port = API_BASE_PORT
+    while len(ports) < count:
+        if port != MEDIA_PORT:
+            ports.append(port)
+        port += 1
+    return ports
+
+
+def _run_api_server(port: int) -> None:
+    # Post-fork initialization, mirroring jobs.worker._run_forever: these services use threading/async internals
+    # that don't survive fork() and must be set up fresh in each child process.
+    db_post_fork()
+    # setup_experimentation() must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
+    setup_experimentation()
+    setup_tracing()
+
+    server = create_main_server(port=port)
+    server.start()
+    logger.info(f"API worker serving on {port}")
+    server.wait_for_termination()
+
+
+def start_api_worker(port: int) -> Process:
+    worker = Process(target=_run_api_server, args=(port,))
+    worker.start()
+    return worker
 
 
 def log_unhandled_exception(
@@ -93,19 +133,24 @@ def main() -> None:
         for _ in range(config["BACKGROUND_WORKER_COUNT"]):
             start_jobs_worker()
 
+    # Fork the API worker processes here, before the parent touches gRPC (the media server below and the OTLP
+    # tracing exporter). Each child creates its own gRPC server post-fork, so API request handling spreads across
+    # cores instead of serializing on a single process's GIL.
+    if config["ROLE"] in ["api", "all"]:
+        for port in _api_worker_ports(config["API_WORKER_COUNT"]):
+            start_api_worker(port)
+
     # Initialize the experimentation framework for feature flags in the main process.
-    # Worker processes initialize their own instance in _run_forever().
+    # Worker and API processes initialize their own instance post-fork.
     # Must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
     setup_experimentation()
 
     setup_tracing()
 
     if config["ROLE"] in ["api", "all"]:
-        server = create_main_server(port=1751)
-        server.start()
-        media_server = create_media_server(port=1753)
+        media_server = create_media_server(port=MEDIA_PORT)
         media_server.start()
-        logger.info("Serving on 1751 (secure) and 1753 (media)")
+        logger.info(f"Media server serving on {MEDIA_PORT}")
 
     logger.info("App waiting for signal...")
 
