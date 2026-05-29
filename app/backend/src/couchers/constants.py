@@ -57,9 +57,7 @@ SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 DATETIME_MINUS_INFINITY = datetime(1, 1, 1, tzinfo=UTC)
 DATETIME_INFINITY = datetime(9876, 12, 31, hour=23, minute=59, second=59, tzinfo=UTC)
 
-# Threads per API worker process. We run multiple API worker processes (API_WORKER_COUNT) for parallelism
-# across cores; threads within a process only serve to overlap DB I/O (psycopg releases the GIL during the
-# wait), and high thread counts hurt under the GIL, so keep this small.
+# per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
 SERVER_THREADS = 8
 
 WORKER_THREADS = 1

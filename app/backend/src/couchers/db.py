@@ -67,11 +67,8 @@ def _get_base_engine() -> Engine:
         # connection unexpectedly" errors
         pool_pre_ping=True,
         poolclass=QueuePool,
-        # Each process (every API worker, every background worker, the scheduler, the parent) keeps its own pool,
-        # so the total connection count is roughly (number of processes) * pool_size and must stay under postgres
-        # max_connections. A single request can hold two connections at once (the handler's session plus the
-        # APICall write that _store_log opens while the handler session is still open), so size for ~2 per server
-        # thread, and pin the ceiling (no overflow) so the fleet-wide budget stays predictable.
+        # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
+        # max_connections. ~2 per thread since a request can hold two connections at once (handler + _store_log).
         pool_size=2 * SERVER_THREADS + 4,
         max_overflow=0,
     )

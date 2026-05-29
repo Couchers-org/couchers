@@ -143,10 +143,7 @@ static_resources:
   - name: couchers_service
     connect_timeout: 0.25s
     type: strict_dns
-    # The backend runs several API worker processes, each on its own port (see API_WORKER_COUNT). Round-robin
-    # distributes requests across them at the request level (independent of the downstream HTTP/2 connection),
-    # which is what actually spreads load across the backend's cores. Keep these endpoints in sync with
-    # API_WORKER_COUNT and the exposed ports in docker-compose.prod.yml.
+    # round-robins across the backend's API worker processes; keep these endpoints in sync with API_WORKER_COUNT
     lb_policy: round_robin
     load_assignment:
       cluster_name: couchers_service

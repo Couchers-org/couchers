@@ -17,10 +17,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
     # number of bg worker processes, requires worker or all above
     ("BACKGROUND_WORKER_COUNT", int, 2),
-    # number of API server worker processes, requires api or all above. Each runs its own gRPC server on its
-    # own port so request handling spreads across cores instead of serializing on a single GIL. This MUST be
-    # kept in sync with the `couchers_service` endpoints in proxy/envoy.yaml and the exposed ports in
-    # docker-compose.prod.yml.
+    # number of api worker processes, requires api or all above. must stay in sync with proxy/envoy.yaml
     ("API_WORKER_COUNT", int, 4),
     # Version string
     ("VERSION", str, "unknown"),

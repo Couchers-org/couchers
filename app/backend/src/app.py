@@ -13,8 +13,7 @@ if __name__ == "__main__":
     prometheus_multiproc_dir = TemporaryDirectory()
     environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
-# Enable gRPC's fork support so the API worker processes we fork below can each create their own gRPC server
-# after fork(). Must be set before grpc is imported (it is, transitively, via couchers.server).
+# must be set before grpc is imported (transitively, via couchers.server)
 environ["GRPC_ENABLE_FORK_SUPPORT"] = "1"
 # ruff: noqa: E402
 
@@ -39,8 +38,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# The API worker processes listen on consecutive ports starting here, skipping MEDIA_PORT. These must stay in
-# sync with the `couchers_service` endpoints in proxy/envoy.yaml and the exposed ports in docker-compose.prod.yml.
+# API worker ports must stay in sync with proxy/envoy.yaml and docker-compose.prod.yml
 API_BASE_PORT = 1751
 MEDIA_PORT = 1753
 
@@ -56,10 +54,8 @@ def _api_worker_ports(count: int) -> list[int]:
 
 
 def _run_api_server(port: int) -> None:
-    # Post-fork initialization, mirroring jobs.worker._run_forever: these services use threading/async internals
-    # that don't survive fork() and must be set up fresh in each child process.
+    # post-fork init, mirroring jobs.worker._run_forever
     db_post_fork()
-    # setup_experimentation() must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
     setup_experimentation()
     setup_tracing()
 
@@ -133,9 +129,8 @@ def main() -> None:
         for _ in range(config["BACKGROUND_WORKER_COUNT"]):
             start_jobs_worker()
 
-    # Fork the API worker processes here, before the parent touches gRPC (the media server below and the OTLP
-    # tracing exporter). Each child creates its own gRPC server post-fork, so API request handling spreads across
-    # cores instead of serializing on a single process's GIL.
+    # fork the API workers before the parent touches gRPC (media server below + OTLP exporter); each child
+    # creates its own gRPC server post-fork, spreading request handling across cores instead of one GIL
     if config["ROLE"] in ["api", "all"]:
         for port in _api_worker_ports(config["API_WORKER_COUNT"]):
             start_api_worker(port)
