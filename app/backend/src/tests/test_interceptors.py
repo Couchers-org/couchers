@@ -3,7 +3,7 @@ from concurrent import futures
 from contextlib import contextmanager
 from datetime import timedelta
 from typing import Any
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import grpc
 import pytest
@@ -15,6 +15,7 @@ from sqlalchemy import select, update
 from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
+    UNKNOWN_ERROR_MESSAGE,
 )
 from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
@@ -30,7 +31,7 @@ from couchers.interceptors import (
     parse_headers,
     validate_auth_level,
 )
-from couchers.metrics import servicer_duration_histogram
+from couchers.metrics import servicer_duration_histogram, servicer_setup_errors_counter
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
@@ -97,6 +98,21 @@ def _get_histogram_labels_value(method, logged_in, exception, code):
     if len(histogram_counts) == 0:
         return 0
     return histogram_counts[0].value
+
+
+def _get_setup_errors_value(method, exception):
+    metrics = servicer_setup_errors_counter.collect()
+    counter = [m for m in metrics if m.name == "couchers_servicer_setup_errors"][0]
+    samples = [
+        s
+        for s in counter.samples
+        if s.name == "couchers_servicer_setup_errors_total"
+        and s.labels["method"] == method
+        and s.labels["exception"] == exception
+    ]
+    if len(samples) == 0:
+        return 0
+    return samples[0].value
 
 
 def test_logging_interceptor_ok():
@@ -290,6 +306,27 @@ def test_tracing_interceptor_exception(db):
         assert not trace.response
 
     assert _get_histogram_labels_value("/org.couchers.auth.Auth/SignupFlow", "False", "Exception", "") == val + 1
+
+
+def test_setup_phase_exception_observed(db):
+    method = "/org.couchers.auth.Auth/SignupFlow"
+    val = _get_setup_errors_value(method, "ValueError")
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with (
+        patch("couchers.interceptors.LocalizationContext", side_effect=ValueError("expected only letters")),
+        patch("couchers.interceptors.sentry_sdk") as mock_sentry,
+        interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
+    ):
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.INTERNAL
+        assert e.value.details() == UNKNOWN_ERROR_MESSAGE
+        mock_sentry.capture_exception.assert_called_once()
+
+    assert _get_setup_errors_value(method, "ValueError") == val + 1
 
 
 def test_tracing_interceptor_abort(db):

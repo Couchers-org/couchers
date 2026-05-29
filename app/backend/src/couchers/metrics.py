@@ -104,6 +104,17 @@ def observe_in_servicer_duration_histogram(
     servicer_duration_histogram.labels(method, user_id is not None, status_code, exception_type).observe(duration_s)
 
 
+servicer_setup_errors_counter: Counter = Counter(
+    "couchers_servicer_setup_errors_total",
+    "Number of unexpected errors raised during gRPC interceptor setup, before the handler is invoked",
+    labelnames=["method", "exception"],
+)
+
+
+def observe_in_servicer_setup_errors_counter(method: str, exception_type: str) -> None:
+    servicer_setup_errors_counter.labels(method, exception_type).inc()
+
+
 # list of gauge names and function to execute to set value to
 # the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
 # before collection with this
