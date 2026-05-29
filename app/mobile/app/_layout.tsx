@@ -31,6 +31,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import DevSettingsButton from "@/components/DevSettingsButton";
 import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import { appVariant } from "@/service/buildInfo";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { reconfigureApiClient } from "@/service/client";
 import { getNotificationPath } from "@/utils/getNotificationPath";
@@ -91,7 +92,9 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   );
 }
 
-export default Sentry.wrap(function RootLayout() {
+const sentryEnabled = appVariant === "production" || appVariant === "staging";
+
+function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Ubuntu_300Light,
@@ -131,7 +134,9 @@ export default Sentry.wrap(function RootLayout() {
       </ThemeProvider>
     </SafeAreaProvider>
   );
-});
+}
+
+export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;
 
 /**
  * Generates a unique ID for a notification response to prevent duplicate handling.

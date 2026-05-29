@@ -40,6 +40,8 @@ python3 app/scripts/dev-mobile-setup.py --restore
 | File | Change |
 |------|--------|
 | `app/proxy/envoy.yaml` | Adds your IP to the CORS allow list |
-| `app/backend.dev.env` | Sets `COOKIE_DOMAIN` and media server URLs to your IP |
+| `app/backend.dev.env` | Sets `COOKIE_DOMAIN`, `MEDIA_SERVER_BASE_URL`, and `MEDIA_SERVER_UPLOAD_BASE_URL` |
+| `app/media.dev.env` | Sets `MEDIA_SERVER_BASE_URL` (needed for image upload response URLs) |
 | `app/web/.env.localdev` | Points API and media URLs at your IP |
+| `app/web/.env.development` | Points API and media URLs at your IP |
 | `app/mobile/.env` | Switches from staging to local dev mode |
