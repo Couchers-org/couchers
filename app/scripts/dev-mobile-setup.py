@@ -11,10 +11,12 @@ Usage:
   python3 scripts/dev-mobile-setup.py --restore     # undo all changes
 
 Files modified:
-  app/proxy/envoy.yaml      - adds IP to CORS allow list
-  app/backend.dev.env       - sets COOKIE_DOMAIN and media server URLs
-  app/web/.env.localdev     - sets API and media URLs
-  app/mobile/.env           - switches from staging to local dev mode
+  app/proxy/envoy.yaml        - adds IP to CORS allow list
+  app/backend.dev.env         - sets COOKIE_DOMAIN and media server URLs
+  app/media.dev.env           - sets media server base URL (for image uploads)
+  app/web/.env.localdev       - sets API and media URLs
+  app/web/.env.development    - sets API and media URLs
+  app/mobile/.env             - switches from staging to local dev mode
 
 Note: do NOT commit the envoy.yaml change.
 """
@@ -29,7 +31,9 @@ APP = Path(__file__).resolve().parent.parent
 
 ENVOY_YAML = APP / "proxy" / "envoy.yaml"
 BACKEND_ENV = APP / "backend.dev.env"
+MEDIA_ENV = APP / "media.dev.env"
 WEB_ENV = APP / "web" / ".env.localdev"
+WEB_DEV_ENV = APP / "web" / ".env.development"
 MOBILE_ENV = APP / "mobile" / ".env"
 
 MOBILE_ENV_DEFAULT = """\
@@ -80,12 +84,25 @@ def setup(ip: str) -> None:
     BACKEND_ENV.write_text(content)
     print("  backend.dev.env updated COOKIE_DOMAIN and media server URLs")
 
+    # media.dev.env — media server base URL (needed for upload response URLs)
+    content = MEDIA_ENV.read_text()
+    content = re.sub(r"^MEDIA_SERVER_BASE_URL=.*", f"MEDIA_SERVER_BASE_URL=http://{ip}:5001", content, flags=re.MULTILINE)
+    MEDIA_ENV.write_text(content)
+    print("  media.dev.env   updated MEDIA_SERVER_BASE_URL")
+
     # web/.env.localdev — API + media URLs
     content = WEB_ENV.read_text()
     content = re.sub(r'^NEXT_PUBLIC_API_BASE_URL=.*', f'NEXT_PUBLIC_API_BASE_URL="http://{ip}:8888"', content, flags=re.MULTILINE)
     content = re.sub(r'^NEXT_PUBLIC_MEDIA_BASE_URL=.*', f'NEXT_PUBLIC_MEDIA_BASE_URL="http://{ip}:5001"', content, flags=re.MULTILINE)
     WEB_ENV.write_text(content)
     print("  web/.env.localdev updated API and media URLs")
+
+    # web/.env.development — API + media URLs
+    content = WEB_DEV_ENV.read_text()
+    content = re.sub(r'^NEXT_PUBLIC_API_BASE_URL=.*', f'NEXT_PUBLIC_API_BASE_URL="http://{ip}:8888"', content, flags=re.MULTILINE)
+    content = re.sub(r'^NEXT_PUBLIC_MEDIA_BASE_URL=.*', f'NEXT_PUBLIC_MEDIA_BASE_URL="http://{ip}:5001"', content, flags=re.MULTILINE)
+    WEB_DEV_ENV.write_text(content)
+    print("  web/.env.development updated API and media URLs")
 
     # mobile/.env — comment out STAGE block, activate LOCAL block with real IP
     MOBILE_ENV.write_text(
@@ -130,12 +147,25 @@ def restore() -> None:
     BACKEND_ENV.write_text(content)
     print("  backend.dev.env restored to localhost")
 
+    # media.dev.env — back to localhost
+    content = MEDIA_ENV.read_text()
+    content = re.sub(r"^MEDIA_SERVER_BASE_URL=.*", "MEDIA_SERVER_BASE_URL=http://localhost:5001", content, flags=re.MULTILINE)
+    MEDIA_ENV.write_text(content)
+    print("  media.dev.env   restored to localhost")
+
     # web/.env.localdev — back to localhost
     content = WEB_ENV.read_text()
     content = re.sub(r'^NEXT_PUBLIC_API_BASE_URL=.*', 'NEXT_PUBLIC_API_BASE_URL="http://localhost:8888"', content, flags=re.MULTILINE)
     content = re.sub(r'^NEXT_PUBLIC_MEDIA_BASE_URL=.*', 'NEXT_PUBLIC_MEDIA_BASE_URL="http://localhost:5001"', content, flags=re.MULTILINE)
     WEB_ENV.write_text(content)
     print("  web/.env.localdev restored to localhost")
+
+    # web/.env.development — back to staging
+    content = WEB_DEV_ENV.read_text()
+    content = re.sub(r'^NEXT_PUBLIC_API_BASE_URL=.*', 'NEXT_PUBLIC_API_BASE_URL="https://next.couchershq.org/api"', content, flags=re.MULTILINE)
+    content = re.sub(r'^NEXT_PUBLIC_MEDIA_BASE_URL=.*', 'NEXT_PUBLIC_MEDIA_BASE_URL="https://dev-user-media.couchershq.org"', content, flags=re.MULTILINE)
+    WEB_DEV_ENV.write_text(content)
+    print("  web/.env.development restored to staging")
 
     # mobile/.env — back to staging mode
     MOBILE_ENV.write_text(MOBILE_ENV_DEFAULT)
