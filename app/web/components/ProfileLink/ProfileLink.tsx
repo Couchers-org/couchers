@@ -4,6 +4,7 @@ import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import { MouseEvent, ReactNode } from "react";
 import { routeToUser } from "routes";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 interface ProfileLinkProps {
   userId?: number;
@@ -25,9 +26,10 @@ export default function ProfileLink({
   "aria-label": ariaLabel,
 }: ProfileLinkProps) {
   const isNativeEmbed = useIsNativeEmbed();
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const { openProfileSheet } = useProfileSheet();
 
-  if (isNativeEmbed && userId !== undefined) {
+  if ((isNativeEmbed || isMobile) && userId !== undefined) {
     return (
       <ButtonBase
         component="span"
