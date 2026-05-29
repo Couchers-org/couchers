@@ -22,6 +22,7 @@ from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
+from couchers.constants import API_BASE_PORT, API_WORKER_COUNT, MEDIA_PORT
 from couchers.db import apply_migrations, db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
 from couchers.i18n.localize import get_main_i18next
@@ -37,12 +38,6 @@ logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
-# the api workers listen on API_BASE_PORT .. API_BASE_PORT + API_WORKER_COUNT - 1; this must stay in sync with
-# proxy/envoy.yaml and docker-compose.prod.yml
-API_WORKER_COUNT = 4
-API_BASE_PORT = 1761
-MEDIA_PORT = 1753
 
 
 def _run_api_server(port: int) -> None:
