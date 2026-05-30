@@ -38,7 +38,10 @@ from couchers.metrics import (
     observe_api_call,
     observe_in_servicer_duration_histogram,
     observe_in_servicer_perf_histograms,
+    observe_in_servicer_pool_wait_histogram,
+    observe_in_servicer_serde_histogram,
     observe_in_servicer_setup_errors_counter,
+    observe_in_servicer_setup_histogram,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
@@ -295,6 +298,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
+        # Arm resource accounting across the auth/setup phase so its DB time (the user fetch + user_activity upsert)
+        # and CPU are attributed separately from the handler body; read back once setup succeeds, below. The handler
+        # re-arms its own accounting. Auth-failure early-returns just leave this to be overwritten by the next request.
+        start_perf()
+
         try:
             try:
                 auth_level = find_auth_level(self._pool, method)
@@ -336,6 +344,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
                 timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
             )
+
+            setup_perf = read_perf()
+            if setup_perf is not None:
+                observe_in_servicer_setup_histogram(method, setup_perf.db_time_ms, setup_perf.cpu_ms)
         except Exception as e:
             observe_in_servicer_setup_errors_counter(method, type(e).__name__)
             sentry_sdk.set_tag("context", "servicer_setup")
@@ -354,6 +366,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                # Force the pool checkout now and time it, so connection-acquisition wait is a distinct bucket rather
+                # than hiding inside the handler's first query. start_perf() arms after, so this isn't counted as DB.
+                pool_wait_start = perf_counter_ns()
+                session.connection()
+                observe_in_servicer_pool_wait_histogram(method, (perf_counter_ns() - pool_wait_start) / 1e9)
                 start_perf()
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
@@ -454,10 +471,28 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             return res
 
+        wrapped_deserializer: Callable[[bytes], T] | None = None
+        if (request_deserializer := handler.request_deserializer) is not None:
+
+            def wrapped_deserializer(request_bytes: bytes) -> T:
+                t0 = perf_counter_ns()
+                req = request_deserializer(request_bytes)
+                observe_in_servicer_serde_histogram(method, "deserialize", (perf_counter_ns() - t0) / 1e9)
+                return req
+
+        wrapped_serializer: Callable[[R], bytes] | None = None
+        if (response_serializer := handler.response_serializer) is not None:
+
+            def wrapped_serializer(response: R) -> bytes:
+                t0 = perf_counter_ns()
+                data = response_serializer(response)
+                observe_in_servicer_serde_histogram(method, "serialize", (perf_counter_ns() - t0) / 1e9)
+                return data
+
         return grpc.unary_unary_rpc_method_handler(
             function_without_couchers_stuff,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
+            request_deserializer=wrapped_deserializer,
+            response_serializer=wrapped_serializer,
         )
 
 
