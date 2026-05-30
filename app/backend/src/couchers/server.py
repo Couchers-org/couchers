@@ -77,7 +77,7 @@ from couchers.servicers.threads import Threads
 
 
 class _InstrumentedThreadPoolExecutor(futures.ThreadPoolExecutor):
-    # gRPC submits one task per RPC, so tracking submit/done gives outstanding (running + queued) calls per worker
+    # gRPC submits one task per RPC
     def submit(self, fn: Any, /, *args: Any, **kwargs: Any) -> futures.Future[Any]:
         grpc_in_flight_gauge.inc()
         future = super().submit(fn, *args, **kwargs)
