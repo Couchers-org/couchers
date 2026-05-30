@@ -16,6 +16,16 @@ interface StoredSession {
   lastActiveAt: number;
 }
 
+/**
+ * Random 128-bit hex string. getRandomValues() works in insecure contexts,
+ * unlike the other Web Crypto random helpers.
+ */
+function randomToken(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export interface SearchReferrer {
   searchSessionId: string;
   searchQueryId: string;
@@ -50,13 +60,13 @@ export function getOrCreateSearchSessionId(): string {
     writeSession({ id: existing.id, lastActiveAt: now });
     return existing.id;
   }
-  const id = crypto.randomUUID();
+  const id = randomToken();
   writeSession({ id, lastActiveAt: now });
   return id;
 }
 
 export function makeSearchQueryId(): string {
-  return crypto.randomUUID();
+  return randomToken();
 }
 
 export function makeResultId(
