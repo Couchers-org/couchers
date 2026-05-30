@@ -8,3 +8,4 @@ Bug fixes and improvements:
 - Notification banners are no longer shown when you are already reading that conversation in the app
 - Viewing your own profile card now shows an "Open full profile" button instead of confusing navigation options
 - Profile badges now load instantly
+- Fixed: Translations in ProfileSheet intermittantly not working

@@ -1,6 +1,11 @@
 import { ArrowBack } from "@mui/icons-material";
-import { Collapse, IconButton, styled, SwipeableDrawer } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import {
+  Collapse,
+  IconButton,
+  Skeleton,
+  styled,
+  SwipeableDrawer,
+} from "@mui/material";
 import Snackbar from "components/Snackbar";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import NewHostRequest from "features/profile/view/NewHostRequest";
@@ -9,7 +14,7 @@ import Overview from "features/profile/view/Overview";
 import UserCard from "features/profile/view/UserCard";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
-import { CONNECTIONS, GLOBAL, MESSAGES, PROFILE } from "i18n/namespaces";
+import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { UserTab } from "routes";
@@ -62,16 +67,32 @@ const ScrollContent = styled("div")({
 
 const REQUEST_ID = "request";
 
+function ProfileSheetSkeleton() {
+  return (
+    <ScrollContent>
+      {/* Overview card */}
+      <Skeleton
+        variant="circular"
+        width={120}
+        height={120}
+        sx={{ mx: "auto", mt: 2 }}
+      />
+      <Skeleton width="50%" height={32} sx={{ mx: "auto", mt: 1 }} />
+      <Skeleton width="35%" height={20} sx={{ mx: "auto" }} />
+      <Skeleton width="40%" height={20} sx={{ mx: "auto", mb: 2 }} />
+      {/* Tab bar */}
+      <Skeleton variant="rectangular" height={40} sx={{ mx: 2, mb: 1 }} />
+      {/* Content lines */}
+      <Skeleton width="90%" sx={{ mx: "auto", mt: 2 }} />
+      <Skeleton width="80%" sx={{ mx: "auto" }} />
+      <Skeleton width="85%" sx={{ mx: "auto" }} />
+    </ScrollContent>
+  );
+}
+
 export default function ProfileSheet() {
   const isMobile = useIsScreenSizeOrSmaller("mobile");
-  const { t, i18n } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
-
-  // ProfileSheet lives in the app shell and can open on any page, many of which
-  // don't pre-load PROFILE or CONNECTIONS. Eagerly load them so translations
-  // are ready before the sheet opens, avoiding the key-instead-of-text race.
-  useEffect(() => {
-    i18n.loadNamespaces([PROFILE, CONNECTIONS, MESSAGES]);
-  }, [i18n]);
+  const { t } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
 
   const {
     openProfileUserId,
@@ -175,7 +196,7 @@ export default function ProfileSheet() {
               {t("profile:message_form.success")}
             </Snackbar>
           )}
-          {isLoading && <CenteredSpinner />}
+          {isLoading && <ProfileSheetSkeleton />}
           {user && (
             <ProfileUserProvider user={user}>
               <Overview
