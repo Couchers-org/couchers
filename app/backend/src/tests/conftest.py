@@ -28,7 +28,7 @@ from tests.fixtures.db import (  # noqa: E402
     generate_user,
     populate_testing_resources,
 )
-from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -300,13 +300,19 @@ def fast_passwords():
 
 
 @pytest.fixture
+def email_collector():
+    """Captures emails and allows inspecting them."""
+
+    with EmailCollector() as collector:
+        yield collector
+
+
+@pytest.fixture
 def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-    collector = PushCollector()
-
-    with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
+    with PushCollector() as collector:
         yield collector
 
 
