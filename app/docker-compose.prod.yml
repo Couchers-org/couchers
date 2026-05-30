@@ -42,6 +42,13 @@ services:
     depends_on:
       - postgres
       - jaeger
+    healthcheck:
+      # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
+      test: ["CMD", "python", "src/healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
     networks:
       - backend_prometheus
       - postgres_backend

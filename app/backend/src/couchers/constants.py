@@ -66,6 +66,10 @@ MEDIA_PORT = 1753
 # per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
 SERVER_THREADS = 8
 
+# on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
+# container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
+GRACEFUL_SHUTDOWN_TIMEOUT = 20
+
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
 

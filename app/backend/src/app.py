@@ -1,6 +1,8 @@
 import logging
 import signal
 import sys
+import threading
+from functools import partial
 from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
@@ -20,13 +22,14 @@ from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
-from couchers.constants import API_BASE_PORT, API_WORKER_COUNT, MEDIA_PORT
+from couchers.constants import API_BASE_PORT, API_WORKER_COUNT, GRACEFUL_SHUTDOWN_TIMEOUT, MEDIA_PORT
 from couchers.db import apply_migrations, db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
 from couchers.i18n.localize import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server
+from couchers.supervisor import Child, supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
@@ -39,7 +42,8 @@ logger = logging.getLogger(__name__)
 
 
 def _run_api_server(port: int) -> None:
-    # post-fork init, mirroring jobs.worker._run_forever
+    # per-process init (connection pool, tracing, experimentation don't survive process start),
+    # mirroring jobs.worker._run_forever
     db_post_fork()
     setup_experimentation()
     setup_tracing()
@@ -47,7 +51,15 @@ def _run_api_server(port: int) -> None:
     server = create_main_server(port=port)
     server.start()
     logger.info(f"API worker serving on {port}")
-    server.wait_for_termination()
+
+    # the parent sends SIGTERM on shutdown; drain in-flight RPCs rather than dropping them
+    terminate = threading.Event()
+    signal.signal(signal.SIGTERM, lambda *_: terminate.set())
+    signal.signal(signal.SIGINT, lambda *_: terminate.set())
+    terminate.wait()
+
+    logger.info(f"API worker on {port} draining (up to {GRACEFUL_SHUTDOWN_TIMEOUT}s)")
+    server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
 
 
 def start_api_worker(port: int) -> Process:
@@ -104,38 +116,45 @@ def main() -> None:
 
     logger.info("Starting")
 
+    children: list[Child] = []
+
     if config["ROLE"] in ["scheduler", "all"]:
-        start_jobs_scheduler()
+        children.append(Child("scheduler", start_jobs_scheduler))
 
     if config["ROLE"] in ["worker", "all"]:
-        for _ in range(config["BACKGROUND_WORKER_COUNT"]):
-            start_jobs_worker()
+        for i in range(config["BACKGROUND_WORKER_COUNT"]):
+            children.append(Child(f"worker-{i}", start_jobs_worker))
 
-    # fork the API workers before the parent touches gRPC (media server below + OTLP exporter); each child
-    # creates its own gRPC server post-fork, spreading request handling across cores instead of one GIL
+    # spawn the API workers before the parent starts its own gRPC servers and exporters below (prometheus,
+    # media, OTLP tracing). The multiprocessing start method is forkserver/spawn (Python 3.14 default; never
+    # fork), so each worker runs its own per-process init — don't pin set_start_method("fork") to "simplify"
+    # this, that reintroduces fork-after-threads hazards. Each worker serves its own gRPC server in its own
+    # process, spreading request handling across cores instead of serializing on one GIL.
     if config["ROLE"] in ["api", "all"]:
         for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
-            start_api_worker(port)
+            children.append(Child(f"api-{port}", partial(start_api_worker, port)))
 
-    # started after all forks so children never inherit the metrics HTTP server thread (a thread holding a
-    # lock at fork time would deadlock in the child); the parent aggregates the children's metrics
+    # the parent aggregates every process's metrics on :8000 (children export via PROMETHEUS_MULTIPROC_DIR)
     create_prometheus_server(8000)
 
-    # Initialize the experimentation framework for feature flags in the main process.
-    # Worker and API processes initialize their own instance post-fork.
+    # Initialize the experimentation framework for feature flags in the main process (for the media server).
+    # Worker and API processes initialize their own instance per-process.
     # Must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
     setup_experimentation()
 
     setup_tracing()
 
+    media_server = None
     if config["ROLE"] in ["api", "all"]:
         media_server = create_media_server(port=MEDIA_PORT)
         media_server.start()
         logger.info(f"Media server serving on {MEDIA_PORT}")
 
-    logger.info("App waiting for signal...")
+    logger.info("App started, supervising child processes")
+    supervise(children)
 
-    signal.pause()
+    if media_server is not None:
+        media_server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
 
 
 if __name__ == "__main__":
