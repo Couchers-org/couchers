@@ -64,8 +64,9 @@
     },
     "write_reference": {
       "title": "Schrijf een referentie",
-      "description": "Laat een referentie achter voor het verblijf van {{name}}",
-      "button": "Schrijf referentie"
+      "button": "Schrijf referentie",
+      "description_surfed": "Laat een referentie achter voor je tijd bij {{name}}",
+      "description_hosted": "Laat een referentie achter voor het hosten van {{name}}"
     },
     "complete_profile": {
       "title": "Profiel voltooien",
@@ -76,6 +77,12 @@
       "title": "Sterke verificatie",
       "description": "Verifieer je identiteit voor een veiligere community",
       "button": "Account verifiëren"
+    },
+    "carousel_dismiss_button_a11y": "Herinnering verbergen",
+    "complete_my_home": {
+      "title": "Voltooi het deel \"Mijn huis\" van je profiel",
+      "description": "Voeg slaapmogelijkheden, huisregels en een beschrijving van je huis toe",
+      "button": "Bewerk je huis"
     }
   },
   "events": {
@@ -85,7 +92,14 @@
     "community_header": "Events in jouw communities",
     "community_empty_message": "Geen aankomende events in jouw communities.",
     "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} deelnemer",
-    "attendees_count_label_other": "{{count}} deelnemers"
+    "today_label": "Vandaag"
+  },
+  "discussions": {
+    "community_header": "Discussies in jouw communities",
+    "community_empty_message": "Nog geen discussies in jouw communities.",
+    "replies_count_label_one": "{{count}} reactie",
+    "replies_count_label_other": "{{count}} reacties",
+    "prev_page_label": "Vorige pagina",
+    "next_page_label": "Volgende pagina"
   }
 }

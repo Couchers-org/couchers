@@ -6,6 +6,7 @@ from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
+from typing import TYPE_CHECKING
 
 from alembic import command
 from alembic.config import Config
@@ -19,7 +20,6 @@ from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS, WORKER_THREADS
-from couchers.context import CouchersContext
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -31,7 +31,11 @@ from couchers.models import (
     TimezoneArea,
     User,
 )
+from couchers.perf import register_perf_listeners
 from couchers.sql import where_users_column_visible
+
+if TYPE_CHECKING:
+    from couchers.context import CouchersContext
 
 # Register psycopg (psycopg3) as the default driver for postgresql:// URLs
 # This must happen before any engine is created
@@ -57,7 +61,7 @@ def apply_migrations() -> None:
 
 @functools.cache
 def _get_base_engine() -> Engine:
-    return create_engine(
+    engine = create_engine(
         config["DATABASE_CONNECTION_STRING"],
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
@@ -67,6 +71,8 @@ def _get_base_engine() -> Engine:
         # main threads + a few extra in case
         pool_size=SERVER_THREADS + WORKER_THREADS + 12,
     )
+    register_perf_listeners(engine)
+    return engine
 
 
 @contextmanager

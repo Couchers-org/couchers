@@ -33,8 +33,14 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.metrics import observe_in_servicer_duration_histogram
-from couchers.models import APICall, User, UserActivity, UserSession
+from couchers.metrics import (
+    observe_api_call,
+    observe_in_servicer_duration_histogram,
+    observe_in_servicer_perf_histograms,
+    observe_in_servicer_setup_errors_counter,
+)
+from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
+from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -76,7 +82,12 @@ def _binned_now() -> Function[Any]:
 
 
 def _try_get_and_update_user_details(
-    token: str | None, is_api_key: bool, ip_address: str | None, user_agent: str | None
+    token: str | None,
+    is_api_key: bool,
+    ip_address: str | None,
+    user_agent: str | None,
+    sofa: str | None,
+    client_platform: ClientPlatform | None,
 ) -> UserAuthInfo | None:
     """
     Tries to get session and user info corresponding to this token.
@@ -100,6 +111,7 @@ def _try_get_and_update_user_details(
                     UserActivity.period == _binned_now(),
                     UserActivity.ip_address == ip_address,
                     UserActivity.user_agent == user_agent,
+                    UserActivity.sofa == sofa,
                 ),
             )
             .where(User.is_visible)
@@ -123,6 +135,8 @@ def _try_get_and_update_user_details(
 
         if user_activity:
             user_activity.api_calls += 1
+            if client_platform is not None:
+                user_activity.client_platform = client_platform
         else:
             session.add(
                 UserActivity(
@@ -130,6 +144,8 @@ def _try_get_and_update_user_details(
                     period=_binned_now(),
                     ip_address=ip_address,
                     user_agent=user_agent,
+                    sofa=sofa,
+                    client_platform=client_platform,
                     api_calls=1,
                 )
             )
@@ -209,6 +225,8 @@ def _store_log(
     response: Message | None,
     traceback: str | None = None,
     perf_report: str | None = None,
+    perf: PerfResult | None = None,
+    client_platform: ClientPlatform | None = None,
     ip_address: str | None,
     user_agent: str | None,
     sofa: str | None,
@@ -233,6 +251,11 @@ def _store_log(
                 response_truncated=response_truncated,
                 traceback=traceback,
                 perf_report=perf_report,
+                db_query_count=perf.db_query_count if perf else None,
+                db_write_query_count=perf.db_write_query_count if perf else None,
+                db_time_ms=perf.db_time_ms if perf else None,
+                cpu_ms=perf.cpu_ms if perf else None,
+                client_platform=client_platform,
                 ip_address=ip_address,
                 user_agent=user_agent,
                 sofa=sofa,
@@ -271,40 +294,52 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         method = handler_call_details.method
 
         try:
-            auth_level = find_auth_level(self._pool, method)
-        except AbortError as ae:
-            return abort_handler(ae.msg, ae.code)
+            try:
+                auth_level = find_auth_level(self._pool, method)
+            except AbortError as ae:
+                return abort_handler(ae.msg, ae.code)
 
-        try:
-            headers = parse_headers(dict(handler_call_details.invocation_metadata))
-        except BadHeaders:
-            return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
+            try:
+                headers = parse_headers(dict(handler_call_details.invocation_metadata))
+            except BadHeaders:
+                return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
 
-        auth_info = _try_get_and_update_user_details(
-            headers.token, headers.is_api_key, headers.ip_address, headers.user_agent
-        )
+            auth_info = _try_get_and_update_user_details(
+                headers.token,
+                headers.is_api_key,
+                headers.ip_address,
+                headers.user_agent,
+                headers.sofa,
+                headers.client_platform,
+            )
 
-        try:
-            check_permissions(auth_info, auth_level)
-        except AbortError as ae:
-            return unauthenticated_handler(ae.msg, ae.code)
+            try:
+                check_permissions(auth_info, auth_level)
+            except AbortError as ae:
+                return unauthenticated_handler(ae.msg, ae.code)
 
-        if not (handler := continuation(handler_call_details)):
-            raise RuntimeError(f"No handler in '{method}'")
+            if not (handler := continuation(handler_call_details)):
+                raise RuntimeError(f"No handler in '{method}'")
 
-        if not (prev_function := handler.unary_unary):
-            raise RuntimeError(f"No prev_function in '{method}', {handler}")
+            if not (prev_function := handler.unary_unary):
+                raise RuntimeError(f"No prev_function in '{method}', {handler}")
 
-        if headers.sofa:
-            sofa = headers.sofa
-            new_sofa_cookie = None
-        else:
-            sofa, new_sofa_cookie = generate_sofa_cookie()
+            if headers.sofa:
+                sofa = headers.sofa
+                new_sofa_cookie = None
+            else:
+                sofa, new_sofa_cookie = generate_sofa_cookie()
 
-        loc_context = LocalizationContext(
-            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
-            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-        )
+            loc_context = LocalizationContext(
+                locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
+                timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+            )
+        except Exception as e:
+            observe_in_servicer_setup_errors_counter(method, type(e).__name__)
+            sentry_sdk.set_tag("context", "servicer_setup")
+            sentry_sdk.set_tag("method", method)
+            sentry_sdk.capture_exception(e)
+            return abort_handler(UNKNOWN_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
@@ -317,9 +352,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                start_perf()
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
+                    # flush so pending ORM writes execute (and are counted) before we snapshot; a handler that only
+                    # session.add(...)s and returns would otherwise flush at commit, after read_perf()
+                    session.flush()
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -329,12 +369,20 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
+                    observe_api_call(method, headers.client_platform)
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
                 except Exception as e:
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
 
@@ -354,6 +402,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         request=req,
                         response=None,
                         traceback=traceback,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
@@ -361,10 +411,24 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
+                    observe_api_call(method, headers.client_platform)
+                    if perf is not None:
+                        observe_in_servicer_perf_histograms(
+                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                        )
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
+                        sentry_sdk.set_tag("user_agent", headers.user_agent)
+                        sentry_sdk.set_tag("ui_lang", loc_context.locale)
+                        sentry_sdk.set_user(
+                            {
+                                "id": couchers_context._user_id,
+                                "ip_address": headers.ip_address,
+                                "sofa": sofa[:12],
+                            }
+                        )
                         sentry_sdk.capture_exception(e)
 
                     raise e
@@ -401,6 +465,7 @@ class CouchersHeaders:
     is_api_key: bool
     ip_address: str | None
     user_agent: str | None
+    client_platform: ClientPlatform | None
     ui_lang: str | None
     user_id: str | None
     sofa: str | None
@@ -423,6 +488,14 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
     ip_address = headers.get("x-couchers-real-ip")
     user_agent = headers.get("user-agent")
 
+    # the client (web app or native app) declares its platform via this header
+    client_platform_raw = headers.get("x-couchers-client-platform")
+    client_platform = (
+        ClientPlatform[client_platform_raw]
+        if isinstance(client_platform_raw, str) and client_platform_raw in ClientPlatform.__members__
+        else None
+    )
+
     ui_lang = parse_ui_lang_cookie(headers)
     user_id = parse_user_id_cookie(headers)
     sofa = parse_sofa_cookie(headers)
@@ -432,6 +505,7 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
         is_api_key=is_api_key,
         ip_address=ip_address if isinstance(ip_address, str) else None,
         user_agent=user_agent if isinstance(user_agent, str) else None,
+        client_platform=client_platform,
         ui_lang=ui_lang,
         user_id=user_id,
         sofa=sofa,

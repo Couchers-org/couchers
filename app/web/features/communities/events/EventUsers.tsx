@@ -1,4 +1,5 @@
-import { Card, styled, Typography } from "@mui/material";
+import { Group } from "@mui/icons-material";
+import { Box, Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import CursorPagination from "components/CursorPagination";
 import { EllipsisMenuItem } from "components/EllipsisMenu";
@@ -9,8 +10,6 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { ListEventAttendeesRes } from "proto/events_pb";
 import { theme } from "theme";
-
-import UsersCountTag from "./UsersCountTag";
 
 const StyledWrapper = styled(Card)(() => ({
   padding: theme.spacing(2),
@@ -27,12 +26,6 @@ const PaginationWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
-
-const StyledTitleContainer = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.25rem",
-});
 
 export interface EventUsersProps {
   emptyState: string;
@@ -72,16 +65,28 @@ export default function EventUsers({
 
   return (
     <StyledWrapper>
-      <StyledTitleContainer>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="h2" component="span" role="heading">
           {title}
         </Typography>
-        {attendeeCount && (
-          <UsersCountTag size="medium">
-            {attendeeCount?.toString()}
-          </UsersCountTag>
-        )}
-      </StyledTitleContainer>
+        <Group
+          fontSize="small"
+          sx={{
+            marginLeft: "0.5ch",
+            marginRight: "0.15rem",
+            color: "var(--mui-palette-text-secondary)",
+          }}
+        />
+        <Box
+          component="span"
+          sx={{
+            color: "var(--mui-palette-text-secondary)",
+            fontSize: "0.85em",
+          }}
+        >
+          {attendeeCount?.toString()}
+        </Box>
+      </Box>
       <UsersList
         error={error}
         userIds={userIds}

@@ -29,6 +29,8 @@ services:
     volumes:
       # auxiliary resources
       - "./data/aux/:/app/aux/:ro"
+      # persistent GrowthBook feature-flag cache (GROWTHBOOK_CACHE_PATH), survives deploys
+      - "./data/cache/:/data/cache/"
     expose:
       - 1751
       - 1753

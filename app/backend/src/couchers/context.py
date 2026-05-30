@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, NoReturn, cast
 
 import grpc
 
+from couchers import experimentation
 from couchers.i18n import LocalizationContext
 
 if TYPE_CHECKING:
@@ -82,6 +83,7 @@ class CouchersContext:
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
+        self.__response_headers: list[tuple[str, str]] = []
         self._growthbook: GrowthBook | None = None
 
         if self.__is_interactive:
@@ -138,8 +140,15 @@ class CouchersContext:
         self.__verify_interactive()
         self.__cookies += cookies
 
+    def set_response_headers(self, headers: list[tuple[str, str]]) -> None:
+        """
+        Sets extra HTTP response headers (forwarded by Envoy as gRPC initial metadata)
+        """
+        self.__verify_interactive()
+        self.__response_headers += headers
+
     def _send_cookies(self) -> None:
-        data = tuple([("set-cookie", cookie) for cookie in self.__cookies])
+        data = tuple([("set-cookie", cookie) for cookie in self.__cookies]) + tuple(self.__response_headers)
         self._grpc_context.send_initial_metadata(data)  # type: ignore[union-attr]
 
     @property
@@ -178,6 +187,30 @@ class CouchersContext:
     @property
     def localization(self) -> LocalizationContext:
         return self.__localization
+
+    # Feature-flag evaluation methods mirror the OpenFeature evaluation API, evaluating for this
+    # context's user. The gating lives in experimentation; we just pass our cached per-request
+    # evaluator. The in-code default is honored even for flags not yet set up in GrowthBook.
+    def get_boolean_value(self, flag_key: str, default: bool) -> bool:
+        return experimentation._boolean_value(flag_key, default, self._get_growthbook)
+
+    def get_string_value(self, flag_key: str, default: str) -> str:
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
+
+    def get_integer_value(self, flag_key: str, default: int) -> int:
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
+
+    def get_float_value(self, flag_key: str, default: float) -> float:
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
+
+    def get_object_value[T](self, flag_key: str, default: T) -> T:
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
+
+    def _get_growthbook(self) -> GrowthBook:
+        if self._growthbook is None:
+            # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
+            self._growthbook = experimentation._create_evaluator(self._user_id)
+        return self._growthbook
 
 
 def make_interactive_context(

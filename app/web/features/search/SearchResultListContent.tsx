@@ -210,7 +210,7 @@ const SearchResultListContent = ({
         </Box>
       )}
       <UserCardsWrapper>
-        {users?.map((user) => (
+        {users?.map((user, index) => (
           <StyledCardWrapper
             key={user?.userId}
             id={`search-result-${user?.userId}`}
@@ -218,6 +218,7 @@ const SearchResultListContent = ({
             <SearchResultUserCard
               isHighlighted={selectedUserId === user.userId}
               onUserCardClick={onUserCardClick}
+              position={index}
               user={user}
             />
           </StyledCardWrapper>

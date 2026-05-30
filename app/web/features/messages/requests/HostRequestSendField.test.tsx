@@ -4,21 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { HostRequestStatus } from "proto/conversations_pb";
-import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
-import { service } from "service";
+import { HostRequest } from "proto/requests_pb";
 import hostRequest from "test/fixtures/hostRequest.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { addDefaultUser } from "test/utils";
 
 import HostRequestSendField from "./HostRequestSendField";
 
 const { t } = i18n;
-
-const getAvailableReferencesMock = service.references
-  .getAvailableReferences as jest.MockedFunction<
-  typeof service.references.getAvailableReferences
->;
 
 const mockHostRequest: HostRequest.AsObject = {
   ...hostRequest,
@@ -53,36 +46,9 @@ const mockSendMutation: UseMutationResult<
   reset: jest.fn(),
 };
 
-const mockRespondMutation: UseMutationResult<
-  unknown,
-  RpcError,
-  Required<RespondHostRequestReq.AsObject>
-> = {
-  mutate: jest.fn(),
-  mutateAsync: jest.fn(),
-  isPending: false,
-  isIdle: true,
-  isError: false,
-  isSuccess: false,
-  data: undefined,
-  error: null,
-  failureCount: 0,
-  failureReason: null,
-  isPaused: false,
-  status: "idle" as const,
-  variables: undefined,
-  submittedAt: 0,
-  context: undefined,
-  reset: jest.fn(),
-};
-
 describe("HostRequestSendField", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getAvailableReferencesMock.mockResolvedValue({
-      availableWriteReferencesList: [],
-      canWriteFriendReference: false,
-    });
   });
 
   afterEach(() => {
@@ -94,7 +60,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -114,7 +79,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -128,7 +92,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -149,7 +112,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -170,7 +132,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -196,7 +157,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -220,7 +180,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -238,7 +197,7 @@ describe("HostRequestSendField", () => {
     });
   });
 
-  it("disables the send button and input when request is closed (cancelled)", () => {
+  it("keeps input enabled when request is cancelled", () => {
     const cancelledRequest = {
       ...mockHostRequest,
       status: HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
@@ -248,7 +207,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={cancelledRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -258,11 +216,11 @@ describe("HostRequestSendField", () => {
     ) as HTMLTextAreaElement;
     const sendButton = screen.getByRole("button", { name: t("global:send") });
 
-    expect(input).toBeDisabled();
-    expect(sendButton).toBeDisabled();
+    expect(input).not.toBeDisabled();
+    expect(sendButton).toBeDisabled(); // disabled because input is empty
   });
 
-  it("disables the send button and input when request is closed (rejected)", () => {
+  it("keeps input enabled when request is rejected", () => {
     const rejectedRequest = {
       ...mockHostRequest,
       status: HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
@@ -272,7 +230,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={rejectedRequest}
         sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -282,62 +239,8 @@ describe("HostRequestSendField", () => {
     ) as HTMLTextAreaElement;
     const sendButton = screen.getByRole("button", { name: t("global:send") });
 
-    expect(input).toBeDisabled();
-    expect(sendButton).toBeDisabled();
-  });
-
-  it("displays request closed message when request is cancelled", () => {
-    const cancelledRequest = {
-      ...mockHostRequest,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
-    };
-
-    render(
-      <HostRequestSendField
-        hostRequest={cancelledRequest}
-        sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
-      />,
-      { wrapper },
-    );
-
-    const input = document.getElementById(
-      "host-request-message",
-    ) as HTMLTextAreaElement;
-    expect(input.value).toBe("");
-    expect(input.placeholder).toBe(t("messages:request_closed_message"));
-  });
-
-  it("does not send the closed-state placeholder text when re-accepting a rejected request", async () => {
-    const rejectedRequest = {
-      ...mockHostRequest,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
-      toDate: "2099-01-05",
-    };
-    addDefaultUser(rejectedRequest.hostUserId);
-
-    render(
-      <HostRequestSendField
-        hostRequest={rejectedRequest}
-        sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
-      />,
-      { wrapper },
-    );
-
-    const user = userEvent.setup();
-    await user.click(
-      await screen.findByRole("button", { name: t("global:accept") }),
-    );
-
-    await waitFor(() => {
-      expect(mockRespondMutation.mutate).toHaveBeenCalledTimes(1);
-    });
-    expect(mockRespondMutation.mutate).toHaveBeenCalledWith({
-      hostRequestId: rejectedRequest.hostRequestId,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-      text: "",
-    });
+    expect(input).not.toBeDisabled();
+    expect(sendButton).toBeDisabled(); // disabled because input is empty
   });
 
   it("disables the send button while a message is being sent", async () => {
@@ -357,7 +260,6 @@ describe("HostRequestSendField", () => {
       <HostRequestSendField
         hostRequest={mockHostRequest}
         sendMutation={pendingSendMutation}
-        respondMutation={mockRespondMutation}
       />,
       { wrapper },
     );
@@ -367,40 +269,9 @@ describe("HostRequestSendField", () => {
       selector: "textarea",
     });
 
-    // Type some text first
     await user.type(input, "Test message");
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
-  });
-
-  it("shows Write Reference button when reference is available", async () => {
-    const confirmedRequest = {
-      ...mockHostRequest,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-    };
-
-    getAvailableReferencesMock.mockResolvedValue({
-      availableWriteReferencesList: [
-        {
-          hostRequestId: mockHostRequest.hostRequestId,
-          referenceType: 0,
-        },
-      ],
-      canWriteFriendReference: false,
-    });
-
-    render(
-      <HostRequestSendField
-        hostRequest={confirmedRequest}
-        sendMutation={mockSendMutation}
-        respondMutation={mockRespondMutation}
-      />,
-      { wrapper },
-    );
-
-    expect(
-      await screen.findByText(t("messages:write_reference_button_text")),
-    ).toBeInTheDocument();
   });
 });

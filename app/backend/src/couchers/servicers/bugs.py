@@ -1,11 +1,13 @@
 import json
+import logging
 import time
 from datetime import UTC, datetime
-from typing import cast
+from functools import lru_cache
+from typing import Any, cast
 
 import grpc
 import requests
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, struct_pb2
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -20,7 +22,44 @@ from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
+logger = logging.getLogger(__name__)
+
 _start_time = time.monotonic()
+
+_OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
+
+
+def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
+    # Expo Updates protocol v1 multipart/mixed framing. field_name is "manifest" for
+    # an update or "directive" for a noUpdateAvailable/rollBackToEmbedded directive.
+    def part(name: str, body: str, content_type: str) -> str:
+        return (
+            f"--{_OTA_BOUNDARY}\r\n"
+            f'content-disposition: form-data; name="{name}"\r\n'
+            f"content-type: {content_type}\r\n\r\n"
+            f"{body}\r\n"
+        )
+
+    body = (
+        part(field_name, json.dumps(content), "application/json; charset=utf-8")
+        + part("extensions", json.dumps({"assetRequestHeaders": {}}), "application/json")
+        + f"--{_OTA_BOUNDARY}--\r\n"
+    )
+    return body.encode("utf-8")
+
+
+def _native_ota_manifest_url(*, cdn_root: str, version: str, platform: str) -> str:
+    return f"{cdn_root}/{version}/{platform}/manifest"
+
+
+@lru_cache(maxsize=64)
+def _fetch_signed_manifest(url: str) -> tuple[str, bytes]:
+    # The publish job signs each manifest and uploads it under its immutable version, so the
+    # bytes never change once published: fetch once, cache forever, and serve them (signature
+    # and all) untouched so the on-device signature check sees exactly what was signed.
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+    return response.headers["content-type"], response.content
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -47,19 +86,21 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         issue_title = request.subject
         issue_body = (
-            f"Subject: {request.subject}\n"
-            f"Description:\n"
+            f"# {request.subject}\n"
+            f"## Description\n"
             f"{request.description}\n"
             f"\n"
-            f"Results:\n"
+            f"## Results\n"
             f"{request.results}\n"
             f"\n"
-            f"Backend version: {self._version()}\n"
-            f"Frontend version: {request.frontend_version}\n"
-            f"User Agent: {request.user_agent}\n"
-            f"Screen resolution: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
-            f"Page: {request.page}\n"
-            f"User: {user_details}"
+            f"## Diagnostics\n"
+            f"**Backend version**: `{self._version()}`\n"
+            f"**Frontend version**: `{request.frontend_version}`\n"
+            f"**User Agent**: `{request.user_agent}`\n"
+            f"**Locale**: `{context.localization.locale}`\n"
+            f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
+            f"**Page**: {request.page}\n"
+            f"**User**: {user_details} / `{(context._sofa or '')[:12]}`"
         )
         issue_labels = ["bug tool", "bug: triage needed"]
 
@@ -92,6 +133,41 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
         )
+
+    def GetNativeUpdateManifest(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        if context.get_boolean_value("log_native_ota_requests", False):
+            logger.info(
+                "OTA GetNativeUpdateManifest: content_type=%r headers=%s body=%r",
+                request.content_type,
+                dict(context.headers),
+                request.data,
+            )
+        # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
+        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
+
+        platform = cast(str, context.headers.get("expo-platform", "")) or "ios"
+        runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
+
+        # {platform: {"version": <ota_version>, "runtime_version": <fingerprint>}}: which published
+        # OTA is live per platform, and the build fingerprint it was cut for.
+        releases: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
+        release = releases.get(platform)
+
+        # A signed manifest carries a fixed runtimeVersion and Expo rejects it on a build with any
+        # other fingerprint, so we only point a client at the OTA published for its own build.
+        if release is None or runtime_version == "" or release.get("runtime_version") != runtime_version:
+            directive = {"type": "noUpdateAvailable"}
+            return httpbody_pb2.HttpBody(
+                content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
+                data=_ota_multipart_body("directive", directive),
+            )
+
+        cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
+        url = _native_ota_manifest_url(cdn_root=cdn_root, version=release["version"], platform=platform)
+        content_type, body = _fetch_signed_manifest(url)
+        return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
     def ReportDiagnostics(
         self, request: bugs_pb2.ReportDiagnosticsReq, context: CouchersContext, session: Session
@@ -126,6 +202,19 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         return empty_pb2.Empty()
 
+    def CheckNativeStatus(
+        self, request: bugs_pb2.CheckNativeStatusReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.CheckNativeStatusRes:
+        # Stub: log the ping for now. TODO: persist it and decide whether to force-update.
+        logger.info("CheckNativeStatus: user_id=%s debug=%s", context._user_id, request.debug_json)
+
+        return bugs_pb2.CheckNativeStatusRes(
+            update_info=bugs_pb2.NativeUpdateInfo(
+                action=bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
+                required=False,
+            )
+        )
+
     def GeolocationSearchInfo(
         self, request: bugs_pb2.GeolocationSearchInfoReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
@@ -135,3 +224,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         self, request: bugs_pb2.GeolocationClickInfoReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         return empty_pb2.Empty()
+
+    def EvaluateFeatureFlag(
+        self, request: bugs_pb2.EvaluateFeatureFlagReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.EvaluateFeatureFlagRes:
+        # None default: an unconfigured flag comes back as None and the value field is left unset, so
+        # the frontend applies its own in-code default. get_object_value is the generic typed
+        # accessor; like every value method it fires exposure/usage logging as a side effect, here
+        # for exactly the one flag the client is reading.
+        value: Any = context.get_object_value(request.flag_key, None)
+        res = bugs_pb2.EvaluateFeatureFlagRes()
+        if value is not None:
+            # google.protobuf.Value has no direct constructor from a Python value; round-trip
+            # through a Struct, which knows how to encode bool/number/str/list/dict.
+            holder = struct_pb2.Struct()
+            holder["value"] = value
+            res.value.CopyFrom(holder.fields["value"])
+        return res

@@ -162,6 +162,18 @@
     "missing_page_address": "Eksik sayfa adresi.",
     "missing_page_location": "Eksik coğrafi konum bilgisi.",
     "missing_page_parent": "Sayfanın bağlı olduğu üst sayfa bulunamadı.",
-    "moderator_note_need_to_acknowledge": "Moderasyon notunu okuyup kabul etmeniz gereklidir."
+    "moderator_note_need_to_acknowledge": "Moderasyon notunu okuyup kabul etmeniz gereklidir.",
+    "chat_initiation_rate_limit2_one": "Son {{count}} saatte çok sayıda kullanıcıya mesaj gönderdiniz. Spamı önlemek için şimdilik başka kullanıcılarla iletişim kuramazsınız.",
+    "chat_initiation_rate_limit2_other": "Son {{count}} saatte çok sayıda kullanıcıya mesaj gönderdiniz. Spamı önlemek için şimdilik başka kullanıcılarla iletişim kuramazsınız.",
+    "friend_request_rate_limit2_one": "Son {{count}} saatte çok fazla arkadaşlık isteği gönderdiniz. Spamı önlemek için şimdilik daha fazla istek gönderemezsiniz.",
+    "friend_request_rate_limit2_other": "Son {{count}} saatte çok fazla arkadaşlık isteği gönderdiniz. Spamı önlemek için şimdilik daha fazla istek gönderemezsiniz.",
+    "host_request_rate_limit2_one": "Son {{count}} saatte çok fazla ev sahibi isteği gönderdiniz. Spam'i önlemek için şimdilik daha fazla gönderemezsiniz.",
+    "host_request_rate_limit2_other": "Son {{count}} saatte çok fazla ev sahibi isteği gönderdiniz. Spam'i önlemek için şimdilik daha fazla gönderemezsiniz.",
+    "host_request_too_short2_one": "Konaklanma isteği {{count}} karakterden kısa olamaz.",
+    "host_request_too_short2_other": "Konaklanma isteği {{count}} karakterden kısa olamaz."
+  },
+  "badges": {
+    "volunteer_description": "Bu kullanıcı Couchers.org için aktif bir gönüllü",
+    "volunteer_name": "Aktif Gönüllü"
   }
 }

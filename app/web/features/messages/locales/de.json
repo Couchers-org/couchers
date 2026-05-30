@@ -1,11 +1,7 @@
 {
-  "request_closed_message": "Diese Host-Anfrage wurde geschlossen. Sende dieser Person eine normale Nachricht um die Unterhaltung fortzuführen.",
   "host_pending_request_help_text": "<0>Das solltest du beachten</0>, bevor du antwortest.",
   "mark_all_read_button_text": "Alle als gelesen markieren",
   "write_reference_button_text": "Schreibe eine Referenz",
-  "close_request_dialog_title": "Bist du fertig mit dem Schreiben?",
-  "close_request_dialog_host": "Bitte vergewissere dich, dass die Unterhaltung beendet ist, bevor du die Anfrage ablehnst.",
-  "close_request_dialog_surfer": "Bitte vergewissere dich, dass die Unterhaltung beendet ist, bevor du deine Anfrage zurückziehst.",
   "close_request_button_text": "Ablehnen",
   "messages_page": {
     "tabs": {
@@ -97,7 +93,11 @@
       "accepted": "{{user}} hat die Anfrage akzeptiert",
       "rejected": "{{user}} hat die Anfrage abgelehnt",
       "confirmed": "{{user}} hat die Anfrage bestätigt",
-      "cancelled": "{{user}} hat die Anfrage storniert"
+      "cancelled": "{{user}} hat die Anfrage storniert",
+      "accepted_self": "Du hast die Anfrage angenommen",
+      "cancelled_self": "Du hast die Anfrage abgebrochen",
+      "confirmed_self": "Du hast die Anfrage bestätigt",
+      "rejected_self": "Du hast die Anfrage abgelehnt"
     }
   },
   "host_request_status": {
@@ -136,13 +136,14 @@
     "host_status": {
       "accepted": "Du hast diese Anfrage angenommen",
       "cancelled": "Du hast diese Anfrage storniert",
-      "confirmed": "Du hast diese Anfrage bestätigt",
-      "rejected": "Du hast diese Anfrage abgelehnt"
+      "confirmed": "Viel Spaß! Du hast diese Anfrage angenommen und der Surfer hat sie bestätigt.",
+      "rejected": "Du hast diese Anfrage abgelehnt",
+      "accepted_waiting": "Du hast diese Anfrage angenommen — warte auf die Bestätigung des Surfers."
     },
     "surfer_status": {
-      "accepted": "Deine Anfrage wurde angenommen",
+      "accepted": "Viel Spaß! {{name}} hat die Anfrage angenommen.",
       "cancelled": "Deine Anfrage wurde storniert",
-      "confirmed": "Deine Anfrage wurde bestätigt",
+      "confirmed": "Viel Spaß! {{name}} hat diese Anfrage angenommen und du hast sie bestätigt.",
       "rejected": "Deine Anfrage wurde abgelehnt"
     },
     "expired": "Diese Anfrage ist ausgelaufen"
@@ -174,5 +175,41 @@
     "filter": {
       "all": "Alle"
     }
-  }
+  },
+  "reference_card": {
+    "title": "Schreibe eine Referenz",
+    "description": "Teile deine Erfahrung, um der Community zu helfen."
+  },
+  "respond_box_title": "Sende eine Antwort",
+  "respond_box_description": "Wähle eine Antwort, um {{name}} sofort zu informieren. Du kannst auch jederzeit eine Nachricht senden.",
+  "status_bar_edit_button": "Bearbeiten",
+  "status_bar_cancel_edit_button": "Abbrechen",
+  "status_bar_close_button": "Schließen",
+  "surfer_bar_pending": "Du hast eine Host-Anfrage gesendet — warte auf eine Antwort von {{name}}.",
+  "cancel_request_button": "Anfrage abbrechen",
+  "cancel_request_dialog_title": "Anfrage abbrechen?",
+  "cancel_request_dialog_message": "Bist du sicher, dass du deine Anfrage abbrechen möchtest? Dies kann nicht rückgängig gemacht werden.",
+  "cancel_request_dialog_confirm_button": "Ja, abbrechen",
+  "cancel_request_dialog_dismiss_button": "Nein",
+  "private_feedback_card": {
+    "title": "Feedback zu dieser Anfrage",
+    "quality_label": "Bewerte diese Anfrage privat (Optional):",
+    "quality_high": "Hohe Qualität",
+    "quality_okay": "Ok",
+    "quality_low": "Niedrige Qualität",
+    "decline_reason_label": "Warum hast du abgelehnt?",
+    "reason_didnt_read_profile": "Hat mein Profil nicht gelesen",
+    "reason_dont_want_to_host": "Ich will diese Person nicht hosten",
+    "reason_not_available": "Ich kann dann nicht hosten",
+    "reason_one": "Sonstiges",
+    "reason_other": "Sonstiges",
+    "reason_other_placeholder": "Bitte erzähle uns mehr...",
+    "privacy_notice": "Deine Antworten sind privat und werden nicht mit dem Nutzer geteilt. Wir können sie in aggregierter und anonymer Form — zusammen mit vielen anderen — verwenden, um das Feedback für alle Nutzer zu verbessern.",
+    "skip_button": "Überspringen",
+    "next_button": "Weiter",
+    "back_button": "Zurück",
+    "submit_button": "Absenden"
+  },
+  "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
+  "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben."
 }

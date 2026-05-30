@@ -34,7 +34,7 @@ from couchers.proto import (
 )
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -120,13 +120,12 @@ def test_GetUserDetails(db):
     assert not res.deleted
 
 
-def test_ChangeUserGender(db, push_collector: PushCollector):
+def test_ChangeUserGender(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
-        with mock_notification_email() as mock:
-            res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
+        res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
     assert res.user_id == normal_user.id
     assert res.username == normal_user.username
     assert res.email == normal_user.email
@@ -135,19 +134,18 @@ def test_ChangeUserGender(db, push_collector: PushCollector):
     assert not res.banned
     assert not res.deleted
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your gender was changed"
-    assert e.recipient == normal_user.email
-    assert "Machine" in e.plain
-    assert "Machine" in e.html
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your gender was changed"
+    assert email.recipient == normal_user.email
+    assert "Machine" in email.plain
+    assert "Machine" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Gender changed"
     assert push.content.body == "An admin changed your gender to Machine."
 
 
-def test_ChangeUserBirthdate(db, push_collector: PushCollector):
+def test_ChangeUserBirthdate(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
 
@@ -155,10 +153,9 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
         res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
         assert parse_date(res.birthdate) == date(year=2000, month=1, day=1)
 
-        with mock_notification_email() as mock:
-            res = api.ChangeUserBirthdate(
-                admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
-            )
+        res = api.ChangeUserBirthdate(
+            admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
+        )
 
     assert res.user_id == normal_user.id
     assert res.username == normal_user.username
@@ -168,12 +165,11 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     assert not res.banned
     assert not res.deleted
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your date of birth was changed"
-    assert e.recipient == normal_user.email
-    assert "1990" in e.plain
-    assert "1990" in e.html
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your date of birth was changed"
+    assert email.recipient == normal_user.email
+    assert "1990" in email.plain
+    assert "1990" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Birthdate changed"
@@ -512,7 +508,7 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
         assert user.undelete_until is None
 
 
-def test_CreateApiKey(db, push_collector: PushCollector):
+def test_CreateApiKey(db, email_collector: EmailCollector, push_collector: PushCollector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
@@ -527,13 +523,11 @@ def test_CreateApiKey(db, push_collector: PushCollector):
             == 0
         )
 
-    with mock_notification_email() as mock:
-        with real_admin_session(super_token) as api:
-            res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+    with real_admin_session(super_token) as api:
+        res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your API key for Couchers.org"
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         token = session.execute(
@@ -543,16 +537,16 @@ def test_CreateApiKey(db, push_collector: PushCollector):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert token in e.plain
-        assert token in e.html
+        assert token in email.plain
+        assert token in email.html
 
-    assert e.recipient == normal_user.email
-    assert "api key" in e.subject.lower()
+    assert email.recipient == normal_user.email
+    assert "api key" in email.subject.lower()
     unique_string = "We've issued you with the following API key:"
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "API key created"
@@ -573,19 +567,18 @@ def test_GetChats(db):
     assert len(res.group_chats) == 0
 
 
-def test_badges(db, push_collector: PushCollector):
+def test_badges(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
         # can add a badge
         assert "swagster" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-        with mock_notification_email() as mock:
-            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
+        res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert "swagster" in res.badges
 
         # badge emails are disabled by default
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(normal_user.email) == 0
 
         push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "New profile badge: Swagster"
@@ -605,12 +598,11 @@ def test_badges(db, push_collector: PushCollector):
 
         # can remove badge
         assert "swagster" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-        with mock_notification_email() as mock:
-            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
+        res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert "swagster" not in res.badges
 
         # badge emails are disabled by default
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(normal_user.email) == 0
 
         push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "Profile badge removed"
@@ -718,7 +710,8 @@ def test_EditReferenceText(db):
         assert modified_reference.text == test_new_text
 
 
-def test_DeleteReference(db):
+def test_DeleteReference_deprecated(db):
+    """DeleteReference is deprecated; admins should hide via UMS instead."""
     super_user, super_token = generate_user(is_superuser=True)
 
     user1, user1_token = generate_user()
@@ -732,20 +725,10 @@ def test_DeleteReference(db):
             )
         )
 
-    with references_session(user1_token) as api:
-        assert api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
     with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
-
-    with references_session(user1_token) as api:
-        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
-    with session_scope() as session:
-        modified_reference = session.execute(
-            select(Reference).where(Reference.id == reference.reference_id)
-        ).scalar_one()
-        assert modified_reference.is_deleted
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_GetUserReferences(db):
@@ -794,11 +777,7 @@ def test_GetUserReferences(db):
             )
         )
 
-    # Delete ref3
-    with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=ref3.reference_id))
-
-    # Test GetUserReferences for user1
+    # Test GetUserReferences for user1 (admin view shows everything regardless of UMS state).
     with real_admin_session(super_token) as admin_api:
         res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
 
@@ -808,19 +787,16 @@ def test_GetUserReferences(db):
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
         assert res.references_from[0].text == "Reference from user1 to user2"
-        assert res.references_from[0].is_deleted is False
 
-        # user1 received 2 references (including the deleted one)
+        # user1 received 2 references
         assert len(res.references_to) == 2
         # Ordered by id descending, so ref3 comes first
         assert res.references_to[0].reference_id == ref3.reference_id
-        assert res.references_to[0].is_deleted is True
         assert res.references_to[0].was_appropriate is False
 
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
-        assert res.references_to[1].is_deleted is False
 
 
 def test_GetUserReferences_not_found(db):
@@ -1023,7 +999,7 @@ def test_RemoveUserFromModerationUserList(db):
             assert session.get(ModerationUserList, moderation_list_id) is None
 
 
-def test_admin_delete_account_url(db, push_collector: PushCollector):
+def test_admin_delete_account_url(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
     user, token = generate_user()
@@ -1042,19 +1018,17 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
         assert token_o.user.id == user_id
         assert url == f"http://localhost:3000/delete-account?token={token}"
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.ConfirmDeleteAccount(
-                auth_pb2.ConfirmDeleteAccountReq(
-                    token=token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
             )
+        )
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
-    mock.assert_called_once()
-    e = email_fields(mock)
+    email_collector.pop_for_recipient(user.email, last=True)
 
 
 def test_AccessStats(db):

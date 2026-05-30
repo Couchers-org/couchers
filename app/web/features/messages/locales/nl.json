@@ -1,13 +1,9 @@
 {
   "mark_all_read_button_text": "Alles markeren als gelezen",
-  "request_closed_message": "Dit hostverzoek is afgesloten. Om door te gaan met chatten, kan je een gewoon bericht sturen.",
   "write_reference_button_text": "Schrijf een referentie",
-  "close_request_dialog_title": "Ben je klaar met berichten sturen?",
-  "close_request_dialog_surfer": "Zorg ervoor dat je klaar bent met chatten voordat je jouw verzoek annuleert.",
   "confirm_request_button_text": "Bevestigen",
   "close_request_button_text": "Afwijzen",
   "host_pending_request_help_text": "<0>Dingen om rekening mee te houden</0> voordat je reageert.",
-  "close_request_dialog_host": "Zorg ervoor dat je klaar bent met chatten voordat je hun verzoek afwijst.",
   "messages_page": {
     "tabs": {
       "chats": "Chats",
@@ -138,14 +134,14 @@
     "expired": "Dit verzoek is verlopen",
     "host_status": {
       "accepted": "Je hebt dit verzoek geaccepteerd",
-      "confirmed": "Je hebt dit verzoek bevestigd",
+      "confirmed": "Veel plezier! Je hebt geaccepteerd en de surfer heeft dit verzoek bevestigd.",
       "rejected": "Je hebt dit verzoek geweigerd",
       "cancelled": "Je hebt dit verzoek geannuleerd"
     },
     "surfer_status": {
-      "accepted": "Je verzoek was geaccepteerd",
+      "accepted": "Veel plezier! {{name}} heeft het verzoek geaccepteerd.",
       "cancelled": "Je verzoek was geannuleerd",
-      "confirmed": "Je verzoek was bevestigd",
+      "confirmed": "Veel plezier! {{name}} heeft geaccepteerd en jij hebt dit verzoek bevestigd.",
       "rejected": "Je verzoek was afgewezen"
     }
   },
@@ -174,5 +170,9 @@
     "filter": {
       "all": "Alle"
     }
+  },
+  "reference_card": {
+    "title": "Schrijf een referentie",
+    "description": "Deel je ervaring om de community te helpen."
   }
 }

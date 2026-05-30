@@ -236,7 +236,7 @@
     "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
     "need_to_donate": "Necesitas <2>donar</2> antes de poder completar la verificación telefónica."
   },
-  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
+  "unhandled_sign_up_state": "Error: estado del flujo de registro no gestionado",
   "do_not_email": {
     "title": "No quiero recibir correos electrónicos",
     "status": {

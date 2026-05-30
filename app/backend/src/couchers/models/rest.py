@@ -271,9 +271,17 @@ class AccountDeletionToken(Base, kw_only=True):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
+class ClientPlatform(enum.Enum):
+    web_desktop = enum.auto()
+    web_mobile = enum.auto()
+    app_ios = enum.auto()
+    app_android = enum.auto()
+
+
 class UserActivity(Base, kw_only=True):
     """
-    User activity: for each unique (user_id, period, ip_address, user_agent) tuple, keep track of number of api calls
+    User activity: for each unique (user_id, period, ip_address, user_agent, sofa) tuple, keep track of number of api
+    calls
 
     Used for user "last active" as well as admin stuff
     """
@@ -289,18 +297,24 @@ class UserActivity(Base, kw_only=True):
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(INET, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
+    # the sofa cookie, a persistent per-device identifier
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
 
-    # count of api calls made with this ip, user_agent, and period
+    # the client platform this activity came from (declared by the client)
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
+
+    # count of api calls made with this ip, user_agent, sofa, and period
     api_calls: Mapped[int] = mapped_column(Integer, default=0)
 
     __table_args__ = (
         # helps look up this tuple quickly
         Index(
-            "ix_user_activity_user_id_period_ip_address_user_agent",
+            "ix_user_activity_user_id_period_ip_address_user_agent_sofa",
             user_id,
             period,
             ip_address,
             user_agent,
+            sofa,
             unique=True,
         ),
     )
@@ -408,6 +422,8 @@ class Reference(Base, kw_only=True):
     """
 
     __tablename__ = "references"
+    __moderation_author_column__ = "from_user_id"
+    __moderation_object_type__ = ModerationObjectType.reference
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
@@ -418,6 +434,8 @@ class Reference(Base, kw_only=True):
 
     reference_type: Mapped[ReferenceType] = mapped_column(Enum(ReferenceType))
 
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     host_request_id: Mapped[int | None] = mapped_column(ForeignKey("host_requests.id"), default=None)
 
     text: Mapped[str] = mapped_column(String)  # plain text
@@ -427,12 +445,11 @@ class Reference(Base, kw_only=True):
     rating: Mapped[float] = mapped_column(Float)
     was_appropriate: Mapped[bool] = mapped_column(Boolean)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
-
     from_user: Mapped[User] = relationship(init=False, backref="references_from", foreign_keys="Reference.from_user_id")
     to_user: Mapped[User] = relationship(init=False, backref="references_to", foreign_keys="Reference.to_user_id")
 
     host_request: Mapped[HostRequest | None] = relationship(init=False, backref="references")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Rating must be between 0 and 1, inclusive

@@ -1,4 +1,4 @@
-import { ChevronRight, Place, Schedule } from "@mui/icons-material";
+import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
@@ -11,8 +11,6 @@ import {
   localizeMonthAbbreviation,
   timestamp2Date,
 } from "utils/date";
-
-import UsersCountTag from "../communities/events/UsersCountTag";
 
 export const EventListContainer = styled("div")({
   border: "1px solid var(--mui-palette-grey-300)",
@@ -44,6 +42,14 @@ const DateChip = styled("div")({
   padding: "4px 0",
   textAlign: "center",
   backgroundColor: "var(--mui-palette-background-paper)",
+  "&[data-today]": {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 38,
+    overflow: "hidden",
+  },
 });
 
 const DateMonth = styled("div")({
@@ -53,6 +59,9 @@ const DateMonth = styled("div")({
   color: "var(--mui-palette-secondary-main)",
   fontWeight: 700,
   lineHeight: 1.2,
+  "[data-today] &": {
+    color: "var(--mui-palette-primary-main)",
+  },
 });
 
 const DateDay = styled("div")({
@@ -113,6 +122,18 @@ const MetaText = styled("span")({
   whiteSpace: "nowrap",
 });
 
+const AttendeeTag = styled("span")({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "3px",
+  color: "var(--mui-palette-text-secondary)",
+  fontSize: "11px",
+  fontWeight: 600,
+  padding: "2px 8px",
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+});
+
 const SkeletonRow = styled("div")({
   display: "flex",
   alignItems: "center",
@@ -150,6 +171,10 @@ export default function EventListRow({ event }: EventListRowProps) {
   } = useTranslation([DASHBOARD]);
 
   const startDate = timestamp2Date(event.startTime!);
+  const isToday = startDate.toDateString() === new Date().toDateString();
+  const todayLabel = t("dashboard:events.today_label");
+  const todayFontSize =
+    todayLabel.length <= 5 ? 9 : todayLabel.length <= 7 ? 8 : 7;
   const month = localizeMonthAbbreviation(startDate, {
     locale,
     timezone: BROWSER_TIMEZONE,
@@ -169,18 +194,19 @@ export default function EventListRow({ event }: EventListRowProps) {
 
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
-      <DateChip>
-        <DateMonth>{month}</DateMonth>
-        <DateDay>{day}</DateDay>
+      <DateChip data-today={isToday || undefined}>
+        <DateMonth style={isToday ? { fontSize: todayFontSize } : undefined}>
+          {isToday ? todayLabel : month}
+        </DateMonth>
+        {!isToday && <DateDay>{day}</DateDay>}
       </DateChip>
       <ContentWrapper>
         <TitleRow>
           <RowTitle>{event.title}</RowTitle>
-          <UsersCountTag>
-            {t("dashboard:events.attendees_count_label", {
-              count: event.goingCount,
-            })}
-          </UsersCountTag>
+          <AttendeeTag>
+            <Group sx={{ fontSize: "11px" }} />
+            {event.goingCount}
+          </AttendeeTag>
           <ChevronRight
             sx={{
               fontSize: "16px",

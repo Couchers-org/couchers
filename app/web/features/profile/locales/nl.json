@@ -160,7 +160,7 @@
   "report_reason": "Reden",
   "report_user": "Meld deze gebruiker",
   "leave_reference": {
-    "add_a_reference": "Voeg een referentie toe naar het profiel van {{name}}",
+    "add_a_reference": "Voeg een referentie toe op het profiel van {{name}}",
     "appropriate_question": "Voelde je je veilig bij het gedrag van deze persoon?",
     "by_writing_thoughtful": "Weet je niet zeker wat je moet schrijven? Lees onze tips <1>hier</1>. Door een gedetailleerd en eerlijk verslag te schrijven over deze persoon, kan je andere leden helpen. Zo werken we samen aan een veilige en vertrouwde Couchers-community.",
     "did_stay_confirmation": {
@@ -236,7 +236,8 @@
     "request": "Verzoek",
     "request_description": "Deel je plannen voor het bezoek en vermeld waarom je juist bij deze host wilt logeren.",
     "request_description_empty": "Schrijf alsjeblieft een verzoekbericht.",
-    "success": "Verzoek verzonden!"
+    "success": "Verzoek verzonden!",
+    "arrival_date_before_host_today": "Deze datum is al geweest voor {{name}}."
   },
   "message_form": {
     "hosting_request_hint": "Een hosting-verzoek doen? Gebruik in plaats daarvan de <request>Verzoek</request>-knop.",
