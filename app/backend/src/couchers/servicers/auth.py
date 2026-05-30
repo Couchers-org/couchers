@@ -41,10 +41,10 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
-from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
+from couchers.servicers.auth_quick_links import respond_quick_link
 from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
