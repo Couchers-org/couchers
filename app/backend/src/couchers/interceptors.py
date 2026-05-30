@@ -460,28 +460,21 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             return res
 
-        wrapped_deserializer: Callable[[bytes], T] | None = None
-        if (request_deserializer := handler.request_deserializer) is not None:
-
-            def wrapped_deserializer(request_bytes: bytes) -> T:
+        def timed_serde[A, B](fn: Callable[[A], B], direction: str) -> Callable[[A], B]:
+            def wrapped(arg: A) -> B:
                 t0 = perf_counter_ns()
-                req = request_deserializer(request_bytes)
-                observe_in_servicer_serde_histogram(method, "deserialize", (perf_counter_ns() - t0) / 1e9)
-                return req
+                result = fn(arg)
+                observe_in_servicer_serde_histogram(method, direction, (perf_counter_ns() - t0) / 1e9)
+                return result
 
-        wrapped_serializer: Callable[[R], bytes] | None = None
-        if (response_serializer := handler.response_serializer) is not None:
+            return wrapped
 
-            def wrapped_serializer(response: R) -> bytes:
-                t0 = perf_counter_ns()
-                data = response_serializer(response)
-                observe_in_servicer_serde_histogram(method, "serialize", (perf_counter_ns() - t0) / 1e9)
-                return data
-
+        # always set for our generated-proto methods, but grpc types them as optional
+        assert handler.request_deserializer is not None and handler.response_serializer is not None
         return grpc.unary_unary_rpc_method_handler(
             function_without_couchers_stuff,
-            request_deserializer=wrapped_deserializer,
-            response_serializer=wrapped_serializer,
+            request_deserializer=timed_serde(handler.request_deserializer, "deserialize"),
+            response_serializer=timed_serde(handler.response_serializer, "serialize"),
         )
 
 
