@@ -1,3 +1,4 @@
+import babel
 import pytest
 from markupsafe import Markup
 
@@ -80,13 +81,11 @@ def test_plural_no_count():
     assert i18next.localize("apples", "en", {"count": 2}) == "apples"
 
 
-def test_missing_plural_rules():
+def test_missing_babel_locale():
     i18next = I18Next()
-    piglatin = i18next.add_translation("piglatin", json_dict={"pigs": "igpays", "pigs_one": "igpay"})
-    en = i18next.add_translation("en", json_dict={"pigs": "pigs", "pigs_one": "pig"})
-    piglatin.fallbacks.append(en)
-    # Should resolve using the english plural rules since "piglatin" doesn't have its own.
-    assert i18next.localize("pigs", "piglatin", {"count": 1}) == "igpay"
+
+    with pytest.raises(babel.UnknownLocaleError):
+        i18next.add_translation("piglatin")
 
 
 def test_load_simple_json():

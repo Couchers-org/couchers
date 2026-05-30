@@ -19,7 +19,7 @@ from markupsafe import Markup
 
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.localize import get_main_i18next
+from couchers.i18n.locales import get_main_i18next
 
 logger = logging.getLogger(__name__)
 

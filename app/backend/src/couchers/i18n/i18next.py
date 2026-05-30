@@ -4,11 +4,11 @@ Implements localizing strings stored in the i18next json format.
 
 import re
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from html import escape, unescape
 from typing import Any
 
-from babel import Locale, UnknownLocaleError
+import babel
 from markupsafe import Markup
 
 PLURALIZABLE_VARIABLE_NAME = "count"
@@ -22,16 +22,17 @@ PLURALIZABLE_VARIABLE_NAME = "count"
 SubstitutionDict = Mapping[str, str | int | Markup]
 
 
-@dataclass
 class I18Next:
     """Retrieves translated strings from their keys based on the i18next format."""
 
-    translations_by_locale: dict[str, Translation] = field(default_factory=dict)
-    default_translation: Translation | None = None
-    """The translation used to look up strings in unsupported locales."""
+    def __init__(self) -> None:
+        self.translations_by_locale: dict[str, Translation] = dict()
+
+        # The translation used to look up strings in unsupported locales.
+        self.default_translation: Translation | None = None
 
     def add_translation(self, locale: str, *, json_dict: dict[str, Any] | None = None) -> Translation:
-        translation = Translation(locale)
+        translation = Translation(babel_locale=babel.Locale.parse(locale, sep="-"))
         self.translations_by_locale[locale] = translation
         if json_dict:
             translation.load_json_dict(json_dict)
@@ -68,14 +69,18 @@ class I18Next:
             raise LocalizationError(locale, string_key)
 
 
-@dataclass
 class Translation:
     """A set of translated strings for a locale."""
 
-    locale: str
-    """The locale, e.g. 'en' or 'fr-CA'"""
-    strings_by_key: dict[str, String] = field(default_factory=dict)
-    fallbacks: list[Translation] = field(default_factory=list)
+    def __init__(self, *, babel_locale: babel.Locale) -> None:
+        # The Babel library locale for this translation. Used to resolved plural forms.
+        self.babel_locale = babel_locale
+        self.strings_by_key: dict[str, String] = dict()
+        self.fallbacks: list[Translation] = []
+
+    @property
+    def locale(self) -> str:
+        return str(self.babel_locale).replace("_", "-")
 
     def load_json_dict(self, json_dict: Mapping[str, Any]) -> None:
         def add_strings(json_dict: Mapping[str, Any], key_prefix: str | None) -> None:
@@ -103,14 +108,7 @@ class Translation:
         if substitutions:
             if count := substitutions.get(PLURALIZABLE_VARIABLE_NAME):
                 if isinstance(count, int):
-                    try:
-                        # Babel resolves the locale name into a filename that uses underscores
-                        babel_locale_name = self.locale.replace("-", "_")
-                        plural_form = Locale(babel_locale_name).plural_form(count)
-                    except UnknownLocaleError:
-                        # Fallback to English-style plural rule.
-                        plural_form = "one" if 1 else "other"
-                    plural_key = key + "_" + plural_form
+                    plural_key = key + "_" + self.babel_locale.plural_form(count)
                     if string := self.strings_by_key.get(plural_key):
                         return string
         return self.strings_by_key.get(key)
