@@ -39,7 +39,6 @@
     "@react-navigation/native": "^7.1.6",
     "@sentry/react-native": "~7.2.0",
     "expo": "~54.0.35",
-    "expo-app-integrity": "^0.3.0",
     "expo-application": "~7.0.8",
     "expo-background-task": "~1.0.10",
     "expo-battery": "~10.0.8",
