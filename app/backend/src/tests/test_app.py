@@ -75,7 +75,6 @@ def test_supervise_returns_crashed_child_and_drains_the_rest(monkeypatch):
     crashed = supervisor.supervise(children)
 
     assert crashed is children[1]
-    # the survivor is terminated and joined so it drains before the parent exits
     assert alive.terminated
     assert alive.joined
 
@@ -106,7 +105,7 @@ def test_supervise_only_terminates_live_children(monkeypatch):
 
     supervisor.supervise(_as_children(already_dead, live))
 
-    assert not already_dead.terminated  # already dead, don't signal it
+    assert not already_dead.terminated
     assert live.terminated
 
 
@@ -118,6 +117,5 @@ def test_supervise_drains_parent_servers_within_the_shutdown_window(monkeypatch)
 
     supervisor.supervise(_as_children(dead), parent_servers=[cast(grpc.Server, media)])
 
-    # the parent server is told to stop with the same grace budget and waited on, alongside the children
     assert media.stop_grace == GRACEFUL_SHUTDOWN_TIMEOUT
     assert media.waited

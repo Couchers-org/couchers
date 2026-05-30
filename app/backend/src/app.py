@@ -42,8 +42,6 @@ logger = logging.getLogger(__name__)
 
 def _run_api_server(port: int) -> None:
     try:
-        # per-process init (connection pool, tracing, experimentation don't survive process start),
-        # mirroring jobs.worker._run_forever
         db_post_fork()
         setup_experimentation()
         setup_tracing()
@@ -52,7 +50,6 @@ def _run_api_server(port: int) -> None:
         server.start()
         logger.info(f"API worker serving on {port}")
 
-        # the parent sends SIGTERM on shutdown; drain in-flight RPCs rather than dropping them
         terminate = threading.Event()
         signal.signal(signal.SIGTERM, lambda *_: terminate.set())
         signal.signal(signal.SIGINT, lambda *_: terminate.set())
@@ -135,22 +132,17 @@ def main() -> None:
             worker.name = f"worker-{i}"
             children.append(worker)
 
-    # spawn the API workers before the parent starts its own gRPC servers and exporters below (prometheus,
-    # media, OTLP tracing). The multiprocessing start method is forkserver/spawn (Python 3.14 default; never
+    # The multiprocessing start method is forkserver/spawn (Python 3.14 default; never
     # fork), so each worker runs its own per-process init — don't pin set_start_method("fork") to "simplify"
-    # this, that reintroduces fork-after-threads hazards. Each worker serves its own gRPC server in its own
-    # process, spreading request handling across cores instead of serializing on one GIL.
+    # this, that reintroduces fork-after-threads hazards.
     if config["ROLE"] in ["api", "all"]:
         for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
             api_worker = start_api_worker(port)
             api_worker.name = f"api-{port}"
             children.append(api_worker)
 
-    # the parent aggregates every process's metrics on :8000 (children export via PROMETHEUS_MULTIPROC_DIR)
     create_prometheus_server(8000)
 
-    # Initialize the experimentation framework for feature flags in the main process (for the media server).
-    # Worker and API processes initialize their own instance per-process.
     # Must precede setup_tracing(), which reads the `trace_sample_ratio` flag.
     setup_experimentation()
 
@@ -166,7 +158,6 @@ def main() -> None:
     crashed = supervise(children, parent_servers=[media_server] if media_server is not None else [])
 
     if crashed is not None:
-        # a child died on its own; exit non-zero so the container is restarted fresh
         sys.exit(1)
 
 
