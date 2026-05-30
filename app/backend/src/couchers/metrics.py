@@ -49,6 +49,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
 
@@ -188,13 +189,13 @@ servicer_db_write_query_count_histogram: Histogram = Histogram(
 )
 
 
-def observe_in_servicer_perf_histograms(
-    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
-) -> None:
-    servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
-    servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
-    servicer_db_query_count_histogram.labels(method).observe(db_query_count)
-    servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+def observe_in_servicer_perf_histograms(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
+    servicer_db_query_count_histogram.labels(method).observe(perf.db_query_count)
+    servicer_db_write_query_count_histogram.labels(method).observe(perf.db_write_query_count)
 
 
 # Auth/setup phase (everything before the handler body), same db-vs-cpu split as the handler-body histograms above.
@@ -212,9 +213,11 @@ servicer_setup_cpu_time_histogram: Histogram = Histogram(
 )
 
 
-def observe_in_servicer_setup_histogram(method: str, setup_db_ms: float, setup_cpu_ms: float) -> None:
-    servicer_setup_db_time_histogram.labels(method).observe(setup_db_ms / 1000)
-    servicer_setup_cpu_time_histogram.labels(method).observe(setup_cpu_ms / 1000)
+def observe_in_servicer_setup_histogram(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_setup_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_setup_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
 
 
 servicer_pool_wait_histogram: Histogram = Histogram(

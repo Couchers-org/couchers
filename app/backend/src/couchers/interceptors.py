@@ -343,9 +343,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
             )
 
-            setup_perf = read_perf()
-            if setup_perf is not None:
-                observe_in_servicer_setup_histogram(method, setup_perf.db_time_ms, setup_perf.cpu_ms)
+            observe_in_servicer_setup_histogram(method, read_perf())
         except Exception as e:
             observe_in_servicer_setup_errors_counter(method, type(e).__name__)
             sentry_sdk.set_tag("context", "servicer_setup")
@@ -393,10 +391,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                     observe_api_call(method, headers.client_platform)
-                    if perf is not None:
-                        observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
-                        )
+                    observe_in_servicer_perf_histograms(method, perf)
                 except Exception as e:
                     perf = read_perf()
                     finished = perf_counter_ns()
@@ -428,10 +423,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
                     observe_api_call(method, headers.client_platform)
-                    if perf is not None:
-                        observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
-                        )
+                    observe_in_servicer_perf_histograms(method, perf)
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
