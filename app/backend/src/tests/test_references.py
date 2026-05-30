@@ -536,7 +536,9 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == "The text of a reference must not be empty"
 
 
-def test_WriteFriendReference_with_private_text(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+def test_WriteFriendReference_with_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -861,7 +863,9 @@ def test_WriteHostRequestReference(db, moderator):
         )
 
 
-def test_WriteHostRequestReference_private_text(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+def test_WriteHostRequestReference_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
