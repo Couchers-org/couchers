@@ -10,8 +10,13 @@ Everything lives in `app/.gitlab-ci.yml` unless noted.
 
 ## Must revert
 
-1. **`DEVTOOL_BUILD_BRANCH: mobile/v1.1.20`** (~line 20) — set back to `develop`.
-   Controls where `build:devtool-native` runs.
+1. **`DEVTOOL_BUILD_BRANCH`** (~line 20) — currently `disabled` (matches no branch),
+   which turns the Dev Tool native rebuild (`build:devtool-native`) **off** while we
+   iterate on the production build. **TODO:** to resume on-device Dev Tool
+   validation, point it back at `mobile/v1.1.20`; the final value on revert is
+   `develop`. NOTE: while disabled, nothing builds the Android app on this branch
+   (production Android is release-only), so Android-side native changes aren't
+   CI-validated here until then.
 
 2. **Per-job `TEMP` rules pinning to `mobile/v1.1.20`** — remove the extra
    `- if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"` rule (and its TEMP comment) from

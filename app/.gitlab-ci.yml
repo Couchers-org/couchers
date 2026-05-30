@@ -15,9 +15,10 @@ variables:
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   # Branch on which a fingerprint change triggers an automatic Dev Tool native
-  # rebuild (build:devtool-native). Set to mobile/v1.1.20 while validating the
-  # machinery; switch to develop (i.e. $RELEASE_BRANCH) once it's trusted.
-  DEVTOOL_BUILD_BRANCH: mobile/v1.1.20
+  # rebuild (build:devtool-native). TEMP-disabled (matches no branch) while we
+  # iterate on the production build — see TEMP-MOBILE.md. Was mobile/v1.1.20;
+  # final value is develop (i.e. $RELEASE_BRANCH) once trusted.
+  DEVTOOL_BUILD_BRANCH: disabled
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
