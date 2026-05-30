@@ -41,24 +41,31 @@ logger = logging.getLogger(__name__)
 
 
 def _run_api_server(port: int) -> None:
-    # per-process init (connection pool, tracing, experimentation don't survive process start),
-    # mirroring jobs.worker._run_forever
-    db_post_fork()
-    setup_experimentation()
-    setup_tracing()
+    try:
+        # per-process init (connection pool, tracing, experimentation don't survive process start),
+        # mirroring jobs.worker._run_forever
+        db_post_fork()
+        setup_experimentation()
+        setup_tracing()
 
-    server = create_main_server(port=port)
-    server.start()
-    logger.info(f"API worker serving on {port}")
+        server = create_main_server(port=port)
+        server.start()
+        logger.info(f"API worker serving on {port}")
 
-    # the parent sends SIGTERM on shutdown; drain in-flight RPCs rather than dropping them
-    terminate = threading.Event()
-    signal.signal(signal.SIGTERM, lambda *_: terminate.set())
-    signal.signal(signal.SIGINT, lambda *_: terminate.set())
-    terminate.wait()
+        # the parent sends SIGTERM on shutdown; drain in-flight RPCs rather than dropping them
+        terminate = threading.Event()
+        signal.signal(signal.SIGTERM, lambda *_: terminate.set())
+        signal.signal(signal.SIGINT, lambda *_: terminate.set())
+        terminate.wait()
 
-    logger.info(f"API worker on {port} draining (up to {GRACEFUL_SHUTDOWN_TIMEOUT}s)")
-    server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
+        logger.info(f"API worker on {port} draining (up to {GRACEFUL_SHUTDOWN_TIMEOUT}s)")
+        server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
+    except Exception:
+        # multiprocessing would only print this to stderr; send the traceback to Sentry (and flush, since
+        # the process is about to die and the parent will restart the container) before re-raising
+        sentry_sdk.capture_exception()
+        sentry_sdk.flush()
+        raise
 
 
 def start_api_worker(port: int) -> Process:
