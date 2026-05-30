@@ -42,6 +42,16 @@ static_resources:
                   cluster: couchers_service
                   max_stream_duration:
                     grpc_timeout_header_max: 0s
+                  # only retry when the request never reached a handler (dead/draining worker), so retrying is
+                  # safe even for non-idempotent RPCs; PreviousHosts avoids retrying the same bad worker
+                  retry_policy:
+                    retry_on: connect-failure,refused-stream
+                    num_retries: 2
+                    retry_host_predicate:
+                    - name: envoy.retry_host_predicates.previous_hosts
+                      typed_config:
+                        "@type": type.googleapis.com/envoy.extensions.retry.host.previous_hosts.v3.PreviousHostsPredicate
+                    host_selection_retry_max_attempts: 3
               typed_per_filter_config:
                 envoy.filters.http.cors:
                   "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
@@ -157,6 +167,16 @@ static_resources:
             address: { socket_address: { address: backend, port_value: 1763 }}
         - endpoint:
             address: { socket_address: { address: backend, port_value: 1764 }}
+    # passively eject a worker that keeps failing to connect / returning 5xx (e.g. crashed or draining), so
+    # round_robin stops sending it traffic until it recovers. max_ejection_percent must allow ejecting at
+    # least one of N workers (1/4 = 25%), otherwise the default 10% blocks all ejection.
+    outlier_detection:
+      consecutive_gateway_failure: 3
+      enforcing_consecutive_gateway_failure: 100
+      consecutive_5xx: 5
+      interval: 5s
+      base_ejection_time: 30s
+      max_ejection_percent: 50
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
