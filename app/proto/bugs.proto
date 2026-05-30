@@ -4,6 +4,7 @@ package org.couchers.bugs;
 
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
@@ -145,10 +146,15 @@ message NativeUpdateInfo {
   // Advisory when false; when true the client must act by act_by (in the past = block now).
   bool required = 2;
   google.protobuf.Timestamp act_by = 3;
+  // For advisory updates (required == false): after showing the nag, the client waits at least this
+  // long before showing it again. Ignored when required. Unset/zero = show once per app session.
+  google.protobuf.Duration nag_interval = 4;
   // Shown on the nag/block screen.
-  string message = 4;
+  string message = 5;
   // Where to send the user to update (store listing, or a different app for reinstall).
-  string link_url = 5;
+  string link_url = 6;
+  // Label for the link_url button (e.g. "Update now", "Get the new app").
+  string link_text = 7;
 }
 
 message CheckNativeStatusRes {
