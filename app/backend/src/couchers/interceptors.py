@@ -17,7 +17,8 @@ from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select
-from sqlalchemy.sql import and_, func
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.sql import func
 
 from couchers.constants import (
     CALL_CANCELLED_ERROR_MESSAGE,
@@ -101,19 +102,9 @@ def _try_get_and_update_user_details(
 
     with session_scope() as session:
         result = session.execute(
-            select(User, UserSession, UserActivity)
+            select(User, UserSession)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
-            .outerjoin(
-                UserActivity,
-                and_(
-                    UserActivity.user_id == User.id,
-                    UserActivity.period == _binned_now(),
-                    UserActivity.ip_address == ip_address,
-                    UserActivity.user_agent == user_agent,
-                    UserActivity.sofa == sofa,
-                ),
-            )
             .where(User.is_visible)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
@@ -123,7 +114,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session, user_activity = result._tuple()
+        user, user_session = result._tuple()
 
         # update user last active time if it's been a while
         if now() - user.last_active > timedelta(minutes=5):
@@ -133,22 +124,33 @@ def _try_get_and_update_user_details(
         user_session.last_seen = func.now()
         user_session.api_calls += 1
 
-        if user_activity:
-            user_activity.api_calls += 1
-            if client_platform is not None:
-                user_activity.client_platform = client_platform
-        else:
-            session.add(
-                UserActivity(
-                    user_id=user.id,
-                    period=_binned_now(),
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                    sofa=sofa,
-                    client_platform=client_platform,
-                    api_calls=1,
-                )
+        # upsert so concurrent requests for the same activity tuple don't race to insert and violate the index
+        insert_stmt = pg_insert(UserActivity).values(
+            user_id=user.id,
+            period=_binned_now(),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            sofa=sofa,
+            client_platform=client_platform,
+            api_calls=1,
+        )
+        session.execute(
+            insert_stmt.on_conflict_do_update(
+                index_elements=[
+                    UserActivity.user_id,
+                    UserActivity.period,
+                    UserActivity.ip_address,
+                    UserActivity.user_agent,
+                    UserActivity.sofa,
+                ],
+                set_={
+                    "api_calls": UserActivity.api_calls + 1,
+                    "client_platform": func.coalesce(
+                        insert_stmt.excluded.client_platform, UserActivity.client_platform
+                    ),
+                },
             )
+        )
 
         session.commit()
 
