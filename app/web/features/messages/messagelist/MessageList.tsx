@@ -21,18 +21,12 @@ const MessageWrapper = styled(MessageView)(() => ({
   "&:nth-of-type(1)": {
     marginBottom: 0,
   },
-  [theme.breakpoints.up("md")]: {
-    marginBottom: theme.spacing(2),
-  },
 }));
 
 const ControlMessageWrapper = styled(ControlMessageView)(() => ({
   marginBottom: theme.spacing(1),
   "&:nth-of-type(1)": {
     marginBottom: 0,
-  },
-  [theme.breakpoints.up("md")]: {
-    marginBottom: theme.spacing(2),
   },
 }));
 

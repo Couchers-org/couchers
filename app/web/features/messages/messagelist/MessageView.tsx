@@ -14,8 +14,7 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
 
-// Width of the group-chat received left column (avatar only; the flag now sits
-// to the right of the bubble). Shared so the alignment cap can offset for it.
+// Shared so the alignment cap can offset for it
 const AVATAR_SIZE = 40;
 
 const RootContainer = styled("div", {
@@ -84,25 +83,12 @@ const StyledLeftOfMessage = styled("div")(({ theme }) => ({
   alignItems: "center",
   width: AVATAR_SIZE,
   marginRight: theme.spacing(1),
-  [theme.breakpoints.up("md")]: {
-    marginRight: theme.spacing(2),
-  },
-}));
-
-const StyledRightOfMessage = styled("div")(({ theme }) => ({
-  alignSelf: "flex-start",
-  marginInlineStart: theme.spacing(1),
 }));
 
 const StyledHeader = styled("div")(({ theme }) => ({
   display: "flex",
   padding: theme.spacing(1),
   paddingBottom: theme.spacing(0.5),
-
-  [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(2),
-    paddingBottom: theme.spacing(1),
-  },
 }));
 
 const StyledNameTypography = styled(Typography)(({ theme }) => ({
@@ -128,25 +114,25 @@ const StyledMessageBody = styled(CardContent)(({ theme }) => ({
   "&:first-of-type": {
     paddingTop: theme.spacing(1),
   },
-
-  [theme.breakpoints.up("md")]: {
-    paddingInline: theme.spacing(2),
-    paddingBottom: theme.spacing(1),
-    "&:first-of-type": {
-      paddingTop: theme.spacing(2),
-    },
-  },
 }));
 
 const StyledFooter = styled("div")(({ theme }) => ({
   display: "flex",
+  alignItems: "center",
   justifyContent: "flex-end",
+  gap: theme.spacing(0.25),
   paddingInline: theme.spacing(1),
   paddingBottom: theme.spacing(0.5),
+}));
 
-  [theme.breakpoints.up("md")]: {
-    paddingInline: theme.spacing(2),
-    paddingBottom: theme.spacing(1),
+const StyledFlagButton = styled(FlagButton)(({ theme }) => ({
+  padding: theme.spacing(0.25),
+  color: "var(--mui-palette-text-secondary)",
+  "& svg": {
+    fontSize: "1rem",
+  },
+  "&:hover, &:focus-visible": {
+    color: "var(--mui-palette-primary-main)",
   },
 }));
 
@@ -219,16 +205,15 @@ export default function MessageView({
         </StyledMessageBody>
         <StyledFooter>
           <StyledTimeInterval date={timestamp2Date(message.time!)} />
+          {author && !isCurrentUser && (
+            <StyledFlagButton
+              contentRef={`chat/message/${message.messageId}`}
+              authorUser={author.userId}
+              size="small"
+            />
+          )}
         </StyledFooter>
       </StyledCard>
-      {author && !isCurrentUser && (
-        <StyledRightOfMessage>
-          <FlagButton
-            contentRef={`chat/message/${message.messageId}`}
-            authorUser={author.userId}
-          />
-        </StyledRightOfMessage>
-      )}
     </RootContainer>
   );
 }
