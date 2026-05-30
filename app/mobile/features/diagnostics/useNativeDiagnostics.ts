@@ -3,7 +3,6 @@ import * as Application from "expo-application";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import * as Updates from "expo-updates";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { AppState, AppStateStatus, Platform } from "react-native";
@@ -16,6 +15,19 @@ import {
 } from "@/features/diagnostics/installId";
 import { getStoredPushToken } from "@/features/diagnostics/pushTokenStore";
 import { NativeUpdateAction } from "@/proto/bugs_pb";
+import {
+  appVariant,
+  createdAt,
+  embeddedDebugVersion,
+  embeddedDisplayVersion,
+  isEmbeddedLaunch,
+  runningDebugVersion,
+  runningDebugVersionOTA,
+  runningDisplayVersion,
+  runtimeVersion,
+  updateChannel,
+  updateId,
+} from "@/service/buildInfo";
 import { checkNativeStatus } from "@/service/checkNativeStatus";
 
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
@@ -60,25 +72,34 @@ export function useNativeDiagnostics(): void {
           ]);
 
         const result = await checkNativeStatus({
+          // Device / install identity
           installId,
           stickyId,
           idfv: deviceIds.idfv,
           androidId: deviceIds.androidId,
-          userState: authenticatedRef.current ? "authenticated" : "logged_out",
-          appVersion: Constants.expoConfig?.version ?? "unknown",
-          gitHash:
-            (Constants.expoConfig?.extra as { gitHash?: string } | undefined)
-              ?.gitHash ?? "unknown",
-          nativeBuild: Application.nativeBuildVersion ?? "unknown",
+          deviceName: Device.deviceName ?? undefined,
           platform: Platform.OS,
           osVersion: String(Platform.Version),
-          deviceName: Device.deviceName ?? undefined,
           locale: localeRef.current,
-          otaUpdateId: Updates.updateId ?? undefined,
-          runtimeVersion: Updates.runtimeVersion ?? undefined,
-          otaChannel: Updates.channel ?? undefined,
-          isEmbedded: Updates.isEmbeddedLaunch,
-          otaCreatedAt: Updates.createdAt?.toISOString() ?? undefined,
+          userState: authenticatedRef.current ? "authenticated" : "logged_out",
+          // Build identity — the same set we report to Sentry (service/buildInfo.ts):
+          // the embedded store build, the running (possibly OTA) bundle, and the
+          // runtimeVersion/channel that decide which OTAs apply.
+          appVariant,
+          appVersion: Constants.expoConfig?.version ?? "unknown",
+          nativeBuild: Application.nativeBuildVersion ?? "unknown",
+          embeddedDisplayVersion,
+          embeddedDebugVersion,
+          runningDisplayVersion,
+          runningDebugVersion,
+          runningDebugVersionOTA,
+          runtimeVersion,
+          updateId,
+          updateChannel,
+          isEmbeddedLaunch,
+          launchSource: isEmbeddedLaunch ? "embedded" : "ota",
+          createdAt,
+          // Push + timing
           pushPermission: permission.status,
           pushToken: pushToken ?? undefined,
           timeSinceLastOpenSeconds,

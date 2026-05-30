@@ -46,7 +46,10 @@ export const runningDebugVersion = extra?.debugVersion ?? "unknown";
 
 // Raw expo-updates values describing the running bundle, surfaced for reporting.
 export const updateId = Updates.updateId ?? "none";
-export const updateChannel = Updates.channel ?? "none";
+// Updates.channel comes back empty ("") on these builds, and an empty tag value is
+// rejected by Sentry (shows as <invalid>). Fall back to the display version (|| also
+// catches "", unlike ??) so the tag is always present and meaningful.
+export const updateChannel = Updates.channel || runningDisplayVersion;
 export const runtimeVersion = Updates.runtimeVersion ?? "unknown";
 export const isEmbeddedLaunch = Updates.isEmbeddedLaunch;
 export const createdAt = Updates.createdAt?.toISOString() ?? "unknown";
