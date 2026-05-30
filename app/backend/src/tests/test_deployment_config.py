@@ -2,11 +2,16 @@
 Guards the multiprocess API server deployment config, which is spread across files that must agree:
 the API worker ports live in couchers.constants but are repeated in proxy/envoy.yaml and the compose
 files, and the per-process connection pools must stay under postgres max_connections.
+
+These files live outside app/backend, so they're only present in a full repo checkout — the backend CI
+image only ships app/backend, so the checks skip there. They run for anyone editing API_WORKER_COUNT
+against the full repo (the case that actually drifts).
 """
 
 import re
 from pathlib import Path
 
+import pytest
 import yaml
 
 from couchers.config import CONFIG_OPTIONS
@@ -19,6 +24,10 @@ COMPOSE_DEV = APP_DIR / "docker-compose.yml"
 POSTGRESQL_CONF = APP_DIR / "postgis" / "postgresql.conf"
 
 EXPECTED_API_PORTS = list(range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT))
+
+pytestmark = pytest.mark.skipif(
+    not ENVOY_YAML.exists(), reason="deployment files (proxy/compose/postgis) not present outside a full repo checkout"
+)
 
 
 def _config_default(name: str) -> int:
