@@ -211,3 +211,12 @@ class LocalizationError(Exception):
         self.locale = locale
         self.string_key = string_key
         super().__init__(f"Could not localize string {string_key} for locale {locale}")
+
+
+def full_string_key(key: str, *, relative_base: str | None) -> str:
+    """Resolves any relative string key (starting with '.') into a full string key."""
+    if key.startswith("."):
+        if relative_base is None:
+            raise ValueError("Relative string key requires a relative base.")
+        return relative_base + key
+    return key

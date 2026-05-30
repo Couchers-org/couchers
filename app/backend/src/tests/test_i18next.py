@@ -1,7 +1,7 @@
 import pytest
 from markupsafe import Markup
 
-from couchers.i18n.i18next import I18Next, LocalizationError
+from couchers.i18n.i18next import I18Next, LocalizationError, full_string_key
 
 
 def test_lookup():
@@ -192,3 +192,11 @@ def test_escaping():
     assert (
         i18next.localize_with_markup("greeting", "en", substitutions={"name": Markup("<script/>")}) == "hello <script/>"
     )
+
+
+def test_full_string_key():
+    assert full_string_key("key", relative_base=None) == "key"
+    assert full_string_key("key", relative_base="base") == "key"
+    assert full_string_key(".key", relative_base="base") == "base.key"
+    with pytest.raises(ValueError):
+        assert full_string_key(".key", relative_base=None)
