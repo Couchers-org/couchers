@@ -66,6 +66,7 @@ def _get_base_engine() -> Engine:
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
         pool_pre_ping=True,
+        # one connection per thread
         poolclass=QueuePool,
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
         # max_connections. ~2 per thread since a request can hold two connections at once (handler + _store_log).
