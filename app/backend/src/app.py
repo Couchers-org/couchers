@@ -2,7 +2,6 @@ import logging
 import signal
 import sys
 import threading
-from functools import partial
 from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
@@ -29,7 +28,7 @@ from couchers.i18n.localize import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server
-from couchers.supervisor import Child, supervise
+from couchers.supervisor import supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
@@ -116,14 +115,18 @@ def main() -> None:
 
     logger.info("Starting")
 
-    children: list[Child] = []
+    children: list[Process] = []
 
     if config["ROLE"] in ["scheduler", "all"]:
-        children.append(Child("scheduler", start_jobs_scheduler))
+        scheduler = start_jobs_scheduler()
+        scheduler.name = "scheduler"
+        children.append(scheduler)
 
     if config["ROLE"] in ["worker", "all"]:
         for i in range(config["BACKGROUND_WORKER_COUNT"]):
-            children.append(Child(f"worker-{i}", start_jobs_worker))
+            worker = start_jobs_worker()
+            worker.name = f"worker-{i}"
+            children.append(worker)
 
     # spawn the API workers before the parent starts its own gRPC servers and exporters below (prometheus,
     # media, OTLP tracing). The multiprocessing start method is forkserver/spawn (Python 3.14 default; never
@@ -132,7 +135,9 @@ def main() -> None:
     # process, spreading request handling across cores instead of serializing on one GIL.
     if config["ROLE"] in ["api", "all"]:
         for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
-            children.append(Child(f"api-{port}", partial(start_api_worker, port)))
+            api_worker = start_api_worker(port)
+            api_worker.name = f"api-{port}"
+            children.append(api_worker)
 
     # the parent aggregates every process's metrics on :8000 (children export via PROMETHEUS_MULTIPROC_DIR)
     create_prometheus_server(8000)
@@ -151,10 +156,14 @@ def main() -> None:
         logger.info(f"Media server serving on {MEDIA_PORT}")
 
     logger.info("App started, supervising child processes")
-    supervise(children)
+    crashed = supervise(children)
 
     if media_server is not None:
         media_server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
+
+    if crashed is not None:
+        # a child died on its own; exit non-zero so the container is restarted fresh
+        sys.exit(1)
 
 
 if __name__ == "__main__":
