@@ -107,12 +107,12 @@ services:
     restart: always
     stop_grace_period: 5s
     env_file: pgprom.prod.env
-    # stat_statements collector is disabled by default; it surfaces per-query pg_stat_statements metrics.
-    # include_query emits the queryid->text mapping (normalized SQL, no literals); query_length raises the
-    # default 120-char truncation so our long multi-join statements aren't cut off.
     command:
+      # per-query pg_stat_statements metrics
       - "--collector.stat_statements"
+      # emit the queryid->text mapping (normalized SQL, no literals)
       - "--collector.stat_statements.include_query"
+      # raise the 120-char default so long statements aren't cut off
       - "--collector.stat_statements.query_length=2048"
     expose:
       - 9187
