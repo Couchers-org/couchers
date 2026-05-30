@@ -1,8 +1,9 @@
 import threading
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from opentelemetry import trace
 from prometheus_client import (
@@ -16,7 +17,8 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy import and_, case, select
+from sqlalchemy import Engine, and_, case, select
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
@@ -150,6 +152,43 @@ def observe_in_servicer_perf_histograms(
     servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
     servicer_db_query_count_histogram.labels(method).observe(db_query_count)
     servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+
+
+# liveall keeps one series per worker pid (and drops dead workers), so these also show load balance across workers.
+# Updated from inside each worker since the /metrics scrape runs in the parent, which has neither pool.
+grpc_in_flight_gauge: Gauge = Gauge(
+    "couchers_grpc_in_flight",
+    "Outstanding gRPC calls (running plus queued for a server thread), per worker process",
+    multiprocess_mode="liveall",
+)
+grpc_threadpool_queue_depth_gauge: Gauge = Gauge(
+    "couchers_grpc_threadpool_queue_depth",
+    "gRPC calls queued waiting for a free server thread, per worker process",
+    multiprocess_mode="liveall",
+)
+db_pool_checked_out_gauge: Gauge = Gauge(
+    "couchers_db_pool_checked_out",
+    "Checked-out DB connections, per worker process",
+    multiprocess_mode="liveall",
+)
+
+
+def start_worker_resource_sampler(executor: ThreadPoolExecutor, engine: Engine, interval: float = 1.0) -> None:
+    def sample() -> None:
+        while True:
+            # _work_queue is private but stable: tasks gRPC has submitted that no thread has picked up yet
+            grpc_threadpool_queue_depth_gauge.set(executor._work_queue.qsize())
+            db_pool_checked_out_gauge.set(cast(QueuePool, engine.pool).checkedout())
+            time.sleep(interval)
+
+    threading.Thread(target=sample, daemon=True, name="resource-sampler").start()
+
+
+supervised_children_alive_gauge: Gauge = Gauge(
+    "couchers_supervised_children_alive",
+    "Child processes (API workers, background workers, scheduler) the supervisor currently sees alive",
+    multiprocess_mode="mostrecent",
+)
 
 
 # Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and

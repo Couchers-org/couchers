@@ -32,11 +32,23 @@ services:
       # persistent GrowthBook feature-flag cache (GROWTHBOOK_CACHE_PATH), survives deploys
       - "./data/cache/:/data/cache/"
     expose:
-      - 1751
+      # api workers (match API_WORKER_COUNT / envoy.yaml)
+      - 1761
+      - 1762
+      - 1763
+      - 1764
+      # media
       - 1753
     depends_on:
       - postgres
       - jaeger
+    healthcheck:
+      # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
+      test: ["CMD", "python", "src/healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
     networks:
       - backend_prometheus
       - postgres_backend

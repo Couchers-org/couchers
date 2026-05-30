@@ -1,14 +1,17 @@
 from concurrent import futures
+from typing import Any
 
 import grpc
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
+from couchers.db import _get_base_engine
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     OTelInterceptor,
 )
+from couchers.metrics import grpc_in_flight_gauge, start_worker_resource_sampler
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -73,15 +76,27 @@ from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 
 
-def create_main_server(port: int) -> grpc.Server:
+class _InstrumentedThreadPoolExecutor(futures.ThreadPoolExecutor):
+    # gRPC submits one task per RPC
+    def submit(self, fn: Any, /, *args: Any, **kwargs: Any) -> futures.Future[Any]:
+        grpc_in_flight_gauge.inc()
+        future = super().submit(fn, *args, **kwargs)
+        future.add_done_callback(lambda _: grpc_in_flight_gauge.dec())
+        return future
+
+
+def create_main_server(port: int, start_resource_sampler: bool = False) -> grpc.Server:
+    executor = _InstrumentedThreadPoolExecutor(SERVER_THREADS)
     server = grpc.server(
-        futures.ThreadPoolExecutor(SERVER_THREADS),
+        executor,
         interceptors=[
             ErrorSanitizationInterceptor(),
             OTelInterceptor(),
             CouchersMiddlewareInterceptor(),
         ],
     )
+    if start_resource_sampler:
+        start_worker_resource_sampler(executor, _get_base_engine())
     server.add_insecure_port(f"[::]:{port}")
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
