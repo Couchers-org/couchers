@@ -44,6 +44,9 @@ const ICON_SETS = {
 // `linkHost` is the https domain the app claims for universal/app links;
 // null means no claim (the Dev Tool build routes via its custom scheme only, so
 // it can't steal universal links from the staging app, which shares its backend).
+// `webcredHost` is the passkey relying-party domain (webcredentials: associated
+// domain). It's a native entitlement, so it can't be added over OTA — it's baked
+// in now even though the backend WebAuthn endpoint and hosted AASA come later.
 const VARIANTS = {
   production: {
     name: "Couchers",
@@ -52,6 +55,7 @@ const VARIANTS = {
     scheme: "couchers",
     iconSet: "default",
     linkHost: "couchers.org",
+    webcredHost: "couchers.org",
   },
   staging: {
     name: "Couchers (Staging)",
@@ -60,6 +64,7 @@ const VARIANTS = {
     scheme: "couchers-staging",
     iconSet: "staging",
     linkHost: "next.couchershq.org",
+    webcredHost: "couchershq.org",
   },
   devtool: {
     name: "Couchers Dev Tool",
@@ -68,6 +73,7 @@ const VARIANTS = {
     scheme: "couchers-devtool",
     iconSet: "staging",
     linkHost: null,
+    webcredHost: null,
   },
 };
 
@@ -75,9 +81,10 @@ const APP_VARIANT = process.env.APP_VARIANT || "devtool";
 const variant = VARIANTS[APP_VARIANT] ?? VARIANTS.production;
 const icons = ICON_SETS[variant.iconSet];
 
-const associatedDomains = variant.linkHost
-  ? [`applinks:${variant.linkHost}`]
-  : [];
+const associatedDomains = [
+  variant.linkHost && `applinks:${variant.linkHost}`,
+  variant.webcredHost && `webcredentials:${variant.webcredHost}`,
+].filter(Boolean);
 
 const intentFilters = variant.linkHost
   ? [
@@ -128,8 +135,13 @@ export default {
     bundleIdentifier: variant.bundleIdentifier,
     icon: icons.ios,
     associatedDomains,
+    // Location is when-in-use only (the expo-location plugin entry below drops the
+    // "always" variants). Calendar strings + permissions come from the
+    // expo-calendar plugin entry; expo-camera's camera string from expo-image-picker.
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      NSLocationWhenInUseUsageDescription:
+        "Allow Couchers to access your location to search for users, events, and other activities near you",
     },
   },
   android: {
@@ -137,6 +149,9 @@ export default {
     package: variant.androidPackage,
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+    // CAMERA and location permissions are merged in from the expo-camera and
+    // expo-location library manifests; calendar's READ/WRITE come from the
+    // expo-calendar plugin. Only POST_NOTIFICATIONS needs declaring here.
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
       foregroundImage: icons.adaptiveForeground,
@@ -190,6 +205,9 @@ export default {
           "Allow Couchers to access your photos to upload to your profile.",
         cameraPermission:
           "Allow Couchers to access your camera to take profile photos.",
+        // expo-camera's manifest pulls in RECORD_AUDIO; we never record audio,
+        // so block it (also keeps the mic permission off the Play listing).
+        microphonePermission: false,
       },
     ],
     [
@@ -199,6 +217,30 @@ export default {
         project: "native",
         organization: "couchers",
       },
+    ],
+    "expo-web-browser",
+    // faceIDPermission: false suppresses the plugin's default NSFaceIDUsageDescription —
+    // we never use the requireAuthentication option, so no Face ID string is needed.
+    ["expo-secure-store", { faceIDPermission: false }],
+    "expo-localization",
+    "expo-mail-composer",
+    "expo-background-task",
+    "expo-apple-authentication",
+    // expo-location/expo-camera plugins auto-apply (autolinked) with default props;
+    // listing them explicitly lets us suppress what we don't use. Location: keep
+    // when-in-use (string set in ios.infoPlist), drop the "always" variants.
+    // Camera: no microphone (we never record audio).
+    [
+      "expo-location",
+      {
+        locationAlwaysPermission: false,
+        locationAlwaysAndWhenInUsePermission: false,
+      },
+    ],
+    ["expo-camera", { microphonePermission: false, recordAudioAndroid: false }],
+    [
+      "expo-calendar",
+      { calendarPermission: "Add upcoming trips and events to your calendar" },
     ],
     "./plugins/withNativeBuildInfo",
   ],

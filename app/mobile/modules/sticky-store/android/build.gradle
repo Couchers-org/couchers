@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+group = 'expo.modules.stickystore'
+version = '0.0.1'
+
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+if (expoModulesCorePlugin.exists()) {
+  apply from: expoModulesCorePlugin
+  applyKotlinExpoModulesCorePlugin()
+  useCoreDependencies()
+  useExpoPublishing()
+}
+
+android {
+  namespace "expo.modules.stickystore"
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+  }
+}
+
+dependencies {
+  implementation project(':expo-modules-core')
+  // Block Store: cross-device, reinstall-surviving credential storage.
+  implementation 'com.google.android.gms:play-services-auth-blockstore:16.4.0'
+}
