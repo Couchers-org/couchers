@@ -13,7 +13,6 @@ import {
   getPlatformDeviceIds,
   getStickyId,
 } from "@/features/diagnostics/installId";
-import { getStoredPushToken } from "@/features/diagnostics/pushTokenStore";
 import {
   isActionable,
   updateMode,
@@ -38,9 +37,7 @@ import {
 
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
 const LAST_NAG_KEY = "diagnostics.lastNagDismissedAt";
-// TEMP (revert to 30 * 60 * 1000 before merge): 0 disables the throttle so every
-// cold start / foreground pings CheckNativeStatus, for on-device verification.
-const PING_THROTTLE_MS = 0;
+const PING_THROTTLE_MS = 5 * 60 * 1000;
 
 // Cleared on process restart, so dismissing a session-scoped prompt suppresses it
 // until the next cold start.
@@ -146,14 +143,32 @@ export function useNativeDiagnostics(): NativeDiagnostics {
           ? (now - lastOpenAt) / 1000
           : undefined;
 
-        const [installId, stickyId, deviceIds, pushToken, permission] =
-          await Promise.all([
-            getInstallId(),
-            getStickyId().catch(() => undefined),
-            getPlatformDeviceIds(),
-            getStoredPushToken(),
-            Notifications.getPermissionsAsync(),
-          ]);
+        const [installId, stickyId, deviceIds, permission] = await Promise.all([
+          getInstallId(),
+          getStickyId().catch(() => undefined),
+          getPlatformDeviceIds(),
+          Notifications.getPermissionsAsync(),
+        ]);
+
+        // The live Expo push token — the address this device would actually
+        // receive on. Fetched only when permission is already granted, so it
+        // never triggers a prompt; best-effort, never blocks the ping.
+        let pushToken: string | undefined;
+        if (permission.granted && Device.isDevice) {
+          const projectId =
+            Constants.expoConfig?.extra?.eas?.projectId ??
+            Constants.easConfig?.projectId ??
+            process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+          if (projectId) {
+            try {
+              pushToken = (
+                await Notifications.getExpoPushTokenAsync({ projectId })
+              ).data;
+            } catch {
+              pushToken = undefined;
+            }
+          }
+        }
 
         const result = await checkNativeStatus({
           // Device / install identity
@@ -184,7 +199,8 @@ export function useNativeDiagnostics(): NativeDiagnostics {
           createdAt,
           // Push + timing
           pushPermission: permission.status,
-          pushToken: pushToken ?? undefined,
+          pushPermissionInfo: permission,
+          pushToken,
           timeSinceLastOpenSeconds,
           occurred: new Date(now).toISOString(),
         });

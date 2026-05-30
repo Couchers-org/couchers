@@ -5,12 +5,8 @@ import { Platform } from "react-native";
 
 import * as StickyStore from "@/modules/sticky-store";
 
-// 128-bit hex ID generated and persisted on first launch; survives restarts/OTA, resets on reinstall.
 const INSTALL_ID_KEY = "diagnostics.installId";
 
-// Same 128-bit ID but kept in the cross-device sticky store, so it survives reinstalls and follows
-// the user's iCloud/Google account to their other devices. Coarser than installId: use it to
-// correlate the same account across reinstalls and devices, not to identify a single install.
 const STICKY_ID_KEY = "diagnostics.stickyId";
 
 function randomId(): string {
@@ -39,7 +35,6 @@ export async function getStickyId(): Promise<string> {
   return id;
 }
 
-// Best-effort platform identifiers for cross-install correlation (iOS IDFV, Android SSAID).
 export async function getPlatformDeviceIds(): Promise<{
   idfv?: string;
   androidId?: string;
@@ -53,7 +48,7 @@ export async function getPlatformDeviceIds(): Promise<{
       return { androidId: Application.getAndroidId() ?? undefined };
     }
   } catch {
-    // best-effort; never block a ping
+    return {};
   }
   return {};
 }

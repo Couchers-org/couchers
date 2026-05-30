@@ -615,15 +615,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             key=str(request.group_chat_id),
             topic_actions=[
                 NotificationTopicAction.chat__message,
-            ],
-        )
-        # chat__missed_messages is an aggregate summary (key="") not tied to a
-        # specific chat, so it must be looked up separately with the empty key.
-        mark_notifications_seen(
-            session,
-            user_id=context.user_id,
-            key="",
-            topic_actions=[
                 NotificationTopicAction.chat__missed_messages,
             ],
         )

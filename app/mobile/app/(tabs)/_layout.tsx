@@ -22,14 +22,8 @@ import { theme } from "@/theme";
 // over-the-air update applied.
 const TRIPLE_TAP_WINDOW_MS = 800;
 
-// TEMP (revert before merge): a hand-bumped marker for verifying OTA updates
-// on-device. The embedded TestFlight build predates this line, so it appears only
-// after an OTA applies; bump it and push to confirm a fresh OTA lands.
-const OTA_MARKER = "OTA test #2";
-
 function getDebugInfo(): string {
   return [
-    `>>> ${OTA_MARKER} <<<`,
     `Version: ${runningDisplayVersion}`,
     `Running: ${runningDebugVersionOTA}`,
     `Embedded: ${embeddedDebugVersion}`,
@@ -73,8 +67,6 @@ export default function TabLayout() {
     tapTimestamps.current = [];
     const info = getDebugInfo();
     void Clipboard.setStringAsync(info);
-    // Confirms the device can reach Sentry; the event also carries the
-    // version/OTA/gitHash tags set in the global scope at init.
     Sentry.captureMessage("debug.triple-tap", {
       level: "info",
       contexts: { debug: { info } },

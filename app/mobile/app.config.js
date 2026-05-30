@@ -136,7 +136,7 @@ const updates =
       ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
       : {
           url: "https://api.couchers.org/native/ota/manifest",
-          codeSigningCertificate: "./certs/certificate.pem",
+          codeSigningCertificate: "./certs/prod-ota-certificate.pem",
           codeSigningMetadata: { keyid: "main", alg: "rsa-v1_5-sha256" },
         };
 

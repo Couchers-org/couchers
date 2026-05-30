@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { setStoredPushToken } from "@/features/diagnostics/pushTokenStore";
 import { registerMobilePushNotificationSubscription } from "@/service/notifications";
 
 async function ensureNotificationPermissions(): Promise<boolean> {
@@ -119,7 +118,6 @@ export function useRegisterPushNotifications() {
         });
 
         lastRegisteredTokenRef.current = token;
-        await setStoredPushToken(token);
         console.log("✅ Push notification registration complete");
       } catch (error) {
         console.error(

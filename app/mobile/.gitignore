@@ -41,7 +41,7 @@ yarn-error.*
 .DS_Store
 *.pem
 # but the OTA code-signing certificate (public) is committed; the private key is not
-!certs/certificate.pem
+!certs/prod-ota-certificate.pem
 
 # local env files
 .env*.local
