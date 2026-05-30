@@ -143,25 +143,15 @@ servicer_db_write_query_count_histogram: Histogram = Histogram(
     labelnames=["method"],
     buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
 )
-# Wall time the handler spent neither computing (thread CPU) nor waiting on its own DB cursors: GIL contention, lock
-# waits, and pool-checkout waits while holding a server thread. This is the serialization tax the multiprocess rollout
-# aims to cut, so it's the headline before/after number. Measured from interceptor entry, so it does NOT include time
-# queued for a server thread (see couchers_grpc_threadpool_queue_depth for that).
-servicer_offcpu_time_histogram: Histogram = Histogram(
-    "couchers_servicer_offcpu_seconds",
-    "Per-call wall time not accounted for by thread CPU or DB cursor time (contention, lock and pool waits)",
-    labelnames=["method"],
-)
 
 
 def observe_in_servicer_perf_histograms(
-    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float, wall_ms: float
+    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
 ) -> None:
     servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
     servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
     servicer_db_query_count_histogram.labels(method).observe(db_query_count)
     servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
-    servicer_offcpu_time_histogram.labels(method).observe(max(0.0, wall_ms - cpu_ms - db_time_ms) / 1000)
 
 
 # Live per-worker saturation gauges. multiprocess_mode="liveall" keeps a separate time series per worker process (the
