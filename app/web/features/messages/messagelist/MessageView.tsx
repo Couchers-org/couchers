@@ -19,12 +19,10 @@ const AVATAR_SIZE = 40;
 
 const RootContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
-})<{ isCurrentUser: boolean; isLoading: boolean }>(
-  ({ isCurrentUser }) => ({
-    display: "flex",
-    justifyContent: isCurrentUser ? "flex-end" : "flex-start",
-  }),
-);
+})<{ isCurrentUser: boolean; isLoading: boolean }>(({ isCurrentUser }) => ({
+  display: "flex",
+  justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+}));
 
 const StyledAvatar = styled(Avatar)(() => ({
   height: AVATAR_SIZE,
