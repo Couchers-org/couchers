@@ -68,7 +68,7 @@ SERVER_THREADS = 8
 
 # on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
 # container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
-GRACEFUL_SHUTDOWN_TIMEOUT = 20
+GRACEFUL_SHUTDOWN_TIMEOUT = 5
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
