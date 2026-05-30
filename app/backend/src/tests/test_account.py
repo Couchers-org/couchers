@@ -25,7 +25,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_volunteer
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -157,23 +157,22 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollector):
+def test_ChangePasswordV2_normal(db, fast_passwords, email_collector: EmailCollector, push_collector: PushCollector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.ChangePasswordV2(
-                account_pb2.ChangePasswordV2Req(
-                    old_password=old_password,
-                    new_password=new_password,
-                )
+        account.ChangePasswordV2(
+            account_pb2.ChangePasswordV2Req(
+                old_password=old_password,
+                new_password=new_password,
             )
+        )
 
-    mock.assert_called_once()
-    assert email_fields(mock).subject == "[TEST] Your password was changed"
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Your password was changed"
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password changed"
@@ -646,14 +645,13 @@ def test_contributor_form(db):
         assert res.filled_contributor_form
 
 
-def test_DeleteAccount_start(db):
+def test_DeleteAccount_start(db, email_collector: EmailCollector):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
-        mock.assert_called_once()
-        assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
+        email = email_collector.pop_for_recipient(user.email, last=True)
+        assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         deletion_token: AccountDeletionToken = session.execute(
@@ -679,7 +677,7 @@ def test_DeleteAccount_message_storage(db):
         assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
+def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
 
@@ -689,20 +687,25 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert err.value.details() == "Please confirm your account deletion."
 
-        # Check the right email is sent
-        with mock_notification_email() as mock:
-            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert email.recipient == user.email
+    assert "account deletion" in email.subject.lower()
+    unique_string = "You requested that we delete your account from Couchers.org."
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deletion requested"
     assert push.content.body == "Use the link we emailed you to confirm."
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-
     with session_scope() as session:
         token_o = session.execute(select(AccountDeletionToken)).scalar_one()
-        token = token_o.token
+        delete_token = token_o.token
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert token_o.user == user_
@@ -710,34 +713,33 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not user_.undelete_token
         assert not user_.undelete_until
 
-    assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
-    assert e.recipient == user.email
-    assert "account deletion" in e.subject.lower()
-    assert token in e.plain
-    assert token in e.html
-    unique_string = "You requested that we delete your account from Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    url = f"http://localhost:3000/delete-account?token={token}"
-    assert url in e.plain
-    assert url in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert delete_token in email.plain
+    assert delete_token in email.html
+    delete_url = f"http://localhost:3000/delete-account?token={delete_token}"
+    assert delete_url in email.plain
+    assert delete_url in email.html
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.ConfirmDeleteAccount(
-                auth_pb2.ConfirmDeleteAccountReq(
-                    token=token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=delete_token,
             )
+        )
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "account has been deleted" in email.subject.lower()
+    unique_string = "You have successfully deleted your account from Couchers.org."
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "7 days" in email.plain
+    assert "7 days" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
-
-    mock.assert_called_once()
-    e = email_fields(mock)
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
@@ -750,41 +752,29 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
 
         undelete_token = user_.undelete_token
 
-    assert e.recipient == user.email
-    assert "account has been deleted" in e.subject.lower()
-    unique_string = "You have successfully deleted your account from Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "7 days" in e.plain
-    assert "7 days" in e.html
-    url = f"http://localhost:3000/recover-account?token={undelete_token}"
-    assert url in e.plain
-    assert url in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    undelete_url = f"http://localhost:3000/recover-account?token={undelete_token}"
+    assert undelete_url in email.plain
+    assert undelete_url in email.html
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.RecoverAccount(
-                auth_pb2.RecoverAccountReq(
-                    token=undelete_token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.RecoverAccount(
+            auth_pb2.RecoverAccountReq(
+                token=undelete_token,
             )
+        )
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "account has been recovered" in email.subject.lower()
+    unique_string = "Your account on Couchers.org has been successfully recovered!"
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account restored"
     assert push.content.body == "Welcome back!"
-
-    mock.assert_called_once()
-    e = email_fields(mock)
-
-    assert e.recipient == user.email
-    assert "account has been recovered" in e.subject.lower()
-    unique_string = "Your account on Couchers.org has been successfully recovered!"
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()

@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -28,7 +27,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import account_session, real_moderation_session, references_session, requests_session
 from tests.test_requests import valid_request_text
 
@@ -537,7 +536,9 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == "The text of a reference must not be empty"
 
 
-def test_WriteFriendReference_with_private_text(db, push_collector: PushCollector, moderator):
+def test_WriteFriendReference_with_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -545,26 +546,23 @@ def test_WriteFriendReference_with_private_text(db, push_collector: PushCollecto
     make_friends(user1, user2)
 
     with references_session(token1) as api:
-        with patch("couchers.email.queuing.queue_email") as mock1:
-            with mock_notification_email() as mock2:
-                ref = api.WriteFriendReference(
-                    references_pb2.WriteFriendReferenceReq(
-                        to_user_id=user2.id,
-                        text="They were nice!",
-                        was_appropriate=True,
-                        rating=0.6,
-                        private_text="A bit of an odd ball, but a nice person nonetheless.",
-                    )
-                )
-                # Approve before patches/jobs exit so the pending notification is delivered while mocked.
-                moderator.approve_reference(ref.reference_id)
+        ref = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="They were nice!",
+                was_appropriate=True,
+                rating=0.6,
+                private_text="A bit of an odd ball, but a nice person nonetheless.",
+            )
+        )
+        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
+        moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    assert mock1.call_count == 1
-    assert mock2.call_count == 1
-    e = email_fields(mock2)
-    assert e.subject == f"[TEST] You've received a friend reference from {user1.name}!"
-    assert e.recipient == user2.email
+    email_collector.pop_for_reports(last=True)
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.subject == f"[TEST] You've received a friend reference from {user1.name}!"
+    assert email.recipient == user2.email
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New friend reference from {user1.name}"
@@ -865,7 +863,9 @@ def test_WriteHostRequestReference(db, moderator):
         )
 
 
-def test_WriteHostRequestReference_private_text(db, push_collector: PushCollector, moderator):
+def test_WriteHostRequestReference_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -874,27 +874,23 @@ def test_WriteHostRequestReference_private_text(db, push_collector: PushCollecto
     moderator.approve_host_request(hr)
 
     with references_session(token1) as api:
-        with patch("couchers.email.queuing.queue_email") as mock1:
-            with mock_notification_email() as mock2:
-                ref = api.WriteHostRequestReference(
-                    references_pb2.WriteHostRequestReferenceReq(
-                        host_request_id=hr,
-                        text="Should work!",
-                        was_appropriate=True,
-                        rating=0.9,
-                        private_text="Something",
-                    )
-                )
-                # Approve before patches/jobs exit so the pending notification is delivered while mocked.
-                moderator.approve_reference(ref.reference_id)
+        ref = api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+                private_text="Something",
+            )
+        )
+        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
+        moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    assert mock1.call_count == 1
-    assert mock2.call_count == 1
-
-    e = email_fields(mock2)
-    assert e.subject == f"[TEST] You've received a reference from {user1.name}!"
-    assert e.recipient == user2.email
+    email_collector.pop_for_reports(last=True)
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.subject == f"[TEST] You've received a reference from {user1.name}!"
+    assert email.recipient == user2.email
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New reference from {user1.name}"
