@@ -1073,6 +1073,9 @@ deploy:deploy-info:
 deploy:staging:
   needs: ["release:web-next", "release:backend"]
   stage: deploy
+  # serialize staging deploys: two concurrent install.sh runs race during container
+  # recreate and leave orphaned renamed containers behind, breaking the next deploy
+  resource_group: staging
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
