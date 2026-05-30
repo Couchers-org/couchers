@@ -12,7 +12,6 @@ import {
   isEmbeddedLaunch,
   runningDebugVersionOTA,
   runningDisplayVersion,
-  updateChannel,
 } from "@/service/buildInfo";
 import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
@@ -23,13 +22,18 @@ import { theme } from "@/theme";
 // over-the-air update applied.
 const TRIPLE_TAP_WINDOW_MS = 800;
 
+// TEMP (revert before merge): a hand-bumped marker for verifying OTA updates
+// on-device. The embedded TestFlight build predates this line, so it appears only
+// after an OTA applies; bump it and push to confirm a fresh OTA lands.
+const OTA_MARKER = "OTA test #2";
+
 function getDebugInfo(): string {
   return [
+    `>>> ${OTA_MARKER} <<<`,
     `Version: ${runningDisplayVersion}`,
     `Running: ${runningDebugVersionOTA}`,
     `Embedded: ${embeddedDebugVersion}`,
     `Source: ${isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
-    `Channel: ${updateChannel}`,
     `Published: ${createdAt}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
   ].join("\n");

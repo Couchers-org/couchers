@@ -15,9 +15,10 @@ variables:
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   # Branch on which a fingerprint change triggers an automatic Dev Tool native
-  # rebuild (build:devtool-native). Set to mobile/v1.1.20 while validating the
-  # machinery; switch to develop (i.e. $RELEASE_BRANCH) once it's trusted.
-  DEVTOOL_BUILD_BRANCH: mobile/v1.1.20
+  # rebuild (build:devtool-native). TEMP-disabled (matches no branch) while we
+  # iterate on the production build — see TEMP-MOBILE.md. Was mobile/v1.1.20;
+  # final value is develop (i.e. $RELEASE_BRANCH) once trusted.
+  DEVTOOL_BUILD_BRANCH: disabled
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
@@ -1146,6 +1147,12 @@ build:production-native-ios:
     # Compute the fingerprint as the production variant so it matches the EAS build
     # (app.config.js branches on APP_VARIANT) and the OTA publish job's fingerprint.
     APP_VARIANT: production
+    GIT_DEPTH: 0 # full history so .compute-display-version's git rev-list works
+  # Compute DISPLAY_VERSION/DEBUG_VERSION here so production-build.sh can hand them
+  # to the EAS build via build-version.json (EAS doesn't see this shell env).
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
+    - !reference [.compute-display-version, before_script]
   script:
     - cd app/mobile
     - npm ci
@@ -1162,6 +1169,10 @@ build:production-native-android:
   stage: build
   variables:
     APP_VARIANT: production
+    GIT_DEPTH: 0 # full history so .compute-display-version's git rev-list works
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
+    - !reference [.compute-display-version, before_script]
   script:
     - cd app/mobile
     - npm ci
@@ -1171,13 +1182,11 @@ build:production-native-android:
   artifacts:
     reports:
       dotenv: app/mobile/native-build-android.env
-  # Override .production-native's TEMP rule: the Android submit is disabled on the
-  # temp branch (deploy:production-native-android is release-only), so there's no
-  # marker write and this would otherwise rebuild on every pipeline. Build Android
-  # only on the release branch, where build+submit+marker work end to end. Drop
-  # this override when the TEMP rules are reverted (see TEMP-MOBILE.md).
+  # TEMP: production Android build disabled while we iterate on iOS/TestFlight (see
+  # TEMP-MOBILE.md). To re-enable, restore the release-only rule:
+  #   - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - when: never
 
 deploy:production-native-ios:
   extends: .production-native
@@ -1203,10 +1212,11 @@ deploy:production-native-android:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/production-submit.sh android
-  # Submit only on the real release branch — disabled on the temp validation branch
-  # so we build (above) without pushing anything to the stores yet.
+  # TEMP: production Android submit disabled with its build (see TEMP-MOBILE.md).
+  # To re-enable, restore the release-only rule:
+  #   - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - when: never
 
 # ─── Production native OTA publish (decoupled from the backend/web deploy) ───
 #

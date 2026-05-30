@@ -11,7 +11,6 @@ import {
   runningDebugVersionOTA,
   runningDisplayVersion,
   runtimeVersion,
-  updateChannel,
   updateId,
 } from "@/service/buildInfo";
 
@@ -49,7 +48,6 @@ if (sentryEnabled) {
         runningDebugVersion,
         runningDebugVersionOTA,
         runtimeVersion,
-        updateChannel,
         launchSource: isEmbeddedLaunch ? "embedded" : "ota",
         // Backend/web wiring
         apiBaseUrl,
@@ -69,7 +67,6 @@ if (sentryEnabled) {
           debugVersion: runningDebugVersion,
           debugVersionOTA: runningDebugVersionOTA,
           updateId,
-          channel: updateChannel,
           runtimeVersion,
           isEmbeddedLaunch,
           createdAt,

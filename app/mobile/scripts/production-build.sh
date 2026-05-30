@@ -51,6 +51,19 @@ if [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
 fi
 
 echo "Fingerprint changed for $PLATFORM — building a new production app on EAS."
+
+# EAS evaluates app.config.js and the native-build plugin on its own servers,
+# which don't see this job's shell env, so the embedded version would fall back to
+# "development". Bake the CI-computed version into a file the project carries up to
+# EAS; app.config.js and withNativeBuildInfo.js read it. It's in .fingerprintignore
+# (and only feeds `extra` + the generated plist/manifest), so it never affects the
+# runtimeVersion — the embedded build and its OTA bundles stay on the same one.
+if [ -n "${DISPLAY_VERSION:-}" ]; then
+  printf '{"displayVersion":"%s","debugVersion":"%s"}\n' \
+    "$DISPLAY_VERSION" "${DEBUG_VERSION:-}" > build-version.json
+  echo "wrote build-version.json: $DISPLAY_VERSION / ${DEBUG_VERSION:-}"
+fi
+
 BUILD_JSON="$(eas build --platform "$PLATFORM" --profile production --non-interactive --json)"
 BUILD_ID="$(printf '%s' "$BUILD_JSON" | json_field '[0].id')"
 [ -n "$BUILD_ID" ] || {

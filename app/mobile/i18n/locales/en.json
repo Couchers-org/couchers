@@ -27,5 +27,16 @@
     "take_photo": "Take Photo",
     "choose_from_library": "Choose from Library",
     "open_settings": "Open Settings"
+  },
+  "update": {
+    "required_title": "Update required",
+    "recommended_title": "Please update soon",
+    "available_title": "Update available",
+    "default_message": "A new version of Couchers is available. Update to keep using the app.",
+    "deadline": "Please update by {{date}}.",
+    "action_update": "Update now",
+    "action_reinstall": "Get the new app",
+    "later": "Later",
+    "failed": "The update couldn't be applied. Please try again."
   }
 }

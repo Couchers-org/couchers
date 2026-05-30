@@ -35,6 +35,8 @@
 // across commits.
 
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 const {
   withInfoPlist,
@@ -61,13 +63,33 @@ const git = (cmd) => {
   }
 };
 
+// Written by the production-native CI job before `eas build`, since EAS evaluates
+// this plugin on its servers without our GitLab shell env. Read order: env var >
+// build-version.json > git fallback. In .fingerprintignore; the values it feeds
+// only land in the (prebuild-generated, fingerprint-invisible) plist/manifest.
+const buildVersion = (() => {
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, "..", "build-version.json"),
+        "utf-8",
+      ),
+    );
+  } catch {
+    return {};
+  }
+})();
+
 function resolveDisplayVersion() {
-  return process.env.DISPLAY_VERSION || "development";
+  return (
+    process.env.DISPLAY_VERSION || buildVersion.displayVersion || "development"
+  );
 }
 
 function resolveDebugVersion() {
   return (
     process.env.DEBUG_VERSION ||
+    buildVersion.debugVersion ||
     `${resolveDisplayVersion()}.${git("rev-parse --short=8 HEAD")}.${git(
       "show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD",
     )}`

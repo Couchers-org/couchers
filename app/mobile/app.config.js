@@ -1,4 +1,6 @@
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 const git = (cmd) => {
   try {
@@ -11,10 +13,28 @@ const git = (cmd) => {
   }
 };
 
+// The production native build runs app.config.js on EAS's servers, which don't
+// see our GitLab shell env (so DISPLAY_VERSION/DEBUG_VERSION are unset and the
+// embedded version would fall back to "development"). The production-native CI
+// job writes the computed values here before `eas build`, and EAS uploads the
+// file with the project. Read order everywhere: env var > build-version.json >
+// fallback. The file is in .fingerprintignore and only feeds `extra` (skipped via
+// ExpoConfigExtraSection), so its presence never moves the runtimeVersion.
+const buildVersion = (() => {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(__dirname, "build-version.json"), "utf-8"),
+    );
+  } catch {
+    return {};
+  }
+})();
+
 // This bundle's display version, matching the website footer. CI sets
 // DISPLAY_VERSION (app/version + git rev-list count, e.g. v1.2.18410); local
 // builds get "development" so they're never confused with a real release.
-const getDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
+const getDisplayVersion = () =>
+  process.env.DISPLAY_VERSION || buildVersion.displayVersion || "development";
 
 // This bundle's debug version: {displayVersion}.{gitHash}.{gitCommitTime}, e.g.
 // v1.2.18410.1156180a.20260528Z0533. CI composes it (DEBUG_VERSION); local
@@ -23,6 +43,7 @@ const getDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
 // (-{fingerprint}-{assetId}-{createdAt}) in service/buildInfo.ts.
 const getDebugVersion = () =>
   process.env.DEBUG_VERSION ||
+  buildVersion.debugVersion ||
   `${getDisplayVersion()}.${git("rev-parse --short=8 HEAD")}.${git(
     "show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD",
   )}`;
@@ -44,6 +65,9 @@ const ICON_SETS = {
 // `linkHost` is the https domain the app claims for universal/app links;
 // null means no claim (the Dev Tool build routes via its custom scheme only, so
 // it can't steal universal links from the staging app, which shares its backend).
+// `webcredHost` is the passkey relying-party domain (webcredentials: associated
+// domain). It's a native entitlement, so it can't be added over OTA — it's baked
+// in now even though the backend WebAuthn endpoint and hosted AASA come later.
 const VARIANTS = {
   production: {
     name: "Couchers",
@@ -52,6 +76,7 @@ const VARIANTS = {
     scheme: "couchers",
     iconSet: "default",
     linkHost: "couchers.org",
+    webcredHost: "couchers.org",
   },
   staging: {
     name: "Couchers (Staging)",
@@ -60,6 +85,7 @@ const VARIANTS = {
     scheme: "couchers-staging",
     iconSet: "staging",
     linkHost: "next.couchershq.org",
+    webcredHost: "couchershq.org",
   },
   devtool: {
     name: "Couchers Dev Tool",
@@ -68,6 +94,7 @@ const VARIANTS = {
     scheme: "couchers-devtool",
     iconSet: "staging",
     linkHost: null,
+    webcredHost: null,
   },
 };
 
@@ -75,9 +102,10 @@ const APP_VARIANT = process.env.APP_VARIANT || "devtool";
 const variant = VARIANTS[APP_VARIANT] ?? VARIANTS.production;
 const icons = ICON_SETS[variant.iconSet];
 
-const associatedDomains = variant.linkHost
-  ? [`applinks:${variant.linkHost}`]
-  : [];
+const associatedDomains = [
+  variant.linkHost && `applinks:${variant.linkHost}`,
+  variant.webcredHost && `webcredentials:${variant.webcredHost}`,
+].filter(Boolean);
 
 const intentFilters = variant.linkHost
   ? [
@@ -128,8 +156,13 @@ export default {
     bundleIdentifier: variant.bundleIdentifier,
     icon: icons.ios,
     associatedDomains,
+    // Location is when-in-use only (the expo-location plugin entry below drops the
+    // "always" variants). Calendar strings + permissions come from the
+    // expo-calendar plugin entry; expo-camera's camera string from expo-image-picker.
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      NSLocationWhenInUseUsageDescription:
+        "Allow Couchers to access your location to search for users, events, and other activities near you",
     },
   },
   android: {
@@ -137,6 +170,9 @@ export default {
     package: variant.androidPackage,
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+    // CAMERA and location permissions are merged in from the expo-camera and
+    // expo-location library manifests; calendar's READ/WRITE come from the
+    // expo-calendar plugin. Only POST_NOTIFICATIONS needs declaring here.
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
       foregroundImage: icons.adaptiveForeground,
@@ -190,6 +226,9 @@ export default {
           "Allow Couchers to access your photos to upload to your profile.",
         cameraPermission:
           "Allow Couchers to access your camera to take profile photos.",
+        // expo-camera's manifest pulls in RECORD_AUDIO; we never record audio,
+        // so block it (also keeps the mic permission off the Play listing).
+        microphonePermission: false,
       },
     ],
     [
@@ -199,6 +238,29 @@ export default {
         project: "native",
         organization: "couchers",
       },
+    ],
+    "expo-web-browser",
+    // faceIDPermission: false suppresses the plugin's default NSFaceIDUsageDescription —
+    // we never use the requireAuthentication option, so no Face ID string is needed.
+    ["expo-secure-store", { faceIDPermission: false }],
+    "expo-localization",
+    "expo-mail-composer",
+    "expo-background-task",
+    // expo-location/expo-camera plugins auto-apply (autolinked) with default props;
+    // listing them explicitly lets us suppress what we don't use. Location: keep
+    // when-in-use (string set in ios.infoPlist), drop the "always" variants.
+    // Camera: no microphone (we never record audio).
+    [
+      "expo-location",
+      {
+        locationAlwaysPermission: false,
+        locationAlwaysAndWhenInUsePermission: false,
+      },
+    ],
+    ["expo-camera", { microphonePermission: false, recordAudioAndroid: false }],
+    [
+      "expo-calendar",
+      { calendarPermission: "Add upcoming trips and events to your calendar" },
     ],
     "./plugins/withNativeBuildInfo",
   ],

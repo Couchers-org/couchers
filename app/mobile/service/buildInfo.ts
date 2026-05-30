@@ -46,7 +46,6 @@ export const runningDebugVersion = extra?.debugVersion ?? "unknown";
 
 // Raw expo-updates values describing the running bundle, surfaced for reporting.
 export const updateId = Updates.updateId ?? "none";
-export const updateChannel = Updates.channel ?? "none";
 export const runtimeVersion = Updates.runtimeVersion ?? "unknown";
 export const isEmbeddedLaunch = Updates.isEmbeddedLaunch;
 export const createdAt = Updates.createdAt?.toISOString() ?? "unknown";
