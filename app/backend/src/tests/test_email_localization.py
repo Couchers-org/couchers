@@ -5,7 +5,7 @@ These emails build their localization keys at runtime (sometimes dynamically fro
 state, e.g. a host request status), so a missing or mistyped key only blows up when that
 specific email is sent in production. Here we render every email -- and every variant of
 emails whose output depends on internal state -- and assert that no localization key is
-missing. See `EmailBase.dummy_variants`.
+missing. See `EmailBase.test_instances`.
 """
 
 import inspect
@@ -30,7 +30,7 @@ def _all_email_variants() -> list[tuple[str, EmailBase]]:
     for _, email_class in inspect.getmembers(
         couchers.email.emails, lambda o: inspect.isclass(o) and o.__base__ == EmailBase
     ):
-        instances = email_class.dummy_variants()
+        instances = email_class.test_instances()
         for i, instance in enumerate(instances):
             variant_id = email_class.__name__ if len(instances) == 1 else f"{email_class.__name__}-{i}"
             variants.append((variant_id, instance))

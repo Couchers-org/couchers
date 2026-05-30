@@ -62,12 +62,7 @@ class EmailBase(ABC):
 
     @classmethod
     @abstractmethod
-    def dummy_data(cls) -> Self:
-        """Returns an instance filled with dummy data that can be used for testing."""
-        ...
-
-    @classmethod
-    def dummy_variants(cls) -> list[Self]:
+    def test_instances(cls) -> list[Self]:
         """
         Returns dummy instances covering every distinct rendering variant of this email.
 
@@ -76,7 +71,7 @@ class EmailBase(ABC):
         exercises one branch. Such emails override this to return one instance per branch,
         ensuring the rendering tests resolve every localization key the class can produce.
         """
-        return [cls.dummy_data()]
+        ...
 
     # Helpers for localizing email-specific strings
     def _localize(
@@ -116,11 +111,13 @@ class AccountDeletionStartedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> AccountDeletionStartedEmail:
-        return AccountDeletionStartedEmail(
-            user_name="Alice",
-            deletion_link="https://couchers.org/delete-account?token=xxx",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                deletion_link="https://couchers.org/delete-account?token=xxx",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -150,12 +147,14 @@ class AccountDeletionCompletedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> AccountDeletionCompletedEmail:
-        return AccountDeletionCompletedEmail(
-            user_name="Alice",
-            undelete_link="https://couchers.org/recover-account?token=xxx",
-            days=30,
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                undelete_link="https://couchers.org/recover-account?token=xxx",
+                days=30,
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -174,8 +173,8 @@ class AccountDeletionRecoveredEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> AccountDeletionRecoveredEmail:
-        return AccountDeletionRecoveredEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -202,10 +201,8 @@ class APIKeyIssuedEmail(EmailBase):
         return cls(user_name=user_name, api_key=data.api_key, expiry=data.expiry.ToDatetime(tzinfo=UTC))
 
     @classmethod
-    def dummy_data(cls) -> APIKeyIssuedEmail:
-        return APIKeyIssuedEmail(
-            user_name="Alice", api_key="my_api_key_123", expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC)
-        )
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", api_key="my_api_key_123", expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC))]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -234,13 +231,9 @@ class BadgeChangedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> BadgeChangedEmail:
-        return BadgeChangedEmail(user_name="Alice", badge_name="Founder", added=True)
-
-    @classmethod
-    def dummy_variants(cls) -> list[BadgeChangedEmail]:
-        base = cls.dummy_data()
-        return [replace(base, added=True), replace(base, added=False)]
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(user_name="Alice", badge_name="Founder", added=True)
+        return [replace(prototype, added=True), replace(prototype, added=False)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -262,11 +255,13 @@ class BirthdateChangedEmail(EmailBase):
         return cls(user_name=user_name, new_birthdate=date.fromisoformat(data.birthdate))
 
     @classmethod
-    def dummy_data(cls) -> BirthdateChangedEmail:
-        return BirthdateChangedEmail(
-            user_name="Alice",
-            new_birthdate=date(1990, 1, 1),
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_birthdate=date(1990, 1, 1),
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -313,21 +308,17 @@ class ChatMessageReceivedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> ChatMessageReceivedEmail:
-        return ChatMessageReceivedEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             group_chat_title=None,
             author=UserInfo.dummy_bob(),
             text="Hi Alice!",
             view_url="https://couchers.org/messages/chats/123",
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[ChatMessageReceivedEmail]:
-        base = cls.dummy_data()
         return [
-            replace(base, group_chat_title=None),
-            replace(base, group_chat_title="Best friends"),
+            replace(prototype, group_chat_title=None),
+            replace(prototype, group_chat_title="Best friends"),
         ]
 
 
@@ -397,26 +388,23 @@ class ChatMessagesMissedEmail(EmailBase):
         return cls(user_name, entries=missed_entries)
 
     @classmethod
-    def dummy_data(cls) -> ChatMessagesMissedEmail:
-        return ChatMessagesMissedEmail(
-            user_name="Alice",
-            entries=[
-                ChatMessagesMissedEmail.Entry(
-                    group_chat_title=None,
-                    missed_count=1,
-                    latest_message_author=UserInfo.dummy_bob(),
-                    latest_message_text="Hi Alice!",
-                    view_url="https://couchers.org/messages/chats/123",
-                ),
-                ChatMessagesMissedEmail.Entry(
-                    group_chat_title="Best friends",
-                    missed_count=2,
-                    latest_message_author=UserInfo.dummy_bob(),
-                    latest_message_text="Hi y'all!",
-                    view_url="https://couchers.org/messages/chats/124",
-                ),
-            ],
+    def test_instances(cls) -> list[Self]:
+        entry_prototype = ChatMessagesMissedEmail.Entry(
+            group_chat_title=None,
+            missed_count=1,
+            latest_message_author=UserInfo.dummy_bob(),
+            latest_message_text="Hello!",
+            view_url="https://couchers.org/messages/chats/123",
         )
+        return [
+            cls(
+                user_name="Alice",
+                entries=[
+                    replace(entry_prototype, group_chat_title=None),
+                    replace(entry_prototype, group_chat_title="Best friends"),
+                ],
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -462,15 +450,17 @@ class DiscussionCreatedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> DiscussionCreatedEmail:
-        return DiscussionCreatedEmail(
-            user_name="Alice",
-            author=UserInfo.dummy_bob(),
-            title="Best hiking trails near Berlin",
-            parent_context="Berlin Community",
-            markdown_text="I've been exploring the area and found some **great** spots...",
-            view_link="https://couchers.org/discussions/123",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                title="Best hiking trails near Berlin",
+                parent_context="Berlin Community",
+                markdown_text="I've been exploring the area and found some **great** spots...",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -518,15 +508,17 @@ class DiscussionCommentEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> DiscussionCommentEmail:
-        return DiscussionCommentEmail(
-            user_name="Alice",
-            author=UserInfo.dummy_bob(),
-            discussion_title="Best hiking trails near Berlin",
-            discussion_parent_context="Berlin Community",
-            markdown_text="Great recommendations, I also **love** the Grünewald forest!",
-            view_link="https://couchers.org/discussions/123",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                discussion_title="Best hiking trails near Berlin",
+                discussion_parent_context="Berlin Community",
+                markdown_text="Great recommendations, I also **love** the Grünewald forest!",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -548,8 +540,8 @@ class EmailAddressChangedEmail(EmailBase):
         return cls(user_name=user_name, new_email=data.new_email)
 
     @classmethod
-    def dummy_data(cls) -> EmailAddressChangedEmail:
-        return EmailAddressChangedEmail(user_name="Alice", new_email="alice@example.com")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", new_email="alice@example.com")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -565,8 +557,8 @@ class EmailAddressVerifiedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> EmailAddressVerifiedEmail:
-        return EmailAddressVerifiedEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -597,11 +589,13 @@ class FriendRequestReceivedEmail(EmailBase):
         return cls(user_name=user_name, befriender=UserInfo.from_protobuf(data.other_user))
 
     @classmethod
-    def dummy_data(cls) -> FriendRequestReceivedEmail:
-        return FriendRequestReceivedEmail(
-            user_name="Alice",
-            befriender=UserInfo.dummy_bob(),
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                befriender=UserInfo.dummy_bob(),
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -631,11 +625,13 @@ class FriendRequestAcceptedEmail(EmailBase):
         return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(data.other_user))
 
     @classmethod
-    def dummy_data(cls) -> FriendRequestAcceptedEmail:
-        return FriendRequestAcceptedEmail(
-            user_name="Alice",
-            new_friend=UserInfo.dummy_bob(),
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_friend=UserInfo.dummy_bob(),
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -657,11 +653,13 @@ class GenderChangedEmail(EmailBase):
         return cls(user_name=user_name, new_gender=data.gender)
 
     @classmethod
-    def dummy_data(cls) -> GenderChangedEmail:
-        return GenderChangedEmail(
-            user_name="Alice",
-            new_gender="Male",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_gender="Male",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -711,16 +709,18 @@ class HostRequestCreatedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> HostRequestCreatedEmail:
-        return HostRequestCreatedEmail(
-            user_name="Alice",
-            surfer=UserInfo.dummy_bob(),
-            from_date=date(2025, 6, 1),
-            to_date=date(2025, 6, 7),
-            text="Hey, I'd love to stay for a few nights!",
-            quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
-            view_link="https://couchers.org/requests/123",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                surfer=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                text="Hey, I'd love to stay for a few nights!",
+                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -763,14 +763,16 @@ class HostRequestReminderEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> HostRequestReminderEmail:
-        return HostRequestReminderEmail(
-            user_name="Alice",
-            surfer=UserInfo.dummy_bob(),
-            from_date=date(2025, 6, 1),
-            to_date=date(2025, 6, 7),
-            view_link="https://couchers.org/requests/123",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                surfer=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -819,8 +821,8 @@ class HostRequestMessageEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> HostRequestMessageEmail:
-        return HostRequestMessageEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
@@ -829,11 +831,7 @@ class HostRequestMessageEmail(EmailBase):
             from_host=True,
             view_link="https://couchers.org/requests/123",
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[HostRequestMessageEmail]:
-        base = cls.dummy_data()
-        return [replace(base, from_host=True), replace(base, from_host=False)]
+        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -879,8 +877,8 @@ class HostRequestMissedMessagesEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> HostRequestMissedMessagesEmail:
-        return HostRequestMissedMessagesEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
@@ -888,11 +886,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
             from_host=True,
             view_link="https://couchers.org/requests/123",
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[HostRequestMissedMessagesEmail]:
-        base = cls.dummy_data()
-        return [replace(base, from_host=True), replace(base, from_host=False)]
+        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -975,8 +969,8 @@ class HostRequestStatusChangedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> HostRequestStatusChangedEmail:
-        return HostRequestStatusChangedEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
@@ -984,15 +978,11 @@ class HostRequestStatusChangedEmail(EmailBase):
             new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             view_link="https://couchers.org/requests/123",
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[HostRequestStatusChangedEmail]:
-        base = cls.dummy_data()
         return [
-            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED),
-            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED),
-            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
-            replace(base, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
         ]
 
 
@@ -1008,8 +998,8 @@ class ModeratorNoteEmail(EmailBase):
         builder.para("body")
 
     @classmethod
-    def dummy_data(cls) -> ModeratorNoteEmail:
-        return ModeratorNoteEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1025,8 +1015,8 @@ class PasswordChangedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> PasswordChangedEmail:
-        return PasswordChangedEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1042,8 +1032,8 @@ class PasswordResetCompletedEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> PasswordResetCompletedEmail:
-        return PasswordResetCompletedEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1070,8 +1060,8 @@ class PasswordResetStartedEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> PasswordResetStartedEmail:
-        return PasswordResetStartedEmail(user_name="Alice", password_reset_link="https://couchers.org/reset-password")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", password_reset_link="https://couchers.org/reset-password")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1098,17 +1088,13 @@ class PhoneNumberChangeEmail(EmailBase):
         return cls(user_name=user_name, new_phone_number=data.phone, completed=True)
 
     @classmethod
-    def dummy_data(cls) -> PhoneNumberChangeEmail:
-        return PhoneNumberChangeEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             new_phone_number="+12223334444",
             completed=False,
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[PhoneNumberChangeEmail]:
-        base = cls.dummy_data()
-        return [replace(base, completed=False), replace(base, completed=True)]
+        return [replace(prototype, completed=False), replace(prototype, completed=True)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1137,19 +1123,15 @@ class PostalVerificationFailedEmail(EmailBase):
         return cls(user_name=user_name, reason=data.reason)
 
     @classmethod
-    def dummy_data(cls) -> PostalVerificationFailedEmail:
-        return PostalVerificationFailedEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED,
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[PostalVerificationFailedEmail]:
-        base = cls.dummy_data()
         return [
-            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED),
-            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS),
-            replace(base, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN),
         ]
 
 
@@ -1173,8 +1155,8 @@ class PostalVerificationPostcardSentEmail(EmailBase):
         return cls(user_name=user_name, city=data.city, country=data.country)
 
     @classmethod
-    def dummy_data(cls) -> PostalVerificationPostcardSentEmail:
-        return PostalVerificationPostcardSentEmail(user_name="Alice", city="New York", country="United States")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", city="New York", country="United States")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1190,8 +1172,8 @@ class PostalVerificationSucceededEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> PostalVerificationSucceededEmail:
-        return PostalVerificationSucceededEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1222,19 +1204,15 @@ class StrongVerificationFailedEmail(EmailBase):
         return cls(user_name=user_name, reason=data.reason)
 
     @classmethod
-    def dummy_data(cls) -> StrongVerificationFailedEmail:
-        return StrongVerificationFailedEmail(
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
             user_name="Alice",
             reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT,
         )
-
-    @classmethod
-    def dummy_variants(cls) -> list[StrongVerificationFailedEmail]:
-        base = cls.dummy_data()
         return [
-            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER),
-            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT),
-            replace(base, reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
         ]
 
 
@@ -1256,8 +1234,8 @@ class StrongVerificationSucceededEmail(EmailBase):
         builder.security_warning_para()
 
     @classmethod
-    def dummy_data(cls) -> StrongVerificationSucceededEmail:
-        return StrongVerificationSucceededEmail(user_name="Alice")
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1304,14 +1282,16 @@ class ThreadReplyEmail(EmailBase):
         )
 
     @classmethod
-    def dummy_data(cls) -> ThreadReplyEmail:
-        return ThreadReplyEmail(
-            user_name="Alice",
-            author=UserInfo.dummy_bob(),
-            parent_context="Best hiking trails near Berlin",
-            markdown_text="I agree, the Grünewald is **amazing**!",
-            view_link="https://couchers.org/discussions/123",
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                parent_context="Best hiking trails near Berlin",
+                markdown_text="I agree, the Grünewald is **amazing**!",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
 
 
 def _localize_host_request_date(value: date, loc_context: LocalizationContext) -> str:
