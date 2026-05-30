@@ -334,9 +334,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             locale = to_supported_locale((auth_info.ui_language_preference if auth_info else headers.ui_lang) or "")
             loc_context = LocalizationContext(
-                    locale=locale,
-                    timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-                )
+                locale=locale,
+                timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+            )
         except Exception as e:
             observe_in_servicer_setup_errors_counter(method, type(e).__name__)
             sentry_sdk.set_tag("context", "servicer_setup")
