@@ -197,9 +197,7 @@ def observe_in_servicer_perf_histograms(
     servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
 
 
-# Auth/setup phase (everything before the handler body: find_auth_level, header parsing, the user fetch +
-# user_activity upsert, permission checks). Same db-vs-cpu split as the handler-body histograms above, so the
-# dashboard can attribute the per-call fixed cost that would otherwise hide in the duration "other" bucket.
+# Auth/setup phase (everything before the handler body), same db-vs-cpu split as the handler-body histograms above.
 servicer_setup_db_time_histogram: Histogram = Histogram(
     "couchers_servicer_setup_db_time_seconds",
     "Time spent in DB cursor execution during the auth/setup phase per gRPC call",
@@ -219,8 +217,6 @@ def observe_in_servicer_setup_histogram(method: str, setup_db_ms: float, setup_c
     servicer_setup_cpu_time_histogram.labels(method).observe(setup_cpu_ms / 1000)
 
 
-# Wall-clock blocked acquiring a DB connection from the pool, per gRPC call. Distinguishes "DB is slow" (db_time)
-# from "we're out of connections / threads are queuing" (this). Complements the couchers_db_pool_checked_out gauge.
 servicer_pool_wait_histogram: Histogram = Histogram(
     "couchers_servicer_pool_wait_seconds",
     "Time spent waiting to check out a DB connection from the pool per gRPC call",
@@ -233,8 +229,7 @@ def observe_in_servicer_pool_wait_histogram(method: str, pool_wait_s: float) -> 
     servicer_pool_wait_histogram.labels(method).observe(pool_wait_s)
 
 
-# Protobuf (de)serialization CPU per gRPC call. A separate diagnostic, not part of the additive duration pie:
-# "deserialize" lands in duration's residual, "serialize" runs after the duration window closes.
+# Separate diagnostic, not part of the additive duration pie: "serialize" runs after the duration window closes.
 servicer_serde_histogram: Histogram = Histogram(
     "couchers_servicer_serde_seconds",
     "Protobuf request deserialization / response serialization time per gRPC call",

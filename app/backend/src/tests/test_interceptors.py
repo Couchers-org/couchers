@@ -299,8 +299,7 @@ def _get_histogram_count(histogram, count_name, **labels):
 
 
 def test_tracing_interceptor_phase_histograms(db):
-    # setup-phase (auth) db/cpu, pool-checkout wait, and protobuf de/serialization are each observed into their own
-    # Prometheus histogram, one observation per call. These are prometheus-only (not written into the APICall row).
+    # setup db/cpu, pool-wait, and de/serialization are each observed once per call into their own histogram
     method = "/org.couchers.auth.Auth/SignupFlow"
     setup_db_before = _get_histogram_count(
         servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method

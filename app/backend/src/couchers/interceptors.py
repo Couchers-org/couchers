@@ -298,9 +298,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
-        # Arm resource accounting across the auth/setup phase so its DB time (the user fetch + user_activity upsert)
-        # and CPU are attributed separately from the handler body; read back once setup succeeds, below. The handler
-        # re-arms its own accounting. Auth-failure early-returns just leave this to be overwritten by the next request.
+        # accounting for the auth/setup phase; the handler re-arms its own below
         start_perf()
 
         try:
@@ -366,8 +364,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
-                # Force the pool checkout now and time it, so connection-acquisition wait is a distinct bucket rather
-                # than hiding inside the handler's first query. start_perf() arms after, so this isn't counted as DB.
+                # force the checkout now so its wait is timed here rather than hiding in the handler's first query
                 pool_wait_start = perf_counter_ns()
                 session.connection()
                 observe_in_servicer_pool_wait_histogram(method, (perf_counter_ns() - pool_wait_start) / 1e9)
