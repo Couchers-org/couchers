@@ -225,7 +225,6 @@ export default {
     "expo-localization",
     "expo-mail-composer",
     "expo-background-task",
-    "expo-apple-authentication",
     // expo-location/expo-camera plugins auto-apply (autolinked) with default props;
     // listing them explicitly lets us suppress what we don't use. Location: keep
     // when-in-use (string set in ios.infoPlist), drop the "always" variants.
