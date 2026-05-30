@@ -186,9 +186,10 @@ export default function MessageView({
     >
       {author && !isCurrentUser && !isDm && (
         <StyledLeftOfMessage>
-          {!isAuthorLoading && <StyledAvatar user={author} />}
-          {isAuthorLoading && (
+          {isAuthorLoading ? (
             <Skeleton variant="rounded" width={40} height={40} />
+          ) : (
+            <StyledAvatar user={author} />
           )}
         </StyledLeftOfMessage>
       )}
@@ -199,15 +200,11 @@ export default function MessageView({
       >
         {!isCurrentUser && !isDm && (
           <StyledHeader>
-            {author && !isAuthorLoading && (
+            {isAuthorLoading ? (
+              <Skeleton width={100} />
+            ) : (
               <StyledNameTypography variant="h5">
-                {author.name}
-              </StyledNameTypography>
-            )}
-            {isAuthorLoading && <Skeleton width={100} />}
-            {!author && !isAuthorLoading && (
-              <StyledNameTypography variant="h5">
-                {t("unknown_user")}
+                {author ? author.name : t("unknown_user")}
               </StyledNameTypography>
             )}
           </StyledHeader>
