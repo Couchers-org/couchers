@@ -35,6 +35,7 @@ from couchers.metrics import (
     api_calls_counter,
     servicer_db_query_count_histogram,
     servicer_duration_histogram,
+    servicer_offcpu_time_histogram,
     servicer_setup_errors_counter,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
@@ -243,6 +244,15 @@ def _get_db_query_count_histogram(method):
     )
 
 
+def _get_offcpu_histogram(method):
+    return sum(
+        s.value
+        for m in servicer_offcpu_time_histogram.collect()
+        for s in m.samples
+        if s.name == "couchers_servicer_offcpu_seconds_count" and s.labels.get("method") == method
+    )
+
+
 def _get_api_call_count(method, platform):
     return sum(
         s.value
@@ -257,6 +267,7 @@ def _get_api_call_count(method, platform):
 def test_tracing_interceptor_perf_accounting(db):
     method = "/org.couchers.auth.Auth/SignupFlow"
     hist_count_before = _get_db_query_count_histogram(method)
+    offcpu_count_before = _get_offcpu_histogram(method)
     api_call_count_before = _get_api_call_count(method, "web_mobile")
 
     # handler runs a known number of statements: three reads and one compiled write. The write matches zero rows so
@@ -282,6 +293,7 @@ def test_tracing_interceptor_perf_accounting(db):
 
     # the call was also observed into the Prometheus per-request resource histograms and the per-platform call counter
     assert _get_db_query_count_histogram(method) == hist_count_before + 1
+    assert _get_offcpu_histogram(method) == offcpu_count_before + 1
     assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
 
 

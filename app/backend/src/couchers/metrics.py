@@ -1,8 +1,9 @@
 import threading
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from opentelemetry import trace
 from prometheus_client import (
@@ -16,7 +17,8 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy import and_, case, select
+from sqlalchemy import Engine, and_, case, select
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
@@ -141,15 +143,74 @@ servicer_db_write_query_count_histogram: Histogram = Histogram(
     labelnames=["method"],
     buckets=(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, _INF),
 )
+# Wall time the handler spent neither computing (thread CPU) nor waiting on its own DB cursors: GIL contention, lock
+# waits, and pool-checkout waits while holding a server thread. This is the serialization tax the multiprocess rollout
+# aims to cut, so it's the headline before/after number. Measured from interceptor entry, so it does NOT include time
+# queued for a server thread (see couchers_grpc_threadpool_queue_depth for that).
+servicer_offcpu_time_histogram: Histogram = Histogram(
+    "couchers_servicer_offcpu_seconds",
+    "Per-call wall time not accounted for by thread CPU or DB cursor time (contention, lock and pool waits)",
+    labelnames=["method"],
+)
 
 
 def observe_in_servicer_perf_histograms(
-    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
+    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float, wall_ms: float
 ) -> None:
     servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
     servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
     servicer_db_query_count_histogram.labels(method).observe(db_query_count)
     servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+    servicer_offcpu_time_histogram.labels(method).observe(max(0.0, wall_ms - cpu_ms - db_time_ms) / 1000)
+
+
+# Live per-worker saturation gauges. multiprocess_mode="liveall" keeps a separate time series per worker process (the
+# collector adds a pid label) and drops workers once they exit, so these answer both "is a worker saturated" and "is
+# Envoy spreading load evenly across the workers". They're updated from inside each API worker (in-flight inline, the
+# rest via sample_worker_resources): the /metrics scrape runs in the parent process, which has neither the workers'
+# thread pools nor their DB connection pools.
+grpc_in_flight_gauge: Gauge = Gauge(
+    "couchers_grpc_in_flight",
+    "Outstanding gRPC calls (running plus queued for a server thread), per worker process",
+    multiprocess_mode="liveall",
+)
+grpc_threadpool_queue_depth_gauge: Gauge = Gauge(
+    "couchers_grpc_threadpool_queue_depth",
+    "gRPC calls queued waiting for a free server thread, per worker process",
+    multiprocess_mode="liveall",
+)
+db_pool_checked_out_gauge: Gauge = Gauge(
+    "couchers_db_pool_checked_out",
+    "Checked-out DB connections, per worker process",
+    multiprocess_mode="liveall",
+)
+
+
+def start_worker_resource_sampler(executor: ThreadPoolExecutor, engine: Engine, interval: float = 1.0) -> None:
+    """Publish this API worker's thread-pool and DB-pool saturation on a background daemon thread.
+
+    Sampled rather than event-driven: a saturation gauge only needs to catch sustained pressure, and reading the queue
+    and pool sizes once a second is far cheaper than instrumenting every checkout. See the gauge definitions for why
+    this runs in the worker rather than at scrape time.
+    """
+
+    def sample() -> None:
+        while True:
+            # _work_queue is private but stable; it holds the tasks gRPC has submitted but no thread has picked up yet
+            grpc_threadpool_queue_depth_gauge.set(executor._work_queue.qsize())
+            db_pool_checked_out_gauge.set(cast(QueuePool, engine.pool).checkedout())
+            time.sleep(interval)
+
+    threading.Thread(target=sample, daemon=True, name="resource-sampler").start()
+
+
+# Set by the parent's supervise() loop, so a worker that has died (and is about to take the whole container down with
+# it) shows up as a dip below the expected count before the restart.
+supervised_children_alive_gauge: Gauge = Gauge(
+    "couchers_supervised_children_alive",
+    "Child processes (API workers, background workers, scheduler) the supervisor currently sees alive",
+    multiprocess_mode="mostrecent",
+)
 
 
 # Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and

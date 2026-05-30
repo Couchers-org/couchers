@@ -379,7 +379,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                            method,
+                            perf.db_query_count,
+                            perf.db_write_query_count,
+                            perf.db_time_ms,
+                            perf.cpu_ms,
+                            duration,
                         )
                 except Exception as e:
                     perf = read_perf()
@@ -414,7 +419,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_api_call(method, headers.client_platform)
                     if perf is not None:
                         observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
+                            method,
+                            perf.db_query_count,
+                            perf.db_write_query_count,
+                            perf.db_time_ms,
+                            perf.cpu_ms,
+                            duration,
                         )
 
                     if not code:

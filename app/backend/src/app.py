@@ -46,7 +46,7 @@ def _run_api_server(port: int) -> None:
         setup_experimentation()
         setup_tracing()
 
-        server = create_main_server(port=port)
+        server = create_main_server(port=port, start_resource_sampler=True)
         server.start()
         logger.info(f"API worker serving on {port}")
 

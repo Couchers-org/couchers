@@ -20,6 +20,7 @@ from multiprocessing import Process
 import grpc
 
 from couchers.constants import GRACEFUL_SHUTDOWN_TIMEOUT
+from couchers.metrics import supervised_children_alive_gauge
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ def supervise(children: list[Process], parent_servers: Sequence[grpc.Server] = (
 
     crashed: Process | None = None
     while not shutting_down.is_set():
+        supervised_children_alive_gauge.set(sum(child.is_alive() for child in children))
         crashed = next((child for child in children if not child.is_alive()), None)
         if crashed is not None:
             logger.critical(f"Child {crashed.name} (pid {crashed.pid}) exited with code {crashed.exitcode}")
