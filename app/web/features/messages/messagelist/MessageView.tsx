@@ -14,6 +14,10 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
 
+// Width of the group-chat received left column (avatar only; the flag now sits
+// to the right of the bubble). Shared so the alignment cap can offset for it.
+const AVATAR_SIZE = 40;
+
 const RootContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
 })<{ isCurrentUser: boolean; isLoading: boolean }>(
@@ -30,22 +34,24 @@ const RootContainer = styled("div", {
   }),
 );
 
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
-  height: 40,
-  width: 40,
+const StyledAvatar = styled(Avatar)(() => ({
+  height: AVATAR_SIZE,
+  width: AVATAR_SIZE,
 }));
 
 const StyledCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== "isLoading" && prop !== "isCurrentUser",
-})<{ isLoading: boolean; isCurrentUser: boolean }>(
-  ({ theme, isCurrentUser, isLoading }) => ({
+  shouldForwardProp: (prop) =>
+    prop !== "isLoading" && prop !== "isCurrentUser" && prop !== "isDm",
+})<{ isLoading: boolean; isCurrentUser: boolean; isDm: boolean }>(
+  ({ theme, isCurrentUser, isDm, isLoading }) => ({
     width: "fit-content",
-    minWidth: 0,
+    minWidth: 150,
     [theme.breakpoints.up("xs")]: {
-      maxWidth: "100%",
-    },
-    [theme.breakpoints.up("sm")]: {
-      maxWidth: "80%",
+      // Only group-chat received messages have a left (avatar) column to offset.
+      maxWidth:
+        !isCurrentUser && !isDm
+          ? `calc(85% - ${AVATAR_SIZE}px - ${theme.spacing(1)})`
+          : "85%",
     },
     [theme.breakpoints.up("md")]: {
       maxWidth: "min(70%, 75rem)",
@@ -76,24 +82,31 @@ const StyledLeftOfMessage = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  marginRight: theme.spacing(2),
+  width: AVATAR_SIZE,
+  marginRight: theme.spacing(1),
+  [theme.breakpoints.up("md")]: {
+    marginRight: theme.spacing(2),
+  },
 }));
 
-const StyledHeader = styled("div", {
-  shouldForwardProp: (prop) => prop !== "isCurrentUser",
-})<{ isCurrentUser: boolean }>(({ theme, isCurrentUser }) => ({
-  alignItems: "baseline",
-  display: "flex",
-  gap: theme.spacing(2),
-  padding: theme.spacing(2),
-  paddingBottom: theme.spacing(1),
+const StyledRightOfMessage = styled("div")(({ theme }) => ({
+  alignSelf: "flex-start",
+  marginInlineStart: theme.spacing(1),
+}));
 
-  ...(isCurrentUser && { justifyContent: "flex-end" }),
+const StyledHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  padding: theme.spacing(1),
+  paddingBottom: theme.spacing(0.5),
+
+  [theme.breakpoints.up("md")]: {
+    padding: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
+  },
 }));
 
 const StyledNameTypography = styled(Typography)(({ theme }) => ({
   ...theme.typography.body2,
-  flexGrow: 1,
   minWidth: 0,
   fontWeight: "bold",
   margin: 0,
@@ -105,24 +118,50 @@ const StyledTimeInterval = styled(TimeInterval)({
 });
 
 const StyledMessageBody = styled(CardContent)(({ theme }) => ({
-  "&:last-of-type": { paddingBottom: theme.spacing(2) },
-
-  paddingBottom: theme.spacing(1),
   paddingTop: 0,
+  paddingInline: theme.spacing(1),
+  paddingBottom: theme.spacing(0.5),
   overflowWrap: "break-word",
   whiteSpace: "pre-wrap",
+
+  // No header (own + 1:1 messages): restore top padding so text isn't flush to the top.
+  "&:first-of-type": {
+    paddingTop: theme.spacing(1),
+  },
+
+  [theme.breakpoints.up("md")]: {
+    paddingInline: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
+    "&:first-of-type": {
+      paddingTop: theme.spacing(2),
+    },
+  },
+}));
+
+const StyledFooter = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "flex-end",
+  paddingInline: theme.spacing(1),
+  paddingBottom: theme.spacing(0.5),
+
+  [theme.breakpoints.up("md")]: {
+    paddingInline: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
+  },
 }));
 
 export interface MessageProps {
   message: Message.AsObject;
   onVisible?(): void;
   className?: string;
+  isDm?: boolean;
 }
 
 export default function MessageView({
   className,
   message,
   onVisible,
+  isDm = false,
 }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
 
@@ -145,34 +184,34 @@ export default function MessageView({
       isCurrentUser={isCurrentUser}
       isLoading={isLoading}
     >
-      {author && !isCurrentUser && (
+      {author && !isCurrentUser && !isDm && (
         <StyledLeftOfMessage>
-          {author && !isAuthorLoading && <StyledAvatar user={author} />}
+          {!isAuthorLoading && <StyledAvatar user={author} />}
           {isAuthorLoading && (
             <Skeleton variant="rounded" width={40} height={40} />
           )}
-          {!author && !isAuthorLoading && <StyledAvatar />}
-          <FlagButton
-            contentRef={`chat/message/${message.messageId}`}
-            authorUser={author.userId}
-          />
         </StyledLeftOfMessage>
       )}
-      <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser}>
-        <StyledHeader isCurrentUser={isCurrentUser}>
-          {!isCurrentUser && author && !isAuthorLoading && (
-            <StyledNameTypography variant="h5">
-              {author.name}
-            </StyledNameTypography>
-          )}
-          {!isCurrentUser && isAuthorLoading && <Skeleton width={100} />}
-          {!isCurrentUser && !author && !isAuthorLoading && (
-            <StyledNameTypography variant="h5">
-              {t("unknown_user")}
-            </StyledNameTypography>
-          )}
-          <StyledTimeInterval date={timestamp2Date(message.time!)} />
-        </StyledHeader>
+      <StyledCard
+        isLoading={isLoading}
+        isCurrentUser={isCurrentUser}
+        isDm={isDm}
+      >
+        {!isCurrentUser && !isDm && (
+          <StyledHeader>
+            {author && !isAuthorLoading && (
+              <StyledNameTypography variant="h5">
+                {author.name}
+              </StyledNameTypography>
+            )}
+            {isAuthorLoading && <Skeleton width={100} />}
+            {!author && !isAuthorLoading && (
+              <StyledNameTypography variant="h5">
+                {t("unknown_user")}
+              </StyledNameTypography>
+            )}
+          </StyledHeader>
+        )}
         <StyledMessageBody>
           <TextBody>
             <Linkify
@@ -181,7 +220,18 @@ export default function MessageView({
             />
           </TextBody>
         </StyledMessageBody>
+        <StyledFooter>
+          <StyledTimeInterval date={timestamp2Date(message.time!)} />
+        </StyledFooter>
       </StyledCard>
+      {author && !isCurrentUser && (
+        <StyledRightOfMessage>
+          <FlagButton
+            contentRef={`chat/message/${message.messageId}`}
+            authorUser={author.userId}
+          />
+        </StyledRightOfMessage>
+      )}
     </RootContainer>
   );
 }

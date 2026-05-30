@@ -6,6 +6,7 @@ import {
 } from "@mui/icons-material";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, MuteIcon, OverflowMenuIcon } from "components/Icons";
@@ -44,6 +45,18 @@ const StyledTitleBox = styled("div")({
   "& > *": { marginInlineEnd: theme.spacing(2) },
 });
 
+const StyledTitleLinkContent = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+});
+
+const StyledTitleAvatar = styled(Avatar)({
+  height: "2rem",
+  width: "2rem",
+  [theme.breakpoints.up("md")]: { height: "3rem", width: "3rem" },
+});
+
 export default function GroupChatHeaderBar({
   chatId,
   currentUserId,
@@ -62,11 +75,12 @@ export default function GroupChatHeaderBar({
   const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
-  const dmUserId = (
+  const dmUser = (
     Array.from(groupChatMembersQuery.data?.values() ?? []) as Array<
       LiteUser.AsObject | undefined
     >
-  ).find((user) => user?.userId !== currentUserId)?.userId;
+  ).find((user) => user?.userId !== currentUserId);
+  const dmUserId = dmUser?.userId;
 
   const isNativeEmbed = useIsNativeEmbed();
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
@@ -136,6 +150,25 @@ export default function GroupChatHeaderBar({
     setIsOpen({ ...isOpen, [item]: false });
   };
 
+  const dmTitleContent = (
+    <StyledTitleLinkContent>
+      {dmUser ? (
+        <StyledTitleAvatar user={dmUser} isProfileLink={false} />
+      ) : (
+        <Skeleton variant="circular" sx={{ height: "2rem", width: "2rem" }} />
+      )}
+      <PageTitle
+        sx={{
+          [theme.breakpoints.down("sm")]: {
+            fontSize: "0.9rem",
+          },
+        }}
+      >
+        {title || <Skeleton width={100} />}
+      </PageTitle>
+    </StyledTitleLinkContent>
+  );
+
   return (
     <>
       {!isNativeEmbed && (
@@ -151,27 +184,11 @@ export default function GroupChatHeaderBar({
         <StyledTitleBox>
           {isNativeEmbed ? (
             <ProfileLink userId={dmUserId} username={username ?? ""}>
-              <PageTitle
-                sx={{
-                  [theme.breakpoints.down("sm")]: {
-                    fontSize: "0.9rem",
-                  },
-                }}
-              >
-                {title || <Skeleton width={100} />}
-              </PageTitle>
+              {dmTitleContent}
             </ProfileLink>
           ) : (
             <Link href={username ? routeToUser(username) : ""}>
-              <PageTitle
-                sx={{
-                  [theme.breakpoints.down("sm")]: {
-                    fontSize: "0.9rem",
-                  },
-                }}
-              >
-                {title || <Skeleton width={100} />}
-              </PageTitle>
+              {dmTitleContent}
             </Link>
           )}
           {unmuteMutation.isPending ? (

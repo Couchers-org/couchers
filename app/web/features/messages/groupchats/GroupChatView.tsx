@@ -196,6 +196,7 @@ export default function GroupChatView({
           )}
           <ChatContent
             isHostRequest={false}
+            isDm={groupChat?.isDm}
             isLoading={isMessagesLoading}
             messages={messagesRes}
             fetchNextPage={fetchNextPage}
