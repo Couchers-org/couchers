@@ -12,7 +12,6 @@ import {
   isEmbeddedLaunch,
   runningDebugVersionOTA,
   runningDisplayVersion,
-  updateChannel,
 } from "@/service/buildInfo";
 import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
@@ -35,7 +34,6 @@ function getDebugInfo(): string {
     `Running: ${runningDebugVersionOTA}`,
     `Embedded: ${embeddedDebugVersion}`,
     `Source: ${isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
-    `Channel: ${updateChannel}`,
     `Published: ${createdAt}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
   ].join("\n");

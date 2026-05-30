@@ -46,11 +46,6 @@ export const runningDebugVersion = extra?.debugVersion ?? "unknown";
 
 // Raw expo-updates values describing the running bundle, surfaced for reporting.
 export const updateId = Updates.updateId ?? "none";
-// Updates.channel is an EAS-Update concept and comes back empty ("") on our
-// self-hosted OTA setup — and an empty tag value is rejected by Sentry (<invalid>).
-// What actually determines which OTAs a device receives is its embedded build
-// identity, so use that as the channel (|| also catches "", unlike ??).
-export const updateChannel = Updates.channel || embeddedDebugVersion;
 export const runtimeVersion = Updates.runtimeVersion ?? "unknown";
 export const isEmbeddedLaunch = Updates.isEmbeddedLaunch;
 export const createdAt = Updates.createdAt?.toISOString() ?? "unknown";

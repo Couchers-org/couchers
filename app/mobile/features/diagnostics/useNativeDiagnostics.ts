@@ -25,7 +25,6 @@ import {
   runningDebugVersionOTA,
   runningDisplayVersion,
   runtimeVersion,
-  updateChannel,
   updateId,
 } from "@/service/buildInfo";
 import { checkNativeStatus } from "@/service/checkNativeStatus";
@@ -95,7 +94,6 @@ export function useNativeDiagnostics(): void {
           runningDebugVersionOTA,
           runtimeVersion,
           updateId,
-          updateChannel,
           isEmbeddedLaunch,
           launchSource: isEmbeddedLaunch ? "embedded" : "ota",
           createdAt,
