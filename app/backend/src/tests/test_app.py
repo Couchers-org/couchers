@@ -2,9 +2,11 @@ import signal
 from multiprocessing import Process
 from typing import cast
 
+import grpc
 import pytest
 
 from couchers import supervisor
+from couchers.constants import GRACEFUL_SHUTDOWN_TIMEOUT
 from couchers.server import create_main_server, create_media_server
 
 
@@ -42,6 +44,21 @@ class FakeProcess:
 
     def join(self, timeout=None):
         self.joined = True
+
+
+class FakeServer:
+    """Stands in for a grpc.Server so parent-server draining can be tested without a real server."""
+
+    def __init__(self):
+        self.stop_grace = None
+        self.waited = False
+
+    def stop(self, grace):
+        self.stop_grace = grace
+        return self
+
+    def wait(self, timeout=None):
+        self.waited = True
 
 
 def _as_children(*procs: FakeProcess) -> list[Process]:
@@ -91,3 +108,16 @@ def test_supervise_only_terminates_live_children(monkeypatch):
 
     assert not already_dead.terminated  # already dead, don't signal it
     assert live.terminated
+
+
+def test_supervise_drains_parent_servers_within_the_shutdown_window(monkeypatch):
+    monkeypatch.setattr(signal, "signal", lambda *a: None)
+
+    dead = FakeProcess("api-1761", alive=False)
+    media = FakeServer()
+
+    supervisor.supervise(_as_children(dead), parent_servers=[cast(grpc.Server, media)])
+
+    # the parent server is told to stop with the same grace budget and waited on, alongside the children
+    assert media.stop_grace == GRACEFUL_SHUTDOWN_TIMEOUT
+    assert media.waited

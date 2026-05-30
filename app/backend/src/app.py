@@ -163,10 +163,7 @@ def main() -> None:
         logger.info(f"Media server serving on {MEDIA_PORT}")
 
     logger.info("App started, supervising child processes")
-    crashed = supervise(children)
-
-    if media_server is not None:
-        media_server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
+    crashed = supervise(children, parent_servers=[media_server] if media_server is not None else [])
 
     if crashed is not None:
         # a child died on its own; exit non-zero so the container is restarted fresh
