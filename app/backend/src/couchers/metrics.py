@@ -57,6 +57,45 @@ multiprocess.MultiProcessCollector(registry)  # type: ignore[no-untyped-call]
 
 _INF: float = float("inf")
 
+# Dense from 1ms to ~300ms where most calls land, sparse out to 10min for long background jobs.
+MACHINE_DURATION_SECONDS: tuple[float, ...] = (
+    0.001,
+    0.0025,
+    0.005,
+    0.0075,
+    0.01,
+    0.015,
+    0.02,
+    0.03,
+    0.04,
+    0.05,
+    0.06,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.4,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0,
+    7.5,
+    10.0,
+    15.0,
+    30.0,
+    60,
+    120,
+    300,
+    600,
+    _INF,
+)
+
 start_time_gauge: Gauge = Gauge(
     "couchers_start_time_seconds",
     "Unix timestamp of when the process started",
@@ -77,6 +116,7 @@ jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
     labelnames=["job", "status", "attempt", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -97,6 +137,7 @@ servicer_duration_histogram: Histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
     labelnames=["method", "logged_in", "code", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -124,11 +165,13 @@ servicer_db_time_histogram: Histogram = Histogram(
     "couchers_servicer_db_time_seconds",
     "Time spent in DB cursor execution per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 servicer_cpu_time_histogram: Histogram = Histogram(
     "couchers_servicer_cpu_seconds",
     "Backend thread CPU time per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 # Fibonacci bucket boundaries: roughly exponential, good resolution for an unbounded value
 servicer_db_query_count_histogram: Histogram = Histogram(

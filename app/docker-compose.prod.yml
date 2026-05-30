@@ -103,10 +103,17 @@ services:
     dns_search: ""
   # generates prometheus metrics for the database
   pgprom:
-    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.18.0
     restart: always
     stop_grace_period: 5s
     env_file: pgprom.prod.env
+    # stat_statements collector is disabled by default; it surfaces per-query pg_stat_statements metrics.
+    # include_query emits the queryid->text mapping (normalized SQL, no literals); query_length raises the
+    # default 120-char truncation so our long multi-join statements aren't cut off.
+    command:
+      - "--collector.stat_statements"
+      - "--collector.stat_statements.include_query"
+      - "--collector.stat_statements.query_length=2048"
     expose:
       - 9187
     networks:
