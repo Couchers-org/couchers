@@ -7,3 +7,10 @@
 # native build regardless.
 google-services.json
 **/eas-environment-secrets/**
+
+# CI writes build-version.json (the GitLab-computed DISPLAY_VERSION/DEBUG_VERSION)
+# so the EAS build's embedded version is right. It's present on EAS builds but not
+# in the OTA-publish jobs, so it MUST NOT affect the fingerprint, or the embedded
+# build and its OTA bundles would get different runtimeVersions and never match.
+# Its values only flow into `extra` (skipped) and the generated plist/manifest.
+build-version.json

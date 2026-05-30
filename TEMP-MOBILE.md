@@ -33,12 +33,14 @@ Everything lives in `app/.gitlab-ci.yml` unless noted.
 3. **`deploy:production-native-ios`** — remove the TEMP rule that submits to
    TestFlight from this branch. Submits should only happen on `$RELEASE_BRANCH`.
 
-4. **`build:production-native-android` `rules:` override** — this override
-   (release-branch-only) was added to stop Android rebuilding every pipeline on
-   the temp branch, since its submit (and therefore its fingerprint-marker write)
-   is disabled here. Once item 2 removes `.production-native`'s TEMP rule, the
-   parent is release-only again and this override is redundant — delete it so the
-   job inherits `.production-native` like `build:production-native-ios`.
+4. **Production Android build + submit disabled (`rules: - when: never`)** —
+   `build:production-native-android` and `deploy:production-native-android` are
+   turned off everywhere while we iterate on iOS/TestFlight (Android-side native
+   bits like `@expo/app-integrity` / Play Integrity aren't validated yet). **TODO:**
+   re-enable by restoring the release-only rule on both jobs:
+   `- if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)`
+   (the version-compute `before_script` + `GIT_DEPTH: 0` are already in place, so
+   it's just the rule). Then drop `.production-native`'s TEMP rule per item 2.
 
 ## Notes
 

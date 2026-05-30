@@ -1,4 +1,6 @@
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 const git = (cmd) => {
   try {
@@ -11,10 +13,28 @@ const git = (cmd) => {
   }
 };
 
+// The production native build runs app.config.js on EAS's servers, which don't
+// see our GitLab shell env (so DISPLAY_VERSION/DEBUG_VERSION are unset and the
+// embedded version would fall back to "development"). The production-native CI
+// job writes the computed values here before `eas build`, and EAS uploads the
+// file with the project. Read order everywhere: env var > build-version.json >
+// fallback. The file is in .fingerprintignore and only feeds `extra` (skipped via
+// ExpoConfigExtraSection), so its presence never moves the runtimeVersion.
+const buildVersion = (() => {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(__dirname, "build-version.json"), "utf-8"),
+    );
+  } catch {
+    return {};
+  }
+})();
+
 // This bundle's display version, matching the website footer. CI sets
 // DISPLAY_VERSION (app/version + git rev-list count, e.g. v1.2.18410); local
 // builds get "development" so they're never confused with a real release.
-const getDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
+const getDisplayVersion = () =>
+  process.env.DISPLAY_VERSION || buildVersion.displayVersion || "development";
 
 // This bundle's debug version: {displayVersion}.{gitHash}.{gitCommitTime}, e.g.
 // v1.2.18410.1156180a.20260528Z0533. CI composes it (DEBUG_VERSION); local
@@ -23,6 +43,7 @@ const getDisplayVersion = () => process.env.DISPLAY_VERSION || "development";
 // (-{fingerprint}-{assetId}-{createdAt}) in service/buildInfo.ts.
 const getDebugVersion = () =>
   process.env.DEBUG_VERSION ||
+  buildVersion.debugVersion ||
   `${getDisplayVersion()}.${git("rev-parse --short=8 HEAD")}.${git(
     "show -s --date=format-local:'%Y%m%dZ%H%M' --format=%cd HEAD",
   )}`;
