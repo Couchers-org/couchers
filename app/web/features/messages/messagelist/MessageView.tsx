@@ -20,16 +20,9 @@ const AVATAR_SIZE = 40;
 const RootContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
 })<{ isCurrentUser: boolean; isLoading: boolean }>(
-  ({ theme, isCurrentUser, isLoading }) => ({
+  ({ isCurrentUser }) => ({
     display: "flex",
-
-    ...(isLoading && {
-      justifyContent: "center",
-    }),
-
-    ...(isCurrentUser && !isLoading && { justifyContent: "flex-end" }),
-
-    ...(!isCurrentUser && !isLoading && { justifyContent: "flex-start" }),
+    justifyContent: isCurrentUser ? "flex-end" : "flex-start",
   }),
 );
 
@@ -157,7 +150,7 @@ export default function MessageView({
   const { data: currentUser, isLoading: isCurrentUserLoading } =
     useCurrentUser();
   const isLoading = isAuthorLoading || isCurrentUserLoading;
-  const isCurrentUser = author?.userId === currentUser?.userId;
+  const isCurrentUser = message.authorUserId === currentUser?.userId;
 
   const { ref } = useOnVisibleEffect(onVisible);
 
