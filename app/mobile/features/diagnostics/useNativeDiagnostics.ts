@@ -19,7 +19,9 @@ import { NativeUpdateAction } from "@/proto/bugs_pb";
 import { checkNativeStatus } from "@/service/checkNativeStatus";
 
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
-const PING_THROTTLE_MS = 30 * 60 * 1000;
+// TEMP (revert to 30 * 60 * 1000 before merge): 0 disables the throttle so every
+// cold start / foreground pings CheckNativeStatus, for on-device verification.
+const PING_THROTTLE_MS = 0;
 
 // Reports a diagnostics snapshot to CheckNativeStatus on cold start and each foreground
 // transition, throttled to at most once per PING_THROTTLE_MS. Best-effort and fire-and-forget.
