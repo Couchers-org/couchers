@@ -3,7 +3,7 @@ import * as Application from "expo-application";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppState, AppStateStatus, Platform } from "react-native";
 
@@ -14,7 +14,11 @@ import {
   getStickyId,
 } from "@/features/diagnostics/installId";
 import { getStoredPushToken } from "@/features/diagnostics/pushTokenStore";
-import { NativeUpdateAction } from "@/proto/bugs_pb";
+import {
+  isActionable,
+  updateMode,
+  UpdatePrompt,
+} from "@/features/diagnostics/updateDecision";
 import {
   appVariant,
   createdAt,
@@ -27,18 +31,77 @@ import {
   runtimeVersion,
   updateId,
 } from "@/service/buildInfo";
-import { checkNativeStatus } from "@/service/checkNativeStatus";
+import {
+  checkNativeStatus,
+  NativeUpdateInfo,
+} from "@/service/checkNativeStatus";
 
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
+const LAST_NAG_KEY = "diagnostics.lastNagDismissedAt";
 // TEMP (revert to 30 * 60 * 1000 before merge): 0 disables the throttle so every
 // cold start / foreground pings CheckNativeStatus, for on-device verification.
 const PING_THROTTLE_MS = 0;
 
+// Cleared on process restart, so dismissing a session-scoped prompt suppresses it
+// until the next cold start.
+let warnDismissedThisSession = false;
+let nagDismissedThisSession = false;
+
+// Decides whether a freshly-received decision should actually be shown, honouring
+// the dismissal rules each mode carries.
+async function isSuppressed(
+  prompt: UpdatePrompt,
+  now: number,
+): Promise<boolean> {
+  switch (prompt.mode) {
+    case "block":
+      return false;
+    case "warn":
+      return warnDismissedThisSession;
+    case "nag": {
+      const interval = prompt.info.nagIntervalSeconds;
+      if (interval <= 0) return nagDismissedThisSession;
+      const lastRaw = await AsyncStorage.getItem(LAST_NAG_KEY);
+      const last = lastRaw ? Number(lastRaw) : null;
+      return last !== null && now - last < interval * 1000;
+    }
+  }
+}
+
+// Records a dismissal so isSuppressed() hides the prompt for the right duration.
+async function recordDismissal(prompt: UpdatePrompt, now: number): Promise<void> {
+  switch (prompt.mode) {
+    case "block":
+      return;
+    case "warn":
+      warnDismissedThisSession = true;
+      return;
+    case "nag":
+      if (prompt.info.nagIntervalSeconds <= 0) {
+        nagDismissedThisSession = true;
+      } else {
+        await AsyncStorage.setItem(LAST_NAG_KEY, String(now));
+      }
+  }
+}
+
+export interface NativeDiagnostics {
+  // The update prompt to render right now, or null when nothing should be shown.
+  prompt: UpdatePrompt | null;
+  // Dismisses the current prompt (no-op for non-dismissible "block" prompts).
+  dismiss: () => void;
+}
+
 // Reports a diagnostics snapshot to CheckNativeStatus on cold start and each foreground
-// transition, throttled to at most once per PING_THROTTLE_MS. Best-effort and fire-and-forget.
-export function useNativeDiagnostics(): void {
+// transition (throttled to at most once per PING_THROTTLE_MS), and surfaces the backend's
+// update decision as a prompt to render. The ping itself is best-effort and fire-and-forget.
+export function useNativeDiagnostics(): NativeDiagnostics {
   const { authenticated } = useAuthContext();
   const { i18n } = useTranslation();
+
+  const [prompt, setPrompt] = useState<UpdatePrompt | null>(null);
+  const promptRef = useRef<UpdatePrompt | null>(null);
+  promptRef.current = prompt;
 
   // Refs so the AppState listener sees current values without re-subscribing.
   const authenticatedRef = useRef(authenticated);
@@ -46,7 +109,26 @@ export function useNativeDiagnostics(): void {
   const localeRef = useRef(i18n.language);
   localeRef.current = i18n.language;
 
+  const dismiss = useCallback(() => {
+    const current = promptRef.current;
+    if (!current) return;
+    setPrompt(null);
+    recordDismissal(current, Date.now()).catch(() => {});
+  }, []);
+
   useEffect(() => {
+    async function surface(result: NativeUpdateInfo, now: number) {
+      if (!isActionable(result)) {
+        setPrompt(null);
+        return;
+      }
+      const candidate: UpdatePrompt = {
+        info: result,
+        mode: updateMode(result, new Date(now)),
+      };
+      setPrompt((await isSuppressed(candidate, now)) ? null : candidate);
+    }
+
     async function maybeReport() {
       try {
         const now = Date.now();
@@ -105,14 +187,7 @@ export function useNativeDiagnostics(): void {
         });
 
         await AsyncStorage.setItem(LAST_OPEN_KEY, String(now));
-
-        // TODO: act on result (fetch OTA, nag, or block) per action/required/actBy.
-        if (
-          result.action !== NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE &&
-          result.action !== NativeUpdateAction.NATIVE_UPDATE_ACTION_UNSPECIFIED
-        ) {
-          console.log("Native status update prompt:", result);
-        }
+        await surface(result, now);
       } catch (error) {
         console.warn("Failed to check native status:", error);
       }
@@ -133,4 +208,6 @@ export function useNativeDiagnostics(): void {
       subscription.remove();
     };
   }, []);
+
+  return { prompt, dismiss };
 }

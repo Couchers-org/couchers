@@ -15,8 +15,10 @@ function mockResponse(
     action: NativeUpdateAction;
     required: boolean;
     actBy: Date;
+    nagIntervalSeconds: number;
     message: string;
     linkUrl: string;
+    linkText: string;
   }> | null = {},
 ) {
   return {
@@ -29,8 +31,13 @@ function mockResponse(
             getRequired: () => info.required ?? false,
             getActBy: () =>
               info.actBy ? { toDate: () => info.actBy } : undefined,
+            getNagInterval: () =>
+              info.nagIntervalSeconds !== undefined
+                ? { getSeconds: () => info.nagIntervalSeconds }
+                : undefined,
             getMessage: () => info.message ?? "",
             getLinkUrl: () => info.linkUrl ?? "",
+            getLinkText: () => info.linkText ?? "",
           },
   };
 }
@@ -63,8 +70,10 @@ describe("checkNativeStatus", () => {
         action: NativeUpdateAction.NATIVE_UPDATE_ACTION_STORE,
         required: true,
         actBy,
+        nagIntervalSeconds: 86400,
         message: "Please update to continue.",
         linkUrl: "https://apps.apple.com/app/id123",
+        linkText: "Update now",
       }),
     );
 
@@ -73,8 +82,10 @@ describe("checkNativeStatus", () => {
       action: NativeUpdateAction.NATIVE_UPDATE_ACTION_STORE,
       required: true,
       actBy,
+      nagIntervalSeconds: 86400,
       message: "Please update to continue.",
       linkUrl: "https://apps.apple.com/app/id123",
+      linkText: "Update now",
     });
   });
 
@@ -86,8 +97,10 @@ describe("checkNativeStatus", () => {
       action: NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE,
       required: false,
       actBy: undefined,
+      nagIntervalSeconds: 0,
       message: "",
       linkUrl: "",
+      linkText: "",
     });
   });
 

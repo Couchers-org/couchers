@@ -5,8 +5,12 @@ export interface NativeUpdateInfo {
   action: NativeUpdateAction;
   required: boolean;
   actBy?: Date;
+  // Minimum seconds to wait before re-showing an advisory nag once dismissed.
+  // 0 = show once per app session. Ignored when required.
+  nagIntervalSeconds: number;
   message: string;
   linkUrl: string;
+  linkText: string;
 }
 
 // JSON-encodes a diagnostics snapshot into debug_json and returns the backend's update decision.
@@ -22,7 +26,9 @@ export async function checkNativeStatus(
     action: info?.getAction() ?? NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE,
     required: info?.getRequired() ?? false,
     actBy: info?.getActBy()?.toDate(),
+    nagIntervalSeconds: info?.getNagInterval()?.getSeconds() ?? 0,
     message: info?.getMessage() ?? "",
     linkUrl: info?.getLinkUrl() ?? "",
+    linkText: info?.getLinkText() ?? "",
   };
 }
