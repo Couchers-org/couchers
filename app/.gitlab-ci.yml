@@ -15,10 +15,8 @@ variables:
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   # Branch on which a fingerprint change triggers an automatic Dev Tool native
-  # rebuild (build:devtool-native). TEMP-disabled (matches no branch) while we
-  # iterate on the production build — see TEMP-MOBILE.md. Was mobile/v1.1.20;
-  # final value is develop (i.e. $RELEASE_BRANCH) once trusted.
-  DEVTOOL_BUILD_BRANCH: disabled
+  # rebuild (build:devtool-native).
+  DEVTOOL_BUILD_BRANCH: develop
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
@@ -998,8 +996,7 @@ preview:pr-comment:
 # TestFlight-style channel for a dev-client APK). It no-ops when the freshly
 # computed fingerprint matches the last-built client, recorded per platform under
 # s3://$AWS_PREVIEW_BUCKET/devtool-builds/. Requires the EXPO_TOKEN CI variable.
-# Runs only on $DEVTOOL_BUILD_BRANCH while validating; point that at develop once
-# trusted.
+# Runs only on $DEVTOOL_BUILD_BRANCH.
 build:devtool-native:
   needs: ["protos"]
   stage: build
@@ -1079,8 +1076,6 @@ build:mobile-ota-staging:
     expire_in: 1 week
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 deploy:mobile-ota-staging:
   needs: ["build:mobile-ota-staging"]
@@ -1105,9 +1100,6 @@ deploy:mobile-ota-staging:
     - cat app/mobile/ota-staging-out/native_ota_bundles.json
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
-
 # Rebuild and submit the *production* store app when its fingerprint changes — the
 # native counterpart to the OTA publish below. A signed OTA only applies to an
 # installed build whose runtimeVersion (Expo fingerprint) matches, so a native dep
@@ -1136,8 +1128,6 @@ deploy:mobile-ota-staging:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 build:production-native-ios:
   extends: .production-native
@@ -1182,11 +1172,8 @@ build:production-native-android:
   artifacts:
     reports:
       dotenv: app/mobile/native-build-android.env
-  # TEMP: production Android build disabled while we iterate on iOS/TestFlight (see
-  # TEMP-MOBILE.md). To re-enable, restore the release-only rule:
-  #   - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
   rules:
-    - when: never
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 deploy:production-native-ios:
   extends: .production-native
@@ -1199,9 +1186,6 @@ deploy:production-native-ios:
     - bash scripts/production-submit.sh ios
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: submit to TestFlight from this branch to test the OTA on-device handshake;
-    # revert before merge so submits only happen on the release branch.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 deploy:production-native-android:
   extends: .production-native
@@ -1212,11 +1196,8 @@ deploy:production-native-android:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/production-submit.sh android
-  # TEMP: production Android submit disabled with its build (see TEMP-MOBILE.md).
-  # To re-enable, restore the release-only rule:
-  #   - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
   rules:
-    - when: never
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 # ─── Production native OTA publish (decoupled from the backend/web deploy) ───
 #
@@ -1280,8 +1261,6 @@ build:mobile-ota-prod:
     expire_in: 1 week
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 preview:mobile-ota-prod:
   needs: ["build:mobile-ota-prod"]
@@ -1295,9 +1274,6 @@ preview:mobile-ota-prod:
     - echo "Native OTA bundles staged at https://$CI_COMMIT_SHORT_SHA--native-ota.$PREVIEW_DOMAIN/"
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
-
 # Own manifest stream, built and uploaded independently of build:deploy-manifest /
 # deploy:deploy-info so a native OTA is never gated on a backend/web release.
 build:native-ota-manifest:
@@ -1312,8 +1288,6 @@ build:native-ota-manifest:
       - artifacts/native-ota-info
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 deploy:native-ota-info:
   needs:
@@ -1329,8 +1303,6 @@ deploy:native-ota-info:
     - aws s3 cp artifacts/native-ota-info/ "s3://$AWS_DEPLOY_BUCKET/" --recursive
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    # TEMP: run on this branch to validate the pipeline; revert before merge.
-    - if: $CI_COMMIT_BRANCH == "mobile/v1.1.20"
 
 preview:protos:
   needs: ["protos"]
