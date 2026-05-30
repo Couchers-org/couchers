@@ -693,7 +693,7 @@ class HostRequestCreatedEmail(EmailBase):
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, ".view_action")
+        builder.action(self.view_link, "host_request_generic.view_action")
         builder.action(self.quick_decline_link, ".quick_decline_action")
         builder.para(".respond_encouragement")
         builder.para(_do_not_reply_request_string_key)
