@@ -92,7 +92,8 @@ def _normalize_ics(ics: str) -> str:
     return ics
 
 
-def test_host_request_attachments(db, email_collector: EmailCollector, moderator: Moderator):
+def test_host_request_attachments(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):
+    feature_flags.set("email_ics_attachments_enabled", True)
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 

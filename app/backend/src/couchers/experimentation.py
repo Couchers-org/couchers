@@ -12,8 +12,7 @@ Two ways to evaluate a flag:
     to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
     per-user path can do percentage rollouts, experiments, and feature-usage tracking.
 
-Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
-once at process startup.
+Both paths share the gating helper here. setup_experimentation() is called once at process startup.
 """
 
 import json
@@ -258,19 +257,13 @@ def _global_evaluator() -> GrowthBook:
     return _create_evaluator(None)
 
 
-# These two helpers are the single home of the gating logic, shared by the global functions below
-# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
-# invoked once gating passes, so it stays lazy.
+# The single home of the gating logic, shared by the global functions below and by CouchersContext
+# (which passes its own cached per-request evaluator). get_evaluator is only invoked once gating
+# passes, so it stays lazy.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
     if not config["EXPERIMENTATION_ENABLED"]:
         return default
     return get_evaluator().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
-
-
-def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
-    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        return True
-    return _feature_value(flag_key, default, get_evaluator)
 
 
 # Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
@@ -280,7 +273,7 @@ def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], Gro
 # feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
 # through to their in-code defaults unless a rule forces a value globally.
 def get_global_boolean_value(flag_key: str, default: bool) -> bool:
-    return _boolean_value(flag_key, default, _global_evaluator)
+    return _feature_value(flag_key, default, _global_evaluator)
 
 
 def get_global_string_value(flag_key: str, default: str) -> str:

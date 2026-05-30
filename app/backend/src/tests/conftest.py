@@ -225,7 +225,6 @@ def testconfig():
     config["RECAPTHCA_SITE_KEY"] = "..."
 
     config["EXPERIMENTATION_ENABLED"] = False
-    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
     config["GROWTHBOOK_CACHE_PATH"] = ""
@@ -279,7 +278,6 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
     monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
     return FeatureFlags(features)
 
 

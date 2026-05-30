@@ -22,7 +22,8 @@ def _(testconfig):
     pass
 
 
-def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
+def test_ChangePhone(db, monkeypatch, feature_flags, push_collector: PushCollector):
+    feature_flags.set("sms_enabled", True)
     user, token = generate_user()
     user_id = user.id
 
@@ -89,7 +90,8 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
             assert user.phone_verification_token is None
 
 
-def test_ChangePhone_ratelimit(db, monkeypatch):
+def test_ChangePhone_ratelimit(db, monkeypatch, feature_flags):
+    feature_flags.set("sms_enabled", True)
     user, token = generate_user()
     user_id = user.id
     with account_session(token) as account:
@@ -161,7 +163,8 @@ def test_VerifyPhone_antibrute():
         assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
-def test_phone_uniqueness(monkeypatch):
+def test_phone_uniqueness(monkeypatch, feature_flags):
+    feature_flags.set("sms_enabled", True)
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     with account_session(token1) as account1, account_session(token2) as account2:

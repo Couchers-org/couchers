@@ -110,8 +110,6 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("IN_TEST", bool, "0"),
     # Experimentation (feature flags via GrowthBook)
     ("EXPERIMENTATION_ENABLED", bool, "0"),
-    # When enabled, all feature gates return True (useful for development/testing)
-    ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
     # GrowthBook SDK configuration
     ("GROWTHBOOK_API_HOST", str, "https://cdn.growthbook.io"),
     ("GROWTHBOOK_CLIENT_KEY", str, ""),

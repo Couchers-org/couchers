@@ -18,8 +18,8 @@ from tests.fixtures.sessions import donations_session, real_stripe_session
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+def _(testconfig, feature_flags):
+    feature_flags.set("donations_enabled", True)
 
 
 def test_donations_disabled(db, feature_flags):

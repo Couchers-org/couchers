@@ -32,8 +32,8 @@ from tests.fixtures.sessions import account_session, api_session, real_admin_ses
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+def _(testconfig, feature_flags):
+    feature_flags.set("strong_verification_enabled", True)
 
 
 def _emulate_iris_callback(session_id, session_state, reference):

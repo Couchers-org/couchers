@@ -6,7 +6,6 @@ import {
   ResolutionDetails,
   StandardResolutionReasons,
 } from "@openfeature/web-sdk";
-import { shouldPassAllGates } from "experimentation";
 import { evaluateFlag } from "service/experiments";
 
 /**
@@ -75,9 +74,6 @@ export class CouchersFlagProvider implements Provider {
     flagKey: string,
     defaultValue: boolean,
   ): ResolutionDetails<boolean> {
-    if (shouldPassAllGates()) {
-      return { value: true, reason: StandardResolutionReasons.STATIC };
-    }
     return this.resolve(flagKey, defaultValue, "boolean");
   }
 

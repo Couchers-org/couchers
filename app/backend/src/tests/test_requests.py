@@ -1406,7 +1406,10 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+def test_request_notifications(
+    db, email_collector: EmailCollector, push_collector: PushCollector, feature_flags, moderator
+):
+    feature_flags.set("email_ics_attachments_enabled", True)
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 

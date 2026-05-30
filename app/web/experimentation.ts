@@ -18,14 +18,6 @@ import { useBooleanFlagValue, useFlag } from "@openfeature/react-sdk";
 import { ConstrainedFlagKey, JsonValue } from "@openfeature/web-sdk";
 
 /**
- * Whether all gates should pass (for development/testing). Applied to boolean resolutions by the
- * remote-evaluation provider, mirroring the backend's boolean-only pass-all-gates behavior.
- */
-export function shouldPassAllGates(): boolean {
-  return process.env.NEXT_PUBLIC_EXPERIMENTATION_PASS_ALL_GATES === "1";
-}
-
-/**
  * Whether a feature gate is enabled for the current user. Gates default to off.
  */
 export function useGate(gateName: string): boolean {

@@ -25,8 +25,8 @@ from tests.fixtures.sessions import postal_verification_session
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+def _(testconfig, feature_flags):
+    feature_flags.set("postal_verification_enabled", True)
 
 
 def test_generate_postal_verification_code():
