@@ -69,7 +69,10 @@ async function isSuppressed(
 }
 
 // Records a dismissal so isSuppressed() hides the prompt for the right duration.
-async function recordDismissal(prompt: UpdatePrompt, now: number): Promise<void> {
+async function recordDismissal(
+  prompt: UpdatePrompt,
+  now: number,
+): Promise<void> {
   switch (prompt.mode) {
     case "block":
       return;

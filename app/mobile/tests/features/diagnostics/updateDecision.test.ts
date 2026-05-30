@@ -1,4 +1,7 @@
-import { isActionable, updateMode } from "@/features/diagnostics/updateDecision";
+import {
+  isActionable,
+  updateMode,
+} from "@/features/diagnostics/updateDecision";
 import { NativeUpdateAction } from "@/proto/bugs_pb";
 import { NativeUpdateInfo } from "@/service/checkNativeStatus";
 
@@ -19,7 +22,9 @@ const now = new Date("2026-05-30T12:00:00.000Z");
 describe("isActionable", () => {
   it("is false for NONE and UNSPECIFIED", () => {
     expect(
-      isActionable(info({ action: NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE })),
+      isActionable(
+        info({ action: NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE }),
+      ),
     ).toBe(false);
     expect(
       isActionable(
