@@ -688,8 +688,8 @@ class HostRequestCreatedEmail(EmailBase):
             self.surfer,
             "date_range",
             {
-                "from_date": loc_context.localize_date(self.from_date),
-                "to_date": loc_context.localize_date(self.to_date),
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
@@ -745,8 +745,8 @@ class HostRequestReminderEmail(EmailBase):
             self.surfer,
             ".host_request_generic.date_range",
             {
-                "from_date": loc_context.localize_date(self.from_date),
-                "to_date": loc_context.localize_date(self.to_date),
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
@@ -798,8 +798,8 @@ class HostRequestMessageEmail(EmailBase):
             self.other_user,
             ".host_request_generic.date_range",
             {
-                "from_date": loc_context.localize_date(self.from_date),
-                "to_date": loc_context.localize_date(self.to_date),
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
@@ -860,8 +860,8 @@ class HostRequestMissedMessagesEmail(EmailBase):
             self.other_user,
             ".host_request_generic.date_range",
             {
-                "from_date": loc_context.localize_date(self.from_date),
-                "to_date": loc_context.localize_date(self.to_date),
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
@@ -929,8 +929,8 @@ class HostRequestStatusChangedEmail(EmailBase):
             self.other_user,
             ".host_request_generic.date_range",
             {
-                "from_date": loc_context.localize_date(self.from_date),
-                "to_date": loc_context.localize_date(self.to_date),
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.action(self.view_link, ".host_request_generic.view_action")
@@ -1312,3 +1312,7 @@ class ThreadReplyEmail(EmailBase):
             markdown_text="I agree, the Grünewald is **amazing**!",
             view_link="https://couchers.org/discussions/123",
         )
+
+
+def _localize_host_request_date(value: date, loc_context: LocalizationContext) -> str:
+    return loc_context.localize_date(value, with_year=False, with_day_of_week=True)
