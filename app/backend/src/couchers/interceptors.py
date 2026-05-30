@@ -38,7 +38,10 @@ from couchers.metrics import (
     observe_api_call,
     observe_in_servicer_duration_histogram,
     observe_in_servicer_perf_histograms,
+    observe_in_servicer_pool_wait_histogram,
+    observe_in_servicer_serde_histogram,
     observe_in_servicer_setup_errors_counter,
+    observe_in_servicer_setup_histogram,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
@@ -295,6 +298,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
+        # accounting for the auth/setup phase; the handler re-arms its own below
+        start_perf()
+
         try:
             try:
                 auth_level = find_auth_level(self._pool, method)
@@ -337,6 +343,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 locale=locale,
                 timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
             )
+
+            observe_in_servicer_setup_histogram(method, read_perf())
         except Exception as e:
             observe_in_servicer_setup_errors_counter(method, type(e).__name__)
             sentry_sdk.set_tag("context", "servicer_setup")
@@ -355,6 +363,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                # force the checkout now so its wait is timed here rather than hiding in the handler's first query
+                pool_wait_start = perf_counter_ns()
+                session.connection()
+                observe_in_servicer_pool_wait_histogram(method, (perf_counter_ns() - pool_wait_start) / 1e9)
                 start_perf()
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
@@ -380,10 +392,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                     observe_api_call(method, headers.client_platform)
-                    if perf is not None:
-                        observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
-                        )
+                    observe_in_servicer_perf_histograms(method, perf)
                 except Exception as e:
                     perf = read_perf()
                     finished = perf_counter_ns()
@@ -415,10 +424,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
                     observe_api_call(method, headers.client_platform)
-                    if perf is not None:
-                        observe_in_servicer_perf_histograms(
-                            method, perf.db_query_count, perf.db_write_query_count, perf.db_time_ms, perf.cpu_ms
-                        )
+                    observe_in_servicer_perf_histograms(method, perf)
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
@@ -455,10 +461,21 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             return res
 
+        def timed_serde[A, B](fn: Callable[[A], B], direction: str) -> Callable[[A], B]:
+            def wrapped(arg: A) -> B:
+                t0 = perf_counter_ns()
+                result = fn(arg)
+                observe_in_servicer_serde_histogram(method, direction, (perf_counter_ns() - t0) / 1e9)
+                return result
+
+            return wrapped
+
+        # always set for our generated-proto methods, but grpc types them as optional
+        assert handler.request_deserializer is not None and handler.response_serializer is not None
         return grpc.unary_unary_rpc_method_handler(
             function_without_couchers_stuff,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
+            request_deserializer=timed_serde(handler.request_deserializer, "deserialize"),
+            response_serializer=timed_serde(handler.response_serializer, "serialize"),
         )
 
 

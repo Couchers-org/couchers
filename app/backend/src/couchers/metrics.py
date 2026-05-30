@@ -49,6 +49,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
 
@@ -56,6 +57,45 @@ registry: CollectorRegistry = CollectorRegistry()
 multiprocess.MultiProcessCollector(registry)  # type: ignore[no-untyped-call]
 
 _INF: float = float("inf")
+
+# Dense from 1ms to ~300ms where most calls land, sparse out to 10min for long background jobs.
+MACHINE_DURATION_SECONDS: tuple[float, ...] = (
+    0.001,
+    0.0025,
+    0.005,
+    0.0075,
+    0.01,
+    0.015,
+    0.02,
+    0.03,
+    0.04,
+    0.05,
+    0.06,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.4,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0,
+    7.5,
+    10.0,
+    15.0,
+    30.0,
+    60,
+    120,
+    300,
+    600,
+    _INF,
+)
 
 start_time_gauge: Gauge = Gauge(
     "couchers_start_time_seconds",
@@ -77,6 +117,7 @@ jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
     labelnames=["job", "status", "attempt", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -97,6 +138,7 @@ servicer_duration_histogram: Histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
     labelnames=["method", "logged_in", "code", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -124,11 +166,13 @@ servicer_db_time_histogram: Histogram = Histogram(
     "couchers_servicer_db_time_seconds",
     "Time spent in DB cursor execution per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 servicer_cpu_time_histogram: Histogram = Histogram(
     "couchers_servicer_cpu_seconds",
     "Backend thread CPU time per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 # Fibonacci bucket boundaries: roughly exponential, good resolution for an unbounded value
 servicer_db_query_count_histogram: Histogram = Histogram(
@@ -145,13 +189,60 @@ servicer_db_write_query_count_histogram: Histogram = Histogram(
 )
 
 
-def observe_in_servicer_perf_histograms(
-    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
-) -> None:
-    servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
-    servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
-    servicer_db_query_count_histogram.labels(method).observe(db_query_count)
-    servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+def observe_in_servicer_perf_histograms(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
+    servicer_db_query_count_histogram.labels(method).observe(perf.db_query_count)
+    servicer_db_write_query_count_histogram.labels(method).observe(perf.db_write_query_count)
+
+
+# Auth/setup phase (everything before the handler body), same db-vs-cpu split as the handler-body histograms above.
+servicer_setup_db_time_histogram: Histogram = Histogram(
+    "couchers_servicer_setup_db_time_seconds",
+    "Time spent in DB cursor execution during the auth/setup phase per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+servicer_setup_cpu_time_histogram: Histogram = Histogram(
+    "couchers_servicer_setup_cpu_seconds",
+    "Backend thread CPU time during the auth/setup phase per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_setup_histogram(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_setup_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_setup_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
+
+
+servicer_pool_wait_histogram: Histogram = Histogram(
+    "couchers_servicer_pool_wait_seconds",
+    "Time spent waiting to check out a DB connection from the pool per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_pool_wait_histogram(method: str, pool_wait_s: float) -> None:
+    servicer_pool_wait_histogram.labels(method).observe(pool_wait_s)
+
+
+# Separate diagnostic, not part of the additive duration pie: "serialize" runs after the duration window closes.
+servicer_serde_histogram: Histogram = Histogram(
+    "couchers_servicer_serde_seconds",
+    "Protobuf request deserialization / response serialization time per gRPC call",
+    labelnames=["method", "direction"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_serde_histogram(method: str, direction: str, serde_s: float) -> None:
+    servicer_serde_histogram.labels(method, direction).observe(serde_s)
 
 
 # liveall keeps one series per worker pid (and drops dead workers), so these also show load balance across workers.

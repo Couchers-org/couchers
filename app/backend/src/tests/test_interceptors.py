@@ -35,6 +35,10 @@ from couchers.metrics import (
     api_calls_counter,
     servicer_db_query_count_histogram,
     servicer_duration_histogram,
+    servicer_pool_wait_histogram,
+    servicer_serde_histogram,
+    servicer_setup_cpu_time_histogram,
+    servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
@@ -283,6 +287,70 @@ def test_tracing_interceptor_perf_accounting(db):
     # the call was also observed into the Prometheus per-request resource histograms and the per-platform call counter
     assert _get_db_query_count_histogram(method) == hist_count_before + 1
     assert _get_api_call_count(method, "web_mobile") == api_call_count_before + 1
+
+
+def _get_histogram_count(histogram, count_name, **labels):
+    return sum(
+        s.value
+        for m in histogram.collect()
+        for s in m.samples
+        if s.name == count_name and all(s.labels.get(k) == v for k, v in labels.items())
+    )
+
+
+def test_tracing_interceptor_phase_histograms(db):
+    # setup db/cpu, pool-wait, and de/serialization are each observed once per call into their own histogram
+    method = "/org.couchers.auth.Auth/SignupFlow"
+    setup_db_before = _get_histogram_count(
+        servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
+    )
+    setup_cpu_before = _get_histogram_count(
+        servicer_setup_cpu_time_histogram, "couchers_servicer_setup_cpu_seconds_count", method=method
+    )
+    pool_wait_before = _get_histogram_count(
+        servicer_pool_wait_histogram, "couchers_servicer_pool_wait_seconds_count", method=method
+    )
+    deserialize_before = _get_histogram_count(
+        servicer_serde_histogram, "couchers_servicer_serde_seconds_count", method=method, direction="deserialize"
+    )
+    serialize_before = _get_histogram_count(
+        servicer_serde_histogram, "couchers_servicer_serde_seconds_count", method=method, direction="serialize"
+    )
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty())
+
+    assert (
+        _get_histogram_count(
+            servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
+        )
+        == setup_db_before + 1
+    )
+    assert (
+        _get_histogram_count(
+            servicer_setup_cpu_time_histogram, "couchers_servicer_setup_cpu_seconds_count", method=method
+        )
+        == setup_cpu_before + 1
+    )
+    assert (
+        _get_histogram_count(servicer_pool_wait_histogram, "couchers_servicer_pool_wait_seconds_count", method=method)
+        == pool_wait_before + 1
+    )
+    assert (
+        _get_histogram_count(
+            servicer_serde_histogram, "couchers_servicer_serde_seconds_count", method=method, direction="deserialize"
+        )
+        == deserialize_before + 1
+    )
+    assert (
+        _get_histogram_count(
+            servicer_serde_histogram, "couchers_servicer_serde_seconds_count", method=method, direction="serialize"
+        )
+        == serialize_before + 1
+    )
 
 
 def test_tracing_interceptor_perf_accounting_orm_write(db):
