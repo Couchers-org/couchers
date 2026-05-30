@@ -113,8 +113,6 @@
   "host_request_created": {
     "subject": "{{surfer_name}} sent you a host request",
     "body": "<b>{{surfer_name}}</b> sent you a host request:",
-    "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
-    "view_action": "View host request",
     "quick_decline_action": "Quick decline (no login needed)",
     "respond_encouragement": "Please respond to this request, even a quick decline is better than no response!"
   },

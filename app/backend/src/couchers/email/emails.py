@@ -686,7 +686,7 @@ class HostRequestCreatedEmail(EmailBase):
         builder.para(".body", {"surfer_name": self.surfer.name})
         builder.user(
             self.surfer,
-            "date_range",
+            "host_request_generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
