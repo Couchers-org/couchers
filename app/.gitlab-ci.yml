@@ -1034,7 +1034,12 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-.mobile-native-prod:
+# Native store builds for the release variants (staging and production). Both run
+# the same fingerprint-gated build + submit (scripts/native-build.sh +
+# native-submit.sh), selected by APP_VARIANT; only the eas.json profile, bundle id,
+# and S3 fingerprint marker differ. A native change cuts a fresh store build; pure
+# JS/TS changes ship over the air via the matching build:mobile-ota-<variant> job.
+.mobile-native:
   image: node:22
   inherit:
     default: false
@@ -1043,69 +1048,115 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-build:mobile-native-prod-ios:
-  extends: .mobile-native-prod
+.mobile-native-build:
+  extends: .mobile-native
   needs: ["protos"]
   stage: build
   variables:
-    APP_VARIANT: production
     GIT_DEPTH: 0
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
     - !reference [.compute-display-version, before_script]
+
+.mobile-native-submit:
+  extends: .mobile-native
+  stage: deploy
+
+build:mobile-native-prod-ios:
+  extends: .mobile-native-build
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-build.sh ios
+    - bash scripts/native-build.sh ios
   artifacts:
     reports:
       dotenv: app/mobile/native-build-ios.env
 
 build:mobile-native-prod-android:
-  extends: .mobile-native-prod
-  needs: ["protos"]
-  stage: build
+  extends: .mobile-native-build
   variables:
     APP_VARIANT: production
-    GIT_DEPTH: 0
-  before_script:
-    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
-    - !reference [.compute-display-version, before_script]
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-build.sh android
+    - bash scripts/native-build.sh android
   artifacts:
     reports:
       dotenv: app/mobile/native-build-android.env
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 deploy:mobile-native-prod-ios:
-  extends: .mobile-native-prod
+  extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-ios"]
-  stage: deploy
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-submit.sh ios
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - bash scripts/native-submit.sh ios
 
 deploy:mobile-native-prod-android:
-  extends: .mobile-native-prod
+  extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-android"]
-  stage: deploy
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-submit.sh android
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - bash scripts/native-submit.sh android
+
+build:mobile-native-staging-ios:
+  extends: .mobile-native-build
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-build.sh ios
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-ios.env
+
+build:mobile-native-staging-android:
+  extends: .mobile-native-build
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-build.sh android
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-android.env
+
+deploy:mobile-native-staging-ios:
+  extends: .mobile-native-submit
+  needs: ["build:mobile-native-staging-ios"]
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-submit.sh ios
+
+deploy:mobile-native-staging-android:
+  extends: .mobile-native-submit
+  needs: ["build:mobile-native-staging-android"]
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-submit.sh android
 
 build:mobile-ota-prod:
   needs: ["protos"]

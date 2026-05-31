@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
-# Build the production store app on EAS when its fingerprint changes (build phase).
-# Submitting the build to the stores happens separately in production-submit.sh
-# (deploy phase). We emit the EAS build id and the fingerprint to a dotenv artifact
-# so the submit job knows what to ship and which fingerprint to record on success.
+# Build the store app for a release variant (staging or production) on EAS when its
+# fingerprint changes (build phase). Submitting the build to the stores happens
+# separately in native-submit.sh (deploy phase). We emit the EAS build id and the
+# fingerprint to a dotenv artifact so the submit job knows what to ship and which
+# fingerprint to record on success.
 #
 # A signed OTA only applies to an installed build whose runtimeVersion (the Expo
-# fingerprint) matches it, so when a native change moves the production fingerprint
+# fingerprint) matches it, so when a native change moves the variant's fingerprint
 # we cut a fresh store build; pure JS/TS changes ship over the air. We compare the
 # fingerprint against the last-submitted marker in S3 and skip the build (leaving
 # EAS_BUILD_ID empty) when it is unchanged.
 #
-# Usage: production-build.sh <ios|android>
-# Env:   EXPO_TOKEN          EAS auth (build scope)
+# Usage: native-build.sh <ios|android>
+# Env:   APP_VARIANT         staging | production — selects the bundle id / scheme /
+#                            signed updates config and the eas.json build profile
+#        EXPO_TOKEN          EAS auth (build scope)
 #        AWS_PREVIEW_BUCKET  the couchers-dev-assets bucket (holds the markers)
 #        plus the AWS creds the aws CLI reads from the environment
 # Run from app/mobile. Writes native-build-<platform>.env (a dotenv artifact).
 set -euo pipefail
 
-PLATFORM="${1:?usage: production-build.sh <ios|android>}"
+PLATFORM="${1:?usage: native-build.sh <ios|android>}"
 case "$PLATFORM" in
   ios | android) ;;
   *)
@@ -26,15 +29,26 @@ case "$PLATFORM" in
     ;;
 esac
 
-MARKER="s3://${AWS_PREVIEW_BUCKET}/production-builds/${PLATFORM}.fingerprint"
+VARIANT="${APP_VARIANT:?APP_VARIANT must be set (staging or production)}"
+case "$VARIANT" in
+  staging | production) ;;
+  *)
+    echo "APP_VARIANT must be staging or production (got $VARIANT)" >&2
+    exit 1
+    ;;
+esac
+
+# Separate marker per variant so staging and production track their store builds
+# independently; the eas.json build profile is named after the variant.
+MARKER="s3://${AWS_PREVIEW_BUCKET}/${VARIANT}-builds/${PLATFORM}.fingerprint"
 DOTENV="native-build-${PLATFORM}.env"
 
 # Read a single JSON field from stdin with node (no jq in the node:22 image).
 json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(String(eval("j"+process.argv[1])??""))})' "$1"; }
 
 # Fingerprint of the working tree — the same value EAS stamps as runtimeVersion
-# and the OTA publish job bakes into the manifest. APP_VARIANT=production (set by
-# the job) selects the production bundle id / scheme / signed updates config.
+# and the OTA publish job bakes into the manifest. APP_VARIANT (set by the job)
+# selects the variant's bundle id / scheme / signed updates config.
 CURRENT="$(npx expo-updates fingerprint:generate --platform "$PLATFORM" 2>/dev/null | json_field '.hash')"
 echo "current $PLATFORM fingerprint:        $CURRENT"
 
@@ -49,13 +63,13 @@ echo "last-submitted $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 # new build keeps the same runtimeVersion, so the live OTA bundle still applies;
 # autoIncrement bumps the build number so nothing collides.
 if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ]; then
-  echo "FORCE_NATIVE_BUILD_AND_SUBMIT set — building a new $PLATFORM production app regardless of fingerprint."
+  echo "FORCE_NATIVE_BUILD_AND_SUBMIT set — building a new $PLATFORM $VARIANT app regardless of fingerprint."
 elif [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
-  echo "Fingerprint unchanged for $PLATFORM — the live production build still matches, skipping build."
+  echo "Fingerprint unchanged for $PLATFORM — the live $VARIANT build still matches, skipping build."
   echo "EAS_BUILD_ID=" >> "$DOTENV"
   exit 0
 else
-  echo "Fingerprint changed for $PLATFORM — building a new production app on EAS."
+  echo "Fingerprint changed for $PLATFORM — building a new $VARIANT app on EAS."
 fi
 
 # EAS evaluates app.config.js and the native-build plugin on its own servers,
@@ -70,7 +84,7 @@ if [ -n "${DISPLAY_VERSION:-}" ]; then
   echo "wrote build-version.json: $DISPLAY_VERSION / ${DEBUG_VERSION:-}"
 fi
 
-BUILD_JSON="$(eas build --platform "$PLATFORM" --profile production --non-interactive --json)"
+BUILD_JSON="$(eas build --platform "$PLATFORM" --profile "$VARIANT" --non-interactive --json)"
 BUILD_ID="$(printf '%s' "$BUILD_JSON" | json_field '[0].id')"
 [ -n "$BUILD_ID" ] || {
   echo "could not determine the EAS build id from the build output" >&2
@@ -86,4 +100,4 @@ if [ "$BUILD_STATUS" != "finished" ]; then
   exit 1
 fi
 echo "EAS_BUILD_ID=$BUILD_ID" >> "$DOTENV"
-echo "Built $PLATFORM production app: $BUILD_ID"
+echo "Built $PLATFORM $VARIANT app: $BUILD_ID"

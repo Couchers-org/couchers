@@ -131,6 +131,8 @@ See [Expo Android emulator docs](https://docs.expo.dev/workflow/android-studio-e
 
 Staging builds point to `dev-api.couchershq.org` and are for internal testing only. The staging app (`Couchers (Staging)`) can be installed alongside the production app.
 
+> **CI builds staging automatically.** On every `develop` push, CI cuts and submits a fresh staging store build when the native fingerprint changes (and ships pure JS/TS changes over the air), exactly like production — see `app/.gitlab-ci.yml` (`build:`/`deploy:mobile-native-staging-*` and `build:mobile-ota-staging`). The manual commands below are the ad-hoc fallback; set `FORCE_NATIVE_BUILD_AND_SUBMIT=true` on a pipeline to force a fresh store build when the fingerprint is unchanged.
+
 ### Before Building
 
 Run these checks:
@@ -169,6 +171,8 @@ The build will be immediately available for internal testing (no review required
 - Coordinate with team before releasing
 
 Production builds point to `api.couchers.org` and are released to the public.
+
+> **CI builds production automatically.** On every `develop` push, CI cuts and submits a fresh production store build when the native fingerprint changes (and ships pure JS/TS changes over the air) — see `app/.gitlab-ci.yml` (`build:`/`deploy:mobile-native-prod-*` and `build:mobile-ota-prod`). The submit lands in TestFlight / the Play internal track; promoting to public review is still manual (below). The manual commands are the ad-hoc fallback.
 
 ### Before Building
 
