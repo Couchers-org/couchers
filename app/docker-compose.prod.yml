@@ -26,6 +26,9 @@ services:
     stop_grace_period: 30s
     init: true
     env_file: backend.prod.env
+    # py-spy (used by the Pyroscope profiling agent) reads process memory via ptrace
+    cap_add:
+      - SYS_PTRACE
     volumes:
       # auxiliary resources
       - "./data/aux/:/app/aux/:ro"
