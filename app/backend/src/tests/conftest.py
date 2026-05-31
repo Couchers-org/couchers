@@ -244,6 +244,11 @@ def testconfig():
     config["SLACK_DONATIONS_CHANNEL"] = ""
     config["SLACK_MERCH_CHANNEL"] = ""
 
+    # Profiling disabled by default in tests
+    config["PYROSCOPE_ENABLED"] = False
+    config["PYROSCOPE_SERVER"] = "https://localhost"
+    config["PYROSCOPE_AUTH_TOKEN"] = "token"
+
     yield None
 
     config.clear()

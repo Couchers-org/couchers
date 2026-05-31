@@ -285,6 +285,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "py-vapid" },
     { name = "pynacl" },
+    { name = "pyroscope-io" },
     { name = "python-dateutil" },
     { name = "pyyaml" },
     { name = "qrcode" },
@@ -346,6 +347,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2.0" },
     { name = "py-vapid", specifier = ">=1.9.2" },
     { name = "pynacl", specifier = ">=1.5.0" },
+    { name = "pyroscope-io", specifier = ">=1.0.9" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "qrcode", specifier = ">=8.0" },
@@ -1379,6 +1381,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/48/47/e761c254f410c023a469284a9bc210933e18588ca87706ae93002c05114c/pynacl-1.6.2-cp38-abi3-win32.whl", hash = "sha256:5811c72b473b2f38f7e2a3dc4f8642e3a3e9b5e7317266e4ced1fba85cae41aa", size = 227421, upload-time = "2026-01-01T17:32:33.076Z" },
     { url = "https://files.pythonhosted.org/packages/41/ad/334600e8cacc7d86587fe5f565480fde569dfb487389c8e1be56ac21d8ac/pynacl-1.6.2-cp38-abi3-win_amd64.whl", hash = "sha256:62985f233210dee6548c223301b6c25440852e13d59a8b81490203c3227c5ba0", size = 239754, upload-time = "2026-01-01T17:32:34.557Z" },
     { url = "https://files.pythonhosted.org/packages/29/7d/5945b5af29534641820d3bd7b00962abbbdfee84ec7e19f0d5b3175f9a31/pynacl-1.6.2-cp38-abi3-win_arm64.whl", hash = "sha256:834a43af110f743a754448463e8fd61259cd4ab5bbedcf70f9dabad1d28a394c", size = 184801, upload-time = "2026-01-01T17:32:36.309Z" },
+]
+
+[[package]]
+name = "pyroscope-io"
+version = "1.0.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cffi" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/70/c6/34a0507c6c997cb752cb23b65a5d3cfcbb8bdddabc5c107303b0927341d8/pyroscope_io-1.0.9.tar.gz", hash = "sha256:19822de49e310401c278ef1e0bf31a784c820b3ec4f04f9f710c5f53190a85b9", size = 31074, upload-time = "2026-05-29T02:19:38.888Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/7b/625812dcb54378fd5b20d960d6c92bd72f3f77285197f97bec10677ea15e/pyroscope_io-1.0.9-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:74f5f0a93a01bedd152e9102bf6e0963506b02ea336c9e0d649528265ab5f2a4", size = 3600847, upload-time = "2026-05-29T02:19:29.547Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/b2/8bea2d06aec23f7cf0510f27d59f2227a102879c73bfac3bd46bbab8aed2/pyroscope_io-1.0.9-cp310-abi3-macosx_11_0_x86_64.whl", hash = "sha256:019824ca46dce223f4508ba409bef9ec564c4740a6d93713b2c5891383e3af3e", size = 3818228, upload-time = "2026-05-29T02:19:31.223Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/1e/6f7b53a43ae45e4e75c933867a5ce6ce8270089d205dfbd44ae01e5693df/pyroscope_io-1.0.9-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:2e9262b89acfbe2b53fa87c90693116e988e7f7d37e1eca1ff9693fb326a6282", size = 6852652, upload-time = "2026-05-29T02:19:32.718Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/3d/d0982b484eb4e405fe1f0860722534473c547211152e9e5d3b65d035292f/pyroscope_io-1.0.9-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f0d0a7441269cae8156c7fa7426ee81573a8207a13508e56af9d8e127df1fe83", size = 6722222, upload-time = "2026-05-29T02:19:34.284Z" },
+    { url = "https://files.pythonhosted.org/packages/55/82/5a33636358d01642d90807b9840077f9fbe361b01d10dffaafa3b29da116/pyroscope_io-1.0.9-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:6a02e85d79ec8ac0fbdab8a76652b03f7fcac786b929b1aa9c294829613a03da", size = 6970645, upload-time = "2026-05-29T02:19:35.676Z" },
+    { url = "https://files.pythonhosted.org/packages/80/dc/b4f3c013c8476e56195300347110103ede8f4deb65a36f470cbaaf1d671d/pyroscope_io-1.0.9-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:a4b647a91cef820d2dbb2b8c7007e2d35be48d0a70853d5be6f42928d770e4a3", size = 6889493, upload-time = "2026-05-29T02:19:37.473Z" },
 ]
 
 [[package]]

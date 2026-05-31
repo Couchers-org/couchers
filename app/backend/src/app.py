@@ -27,6 +27,7 @@ from couchers.experimentation import setup_experimentation
 from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
+from couchers.profiling import setup_profiling
 from couchers.server import create_main_server, create_media_server
 from couchers.supervisor import supervise
 from couchers.tracing import setup_tracing
@@ -45,6 +46,7 @@ def _run_api_server(port: int) -> None:
         db_post_fork()
         setup_experimentation()
         setup_tracing()
+        setup_profiling(role="api", instance=f"api-{port}")
 
         server = create_main_server(port=port, start_resource_sampler=True)
         server.start()
@@ -128,7 +130,7 @@ def main() -> None:
 
     if config["ROLE"] in ["worker", "all"]:
         for i in range(config["BACKGROUND_WORKER_COUNT"]):
-            worker = start_jobs_worker()
+            worker = start_jobs_worker(i)
             worker.name = f"worker-{i}"
             children.append(worker)
 

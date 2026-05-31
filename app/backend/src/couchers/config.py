@@ -118,6 +118,11 @@ CONFIG_OPTIONS: CONFIG_T = [
     # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
     # is unreachable. Required when experimentation is enabled so we never start on in-code defaults.
     ("GROWTHBOOK_CACHE_PATH", str, ""),
+    # Continuous profiling (Pyroscope). Profiling is gated at runtime by the `profiling_enabled` feature
+    # flag; PYROSCOPE_ENABLED is the per-deployment master switch.
+    ("PYROSCOPE_ENABLED", bool),
+    ("PYROSCOPE_SERVER", str),
+    ("PYROSCOPE_AUTH_TOKEN", str),
     # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
     ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
     # User ID of the bot user for automated moderation actions
@@ -182,6 +187,10 @@ def check_config(cfg: dict[str, Any]) -> None:
             raise Exception("No GrowthBook client key but experimentation enabled")
         if not cfg["GROWTHBOOK_CACHE_PATH"]:
             raise Exception("No GrowthBook cache path but experimentation enabled")
+
+    if cfg["PYROSCOPE_ENABLED"]:
+        if not cfg["PYROSCOPE_SERVER"] or not cfg["PYROSCOPE_AUTH_TOKEN"]:
+            raise Exception("No Pyroscope server or auth token but profiling enabled")
 
 
 def make_config() -> dict[str, Any]:

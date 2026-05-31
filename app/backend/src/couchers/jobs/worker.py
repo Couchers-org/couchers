@@ -30,6 +30,7 @@ from couchers.metrics import (
     observe_in_jobs_duration_histogram,
 )
 from couchers.models import BackgroundJob, BackgroundJobState
+from couchers.profiling import setup_profiling
 from couchers.tracing import setup_tracing
 from couchers.utils import now
 
@@ -171,12 +172,14 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _run_forever(func: Callable[[], None]) -> None:
+def _run_forever(func: Callable[[], None], profile_instance: str | None = None) -> None:
     # Post-fork initialization: these services use threading/async internals that
     # don't survive fork() and must be initialized fresh in each child process
     db_post_fork()
     setup_tracing()
     setup_experimentation()
+    if profile_instance is not None:
+        setup_profiling(role="worker", instance=profile_instance)
 
     while True:
         try:
@@ -197,7 +200,7 @@ def start_jobs_scheduler() -> Process:
     return scheduler
 
 
-def start_jobs_worker() -> Process:
-    worker = Process(target=_run_forever, args=(service_jobs,))
+def start_jobs_worker(index: int) -> Process:
+    worker = Process(target=_run_forever, args=(service_jobs,), kwargs={"profile_instance": f"worker-{index}"})
     worker.start()
     return worker
