@@ -7,7 +7,7 @@ The per-branch **Dev Tool** previews are a separate mechanism (dev-launcher deep
 ## How it works, end to end
 
 1. **Build & sign (CI).** Per platform, CI runs `expo export`, computes the Expo fingerprint (the `runtimeVersion`), and stages the bundle + manifest with `ota-stage.mjs`. The manifest is code-signed (RSA-SHA256, PKCS#1 v1.5):
-   - **Production** — signed by the `tools/` publish lambda; the private key never touches CI.
+   - **Production** — signed server-side at publish time; the private key never touches CI.
    - **Staging** — signed in CI on `develop` (`ota-sign.mjs`, key in `STAGING_OTA_PRIVATE_KEY`).
 2. **Upload (CDN).** The signed manifest, `bundle.hbc`, and content-addressed assets go to `<cdn_root>/<version>/<platform>/`:
    - Production: `https://cdn.couchers.org/native/ota`
@@ -55,7 +55,7 @@ with an `expo-signature: sig="…", keyid="…", alg="rsa-v1_5-sha256"` header o
 
 ## See also
 
-- Signing/publish: `tools/lambdas/deploy/common/native_ota.py` (prod), `app/mobile/scripts/ota-sign.mjs` (staging)
+- Staging signing script: `app/mobile/scripts/ota-sign.mjs`
 - Staging CDN root: set the backend's `native_ota_cdn_root` flag to `https://next-static.couchershq.org/native/ota`
 - CI jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-prod`, `build:mobile-ota-staging`, `deploy:mobile-ota-staging`)
 - Manifest staging script: `app/mobile/scripts/ota-stage.mjs`

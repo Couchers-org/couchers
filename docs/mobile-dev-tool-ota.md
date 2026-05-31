@@ -26,12 +26,9 @@ The manifest is protocol-v1 `multipart/mixed` (a `manifest` part + an `extension
 
 The safety net is the fingerprint: if the manifest's `runtimeVersion` doesn't match the installed build's fingerprint, the client **silently ignores** the update. A JS-only branch built from the same native config matches; a branch that changed native deps doesn't, and needs a fresh native build. The update is also content-addressed by `id`, so the client no-ops if it already runs that `id`.
 
-## Infra: S3 + CloudFront edge (the existing `couchers-dev-assets` bucket)
+## Infra: S3 + CloudFront
 
-Two Lambda@Edge functions (must stay in `us-east-1`) we already run for web previews handle OTA with no new function:
-
-- `tools/lambdas/preview-viewer-request.js` maps host → S3 key prefix: `<sha>--ota.preview.couchershq.org` → `/ota/<sha>`, so a request for `/ios/manifest` becomes `/ota/<sha>/ios/manifest`. The `/web/` SPA special-case doesn't fire for `/ota/...`.
-- `tools/lambdas/preview-origin-response.js` injects the required `expo-protocol-version: 1` (and `expo-sfv-version: 0`) response header on OTA manifest responses. S3 can't emit it on its own, and **the client rejects the manifest without it** (confirmed on-device) — scoped by path so web previews are unaffected.
+Branches are served as static files from the existing `couchers-dev-assets` S3 + CloudFront we already use for web previews — no OTA server. The per-branch host `<sha>--ota.preview.couchershq.org` maps to the `/ota/<sha>/` prefix in the bucket, and the edge adds the `expo-protocol-version: 1` (and `expo-sfv-version: 0`) response header the client requires on the manifest (S3 can't emit it, and the client rejects the manifest without it — confirmed on-device).
 
 `<sha>` is the CI short commit SHA (URL-safe; branch names with slashes aren't). Per-SHA content is immutable, so CloudFront caches forever and no invalidation is ever needed. Layout:
 
@@ -74,7 +71,6 @@ OTA only covers changes that don't move the fingerprint. Native deps, `app.confi
 
 - Expo Updates protocol v1: https://docs.expo.dev/technical-specs/expo-updates-1/
 - Production/staging counterpart: `docs/native-prod-ota.md`
-- Edge functions: `tools/lambdas/preview-viewer-request.js`, `tools/lambdas/preview-origin-response.js`
 - App config / variants: `app/mobile/app.config.js`, `app/mobile/eas.json`, `app/mobile/.fingerprintignore`
 - Staging script + PR comment: `app/mobile/scripts/ota-stage.mjs`, `app/scripts/pr_preview_comment.py`
 - CI jobs: `app/.gitlab-ci.yml` (`build:mobile-ota`, `preview:mobile-ota`, `preview:pr-comment`, `build:devtool-native`)
