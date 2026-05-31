@@ -177,14 +177,6 @@ def test_unknown_feature_increments_metric_with_unknown_source(feature_flags):
     assert _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback") == before + 1
 
 
-def test_pass_all_gates_increments_metric(monkeypatch, feature_flags):
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", True)
-    before = _flag_eval_count("metric_gated_flag", "passAllGates", "true")
-    context = make_logged_out_context(LocalizationContext.en_utc())
-    assert context.get_boolean_value("metric_gated_flag", False) is True
-    assert _flag_eval_count("metric_gated_flag", "passAllGates", "true") == before + 1
-
-
 @pytest.fixture
 def setup_isolation(monkeypatch, tmp_path):
     """Run setup_experimentation() against a clean module state and a tmp cache path, and make sure the

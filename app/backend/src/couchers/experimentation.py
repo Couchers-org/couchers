@@ -273,7 +273,6 @@ def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], Gro
 
 def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
     if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        metrics.observe_feature_flag_evaluation(flag_key, "passAllGates", True)
         return True
     return _feature_value(flag_key, default, get_evaluator)
 
