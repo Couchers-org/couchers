@@ -15,7 +15,7 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 
 export function shouldPassAllGates(): boolean {
-  return process.env.NEXT_PUBLIC_EXPERIMENTATION_PASS_ALL_GATES === "1";
+  return process.env.EXPO_PUBLIC_EXPERIMENTATION_PASS_ALL_GATES === "1";
 }
 
 export function useGate(gateName: string): boolean {

@@ -33,6 +33,7 @@ import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
+import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
@@ -137,9 +138,11 @@ function RootLayout() {
         {/* Set status bar style based on theme: dark icons for light mode, light icons for dark mode */}
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthProvider>
-          <PushNotificationsRegistrar />
-          <RootNavigator fontsLoaded={fontsLoaded} />
-          <DevSettingsButton />
+          <FeatureFlagProvider>
+            <PushNotificationsRegistrar />
+            <RootNavigator fontsLoaded={fontsLoaded} />
+            <DevSettingsButton />
+          </FeatureFlagProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
