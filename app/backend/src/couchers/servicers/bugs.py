@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 _start_time = time.monotonic()
 
-_ACTION_TO_PROTO = {
+updateaction2api = {
     UpdateAction.none: bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
     UpdateAction.ota: bugs_pb2.NATIVE_UPDATE_ACTION_OTA,
     UpdateAction.store: bugs_pb2.NATIVE_UPDATE_ACTION_STORE,
@@ -218,7 +218,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         decision = decide_native_update(context, info, datetime.now(UTC))
 
         update_info = bugs_pb2.NativeUpdateInfo(
-            action=_ACTION_TO_PROTO[decision.action],
+            action=updateaction2api[decision.action],
             required=decision.required,
             message=decision.message,
             link_url=decision.link_url,
