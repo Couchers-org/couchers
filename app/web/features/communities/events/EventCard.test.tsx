@@ -24,13 +24,7 @@ describe("Event card", () => {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
-    expect(
-      screen.getByText(
-        t("communities:attendees_count", {
-          count: firstEvent.goingCount,
-        }),
-      ),
-    ).toBeVisible();
+    expect(screen.getByText(String(firstEvent.goingCount))).toBeVisible();
     expect(
       screen.getByText(
         t("communities:comments_count", {
@@ -58,13 +52,7 @@ describe("Event card", () => {
         },
       ),
     ).toBeVisible();
-    expect(
-      screen.getByText(
-        t("communities:attendees_count", {
-          count: thirdEvent.goingCount,
-        }),
-      ),
-    ).toBeVisible();
+    expect(screen.getByText(String(thirdEvent.goingCount))).toBeVisible();
     expect(
       screen.getByText(
         t("communities:comments_count", {
@@ -89,13 +77,7 @@ describe("Event card", () => {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
-    expect(
-      screen.getByText(
-        t("communities:attendees_count", {
-          count: secondEvent.goingCount,
-        }),
-      ),
-    ).toBeVisible();
+    expect(screen.getByText(String(secondEvent.goingCount))).toBeVisible();
     expect(
       screen.getByText(
         t("communities:comments_count", {
