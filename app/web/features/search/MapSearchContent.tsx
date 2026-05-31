@@ -50,16 +50,12 @@ const SearchResultsContainer = styled("div", {
     height: "100%",
     width: isListOnlyView ? "100%" : `${drawerWidth}px`,
 
-    ...(!isListOnlyView && {
-      [theme.breakpoints.down("md")]: {
-        width: "100%",
-        height: "45%",
-        minHeight: 0,
-        order: 2,
-        boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        overflow: "hidden",
-      },
-    }),
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      height: isListOnlyView ? "100%" : "45%",
+      order: 2,
+      transition: "height 0.3s ease",
+    },
   }),
 );
 
@@ -83,12 +79,12 @@ const MapContainer = styled("div", {
 
     [theme.breakpoints.down("md")]: {
       width: "100%",
-      height: "55%",
+      height: isListOnlyView ? "0%" : "55%",
       order: 1,
-      ...(isListOnlyView && {
-        width: 0,
-        height: 0,
-      }),
+      transition: "height 0.3s ease",
+      position: "relative",
+      overflow: "hidden",
+      pointerEvents: "auto",
     },
   }),
 );
