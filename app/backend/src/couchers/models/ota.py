@@ -2,7 +2,17 @@ import enum
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint, func
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -50,4 +60,12 @@ class OTAPackage(Base, kw_only=True):
     __table_args__ = (
         UniqueConstraint("platform", "version", name="uq_ota_packages_platform_version"),
         Index("ix_ota_packages_resolve", "platform", "fingerprint", "manifest_created_at"),
+        # All three ban columns move together: either the package isn't banned, or every audit field
+        # is filled in. Bans are irreversible (rolled forward by republishing) so the reason is
+        # required.
+        CheckConstraint(
+            "(banned_at IS NULL AND banned_by_user_id IS NULL AND banned_reason IS NULL) "
+            "OR (banned_at IS NOT NULL AND banned_by_user_id IS NOT NULL AND banned_reason IS NOT NULL)",
+            name="ck_ota_packages_ban_columns_consistent",
+        ),
     )

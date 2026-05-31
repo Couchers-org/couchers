@@ -1733,7 +1733,7 @@ def test_ListOTAPackages(db):
         assert [p.version for p in ios.packages] == ["v1.3.2.ios", "v1.3.1.ios"]
 
 
-def test_BanAndUnbanOTAPackage(db):
+def test_BanOTAPackage(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     manifests = {
@@ -1766,10 +1766,21 @@ def test_BanAndUnbanOTAPackage(db):
         non_banned = api.ListOTAPackages(admin_pb2.ListOTAPackagesReq())
         assert [p.version for p in non_banned.packages] == ["v1.3.1.good"]
 
-        unbanned = api.UnbanOTAPackage(admin_pb2.UnbanOTAPackageReq(ota_package_id=second.ota_package_id))
-        assert unbanned.banned is False
-        assert unbanned.banned_reason == ""
-        assert unbanned.live is True
+
+def test_BanOTAPackage_requires_reason(db):
+    _, super_token = generate_user(is_superuser=True)
+
+    manifests = {
+        "v1.3.1": _ota_manifest(version="v1.3.1", fingerprint="ios-fp", created_at="2026-05-30T00:00:00.000Z"),
+    }
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
+        pkg = api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1"))
+        with pytest.raises(grpc.RpcError) as e:
+            api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=pkg.ota_package_id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        with pytest.raises(grpc.RpcError) as e:
+            api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=pkg.ota_package_id, reason="   "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_BanOTAPackage_not_found(db):
@@ -1777,5 +1788,5 @@ def test_BanOTAPackage_not_found(db):
 
     with real_admin_session(super_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=123456))
+            api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=123456, reason="never mind"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND

@@ -475,6 +475,8 @@ def _add_ota_package(*, platform, fingerprint, version, created_at, banned=False
             manifest_created_at=created_at,
             manifest_id=f"id-{version}",
             banned_at=created_at if banned else None,
+            banned_by_user_id=creator.id if banned else None,
+            banned_reason="test ban" if banned else None,
         )
         session.add(package)
         session.flush()

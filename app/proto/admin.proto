@@ -116,10 +116,9 @@ service Admin {
 
   rpc BanOTAPackage(BanOTAPackageReq) returns (OTAPackage) {
     // Ban a package so it's no longer served; a matching client falls back to the next-newest
-    // non-banned package (i.e. a rollback), or to no update if none remain
+    // non-banned package (i.e. a rollback), or to no update if none remain. Irreversible — to undo
+    // an accidental ban, republish the bundle as a new package (rolling forward).
   }
-
-  rpc UnbanOTAPackage(UnbanOTAPackageReq) returns (OTAPackage) {}
 }
 
 message AdminActionLog {
@@ -669,8 +668,4 @@ message ListOTAPackagesRes {
 message BanOTAPackageReq {
   int64 ota_package_id = 1;
   string reason = 2;
-}
-
-message UnbanOTAPackageReq {
-  int64 ota_package_id = 1;
 }

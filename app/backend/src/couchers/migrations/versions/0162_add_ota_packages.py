@@ -36,6 +36,11 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_ota_packages")),
         sa.UniqueConstraint("platform", "version", name="uq_ota_packages_platform_version"),
+        sa.CheckConstraint(
+            "(banned_at IS NULL AND banned_by_user_id IS NULL AND banned_reason IS NULL) "
+            "OR (banned_at IS NOT NULL AND banned_by_user_id IS NOT NULL AND banned_reason IS NOT NULL)",
+            name="ck_ota_packages_ban_columns_consistent",
+        ),
     )
     op.create_index(op.f("ix_ota_packages_creator_user_id"), "ota_packages", ["creator_user_id"])
     op.create_index("ix_ota_packages_resolve", "ota_packages", ["platform", "fingerprint", "manifest_created_at"])

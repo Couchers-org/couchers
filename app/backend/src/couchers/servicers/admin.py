@@ -1384,6 +1384,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def BanOTAPackage(
         self, request: admin_pb2.BanOTAPackageReq, context: CouchersContext, session: Session
     ) -> admin_pb2.OTAPackage:
+        # Bans are irreversible — to roll back an accidental ban, republish the bundle as a new
+        # package — so a reason is required for the audit trail.
+        if not request.reason.strip():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "ota_ban_reason_required")
+
         package = session.execute(
             select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
         ).scalar_one_or_none()
@@ -1393,23 +1398,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if package.banned_at is None:
             package.banned_at = now()
             package.banned_by_user_id = context.user_id
-            package.banned_reason = request.reason or None
-        session.flush()
-
-        return _ota_package_to_pb(package, _live_ota_package_ids(session))
-
-    def UnbanOTAPackage(
-        self, request: admin_pb2.UnbanOTAPackageReq, context: CouchersContext, session: Session
-    ) -> admin_pb2.OTAPackage:
-        package = session.execute(
-            select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
-        ).scalar_one_or_none()
-        if package is None:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
-
-        package.banned_at = None
-        package.banned_by_user_id = None
-        package.banned_reason = None
+            package.banned_reason = request.reason
         session.flush()
 
         return _ota_package_to_pb(package, _live_ota_package_ids(session))

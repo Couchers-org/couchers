@@ -172,6 +172,7 @@
     "notification_not_found": "Notification not found.",
     "object_not_found": "Object not found.",
     "online_event_missing_parent_community": "The online event is missing a parent community.",
+    "ota_ban_reason_required": "A reason is required when banning an OTA package.",
     "ota_package_already_exists": "An OTA package with this manifest id already exists for this platform.",
     "ota_package_not_found": "OTA package not found.",
     "online_event_requires_link": "An online-only event requires a link.",
