@@ -6,32 +6,13 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 import re
 from collections.abc import Mapping
 from datetime import date, datetime, time, tzinfo
-from functools import lru_cache
-from pathlib import Path
 from typing import cast
 
 import babel
 import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
 
-from couchers.i18n.i18next import I18Next
-from couchers.i18n.locales import DEFAULT_LOCALE, load_locales
-
-
-@lru_cache(maxsize=1)
-def get_main_i18next() -> I18Next:
-    """Gets the I18Next instance for the main locales files."""
-    return load_locales(Path(__file__).parent / "locales")
-
-
-def get_babel_locale(locale_list: list[str]) -> babel.Locale:
-    """Resolves a babel.Locale object from a list of locale candidates."""
-    for locale in locale_list:
-        try:
-            return babel.Locale.parse(locale, sep="-")
-        except babel.UnknownLocaleError:
-            continue
-    raise LookupError(f"No babel locale found for locales {', '.join(locale_list)}")
+from couchers.i18n.locales import DEFAULT_LOCALE, get_main_i18next
 
 
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:

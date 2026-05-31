@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
 import {
+  currentActiveWebPathRef,
   detailRouteOriginRef,
   lastMobileNavigationRef,
 } from "@/state/webViewState";
@@ -153,6 +154,7 @@ export function useWebNavigation({
       const previousWebPathWithoutQuery =
         currentWebPathRef.current.split("?")[0];
       currentWebPathRef.current = webPath;
+      currentActiveWebPathRef.current = webPath;
 
       // Sync native route when WebView navigates to a different page
       const targetRoute = getRouteNameForPath(webPathWithoutQuery);

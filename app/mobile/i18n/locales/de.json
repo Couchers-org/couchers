@@ -27,5 +27,16 @@
     "choose_from_library": "Aus der Bibliothek wählen",
     "open_settings": "Einstellungen öffnen",
     "choose_photo_source": "Wähle aus, woher dein Foto stammen soll"
+  },
+  "update": {
+    "required_title": "Update erforderlich",
+    "recommended_title": "Bitte update bald",
+    "available_title": "Update verfügbar",
+    "default_message": "Eine neue Version von Couchers ist verfügbar. update, um die App weiterhin nutzen zu können.",
+    "deadline": "Bitte update bis {{date}}.",
+    "action_update": "Jetzt updaten",
+    "action_reinstall": "Hol dir die neue App",
+    "later": "Später",
+    "failed": "Das Update konnte nicht angewendet werden. Bitte versuche es erneut."
   }
 }

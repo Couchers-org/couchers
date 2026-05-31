@@ -10,9 +10,23 @@ from couchers.context import make_background_user_context, make_logged_out_conte
 from couchers.db import session_scope
 from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
 from couchers.i18n import LocalizationContext
+from couchers.metrics import feature_flag_evaluations_counter
 from couchers.models.logging import ExperimentExposure, FeatureUsage
 from couchers.proto import bugs_pb2
 from tests.fixtures.sessions import bugs_session
+
+
+def _flag_eval_count(flag_key: str, source: str, value: str) -> float:
+    return sum(
+        s.value
+        for m in feature_flag_evaluations_counter.collect()
+        for s in m.samples
+        if s.name == "couchers_feature_flag_evaluations_total"
+        and s.labels.get("flag_key") == flag_key
+        and s.labels.get("source") == source
+        and s.labels.get("value") == value
+    )
+
 
 # Raw GrowthBook feature definitions for exercising the framework's own bucketing/exposure mechanics.
 # Most tests just need feature_flags.set(key, value); these go through feature_flags.set_definition().
@@ -148,6 +162,19 @@ def test_global_evaluation_gets_global_force_on_flag(feature_flags):
 
 def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags):
     assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"
+
+
+def test_evaluation_increments_metric_with_source_and_value(feature_flags):
+    feature_flags.set("metric_flag", "yes")
+    before = _flag_eval_count("metric_flag", "defaultValue", "yes")
+    assert experimentation.get_global_string_value("metric_flag", "no") == "yes"
+    assert _flag_eval_count("metric_flag", "defaultValue", "yes") == before + 1
+
+
+def test_unknown_feature_increments_metric_with_unknown_source(feature_flags):
+    before = _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback")
+    assert experimentation.get_global_string_value("metric_unknown_flag", "fallback") == "fallback"
+    assert _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback") == before + 1
 
 
 @pytest.fixture

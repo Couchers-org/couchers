@@ -19,6 +19,14 @@ export const detailRouteOriginRef = { current: null as string | null };
 export const dispatchEscapeRef = { current: null as (() => void) | null };
 
 /**
+ * The web path currently visible in the active WebView tab
+ * (e.g. "/en/messages/chats/123"). Used by the foreground notification handler
+ * to suppress banners when the user is already viewing the relevant content.
+ * Updated by useWebNavigation on every navigation state change.
+ */
+export const currentActiveWebPathRef = { current: null as string | null };
+
+/**
  * Timestamp (Date.now()) of the most recent LOGIN_SUCCESS. Used by WebEmbed's
  * LOGOUT handler to distinguish real logouts from cookie-sync false alarms:
  * iOS's WKHTTPCookieStore→NSHTTPCookieStorage sync is progressively slower

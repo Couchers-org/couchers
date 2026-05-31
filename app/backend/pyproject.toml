@@ -42,6 +42,7 @@ dependencies = [
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
     "growthbook>=1.2.0",
+    "pyroscope-io>=1.0.9",
 ]
 
 [project.scripts]
@@ -136,7 +137,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

@@ -1,5 +1,8 @@
 import json
+from functools import lru_cache
 from pathlib import Path
+
+import babel
 
 from couchers.i18n.i18next import I18Next
 
@@ -19,6 +22,46 @@ _LOCALE_FALLBACKS: dict[str, str] = {
 }
 
 
+def get_supported_locales() -> list[str]:
+    """Gets the list of supported locales (i.e., for which we have translations)."""
+    return list(get_main_i18next().translations_by_locale.keys())
+
+
+def is_supported_locale(locale: str) -> bool:
+    """Checks if a locale is supported (i.e., if we have translations for it)."""
+    return locale in get_main_i18next().translations_by_locale.keys()
+
+
+def to_supported_locale(locale: str) -> str:
+    """Converts a locale to the closest supported one."""
+
+    if is_supported_locale(locale):
+        return locale
+
+    # Normalize casing in case that's why we don't have a match (e.g., "en-us" vs "en-US")
+    try:
+        # Locale.parse returns either a 4-tuple or a 5-tuple
+        result_tuple = babel.parse_locale(locale, sep="-")
+        if len(result_tuple) == 4:
+            result = (*result_tuple, None)  # Normalize to 5-tuple for unpacking
+        language, territory, script, _, _ = result
+    except ValueError:
+        return DEFAULT_LOCALE
+
+    language = language.lower()
+    territory = territory.upper() if territory else None  # pt-BR, fr-CA
+    script = script.title() if script else None  # zh-Hans, zh-Hant
+
+    normalized_locale = "-".join(filter(None, [language, territory, script]))
+    if is_supported_locale(normalized_locale):
+        return normalized_locale
+
+    if is_supported_locale(language):
+        return language
+
+    return DEFAULT_LOCALE
+
+
 def get_locale_fallbacks(locale: str) -> list[str]:
     """Gets the list of locales to which to fallback to if the given one is unavailable."""
     if fallback := _LOCALE_FALLBACKS.get(locale):
@@ -26,6 +69,14 @@ def get_locale_fallbacks(locale: str) -> list[str]:
     if locale == DEFAULT_LOCALE:
         return []
     return [DEFAULT_LOCALE]
+
+
+def get_babel_locale(locale: str) -> babel.Locale:
+    """
+    Returns the babel locale object for a given locale string.
+    Guaranteed by tests to succeed for supported locales.
+    """
+    return babel.Locale.parse(locale, sep="-")
 
 
 def load_locales(directory: Path) -> I18Next:
@@ -55,3 +106,9 @@ def load_locales(directory: Path) -> I18Next:
             translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next
+
+
+@lru_cache(maxsize=1)
+def get_main_i18next() -> I18Next:
+    """Gets the I18Next instance for the main locales files."""
+    return load_locales(Path(__file__).parent / "locales")

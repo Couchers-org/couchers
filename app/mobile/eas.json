@@ -31,6 +31,26 @@
         "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
         "EXPO_PUBLIC_COUCHERS_ENV": "prod"
       }
+    },
+    "devtool": {
+      "developmentClient": true,
+      "distribution": "store",
+      "autoIncrement": true,
+      "channel": "development",
+      "environment": "preview",
+      "env": {
+        "APP_VARIANT": "devtool",
+        "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "devtool"
+      }
+    },
+    "devtool-apk": {
+      "extends": "devtool",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {
@@ -50,7 +70,13 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "completed"
+        "releaseStatus": "completed",
+        "changesNotSentForReview": true
+      }
+    },
+    "devtool": {
+      "ios": {
+        "ascAppId": "6772371797"
       }
     }
   }

@@ -26,17 +26,32 @@ services:
     stop_grace_period: 30s
     init: true
     env_file: backend.prod.env
+    # py-spy (used by the Pyroscope profiling agent) reads process memory via ptrace
+    cap_add:
+      - SYS_PTRACE
     volumes:
       # auxiliary resources
       - "./data/aux/:/app/aux/:ro"
       # persistent GrowthBook feature-flag cache (GROWTHBOOK_CACHE_PATH), survives deploys
       - "./data/cache/:/data/cache/"
     expose:
-      - 1751
+      # api workers (match API_WORKER_COUNT / envoy.yaml)
+      - 1761
+      - 1762
+      - 1763
+      - 1764
+      # media
       - 1753
     depends_on:
       - postgres
       - jaeger
+    healthcheck:
+      # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
+      test: ["CMD", "python", "src/healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
     networks:
       - backend_prometheus
       - postgres_backend
@@ -91,10 +106,17 @@ services:
     dns_search: ""
   # generates prometheus metrics for the database
   pgprom:
-    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.18.0
     restart: always
     stop_grace_period: 5s
     env_file: pgprom.prod.env
+    command:
+      # per-query pg_stat_statements metrics
+      - "--collector.stat_statements"
+      # emit the queryid->text mapping (normalized SQL, no literals)
+      - "--collector.stat_statements.include_query"
+      # raise the 120-char default so long statements aren't cut off
+      - "--collector.stat_statements.query_length=2048"
     expose:
       - 9187
     networks:

@@ -7,10 +7,14 @@ import babel
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.locales import DEFAULT_LOCALE, get_locale_fallbacks
-from couchers.i18n.localize import (
+from couchers.i18n.locales import (
+    DEFAULT_LOCALE,
     get_babel_locale,
+    get_locale_fallbacks,
     get_main_i18next,
+    is_supported_locale,
+)
+from couchers.i18n.localize import (
     localize_date,
     localize_datetime,
     localize_time,
@@ -40,10 +44,13 @@ class LocalizationContext:
     babel_locale: babel.Locale
 
     def __init__(self, locale: str, timezone: tzinfo) -> None:
+        if not is_supported_locale(locale):
+            raise ValueError(f"Unsupported locale {locale}.")
+
         self.locale = locale
         self.locale_list = [self.locale] + get_locale_fallbacks(self.locale)
         self.timezone = timezone
-        self.babel_locale = get_babel_locale(self.locale_list)
+        self.babel_locale = get_babel_locale(locale)
 
     def __setattr__(self, name: str, value: Any) -> None:
         # Freeze after initialization. We can't use @dataclass(frozen=True) because then

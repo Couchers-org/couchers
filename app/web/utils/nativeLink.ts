@@ -41,7 +41,8 @@ type MessageType =
   | "clearState"
   | "REQUEST_IMAGE_PICK"
   | "NATIVE_BACK"
-  | "LANGUAGE_CHANGE";
+  | "LANGUAGE_CHANGE"
+  | "REQUEST_REVIEW";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -64,6 +65,10 @@ export function clearState(key: string) {
 
 export function sendLanguageChange(locale: string) {
   sendToNative("LANGUAGE_CHANGE", { locale });
+}
+
+export function sendNativeRequestReview() {
+  sendToNative("REQUEST_REVIEW", {});
 }
 
 // Image picker bridge for native mobile app

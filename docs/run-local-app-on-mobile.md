@@ -1,27 +1,47 @@
 # How to run the local dev environment on your phone
 
-It's possible to run your local dev environment on your phone, for example if you need to replicate a bug only affecting mobile. Follow these steps:
+Run the setup script from the repo root — it auto-detects your local IP and updates all the config files at once:
 
-1. Find your local IP address:
-   - Mac: Click Apple icon menu => System Settings => Network => Wi-Fi => Details button => IP Address
-   - Linux: In the terminal type command `hostname -I` and hit Enter.
-   - Windows: Click Start Menu => Settings => Network and internet => Properties => IPv4 address
-2. In `app/proxy/envoy.yaml`, under the line `envoy.filters.http.cors` add a line after localhost:3000
-   - `- exact: http://{YOUR_IP_ADDRESS}:3000`
-3. In `app/backend.dev.env` change the value of `COOKIE_DOMAIN` to `COOKIE_DOMAIN={YOUR_IP_ADDRESS}`. No http or slashes here.
-4. In `app/web/.env.localdev` and `app/web/.env.development` (or `.env.development.local` depending what you're using), change this value:
-   - `NEXT_PUBLIC_API_BASE_URL=http://{YOUR_IP_ADDRESS}:8888`
-5. (Optional) If you need to test **photo uploads** from your phone, update the media server URLs in both env files (same IP in both):
-   - `app/backend.dev.env`: `MEDIA_SERVER_BASE_URL=http://{YOUR_IP_ADDRESS}:5001` and `MEDIA_SERVER_UPLOAD_BASE_URL=http://{YOUR_IP_ADDRESS}:5001`
-   - `app/media.dev.env`: `MEDIA_SERVER_BASE_URL=http://{YOUR_IP_ADDRESS}:5001` (so upload response URLs work in the app)
-6. If you're working on the React Native mobile app, update `app/mobile/.env` - comment out the stage env vars and add dev vars:
-   ```
-   # LOCAL:
-   EXPO_PUBLIC_COUCHERS_ENV=dev
-   EXPO_PUBLIC_API_BASE_URL="http://{YOUR_IP_ADDRESS}:8888"
-   EXPO_PUBLIC_WEB_BASE_URL="http://{YOUR_IP_ADDRESS}:3000"
-   ```
-7. Restart the backend. Spin your docker containers down, then run:
-   - `docker compose up --build`
-8. Restart your frontend: `yarn start`
-9. Now you should be able to access `http://{YOUR_IP_ADDRESS}:3000/` on your phone and log in to actively see how your local changes affect mobile.
+```bash
+python3 app/scripts/dev-mobile-setup.py
+```
+
+Or pass your IP explicitly if auto-detection picks the wrong interface:
+
+```bash
+python3 app/scripts/dev-mobile-setup.py 192.168.x.x
+```
+
+Then restart everything (each in a separate terminal, from the **repo root** unless noted):
+
+```bash
+# 1. Restart the backend (requires Docker to be running)
+docker compose up --build
+
+# 2. Restart the web frontend
+cd app/web && yarn start
+
+# 3. Start Expo
+cd app/mobile && npx expo start
+```
+
+You can now access `http://<your-ip>:3000/` on your phone and log in to see local changes.
+
+> **Do not commit the `app/proxy/envoy.yaml` change** — it's local-only.
+
+When you're done, restore all files to their defaults:
+
+```bash
+python3 app/scripts/dev-mobile-setup.py --restore
+```
+
+## What the script changes
+
+| File | Change |
+|------|--------|
+| `app/proxy/envoy.yaml` | Adds your IP to the CORS allow list |
+| `app/backend.dev.env` | Sets `COOKIE_DOMAIN`, `MEDIA_SERVER_BASE_URL`, and `MEDIA_SERVER_UPLOAD_BASE_URL` |
+| `app/media.dev.env` | Sets `MEDIA_SERVER_BASE_URL` (needed for image upload response URLs) |
+| `app/web/.env.localdev` | Points API and media URLs at your IP |
+| `app/web/.env.development` | Points API and media URLs at your IP |
+| `app/mobile/.env` | Switches from staging to local dev mode |

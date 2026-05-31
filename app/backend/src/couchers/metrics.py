@@ -1,8 +1,9 @@
 import threading
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from opentelemetry import trace
 from prometheus_client import (
@@ -16,7 +17,8 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy import and_, case, select
+from sqlalchemy import Engine, and_, case, select
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
@@ -47,6 +49,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
 
@@ -54,6 +57,45 @@ registry: CollectorRegistry = CollectorRegistry()
 multiprocess.MultiProcessCollector(registry)  # type: ignore[no-untyped-call]
 
 _INF: float = float("inf")
+
+# Dense from 1ms to ~300ms where most calls land, sparse out to 10min for long background jobs.
+MACHINE_DURATION_SECONDS: tuple[float, ...] = (
+    0.001,
+    0.0025,
+    0.005,
+    0.0075,
+    0.01,
+    0.015,
+    0.02,
+    0.03,
+    0.04,
+    0.05,
+    0.06,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.4,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0,
+    7.5,
+    10.0,
+    15.0,
+    30.0,
+    60,
+    120,
+    300,
+    600,
+    _INF,
+)
 
 start_time_gauge: Gauge = Gauge(
     "couchers_start_time_seconds",
@@ -75,6 +117,7 @@ jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
     labelnames=["job", "status", "attempt", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -87,7 +130,37 @@ def observe_in_jobs_duration_histogram(
 jobs_queued_histogram: Histogram = Histogram(
     "couchers_background_jobs_queued_seconds",
     "Time background job spent queued before being picked up",
-    buckets=(0.01, 0.05, 0.1, 0.5, 1.0, 2.5, 5.0, 10, 20, 30, 40, 50, 60, 90, 120, 300, 600, 1800, 3600, _INF),
+    labelnames=["priority"],
+    buckets=(
+        0.01,
+        0.05,
+        0.1,
+        0.5,
+        1.0,
+        2.5,
+        5.0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        90,
+        120,
+        180,
+        240,
+        300,
+        360,
+        420,
+        480,
+        540,
+        600,
+        720,
+        900,
+        1800,
+        3600,
+        _INF,
+    ),
 )
 
 
@@ -95,6 +168,7 @@ servicer_duration_histogram: Histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
     labelnames=["method", "logged_in", "code", "exception"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 
 
@@ -122,11 +196,13 @@ servicer_db_time_histogram: Histogram = Histogram(
     "couchers_servicer_db_time_seconds",
     "Time spent in DB cursor execution per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 servicer_cpu_time_histogram: Histogram = Histogram(
     "couchers_servicer_cpu_seconds",
     "Backend thread CPU time per gRPC call",
     labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
 )
 # Fibonacci bucket boundaries: roughly exponential, good resolution for an unbounded value
 servicer_db_query_count_histogram: Histogram = Histogram(
@@ -143,13 +219,97 @@ servicer_db_write_query_count_histogram: Histogram = Histogram(
 )
 
 
-def observe_in_servicer_perf_histograms(
-    method: str, db_query_count: int, db_write_query_count: int, db_time_ms: float, cpu_ms: float
-) -> None:
-    servicer_db_time_histogram.labels(method).observe(db_time_ms / 1000)
-    servicer_cpu_time_histogram.labels(method).observe(cpu_ms / 1000)
-    servicer_db_query_count_histogram.labels(method).observe(db_query_count)
-    servicer_db_write_query_count_histogram.labels(method).observe(db_write_query_count)
+def observe_in_servicer_perf_histograms(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
+    servicer_db_query_count_histogram.labels(method).observe(perf.db_query_count)
+    servicer_db_write_query_count_histogram.labels(method).observe(perf.db_write_query_count)
+
+
+# Auth/setup phase (everything before the handler body), same db-vs-cpu split as the handler-body histograms above.
+servicer_setup_db_time_histogram: Histogram = Histogram(
+    "couchers_servicer_setup_db_time_seconds",
+    "Time spent in DB cursor execution during the auth/setup phase per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+servicer_setup_cpu_time_histogram: Histogram = Histogram(
+    "couchers_servicer_setup_cpu_seconds",
+    "Backend thread CPU time during the auth/setup phase per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_setup_histogram(method: str, perf: PerfResult | None) -> None:
+    if perf is None:
+        return
+    servicer_setup_db_time_histogram.labels(method).observe(perf.db_time_ms / 1000)
+    servicer_setup_cpu_time_histogram.labels(method).observe(perf.cpu_ms / 1000)
+
+
+servicer_pool_wait_histogram: Histogram = Histogram(
+    "couchers_servicer_pool_wait_seconds",
+    "Time spent waiting to check out a DB connection from the pool per gRPC call",
+    labelnames=["method"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_pool_wait_histogram(method: str, pool_wait_s: float) -> None:
+    servicer_pool_wait_histogram.labels(method).observe(pool_wait_s)
+
+
+# Separate diagnostic, not part of the additive duration pie: "serialize" runs after the duration window closes.
+servicer_serde_histogram: Histogram = Histogram(
+    "couchers_servicer_serde_seconds",
+    "Protobuf request deserialization / response serialization time per gRPC call",
+    labelnames=["method", "direction"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_in_servicer_serde_histogram(method: str, direction: str, serde_s: float) -> None:
+    servicer_serde_histogram.labels(method, direction).observe(serde_s)
+
+
+# liveall keeps one series per worker pid (and drops dead workers), so these also show load balance across workers.
+# Updated from inside each worker since the /metrics scrape runs in the parent, which has neither pool.
+grpc_in_flight_gauge: Gauge = Gauge(
+    "couchers_grpc_in_flight",
+    "Outstanding gRPC calls (running plus queued for a server thread), per worker process",
+    multiprocess_mode="liveall",
+)
+grpc_threadpool_queue_depth_gauge: Gauge = Gauge(
+    "couchers_grpc_threadpool_queue_depth",
+    "gRPC calls queued waiting for a free server thread, per worker process",
+    multiprocess_mode="liveall",
+)
+db_pool_checked_out_gauge: Gauge = Gauge(
+    "couchers_db_pool_checked_out",
+    "Checked-out DB connections, per worker process",
+    multiprocess_mode="liveall",
+)
+
+
+def start_worker_resource_sampler(executor: ThreadPoolExecutor, engine: Engine, interval: float = 1.0) -> None:
+    def sample() -> None:
+        while True:
+            # _work_queue is private but stable: tasks gRPC has submitted that no thread has picked up yet
+            grpc_threadpool_queue_depth_gauge.set(executor._work_queue.qsize())
+            db_pool_checked_out_gauge.set(cast(QueuePool, engine.pool).checkedout())
+            time.sleep(interval)
+
+    threading.Thread(target=sample, daemon=True, name="resource-sampler").start()
+
+
+supervised_children_alive_gauge: Gauge = Gauge(
+    "couchers_supervised_children_alive",
+    "Child processes (API workers, background workers, scheduler) the supervisor currently sees alive",
+    multiprocess_mode="mostrecent",
+)
 
 
 # Simple count of API calls, broken down by method and the client platform header. Cheap (a counter, no buckets) and
@@ -786,6 +946,30 @@ feature_flags_staleness_gauge: Gauge = Gauge(
     multiprocess_mode="mostrecent",
 )
 _set_hacky_gauges_funcs.append((feature_flags_staleness_gauge, _feature_flags_staleness_seconds))
+
+
+feature_flag_evaluations_counter: Counter = Counter(
+    "couchers_feature_flag_evaluations_total",
+    "Number of feature flag evaluations, by flag key, evaluation source, and resolved value",
+    labelnames=["flag_key", "source", "value"],
+)
+
+_MAX_FLAG_VALUE_LABEL_LEN = 32
+
+
+def _stringify_flag_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        s = str(value)
+        return s if len(s) <= _MAX_FLAG_VALUE_LABEL_LEN else f"<{type(value).__name__}>"
+    if value is None:
+        return "None"
+    return f"<{type(value).__name__}>"
+
+
+def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> None:
+    feature_flag_evaluations_counter.labels(flag_key, source, _stringify_flag_value(value)).inc()
 
 
 def create_prometheus_server(port: int) -> Any:

@@ -1,18 +1,17 @@
 import { appGetLayout } from "components/AppRoute";
 import Signup from "features/auth/signup/Signup";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import { AUTH, GLOBAL, LANDING, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-
-import nextI18nextConfig from "../next-i18next.config";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [AUTH, GLOBAL, LANDING, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      AUTH,
+      GLOBAL,
+      LANDING,
+      NOTIFICATIONS,
+    ])),
   },
 });
 

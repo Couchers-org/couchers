@@ -316,6 +316,8 @@ class UserActivity(Base, kw_only=True):
             user_agent,
             sofa,
             unique=True,
+            # treat NULL ip_address/user_agent/sofa as equal so the upsert dedupes rows with absent columns
+            postgresql_nulls_not_distinct=True,
         ),
     )
 
