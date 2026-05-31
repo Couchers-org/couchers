@@ -266,16 +266,70 @@ def test_ShadowUser(db):
 
 def test_UnshadowUser(db):
     super_user, super_token = generate_user(is_superuser=True)
-    normal_user, _ = generate_user()
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        shadow_cascade_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+        admin_hidden_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
     with session_scope() as session:
-        session.execute(select(User).where(User.id == normal_user.id)).scalar_one().shadowed_at = now()
+        session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
+        session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == shadow_cascade_request_id)
+        ).scalar_one().visibility = ModerationVisibility.shadowed
+        session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == admin_hidden_request_id)
+        ).scalar_one().visibility = ModerationVisibility.hidden
 
     with real_admin_session(super_token) as api:
-        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=normal_user.username, admin_note="rehabilitated"))
+        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=surfer.username, admin_note="rehabilitated"))
     assert not res.shadowed
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "unshadow"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(ModerationState)
+                .where(ModerationState.object_type == ModerationObjectType.host_request)
+                .where(ModerationState.object_id == shadow_cascade_request_id)
+            )
+            .scalar_one()
+            .visibility
+            == ModerationVisibility.visible
+        )
+        assert (
+            session.execute(
+                select(ModerationState)
+                .where(ModerationState.object_type == ModerationObjectType.host_request)
+                .where(ModerationState.object_id == admin_hidden_request_id)
+            )
+            .scalar_one()
+            .visibility
+            == ModerationVisibility.hidden
+        )
 
 
 def test_ShadowUser_blank_note(db):
