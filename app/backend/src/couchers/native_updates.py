@@ -181,7 +181,9 @@ def native_update_message(
     if sev_key == "warn" and decision.act_by is not None and decision.act_by > now:
         subs["time_left"] = format_timedelta(decision.act_by - now, locale=localization.babel_locale)
 
-    message = localization.localize_string(f"native_update.{action_key}.{sev_key}", substitutions=subs)
+    preamble = localization.localize_string("native_update.preamble")
+    body = localization.localize_string(f"native_update.{action_key}.{sev_key}", substitutions=subs)
+    message = f"{preamble} {body}"
 
     if decision.action == UpdateAction.store:
         link_text = localization.localize_string(

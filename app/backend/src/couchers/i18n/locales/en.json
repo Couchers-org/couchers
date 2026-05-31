@@ -266,13 +266,14 @@
     "host_request_quick_decline": "Thank you for responding to the host request!"
   },
   "native_update": {
+    "preamble": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard.",
     "store": {
-      "warn": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. Please update the app via the {{store_name}} within {{time_left}}.",
-      "block": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. Please update the app via the {{store_name}}."
+      "warn": "Please update the app via the {{store_name}} within {{time_left}}.",
+      "block": "Please update the app via the {{store_name}}."
     },
     "ota": {
-      "warn": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. Please click the button below to update the app within {{time_left}}.",
-      "block": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. Please click the button below to update the app."
+      "warn": "Please click the button below to update the app within {{time_left}}.",
+      "block": "Please click the button below to update the app."
     },
     "store_link_text": "Open {{store_name}}",
     "ota_link_text": "Update now",
