@@ -14,7 +14,6 @@ variables:
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
-  DEVTOOL_BUILD_BRANCH: develop
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
@@ -959,10 +958,7 @@ build:mobile-native-devtool:
     - bash scripts/devtool-build.sh ios
     - bash scripts/devtool-build.sh android
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $DEVTOOL_BUILD_BRANCH)
-      changes:
-        - app/proto/**/*
-        - app/mobile/**/*
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 build:mobile-ota-staging:
   needs: ["protos"]
