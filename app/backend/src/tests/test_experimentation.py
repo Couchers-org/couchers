@@ -11,7 +11,7 @@ from couchers.db import session_scope
 from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
 from couchers.i18n import LocalizationContext
 from couchers.metrics import feature_flag_evaluations_counter
-from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 from couchers.proto import bugs_pb2
 from tests.fixtures.sessions import bugs_session
 
@@ -84,6 +84,7 @@ def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_
         rows = session.execute(select(ExperimentExposure).where(ExperimentExposure.user_id == 123)).scalars().all()
         assert len(rows) == 1
         assert rows[0].experiment_key == "my_experiment"
+        assert rows[0].source == ExposureSource.backend
 
 
 def test_evaluate_feature_flag_servicer_returns_value(feature_flags, db):

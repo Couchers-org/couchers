@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models.logging import EventLog, EventSource
+from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.bugs import _fetch_signed_manifest
@@ -523,3 +523,84 @@ def test_native_update_manifest_unconfigured_platform_returns_directive(db, feat
         )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+
+
+def test_log_experiment_exposure(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.LogExperimentExposure(
+            bugs_pb2.LogExperimentExposureReq(
+                experiment_key="my_experiment",
+                experiment_name="My Experiment",
+                variation_id=1,
+                variation_key="treatment",
+                variation_name="Treatment",
+                hash_attribute="id",
+                hash_value=str(user.id),
+                feature_id="my_feature",
+                in_experiment=True,
+                bucket=0.5,
+                hash_used=True,
+                sticky_bucket_used=False,
+            )
+        )
+
+    with session_scope() as session:
+        exposure = session.execute(select(ExperimentExposure)).scalar_one()
+        assert exposure.user_id == user.id
+        assert exposure.experiment_key == "my_experiment"
+        assert exposure.variation_id == 1
+        assert exposure.source == ExposureSource.client
+        assert exposure.data == {
+            "experiment_name": "My Experiment",
+            "variation_key": "treatment",
+            "variation_name": "Treatment",
+            "hash_attribute": "id",
+            "hash_value": str(user.id),
+            "bucket": 0.5,
+            "in_experiment": True,
+            "hash_used": True,
+            "sticky_bucket_used": False,
+            "feature_id": "my_feature",
+        }
+
+
+def test_log_experiment_exposure_deduped(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        for _ in range(3):
+            bugs.LogExperimentExposure(
+                bugs_pb2.LogExperimentExposureReq(
+                    experiment_key="my_experiment",
+                    variation_id=1,
+                    variation_key="treatment",
+                    hash_attribute="id",
+                    hash_value=str(user.id),
+                )
+            )
+
+    with session_scope() as session:
+        exposure = session.execute(select(ExperimentExposure)).scalar_one()
+        # unset optional fields are stored as null, not a misleading 0/false
+        assert exposure.data["bucket"] is None
+        assert exposure.data["hash_used"] is None
+        assert exposure.data["sticky_bucket_used"] is None
+
+
+def test_log_experiment_exposure_anonymous_ignored(db):
+    with bugs_session() as bugs:
+        bugs.LogExperimentExposure(
+            bugs_pb2.LogExperimentExposureReq(
+                experiment_key="my_experiment",
+                variation_id=1,
+                variation_key="treatment",
+                hash_attribute="id",
+                hash_value="123",
+            )
+        )
+
+    with session_scope() as session:
+        count = session.execute(select(func.count()).select_from(ExperimentExposure)).scalar_one()
+        assert count == 0
