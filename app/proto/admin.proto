@@ -623,13 +623,14 @@ enum OTAPlatform {
 message OTAPackage {
   int64 ota_package_id = 1;
   google.protobuf.Timestamp created = 2;
-  int64 created_by_user_id = 3;
+  int64 creator_user_id = 3;
   OTAPlatform platform = 4;
-  // The Expo build fingerprint this bundle is compatible with.
-  string runtime_version = 5;
+  // The Expo build fingerprint this bundle is compatible with (the manifest's runtimeVersion).
+  string fingerprint = 5;
   // The immutable CDN path component the signed manifest is published under (e.g. v1.3.<commit>.<sha>).
   string version = 6;
-  // The manifest's createdAt (commit time); the newest one per fingerprint is served.
+  // The manifest's createdAt: the publish/stamp time used to order rollouts (a rollback re-stamps a
+  // newer one). The newest per fingerprint is served.
   google.protobuf.Timestamp manifest_created_at = 7;
   // The manifest's own id (uuid), for reference.
   string manifest_id = 8;
@@ -639,7 +640,7 @@ message OTAPackage {
   int64 banned_by_user_id = 12;
   string banned_reason = 13;
   // True if this is the package currently served to a matching client: the newest non-banned
-  // package for its platform + runtime_version.
+  // package for its platform + fingerprint.
   bool live = 14;
 }
 
@@ -658,8 +659,8 @@ message CreateOTAPackageReq {
 message ListOTAPackagesReq {
   // Optional: only return packages for this platform.
   OTAPlatform platform = 1;
-  // Optional: only return packages with this runtime_version (build fingerprint).
-  string runtime_version = 2;
+  // Optional: only return packages with this fingerprint (the build's runtimeVersion).
+  string fingerprint = 2;
   // Include banned packages too (default only non-banned).
   bool include_banned = 3;
 }

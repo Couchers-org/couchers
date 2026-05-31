@@ -28,18 +28,20 @@ class OTAPackage(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
-    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     platform: Mapped[OTAPlatform] = mapped_column(Enum(OTAPlatform))
-    # The Expo build fingerprint this bundle was cut for. A build only accepts a manifest whose
-    # runtimeVersion equals its own, so (platform, runtime_version) is the compatibility key. Many
-    # store builds can share one fingerprint; they're all OTA-compatible with the same bundles.
-    runtime_version: Mapped[str] = mapped_column(String)
+    # The Expo build fingerprint this bundle was cut for (the manifest's runtimeVersion / the build's
+    # expo-runtime-version). A build only accepts a manifest whose runtimeVersion equals its own, so
+    # (platform, fingerprint) is the compatibility key. Many store builds can share one fingerprint;
+    # they're all OTA-compatible with the same bundles.
+    fingerprint: Mapped[str] = mapped_column(String)
     # The immutable CDN path component the signed manifest is published under, e.g. v1.3.<commit>.<sha>.
     # The backend fetches {cdn_root}/{version}/{platform}/manifest.
     version: Mapped[str] = mapped_column(String)
-    # The manifest's `createdAt` (commit time). This is the rollout-ordering lever: the newest one for a
-    # fingerprint wins, and a rollback is published as the good bundle re-stamped with a newer createdAt.
+    # The manifest's `createdAt` — the publish/stamp time (NOT a build or git-commit time). It's the
+    # rollout-ordering lever: the newest one for a fingerprint wins, and a rollback rolls *forward* by
+    # republishing the good bundle re-stamped with a fresh, newer createdAt so it sorts newest.
     manifest_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     # The manifest's own `id` (content-derived uuid), for reference. NOT unique: a re-stamped rollback
     # reuses the same bundle content and so can repeat an id.
@@ -54,11 +56,11 @@ class OTAPackage(Base, kw_only=True):
     banned_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
     banned_reason: Mapped[str | None] = mapped_column(String, default=None)
 
-    created_by_user: Mapped[User] = relationship(init=False, foreign_keys="OTAPackage.created_by_user_id")
+    creator_user: Mapped[User] = relationship(init=False, foreign_keys="OTAPackage.creator_user_id")
     banned_by_user: Mapped[User | None] = relationship(init=False, foreign_keys="OTAPackage.banned_by_user_id")
 
     __table_args__ = (
         UniqueConstraint("platform", "version", name="uq_ota_packages_platform_version"),
-        # Resolution filters on (platform, runtime_version) and takes the newest by manifest_created_at.
-        Index("ix_ota_packages_resolve", "platform", "runtime_version", "manifest_created_at"),
+        # Resolution filters on (platform, fingerprint) and takes the newest by manifest_created_at.
+        Index("ix_ota_packages_resolve", "platform", "fingerprint", "manifest_created_at"),
     )

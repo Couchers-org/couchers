@@ -1585,13 +1585,13 @@ def test_CreateOTAPackage(db):
         )
 
     assert res.platform == admin_pb2.OTA_PLATFORM_IOS
-    assert res.runtime_version == "ios-fp"
+    assert res.fingerprint == "ios-fp"
     assert res.version == "v1.3.1.aaaa"
     assert res.manifest_id == "id-v1.3.1.aaaa"
     assert res.note == "first ios bundle"
     assert res.banned is False
     assert res.live is True
-    assert res.created_by_user_id == super_user.id
+    assert res.creator_user_id == super_user.id
 
 
 def test_CreateOTAPackage_invalid(db):
@@ -1677,7 +1677,7 @@ def test_ListOTAPackages(db):
         res = api.ListOTAPackages(admin_pb2.ListOTAPackagesReq())
         # newest (by manifest createdAt) first
         assert [p.version for p in res.packages] == ["v1.3.2.android", "v1.3.2.ios", "v1.3.1.ios"]
-        # only the newest per (platform, runtime_version) is live
+        # only the newest per (platform, fingerprint) is live
         live = {p.version: p.live for p in res.packages}
         assert live == {"v1.3.2.android": True, "v1.3.2.ios": True, "v1.3.1.ios": False}
 
