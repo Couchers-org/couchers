@@ -18,6 +18,11 @@ class EventSource(enum.Enum):
     frontend = enum.auto()
 
 
+class ExposureSource(enum.Enum):
+    backend = enum.auto()
+    client = enum.auto()
+
+
 class APICall(Base, kw_only=True):
     """
     API call logs
@@ -155,6 +160,8 @@ class ExperimentExposure(Base, kw_only=True):
 
     # the variation the user was bucketed into
     variation_id: Mapped[int] = mapped_column(BigInteger)
+
+    source: Mapped[ExposureSource] = mapped_column(Enum(ExposureSource))
 
     # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
     # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)

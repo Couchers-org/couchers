@@ -9,6 +9,7 @@ import grpc
 import requests
 from google.protobuf import empty_pb2, struct_pb2
 from sqlalchemy import insert, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -18,7 +19,7 @@ from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
-from couchers.models.logging import EventLog, EventSource
+from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
@@ -241,3 +242,33 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             holder["value"] = value
             res.value.CopyFrom(holder.fields["value"])
         return res
+
+    def LogExperimentExposure(
+        self, request: bugs_pb2.LogExperimentExposureReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        # need a logged-in user to attribute the exposure to
+        if context.is_logged_in():
+            data = {
+                "experiment_name": request.experiment_name,
+                "variation_key": request.variation_key,
+                "variation_name": request.variation_name,
+                "hash_attribute": request.hash_attribute,
+                "hash_value": request.hash_value,
+                "bucket": request.bucket if request.HasField("bucket") else None,
+                "in_experiment": request.in_experiment,
+                "hash_used": request.hash_used if request.HasField("hash_used") else None,
+                "sticky_bucket_used": (request.sticky_bucket_used if request.HasField("sticky_bucket_used") else None),
+                "feature_id": request.feature_id,
+            }
+            session.execute(
+                pg_insert(ExperimentExposure)
+                .values(
+                    user_id=context.user_id,
+                    experiment_key=request.experiment_key,
+                    variation_id=request.variation_id,
+                    source=ExposureSource.client,
+                    data=data,
+                )
+                .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
+            )
+        return empty_pb2.Empty()
