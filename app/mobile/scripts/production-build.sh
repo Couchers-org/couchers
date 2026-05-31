@@ -44,13 +44,19 @@ echo "EAS_FINGERPRINT=$CURRENT" > "$DOTENV"
 PREVIOUS="$(aws s3 cp "$MARKER" - 2>/dev/null || true)"
 echo "last-submitted $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 
-if [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
+# A scheduled pipeline sets FORCE_NATIVE_BUILD_AND_SUBMIT to cut a fresh store build
+# even when nothing native changed, so the store/TestFlight binary doesn't go stale
+# behind OTA. The new build keeps the same runtimeVersion, so the live OTA bundle
+# still applies; autoIncrement bumps the build number so nothing collides.
+if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ]; then
+  echo "FORCE_NATIVE_BUILD_AND_SUBMIT set — building a new $PLATFORM production app regardless of fingerprint."
+elif [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
   echo "Fingerprint unchanged for $PLATFORM — the live production build still matches, skipping build."
   echo "EAS_BUILD_ID=" >> "$DOTENV"
   exit 0
+else
+  echo "Fingerprint changed for $PLATFORM — building a new production app on EAS."
 fi
-
-echo "Fingerprint changed for $PLATFORM — building a new production app on EAS."
 
 # EAS evaluates app.config.js and the native-build plugin on its own servers,
 # which don't see this job's shell env, so the embedded version would fall back to
