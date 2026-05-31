@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint, func
+from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -40,7 +40,6 @@ class OTAPackage(Base, kw_only=True):
 
     # Stops handing this bundle to new check-ins; can't reclaim devices already on it (they only move
     # forward in createdAt), so it's a stop-gap until a re-stamped rollback is published.
-    banned: Mapped[bool] = mapped_column(Boolean, server_default="false", init=False)
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     banned_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
     banned_reason: Mapped[str | None] = mapped_column(String, default=None)
