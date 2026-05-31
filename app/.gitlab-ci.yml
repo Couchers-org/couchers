@@ -1034,11 +1034,6 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-# Native store builds for the release variants (staging and production). Both run
-# the same fingerprint-gated build + submit (scripts/native-build.sh +
-# native-submit.sh), selected by APP_VARIANT; only the eas.json profile, bundle id,
-# and S3 fingerprint marker differ. A native change cuts a fresh store build; pure
-# JS/TS changes ship over the air via the matching build:mobile-ota-<variant> job.
 .mobile-native:
   image: node:22
   inherit:
