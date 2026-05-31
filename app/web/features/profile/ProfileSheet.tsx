@@ -7,6 +7,7 @@ import {
   SwipeableDrawer,
 } from "@mui/material";
 import Snackbar from "components/Snackbar";
+import BadgeDetail from "features/badges/BadgeDetail";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
@@ -99,6 +100,8 @@ export default function ProfileSheet() {
     closeProfileSheet,
     openGroupChatId,
     closeGroupChat,
+    selectedBadgeId,
+    closeBadge,
   } = useProfileSheet();
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
@@ -172,9 +175,9 @@ export default function ProfileSheet() {
     >
       <SheetHeader>
         <Puller />
-        {openGroupChatId && (
+        {(openGroupChatId || selectedBadgeId) && (
           <IconButton
-            onClick={closeGroupChat}
+            onClick={selectedBadgeId ? closeBadge : closeGroupChat}
             aria-label={t("global:back")}
             size="small"
           >
@@ -184,6 +187,10 @@ export default function ProfileSheet() {
       </SheetHeader>
       {openGroupChatId ? (
         <GroupChatView chatId={openGroupChatId} embedded />
+      ) : selectedBadgeId ? (
+        <ScrollContent sx={{ p: 2 }}>
+          <BadgeDetail badgeId={selectedBadgeId} />
+        </ScrollContent>
       ) : (
         <ScrollContent ref={scrollRef}>
           {isSuccessRequest && (
