@@ -552,20 +552,24 @@ class EmailAddressChangeConfirmationEmail(EmailBase):
     confirm_url: str
 
     @property
-    def string_key_prefix(self) -> str:
+    def string_key_base(self) -> str:
         return "email_address_change_confirmation"
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".context", {"old_email": self.old_email})
         builder.para(".instructions")
         builder.action(self.confirm_url, ".confirm_action")
-        builder.security_warning_para()
+        builder.para(_security_warning_string_key)
 
     @classmethod
-    def dummy_data(cls) -> EmailAddressChangeConfirmationEmail:
-        return EmailAddressChangeConfirmationEmail(
-            user_name="Alice", old_email="alice@example.com", confirm_url="https://example.com"
-        )
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                old_email="alice@example.com",
+                confirm_url="https://example.com"
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1207,18 +1211,23 @@ class SignupVerifyEmail(EmailBase):
     verify_url: str
 
     @property
-    def string_key_prefix(self) -> str:
-        return "signup_verify"
+    def string_key_base(self) -> str:
+        return "signup.verify"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "signup.subject")
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".thanks")
         builder.para(".instructions")
         builder.action(self.verify_url, ".confirm_action")
-        builder.para(".closing")
+        builder.para("signup.closing")
 
     @classmethod
-    def dummy_data(cls) -> SignupVerifyEmail:
-        return SignupVerifyEmail(user_name="Alice", verify_url="https://example.com")
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(user_name="Alice", verify_url="https://example.com")
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1228,23 +1237,24 @@ class SignupContinueEmail(EmailBase):
     continue_url: str
 
     @property
-    def string_key_prefix(self) -> str:
-        return "signup_continue"
+    def string_key_base(self) -> str:
+        return "signup.continue"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        # Share the subject with the signup verify email.
-        return self._localize(loc_context, "signup_verify.subject")
+        return self._localize(loc_context, "signup.subject")
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(".request")
         builder.para(".instructions")
         builder.action(self.continue_url, ".continue_action")
-        builder.para("signup_verify.closing")  # Reuse that of signup-verify
+        builder.para("signup.closing")
         builder.para(".ignore_if_unexpected")
 
     @classmethod
-    def dummy_data(cls) -> SignupContinueEmail:
-        return SignupContinueEmail(user_name="Alice", continue_url="https://example.com")
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(user_name="Alice", continue_url="https://example.com")
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
