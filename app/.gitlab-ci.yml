@@ -560,8 +560,10 @@ test:mobile:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-        - app/proto/**/*
-        - app/mobile/**/*
+        paths:
+          - app/proto/**/*
+          - app/mobile/**/*
+        compare_to: refs/heads/develop
 
 test:mobile-linting:
   needs: ["protos"]
@@ -577,7 +579,9 @@ test:mobile-linting:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-        - app/mobile/**/*
+        paths:
+          - app/mobile/**/*
+        compare_to: refs/heads/develop
 
 test:mobile-typecheck:
   needs: ["protos"]
@@ -593,7 +597,9 @@ test:mobile-typecheck:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-        - app/mobile/**/*
+        paths:
+          - app/mobile/**/*
+        compare_to: refs/heads/develop
 
 test:mobile-expo-doctor:
   needs: ["protos"]
@@ -610,8 +616,10 @@ test:mobile-expo-doctor:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-        - app/mobile/package.json
-        - app/mobile/package-lock.json
+        paths:
+          - app/mobile/package.json
+          - app/mobile/package-lock.json
+        compare_to: refs/heads/develop
 
 test:proxy:
   needs: ["build:proxy"]
