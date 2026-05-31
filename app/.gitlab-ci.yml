@@ -989,6 +989,9 @@ build:mobile-ota-staging:
     - npm ci
     - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
+    - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
+    - OTA_CDN_BASE="https://next-static.couchershq.org/native/ota/$OTA_VERSION"
+    - echo "$STAGING_OTA_PRIVATE_KEY" | base64 -d > ota-staging-private-key.pem
     - |
       for P in $OTA_PLATFORMS; do
         rm -rf dist
@@ -996,10 +999,15 @@ build:mobile-ota-staging:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota-staging.$PREVIEW_DOMAIN" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+        node scripts/ota-sign.mjs --dir "ota-staging-out/$P" --key-file ota-staging-private-key.pem --key-id staging
       done
+    - rm -f ota-staging-private-key.pem
     - node scripts/ota-growthbook-flag.mjs --out ota-staging-out --platforms "$OTA_PLATFORMS" | tee ota-staging-out/native_ota_bundles.json
+    - echo "OTA_VERSION=$OTA_VERSION" > ota-staging.env
   artifacts:
+    reports:
+      dotenv: app/mobile/ota-staging.env
     paths:
       - app/mobile/ota-staging-out/
     expire_in: 1 week
@@ -1019,12 +1027,16 @@ deploy:mobile-ota-staging:
     - |
       for P in $OTA_PLATFORMS; do
         D="app/mobile/ota-staging-out/$P"
-        aws s3 cp "$D/bundle.hbc" "s3://$AWS_PREVIEW_BUCKET/ota-staging/$CI_COMMIT_SHORT_SHA/$P/bundle.hbc" --content-type application/javascript
+        CT="$(cat "$D/manifest.content-type")"
+        DEST="s3://next-static.couchershq.org/native/ota/$OTA_VERSION/$P"
+        aws s3 cp "$D/manifest" "$DEST/manifest" --content-type "$CT"
+        aws s3 cp "$D/bundle.hbc" "$DEST/bundle.hbc" --content-type application/javascript
         if [ -d "$D/assets" ]; then
-          aws s3 cp "$D/assets/" "s3://$AWS_PREVIEW_BUCKET/ota-staging/$CI_COMMIT_SHORT_SHA/$P/assets/" --recursive
+          aws s3 cp "$D/assets/" "$DEST/assets/" --recursive
         fi
+        echo "Published signed $P OTA: https://next-static.couchershq.org/native/ota/$OTA_VERSION/$P/manifest"
       done
-    - echo "Bundle + assets uploaded. Paste this into the staging GrowthBook 'native_ota_bundles' flag:"
+    - echo "Set the staging GrowthBook 'native_ota_bundles' flag (native_ota_cdn_root = https://next-static.couchershq.org/native/ota):"
     - cat app/mobile/ota-staging-out/native_ota_bundles.json
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
