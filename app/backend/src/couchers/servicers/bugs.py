@@ -18,10 +18,25 @@ from couchers.config import config
 from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
+from couchers.metrics import (
+    observe_native_banned_bundle_hit,
+    observe_native_binary_age,
+    observe_native_bundle_age,
+    observe_native_ota_manifest_request,
+    observe_native_update_decision,
+)
 from couchers.models import User
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.models.ota import OTAPackage, OTAPlatform
-from couchers.native_updates import UpdateAction, decide_native_update, parse_client_info
+from couchers.native_updates import (
+    NativeClientInfo,
+    Severity,
+    UpdateAction,
+    decide_native_update,
+    native_update_message,
+    parse_client_info,
+    store_url_for,
+)
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
@@ -61,6 +76,31 @@ def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
 
 def _native_ota_manifest_url(*, cdn_root: str, version: str, platform: str) -> str:
     return f"{cdn_root}/{version}/{platform}/manifest"
+
+
+def _is_update_id_banned(session: Session, info: NativeClientInfo) -> bool:
+    if not info.update_id or info.platform not in OTAPlatform.__members__:
+        return False
+    return (
+        session.execute(
+            select(OTAPackage.id)
+            .where(OTAPackage.platform == OTAPlatform[info.platform])
+            .where(OTAPackage.manifest_id == info.update_id)
+            .where(OTAPackage.banned_at.is_not(None))
+            .limit(1)
+        ).scalar_one_or_none()
+        is not None
+    )
+
+
+def _observe_native_check_metrics(info: NativeClientInfo, decision: Any, now: datetime, *, banned: bool) -> None:
+    if info.binary_created_at is not None:
+        observe_native_binary_age(info.platform, (now - info.binary_created_at).total_seconds())
+    if info.bundle_created_at is not None:
+        observe_native_bundle_age(info.platform, info.is_ota_launch, (now - info.bundle_created_at).total_seconds())
+    observe_native_update_decision(info.platform, decision.action.name, decision.severity.name)
+    if banned:
+        observe_native_banned_bundle_hit(info.platform)
 
 
 @lru_cache(maxsize=64)
@@ -176,6 +216,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             ).scalar_one_or_none()
 
         if package is None:
+            observe_native_ota_manifest_request(platform, "no_match" if not fingerprint else "no_update")
             return httpbody_pb2.HttpBody(
                 content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
                 data=_ota_multipart_body("directive", {"type": "noUpdateAvailable"}),
@@ -184,6 +225,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
         url = _native_ota_manifest_url(cdn_root=cdn_root, version=package.version, platform=platform)
         content_type, body = _fetch_signed_manifest(url)
+        observe_native_ota_manifest_request(platform, "served")
         return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
     def ReportDiagnostics(
@@ -225,14 +267,21 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         logger.info("CheckNativeStatus: user_id=%s debug=%s", context._user_id, request.debug_json)
 
         info = parse_client_info(request.debug_json)
-        decision = decide_native_update(context, info, datetime.now(UTC))
+        now = datetime.now(UTC)
+        banned = _is_update_id_banned(session, info)
+        decision = decide_native_update(context, info, now, banned=banned)
+
+        _observe_native_check_metrics(info, decision, now, banned=banned)
+
+        message, link_text = native_update_message(context.localization, decision, platform=info.platform, now=now)
+        link_url = store_url_for(info.platform) if decision.action == UpdateAction.store else ""
 
         update_info = bugs_pb2.NativeUpdateInfo(
             action=updateaction2api[decision.action],
-            required=decision.required,
-            message=decision.message,
-            link_url=decision.link_url,
-            link_text=decision.link_text,
+            required=decision.severity != Severity.none,
+            message=message,
+            link_url=link_url,
+            link_text=link_text,
         )
         if decision.act_by is not None:
             update_info.act_by.FromDatetime(decision.act_by)
