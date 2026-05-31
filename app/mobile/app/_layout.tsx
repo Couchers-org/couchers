@@ -14,6 +14,7 @@ import {
   Ubuntu_700Bold_Italic,
   useFonts,
 } from "@expo-google-fonts/ubuntu";
+import { useGrowthBook } from "@growthbook/growthbook-react";
 import {
   DarkTheme,
   DefaultTheme,
@@ -70,14 +71,15 @@ SplashScreen.preventAutoHideAsync();
 
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
+  const featuresReady = useGrowthBook().ready;
 
   useEffect(() => {
-    if (fontsLoaded && checkedAuthStatus) {
+    if (fontsLoaded && checkedAuthStatus && featuresReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, checkedAuthStatus]);
+  }, [fontsLoaded, checkedAuthStatus, featuresReady]);
 
-  if (!fontsLoaded || !checkedAuthStatus) {
+  if (!fontsLoaded || !checkedAuthStatus || !featuresReady) {
     return null;
   }
 
