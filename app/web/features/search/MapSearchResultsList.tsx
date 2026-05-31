@@ -140,8 +140,7 @@ const MapSearchResultsList = ({
             touchStartY.current = e.touches[0].clientY;
           }}
           onTouchEnd={(e) => {
-            const deltaY =
-              touchStartY.current - e.changedTouches[0].clientY;
+            const deltaY = touchStartY.current - e.changedTouches[0].clientY;
             if (deltaY > 50 && !isExpanded) {
               onSetMapView(MapViews.LIST_ONLY);
             } else if (deltaY < -50 && isExpanded) {
