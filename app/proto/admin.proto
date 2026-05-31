@@ -647,13 +647,11 @@ message OTAPackage {
 message CreateOTAPackageReq {
   OTAPlatform platform = 1;
   // The immutable CDN path component the signed manifest was published under (e.g.
-  // v1.3.<commit>.<sha>). The backend fetches {cdn_root}/{version}/{platform}/manifest.
+  // v1.3.<commit>.<sha>). The backend fetches {cdn_root}/{version}/{platform}/manifest and reads
+  // runtimeVersion / createdAt / id out of the manifest it's about to serve.
   string version = 2;
-  // The Expo Updates manifest JSON produced by the OTA build (manifest.json). runtimeVersion,
-  // createdAt and id are read out of it; the signed bytes themselves are served from the CDN.
-  string manifest_json = 3;
   // Optional operator label.
-  string note = 4;
+  string note = 3;
 }
 
 message ListOTAPackagesReq {

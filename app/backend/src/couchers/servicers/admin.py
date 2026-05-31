@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import grpc
 from google.protobuf import empty_pb2
@@ -52,6 +53,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
+from couchers.servicers.bugs import _fetch_signed_manifest, _native_ota_manifest_url
 from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
@@ -126,6 +128,26 @@ def _live_ota_package_ids(session: Session) -> set[int]:
         if key not in best or rank > best[key]:
             best[key] = rank
     return {id_ for _, id_ in best.values()}
+
+
+def _extract_ota_manifest(body: bytes) -> dict[str, Any] | None:
+    # The CDN holds the signed multipart/mixed body; the manifest object is the JSON in its "manifest"
+    # part (the surrounding framing and the expo-signature header are what the device verifies, and we
+    # never touch them). Returns None if it can't be located/parsed.
+    marker = body.find(b'name="manifest"')
+    if marker == -1:
+        return None
+    body_start = body.find(b"\r\n\r\n", marker)
+    if body_start == -1:
+        return None
+    body_end = body.find(b"\r\n--", body_start + 4)
+    if body_end == -1:
+        return None
+    try:
+        manifest = json.loads(body[body_start + 4 : body_end])
+    except json.JSONDecodeError:
+        return None
+    return manifest if isinstance(manifest, dict) else None
 
 
 def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTAPackage:
@@ -1284,19 +1306,25 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not request.version:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_version")
 
-        try:
-            manifest = json.loads(request.manifest_json)
-        except json.JSONDecodeError:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest_json")
+        existing = session.execute(
+            select(OTAPackage.id).where(OTAPackage.platform == platform).where(OTAPackage.version == request.version)
+        ).scalar_one_or_none()
+        if existing is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
 
-        # We don't store or serve the manifest (the signed bytes come from the CDN), but we read the
-        # fields we key and order on out of it: runtimeVersion is the fingerprint / compatibility key,
-        # createdAt is the rollout-ordering lever, and id is kept for reference.
-        fingerprint = manifest.get("runtimeVersion") if isinstance(manifest, dict) else None
-        manifest_id = manifest.get("id") if isinstance(manifest, dict) else None
-        created_at_raw = manifest.get("createdAt") if isinstance(manifest, dict) else None
+        # Fetch the signed manifest we're about to serve and read the fields we key and order on out of
+        # it, so the row can't disagree with the bytes on the CDN: runtimeVersion is the fingerprint /
+        # compatibility key, createdAt is the rollout-ordering lever, and id is kept for reference.
+        cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
+        _content_type, body = _fetch_signed_manifest(
+            _native_ota_manifest_url(cdn_root=cdn_root, version=request.version, platform=platform.name)
+        )
+        manifest = _extract_ota_manifest(body)
+        fingerprint = manifest.get("runtimeVersion") if manifest else None
+        manifest_id = manifest.get("id") if manifest else None
+        created_at_raw = manifest.get("createdAt") if manifest else None
         if (
-            not isinstance(manifest, dict)
+            manifest is None
             or not isinstance(fingerprint, str)
             or not fingerprint
             or not isinstance(manifest_id, str)
@@ -1311,12 +1339,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest")
         if manifest_created_at.tzinfo is None:
             manifest_created_at = manifest_created_at.replace(tzinfo=UTC)
-
-        existing = session.execute(
-            select(OTAPackage.id).where(OTAPackage.platform == platform).where(OTAPackage.version == request.version)
-        ).scalar_one_or_none()
-        if existing is not None:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
 
         package = OTAPackage(
             creator_user_id=context.user_id,

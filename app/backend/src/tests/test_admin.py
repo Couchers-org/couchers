@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, date, datetime, timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -1556,31 +1557,52 @@ def test_ListUserUploads_not_found(db):
 # MarkUserNeedsLocationUpdate tested in test_jail.py
 
 
-def _create_ota_req(*, platform, version, runtime_version, created_at="2026-05-31T00:00:00.000Z", note=""):
-    manifest = {
+def _ota_manifest(*, version, fingerprint, created_at="2026-05-31T00:00:00.000Z"):
+    return {
         "id": f"id-{version}",
         "createdAt": created_at,
-        "runtimeVersion": runtime_version,
+        "runtimeVersion": fingerprint,
         "launchAsset": {"key": "bundle", "url": f"https://cdn.testing.invalid/{version}/bundle.hbc"},
         "assets": [],
         "metadata": {},
         "extra": {},
     }
-    return admin_pb2.CreateOTAPackageReq(
-        platform=platform, version=version, manifest_json=json.dumps(manifest), note=note
+
+
+def _ota_signed_multipart(manifest):
+    # Mimics the signed multipart body the CDN holds (signature header omitted; we only read the JSON).
+    boundary = "COUCHERS_OTA_BOUNDARY"
+
+    def part(name, body, content_type):
+        return f'--{boundary}\r\ncontent-disposition: form-data; name="{name}"\r\ncontent-type: {content_type}\r\n\r\n{body}\r\n'
+
+    body = (
+        part("manifest", json.dumps(manifest), "application/json; charset=utf-8")
+        + part("extensions", "{}", "application/json")
+        + f"--{boundary}--\r\n"
     )
+    return f"multipart/mixed; boundary={boundary}", body.encode()
+
+
+def _patch_ota_cdn(manifests):
+    # manifests: {version: manifest_dict}. URL is {cdn_root}/{version}/{platform}/manifest.
+    def fake(url):
+        version = url.split("/")[-3]
+        if version not in manifests:
+            return "multipart/mixed; boundary=COUCHERS_OTA_BOUNDARY", b""
+        return _ota_signed_multipart(manifests[version])
+
+    return patch("couchers.servicers.admin._fetch_signed_manifest", side_effect=fake)
 
 
 def test_CreateOTAPackage(db):
     super_user, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
+    manifests = {"v1.3.1.aaaa": _ota_manifest(version="v1.3.1.aaaa", fingerprint="ios-fp")}
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         res = api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_IOS,
-                version="v1.3.1.aaaa",
-                runtime_version="ios-fp",
-                note="first ios bundle",
+            admin_pb2.CreateOTAPackageReq(
+                platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa", note="first ios bundle"
             )
         )
 
@@ -1597,36 +1619,24 @@ def test_CreateOTAPackage(db):
 def test_CreateOTAPackage_invalid(db):
     _, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
+    manifests = {"v-incomplete": {"id": "x"}}  # on the CDN but missing runtimeVersion / createdAt
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         # missing version
         with pytest.raises(grpc.RpcError) as e:
+            api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        # nothing published at this version
+        with pytest.raises(grpc.RpcError) as e:
             api.CreateOTAPackage(
-                admin_pb2.CreateOTAPackageReq(
-                    platform=admin_pb2.OTA_PLATFORM_IOS,
-                    manifest_json=json.dumps(
-                        {"id": "x", "runtimeVersion": "ios-fp", "createdAt": "2026-05-31T00:00:00Z"}
-                    ),
-                )
+                admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v-missing")
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
-        # not JSON
+        # manifest present but missing required fields
         with pytest.raises(grpc.RpcError) as e:
             api.CreateOTAPackage(
-                admin_pb2.CreateOTAPackageReq(
-                    platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa", manifest_json="not json"
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-
-        # missing runtimeVersion / createdAt
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateOTAPackage(
-                admin_pb2.CreateOTAPackageReq(
-                    platform=admin_pb2.OTA_PLATFORM_IOS,
-                    version="v1.3.1.aaaa",
-                    manifest_json=json.dumps({"id": "x"}),
-                )
+                admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v-incomplete")
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
@@ -1634,13 +1644,12 @@ def test_CreateOTAPackage_invalid(db):
 def test_CreateOTAPackage_rejects_duplicate_version(db):
     _, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
-        api.CreateOTAPackage(
-            _create_ota_req(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa", runtime_version="ios-fp")
-        )
+    manifests = {"v1.3.1.aaaa": _ota_manifest(version="v1.3.1.aaaa", fingerprint="ios-fp")}
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
+        api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa"))
         with pytest.raises(grpc.RpcError) as e:
             api.CreateOTAPackage(
-                _create_ota_req(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa", runtime_version="ios-fp")
+                admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa")
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
@@ -1648,30 +1657,18 @@ def test_CreateOTAPackage_rejects_duplicate_version(db):
 def test_ListOTAPackages(db):
     _, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
+    manifests = {
+        "v1.3.1.ios": _ota_manifest(version="v1.3.1.ios", fingerprint="ios-fp", created_at="2026-05-30T00:00:00.000Z"),
+        "v1.3.2.ios": _ota_manifest(version="v1.3.2.ios", fingerprint="ios-fp", created_at="2026-05-31T00:00:00.000Z"),
+        "v1.3.2.android": _ota_manifest(
+            version="v1.3.2.android", fingerprint="android-fp", created_at="2026-06-01T00:00:00.000Z"
+        ),
+    }
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
+        api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.ios"))
+        api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.2.ios"))
         api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_IOS,
-                version="v1.3.1.ios",
-                runtime_version="ios-fp",
-                created_at="2026-05-30T00:00:00.000Z",
-            )
-        )
-        api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_IOS,
-                version="v1.3.2.ios",
-                runtime_version="ios-fp",
-                created_at="2026-05-31T00:00:00.000Z",
-            )
-        )
-        api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_ANDROID,
-                version="v1.3.2.android",
-                runtime_version="android-fp",
-                created_at="2026-06-01T00:00:00.000Z",
-            )
+            admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_ANDROID, version="v1.3.2.android")
         )
 
         res = api.ListOTAPackages(admin_pb2.ListOTAPackagesReq())
@@ -1688,22 +1685,16 @@ def test_ListOTAPackages(db):
 def test_BanAndUnbanOTAPackage(db):
     super_user, super_token = generate_user(is_superuser=True)
 
-    with real_admin_session(super_token) as api:
-        api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_IOS,
-                version="v1.3.1.good",
-                runtime_version="ios-fp",
-                created_at="2026-05-30T00:00:00.000Z",
-            )
-        )
+    manifests = {
+        "v1.3.1.good": _ota_manifest(
+            version="v1.3.1.good", fingerprint="ios-fp", created_at="2026-05-30T00:00:00.000Z"
+        ),
+        "v1.3.2.bad": _ota_manifest(version="v1.3.2.bad", fingerprint="ios-fp", created_at="2026-05-31T00:00:00.000Z"),
+    }
+    with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
+        api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.good"))
         second = api.CreateOTAPackage(
-            _create_ota_req(
-                platform=admin_pb2.OTA_PLATFORM_IOS,
-                version="v1.3.2.bad",
-                runtime_version="ios-fp",
-                created_at="2026-05-31T00:00:00.000Z",
-            )
+            admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.2.bad")
         )
         assert second.live is True
 
