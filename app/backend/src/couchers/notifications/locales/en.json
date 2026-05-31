@@ -37,7 +37,7 @@
   },
   "activeness": {
     "probe": {
-      "event_description": "You accept guests but haven't logged in a while",
+      "event_description": "You accept guests but haven't logged in for a while",
       "push": {
         "title": "Still open to hosting?",
         "ios_title": "Still Open to Hosting?",
