@@ -35,7 +35,6 @@ from couchers.native_updates import (
     decide_native_update,
     native_update_message,
     parse_client_info,
-    store_url_for,
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
@@ -282,13 +281,11 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         _observe_native_check_metrics(info, decision, now, banned=banned)
 
         message, link_text = native_update_message(context.localization, decision, platform=info.platform, now=now)
-        link_url = store_url_for(info.platform) if decision.action == UpdateAction.store else ""
 
         update_info = bugs_pb2.NativeUpdateInfo(
             action=updateaction2api[decision.action],
             required=decision.severity != Severity.none,
             message=message,
-            link_url=link_url,
             link_text=link_text,
         )
         if decision.act_by is not None:

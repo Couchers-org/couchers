@@ -1,5 +1,5 @@
 """
-Native app update decisions for CheckNativeStatus. See OTA-plan.md.
+Native app update decisions for CheckNativeStatus.
 """
 
 import enum
@@ -21,12 +21,6 @@ DEFAULT_OTA_BLOCK_DAYS = 28
 DEFAULT_STORE_WARN_DAYS = 70
 DEFAULT_STORE_BLOCK_DAYS = 91
 
-# Static enough that a flag is not worth it.
-STORE_URLS: dict[str, str] = {
-    "ios": "https://apps.apple.com/us/app/couchers-org/id6623776751",
-    "android": "https://play.google.com/store/apps/details?id=org.couchers.android",
-}
-
 
 class Severity(enum.IntEnum):
     # Ordered by severity so max() picks the worst across the two clocks.
@@ -40,6 +34,8 @@ class UpdateAction(enum.Enum):
     none = enum.auto()
     ota = enum.auto()
     store = enum.auto()
+    # Reserved for a future nuke path (delete and reinstall the app). Not produced by the current
+    # decision logic — no signal feeds it.
     reinstall = enum.auto()
 
 
@@ -153,10 +149,6 @@ def decide_native_update(
     return NativeUpdateDecision(action=UpdateAction.ota, severity=severity, act_by=ota_deadline)
 
 
-def store_url_for(platform: str) -> str:
-    return STORE_URLS.get(platform, "")
-
-
 def native_update_message(
     localization: LocalizationContext,
     decision: NativeUpdateDecision,
@@ -164,7 +156,11 @@ def native_update_message(
     platform: str,
     now: datetime,
 ) -> tuple[str, str]:
-    """Returns (message, link_text) for a non-`none` decision. Empty strings otherwise."""
+    """Returns (message, link_text) for a non-`none` decision. Empty strings otherwise.
+
+    The store action has no link_text — the user updates via the platform store, which there's no
+    deep-link button for. Only the OTA action surfaces a tappable "Update now" button.
+    """
     if decision.severity == Severity.none or decision.action not in (UpdateAction.ota, UpdateAction.store):
         return "", ""
 
@@ -173,10 +169,8 @@ def native_update_message(
 
     subs: dict[str, str | int] = {}
     if decision.action == UpdateAction.store:
-        store_name_key = (
-            f"native_update.store_name_{platform}" if platform in STORE_URLS else "native_update.store_name_ios"
-        )
-        subs["store_name"] = localization.localize_string(store_name_key)
+        store_platform = platform if platform in ("ios", "android") else "ios"
+        subs["store_name"] = localization.localize_string(f"native_update.store_name_{store_platform}")
 
     if sev_key == "warn" and decision.act_by is not None and decision.act_by > now:
         subs["time_left"] = format_timedelta(decision.act_by - now, locale=localization.babel_locale)
@@ -185,11 +179,8 @@ def native_update_message(
     body = localization.localize_string(f"native_update.{action_key}.{sev_key}", substitutions=subs)
     message = f"{preamble} {body}"
 
-    if decision.action == UpdateAction.store:
-        link_text = localization.localize_string(
-            "native_update.store_link_text", substitutions={"store_name": subs["store_name"]}
-        )
-    else:
-        link_text = localization.localize_string("native_update.ota_link_text")
+    link_text = (
+        localization.localize_string("native_update.ota_link_text") if decision.action == UpdateAction.ota else ""
+    )
 
     return message, link_text

@@ -276,7 +276,6 @@
       "warn": "Please click the button below to update the app within {{time_left}}.",
       "block": "Please click the button below to update the app."
     },
-    "store_link_text": "Open {{store_name}}",
     "ota_link_text": "Update now",
     "store_name_ios": "App Store",
     "store_name_android": "Play Store"

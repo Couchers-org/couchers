@@ -15,7 +15,6 @@ from couchers.native_updates import (
     decide_native_update,
     native_update_message,
     parse_client_info,
-    store_url_for,
 )
 
 NOW = datetime(2026, 5, 31, 12, 0, tzinfo=UTC)
@@ -210,15 +209,6 @@ def test_banned_ignored_when_not_an_ota_launch():
     assert _decide(info, banned=True).severity == Severity.none
 
 
-def test_store_url_known_platform():
-    assert store_url_for("ios").startswith("https://apps.apple.com")
-    assert store_url_for("android").startswith("https://play.google.com")
-
-
-def test_store_url_unknown_platform_empty():
-    assert store_url_for("blackberry") == ""
-
-
 def _localization() -> LocalizationContext:
     return LocalizationContext(locale="en", timezone=UTC)
 
@@ -230,14 +220,16 @@ def test_message_store_warn_has_store_name_and_time_left():
     assert "small volunteer team" in message
     # time_left got substituted (not just left as the placeholder).
     assert "{{" not in message
-    assert "App Store" in link_text
+    # Store action has no tappable button — there's no link.
+    assert link_text == ""
 
 
 def test_message_store_block_no_time_left():
     decision = _decide(NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 10)))
-    message, _ = native_update_message(_localization(), decision, platform="ios", now=NOW)
+    message, link_text = native_update_message(_localization(), decision, platform="ios", now=NOW)
     assert "App Store" in message
     assert "within" not in message
+    assert link_text == ""
 
 
 def test_message_ota_warn_says_button_below():
@@ -256,9 +248,8 @@ def test_message_ota_warn_says_button_below():
 
 def test_message_android_uses_play_store_name():
     decision = _decide(NativeClientInfo(platform="android", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 1)))
-    message, link_text = native_update_message(_localization(), decision, platform="android", now=NOW)
+    message, _ = native_update_message(_localization(), decision, platform="android", now=NOW)
     assert "Play Store" in message
-    assert "Play Store" in link_text
 
 
 def test_message_none_is_empty():
