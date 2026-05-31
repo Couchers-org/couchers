@@ -78,11 +78,13 @@ api2adminactionlevel = {
 }
 
 otaplatform2api = {
+    None: admin_pb2.OTA_PLATFORM_UNSPECIFIED,
     OTAPlatform.ios: admin_pb2.OTA_PLATFORM_IOS,
     OTAPlatform.android: admin_pb2.OTA_PLATFORM_ANDROID,
 }
 
 api2otaplatform = {
+    admin_pb2.OTA_PLATFORM_UNSPECIFIED: None,
     admin_pb2.OTA_PLATFORM_IOS: OTAPlatform.ios,
     admin_pb2.OTA_PLATFORM_ANDROID: OTAPlatform.android,
 }
@@ -114,19 +116,21 @@ def log_admin_action(
 
 def _live_ota_package_ids(session: Session) -> set[int]:
     # The live package per (platform, fingerprint) is the newest non-banned one by manifest_created_at,
-    # matching what GetNativeUpdateManifest resolves.
-    rows = session.execute(
-        select(OTAPackage.id, OTAPackage.platform, OTAPackage.fingerprint, OTAPackage.manifest_created_at).where(
-            OTAPackage.banned_at.is_(None)
+    # matching what GetNativeUpdateManifest resolves. DISTINCT ON picks the row with the leading ORDER BY
+    # value per (platform, fingerprint) group in a single index-friendly query.
+    return set(
+        session.scalars(
+            select(OTAPackage.id)
+            .where(OTAPackage.banned_at.is_(None))
+            .distinct(OTAPackage.platform, OTAPackage.fingerprint)
+            .order_by(
+                OTAPackage.platform,
+                OTAPackage.fingerprint,
+                OTAPackage.manifest_created_at.desc(),
+                OTAPackage.id.desc(),
+            )
         )
-    ).all()
-    best: dict[tuple[OTAPlatform, str], tuple[datetime, int]] = {}
-    for id_, platform, fingerprint, manifest_created_at in rows:
-        key = (platform, fingerprint)
-        rank = (manifest_created_at, id_)
-        if key not in best or rank > best[key]:
-            best[key] = rank
-    return {id_ for _, id_ in best.values()}
+    )
 
 
 def _extract_ota_manifest(body: bytes) -> dict[str, Any] | None:

@@ -52,6 +52,14 @@ updateaction2api = {
     UpdateAction.reinstall: bugs_pb2.NATIVE_UPDATE_ACTION_REINSTALL,
 }
 
+api2updateaction = {
+    bugs_pb2.NATIVE_UPDATE_ACTION_UNSPECIFIED: UpdateAction.unspecified,
+    bugs_pb2.NATIVE_UPDATE_ACTION_NONE: UpdateAction.none,
+    bugs_pb2.NATIVE_UPDATE_ACTION_OTA: UpdateAction.ota,
+    bugs_pb2.NATIVE_UPDATE_ACTION_STORE: UpdateAction.store,
+    bugs_pb2.NATIVE_UPDATE_ACTION_REINSTALL: UpdateAction.reinstall,
+}
+
 _OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
 
 
