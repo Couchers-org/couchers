@@ -1,7 +1,7 @@
 {
   "generic": {
     "greeting_line": "Hi {{name}},",
-    "closing_line": "Best,\nThe Couchers.org Team",
+    "closing_line": "Best,<br>The Couchers.org Team",
     "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
     "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request."
   },
