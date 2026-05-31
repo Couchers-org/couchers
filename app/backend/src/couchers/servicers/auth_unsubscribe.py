@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext, make_one_off_interactive_user_context
-from couchers.crypto import UNSUBSCRIBE_KEY_NAME, get_secret, verify_hash_signature
 from couchers.models import (
     GroupChat,
     GroupChatSubscription,
@@ -21,7 +20,7 @@ from couchers.models import (
 )
 from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
-from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
+from couchers.proto import conversations_pb2, requests_pb2
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
 from couchers.sql import where_moderated_content_visible
@@ -29,14 +28,10 @@ from couchers.sql import where_moderated_content_visible
 logger = logging.getLogger(__name__)
 
 
-def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:
+def handle_unsubscribe(payload: unsubscribe_pb2.UnsubscribePayload, context: CouchersContext, session: Session) -> str:
     """
     Returns a response string or uses context.abort upon error
     """
-    if not verify_hash_signature(message=request.payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=request.sig):
-        context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "wrong_signature")
-
-    payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
 
     if payload.HasField("do_not_email"):

@@ -6,10 +6,12 @@ It is called "unsubscribe" in some places for historical reasons (it was the fir
 
 import logging
 
+import grpc
 from google.protobuf.message import Message
 
 from couchers import urls
-from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret
+from couchers.context import CouchersContext
+from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.models import (
     Notification,
     NotificationTopicAction,
@@ -27,6 +29,13 @@ def _generate_quick_link(payload: Message) -> str:
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
     return urls.quick_link(payload=b64encode(msg), sig=b64encode(sig))
+
+
+def parse_quick_link(*, payload: str, sig: str, context: CouchersContext) -> unsubscribe_pb2.UnsubscribePayload:
+    if not verify_hash_signature(message=payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=sig):
+        context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "wrong_signature")
+
+    return unsubscribe_pb2.UnsubscribePayload.FromString(payload)
 
 
 def generate_do_not_email(user: User) -> str:
