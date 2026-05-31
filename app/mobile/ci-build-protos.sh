@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Generates the gRPC-Web/JS stubs consumed by the Expo app (app/mobile/proto).
-# Self-contained (downloads its own protoc/grpc-web) so it can run in environments
-# without the full dev toolchain: EAS Build's eas-build-pre-install hook, and as a
-# local fallback via `npm run build:protos`. GitLab CI instead generates these stubs
-# in the shared `protos` job (app/generate_protos.sh) and ships them as an artifact.
+# Self-contained (downloads its own protoc/grpc-web) as a local convenience for mobile
+# devs without the full dev toolchain, via `npm run build:protos`. CI (GitLab) and EAS
+# Build both use the stubs generated once by the shared `protos` job
+# (app/generate_protos.sh) and shipped as an artifact — they do not run this script.
 
 set -euo pipefail
 
