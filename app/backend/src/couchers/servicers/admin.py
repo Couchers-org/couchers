@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -35,6 +35,8 @@ from couchers.models import (
     ModerationUserList,
     ModerationVisibility,
     ModNote,
+    OTAPackage,
+    OTAPlatform,
     Reference,
     Reply,
     User,
@@ -73,6 +75,16 @@ api2adminactionlevel = {
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
 }
 
+otaplatform2api = {
+    OTAPlatform.ios: admin_pb2.OTA_PLATFORM_IOS,
+    OTAPlatform.android: admin_pb2.OTA_PLATFORM_ANDROID,
+}
+
+api2otaplatform = {
+    admin_pb2.OTA_PLATFORM_IOS: OTAPlatform.ios,
+    admin_pb2.OTA_PLATFORM_ANDROID: OTAPlatform.android,
+}
+
 
 def log_admin_action(
     session: Session,
@@ -96,6 +108,43 @@ def log_admin_action(
     session.add(action)
     session.flush()
     return action
+
+
+def _live_ota_package_ids(session: Session) -> set[int]:
+    # The package served to a matching client is the newest non-banned one per
+    # (platform, runtime_version), ordered by manifest_created_at (id as tiebreak) — exactly what
+    # GetNativeUpdateManifest resolves.
+    rows = session.execute(
+        select(OTAPackage.id, OTAPackage.platform, OTAPackage.runtime_version, OTAPackage.manifest_created_at).where(
+            OTAPackage.banned.is_(False)
+        )
+    ).all()
+    best: dict[tuple[OTAPlatform, str], tuple[datetime, int]] = {}
+    for id_, platform, runtime_version, manifest_created_at in rows:
+        key = (platform, runtime_version)
+        rank = (manifest_created_at, id_)
+        if key not in best or rank > best[key]:
+            best[key] = rank
+    return {id_ for _, id_ in best.values()}
+
+
+def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTAPackage:
+    return admin_pb2.OTAPackage(
+        ota_package_id=package.id,
+        created=Timestamp_from_datetime(package.created),
+        created_by_user_id=package.created_by_user_id,
+        platform=otaplatform2api[package.platform],
+        runtime_version=package.runtime_version,
+        version=package.version,
+        manifest_created_at=Timestamp_from_datetime(package.manifest_created_at),
+        manifest_id=package.manifest_id,
+        note=package.note or "",
+        banned=package.banned,
+        banned_at=Timestamp_from_datetime(package.banned_at) if package.banned_at else None,
+        banned_by_user_id=package.banned_by_user_id or 0,
+        banned_reason=package.banned_reason or "",
+        live=package.id in live_ids,
+    )
 
 
 def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
@@ -1239,3 +1288,114 @@ class Admin(admin_pb2_grpc.AdminServicer):
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )
+
+    def CreateOTAPackage(
+        self, request: admin_pb2.CreateOTAPackageReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.OTAPackage:
+        platform = api2otaplatform.get(request.platform)
+        if platform is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_platform")
+
+        if not request.version:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_version")
+
+        try:
+            manifest = json.loads(request.manifest_json)
+        except json.JSONDecodeError:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest_json")
+
+        # We don't store or serve the manifest (the signed bytes come from the CDN), but we read the
+        # fields we key and order on out of it: runtimeVersion is the compatibility key, createdAt is
+        # the rollout-ordering lever, and id is kept for reference.
+        runtime_version = manifest.get("runtimeVersion") if isinstance(manifest, dict) else None
+        manifest_id = manifest.get("id") if isinstance(manifest, dict) else None
+        created_at_raw = manifest.get("createdAt") if isinstance(manifest, dict) else None
+        if (
+            not isinstance(manifest, dict)
+            or not isinstance(runtime_version, str)
+            or not runtime_version
+            or not isinstance(manifest_id, str)
+            or not manifest_id
+            or not isinstance(created_at_raw, str)
+            or not created_at_raw
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest")
+        try:
+            manifest_created_at = datetime.fromisoformat(created_at_raw)
+        except ValueError:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest")
+        if manifest_created_at.tzinfo is None:
+            manifest_created_at = manifest_created_at.replace(tzinfo=UTC)
+
+        existing = session.execute(
+            select(OTAPackage.id).where(OTAPackage.platform == platform).where(OTAPackage.version == request.version)
+        ).scalar_one_or_none()
+        if existing is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
+
+        package = OTAPackage(
+            created_by_user_id=context.user_id,
+            platform=platform,
+            runtime_version=runtime_version,
+            version=request.version,
+            manifest_created_at=manifest_created_at,
+            manifest_id=manifest_id,
+            note=request.note or None,
+        )
+        session.add(package)
+        session.flush()
+
+        return _ota_package_to_pb(package, _live_ota_package_ids(session))
+
+    def ListOTAPackages(
+        self, request: admin_pb2.ListOTAPackagesReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListOTAPackagesRes:
+        statement = select(OTAPackage).order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
+        if request.platform != admin_pb2.OTA_PLATFORM_UNSPECIFIED:
+            platform = api2otaplatform.get(request.platform)
+            if platform is None:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_platform")
+            statement = statement.where(OTAPackage.platform == platform)
+        if request.runtime_version:
+            statement = statement.where(OTAPackage.runtime_version == request.runtime_version)
+        if not request.include_banned:
+            statement = statement.where(OTAPackage.banned.is_(False))
+
+        packages = session.execute(statement).scalars().all()
+        live_ids = _live_ota_package_ids(session)
+        return admin_pb2.ListOTAPackagesRes(packages=[_ota_package_to_pb(package, live_ids) for package in packages])
+
+    def BanOTAPackage(
+        self, request: admin_pb2.BanOTAPackageReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.OTAPackage:
+        package = session.execute(
+            select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
+        ).scalar_one_or_none()
+        if package is None:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
+
+        if not package.banned:
+            package.banned = True
+            package.banned_at = now()
+            package.banned_by_user_id = context.user_id
+            package.banned_reason = request.reason or None
+        session.flush()
+
+        return _ota_package_to_pb(package, _live_ota_package_ids(session))
+
+    def UnbanOTAPackage(
+        self, request: admin_pb2.UnbanOTAPackageReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.OTAPackage:
+        package = session.execute(
+            select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
+        ).scalar_one_or_none()
+        if package is None:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
+
+        package.banned = False
+        package.banned_at = None
+        package.banned_by_user_id = None
+        package.banned_reason = None
+        session.flush()
+
+        return _ota_package_to_pb(package, _live_ota_package_ids(session))

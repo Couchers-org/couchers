@@ -1,6 +1,6 @@
 import json
 from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
+from couchers.models import OTAPackage, OTAPlatform
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
@@ -429,67 +430,151 @@ def _multipart_part_json(body, name):
     return json.loads(body[start:end])
 
 
-_OTA_RELEASES = {
-    "ios": {"version": "v1.2.18355.fc38c23d", "runtime_version": "ios-fingerprint"},
-    "android": {"version": "v1.2.18356.ab12cd34", "runtime_version": "android-fingerprint"},
-}
-
-# A stand-in for the pre-signed multipart body the CDN serves; the servicer must hand it back
-# byte-for-byte, signature and all, so the test asserts on identity rather than on its contents.
-_SIGNED_MANIFEST = b'--COUCHERS_OTA_BOUNDARY\r\ncontent-disposition: form-data; name="manifest"\r\nexpo-signature: sig="abc", keyid="main", alg="rsa-v1_5-sha256"\r\n\r\n{}\r\n--COUCHERS_OTA_BOUNDARY--\r\n'
+_OTA_CDN_ROOT = "https://cdn.testing.invalid/native/ota"
 _CDN_CONTENT_TYPE = "multipart/mixed; boundary=COUCHERS_OTA_BOUNDARY"
 
 
-def _fake_cdn_response():
-    response = MagicMock()
-    response.headers = {"content-type": _CDN_CONTENT_TYPE}
-    response.content = _SIGNED_MANIFEST
-    response.raise_for_status = MagicMock()
-    return response
+class _FakeCDNResponse:
+    # Echoes the requested URL back as the body so tests can assert which version was fetched and that
+    # the bytes are served verbatim — standing in for the pre-signed manifest the CDN holds.
+    def __init__(self, url):
+        self.headers = {"content-type": _CDN_CONTENT_TYPE}
+        self.content = url.encode()
+
+    def raise_for_status(self):
+        pass
 
 
-def test_native_update_manifest_serves_cdn_manifest_verbatim(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
-    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+def _patch_cdn():
+    return patch("couchers.servicers.bugs.requests.get", side_effect=lambda url, timeout=None: _FakeCDNResponse(url))
+
+
+def _add_ota_package(*, platform, runtime_version, version, created_at, banned=False):
+    with session_scope() as session:
+        creator, _ = generate_user()
+        package = OTAPackage(
+            created_by_user_id=creator.id,
+            platform=platform,
+            runtime_version=runtime_version,
+            version=version,
+            manifest_created_at=created_at,
+            manifest_id=f"id-{version}",
+        )
+        package.banned = banned
+        session.add(package)
+        session.flush()
+
+
+def test_native_update_manifest_serves_matching_package(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
-    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn():
         with real_bugs_session() as (bugs, metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
                 metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
             )
 
-    # the signed manifest is forwarded untouched, content type and bytes
+    # the signed bytes are fetched from the CDN under the package's version and served verbatim
     assert res.content_type == _CDN_CONTENT_TYPE
-    assert res.data == _SIGNED_MANIFEST
-    # fetched from the live release's immutable per-platform CDN path
-    mock_get.assert_called_once()
-    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18355.fc38c23d/ios/manifest"
-
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.aaaa/ios/manifest"
     # the client requires these response headers or it rejects the manifest
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_native_update_manifest_android(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
-    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+def test_native_update_manifest_resolves_per_platform(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
-    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="shared-fingerprint",
+        version="v1.3.1.ios",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.android,
+        runtime_version="shared-fingerprint",
+        version="v1.3.1.android",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn():
         with real_bugs_session() as (bugs, _metadata_interceptor):
-            bugs.GetNativeUpdateManifest(
+            res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "android"), ("expo-runtime-version", "android-fingerprint")),
+                metadata=(("expo-platform", "android"), ("expo-runtime-version", "shared-fingerprint")),
             )
 
-    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18356.ab12cd34/android/manifest"
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.android/android/manifest"
 
 
-def test_native_update_manifest_runtime_mismatch_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
-    # the live release targets a different build fingerprint than this client is running
-    with patch("couchers.servicers.bugs.requests.get") as mock_get:
+    # the newer createdAt wins regardless of insertion order
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.2.newer",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.older",
+        created_at=datetime(2026, 5, 30, tzinfo=UTC),
+    )
+    with _patch_cdn():
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            )
+
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.2.newer/ios/manifest"
+
+
+def test_native_update_manifest_banned_package_excluded(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
+    _fetch_signed_manifest.cache_clear()
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.good",
+        created_at=datetime(2026, 5, 30, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.2.bad",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        banned=True,
+    )
+    with _patch_cdn():
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            )
+
+    # the newest is banned, so new check-ins get the previous one (a re-stamp would supersede it)
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.good/ios/manifest"
+
+
+def test_native_update_manifest_runtime_mismatch_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn() as cdn_get:
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
@@ -498,11 +583,33 @@ def test_native_update_manifest_runtime_mismatch_returns_directive(db, feature_f
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
     # a mismatch must not even fetch — the manifest would be rejected on this build
-    mock_get.assert_not_called()
+    cdn_get.assert_not_called()
 
 
-def test_native_update_manifest_without_runtime_version_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+def test_native_update_manifest_only_banned_package_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        banned=True,
+    )
+    with real_bugs_session() as (bugs, _metadata_interceptor):
+        res = bugs.GetNativeUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+        )
+
+    assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+
+
+def test_native_update_manifest_without_runtime_version_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        runtime_version="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
     with real_bugs_session() as (bugs, metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
@@ -514,8 +621,7 @@ def test_native_update_manifest_without_runtime_version_returns_directive(db, fe
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
 
 
-def test_native_update_manifest_unconfigured_platform_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", {})
+def test_native_update_manifest_no_package_returns_directive(db):
     with real_bugs_session() as (bugs, _metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),

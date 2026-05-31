@@ -20,6 +20,7 @@ from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
+from couchers.models.ota import OTAPackage, OTAPlatform
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
@@ -148,25 +149,35 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
         context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
 
-        platform = cast(str, context.headers.get("expo-platform", "")) or "ios"
+        platform = cast(str, context.headers.get("expo-platform", ""))
         runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
 
-        # {platform: {"version": <ota_version>, "runtime_version": <fingerprint>}}: which published
-        # OTA is live per platform, and the build fingerprint it was cut for.
-        releases: dict[str, Any] = context.get_object_value("native_ota_bundles", {})
-        release = releases.get(platform)
+        # A bundle only runs on a build with the same fingerprint, so (platform, runtime_version) is the
+        # compatibility key. We offer the newest non-banned bundle for it, ordered by the manifest's
+        # createdAt: the device's selection policy then applies it only if it's newer than what it's
+        # running, so a fresh-but-stale store build self-heals while a newer build keeps its embedded
+        # bundle. A rollback is published as the good bundle re-stamped with a newer createdAt.
+        package = None
+        if platform in OTAPlatform.__members__ and runtime_version:
+            package = session.execute(
+                select(OTAPackage)
+                .where(OTAPackage.platform == OTAPlatform[platform])
+                .where(OTAPackage.runtime_version == runtime_version)
+                .where(OTAPackage.banned.is_(False))
+                .order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
+                .limit(1)
+            ).scalar_one_or_none()
 
-        # A signed manifest carries a fixed runtimeVersion and Expo rejects it on a build with any
-        # other fingerprint, so we only point a client at the OTA published for its own build.
-        if release is None or runtime_version == "" or release.get("runtime_version") != runtime_version:
-            directive = {"type": "noUpdateAvailable"}
+        if package is None:
             return httpbody_pb2.HttpBody(
                 content_type=f"multipart/mixed; boundary={_OTA_BOUNDARY}",
-                data=_ota_multipart_body("directive", directive),
+                data=_ota_multipart_body("directive", {"type": "noUpdateAvailable"}),
             )
 
+        # The signed manifest bytes live on the CDN under the package's immutable version; serve them
+        # verbatim so the on-device signature check sees exactly what was signed.
         cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
-        url = _native_ota_manifest_url(cdn_root=cdn_root, version=release["version"], platform=platform)
+        url = _native_ota_manifest_url(cdn_root=cdn_root, version=package.version, platform=platform)
         content_type, body = _fetch_signed_manifest(url)
         return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
