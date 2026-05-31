@@ -267,7 +267,7 @@
     "host_request_quick_decline": "Thank you for responding to the host request!"
   },
   "native_update": {
-    "preamble": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard.",
+    "preamble": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. We are sorry for the hassle.",
     "store": {
       "warn": "Please update the app via the {{store_name}} within {{time_left}}.",
       "block": "Please update the app via the {{store_name}}."
