@@ -14,8 +14,10 @@ export async function loadFeatureFlags(): Promise<void> {
     const payload = await (await fetch(FLAGS_URL)).json();
     localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
     await growthbook.init({ payload });
-  } catch {
+    console.debug("Feature flags loaded from", FLAGS_URL);
+  } catch (e) {
     const cached = localStorage.getItem(CACHE_KEY);
+    console.debug("Feature flags fetch failed, using cache:", cached != null, e);
     await growthbook.init({ payload: cached ? JSON.parse(cached) : {} });
   }
 }
