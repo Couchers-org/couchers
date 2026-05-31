@@ -476,7 +476,7 @@ def _render_friend_request__create(
         loc_context,
         substitutions={"from_user": data.other_user.name},
         icon_user=data.other_user,
-        action_url=urls.friend_requests_link(),
+        action_url=urls.friend_requests_link(from_user_id=data.other_user.user_id),
     )
 
 
