@@ -44,10 +44,10 @@ echo "EAS_FINGERPRINT=$CURRENT" > "$DOTENV"
 PREVIOUS="$(aws s3 cp "$MARKER" - 2>/dev/null || true)"
 echo "last-submitted $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 
-# A scheduled pipeline sets FORCE_NATIVE_BUILD_AND_SUBMIT to cut a fresh store build
-# even when nothing native changed, so the store/TestFlight binary doesn't go stale
-# behind OTA. The new build keeps the same runtimeVersion, so the live OTA bundle
-# still applies; autoIncrement bumps the build number so nothing collides.
+# Set FORCE_NATIVE_BUILD_AND_SUBMIT to cut a fresh store build even when nothing
+# native changed, so the store/TestFlight binary doesn't go stale behind OTA. The
+# new build keeps the same runtimeVersion, so the live OTA bundle still applies;
+# autoIncrement bumps the build number so nothing collides.
 if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ]; then
   echo "FORCE_NATIVE_BUILD_AND_SUBMIT set — building a new $PLATFORM production app regardless of fingerprint."
 elif [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
