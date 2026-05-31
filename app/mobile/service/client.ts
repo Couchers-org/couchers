@@ -5,6 +5,7 @@ import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
 import { BugsPromiseClient } from "@/proto/bugs_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
 import isGrpcError from "@/service/utils/isGrpcError";
+import { getClientPlatform } from "@/utils/clientPlatform";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 
 const IS_PROD =
@@ -67,15 +68,30 @@ export class UserAgentInterceptor {
   }
 }
 
+export class PlatformInterceptor {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown,
+  ) {
+    const platform = getClientPlatform();
+    if (platform) {
+      request.getMetadata()["x-couchers-client-platform"] = platform;
+    }
+    return invoker(request);
+  }
+}
+
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
 const userAgentInterceptor = new UserAgentInterceptor();
+const platformInterceptor = new PlatformInterceptor();
 
 const opts = {
   unaryInterceptors: [
     authInterceptor,
     timeoutInterceptor,
     userAgentInterceptor,
+    platformInterceptor,
   ],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
