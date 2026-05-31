@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import grpc
@@ -404,7 +404,7 @@ def test_check_native_status_anonymous(db):
             )
         )
 
-    # Stub backend: the ping is logged and the response asks for no update for now.
+    # No build timestamps reported -> no clock runs -> no update asked for.
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
     assert res.update_info.required is False
 
@@ -419,6 +419,21 @@ def test_check_native_status_authenticated(db):
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
     assert res.update_info.required is False
+
+
+def test_check_native_status_blocks_expired_binary(db):
+    # A native binary older than the (default 91-day) store window -> required store update, blocking.
+    embedded_created_at = (datetime.now(UTC) - timedelta(days=120)).isoformat()
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                debug_json=json.dumps({"platform": "ios", "embeddedCreatedAt": embedded_created_at})
+            )
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_STORE
+    assert res.update_info.required is True
+    assert res.update_info.act_by.ToDatetime(tzinfo=UTC) <= datetime.now(UTC)
 
 
 def _multipart_part_json(body, name):
