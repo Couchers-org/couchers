@@ -122,8 +122,8 @@ const intentFilters = variant.linkHost
 // and `developmentClient: true` still boots to the launcher, so this value is only
 // a formality. Manifests are served unsigned over HTTPS.
 //
-// Staging points at our self-hosted OTA backend (cut 1: validating the Expo
-// Updates protocol + native<->backend transport, unsigned).
+// Staging is code-signed too, but by its OWN key, signed in CI
+// (scripts/ota-sign.mjs); keyid/alg must match what the signer emits.
 //
 // Production requires a code-signed manifest: the tools/ publish lambda signs
 // each bundle with the private key, and this cert (its public half) lets the
@@ -136,7 +136,11 @@ const updates =
         url: "https://dev-api.couchershq.org/native/ota/manifest",
       }
     : APP_VARIANT === "staging"
-      ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
+      ? {
+          url: "https://dev-api.couchershq.org/native/ota/manifest",
+          codeSigningCertificate: "./certs/staging-ota-certificate.pem",
+          codeSigningMetadata: { keyid: "staging", alg: "rsa-v1_5-sha256" },
+        }
       : {
           url: "https://api.couchers.org/native/ota/manifest",
           codeSigningCertificate: "./certs/prod-ota-certificate.pem",
