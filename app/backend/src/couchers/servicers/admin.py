@@ -450,7 +450,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
         log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = None
-        # Existing UMS content remains where moderators left it; admins can manually re-approve as appropriate
+        # Sweep content shadowed by the cascade back to visible; leave hidden/unlisted content where moderators put it
+        bulk_set_user_content_visibility(
+            session=session,
+            user=user,
+            new_visibility=ModerationVisibility.visible,
+            moderator_user_id=context.user_id,
+            from_visibilities={ModerationVisibility.shadowed},
+            reason=f"User {user.id} unshadowed: {request.admin_note}",
+        )
         return _user_to_details(session, user)
 
     def AddAdminNote(
