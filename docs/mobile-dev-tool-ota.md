@@ -261,7 +261,7 @@ Implemented as three GitLab CI jobs in `app/.gitlab-ci.yml`, gated on
 keeping everything in the existing GitLab pipeline, so the comment job can `needs:`
 the upload job and only post once the links are live.
 
-**`build:mobile-ota`** (`node:22`) — for each platform in `OTA_PLATFORMS`
+**`build:mobile-ota-devtool`** (`node:22`) — for each platform in `OTA_PLATFORMS`
 (`ios android`):
 
 1. `APP_VARIANT=devtool npx expo export --platform <p>` → `dist/` (bundle, assets,
@@ -281,7 +281,7 @@ the upload job and only post once the links are live.
 4. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
    `package.json` dep) keeps `qrcode` out of the fingerprint sources.
 
-**`preview:mobile-ota`** (`aws-base`) — `aws s3 cp` the `manifest` (with its
+**`preview:mobile-ota-devtool`** (`aws-base`) — `aws s3 cp` the `manifest` (with its
 multipart content-type), `bundle.hbc`, `assets/`, `qr.png`, and `open.html` to
 `s3://couchers-dev-assets/ota/<sha>/<platform>/`. No CloudFront invalidation
 (immutable keys).
@@ -400,7 +400,7 @@ dev client then **silently ignores** every branch bundle (§4 safety net). Those
 need a fresh native Dev Tool client. That rebuild is automated, gated on the
 fingerprint actually changing so it doesn't fire on JS-only commits:
 
-- **`build:devtool-native`** (`app/.gitlab-ci.yml`, `node:22`) runs on
+- **`build:mobile-native-devtool`** (`app/.gitlab-ci.yml`, `node:22`) runs on
   `$DEVTOOL_BUILD_BRANCH` (`mobile/v1.1.20` while validating; point at `develop`
   once trusted). For each platform it calls **`scripts/devtool-build.sh`**, which:
   1. computes the fingerprint with `npx expo-updates fingerprint:generate`
@@ -441,7 +441,7 @@ loadable.
 - App config / channels: `app/mobile/app.config.js`, `app/mobile/eas.json`
 - In-app web/API override: `app/mobile/config/urls.ts`, `app/mobile/app/dev-settings.tsx`
 - QR pattern precedent: `app/mobile/dev-url-qr.html`
-- CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota`, `preview:mobile-ota`, `preview:pr-comment`)
+- CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-devtool`, `preview:mobile-ota-devtool`, `preview:pr-comment`)
 - Manifest/QR/open.html staging: `app/mobile/scripts/ota-stage.mjs`
 - PR comment generator: `app/scripts/pr_preview_comment.py`
 - Fingerprint exclusion: `app/mobile/.fingerprintignore`
