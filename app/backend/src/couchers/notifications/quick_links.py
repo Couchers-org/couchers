@@ -31,7 +31,7 @@ def _generate_quick_link(payload: Message) -> str:
     return urls.quick_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
-def decode_quick_link(*, payload: bytes, sig: bytes, context: CouchersContext) -> unsubscribe_pb2.UnsubscribePayload:
+def decode_quick_link(payload: bytes, sig: bytes, context: CouchersContext) -> unsubscribe_pb2.UnsubscribePayload:
     if not verify_hash_signature(message=payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=sig):
         context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "wrong_signature")
 

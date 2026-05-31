@@ -706,7 +706,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def Unsubscribe(
         self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
     ) -> auth_pb2.UnsubscribeRes:
-        payload = decode_quick_link(payload=request.payload, sig=request.sig, context=context)
+        payload = decode_quick_link(request.payload, request.sig, context)
         return auth_pb2.UnsubscribeRes(response=handle_unsubscribe(payload, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
