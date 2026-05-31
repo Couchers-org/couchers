@@ -17,14 +17,14 @@ const List = styled("div")(() => ({
 }));
 
 const MessageWrapper = styled(MessageView)(() => ({
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(1),
   "&:nth-of-type(1)": {
     marginBottom: 0,
   },
 }));
 
 const ControlMessageWrapper = styled(ControlMessageView)(() => ({
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(1),
   "&:nth-of-type(1)": {
     marginBottom: 0,
   },
@@ -34,12 +34,14 @@ interface MessageListProps {
   messages: Array<Message.AsObject>;
   markLastSeen(messageId: number): void;
   className?: string;
+  isDm?: boolean;
 }
 
 export default function MessageList({
   markLastSeen,
   messages,
   className,
+  isDm = false,
 }: MessageListProps) {
   const { t } = useTranslation(MESSAGES);
 
@@ -58,6 +60,7 @@ export default function MessageList({
               key={message.messageId}
               onVisible={() => markLastSeen(message.messageId)}
               message={message}
+              isDm={isDm}
             />
           ),
         )
