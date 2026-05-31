@@ -1,4 +1,5 @@
 import { useFocusEffect } from "expo-router";
+import { hasAction, requestReview } from "expo-store-review";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -369,6 +370,10 @@ export default function WebEmbed({
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // WebView file input crashes on mobile; use native picker instead.
         pickImage(sendImagePickResult);
+      } else if (payload?.type === "REQUEST_REVIEW") {
+        hasAction().then((canReview) => {
+          if (canReview) requestReview();
+        });
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
