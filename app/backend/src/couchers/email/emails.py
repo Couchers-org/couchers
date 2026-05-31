@@ -563,13 +563,7 @@ class EmailAddressChangeConfirmationEmail(EmailBase):
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [
-            cls(
-                user_name="Alice",
-                old_email="alice@example.com",
-                confirm_url="https://example.com"
-            )
-        ]
+        return [cls(user_name="Alice", old_email="alice@example.com", confirm_url="https://example.com")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1225,9 +1219,7 @@ class SignupVerifyEmail(EmailBase):
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [
-            cls(user_name="Alice", verify_url="https://example.com")
-        ]
+        return [cls(user_name="Alice", verify_url="https://example.com")]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1252,9 +1244,7 @@ class SignupContinueEmail(EmailBase):
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [
-            cls(user_name="Alice", continue_url="https://example.com")
-        ]
+        return [cls(user_name="Alice", continue_url="https://example.com")]
 
 
 @dataclass(kw_only=True, slots=True)
