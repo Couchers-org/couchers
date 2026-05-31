@@ -113,9 +113,8 @@ def log_admin_action(
 
 
 def _live_ota_package_ids(session: Session) -> set[int]:
-    # The package served to a matching client is the newest non-banned one per
-    # (platform, fingerprint), ordered by manifest_created_at (id as tiebreak) — exactly what
-    # GetNativeUpdateManifest resolves.
+    # The live package per (platform, fingerprint) is the newest non-banned one by manifest_created_at,
+    # matching what GetNativeUpdateManifest resolves.
     rows = session.execute(
         select(OTAPackage.id, OTAPackage.platform, OTAPackage.fingerprint, OTAPackage.manifest_created_at).where(
             OTAPackage.banned.is_(False)
@@ -131,9 +130,7 @@ def _live_ota_package_ids(session: Session) -> set[int]:
 
 
 def _extract_ota_manifest(body: bytes) -> dict[str, Any] | None:
-    # The CDN holds the signed multipart/mixed body; the manifest object is the JSON in its "manifest"
-    # part (the surrounding framing and the expo-signature header are what the device verifies, and we
-    # never touch them). Returns None if it can't be located/parsed.
+    # The manifest object is the JSON in the "manifest" part of the signed multipart/mixed body.
     marker = body.find(b'name="manifest"')
     if marker == -1:
         return None
@@ -1326,9 +1323,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if existing is not None:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
 
-        # Fetch the signed manifest we're about to serve and read the fields we key and order on out of
-        # it, so the row can't disagree with the bytes on the CDN: runtimeVersion is the fingerprint /
-        # compatibility key, createdAt is the rollout-ordering lever, and id is kept for reference.
+        # Read the keying/ordering fields out of the manifest we're about to serve, so the row can't
+        # disagree with the bytes on the CDN.
         cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
         _content_type, body = _fetch_signed_manifest(
             _native_ota_manifest_url(cdn_root=cdn_root, version=request.version, platform=platform.name)

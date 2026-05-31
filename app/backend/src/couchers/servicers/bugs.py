@@ -152,11 +152,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         platform = cast(str, context.headers.get("expo-platform", ""))
         fingerprint = cast(str, context.headers.get("expo-runtime-version", ""))
 
-        # A bundle only runs on a build with the same fingerprint, so (platform, fingerprint) is the
-        # compatibility key. We offer the newest non-banned bundle for it, ordered by the manifest's
-        # createdAt: the device's selection policy then applies it only if it's newer than what it's
-        # running, so a fresh-but-stale store build self-heals while a newer build keeps its embedded
-        # bundle. A rollback is published as the good bundle re-stamped with a newer createdAt.
+        # Newest non-banned bundle for the build's fingerprint, by manifest createdAt. The device's
+        # selection policy only applies it if it's newer than what it's running, so a stale store build
+        # self-heals while a newer one keeps its embedded bundle.
         package = None
         if platform in OTAPlatform.__members__ and fingerprint:
             package = session.execute(
@@ -174,8 +172,6 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                 data=_ota_multipart_body("directive", {"type": "noUpdateAvailable"}),
             )
 
-        # The signed manifest bytes live on the CDN under the package's immutable version; serve them
-        # verbatim so the on-device signature check sees exactly what was signed.
         cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
         url = _native_ota_manifest_url(cdn_root=cdn_root, version=package.version, platform=platform)
         content_type, body = _fetch_signed_manifest(url)
