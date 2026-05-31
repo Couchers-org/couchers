@@ -948,6 +948,35 @@ feature_flags_staleness_gauge: Gauge = Gauge(
 _set_hacky_gauges_funcs.append((feature_flags_staleness_gauge, _feature_flags_staleness_seconds))
 
 
+# Every flag evaluation goes through here. `source` is GrowthBook's FeatureResult.source
+# (unknownFeature / defaultValue / force / experiment / prerequisite / cyclicPrerequisite) plus two of
+# our own — "disabled" when EXPERIMENTATION_ENABLED is off, "passAllGates" when the gate short-circuit
+# fires. Missing flags surface as source="unknownFeature". `value` is stringified and length-capped to
+# keep cardinality bounded.
+feature_flag_evaluations_counter: Counter = Counter(
+    "couchers_feature_flag_evaluations_total",
+    "Number of feature flag evaluations, by flag key, evaluation source, and resolved value",
+    labelnames=["flag_key", "source", "value"],
+)
+
+_MAX_FLAG_VALUE_LABEL_LEN = 32
+
+
+def _stringify_flag_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        s = str(value)
+        return s if len(s) <= _MAX_FLAG_VALUE_LABEL_LEN else f"<{type(value).__name__}>"
+    if value is None:
+        return "None"
+    return f"<{type(value).__name__}>"
+
+
+def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> None:
+    feature_flag_evaluations_counter.labels(flag_key, source, _stringify_flag_value(value)).inc()
+
+
 def create_prometheus_server(port: int) -> Any:
     """custom start method to fix problem descrbied in https://github.com/prometheus/client_python/issues/155"""
 

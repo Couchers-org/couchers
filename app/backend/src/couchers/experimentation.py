@@ -30,6 +30,7 @@ from growthbook import GrowthBook
 from growthbook.common_types import Experiment, FeatureResult, Result
 from sqlalchemy.dialects.postgresql import insert
 
+from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models.logging import ExperimentExposure, FeatureUsage
@@ -263,12 +264,17 @@ def _global_evaluator() -> GrowthBook:
 # invoked once gating passes, so it stays lazy.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
     if not config["EXPERIMENTATION_ENABLED"]:
+        metrics.observe_feature_flag_evaluation(flag_key, "disabled", default)
         return default
-    return get_evaluator().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
+    result = get_evaluator().eval_feature(flag_key)
+    value = default if result.value is None else result.value
+    metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
+    return value
 
 
 def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
     if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+        metrics.observe_feature_flag_evaluation(flag_key, "passAllGates", True)
         return True
     return _feature_value(flag_key, default, get_evaluator)
 
