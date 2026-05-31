@@ -30,9 +30,11 @@ class ClockState(enum.IntEnum):
 
 
 class UpdateAction(enum.Enum):
+    unspecified = enum.auto()
     none = enum.auto()
     ota = enum.auto()
     store = enum.auto()
+    reinstall = enum.auto()
 
 
 @dataclass(frozen=True)
