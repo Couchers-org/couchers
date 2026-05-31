@@ -547,7 +547,6 @@ test:mobile:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm test -- --ci --coverage
   after_script:
     - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
@@ -573,7 +572,6 @@ test:mobile-linting:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm run lint
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -590,7 +588,6 @@ test:mobile-typecheck:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npx tsc --noEmit
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -608,7 +605,6 @@ test:mobile-expo-doctor:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npx expo-doctor
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -872,7 +868,6 @@ build:mobile-ota:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - |
       for P in $OTA_PLATFORMS; do
@@ -959,7 +954,6 @@ build:devtool-native:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/devtool-build.sh ios
     - bash scripts/devtool-build.sh android
@@ -987,7 +981,6 @@ build:mobile-ota-staging:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
     - OTA_CDN_BASE="https://next-static.couchershq.org/native/ota/$OTA_VERSION"
@@ -1063,7 +1056,6 @@ build:production-native-ios:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/production-build.sh ios
   artifacts:
@@ -1083,7 +1075,6 @@ build:production-native-android:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/production-build.sh android
   artifacts:
@@ -1134,7 +1125,6 @@ build:mobile-ota-prod:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - mkdir -p native-ota-dist
     - |
