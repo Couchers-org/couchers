@@ -2,21 +2,22 @@
 # present, so this defines the whole upload. It exists to ship app/mobile/proto
 # (git-ignored, built by the `protos` job) to EAS without regenerating it there.
 
-# Upload only the mobile app.
+# Upload only the mobile app. (No trailing slash on the re-includes: eas-cli's
+# directory walker tests bare names like "app", and "!/app/" wouldn't match those.)
 /*
-!/app/
+!/app
 /app/*
-!/app/mobile/
+!/app/mobile
 
 # app/mobile ignores, minus proto/. Anchored /ios|/android so modules/*/ios stays.
-.expo/
-dist/
-web-build/
+.expo
+dist
+web-build
 expo-env.d.ts
-/app/mobile/ios/
-/app/mobile/android/
-.kotlin/
-/app/mobile/ota-out/
+/app/mobile/ios
+/app/mobile/android
+.kotlin
+/app/mobile/ota-out
 /app/mobile/ota-expo-config.json
 .metro-health-check*
 npm-debug.*
@@ -35,6 +36,6 @@ GoogleService-Info.plist
 .env*.local
 *.orig.*
 *.tsbuildinfo
-coverage/
-submit/
+coverage
+submit
 .DS_Store
