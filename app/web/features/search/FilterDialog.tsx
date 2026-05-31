@@ -14,7 +14,6 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useMediaQuery } from "@mui/system";
-import BetaFlag from "components/BetaFlag";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "components/Dialog";
 import Divider from "components/Divider";
@@ -62,13 +61,34 @@ const FilterItemsContainer = styled("div")({
   maxHeight: "60vh",
 });
 
-const FilterItemRow = styled("div")({
+const FilterItemRow = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
   width: "100%",
   marginBottom: theme.spacing(2),
-});
+  [theme.breakpoints.down("md")]: {
+    flexWrap: "wrap",
+    rowGap: theme.spacing(0.5),
+    "& .MuiTypography-body1": {
+      fontSize: "0.875rem",
+    },
+    "& .MuiToggleButton-root": {
+      fontSize: "0.75rem",
+    },
+    "& .MuiToggleButtonGroup-root": {
+      margin: "0 auto",
+    },
+    "& .MuiSelect-select, & .MuiMenuItem-root": {
+      fontSize: "0.875rem",
+    },
+    "& .MuiIconButton-root": {
+      width: 24,
+      height: 24,
+      "& svg": { fontSize: "1rem" },
+    },
+  },
+}));
 
 const StyledSlider = styled(Slider)(({ theme }) => ({
   height: 3,
@@ -251,12 +271,9 @@ const FilterDialog = ({
       </IconButton>
       <FilterItemsContainer>
         <FilterItemRow>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography>
-              {t("search:form.empty_profile_filters.title")}
-            </Typography>
-            <BetaFlag />
-          </Box>
+          <Typography>
+            {t("search:form.empty_profile_filters.title")}
+          </Typography>
           <CustomColorSwitch
             checked={filters.showEmptyProfile || false}
             onClick={handleShowEmptyProfileChange}
@@ -349,6 +366,16 @@ const FilterDialog = ({
             variant="outlined"
             size="small"
             value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
+            sx={
+              isMobile
+                ? { "& .MuiSelect-select": { fontSize: "0.875rem" } }
+                : undefined
+            }
+            MenuProps={
+              isMobile
+                ? { sx: { "& .MuiMenuItem-root": { fontSize: "0.875rem" } } }
+                : undefined
+            }
           >
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
               {t("search:any")}
@@ -407,18 +434,15 @@ const FilterDialog = ({
         </FilterItemRow>
         <FilterItemRow>
           <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                sx={{
-                  color: !currentUser?.hasStrongVerification
-                    ? "var(--mui-palette-grey-400)"
-                    : "inherit",
-                }}
-              >
-                {t("search:form.general_filters.same_gender_only")}
-              </Typography>
-              <BetaFlag />
-            </Box>
+            <Typography
+              sx={{
+                color: !currentUser?.hasStrongVerification
+                  ? "var(--mui-palette-grey-400)"
+                  : "inherit",
+              }}
+            >
+              {t("search:form.general_filters.same_gender_only")}
+            </Typography>
             {!currentUser?.hasStrongVerification && (
               <Typography
                 variant="body2"
@@ -544,10 +568,18 @@ const FilterDialog = ({
           <Typography>
             {t("search:form.accommodation_filters.guests_field_label")}
           </Typography>
-          <PlusMinusSelector
-            onChange={handleNumberOfGuestsChange}
-            value={filters.numGuests}
-          />
+          <Box
+            sx={
+              isMobile
+                ? { "& .MuiTypography-root": { fontSize: "0.875rem" } }
+                : undefined
+            }
+          >
+            <PlusMinusSelector
+              onChange={handleNumberOfGuestsChange}
+              value={filters.numGuests}
+            />
+          </Box>
         </FilterItemRow>
         <FilterItemRow>
           <Typography>

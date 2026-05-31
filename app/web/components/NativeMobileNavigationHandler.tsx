@@ -30,6 +30,15 @@ export default function NativeMobileNavigationHandler() {
             ? data.path.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?/, "")
             : data.path;
 
+          // Skip if already on the target route — prevents double-loading on initial render
+          // when the source URL already loaded the page and MOBILE_NAVIGATE arrives late
+          if (
+            router.pathname === pathname &&
+            (router.locale || "en") === locale
+          ) {
+            return;
+          }
+
           // Use the same pattern as LanguagePickerSelect to avoid double locale prefix
           // First argument is pathname (without locale), third argument is options with locale
           router.push(pathname, pathname, { locale, scroll: false });

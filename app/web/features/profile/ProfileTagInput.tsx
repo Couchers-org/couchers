@@ -4,7 +4,6 @@ import {
   Checkbox,
   IconButton,
   InputBase,
-  Link,
   Paper,
   Popper,
   styled,
@@ -14,7 +13,7 @@ import Autocomplete, {
   AutocompleteCloseReason,
 } from "@mui/material/Autocomplete";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
@@ -90,17 +89,6 @@ const StyledPopper = styled(Popper)(() => ({
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
   marginTop: theme.spacing(1),
   zIndex: 101,
-}));
-
-const StyledHeader = styled("div")(() => ({
-  borderBottomColor: "var(--mui-palette-divider)",
-  borderBottomStyle: "solid",
-  borderBottomWidth: 1,
-  fontSize: theme.typography.body1.fontSize,
-  padding: theme.spacing(1, 2),
-  "& > p": {
-    whiteSpace: "pre-line",
-  },
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -234,25 +222,6 @@ export default function ProfileTagInput({
           anchorEl={anchorEl.current}
           placement="bottom-start"
         >
-          <StyledHeader>
-            <Typography>
-              <Trans
-                t={t}
-                i18nKey="profile_tag_input.header_text"
-                components={{
-                  support_link: (
-                    <Link
-                      href="mailto:support@couchers.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      underline="hover"
-                      onMouseDown={(e) => e.preventDefault()}
-                    />
-                  ),
-                }}
-              />
-            </Typography>
-          </StyledHeader>
           <Autocomplete
             {...inputFieldProps}
             open

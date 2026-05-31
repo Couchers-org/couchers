@@ -1,0 +1,27 @@
+{
+  "title": "Mod工具",
+  "banned": "禁止",
+  "deleted": "已删除",
+  "do_not_email": "不要发送电子邮件",
+  "list_users": {
+    "heading": "新用户列表",
+    "none_found": "未找到用户",
+    "load_more": "加载更多"
+  },
+  "actions": {
+    "open_in_console": "在控制台中打开"
+  },
+  "panel": {
+    "heading": "Mod东西",
+    "username": "用户名",
+    "user_id": "用户ID",
+    "email": "电子邮件",
+    "birthdate": "出生日期",
+    "has_strong_verification": "具有强大的验证",
+    "birthdate_verification_status": "出生日期验证",
+    "gender_verification_status": "性别验证",
+    "has_passport_sex_gender_exception": "护照性别/性别例外。？",
+    "pending_mod_notes_count": "Pending mod注释",
+    "acknowledged_mod_notes_count": "Acknowledged 模组注释"
+  }
+}

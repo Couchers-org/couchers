@@ -1,6 +1,8 @@
 {
   "active": "Active",
+  "do_not_email_error_link": "Update your email settings to re-enable this.",
   "actions": {
+    "add_friend": "Add friend",
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
     "accept_friend_label": "Accept",
@@ -145,6 +147,7 @@
   "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
   "info_unanswered": "Ask me",
   "my_connections": "My connections",
+  "open_full_profile": "Open full profile",
   "connection_pending": "Pending",
   "cancel": "Cancel",
   "more_profile_actions": "...",
@@ -222,6 +225,7 @@
     "guide_link_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
     "arrival_date": "Arrival Date",
     "arrival_date_empty": "Please specify an arrival date.",
+    "arrival_date_before_host_today": "This date has already passed for {{name}}.",
     "departure_date": "Departure Date",
     "departure_date_empty": "Please specify a departure date.",
     "request": "Request",
@@ -230,6 +234,14 @@
     "request_chars_remaining_one": "Please write at least {{count}} more character to send a host request.",
     "request_chars_remaining_other": "Please write at least {{count}} more characters to send a host request.",
     "success": "Request sent!"
+  },
+  "message_form": {
+    "send_message": "Send {{name}} a message",
+    "message": "Message",
+    "message_description": "Write your message...",
+    "message_empty": "Please write a message.",
+    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead.",
+    "success": "Message sent!"
   },
   "reference_filter_label": {
     "friend": "From friends",
@@ -266,7 +278,6 @@
   "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
   "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
   "profile_tag_input": {
-    "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
   "view_in_admin_console": "View user in admin console",

@@ -16,6 +16,7 @@ from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -722,6 +723,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_friend_request")
+
         to_user = session.execute(
             select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
@@ -1007,11 +1011,12 @@ def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, goo
         }
 
 
-def get_num_references(session: Session, user_ids: Iterable[int]) -> dict[int, int]:
+def get_num_references(session: Session, context: CouchersContext, user_ids: Iterable[int]) -> dict[int, int]:
+    query = where_moderated_content_visible(
+        select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
+    )
     query = (
-        select(Reference.to_user_id, func.count(Reference.id))
-        .where(Reference.to_user_id.in_(user_ids))
-        .where(Reference.is_deleted == False)
+        query.where(Reference.to_user_id.in_(user_ids))
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
         .group_by(Reference.to_user_id)
@@ -1047,7 +1052,7 @@ def user_model_to_pb(
             f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
-    num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
+    num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)
     lat, lng = db_user.coordinates
 
     pending_friend_request = None

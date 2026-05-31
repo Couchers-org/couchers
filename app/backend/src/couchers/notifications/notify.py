@@ -2,6 +2,7 @@ import logging
 
 from google.protobuf import empty_pb2
 from google.protobuf.message import Message
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from couchers.jobs.enqueue import queue_job
@@ -61,4 +62,23 @@ def notify(
         payload=jobs_pb2.HandleNotificationPayload(
             notification_id=notification.id,
         ),
+    )
+
+
+def mark_notifications_seen(
+    session: Session,
+    *,
+    user_id: int,
+    key: str,
+    topic_actions: list[NotificationTopicAction],
+) -> None:
+    """
+    Marks all unseen notifications for the given user, key, and topic actions as seen.
+    """
+    session.execute(
+        update(Notification)
+        .values(is_seen=True)
+        .where(Notification.user_id == user_id)
+        .where(Notification.key == key)
+        .where(Notification.topic_action.in_(topic_actions))
     )

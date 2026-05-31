@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, UniqueConstraint, func
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -10,6 +10,7 @@ from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+from couchers.models.rest import ClientPlatform
 
 
 class EventSource(enum.Enum):
@@ -64,6 +65,15 @@ class APICall(Base, kw_only=True):
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
+    # per-request resource accounting, covering the handler span (see couchers/perf.py)
+    db_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    # counts only SQLAlchemy rendered insert/update/delete
+    db_write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
+    cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
+
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
+
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
@@ -113,5 +123,76 @@ class EventLog(Base, kw_only=True):
         Index("ix_logging_event_log_created", "created"),
         Index("ix_logging_event_log_event_type_created", "event_type", "created"),
         Index("ix_logging_event_log_user_id_created", "user_id", "created"),
+        {"schema": "logging"},
+    )
+
+
+class ExperimentExposure(Base, kw_only=True):
+    """
+    Records the first time a user is exposed to a particular experiment variation.
+
+    Populated by GrowthBook's on_experiment_viewed callback. One row per
+    (user, experiment, variation) - subsequent exposures collide on the
+    unique constraint and are dropped via ON CONFLICT DO NOTHING, so
+    `created` and `data` reflect the first exposure.
+    """
+
+    __tablename__ = "experiment_exposures"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the first exposure was recorded
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # backend version when the first exposure was recorded
+    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+
+    # user exposed to the experiment
+    user_id: Mapped[int] = mapped_column(BigInteger)
+
+    # experiment identifier from GrowthBook
+    experiment_key: Mapped[str] = mapped_column(String)
+
+    # the variation the user was bucketed into
+    variation_id: Mapped[int] = mapped_column(BigInteger)
+
+    # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
+    # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "experiment_key", "variation_id", name="uq_experiment_exposures_user_exp_var"),
+        Index("ix_logging_experiment_exposures_experiment_key_created", "experiment_key", "created"),
+        Index("ix_logging_experiment_exposures_user_id_created", "user_id", "created"),
+        {"schema": "logging"},
+    )
+
+
+class FeatureUsage(Base, kw_only=True):
+    """
+    Append-only log of feature flag evaluations.
+
+    Populated by GrowthBook's on_feature_usage callback - one row per check.
+    """
+
+    __tablename__ = "feature_usage"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the feature was checked
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # user the feature was checked for
+    user_id: Mapped[int] = mapped_column(BigInteger)
+
+    # feature identifier from GrowthBook
+    feature_key: Mapped[str] = mapped_column(String)
+
+    # the feature value the user received
+    value: Mapped[Any] = mapped_column(JSONB)
+
+    __table_args__ = (
+        Index("ix_logging_feature_usage_feature_key_time", "feature_key", "time"),
+        Index("ix_logging_feature_usage_user_id_time", "user_id", "time"),
         {"schema": "logging"},
     )

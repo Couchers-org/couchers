@@ -2,6 +2,7 @@ import os
 import re
 from collections.abc import Generator
 from tempfile import TemporaryDirectory
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -18,6 +19,7 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
         "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
     )
 
+from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
 from couchers.models import Base  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
@@ -26,7 +28,7 @@ from tests.fixtures.db import (  # noqa: E402
     generate_user,
     populate_testing_resources,
 )
-from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -162,7 +164,6 @@ def testconfig():
     config["CONSOLE_BASE_URL"] = "http://localhost:8888"
     config["COOKIE_DOMAIN"] = "localhost"
 
-    config["ENABLE_SMS"] = False
     config["SMS_SENDER_ID"] = "invalid"
 
     config["ENABLE_EMAIL"] = False
@@ -173,12 +174,10 @@ def testconfig():
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
 
-    config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""
     config["STRIPE_WEBHOOK_SECRET"] = ""
     config["STRIPE_RECURRING_PRODUCT_ID"] = ""
 
-    config["ENABLE_STRONG_VERIFICATION"] = False
     config["IRIS_ID_PUBKEY"] = ""
     config["IRIS_ID_SECRET"] = ""
     # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272
@@ -186,7 +185,6 @@ def testconfig():
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    config["ENABLE_POSTAL_VERIFICATION"] = False
     config["MYPOSTCARD_API_KEY"] = "test-api-key"
     config["MYPOSTCARD_USERNAME"] = "test-username"
     config["MYPOSTCARD_PASSWORD"] = "test-password"
@@ -211,7 +209,6 @@ def testconfig():
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 
-    config["LISTMONK_ENABLED"] = False
     config["LISTMONK_BASE_URL"] = "https://localhost"
     config["LISTMONK_API_USERNAME"] = "..."
     config["LISTMONK_API_KEY"] = "..."
@@ -223,15 +220,15 @@ def testconfig():
 
     config["ACTIVENESS_PROBES_ENABLED"] = True
 
-    config["RECAPTHCA_ENABLED"] = False
     config["RECAPTHCA_PROJECT_ID"] = "..."
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
     config["EXPERIMENTATION_ENABLED"] = False
     config["EXPERIMENTATION_PASS_ALL_GATES"] = True
-    config["STATSIG_SERVER_SECRET_KEY"] = ""
-    config["STATSIG_ENVIRONMENT"] = "testing"
+    config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
+    config["GROWTHBOOK_CLIENT_KEY"] = ""
+    config["GROWTHBOOK_CACHE_PATH"] = ""
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
@@ -247,12 +244,48 @@ def testconfig():
     config["SLACK_DONATIONS_CHANNEL"] = ""
     config["SLACK_MERCH_CHANNEL"] = ""
 
-    config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
+    # Profiling disabled by default in tests
+    config["PYROSCOPE_ENABLED"] = False
+    config["PYROSCOPE_SERVER"] = "https://localhost"
+    config["PYROSCOPE_AUTH_TOKEN"] = "token"
 
     yield None
 
     config.clear()
     config.update(prevconfig)
+
+
+class FeatureFlags:
+    """Test handle for controlling feature flag values; see the `feature_flags` fixture."""
+
+    def __init__(self, features: dict[str, Any]) -> None:
+        self._features = features
+
+    def set(self, key: str, value: Any) -> None:
+        """Make `key` resolve to `value` for every user (logged in or anonymous)."""
+        self._features[key] = {"defaultValue": value}
+
+    def set_definition(self, key: str, definition: dict[str, Any]) -> None:
+        """Set a raw GrowthBook feature definition, for exercising rollouts/experiments."""
+        self._features[key] = definition
+
+
+@pytest.fixture
+def feature_flags(monkeypatch) -> FeatureFlags:
+    """
+    Enable experimentation with an in-memory snapshot and let tests set flag values by key.
+
+    Usage:
+        def test_x(db, feature_flags):
+            feature_flags.set("my_flag", True)
+            ...
+    """
+    features: dict[str, Any] = {}
+    monkeypatch.setattr(experimentation, "_initialized", True)
+    monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    return FeatureFlags(features)
 
 
 @pytest.fixture
@@ -272,13 +305,19 @@ def fast_passwords():
 
 
 @pytest.fixture
+def email_collector():
+    """Captures emails and allows inspecting them."""
+
+    with EmailCollector() as collector:
+        yield collector
+
+
+@pytest.fixture
 def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-    collector = PushCollector()
-
-    with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
+    with PushCollector() as collector:
         yield collector
 
 

@@ -9,7 +9,7 @@
     "title": "Bu etkinlik için bir topluluk daveti iste",
     "toast_success": "Teşekkürler, isteğin alındı",
     "link": "Bu özellik hakkında daha fazla bilgi",
-    "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim yollamaları için modaretörlerden bu formla istekte bulun."
+    "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim göndermeleri için moderatörlerden bu formla istekte bulun."
   },
   "invite_community_dialog_buttons": {
     "open": "Topluluğu davet et",

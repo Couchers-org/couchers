@@ -12,10 +12,6 @@
   "new_pill": "Nuevo",
   "dashboard": "Panel principal",
   "complete_profile_explanation": "¿No odias cómo otras plataformas tienen perfiles \"fantasma\" vacíos sin información? ¡Por favor, no nos hagas ghosting! 👻👻👻",
-  "events_empty_state": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
-  "attendees_count_one": "{{count}} asistente",
-  "attendees_count_many": "{{count}} de asistentes",
-  "attendees_count_other": "{{count}} asistentes",
   "profile_summary_edit": "Editar perfil",
   "profile_summary_view": "Ver mi perfil",
   "profile_mobile_summary_view": "Ir al perfil",
@@ -25,7 +21,8 @@
     "actions": {
       "create_event": "crear un evento",
       "send_message": "enviar un mensaje",
-      "send_request": "enviar una solicitud"
+      "send_request": "enviar una solicitud",
+      "send_friend_request": "enviar una solicitud de amistad"
     },
     "edit_profile_button": "Edita tu perfil ahora",
     "cancel_button": "Ahora no",
@@ -37,11 +34,10 @@
   "community_builder_form_text": "Crear tu propia comunidad local",
   "no_sub_communities": "Sin sub-comunidades.",
   "browse_communities": "Explorar las comunidades",
-  "upcoming_events": "Próximos eventos",
   "community_builder": "¿Quieres ser un embajador para tu comunidad y ayudar a que crezca? !Conviértete en <1>Creador de comunidades!</1>",
   "all_communities_section": "Todas las comunidades",
   "communities_welcome_title": "Te damos la bienvenida a comunidades",
-  "find_your_community": "Encuentra tu comunidad",
+  "find_your_community": "Encuentra una Comunidad",
   "communities_intro": "Para ayudar a gente alrededor del mundo a organizar eventos, discusiones, y reuniones de forma local, hemos creado la página de comunidades, que se listan más abajo. <strong>Se te ha añadido de forma automática a algunas comunidades basándonos en tu ubicación, ¡pero puedes unirte a cualquier comunidad!</strong>. Tus comunidades se listan en el tablón.",
   "find_your_community_intro": "Debajo puedes buscar o navegar todas las páginas de comunidad que existen. ¿Falta tu país o tu ciudad? ¡<1>Utiliza este formulario</1> para solicitarlo!",
   "browse_communities_text": "Haz clic en una región para ver otras comunidades dentro de ella más abajo. Haz clic en el enlace para ir a la página de comunidad de esa ciudad o región.",
@@ -59,5 +55,53 @@
   "search_input_placeholder": "Busca un lugar",
   "show_map": "Mostrar mapa",
   "hero_image_alt": "Globos aerostáticos en Capadocia",
-  "hero_image_attribution": "Foto por <1>Mesut Kaya</1> en <3>Unsplash</3>"
+  "hero_image_attribution": "Foto por <1>Mesut Kaya</1> en <3>Unsplash</3>",
+  "my_communities_heading": "Mis Comunidades",
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Responder a {{name}}",
+      "description": "No olvides responder a la solicitud de hospedaje de {{name}}.",
+      "button": "Ver solicitud"
+    },
+    "write_reference": {
+      "title": "Escribe una referencia",
+      "button": "Escribir referencia",
+      "description_surfed": "Deja una reseña sobre tu estancia con {{name}}",
+      "description_hosted": "Deja una reseña sobre la estancia de {{name}}"
+    },
+    "complete_profile": {
+      "title": "Completa tu perfil",
+      "description": "Completa tu sección \"Quién soy\" y sube una foto de perfil",
+      "button": "Editar tu perfil"
+    },
+    "strong_verification": {
+      "title": "Verificación robusta",
+      "description": "Verifica tu identidad para una comunidad más segura",
+      "button": "Verifica tu cuenta"
+    },
+    "complete_my_home": {
+      "title": "Completa la sección \"Mi hogar\" de tu perfil",
+      "description": "Completa la organización para dormir, las normas de la casa y una descripción de tu alojamiento",
+      "button": "Edita tu hogar"
+    },
+    "carousel_dismiss_button_a11y": "Descartar recordatorio"
+  },
+  "events": {
+    "your_upcoming_header": "Tus próximos eventos",
+    "see_all_link": "Ver todos →",
+    "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
+    "community_header": "Eventos en tus comunidades",
+    "community_empty_message": "No hay próximos eventos en tus comunidades.",
+    "location_online_label": "En línea",
+    "today_label": "Hoy"
+  },
+  "discussions": {
+    "community_header": "Discusiones en tus comunidades",
+    "community_empty_message": "Aún no hay discusiones en tus comunidades.",
+    "replies_count_label_one": "{{count}} respuesta",
+    "replies_count_label_many": "{{count}} de respuestas",
+    "replies_count_label_other": "{{count}} respuestas",
+    "prev_page_label": "Página anterior",
+    "next_page_label": "Página siguiente"
+  }
 }

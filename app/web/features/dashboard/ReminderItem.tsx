@@ -1,10 +1,13 @@
-import { Box, Typography, useColorScheme } from "@mui/material";
+import { alpha, Box, Typography } from "@mui/material";
 import { useMediaQuery } from "@mui/system";
 import Button from "components/Button";
+import IconButton from "components/IconButton";
+import { CloseIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Reminder } from "proto/account_pb";
+import { ReferenceType } from "proto/references_pb";
 import {
   referenceTypeRoute,
   routeToEditProfile,
@@ -17,16 +20,14 @@ import { theme } from "../../theme";
 
 export default function ReminderItem({
   reminder,
+  onDismiss,
 }: {
   reminder: Reminder.AsObject;
+  onDismiss?: () => void;
 }) {
   const { t } = useTranslation([DASHBOARD]);
-  const { mode, systemMode } = useColorScheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const resolvedMode = mode === "system" ? systemMode : mode;
-  const isDark = resolvedMode === "dark";
 
   let title: string;
   let description: string;
@@ -35,25 +36,32 @@ export default function ReminderItem({
 
   if (reminder.respondToHostRequestReminder) {
     const { hostRequestId, surferUser } = reminder.respondToHostRequestReminder;
-    title = t("reminder.respond_to_host_request.title");
-    description = t("reminder.respond_to_host_request.description", {
-      name: surferUser?.name ?? "",
-    });
+    const name = surferUser?.name ?? "";
+    title = t("reminder.respond_to_host_request.title", { name });
+    description = t("reminder.respond_to_host_request.description", { name });
     buttonText = t("reminder.respond_to_host_request.button");
     href = routeToHostRequest(hostRequestId);
   } else if (reminder.writeReferenceReminder?.otherUser) {
     const { hostRequestId, otherUser, referenceType } =
       reminder.writeReferenceReminder;
     title = t("reminder.write_reference.title");
-    description = t("reminder.write_reference.description", {
-      name: otherUser.name,
-    });
+    description = t(
+      referenceType === ReferenceType.REFERENCE_TYPE_SURFED
+        ? "reminder.write_reference.description_surfed"
+        : "reminder.write_reference.description_hosted",
+      { name: otherUser.name },
+    );
     buttonText = t("reminder.write_reference.button");
     href = routeToLeaveReference(
       referenceTypeRoute[referenceType],
       otherUser.userId,
       hostRequestId,
     );
+  } else if (reminder.completeMyHomeReminder) {
+    title = t("reminder.complete_my_home.title");
+    description = t("reminder.complete_my_home.description");
+    buttonText = t("reminder.complete_my_home.button");
+    href = routeToEditProfile("home");
   } else if (reminder.completeProfileReminder) {
     title = t("reminder.complete_profile.title");
     description = t("reminder.complete_profile.description");
@@ -71,33 +79,48 @@ export default function ReminderItem({
   return (
     <Box
       sx={(theme) => ({
-        backgroundColor: isDark ? "#716317" : "#fff5e4",
-        padding: isMobile ? "20px" : "24px",
+        backgroundColor: alpha(theme.palette.secondary.main, 0.08),
+        padding: isMobile ? "14px" : "24px",
         display: "flex",
         flexDirection: "column",
         height: "100%",
       })}
     >
-      <Box sx={{ flexGrow: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: isMobile ? "8px" : "16px",
+        }}
+      >
         <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 800,
-            marginBottom: isMobile ? "12px" : "16px",
-          }}
+          variant={isMobile ? "h4" : "h3"}
+          sx={{ fontWeight: 800, flexGrow: 1 }}
         >
           {title}
         </Typography>
-
-        <Typography
-          sx={{
-            marginBottom: isMobile ? "14px" : "18px",
-            fontSize: ".85rem",
-          }}
-        >
-          {description}
-        </Typography>
+        {onDismiss && (
+          <IconButton
+            aria-label={t("reminder.carousel_dismiss_button_a11y")}
+            onClick={onDismiss}
+            size="small"
+            sx={{ marginTop: "-4px", marginRight: "-4px", flexShrink: 0 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
       </Box>
+
+      <Typography
+        sx={{
+          flexGrow: 1,
+          marginBottom: isMobile ? "10px" : "18px",
+          fontSize: isMobile ? ".75rem" : ".85rem",
+        }}
+      >
+        {description}
+      </Typography>
 
       <Button
         component={Link}

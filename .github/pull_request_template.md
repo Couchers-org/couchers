@@ -29,6 +29,7 @@ Fill applicable checklists below, or remove those that don't apply.
 - [x] Maintainers can merge this PR for me
 
 <!--
-Remember to request review from couchers-org/web, couchers-org/backend or an individual.
+Create the code review as a draft if still iterating or validating via CI.
+Once published, reviewers will be added based on changes, but feel free to add more.
 Once your code is approved, you can merge it if you have write access.
 --->

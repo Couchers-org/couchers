@@ -11,6 +11,7 @@ export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
+export const listMyCommunitiesDiscussionsKey = "listMyCommunitiesDiscussions";
 export const listNotificationsQueryKey = "listNotifications";
 export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
@@ -139,6 +140,10 @@ export const hostRequestMessagesKey = (id?: number) => [
 // User
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
+export const myCommunityEventsKey = (type: EventsType) => [
+  "myCommunityEvents",
+  { type },
+];
 export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 export const remindersKey = "reminders";

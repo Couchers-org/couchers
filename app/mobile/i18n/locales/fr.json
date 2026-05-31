@@ -1,5 +1,22 @@
 {
   "errors": {
-    "failed_to_load": "Erreur de chargement"
+    "failed_to_load": "Erreur de chargement",
+    "check_connection": "Vérifiez votre connexion internet et réessayez."
+  },
+  "not_found": {
+    "message": "Cet écran n'existe pas.",
+    "title": "Oups !"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "messages": "Messages",
+    "communities": "Communautés",
+    "events": "Événements"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "add_photo": "Ajouter une photo",
+    "take_photo": "Prendre une photo",
+    "choose_from_library": "Choisissez dans la bibliothèque"
   }
 }

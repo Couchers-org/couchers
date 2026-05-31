@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { service } from "service";
 import {
   filterDuplicatePlaces,
@@ -32,6 +33,10 @@ const nonRegionKeys = [
   "subdivision",
 ];
 
+/**
+ * @deprecated use useIsClient instead. This pattern should only be used as a last resort
+ * (e.g. to avoid hydration errors) as in most cases, render logic should not depend on the client being mounted.
+ */
 function useIsMounted() {
   const isMounted = useRef(false);
 
@@ -63,6 +68,12 @@ function useSafeState<State>(
   return [state, safeSetState];
 }
 
+function useIsClient() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  return isClient;
+}
+
 export interface GeocodeResult {
   name: string;
   simplifiedName: string;
@@ -75,6 +86,9 @@ const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL;
 
 const useGeocodeQuery = () => {
   const isMounted = useIsMounted();
+  const {
+    i18n: { languages: locales },
+  } = useTranslation();
   const [isLoading, setIsLoading] = useSafeState(isMounted, false);
   const [error, setError] = useSafeState<string | undefined>(
     isMounted,
@@ -93,9 +107,16 @@ const useGeocodeQuery = () => {
       setIsLoading(true);
       setError(undefined);
       setResults(undefined);
-      const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
-        value,
-      )}&addressdetails=1`;
+
+      // Refer to https://nominatim.org/release-docs/latest/api/Search/
+      const queryArgs = new URLSearchParams({
+        format: "jsonv2",
+        q: value,
+        addressdetails: "1", // include a breakdown of the address into elements
+        "accept-language": locales.join(","),
+      });
+
+      const url = `${NOMINATIM_URL!}search?${queryArgs}`;
       const fetchOptions = {
         headers: {
           Accept: "application/json",
@@ -150,7 +171,7 @@ const useGeocodeQuery = () => {
       }
       setIsLoading(false);
     },
-    [setError, setIsLoading, setResults],
+    [locales, setError, setIsLoading, setResults],
   );
 
   return { isLoading, error, results, query };
@@ -193,6 +214,7 @@ function useUnsavedChangesWarning({
 
 export {
   useGeocodeQuery,
+  useIsClient,
   useIsMounted,
   useSafeState,
   useUnsavedChangesWarning,

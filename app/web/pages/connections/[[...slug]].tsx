@@ -1,9 +1,8 @@
 import { appGetLayout } from "components/AppRoute";
 import { ConnectionsPage as ConnectionsPageComponent } from "features/connections";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import { CONNECTIONS, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -12,11 +11,11 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [CONNECTIONS, GLOBAL, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      CONNECTIONS,
+      GLOBAL,
+      NOTIFICATIONS,
+    ])),
   },
 });
 

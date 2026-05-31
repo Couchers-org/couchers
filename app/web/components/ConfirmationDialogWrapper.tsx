@@ -15,6 +15,7 @@ interface ConfirmationDialogWrapperProps {
   title: string;
   message: string;
   confirmButtonLabel?: string;
+  cancelButtonLabel?: string;
   onConfirm: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function ConfirmationDialogWrapper({
   title,
   message,
   confirmButtonLabel,
+  cancelButtonLabel,
   onConfirm,
 }: ConfirmationDialogWrapperProps) {
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ export default function ConfirmationDialogWrapper({
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={() => setIsOpen(false)}>
-            {t("cancel")}
+            {cancelButtonLabel ?? t("cancel")}
           </Button>
           <Button onClick={handleConfirm}>
             {confirmButtonLabel ? confirmButtonLabel : t("confirm")}

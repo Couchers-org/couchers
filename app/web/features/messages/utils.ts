@@ -1,9 +1,24 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
 import { GroupChat, Message } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
-import { requestStatusChangedMessageToTransKey } from "./constants";
+import {
+  requestStatusChangedMessageToSelfTransKey,
+  requestStatusChangedMessageToTransKey,
+} from "./constants";
+
+type Conversation = GroupChat.AsObject | HostRequest.AsObject;
+
+export function hasUnreadMessages<T extends Conversation>(
+  conversation: T,
+): conversation is T & { latestMessage: Message.AsObject } {
+  return (
+    conversation.latestMessage !== undefined &&
+    conversation.lastSeenMessageId < conversation.latestMessage.messageId
+  );
+}
 
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;
@@ -24,11 +39,13 @@ export function controlMessage({
   target_user,
   message,
   t,
+  isCurrentUser,
 }: {
   user: string;
   target_user?: string;
   message: Message.AsObject;
   t: TFunction<"messages", undefined>;
+  isCurrentUser?: boolean;
 }) {
   const userCap = user.charAt(0).toUpperCase() + user.slice(1);
   if (message.chatCreated) {
@@ -53,14 +70,14 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    const transKey =
-      requestStatusChangedMessageToTransKey[
-        message.hostRequestStatusChanged.status
-      ];
+    const map = isCurrentUser
+      ? requestStatusChangedMessageToSelfTransKey
+      : requestStatusChangedMessageToTransKey;
+    const transKey = map[message.hostRequestStatusChanged.status];
     if (transKey == null) {
       throw Error(t("control_message.unknown_message_text"));
     }
-    return t(transKey, { user: userCap });
+    return isCurrentUser ? t(transKey) : t(transKey, { user: userCap });
   } else {
     throw Error(t("control_message.unknown_message_text"));
   }

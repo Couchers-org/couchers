@@ -233,6 +233,9 @@
     "request_chars_remaining_other": "Escreva pelo menos mais {{count}} caracteres a mais para enviar uma solicitação de hospedagem.",
     "success": "Solicitação enviada!"
   },
+  "message_form": {
+    "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso."
+  },
   "reference_filter_label": {
     "friend": "De amigos",
     "hosted": "De anfitriões",
@@ -268,7 +271,6 @@
   "response_time_text_almost_all": "Normalmente entre {{p33}} e {{p66}}",
   "unsaved_changes_warning": "Você não salvou suas alterações. Tem certeza de que quer sair da página?",
   "profile_tag_input": {
-    "header_text": "Pressione 'Enter' para adicionar\n<support_link>Envie um e-mail para nós</support_link> para adicionar uma entrada",
     "remove_button_a11y_text": "Remover {{tag}}"
   },
   "view_in_admin_console": "Ver usuário no console de administração",

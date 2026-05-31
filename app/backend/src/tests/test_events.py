@@ -12,19 +12,21 @@ from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
+    Comment,
     EventOccurrence,
     ModerationState,
     ModerationVisibility,
     Notification,
     NotificationDelivery,
     NotificationTopicAction,
+    Reply,
     Upload,
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import Moderator, PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
 
@@ -90,13 +92,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -129,13 +128,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -163,13 +159,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -209,13 +202,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -246,13 +236,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -278,13 +265,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user1.id
@@ -582,13 +566,10 @@ def test_ScheduleEvent(db):
         assert to_aware_datetime(res.start_time) == new_start_time
         assert to_aware_datetime(res.end_time) == new_end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 1
-        assert res.maybe_count == 0
         assert res.organizer_count == 1
         assert res.subscriber_count == 1
         assert res.owner_user_id == user.id
@@ -754,9 +735,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     time_before_update = now()
 
@@ -785,13 +763,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -819,13 +794,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -853,13 +825,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -895,13 +864,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -929,13 +895,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -961,13 +924,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1049,9 +1009,6 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         for i in range(5):
@@ -1152,9 +1109,6 @@ def test_GetEvent(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -1174,13 +1128,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1208,13 +1159,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1242,13 +1190,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
         # assert res.timezone == "UTC"
-        assert res.start_time_display
-        assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
         assert res.going_count == 2
-        assert res.maybe_count == 1
         assert res.organizer_count == 1
         assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
@@ -1306,9 +1251,6 @@ def test_CancelEvent(db, moderator: Moderator):
 
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
 
     with events_session(token1) as api:
         res = api.CancelEvent(
@@ -1700,13 +1642,6 @@ def test_SetEventAttendance(db, moderator: Moderator):
             == events_pb2.ATTENDANCE_STATE_GOING
         )
         api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
-        )
-        assert (
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
-            == events_pb2.ATTENDANCE_STATE_MAYBE
-        )
-        api.SetEventAttendance(
             events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
         )
         assert (
@@ -1905,7 +1840,7 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     with events_session(token1) as api:
         api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
         )
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e4, subscribe=True))
 
@@ -2206,6 +2141,8 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
     with threads_session(token2) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
 
+    moderator.approve_thread_post(reply_id)
+
     with events_session(token3) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event.event_id))
         assert res.thread.num_responses == 1
@@ -2219,12 +2156,24 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
         assert ret.replies[0].author_user_id == user2.id
         assert ret.replies[0].num_replies == 0
 
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment"))
+        nested_reply_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment")
+        ).thread_id
+
+    moderator.approve_thread_post(nested_reply_id)
 
     process_jobs()
 
-    assert push_collector.pop_for_user(user1.id, last=True).content.title == f"{user2.name} • Dummy Title"
-    assert push_collector.pop_for_user(user2.id, last=True).content.title == f"{user3.name} • Dummy Title"
+    push = push_collector.pop_for_user(user1.id, last=True)
+    assert push.topic_action == NotificationTopicAction.event__comment.display
+    assert push.content.title == f"{user2.name} • Dummy Title"
+    assert push.content.ios_title == user2.name
+    assert push.content.ios_subtitle == "Commented on Dummy Title"
+    assert push.content.body == "hi"
+
+    push = push_collector.pop_for_user(user2.id, last=True)
+    assert push.content.title == f"{user3.name} • Dummy Title"
+
     assert push_collector.count_for_user(user4_id) == 0
 
 
@@ -2392,7 +2341,7 @@ def test_list_past_events_regression(db):
         assert len(res.events) == 1
 
 
-def test_community_invite_requests(db, moderator: Moderator):
+def test_community_invite_requests(db, email_collector: EmailCollector, moderator: Moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2429,14 +2378,12 @@ def test_community_invite_requests(db, moderator: Moderator):
     moderator.approve_event_occurrence(event_id)
 
     with events_session(token1) as api:
-        with mock_notification_email() as mock:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == "mods@couchers.org.invalid"
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
 
-        assert user_url in e.plain
-        assert event_url in e.plain
+        email = email_collector.pop_for_mods(last=True)
+
+        assert user_url in email.plain
+        assert event_url in email.plain
 
         # can't send another req
         with pytest.raises(grpc.RpcError) as err:
@@ -3143,7 +3090,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
 
 
 def test_event_comment_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
-    """Event comment notifications should carry the event's moderation_state_id for deferral."""
+    """Event comment notifications should carry the comment's moderation_state_id for deferral."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -3182,22 +3129,25 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
 
     # User2 posts a top-level comment on the event thread
     with threads_session(token2) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!"))
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!")
+        ).thread_id
 
     process_jobs()
 
-    # The comment notification for user1 should have moderation_state_id set
+    # The comment notification for user1 should be gated on the comment's own moderation_state_id
+    comment_db_id = comment_thread_id // 10
     with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
         comment_notifs = [n for n in notifications if n.topic_action.action == "comment"]
         assert len(comment_notifs) == 1
-        assert comment_notifs[0].moderation_state_id == occurrence.moderation_state_id
+        assert comment_notifs[0].moderation_state_id == comment.moderation_state_id
 
 
 def test_event_thread_reply_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
-    """Event thread reply notifications should carry the event's moderation_state_id for deferral."""
+    """Event thread reply notifications should carry the reply's moderation_state_id for deferral."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -3243,15 +3193,18 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
 
     # User3 replies to user2's comment (depth=2 reply)
     with threads_session(token3) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply"))
+        nested_reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply")
+        ).thread_id
 
     process_jobs()
 
-    # The nested reply notification for user2 should have moderation_state_id set
+    # The nested reply notification for user2 should be gated on the reply's own moderation_state_id
+    nested_reply_db_id = nested_reply_thread_id // 10
     with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        nested_reply = session.execute(select(Reply).where(Reply.id == nested_reply_db_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
         assert len(reply_notifs) == 1
-        assert reply_notifs[0].moderation_state_id == occurrence.moderation_state_id
+        assert reply_notifs[0].moderation_state_id == nested_reply.moderation_state_id

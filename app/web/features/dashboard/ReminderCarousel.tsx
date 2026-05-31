@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import IconButton from "components/IconButton";
 import { RpcError } from "grpc-web";
-import { GetRemindersRes } from "proto/account_pb";
+import { usePersistedState } from "platform/usePersistedState";
+import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
 
@@ -16,8 +17,59 @@ import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
 
 const CARD_WIDTH_DESKTOP = 280;
-const CARD_WIDTH_MOBILE = 240;
+const CARD_WIDTH_MOBILE = 200;
 const CARD_GAP = 16;
+
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface ReminderWithId {
+  id: string;
+  reminder: Reminder.AsObject;
+}
+
+function getReminderId(reminder: Reminder.AsObject): string | null {
+  if (reminder.respondToHostRequestReminder?.hostRequestId != null) {
+    return `respond_host_request:${reminder.respondToHostRequestReminder.hostRequestId}`;
+  }
+  if (reminder.writeReferenceReminder?.hostRequestId != null) {
+    return `write_reference:${reminder.writeReferenceReminder.hostRequestId}`;
+  }
+  if (reminder.completeProfileReminder) {
+    return "complete_profile";
+  }
+  if (reminder.completeMyHomeReminder) {
+    return "complete_my_home";
+  }
+  if (reminder.completeVerificationReminder) {
+    return "complete_verification";
+  }
+  return null;
+}
+
+function pruneStaleEntries(
+  dismissedReminders: Record<string, number>,
+  currentDismissalTime: number,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [reminderId, dismissalTime] of Object.entries(
+    dismissedReminders,
+  )) {
+    if (currentDismissalTime - dismissalTime < ONE_WEEK_MS) {
+      out[reminderId] = dismissalTime;
+    }
+  }
+  return out;
+}
+
+function isStillDismissed(
+  dismissedReminders: Record<string, number>,
+  key: string,
+): boolean {
+  const now = Date.now();
+  const ts = dismissedReminders[key];
+  if (ts === undefined) return false;
+  return now - ts < ONE_WEEK_MS;
+}
 
 const StyledContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -64,6 +116,10 @@ export default function ReminderCarousel() {
     queryFn: () => service.account.getReminders(),
   });
 
+  const [dismissedReminders, setDismissedReminders] = usePersistedState<
+    Record<string, number>
+  >("dismissedReminders", {});
+
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -71,6 +127,20 @@ export default function ReminderCarousel() {
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const reminders = data?.remindersList ?? [];
+
+  const visibleReminders = reminders.reduce<ReminderWithId[]>((acc, r) => {
+    const id = getReminderId(r);
+    if (id && !isStillDismissed(dismissedReminders, id)) {
+      acc.push({ id, reminder: r });
+    }
+    return acc;
+  }, []);
+
+  const handleDismiss = (id: string) => {
+    const dismissTime = Date.now();
+    const pruned = pruneStaleEntries(dismissedReminders, dismissTime);
+    setDismissedReminders({ ...pruned, [id]: dismissTime });
+  };
 
   const updateScrollState = () => {
     const el = scrollerRef.current;
@@ -81,21 +151,21 @@ export default function ReminderCarousel() {
 
   useEffect(() => {
     updateScrollState();
-  }, [reminders.length]);
+  }, [visibleReminders.length]);
 
   const scrollByCard = (direction: 1 | -1) => {
     scrollerRef.current?.scrollBy({
       left:
         direction *
         (isMobile
-          ? CARD_WIDTH_DESKTOP + CARD_GAP
-          : CARD_WIDTH_MOBILE + CARD_GAP),
+          ? CARD_WIDTH_MOBILE + CARD_GAP
+          : CARD_WIDTH_DESKTOP + CARD_GAP),
       behavior: "smooth",
     });
   };
 
   if (error) return <Alert severity="error">{error.message}</Alert>;
-  if (!reminders.length) return null;
+  if (!visibleReminders.length) return null;
 
   return (
     <StyledContainer>
@@ -107,10 +177,21 @@ export default function ReminderCarousel() {
         <ChevronLeftIcon />
       </StyledArrow>
 
-      <StyledScroller ref={scrollerRef} onScroll={updateScrollState}>
-        {reminders.map((reminder, i) => (
-          <StyledCardSlot key={i}>
-            <ReminderItem reminder={reminder} />
+      <StyledScroller
+        ref={scrollerRef}
+        onScroll={updateScrollState}
+        sx={
+          isMobile && visibleReminders.length === 1
+            ? { justifyContent: "center" }
+            : undefined
+        }
+      >
+        {visibleReminders.map(({ id, reminder }) => (
+          <StyledCardSlot key={id}>
+            <ReminderItem
+              reminder={reminder}
+              onDismiss={() => handleDismiss(id)}
+            />
           </StyledCardSlot>
         ))}
       </StyledScroller>

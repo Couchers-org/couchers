@@ -20,10 +20,4 @@ describe("MessagesHeader", () => {
 
     expect(screen.getByText("Mark all as read")).toBeInTheDocument();
   });
-
-  it("does not render the mark all read button when tab is undefined", () => {
-    render(<MessagesHeader tab={undefined} />, { wrapper });
-
-    expect(screen.queryByText("Mark all as read")).not.toBeInTheDocument();
-  });
 });

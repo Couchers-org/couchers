@@ -1,6 +1,9 @@
 import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { useLogEvent } from "features/analytics/hooks";
+import { SearchAnalyticsProvider } from "features/analytics/searchAnalyticsContext";
+import { getOrCreateSearchSessionId } from "features/analytics/searchAttribution";
 import {
   MapViewOptions,
   MapViews,
@@ -10,7 +13,7 @@ import {
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
 import { useUserSearch } from "./hooks/useUserSearch";
@@ -51,6 +54,7 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+  position: "relative",
 
   [theme.breakpoints.down("md")]: {
     display: "grid",
@@ -115,7 +119,45 @@ export default function SearchPage() {
     currentRange,
     totalItems,
     users,
+    searchQueryId,
   } = useUserSearch(searchParams, mapSearchState);
+
+  const logEvent = useLogEvent();
+  const lastRenderedKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!users || isLoading) return;
+    const key = `${searchQueryId}:${mapSearchState.pageNumber}`;
+    if (lastRenderedKeyRef.current === key) return;
+    lastRenderedKeyRef.current = key;
+    logEvent("search.results_rendered", {
+      search_session_id: getOrCreateSearchSessionId(),
+      search_query_id: searchQueryId,
+      page_number: mapSearchState.pageNumber,
+      num_results: users.length,
+      total_items: totalItems,
+      has_next_page: hasNextPage,
+      has_previous_page: hasPreviousPage,
+      map_view: mapView,
+      query: mapSearchState.search.query ?? null,
+      bbox: mapSearchState.search.bbox ?? null,
+      zoom: mapSearchState.uiOnly.zoom,
+      filters: mapSearchState.filters,
+    });
+  }, [
+    users,
+    isLoading,
+    searchQueryId,
+    mapSearchState.pageNumber,
+    mapSearchState.search.query,
+    mapSearchState.search.bbox,
+    mapSearchState.uiOnly.zoom,
+    mapSearchState.filters,
+    hasNextPage,
+    hasPreviousPage,
+    totalItems,
+    mapView,
+    logEvent,
+  ]);
 
   const handleLoadPreviousPage = () => {
     fetchPreviousPage();
@@ -194,24 +236,29 @@ export default function SearchPage() {
             onZoomIn={handleZoomIn}
           />
         </SearchControlsWrapper>
-        <MapSearchContent
-          error={error}
-          drawerWidth={drawerWidth}
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          isLoading={isLoading}
-          mapRef={mapRef}
-          mapView={mapView}
-          currentRange={currentRange}
-          onDrawerWidthChange={handleDrawerWidthChange}
-          onLoadPreviousPage={handleLoadPreviousPage}
-          onLoadNextPage={handleLoadNextPage}
-          onSetMapView={handleSetMapView}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          totalItems={totalItems}
-          users={users}
-        />
+        <SearchAnalyticsProvider
+          searchQueryId={searchQueryId}
+          pageNumber={mapSearchState.pageNumber}
+        >
+          <MapSearchContent
+            error={error}
+            drawerWidth={drawerWidth}
+            hasPreviousPage={hasPreviousPage}
+            hasNextPage={hasNextPage}
+            isLoading={isLoading}
+            mapRef={mapRef}
+            mapView={mapView}
+            currentRange={currentRange}
+            onDrawerWidthChange={handleDrawerWidthChange}
+            onLoadPreviousPage={handleLoadPreviousPage}
+            onLoadNextPage={handleLoadNextPage}
+            onSetMapView={handleSetMapView}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            totalItems={totalItems}
+            users={users}
+          />
+        </SearchAnalyticsProvider>
       </MapProvider>
     </SearchPageContainer>
   );

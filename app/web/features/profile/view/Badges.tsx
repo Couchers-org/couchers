@@ -21,7 +21,10 @@ export const Badges = ({ user }: Props) => {
   return (
     <StyledContainer>
       {(user.badgesList || []).map((badgeId) => {
-        const badge = (badges || {})[badgeId];
+        const badge = badges[badgeId];
+        if (!badge) {
+          return null;
+        }
         return <Badge key={badge.id} badge={badge} />;
       })}
     </StyledContainer>

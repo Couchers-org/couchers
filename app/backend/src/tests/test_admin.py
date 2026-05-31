@@ -1,4 +1,5 @@
-from datetime import date, datetime, timedelta
+import json
+from datetime import UTC, date, datetime, timedelta
 
 import grpc
 import pytest
@@ -10,16 +11,30 @@ from couchers.models import (
     AccountDeletionToken,
     ContentReport,
     EventOccurrence,
+    FriendRelationship,
+    FriendStatus,
+    ModerationObjectType,
+    ModerationState,
     ModerationUserList,
+    ModerationVisibility,
     Reference,
+    Upload,
     User,
     UserActivity,
     UserSession,
 )
-from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import (
+    account_pb2,
+    admin_pb2,
+    auth_pb2,
+    events_pb2,
+    references_pb2,
+    reporting_pb2,
+    requests_pb2,
+)
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -27,8 +42,10 @@ from tests.fixtures.sessions import (
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -103,13 +120,12 @@ def test_GetUserDetails(db):
     assert not res.deleted
 
 
-def test_ChangeUserGender(db, push_collector: PushCollector):
+def test_ChangeUserGender(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
-        with mock_notification_email() as mock:
-            res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
+        res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
     assert res.user_id == normal_user.id
     assert res.username == normal_user.username
     assert res.email == normal_user.email
@@ -118,19 +134,18 @@ def test_ChangeUserGender(db, push_collector: PushCollector):
     assert not res.banned
     assert not res.deleted
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your gender was changed"
-    assert e.recipient == normal_user.email
-    assert "Machine" in e.plain
-    assert "Machine" in e.html
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your gender was changed"
+    assert email.recipient == normal_user.email
+    assert "Machine" in email.plain
+    assert "Machine" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Gender changed"
     assert push.content.body == "An admin changed your gender to Machine."
 
 
-def test_ChangeUserBirthdate(db, push_collector: PushCollector):
+def test_ChangeUserBirthdate(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
 
@@ -138,10 +153,9 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
         res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
         assert parse_date(res.birthdate) == date(year=2000, month=1, day=1)
 
-        with mock_notification_email() as mock:
-            res = api.ChangeUserBirthdate(
-                admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
-            )
+        res = api.ChangeUserBirthdate(
+            admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
+        )
 
     assert res.user_id == normal_user.id
     assert res.username == normal_user.username
@@ -151,12 +165,11 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     assert not res.banned
     assert not res.deleted
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your date of birth was changed"
-    assert e.recipient == normal_user.email
-    assert "1990" in e.plain
-    assert "1990" in e.html
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your date of birth was changed"
+    assert email.recipient == normal_user.email
+    assert "1990" in email.plain
+    assert "1990" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Birthdate changed"
@@ -204,6 +217,77 @@ def test_UnbanUser(db):
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
+def test_ShadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    admin_note = "Spammer"
+
+    # Create a host request from `surfer` and approve its moderation state to VISIBLE so we can verify the cascade
+    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with real_admin_session(super_token) as api:
+        res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
+    assert res.user_id == surfer.id
+    assert res.shadowed
+    assert not res.banned
+    assert not res.deleted
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "shadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+    assert res.admin_actions[0].note == admin_note
+
+    # The previously-visible host request is now shadowed
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_UnshadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == normal_user.id)).scalar_one().shadowed_at = now()
+
+    with real_admin_session(super_token) as api:
+        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=normal_user.username, admin_note="rehabilitated"))
+    assert not res.shadowed
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "unshadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser_blank_note(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ShadowUser(admin_pb2.ShadowUserReq(user=normal_user.username, admin_note="  \t  "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_AddAdminNote(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
@@ -240,7 +324,55 @@ def test_AddAdminNote_blank(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin note cannot be empty."
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    payload = '{"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}'
+
+    with real_admin_session(super_token) as api:
+        res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data=payload))
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "note"
+    assert res.admin_actions[0].note == ""
+    assert json.loads(res.admin_actions[0].data) == {"kind": "flag", "score": 0.87, "reasons": ["spam", "burst"]}
+
+
+def test_AddAdminNote_both_note_and_data(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(
+                admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="note text", data='{"x": 1}')
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_neither(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Provide exactly one of admin_note or data."
+
+
+def test_AddAdminNote_invalid_json(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data="{not valid json"))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The admin note data must be valid JSON."
 
 
 def test_admin_content_reports(db):
@@ -376,7 +508,7 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
         assert user.undelete_until is None
 
 
-def test_CreateApiKey(db, push_collector: PushCollector):
+def test_CreateApiKey(db, email_collector: EmailCollector, push_collector: PushCollector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
@@ -391,13 +523,11 @@ def test_CreateApiKey(db, push_collector: PushCollector):
             == 0
         )
 
-    with mock_notification_email() as mock:
-        with real_admin_session(super_token) as api:
-            res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+    with real_admin_session(super_token) as api:
+        res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.subject == "[TEST] Your API key for Couchers.org"
+    email = email_collector.pop_for_recipient(normal_user.email, last=True)
+    assert email.subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         token = session.execute(
@@ -407,16 +537,16 @@ def test_CreateApiKey(db, push_collector: PushCollector):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert token in e.plain
-        assert token in e.html
+        assert token in email.plain
+        assert token in email.html
 
-    assert e.recipient == normal_user.email
-    assert "api key" in e.subject.lower()
+    assert email.recipient == normal_user.email
+    assert "api key" in email.subject.lower()
     unique_string = "We've issued you with the following API key:"
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "API key created"
@@ -437,19 +567,18 @@ def test_GetChats(db):
     assert len(res.group_chats) == 0
 
 
-def test_badges(db, push_collector: PushCollector):
+def test_badges(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
         # can add a badge
         assert "swagster" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-        with mock_notification_email() as mock:
-            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
+        res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert "swagster" in res.badges
 
         # badge emails are disabled by default
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(normal_user.email) == 0
 
         push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "New profile badge: Swagster"
@@ -469,12 +598,11 @@ def test_badges(db, push_collector: PushCollector):
 
         # can remove badge
         assert "swagster" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-        with mock_notification_email() as mock:
-            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
+        res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
         assert "swagster" not in res.badges
 
         # badge emails are disabled by default
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(normal_user.email) == 0
 
         push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "Profile badge removed"
@@ -539,7 +667,8 @@ def test_ListUserIds(db):
     with real_admin_session(super_token) as api:
         res = api.ListUserIds(
             admin_pb2.ListUserIdsReq(
-                start_time=Timestamp_from_datetime(datetime(2000, 1, 1)), end_time=Timestamp_from_datetime(now())
+                start_time=Timestamp_from_datetime(datetime(2000, 1, 1, tzinfo=UTC)),
+                end_time=Timestamp_from_datetime(now()),
             )
         )
         assert len(res.user_ids) == 2
@@ -581,7 +710,8 @@ def test_EditReferenceText(db):
         assert modified_reference.text == test_new_text
 
 
-def test_DeleteReference(db):
+def test_DeleteReference_deprecated(db):
+    """DeleteReference is deprecated; admins should hide via UMS instead."""
     super_user, super_token = generate_user(is_superuser=True)
 
     user1, user1_token = generate_user()
@@ -595,20 +725,10 @@ def test_DeleteReference(db):
             )
         )
 
-    with references_session(user1_token) as api:
-        assert api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
     with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
-
-    with references_session(user1_token) as api:
-        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
-    with session_scope() as session:
-        modified_reference = session.execute(
-            select(Reference).where(Reference.id == reference.reference_id)
-        ).scalar_one()
-        assert modified_reference.is_deleted
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_GetUserReferences(db):
@@ -657,11 +777,7 @@ def test_GetUserReferences(db):
             )
         )
 
-    # Delete ref3
-    with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=ref3.reference_id))
-
-    # Test GetUserReferences for user1
+    # Test GetUserReferences for user1 (admin view shows everything regardless of UMS state).
     with real_admin_session(super_token) as admin_api:
         res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
 
@@ -671,19 +787,16 @@ def test_GetUserReferences(db):
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
         assert res.references_from[0].text == "Reference from user1 to user2"
-        assert res.references_from[0].is_deleted is False
 
-        # user1 received 2 references (including the deleted one)
+        # user1 received 2 references
         assert len(res.references_to) == 2
         # Ordered by id descending, so ref3 comes first
         assert res.references_to[0].reference_id == ref3.reference_id
-        assert res.references_to[0].is_deleted is True
         assert res.references_to[0].was_appropriate is False
 
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
-        assert res.references_to[1].is_deleted is False
 
 
 def test_GetUserReferences_not_found(db):
@@ -692,6 +805,75 @@ def test_GetUserReferences_not_found(db):
     with real_admin_session(super_token) as admin_api:
         with pytest.raises(grpc.RpcError) as e:
             admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_GetFriendRequests(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+
+    # Create a mix of friend requests directly so we control the state
+    def _add_friend_request(from_user_id, to_user_id, status, visibility, time_responded=None):
+        with session_scope() as session:
+            mod_state = ModerationState(
+                object_type=ModerationObjectType.friend_request,
+                object_id=0,
+                visibility=visibility,
+            )
+            session.add(mod_state)
+            session.flush()
+            rel = FriendRelationship(
+                from_user_id=from_user_id,
+                to_user_id=to_user_id,
+                status=status,
+                moderation_state_id=mod_state.id,
+                time_responded=time_responded,
+            )
+            session.add(rel)
+            session.flush()
+            mod_state.object_id = rel.id
+
+    # user1 -> user2: pending, shadowed
+    _add_friend_request(user1.id, user2.id, FriendStatus.pending, ModerationVisibility.shadowed)
+    # user1 -> user3: accepted, visible
+    _add_friend_request(user1.id, user3.id, FriendStatus.accepted, ModerationVisibility.visible, time_responded=now())
+    # user4 -> user1: rejected, visible
+    _add_friend_request(user4.id, user1.id, FriendStatus.rejected, ModerationVisibility.visible, time_responded=now())
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user=user1.username))
+
+    # user1 sent two: to user2 (pending) and to user3 (accepted), ordered by id desc
+    assert len(res.sent) == 2
+    assert res.sent[0].from_user.user_id == user1.id
+    assert res.sent[0].to_user.user_id == user3.id
+    assert res.sent[0].status == "accepted"
+    assert res.sent[0].HasField("time_responded")
+    assert res.sent[0].moderation_visibility == "visible"
+
+    assert res.sent[1].from_user.user_id == user1.id
+    assert res.sent[1].to_user.user_id == user2.id
+    assert res.sent[1].status == "pending"
+    assert not res.sent[1].HasField("time_responded")
+    assert res.sent[1].moderation_visibility == "shadowed"
+
+    # user1 received one: from user4 (rejected)
+    assert len(res.received) == 1
+    assert res.received[0].from_user.user_id == user4.id
+    assert res.received[0].to_user.user_id == user1.id
+    assert res.received[0].status == "rejected"
+
+
+def test_GetFriendRequests_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
@@ -817,7 +999,7 @@ def test_RemoveUserFromModerationUserList(db):
             assert session.get(ModerationUserList, moderation_list_id) is None
 
 
-def test_admin_delete_account_url(db, push_collector: PushCollector):
+def test_admin_delete_account_url(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
     user, token = generate_user()
@@ -836,19 +1018,17 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
         assert token_o.user.id == user_id
         assert url == f"http://localhost:3000/delete-account?token={token}"
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.ConfirmDeleteAccount(
-                auth_pb2.ConfirmDeleteAccountReq(
-                    token=token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
             )
+        )
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
-    mock.assert_called_once()
-    e = email_fields(mock)
+    email_collector.pop_for_recipient(user.email, last=True)
 
 
 def test_AccessStats(db):
@@ -1227,6 +1407,148 @@ def test_search_users_by_admin_note(db):
         user_ids = {u.user_id for u in res.users}
         assert user1.id in user_ids
         assert user2.id not in user_ids
+
+
+def test_ListAdminActions_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+    assert len(res.admin_actions) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListAdminActions_returns_newest_first_with_target_info(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="first note"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="second note"))
+        api.BanUser(admin_pb2.BanUserReq(user=user1.username, admin_note="ban reason"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+
+    assert len(res.admin_actions) == 3
+    # Newest first
+    assert res.admin_actions[0].action_type == "ban"
+    assert res.admin_actions[0].target_user_id == user1.id
+    assert res.admin_actions[0].target_username == user1.username
+    assert res.admin_actions[0].admin_user_id == super_user.id
+    assert res.admin_actions[0].admin_username == super_user.username
+    assert res.admin_actions[1].action_type == "note"
+    assert res.admin_actions[1].target_user_id == user2.id
+    assert res.admin_actions[2].action_type == "note"
+    assert res.admin_actions[2].target_user_id == user1.id
+
+
+def test_ListAdminActions_filter_by_admin_and_target(db):
+    super1, super1_token = generate_user(is_superuser=True)
+    super2, super2_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super1_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super1 to user1"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="from super1 to user2"))
+    with real_admin_session(super2_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super2 to user1"))
+
+    with real_admin_session(super1_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super1 to user2"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(target_user_id=user1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super2 to user1"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id, target_user_id=user1.id))
+        assert [a.note for a in res.admin_actions] == ["from super1 to user1"]
+
+
+def test_ListAdminActions_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        for i in range(3):
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user.username, admin_note=f"note {i}"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2))
+        assert len(res.admin_actions) == 2
+        assert res.next_page_token != ""
+        first_page_notes = [a.note for a in res.admin_actions]
+
+        res2 = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2, page_token=res.next_page_token))
+        assert len(res2.admin_actions) == 1
+        assert res2.next_page_token == ""
+
+    all_notes = first_page_notes + [a.note for a in res2.admin_actions]
+    assert set(all_notes) == {"note 0", "note 1", "note 2"}
+
+
+def test_ListUserUploads(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+    other_user, _ = generate_user()
+
+    with session_scope() as session:
+        for i in range(3):
+            session.add(
+                Upload(
+                    key=f"key{i}",
+                    filename=f"photo{i}.jpg",
+                    creator_user_id=user.id,
+                    credit=f"credit {i}" if i == 0 else None,
+                )
+            )
+        session.add(Upload(key="other_key", filename="other.jpg", creator_user_id=other_user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
+
+    assert len(res.uploads) == 3
+    assert res.next_page_token == ""
+    assert {u.filename for u in res.uploads} == {"photo0.jpg", "photo1.jpg", "photo2.jpg"}
+
+    upload0 = next(u for u in res.uploads if u.key == "key0")
+    assert upload0.credit == "credit 0"
+    assert upload0.full_url.endswith("/img/full/photo0.jpg")
+    assert upload0.thumbnail_url.endswith("/img/thumbnail/photo0.jpg")
+    assert upload0.HasField("created")
+
+
+def test_ListUserUploads_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        for i in range(3):
+            session.add(Upload(key=f"key{i}", filename=f"photo{i}.jpg", creator_user_id=user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username, page_size=2))
+        assert len(res.uploads) == 2
+        assert res.next_page_token != ""
+        first_page_keys = [u.key for u in res.uploads]
+
+        res2 = api.ListUserUploads(
+            admin_pb2.ListUserUploadsReq(user=user.username, page_size=2, page_token=res.next_page_token)
+        )
+        assert len(res2.uploads) == 1
+        assert res2.next_page_token == ""
+
+    all_keys = first_page_keys + [u.key for u in res2.uploads]
+    assert set(all_keys) == {"key0", "key1", "key2"}
+
+
+def test_ListUserUploads_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListUserUploads(admin_pb2.ListUserUploadsReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 # community invite feature tested in test_events.py

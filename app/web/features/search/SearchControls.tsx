@@ -36,9 +36,9 @@ const MapControlsWrapper = styled("div", {
 
     ...(!isMobile && {
       position: "absolute",
-      top: theme.spacing(8),
+      top: theme.spacing(1),
       zIndex: 2,
-      right: 0, // Ensure it stays within bounds
+      right: 0,
     }),
 
     ...(!isMobile &&

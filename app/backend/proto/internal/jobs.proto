@@ -14,6 +14,14 @@ message SendEmailPayload {
   string list_unsubscribe_header = 7;
   // source data as to where this email came from
   string source_data = 8;
+  reserved 9; // Previous "attachments" field, which had mime_type+filename subfields.
+  repeated EmailAttachmentV2 attachments = 10;
+}
+
+message EmailAttachmentV2 {
+  bytes data = 1;
+  string content_disposition = 2; // The Content-Disposition header, including parameters
+  string content_type = 3; // The Content-Type header, including parameters
 }
 
 message HandleNotificationPayload {

@@ -15,15 +15,17 @@ from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
     BackgroundJob,
+    HostingStatus,
     InviteCode,
     PhotoGalleryItem,
+    SleepingArrangement,
     Upload,
     User,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_volunteer
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -56,33 +58,29 @@ def test_GetAccountInfo(db, fast_passwords):
 
 
 def test_donation_banner_no_drive(db):
-    """Test that the banner is not shown when DONATION_DRIVE_START is None"""
-    # User has donated, but the drive is disabled, so the banner should not show
+    """Test that the banner is not shown when no drive is configured (flag unset)"""
+    # User has donated, but there's no drive, so the banner should not show
     user, token = generate_user()
 
-    with patch("couchers.servicers.account.DONATION_DRIVE_START", None):
-        with account_session(token) as account:
-            res = account.GetAccountInfo(empty_pb2.Empty())
-            assert not res.should_show_donation_banner
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.should_show_donation_banner
 
 
-def test_donation_banner_never_donated(db):
+def test_donation_banner_never_donated(db, feature_flags):
     """Test that banner is shown when user has never donated and drive is active"""
-    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-
     # Explicitly set last_donated=None since generate_user defaults to now()
     user, token = generate_user(last_donated=None)
 
-    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
-        with account_session(token) as account:
-            res = account.GetAccountInfo(empty_pb2.Empty())
-            assert res.should_show_donation_banner
-
-
-def test_donation_banner_donated_before_drive(db):
-    """Test that banner is shown when user donated before drive start"""
     drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.should_show_donation_banner
 
+
+def test_donation_banner_donated_before_drive(db, feature_flags):
+    """Test that banner is shown when user donated before drive start"""
     user, token = generate_user()
 
     # Set donation before drive start
@@ -90,16 +88,15 @@ def test_donation_banner_donated_before_drive(db):
         last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
         session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
-        with account_session(token) as account:
-            res = account.GetAccountInfo(empty_pb2.Empty())
-            assert res.should_show_donation_banner
-
-
-def test_donation_banner_donated_after_drive(db):
-    """Test that banner is not shown when user donated after drive start"""
     drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.should_show_donation_banner
 
+
+def test_donation_banner_donated_after_drive(db, feature_flags):
+    """Test that banner is not shown when user donated after drive start"""
     user, token = generate_user()
 
     # Set donation after drive start
@@ -107,13 +104,14 @@ def test_donation_banner_donated_after_drive(db):
         last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
         session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
-        with account_session(token) as account:
-            res = account.GetAccountInfo(empty_pb2.Empty())
-            assert not res.should_show_donation_banner
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.should_show_donation_banner
 
 
-def test_donation_banner_donated_exactly_at_drive_start(db):
+def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags):
     """Test that banner is not shown when user donated exactly at drive start time"""
     drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
@@ -123,10 +121,10 @@ def test_donation_banner_donated_exactly_at_drive_start(db):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
 
-    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
-        with account_session(token) as account:
-            res = account.GetAccountInfo(empty_pb2.Empty())
-            assert not res.should_show_donation_banner
+    feature_flags.set("donation_drive_start", int(drive_start.timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.should_show_donation_banner
 
 
 def test_GetAccountInfo_regression(db):
@@ -159,23 +157,22 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollector):
+def test_ChangePasswordV2_normal(db, fast_passwords, email_collector: EmailCollector, push_collector: PushCollector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.ChangePasswordV2(
-                account_pb2.ChangePasswordV2Req(
-                    old_password=old_password,
-                    new_password=new_password,
-                )
+        account.ChangePasswordV2(
+            account_pb2.ChangePasswordV2Req(
+                old_password=old_password,
+                new_password=new_password,
             )
+        )
 
-    mock.assert_called_once()
-    assert email_fields(mock).subject == "[TEST] Your password was changed"
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Your password was changed"
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password changed"
@@ -282,7 +279,7 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
-                    old_password="wrong password",
+                    old_password="Wrong password",
                     new_password=new_password,
                 )
             )
@@ -319,7 +316,7 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="wrong password",
+                    password="Wrong password",
                     new_email=new_email,
                 )
             )
@@ -346,7 +343,7 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="wrong password",
+                    password="Wrong password",
                     new_email=new_email,
                 )
             )
@@ -648,14 +645,13 @@ def test_contributor_form(db):
         assert res.filled_contributor_form
 
 
-def test_DeleteAccount_start(db):
+def test_DeleteAccount_start(db, email_collector: EmailCollector):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
-        mock.assert_called_once()
-        assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
+        email = email_collector.pop_for_recipient(user.email, last=True)
+        assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         deletion_token: AccountDeletionToken = session.execute(
@@ -681,7 +677,7 @@ def test_DeleteAccount_message_storage(db):
         assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
+def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
 
@@ -691,20 +687,25 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert err.value.details() == "Please confirm your account deletion."
 
-        # Check the right email is sent
-        with mock_notification_email() as mock:
-            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert email.recipient == user.email
+    assert "account deletion" in email.subject.lower()
+    unique_string = "You requested that we delete your account from Couchers.org."
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deletion requested"
     assert push.content.body == "Use the link we emailed you to confirm."
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-
     with session_scope() as session:
         token_o = session.execute(select(AccountDeletionToken)).scalar_one()
-        token = token_o.token
+        delete_token = token_o.token
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert token_o.user == user_
@@ -712,34 +713,33 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not user_.undelete_token
         assert not user_.undelete_until
 
-    assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
-    assert e.recipient == user.email
-    assert "account deletion" in e.subject.lower()
-    assert token in e.plain
-    assert token in e.html
-    unique_string = "You requested that we delete your account from Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    url = f"http://localhost:3000/delete-account?token={token}"
-    assert url in e.plain
-    assert url in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert delete_token in email.plain
+    assert delete_token in email.html
+    delete_url = f"http://localhost:3000/delete-account?token={delete_token}"
+    assert delete_url in email.plain
+    assert delete_url in email.html
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.ConfirmDeleteAccount(
-                auth_pb2.ConfirmDeleteAccountReq(
-                    token=token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=delete_token,
             )
+        )
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "account has been deleted" in email.subject.lower()
+    unique_string = "You have successfully deleted your account from Couchers.org."
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "7 days" in email.plain
+    assert "7 days" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
-
-    mock.assert_called_once()
-    e = email_fields(mock)
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
@@ -752,41 +752,29 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
 
         undelete_token = user_.undelete_token
 
-    assert e.recipient == user.email
-    assert "account has been deleted" in e.subject.lower()
-    unique_string = "You have successfully deleted your account from Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "7 days" in e.plain
-    assert "7 days" in e.html
-    url = f"http://localhost:3000/recover-account?token={undelete_token}"
-    assert url in e.plain
-    assert url in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    undelete_url = f"http://localhost:3000/recover-account?token={undelete_token}"
+    assert undelete_url in email.plain
+    assert undelete_url in email.html
 
-    with mock_notification_email() as mock:
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            auth_api.RecoverAccount(
-                auth_pb2.RecoverAccountReq(
-                    token=undelete_token,
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.RecoverAccount(
+            auth_pb2.RecoverAccountReq(
+                token=undelete_token,
             )
+        )
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "account has been recovered" in email.subject.lower()
+    unique_string = "Your account on Couchers.org has been successfully recovered!"
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account restored"
     assert push.content.body == "Welcome back!"
-
-    mock.assert_called_once()
-    e = email_fields(mock)
-
-    assert e.recipient == user.email
-    assert "account has been recovered" in e.subject.lower()
-    unique_string = "Your account on Couchers.org has been successfully recovered!"
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
@@ -997,7 +985,6 @@ def test_ListInviteCodes(db):
 
 
 def test_reminders(db, moderator):
-    # the strong verification reminder's absence is tested in test_strong_verification.py
     # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
     # we use LiteUser, so remember to refresh materialized views
     user, token = generate_user(complete_profile=False)
@@ -1007,13 +994,10 @@ def test_reminders(db, moderator):
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(complete_token) as account:
-        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
-            "complete_verification_reminder"
-        ]
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
     with account_session(token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
 
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -1034,7 +1018,6 @@ def test_reminders(db, moderator):
         assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1057,7 +1040,6 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1083,7 +1065,6 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1107,12 +1088,75 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request2_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    # host replies to req2 with a message: reminder should clear even though it's still pending
+    with requests_session(token) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request2_id, text="Let me think about it")
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    # surfer sending a message should not clear the reminder
+    with requests_session(req_user_token1) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request3_id, text="Any update?")
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_my_home_reminder(db):
+    # can_host with incomplete my home (max_guests not set) → reminder shown
+    can_host_incomplete, token1 = generate_user(hosting_status=HostingStatus.can_host)
+    # maybe with incomplete my home → reminder shown
+    maybe_incomplete, token2 = generate_user(hosting_status=HostingStatus.maybe)
+    # cant_host → no reminder regardless of my home completion
+    cant_host, token3 = generate_user(hosting_status=HostingStatus.cant_host)
+    # can_host with fully completed my home → no reminder
+    can_host_complete, token4 = generate_user(
+        hosting_status=HostingStatus.can_host,
+        max_guests=2,
+        sleeping_arrangement=SleepingArrangement.private,
+        # about_place is set by default in make_user
+    )
+
+    with account_session(token1) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_my_home_reminder",
+        ]
+
+    with account_session(token2) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
+            "complete_my_home_reminder",
+        ]
+
+    with account_session(token3) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+    with account_session(token4) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
 
 def test_volunteer_stuff(db):

@@ -1,14 +1,15 @@
 {
   "dashboard": "Dashboard",
   "please_complete_profile": "Vul je profiel helemaal in om te zorgen dat je goed gevonden wordt:",
-  "fill_in_who_i_am": "1. Schrijf bij \"Over mij\" een paar regels over jezelf",
+  "fill_in_who_i_am": "1. Schrijf bij \"Wie ik ben\" een paar regels over jezelf",
   "upload_photo": "2. Upload een foto (door op je profielfoto te klikken op de Bewerken-pagina)",
   "edit_profile_button_text": "Bewerk je profiel",
   "complete_profile_dialog": {
     "actions": {
       "send_request": "een verzoek doen",
       "send_message": "een bericht sturen",
-      "create_event": "een event aanmaken"
+      "create_event": "een event aanmaken",
+      "send_friend_request": "stuur een vriendschapsverzoek"
     },
     "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
     "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",
@@ -24,9 +25,7 @@
   "no_sub_communities": "Geen sub-communities.",
   "load_more": "Meer laden",
   "new_pill": "Nieuw",
-  "attendees_count_one": "{{count}} deelnemer",
-  "attendees_count_other": "{{count}} deelnemers",
-  "your_communities_helper_text": "Je bent op basis van je locatie automatisch toegevoegd aan een aantal communities. Natuurlijk kan je ook door <1>communities scrollen</1> van andere locaties.",
+  "your_communities_helper_text": "Je bent op basis van je locatie automatisch toegevoegd aan een aantal communities. Natuurlijk kan je ook door <1>communities bladeren</1> van andere locaties.",
   "your_communities_helper_text2": "Zie je jouw community niet? <1>Begin hem zelf!</1>",
   "community_builder_form_text": "Begin jouw eigen lokale community",
   "communities_welcome_title": "Welkom bij Communities",
@@ -36,7 +35,7 @@
   "find_your_community_intro_simplified": "Zoek jouw community of blader door de lijst hieronder. <1>Niet gevonden wat je zoekt? Vraag hem aan!</1>",
   "browse_communities": "Blader door communities",
   "browse_all_communities": "Blader door alle communities",
-  "find_your_community": "Vind jouw community",
+  "find_your_community": "Vind een community",
   "find_your_community_intro": "Hieronder kan je alle bestaande communities vinden. Kan je jouw land of stad niet vinden? <1>Gebruik dit formulier</1> om die community aan te vragen!",
   "browse_communities_text": "Klik op de naam van een regio om alle onderliggende communities te bekijken. Klik op de link om naar die stad of regio community-pagina te gaan.",
   "show_all_communities": "Bekijk alle communities",
@@ -44,18 +43,63 @@
   "all_communities_section": "Alle communities",
   "member_count_one": "{{count}} lid",
   "member_count_other": "{{count}} leden",
-  "events_empty_state": "Er zijn geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
   "all_communities_intro": "Hieronder kan je door alle communities bladeren. <strong>Klik op de naam van een community om de onderliggende communites te bekijken.</strong>",
   "community_missing": "Mist jouw land of stad? Gebruik <1>dit formulier </1> om die community aan te vragen!",
-  "upcoming_events": "Aankomende events",
   "profile_summary_edit": "Profiel bewerken",
   "profile_summary_view": "Profiel bekijken",
   "profile_mobile_summary_view": "Ga naar profiel",
   "find_a_host": "Vind een host",
   "become_a_host": "Word een host",
-  "search_input_label": "Waar ga je heen?",
+  "search_input_label": "Waar wil je heen?",
   "search_input_placeholder": "Zoek een locatie",
   "show_map": "Kaart weergeven",
   "hero_image_alt": "Luchtballonnen in Cappadocië",
-  "hero_image_attribution": "Foto van <1>Mesut Kaya</1> via <3>Unsplash</3>"
+  "hero_image_attribution": "Foto van <1>Mesut Kaya</1> via <3>Unsplash</3>",
+  "my_communities_heading": "Mijn communities",
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Reageer op {{name}}",
+      "description": "Vergeet niet te reageren op het hostingverzoek van {{name}}.",
+      "button": "Verzoek bekijken"
+    },
+    "write_reference": {
+      "title": "Schrijf een referentie",
+      "button": "Schrijf referentie",
+      "description_surfed": "Laat een referentie achter voor je tijd bij {{name}}",
+      "description_hosted": "Laat een referentie achter voor het hosten van {{name}}"
+    },
+    "complete_profile": {
+      "title": "Profiel voltooien",
+      "description": "Vul het onderdeel \"Wie ik ben\" in en voeg een profielfoto toe",
+      "button": "Je profiel bewerken"
+    },
+    "strong_verification": {
+      "title": "Sterke verificatie",
+      "description": "Verifieer je identiteit voor een veiligere community",
+      "button": "Account verifiëren"
+    },
+    "carousel_dismiss_button_a11y": "Herinnering verbergen",
+    "complete_my_home": {
+      "title": "Voltooi het deel \"Mijn huis\" van je profiel",
+      "description": "Voeg slaapmogelijkheden, huisregels en een beschrijving van je huis toe",
+      "button": "Bewerk je huis"
+    }
+  },
+  "events": {
+    "your_upcoming_header": "Je aankomende events",
+    "see_all_link": "Alles bekijken →",
+    "your_upcoming_empty_message": "Geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
+    "community_header": "Events in jouw communities",
+    "community_empty_message": "Geen aankomende events in jouw communities.",
+    "location_online_label": "Online",
+    "today_label": "Vandaag"
+  },
+  "discussions": {
+    "community_header": "Discussies in jouw communities",
+    "community_empty_message": "Nog geen discussies in jouw communities.",
+    "replies_count_label_one": "{{count}} reactie",
+    "replies_count_label_other": "{{count}} reacties",
+    "prev_page_label": "Vorige pagina",
+    "next_page_label": "Volgende pagina"
+  }
 }

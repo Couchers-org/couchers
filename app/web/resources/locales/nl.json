@@ -9,7 +9,7 @@
   "login": "Inloggen",
   "sign_up": "Aanmelden",
   "nav": {
-    "account_settings": "Accountinstellingen",
+    "account_settings": "Account-instellingen",
     "about": "Over",
     "blog": "Blog",
     "community": "Community",
@@ -90,14 +90,14 @@
       "midway": "Halverwege",
       "complete": "Afgerond",
       "almost_there": "Bijna klaar",
-      "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
+      "description": "Bekijk hieronder hoe ver we zijn met het vertalen van onze website. Help ook mee om Couchers toegankelijker te maken voor iedereen wereldwijd!",
       "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
     },
     "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
     "show_all_languages": "Alle talen laten zien in de taalkiezer",
     "show_all_languages_description": "Als je dit inschakelt, laat de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
   },
-  "create": "maken",
+  "create": "Plannen",
   "terms_of_service": "Servicevoorwaarden",
   "required": "Verplicht",
   "accept": "Accepteren",
@@ -305,5 +305,39 @@
     "fill_form_description": "Couchers.org is een door de community gedreven project, ontwikkeld door mensen zoals jij, speciaal voor de wereldwijde couchsurfing-community. Als je interesse hebt om mee te doen aan ons spannende project, klik dan op onderstaande knop en vul het korte formulier in.",
     "past_members": "Oude leden",
     "board_member": "Bestuurslid"
-  }
+  },
+  "blog": {
+    "byline_with_author": "Geschreven door <1/>. Gepubliceerd op {{date}}.",
+    "byline_without_author": "Gepubliceerd op {{date}}.",
+    "cta_message": "Wil je helpen bij het schrijven van blogs of ander vrijwilligerswerk doen? <1>Meld je aan</1> en laat het ons weten. Vrijwilligers en <3>donaties</3> maken Couchers.org mogelijk!"
+  },
+  "error_loading_languages": "Taalopties laden mislukt",
+  "language_names": {
+    "ca": "Catalaans",
+    "cs": "Tsjechisch",
+    "de": "Duits",
+    "en": "Engels",
+    "es": "Spaans (Spanje)",
+    "es-419": "Spaans",
+    "fr": "Frans (Frankrijk)",
+    "fr-CA": "Frans (Canada)",
+    "he": "Hebreeuws",
+    "hi": "Hindi",
+    "it": "Italiaans",
+    "ja": "Japans",
+    "nb-NO": "Noors (Bokmål)",
+    "nl": "Nederlands",
+    "pl": "Pools",
+    "pt": "Portugees (Portugal)",
+    "pt-BR": "Portugees (Brazilië)",
+    "ru": "Russisch",
+    "sv": "Zweeds",
+    "tr": "Turks",
+    "uk": "Oekraïens",
+    "zh-Hans": "Chinees (vereenvoudigd)",
+    "zh-Hant": "Chinees (traditioneel)",
+    "hu": "Hongaars"
+  },
+  "app_store_badge_a11y": "Download in de App Store",
+  "google_play_badge_a11y": "Ontdek het op Google Play"
 }

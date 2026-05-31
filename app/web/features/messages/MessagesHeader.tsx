@@ -5,6 +5,7 @@ import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { MessageType } from "routes";
+import { assertNever } from "utils/assertNever";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   paddingLeft: theme.spacing(2),
@@ -17,21 +18,27 @@ const StyledHeader = styled("div")(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-export default function MessagesHeader({
-  tab,
-}: {
-  tab: MessageType | undefined;
-}) {
+// Map tab to MarkAllReadButton type (excluding archived)
+const getMarkAllReadType = (
+  tab: MessageType,
+): "chats" | "hosting" | "surfing" | "all" | null => {
+  switch (tab) {
+    case "chats":
+    case "hosting":
+    case "surfing":
+      return tab;
+    case "all":
+    case "unread":
+      return "all";
+    case "archived":
+      return null;
+    default:
+      return assertNever(tab);
+  }
+};
+
+export default function MessagesHeader({ tab }: { tab: MessageType }) {
   const { t } = useTranslation(MESSAGES);
-
-  // Map tab to MarkAllReadButton type (excluding archived)
-  const getMarkAllReadType = (
-    tab: MessageType | undefined,
-  ): "chats" | "hosting" | "surfing" | "all" | null => {
-    if (!tab || tab === "archived") return null;
-    return tab as "chats" | "hosting" | "surfing" | "all";
-  };
-
   const markAllReadType = getMarkAllReadType(tab);
 
   return (

@@ -2,24 +2,24 @@
 Defines data models for each email we sent out to users.
 """
 
+import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from datetime import date
-from typing import Self
+from dataclasses import dataclass, replace
+from datetime import UTC, date, datetime
+from typing import Self, assert_never
 
-from markupsafe import Markup
-
+from couchers import urls
 from couchers.email.rendering import (
-    ActionBlock,
     EmailBlock,
-    ParaBlock,
-    QuoteBlock,
-    UserBlock,
+    EmailBlocksBuilder,
     UserInfo,
     get_emails_i18next,
 )
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import SubstitutionDict
+from couchers.i18n.i18next import SubstitutionDict, full_string_key
+from couchers.i18n.localize import format_phone_number
+from couchers.notifications.quick_links import generate_quick_decline_link
+from couchers.proto import conversations_pb2, notification_data_pb2
 
 
 @dataclass
@@ -31,121 +31,1268 @@ class EmailBase(ABC):
 
     user_name: str
 
+    @property
     @abstractmethod
+    def string_key_base(self) -> str: ...
+
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         """Gets the subject line header of the email."""
-        ...
+        return self._localize(loc_context, ".subject")
 
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
         """Gets the line that gets shown as a preview next to the title in users' inboxes."""
         return None
 
-    @abstractmethod
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         """Gets the blocks that form the body of the email."""
-        ...
+
+        # Delegate to build_body, but wrap with greetings and closing lines common to all emails.
+        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
+        builder.para("generic.greeting_line", {"name": self.user_name})
+        self.build_body(builder, loc_context)
+        builder.para("generic.closing_line")
+        return builder.blocks
+
+    @abstractmethod
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None: ...
 
     @classmethod
     @abstractmethod
-    def dummy_data(cls) -> Self:
-        """Returns an instance filled with dummy data that can be used for testing."""
+    def test_instances(cls) -> list[Self]:
+        """
+        Returns dummy instances covering every distinct rendering variant of this email.
+
+        Emails whose subject or body depends on internal state (e.g. a status enum or a
+        boolean) build their localization keys dynamically, so a single dummy instance only
+        exercises one branch. Such emails override this to return one instance per branch,
+        ensuring the rendering tests resolve every localization key the class can produce.
+        """
         ...
 
     # Helpers for localizing email-specific strings
-    @property
-    @abstractmethod
-    def _localize_key_prefix(self) -> str: ...
-
-    def _text(self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None) -> str:
-        if "." not in key:
-            key = f"{self._localize_key_prefix}.{key}"
+    def _localize(
+        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
+    ) -> str:
+        key = full_string_key(key, relative_base=self.string_key_base)
         return get_emails_i18next().localize(key, loc_context.locale, substitutions)
 
-    def _markup(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> Markup:
-        if "." not in key:
-            key = f"{self._localize_key_prefix}.{key}"
-        return get_emails_i18next().localize_with_markup(key, loc_context.locale, substitutions)
-
-    # Helpers for creating common blocks
-    def _greeting_line(self, loc_context: LocalizationContext) -> ParaBlock:
-        line = get_emails_i18next().localize("generic.greeting_line", loc_context.locale, {"name": self.user_name})
-        return ParaBlock(text=line)
-
-    def _para(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> ParaBlock:
-        return ParaBlock(text=self._markup(loc_context, key, substitutions))
-
-    def _user(
-        self,
-        info: UserInfo,
-        loc_context: LocalizationContext,
-        comment_key: str,
-        substitutions: SubstitutionDict | None = None,
-    ) -> UserBlock:
-        return UserBlock(info=info, comment=self._markup(loc_context, comment_key, substitutions))
-
-    def _quote(self, text: str) -> QuoteBlock:
-        return QuoteBlock(text=text)
-
-    def _action(
-        self, url: str, loc_context: LocalizationContext, text_key: str, substitutions: SubstitutionDict | None = None
-    ) -> ActionBlock:
-        return ActionBlock(text=self._text(loc_context, text_key, substitutions), target_url=url)
+    def _body_builder(self, loc_context: LocalizationContext) -> EmailBlocksBuilder:
+        return EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
 
 
-@dataclass
-class HostRequestReceived(EmailBase):
-    """Sent to a host to notify them they have received a request from a surfer."""
+# Common string keys
+_do_not_reply_request_string_key = "generic.do_not_reply_request"
+_security_warning_string_key = "generic.security_warning_contact_support"
+
+# Specific email definitions
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionStartedEmail(EmailBase):
+    """Sent to a user to confirm their account deletion request."""
+
+    deletion_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "account_deletion_started"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".request_description")
+        builder.para(".confirmation_instructions")
+        builder.action(self.deletion_link, ".confirm_action")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.AccountDeletionStart, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            deletion_link=urls.delete_account_link(account_deletion_token=data.deletion_token),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                deletion_link="https://couchers.org/delete-account?token=xxx",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionCompletedEmail(EmailBase):
+    """Sent to a user after their account has been deleted."""
+
+    undelete_link: str
+    days: int
+
+    @property
+    def string_key_base(self) -> str:
+        return "account_deletion_completed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".confirmation")
+        builder.para(".farewell")
+        builder.para(".recovery_instructions_days", {"count": self.days})
+        builder.action(self.undelete_link, ".recover_action")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.AccountDeletionComplete, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            undelete_link=urls.recover_account_link(account_undelete_token=data.undelete_token),
+            days=data.undelete_days,
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                undelete_link="https://couchers.org/recover-account?token=xxx",
+                days=30,
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class AccountDeletionRecoveredEmail(EmailBase):
+    """Sent to a user after their account deletion has been cancelled."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "account_deletion_recovered"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".confirmation")
+        builder.para(".login_instructions")
+        builder.action(urls.app_link(), ".login_action")
+        builder.para(".redelete_instructions")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class APIKeyIssuedEmail(EmailBase):
+    """Sent to a user to notify them that their API key was issued."""
+
+    api_key: str
+    expiry: datetime
+
+    @property
+    def string_key_base(self) -> str:
+        return "api_key_issued"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".header")
+        builder.quote(self.api_key, markdown=False)
+        builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
+        builder.para(".usage_warning")
+        builder.para(".policy_warning")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ApiKeyCreate, *, user_name: str) -> Self:
+        return cls(user_name=user_name, api_key=data.api_key, expiry=data.expiry.ToDatetime(tzinfo=UTC))
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", api_key="my_api_key_123", expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC))]
+
+
+@dataclass(kw_only=True, slots=True)
+class BadgeChangedEmail(EmailBase):
+    """Sent to a user to notify them that a badge was added or removed from their profile."""
+
+    badge_name: str
+    added: bool
+
+    @property
+    def string_key_base(self) -> str:
+        return "badge_added" if self.added else "badge_removed"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"badge_name": self.badge_name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"badge_name": self.badge_name})
+
+    @classmethod
+    def from_notification(
+        cls, data: notification_data_pb2.BadgeAdd | notification_data_pb2.BadgeRemove, *, user_name: str
+    ) -> Self:
+        return cls(
+            user_name=user_name, badge_name=data.badge_name, added=isinstance(data, notification_data_pb2.BadgeAdd)
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(user_name="Alice", badge_name="Founder", added=True)
+        return [replace(prototype, added=True), replace(prototype, added=False)]
+
+
+@dataclass(kw_only=True, slots=True)
+class BirthdateChangedEmail(EmailBase):
+    """Sent to a user to notify them that their birthdate was changed."""
+
+    new_birthdate: date
+
+    @property
+    def string_key_base(self) -> str:
+        return "birthdate_changed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"date": loc_context.localize_date(self.new_birthdate)})
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.BirthdateChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_birthdate=date.fromisoformat(data.birthdate))
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_birthdate=date(1990, 1, 1),
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class ChatMessageReceivedEmail(EmailBase):
+    """Sent to a user when they receive a new chat message."""
+
+    group_chat_title: str | None  # None if direct message
+    author: UserInfo
+    text: str
+    view_url: str
+
+    @property
+    def string_key_base(self) -> str:
+        return f"chat_message_received.{'direct' if self.group_chat_title is None else 'group'}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, ".subject", {"author": self.author.name, "group": self.group_chat_title or ""}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"author": self.author.name, "group": self.group_chat_title or ""})
+        builder.user(self.author)
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_url, ".view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ChatMessage, *, user_name: str) -> Self:
+        group_chat_title: str | None = data.group_chat_title
+        if not group_chat_title:
+            # Backcompat (2026-05): The group name previously was formatted in the message string
+            # msg = f"{message.author.name} sent a message in {group_chat.title}"
+            if match := re.search(" sent a message in (.+)$", data.message or ""):
+                group_chat_title = match[1]
+            else:
+                group_chat_title = None
+
+        return cls(
+            user_name,
+            author=UserInfo.from_protobuf(data.author),
+            text=data.text,
+            group_chat_title=group_chat_title,
+            view_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            group_chat_title=None,
+            author=UserInfo.dummy_bob(),
+            text="Hi Alice!",
+            view_url="https://couchers.org/messages/chats/123",
+        )
+        return [
+            replace(prototype, group_chat_title=None),
+            replace(prototype, group_chat_title="Best friends"),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class ChatMessagesMissedEmail(EmailBase):
+    """Sent to a user after they've missed new chat messages."""
+
+    @dataclass(kw_only=True, slots=True)
+    class Entry:
+        """Entry for each chat with missed messages."""
+
+        group_chat_title: str | None  # None if direct message
+        missed_count: int
+        latest_message_author: UserInfo
+        latest_message_text: str
+        view_url: str
+
+    entries: list[Entry]
+
+    @property
+    def string_key_base(self) -> str:
+        return "chat_messages_missed"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject")
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        for entry in self.entries:
+            if entry.group_chat_title:
+                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
+            else:
+                builder.para(".in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            builder.user(entry.latest_message_author)
+            builder.quote(entry.latest_message_text, markdown=False)
+            builder.action(entry.view_url, ".view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
+        missed_entries = []
+        for message in data.messages:
+            group_chat_title: str | None = message.group_chat_title
+            missed_count: int = message.unseen_count
+
+            # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
+            # msg = f"You missed {unseen_count} message(s) in {group_chat.title}"
+            if not group_chat_title or not missed_count:
+                if match := re.search(" message(s) in (.+)$", message.message or ""):
+                    group_chat_title = match[1]
+                else:
+                    group_chat_title = None
+
+                if match := re.search(r"^You missed (\d+) message(s)", message.message or ""):
+                    missed_count = int(match[1])
+                else:
+                    missed_count = 1
+
+            missed_entries.append(
+                cls.Entry(
+                    group_chat_title=group_chat_title,
+                    missed_count=missed_count,
+                    latest_message_author=UserInfo.from_protobuf(message.author),
+                    latest_message_text=message.text,
+                    view_url=urls.chat_link(chat_id=message.group_chat_id),
+                )
+            )
+
+        return cls(user_name, entries=missed_entries)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        entry_prototype = ChatMessagesMissedEmail.Entry(
+            group_chat_title=None,
+            missed_count=1,
+            latest_message_author=UserInfo.dummy_bob(),
+            latest_message_text="Hello!",
+            view_url="https://couchers.org/messages/chats/123",
+        )
+        return [
+            cls(
+                user_name="Alice",
+                entries=[
+                    replace(entry_prototype, group_chat_title=None),
+                    replace(entry_prototype, group_chat_title="Best friends"),
+                ],
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class DiscussionCreatedEmail(EmailBase):
+    """Sent to a user when a new discussion is created in a community they follow."""
+
+    author: UserInfo
+    title: str
+    parent_context: str  # Community or group name
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "discussion_created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            ".body",
+            {
+                "author": self.author.name,
+                "title": self.title,
+                "parent_context": self.parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, ".view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.DiscussionCreate, *, user_name: str) -> Self:
+        discussion = data.discussion
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            title=discussion.title,
+            parent_context=discussion.owner_title,
+            markdown_text=discussion.content,
+            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                title="Best hiking trails near Berlin",
+                parent_context="Berlin Community",
+                markdown_text="I've been exploring the area and found some **great** spots...",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class DiscussionCommentEmail(EmailBase):
+    """Sent to a user when someone comments on a discussion they follow."""
+
+    author: UserInfo
+    discussion_title: str
+    discussion_parent_context: str  # Community or group name
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "discussion_comment"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, ".subject", {"author": self.author.name, "discussion_title": self.discussion_title}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(
+            ".body",
+            {
+                "author": self.author.name,
+                "discussion_title": self.discussion_title,
+                "parent_context": self.discussion_parent_context,
+            },
+        )
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, ".view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.DiscussionComment, *, user_name: str) -> Self:
+        discussion = data.discussion
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            discussion_title=discussion.title,
+            discussion_parent_context=discussion.owner_title,
+            markdown_text=data.reply.content,
+            view_link=urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                discussion_title="Best hiking trails near Berlin",
+                discussion_parent_context="Berlin Community",
+                markdown_text="Great recommendations, I also **love** the Grünewald forest!",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class EmailAddressChangedEmail(EmailBase):
+    """Sent to a user to notify them that their email address was changed."""
+
+    new_email: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "email_address_change_initiated"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"email_address": self.new_email})
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EmailAddressChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_email=data.new_email)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", new_email="alice@example.com")]
+
+
+@dataclass(kw_only=True, slots=True)
+class EmailAddressVerifiedEmail(EmailBase):
+    """Sent to a user to notify them that their new email address has been verified."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "email_address_verified"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestReceivedEmail(EmailBase):
+    """Sent to a user when they receive a friend request."""
+
+    befriender: UserInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "friend_request_received"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"name": self.befriender.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".body", {"name": self.befriender.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"name": self.befriender.name})
+        builder.user(self.befriender)
+        builder.action(urls.friend_requests_link(), ".view_action")
+        builder.para(".closing")
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.FriendRequestCreate, *, user_name: str) -> Self:
+        return cls(user_name=user_name, befriender=UserInfo.from_protobuf(data.other_user))
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                befriender=UserInfo.dummy_bob(),
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class FriendRequestAcceptedEmail(EmailBase):
+    """Sent to a user when their friend request is accepted."""
+
+    new_friend: UserInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "friend_request_accepted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"name": self.new_friend.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".body", {"name": self.new_friend.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"name": self.new_friend.name})
+        builder.user(self.new_friend)
+        builder.action(self.new_friend.profile_url, ".view_action")
+        builder.para(".closing")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.FriendRequestAccept, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(data.other_user))
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_friend=UserInfo.dummy_bob(),
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class GenderChangedEmail(EmailBase):
+    """Sent to a user to notify them that their gender was changed."""
+
+    new_gender: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "gender_changed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"gender": self.new_gender})
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.GenderChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_gender=data.gender)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                new_gender="Male",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestCreatedEmail(EmailBase):
+    """Sent to a host when a surfer sends them a new host request."""
 
     surfer: UserInfo
     from_date: date
     to_date: date
     text: str
-    view_url: str
-    quick_decline_url: str
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._text(loc_context, "subject", {"name": self.surfer.name})
-
-    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
-        return [
-            self._greeting_line(loc_context),
-            self._para(loc_context, "event_description", {"name": self.surfer.name}),
-            self._user(
-                self.surfer,
-                loc_context,
-                "requested_dates",
-                {
-                    "from_date": loc_context.localize_date(self.from_date),
-                    "to_date": loc_context.localize_date(self.to_date),
-                },
-            ),
-            self._quote(self.text),
-            self._action(self.view_url, loc_context, "view_request_link"),
-            self._action(self.quick_decline_url, loc_context, "quick_decline_link"),
-        ]
+    quick_decline_link: str
+    view_link: str
 
     @property
-    def _localize_key_prefix(self) -> str:
-        return "host_request_received"
+    def string_key_base(self) -> str:
+        return "host_request_created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"surfer_name": self.surfer.name})
+        builder.user(
+            self.surfer,
+            "host_request_generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.quick_decline_link, ".quick_decline_action")
+        builder.para(".respond_encouragement")
+        builder.para(_do_not_reply_request_string_key)
 
     @classmethod
-    def dummy_data(cls) -> HostRequestReceived:
-        return HostRequestReceived(
-            user_name="Alice",
-            surfer=UserInfo(
-                name="Bob",
-                age=42,
-                city="Tokyo",
-                avatar_url="https://example.com/users/bob/avatar.jpg",
-                profile_url="https://example.com/users/bob",
-            ),
-            from_date=date(2000, 1, 1),
-            to_date=date(2000, 1, 2),
-            text="Hello world!",
-            view_url="https://example.com/requests",
-            quick_decline_url="https://example.com/quick-decline",
+    def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            surfer=UserInfo.from_protobuf(data.surfer),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            quick_decline_link=generate_quick_decline_link(data.host_request),
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
         )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                surfer=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                text="Hey, I'd love to stay for a few nights!",
+                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestReminderEmail(EmailBase):
+    """Sent to a host as a reminder to respond to a pending host request."""
+
+    surfer: UserInfo
+    from_date: date
+    to_date: date
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "host_request_reminder"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.user(
+            self.surfer,
+            "host_request_generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            surfer=UserInfo.from_protobuf(data.surfer),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                surfer=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestMessageEmail(EmailBase):
+    """Sent when a user sends a message in an existing host request."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    text: str
+    from_host: bool
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        variant = "from_host" if self.from_host else "from_surfer"
+        return f"host_request_message.{variant}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            "host_request_generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            other_user=UserInfo.from_protobuf(data.user),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            from_host=not data.am_host,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            text="Looking forward to it, see you soon!",
+            from_host=True,
+            view_link="https://couchers.org/requests/123",
+        )
+        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestMissedMessagesEmail(EmailBase):
+    """Sent as a digest when a user has missed messages in a host request."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    from_host: bool
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        variant = "from_host" if self.from_host else "from_surfer"
+        return f"host_request_missed_messages.{variant}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            "host_request_generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            other_user=UserInfo.from_protobuf(data.user),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            from_host=not data.am_host,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            from_host=True,
+            view_link="https://couchers.org/requests/123",
+        )
+        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostRequestStatusChangedEmail(EmailBase):
+    """Sent when a host request is accepted, declined, confirmed, or cancelled."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    new_status: conversations_pb2.HostRequestStatus.ValueType
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        base_key = "host_request_status_changed"
+        match self.new_status:
+            case conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+                return f"{base_key}.accepted_by_host"
+            case conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
+                return f"{base_key}.declined_by_host"
+            case conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+                return f"{base_key}.confirmed_by_surfer"
+            case conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
+                return f"{base_key}.cancelled_by_surfer"
+            case _:
+                raise ValueError(f"Unexpected host request status: {self.new_status}")
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            "host_request_generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(
+        cls,
+        data: notification_data_pb2.HostRequestAccept
+        | notification_data_pb2.HostRequestReject
+        | notification_data_pb2.HostRequestConfirm
+        | notification_data_pb2.HostRequestCancel,
+        *,
+        user_name: str,
+    ) -> Self:
+        other_user: UserInfo
+        new_status: conversations_pb2.HostRequestStatus.ValueType
+        match data:
+            case notification_data_pb2.HostRequestAccept():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+            case notification_data_pb2.HostRequestReject():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+            case notification_data_pb2.HostRequestConfirm():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+            case notification_data_pb2.HostRequestCancel():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+            case _:
+                # Enable mypy's exhaustiveness checking
+                assert_never("Unexpected host request status changed notification data type.")
+
+        return cls(
+            user_name,
+            other_user=other_user,
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            new_status=new_status,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            view_link="https://couchers.org/requests/123",
+        )
+        return [
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class ModeratorNoteEmail(EmailBase):
+    """Sent to a user to notify them they have received a moderator note."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "moderator_note"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class PasswordChangedEmail(EmailBase):
+    """Sent to a user to notify them that their login password was changed."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "password_changed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class PasswordResetCompletedEmail(EmailBase):
+    """Sent to a user to confirm their password was successfully reset."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "password_reset_completed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class PasswordResetStartedEmail(EmailBase):
+    """Sent to a user with a link to complete their password reset."""
+
+    password_reset_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "password_reset_started"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".request_description")
+        builder.para(".confirmation_instructions")
+        builder.action(self.password_reset_link, ".reset_action")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PasswordResetStart, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            password_reset_link=urls.password_reset_link(password_reset_token=data.password_reset_token),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", password_reset_link="https://couchers.org/reset-password")]
+
+
+@dataclass(kw_only=True, slots=True)
+class PhoneNumberChangeEmail(EmailBase):
+    """Sent to a user to notify them that their phone number verification status was changed."""
+
+    new_phone_number: str
+    completed: bool  # False = started, True = completed
+
+    @property
+    def string_key_base(self) -> str:
+        return "phone_number_verified" if self.completed else "phone_number_verification_started"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"phone_number": format_phone_number(self.new_phone_number)})
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_change_notification(cls, data: notification_data_pb2.PhoneNumberChange, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_phone_number=data.phone, completed=False)
+
+    @classmethod
+    def from_verify_notification(cls, data: notification_data_pb2.PhoneNumberVerify, *, user_name: str) -> Self:
+        return cls(user_name=user_name, new_phone_number=data.phone, completed=True)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            new_phone_number="+12223334444",
+            completed=False,
+        )
+        return [replace(prototype, completed=False), replace(prototype, completed=True)]
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationFailedEmail(EmailBase):
+    """Sent to a user when their postal verification attempt has failed."""
+
+    reason: notification_data_pb2.PostalVerificationFailReason.ValueType
+
+    @property
+    def string_key_base(self) -> str:
+        return "postal_verification_failed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        match self.reason:
+            case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
+                reason_string_key = ".reason_code_expired"
+            case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
+                reason_string_key = ".reason_too_many_attempts"
+            case _:
+                reason_string_key = ".reason_unknown"
+        builder.para(reason_string_key)
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PostalVerificationFailed, *, user_name: str) -> Self:
+        return cls(user_name=user_name, reason=data.reason)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED,
+        )
+        return [
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationPostcardSentEmail(EmailBase):
+    """Sent to a user to notify them that their verification postcard has been sent."""
+
+    city: str
+    country: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "postal_verification_postcard_sent"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"city": self.city, "country": self.country})
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PostalVerificationPostcardSent, *, user_name: str) -> Self:
+        return cls(user_name=user_name, city=data.city, country=data.country)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", city="New York", country="United States")]
+
+
+@dataclass(kw_only=True, slots=True)
+class PostalVerificationSucceededEmail(EmailBase):
+    """Sent to a user when their postal verification has succeeded."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "postal_verification_succeeded"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class StrongVerificationFailedEmail(EmailBase):
+    """Sent to a user when their strong verification attempt has failed."""
+
+    reason: notification_data_pb2.SVFailReason.ValueType
+
+    @property
+    def string_key_base(self) -> str:
+        return "strong_verification_failed"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        match self.reason:
+            case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
+                reason_string_key = ".reason_wrong_birthdate_or_gender"
+            case notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
+                reason_string_key = ".reason_not_a_passport"
+            case notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
+                reason_string_key = ".reason_duplicate"
+            case _:
+                raise Exception("Shouldn't get here")
+        builder.para(reason_string_key)
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.VerificationSVFail, *, user_name: str) -> Self:
+        return cls(user_name=user_name, reason=data.reason)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT,
+        )
+        return [
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class StrongVerificationSucceededEmail(EmailBase):
+    """Sent to a user when their strong verification has succeeded."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "strong_verification_succeeded"
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".success_message")
+        builder.para(".thanks_message")
+        builder.para(".cost_explanation")
+        builder.para(".donation_request")
+        donate_link = urls.donation_url() + "?utm_source=strong-verification-email"
+        builder.action(donate_link, ".donate_action")
+        builder.para(_security_warning_string_key)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class ThreadReplyEmail(EmailBase):
+    """Sent to a user when someone replies in a comment thread they participated in."""
+
+    author: UserInfo
+    parent_context: str  # Title of the event or discussion being replied in
+    markdown_text: str
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "thread_reply"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, ".subject", {"author": self.author.name, "parent_context": self.parent_context}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"author": self.author.name, "parent_context": self.parent_context})
+        builder.user(self.author)
+        builder.quote(self.markdown_text, markdown=True)
+        builder.action(self.view_link, ".view_action")
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ThreadReply, *, user_name: str) -> Self:
+        parent = data.WhichOneof("reply_parent")
+        if parent == "event":
+            parent_context = data.event.title
+            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+        elif parent == "discussion":
+            parent_context = data.discussion.title
+            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+        else:
+            raise Exception("Can only do replies to events and discussions")
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            parent_context=parent_context,
+            markdown_text=data.reply.content,
+            view_link=view_link,
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                parent_context="Best hiking trails near Berlin",
+                markdown_text="I agree, the Grünewald is **amazing**!",
+                view_link="https://couchers.org/discussions/123",
+            )
+        ]
+
+
+def _localize_host_request_date(value: date, loc_context: LocalizationContext) -> str:
+    return loc_context.localize_date(value, with_year=False, with_day_of_week=True)

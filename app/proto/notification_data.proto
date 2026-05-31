@@ -150,12 +150,16 @@ message EventDelete {
 
 message ChatMessage {
   org.couchers.api.core.User author = 1;
-  string message = 2;
+  // Obsolete (2026-05): Was not i18n-friendly. Use group_chat_title. Kept for handling fallback.
+  string message = 2 [deprecated = true];
   string text = 3;
   uint64 group_chat_id = 4;
+  string group_chat_title = 5;  // Empty for direct messages
+  uint32 unseen_count = 6;  // Relevant for ChatMissedMessages if > 1
 }
 
 message ChatMissedMessages {
+  // Every message is the most recent message from a group chat
   repeated ChatMessage messages = 1;
 }
 

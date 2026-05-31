@@ -4,7 +4,9 @@
     "current_password": "Contraseña actual",
     "new_email": "Nuevo correo electrónico",
     "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
-    "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
+    "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio.",
+    "hide_current_password": "Ocultar contraseña actual",
+    "show_current_password": "Mostrar contraseña actual"
   },
   "change_email_confirmation": {
     "success_message": "Tu correo electrónico ha sido cambiado con éxito!",
@@ -74,7 +76,13 @@
     "subtitle": "Utiliza este formulario para restaurar la contraseña de inicio de sesión.",
     "user_logged_error": "No puedes restaurar tu contraseña si tienes una sesión iniciada. Puedes modificar tu contraseña en la configuración o cerrar la sesión para restaurarla.",
     "reset_password_success": "¡Tu contraseña ha sido modificada correctamente!",
-    "reset_password_error": "Error al restaurar la contraseña: {{message}}"
+    "reset_password_error": "Error al restaurar la contraseña: {{message}}",
+    "hide_old_password": "Ocultar contraseña anterior",
+    "show_old_password": "Mostrar contraseña anterior",
+    "hide_new_password": "Ocultar nueva contraseña",
+    "show_new_password": "Mostrar nueva contraseña",
+    "hide_confirm_password": "Ocultar confirmación de contraseña",
+    "show_confirm_password": "Mostrar confirmación de contraseña"
   },
   "reset_password_form": {
     "enter_email": "Introduce tu usuario/correo electrónico",
@@ -228,7 +236,7 @@
     "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
     "need_to_donate": "Necesitas <2>donar</2> antes de poder completar la verificación telefónica."
   },
-  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
+  "unhandled_sign_up_state": "Error: estado del flujo de registro no gestionado",
   "do_not_email": {
     "title": "No quiero recibir correos electrónicos",
     "status": {
@@ -239,7 +247,7 @@
       "no_emails_enable_text": "No quiero recibir correos electrónicos",
       "no_emails_disable_text": "Reactivar correos electrónicos"
     },
-    "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
+    "caveat": "Activando este ajuste tu cuenta será configurada para no aceptar solicitudes de hospedaje. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter; puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
   },
   "sign_up_need_verification_title": "Una última cosa: confirma tu correo electrónico.",
   "volunteer_management": {
@@ -259,7 +267,28 @@
       "display_name_label": "Nombre para mostrar",
       "override_location_label": "Usa una ubicación diferente en la página del equipo (en lugar de \"{{profileLocation}}\")",
       "display_location_label": "Mostrar ubicación",
-      "show_on_team_page_label": "Muestrame en la página del equipo"
+      "show_on_team_page_label": "Muestrame en la página del equipo",
+      "link_type_label": "Tipo de enlace",
+      "link_type_couchers": "Perfil de Couchers",
+      "link_type_email": "Correo electrónico",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Sitio web",
+      "link_text_label": "Valor del enlace",
+      "link_text_linkedin_placeholder": "pepita-perez-a1b2c3",
+      "link_text_email_placeholder": "tu@email.com",
+      "link_text_website_placeholder": "https://tu-pagina-web.com",
+      "link_text_linkedin_helper": "El nombre de usuario de la URL de tu perfil (p. ej. linkedin.com/in/pepita-perez-a1b2c3)",
+      "link_text_email_helper": "Tu dirección de correo electrónico",
+      "link_text_website_helper": "El texto a mostrar para el enlace",
+      "link_text_required": "Por favor introduce un valor para el enlace",
+      "link_text_email_invalid": "Por favor introduce una dirección de correo electrónico válida",
+      "link_text_linkedin_invalid": "Por favor introduce un nombre de usuario de LinkedIn válido (solo letras, números y guiones)",
+      "link_url_label": "URL del enlace",
+      "link_url_placeholder": "https://tu-pagina-web.com",
+      "link_url_helper": "La URL completa a la que debe apuntar el enlace",
+      "link_url_required": "Por favor introduce una URL para la página web",
+      "link_url_invalid": "Por favor introduce una URL válida que comience con http:// o https://",
+      "save_button": "Guardar cambios"
     }
   },
   "strong_verification": {

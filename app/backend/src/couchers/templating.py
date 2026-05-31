@@ -19,7 +19,7 @@ from markupsafe import Markup
 
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.localize import get_main_i18next
+from couchers.i18n.locales import get_main_i18next
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,11 @@ def _format_default(value: Any, filter_context: _FilterContext) -> str:
         case Markup():
             return str(value)
         case _:
-            return escape(str(value)) if filter_context.output_html else str(value)
+            if filter_context.output_html:
+                # Plaintext rendered in HTML context: escape markup and preserve newlines.
+                return escape(str(value)).replace("\n", "<br>")
+            else:
+                return str(value)
 
 
 @pass_context

@@ -1,4 +1,4 @@
-import { Edit } from "@mui/icons-material";
+import { Edit, OpenInNew } from "@mui/icons-material";
 import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -18,6 +18,7 @@ import {
   connectionsRoute,
   EditUserTab,
   routeToEditProfile,
+  routeToUser,
   UserTab,
 } from "routes";
 
@@ -42,8 +43,29 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
   }
 };
 
-function LoggedInUserActions({ tab }: { tab: UserTab }) {
+function LoggedInUserActions({
+  tab,
+  isInSheet,
+}: {
+  tab: UserTab;
+  isInSheet: boolean;
+}) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const user = useProfileUser();
+
+  if (isInSheet) {
+    return (
+      <Button
+        component={Link}
+        color="primary"
+        href={routeToUser(user.username)}
+        startIcon={<OpenInNew fontSize="small" />}
+      >
+        {t("profile:open_full_profile")}
+      </Button>
+    );
+  }
+
   return (
     <>
       <Button
@@ -63,8 +85,10 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
 
 function DefaultActions({
   setIsRequesting,
+  setIsMessaging,
 }: {
   setIsRequesting: (value: boolean) => void;
+  setIsMessaging: (value: boolean) => void;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
@@ -103,7 +127,11 @@ function DefaultActions({
           : t("profile:actions.request")}
       </Button>
 
-      <MessageUserButton user={user} setMutationError={setMutationError} />
+      <MessageUserButton
+        user={user}
+        setMutationError={setMutationError}
+        setIsMessaging={setIsMessaging}
+      />
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
@@ -121,11 +149,18 @@ function DefaultActions({
 }
 
 interface OverviewProps {
-  setIsRequesting: (value: boolean) => void;
+  setIsRequesting?: (value: boolean) => void;
+  setIsMessaging?: (value: boolean) => void;
   tab: UserTab;
+  isInSheet?: boolean;
 }
 
-export default function Overview({ setIsRequesting, tab }: OverviewProps) {
+export default function Overview({
+  setIsRequesting,
+  setIsMessaging,
+  tab,
+  isInSheet = false,
+}: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
   const isOwnProfile = user.userId === currentUserId;
@@ -136,9 +171,12 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
       isOwnProfile={isOwnProfile}
       actions={
         isOwnProfile ? (
-          <LoggedInUserActions tab={tab} />
+          <LoggedInUserActions tab={tab} isInSheet={isInSheet} />
         ) : (
-          <DefaultActions setIsRequesting={setIsRequesting} />
+          <DefaultActions
+            setIsRequesting={setIsRequesting ?? (() => {})}
+            setIsMessaging={setIsMessaging ?? (() => {})}
+          />
         )
       }
     />

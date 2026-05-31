@@ -56,13 +56,11 @@ logger = logging.getLogger(__name__)
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
     events_pb2.AttendanceState.ATTENDANCE_STATE_GOING: AttendeeStatus.going,
-    events_pb2.AttendanceState.ATTENDANCE_STATE_MAYBE: AttendeeStatus.maybe,
 }
 
 attendancestate2api = {
     None: events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING,
     AttendeeStatus.going: events_pb2.AttendanceState.ATTENDANCE_STATE_GOING,
-    AttendeeStatus.maybe: events_pb2.AttendanceState.ATTENDANCE_STATE_MAYBE,
 }
 
 MAX_PAGINATION_LENGTH = 25
@@ -136,17 +134,6 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
             EventOccurrenceAttendee.user_id,
         )
     ).scalar_one()
-    maybe_count = session.execute(
-        where_users_column_visible(
-            select(func.count())
-            .select_from(EventOccurrenceAttendee)
-            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe),
-            context,
-            EventOccurrenceAttendee.user_id,
-        )
-    ).scalar_one()
-
     organizer_count = session.execute(
         where_users_column_visible(
             select(func.count()).select_from(EventOrganizer).where(EventOrganizer.event_id == event.id),
@@ -194,19 +181,16 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         start_time=Timestamp_from_datetime(occurrence.start_time),
         end_time=Timestamp_from_datetime(occurrence.end_time),
         timezone=occurrence.timezone,
-        start_time_display=str(occurrence.start_time),
-        end_time_display=str(occurrence.end_time),
         attendance_state=attendancestate2api[attendance_state],
         organizer=event.organizers.where(EventOrganizer.user_id == context.user_id).one_or_none() is not None,
         subscriber=event.subscribers.where(EventSubscription.user_id == context.user_id).one_or_none() is not None,
         going_count=going_count,
-        maybe_count=maybe_count,
         organizer_count=organizer_count,
         subscriber_count=subscriber_count,
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, event.thread_id),
+        thread=thread_to_pb(session, context, event.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
     )

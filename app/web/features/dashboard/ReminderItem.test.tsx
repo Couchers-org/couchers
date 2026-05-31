@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ReferenceType } from "proto/references_pb";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
@@ -25,7 +26,11 @@ describe("ReminderItem", () => {
     );
 
     expect(
-      screen.getByText(t("dashboard:reminder.respond_to_host_request.title")),
+      screen.getByText(
+        t("dashboard:reminder.respond_to_host_request.title", {
+          name: surferUser.name,
+        }),
+      ),
     ).toBeVisible();
     expect(
       screen.getByText(
@@ -60,7 +65,7 @@ describe("ReminderItem", () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        t("dashboard:reminder.write_reference.description", {
+        t("dashboard:reminder.write_reference.description_hosted", {
           name: surferUser.name,
         }),
       ),
@@ -73,6 +78,24 @@ describe("ReminderItem", () => {
       "href",
       `/leave-reference/hosted/${surferUser.userId}/99`,
     );
+  });
+
+  it("renders a 'complete my home' card with a link to the home edit tab", () => {
+    render(<ReminderItem reminder={{ completeMyHomeReminder: {} }} />, {
+      wrapper,
+    });
+
+    expect(
+      screen.getByText(t("dashboard:reminder.complete_my_home.title")),
+    ).toBeVisible();
+    expect(
+      screen.getByText(t("dashboard:reminder.complete_my_home.description")),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", {
+        name: t("dashboard:reminder.complete_my_home.button"),
+      }),
+    ).toHaveAttribute("href", "/profile/edit/home");
   });
 
   it("renders a 'complete profile' card with a link to edit the profile", () => {
@@ -115,5 +138,25 @@ describe("ReminderItem", () => {
     const { container } = render(<ReminderItem reminder={{}} />, { wrapper });
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("calls onDismiss when the dismiss button is clicked", async () => {
+    const user = userEvent.setup();
+    const onDismiss = jest.fn();
+    render(
+      <ReminderItem
+        reminder={{ completeProfileReminder: {} }}
+        onDismiss={onDismiss}
+      />,
+      { wrapper },
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("dashboard:reminder.carousel_dismiss_button_a11y"),
+      }),
+    );
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

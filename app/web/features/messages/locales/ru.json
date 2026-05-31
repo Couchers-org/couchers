@@ -1,10 +1,7 @@
 {
   "mark_all_read_button_text": "Отметить все как прочитанное",
-  "request_closed_message": "Этот запрос был закрыт или истек. Чтобы продолжить общение, отправь обычное сообщение.",
   "write_reference_button_text": "Написать отзыв",
-  "close_request_dialog_host": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отклонить их запрос.",
   "close_request_button_text": "Отклонить",
-  "close_request_dialog_surfer": "Пожалуйста, убедитесь, что вы закончили общение, прежде чем отменить свой запрос.",
   "confirm_request_button_text": "Подтвердить",
   "messages_page": {
     "title": "Сообщения",
@@ -46,12 +43,10 @@
       "forever_label": "Пока я не включу звук"
     }
   },
-  "close_request_dialog_title": "Завершить переписку?",
   "past_request_help_text": "Этот запрос уже в прошлом, вы все еще можете отправлять сообщения, но не можете вносить другие изменения.",
   "host_pending_request_help_text": "<0>Что учесть</0> перед ответом.",
   "surfer_declined_request_help_text": "<0>Прочитайте наше руководство</0> о том, как написать запрос, который будет принят.",
   "group_chats_tab": {
-    "no_chats_message": "Пока нет групповых чатов",
     "load_more_button_label": "Загрузить еще"
   },
   "control_message": {
@@ -124,8 +119,7 @@
     "friends_input_label": "Друзья",
     "title_label": "Заголовок",
     "create_button": "Создать чат",
-    "back_button": "Назад",
-    "hosting_request_hint": "Отправляете запрос на хостинг? Вернитесь <back>Назад</back> и используйте кнопку <request>Запрос</request>."
+    "back_button": "Назад"
   },
   "leave_chat_dialog": {
     "message": "Вы уверены, что хотите покинуть этот чат?",
@@ -166,7 +160,6 @@
   "archive": {
     "archive_button": "Архив",
     "unarchive_button": "Разархивировать",
-    "no_archived_chats": "Нет архивных чатов",
     "no_archived_requests": "Нет архивных запросов",
     "no_archived_messages": "Нет архивных сообщений",
     "archived": "Архив"

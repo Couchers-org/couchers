@@ -21,6 +21,11 @@ export const newsletterSignupURL =
 
 export const translateJobURL = "https://couchers.org/volunteer/translator";
 
+export const couchersAppStoreURL =
+  "https://apps.apple.com/us/app/couchers-org/id6623776751";
+export const couchersGooglePlayURL =
+  "https://play.google.com/store/apps/details?id=org.couchers.android";
+
 export const landingRoute = "/landing";
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
@@ -82,11 +87,12 @@ export function routeToUser(username: string, tab?: UserTab) {
 export const messagesRoute = "/messages";
 export const messageTypeStrings = [
   "all",
+  "unread",
   "chats",
   "hosting",
   "surfing",
   "archived",
-];
+] as const;
 export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
@@ -217,6 +223,8 @@ export const helpCenterHowToLeaveGoodReferenceUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1717360836-how-to";
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
+export const helpCenterFriendRequestsURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-can-i-add-anyone-as-a-friend";
 export const communityGuidelinesURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715121703-couchers-org-community-guidelines";
 // Note: Url must end with financials year digits

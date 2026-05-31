@@ -3,7 +3,6 @@ import {
   ListItemButton,
   ListItemText,
   styled,
-  Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -22,7 +21,7 @@ import useFriendList from "features/connections/friends/useFriendList";
 import { groupChatsListKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { LiteUser, User } from "proto/api_pb";
@@ -249,17 +248,6 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               </Button>
             )}
           </DialogActions>
-          {createMessageToUsername && (
-            <Typography
-              variant="body2"
-              sx={{ px: 3, pb: 2, textAlign: "center" }}
-            >
-              <Trans
-                i18nKey="messages:create_chat.hosting_request_hint"
-                components={{ back: <strong />, request: <strong /> }}
-              />
-            </Typography>
-          )}
         </form>
       </Dialog>
     </>

@@ -13,17 +13,7 @@ from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 
-def _queue_email(
-    session: Session,
-    sender_name: str,
-    sender_email: str,
-    recipient: str,
-    subject: str,
-    plain: str,
-    html: str | None,
-    list_unsubscribe_header: str | None,
-    source_data: str | None,
-) -> None:
+def _queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     """
     This indirection is so that this can be easily mocked. Not sure how to do it better :(
     """
@@ -31,16 +21,6 @@ def _queue_email(
     # Import here to avoid circular dependency
     from couchers.jobs.handlers import send_email  # noqa: PLC0415
 
-    payload = jobs_pb2.SendEmailPayload(
-        sender_name=sender_name,
-        sender_email=sender_email,
-        recipient=recipient,
-        subject=subject,
-        plain=plain,
-        html=html,
-        list_unsubscribe_header=list_unsubscribe_header,
-        source_data=source_data,
-    )
     queue_job(
         session,
         job=send_email,
@@ -51,28 +31,8 @@ def _queue_email(
     emails_counter.inc()
 
 
-def queue_email(
-    session: Session,
-    sender_name: str,
-    sender_email: str,
-    recipient: str,
-    subject: str,
-    plain: str,
-    html: str | None,
-    list_unsubscribe_header: str | None = None,
-    source_data: str | None = None,
-) -> None:
-    _queue_email(
-        session=session,
-        sender_name=sender_name,
-        sender_email=sender_email,
-        recipient=recipient,
-        subject=subject,
-        plain=plain,
-        html=html,
-        list_unsubscribe_header=list_unsubscribe_header,
-        source_data=source_data,
-    )
+def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+    _queue_email(session, payload)
 
 
 def queue_userless_email(
@@ -109,13 +69,15 @@ def queue_userless_email(
 
     queue_email(
         session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=recipient,
-        subject=config["NOTIFICATION_PREFIX"] + subject,
-        plain=plain,
-        html=html,
-        source_data=config["VERSION"] + f"/{template_name}",
+        jobs_pb2.SendEmailPayload(
+            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            recipient=recipient,
+            subject=config["NOTIFICATION_PREFIX"] + subject,
+            plain=plain,
+            html=html,
+            source_data=config["VERSION"] + f"/{template_name}",
+        ),
     )
 
 
@@ -134,11 +96,12 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
 
     queue_email(
         session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=recipient,
-        subject=config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
-        plain=plain,
-        html=None,
-        source_data=template_name,
+        jobs_pb2.SendEmailPayload(
+            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            recipient=recipient,
+            subject=config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
+            plain=plain,
+            source_data=template_name,
+        ),
     )

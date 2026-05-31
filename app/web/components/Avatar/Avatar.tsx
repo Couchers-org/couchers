@@ -1,19 +1,20 @@
 import { Avatar as MuiAvatar, styled } from "@mui/material";
-import Link from "next/link";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
-import { routeToUser } from "routes";
 
 import { getProfileLinkA11yLabel } from "./constants";
 
 type UserWithAvatarUrl = Pick<
   LiteUser.AsObject,
   "username" | "name" | "avatarUrl"
->;
+> & {
+  userId?: number;
+};
 type UserWithAvatarThumbnailUrl = Pick<
   LiteUser.AsObject,
   "username" | "name" | "avatarThumbnailUrl"
->;
+> & { userId?: number };
 interface AvatarPropsHighRes {
   children?: React.ReactNode;
   highRes?: true;
@@ -41,11 +42,11 @@ const StyledWrapper = styled("div")<{
   ...(grow && { height: 0, paddingTop: "min(18rem, 100%)", width: "100%" }),
 }));
 
-const StyledLink = styled(Link)(({ theme }) => ({
+const linkStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-}));
+};
 
 const StyledMuiAvatar = styled(MuiAvatar)(() => ({
   height: "100%",
@@ -65,6 +66,19 @@ export default function Avatar({
   openInNewTab = false,
   ...otherProps
 }: AvatarPropsHighRes | AvatarPropsLowRes) {
+  const avatarImg = user ? (
+    <StyledMuiAvatar
+      alt={user.name}
+      src={
+        !!highRes
+          ? (user as UserWithAvatarUrl).avatarUrl
+          : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
+      }
+    >
+      {user.name.split(/\s+/).map((name) => name[0])}
+    </StyledMuiAvatar>
+  ) : null;
+
   return (
     <StyledWrapper
       isDefaultSize={!className}
@@ -74,33 +88,17 @@ export default function Avatar({
     >
       {user ? (
         isProfileLink ? (
-          <StyledLink
-            href={routeToUser(user.username)}
+          <ProfileLink
+            userId={user.userId}
+            username={user.username}
             aria-label={getProfileLinkA11yLabel(user.name)}
-            target={openInNewTab ? "_blank" : undefined}
+            openInNewTab={openInNewTab}
+            style={linkStyle}
           >
-            <StyledMuiAvatar
-              alt={user.name}
-              src={
-                !!highRes
-                  ? (user as UserWithAvatarUrl).avatarUrl
-                  : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
-              }
-            >
-              {user.name.split(/\s+/).map((name) => name[0])}
-            </StyledMuiAvatar>
-          </StyledLink>
+            {avatarImg}
+          </ProfileLink>
         ) : (
-          <StyledMuiAvatar
-            alt={user.name}
-            src={
-              !!highRes
-                ? (user as UserWithAvatarUrl).avatarUrl
-                : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
-            }
-          >
-            {user.name.split(/\s+/).map((name) => name[0])}
-          </StyledMuiAvatar>
+          avatarImg
         )
       ) : otherProps.children ? (
         <StyledMuiAvatar>{otherProps.children}</StyledMuiAvatar>

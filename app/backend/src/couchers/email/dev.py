@@ -2,20 +2,12 @@ import logging
 
 from couchers.crypto import random_hex
 from couchers.models import Email
+from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def print_dev_email(
-    sender_name: str,
-    sender_email: str,
-    recipient: str,
-    subject: str,
-    plain: str,
-    html: str,
-    list_unsubscribe_header: str | None,
-    source_data: str | None,
-) -> Email:
+def print_dev_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     """
     Generates a dummy Email object and prints the plain email contents to the logger
 
@@ -26,16 +18,16 @@ def print_dev_email(
     message_id = random_hex()
 
     logger.info("Dev email:")
-    logger.info(plain)
+    logger.info(payload.plain)
 
     return Email(
         id=message_id,
-        sender_name=sender_name,
-        sender_email=sender_email,
-        recipient=recipient,
-        subject=subject,
-        plain=plain,
-        html=html,
-        list_unsubscribe_header=list_unsubscribe_header,
-        source_data=source_data,
+        sender_name=payload.sender_name,
+        sender_email=payload.sender_email,
+        recipient=payload.recipient,
+        subject=payload.subject,
+        plain=payload.plain,
+        html=payload.html,
+        list_unsubscribe_header=payload.list_unsubscribe_header,
+        source_data=payload.source_data,
     )

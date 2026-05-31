@@ -1,17 +1,24 @@
 import { appGetLayout } from "components/AppRoute";
 import EventsPageComponent from "features/communities/events/EventsPage";
-import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
+import {
+  COMMUNITIES,
+  GLOBAL,
+  MESSAGES,
+  NOTIFICATIONS,
+  PROFILE,
+} from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [GLOBAL, COMMUNITIES, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      GLOBAL,
+      COMMUNITIES,
+      NOTIFICATIONS,
+      PROFILE,
+      MESSAGES,
+    ])),
   },
 });
 

@@ -4,7 +4,9 @@
     "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
     "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
     "new_email": "Nieuw e-mailadres",
-    "current_password": "Huidig wachtwoord"
+    "current_password": "Huidig wachtwoord",
+    "hide_current_password": "Huidig wachtwoord verbergen",
+    "show_current_password": "Huidig wachtwoord weergeven"
   },
   "do_not_email": {
     "status": {
@@ -32,14 +34,24 @@
     "new_password": "Nieuw wachtwoord",
     "password_mismatch_error": "De wachtwoorden komen niet overeen.",
     "reset_password_error": "Error bij het resetten van je wachtwoord: {{message}}",
-    "reset_password_success": "Je wachtwoord is succesvol gewijzigd!"
+    "reset_password_success": "Je wachtwoord is succesvol gewijzigd!",
+    "user_logged_error": "Je kan je wachtwoord niet resetten als je bent ingelogd. Je kan je wachtwoord wijzigen in de instellingen of uitloggen om het te resetten.",
+    "token_error": "Er is iets niet goed gegaan bij het verwerken van het token voor het herstellen van je wachtwoord. Probeer de link uit de e-mail opnieuw te openen.",
+    "hide_old_password": "Oud wachtwoord verbergen",
+    "show_old_password": "Oud wachtwoord weergeven",
+    "hide_new_password": "Nieuw wachtwoord verbergen",
+    "show_new_password": "Nieuw wachtwoord weergeven",
+    "hide_confirm_password": "Wachtwoordbevestiging verbergen",
+    "show_confirm_password": "Wachtwoordbevestiging weergeven"
   },
   "login_page": {
     "form": {
       "remember_me": "Aangemeld blijven",
       "forgot_password": "Wachtwoord vergeten?",
       "username_field_label": "E-mail/gebruikersnaam",
-      "password_field_label": "wachtwoord"
+      "password_field_label": "wachtwoord",
+      "show_password": "Wachtwoord weergeven",
+      "hide_password": "Wachtwoord verbergen"
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
@@ -55,7 +67,8 @@
       "field_label": "Gebruikersnaam",
       "required_error": "Vul je gebruikersnaam in",
       "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
-      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
+      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter.",
+      "helper_text": "Dit is je unieke aanmeld-ID, niet de naam die iedereen kan zien."
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn.",
@@ -83,7 +96,8 @@
       "woman": "Vrouw"
     },
     "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
-    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
+    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan.",
+    "opt_in_newsletter": "Schrijf je in voor de nieuwsbrief met community-updates die we zo nu en dan sturen."
   },
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
@@ -92,7 +106,10 @@
   "basic_form": {
     "name": {
       "field_label": "Naam",
-      "required_error": "Dit veld mag niet leeg zijn"
+      "required_error": "Dit veld mag niet leeg zijn",
+      "invalid_characters_error": "Naam mag alleen letters, spaties, koppeltekens en apostroffen bevatten",
+      "min_length_error": "Naam moet minimaal 2 tekens bevatten",
+      "max_length_error": "Naam mag niet langer zijn dan 100 tekens"
     },
     "email": {
       "field_label": "E-mailadres",
@@ -116,6 +133,277 @@
     "description": "Onderstaande doornemen om verder te gaan.",
     "terms_of_service_section": {
       "description": "We hebben onze servicevoorwaarden veranderd, om verder te gaan moet je ze goed doorlezen en accepteren.<1></1>."
+    },
+    "location_section": {
+      "title": "Werk je locatie bij",
+      "explanation": "Het lijkt erop dat je coördinaten niet kloppen. Werk je locatie bij om door te gaan.",
+      "submit_button": {
+        "active_text": "Opslaan",
+        "inactive_text": "Thanks!"
+      },
+      "resubmit_button_text": "Opnieuw insturen"
+    },
+    "mod_note_section": {
+      "title": "Je hebt een bericht ontvangen van onze moderators",
+      "description": "Onze moderators hebben je een bericht gestuurd. Lees het goed door en bevestig dat je het hebt gelezen én hebt begrepen, voordat je verder gaat.",
+      "note_title": "Bericht van moderator ontvangen op {{time}}:",
+      "acknowledge": "Bevestig bericht"
+    },
+    "activeness_probe": {
+      "title": "Sta je nog steeds open voor het hosten van surfers?",
+      "description": "We hebben gemerkt dat je al een tijdje niet hebt ingelogd en wilden vragen of je nog steeds openstaat om surfers te hosten.",
+      "still_hosting": "Ik wil nog steeds hosten!",
+      "not_hosting": "Ik kan helaas niet meer hosten.",
+      "note": "We zullen je profiel hierop aanpassen!"
+    }
+  },
+  "motivations_form": {
+    "header": "Wat brengt je naar Couchers?",
+    "surfing": "Surfen",
+    "surfing_description": "Ik ben een reis aan het plannen en zoek een host",
+    "hosting": "Hosten",
+    "hosting_description": "Ik wil graag reizigers in mijn stad hosten en welkom heten",
+    "events": "Events",
+    "events_description": "Ik wil graag deelnemen aan events en de community ontmoeten",
+    "community_organizing": "Community organiseren",
+    "community_organizing_description": "Ik wil events en activiteiten organiseren op het platform",
+    "something_else": "Iets anders",
+    "something_else_description": "Ik ben gewoon aan het rondkijken of heb nog niet bedacht wat ik wil"
+  },
+  "logged_out_message": "Je bent uitgelogd.",
+  "sign_up_completed_title": "Bedankt voor je aanmelding!",
+  "sign_up_need_verification_title": "Nog één ding: bevestig je e-mailadres.",
+  "sign_up_resend_verification_email_help": "Geen mail ontvangen? Klik <2>hier om de verificatielink opnieuw te verzenden</2>.",
+  "sign_up_resend_verification_done": "Yes! We hebben je nog een keer gemaild.",
+  "sign_up_completed_prompt": "We hebben een bericht met een verificatielink naar je e-mailadres gestuurd. Klik op de link in de mail om je account te activeren.",
+  "sign_up_confirmed_prompt": "Klaar! Als je niet automatisch wordt doorgestuurd, probeer dan zelf in te loggen.",
+  "unhandled_sign_up_state": "Fout: onverwerkte status van het aanmeldingsproces.",
+  "login_prompt": "Klik hier om in te loggen",
+  "about_us": "Over ons",
+  "reset_password": "Wachtwoord opnieuw instellen",
+  "account_settings_page": {
+    "title": "Account-instellingen",
+    "gender_section": {
+      "title": "Gender wijzigen",
+      "explanation": "Onze admins willen je graag helpen bij het aanpassen van je opgegeven gender. Mail ze op support@couchers.org!"
+    },
+    "birth_date_section": {
+      "title": "Geboortedatum wijzigen",
+      "explanation": "Onze admins kunnen je helpen bij het veranderen van je geboortedatum. Mail daarvoor naar support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "Tijdzone en lokalisatie",
+      "description": "Je tijdzone is <1>{{timezone}}</1>. Gebaseerd hierop, is de tijd bij jou nu ongeveer <4>{{time}}</4>.",
+      "explanation": "Deze tijd en tijdzone zijn gebaseerd op de locatie van jouw huis. Klopt dit niet? Geef dan deze bug door."
+    },
+    "username_section": {
+      "title": "Gebruikersnaam",
+      "description": "Jouw gebruikersnaam is <1>{{username}}</1>.",
+      "explanation": "Je gebruikersnaam wordt aangemaakt bij het opzetten van je account."
+    },
+    "appearance_section": {
+      "modes": {
+        "system": "Systeeminstellingen (volgt je apparaat)",
+        "light": "Lichte modus",
+        "dark": "Donkere modus"
+      },
+      "title": "Thema",
+      "current_mode": "Je huidige modus:",
+      "click_to_change": "Klik op onderstaande knop om te schakelen tussen Licht, Donker en Systeemmodus.",
+      "change_mode": "Verander thema modus"
+    }
+  },
+  "feature_preview": {
+    "title": "Preview functies",
+    "explanation": "Op deze pagina kan je functies uitproberen die nog in ontwikkeling zijn, voordat ze voor iedereen beschikbaar worden.",
+    "disclaimer": "Onthoud wel dat deze functies nog niet helemaal af zijn. Het kan zijn dat ze nog niet helemaal doen wat ze moeten doen. Ook kunnen er zomaar dingen veranderen, omdat het nog in ontwikkeling is. Jouw feedback helpt hierbij! Klik op de knop \"Een probleem doorgeven\" helemaal onderaan de pagina om bugs door te geven.",
+    "no_previews": {
+      "title": "Op dit moment zijn er geen functies om uit te proberen",
+      "explanation": "Op dit moment zijn er geen functies in de preview, probeer het later nog eens!"
+    }
+  },
+  "active_logins": {
+    "heading": "Huidige sessies",
+    "settings_page_text": "Bekijk waar je allemaal bent ingelogd en log uit van andere sessies",
+    "settings_page_link": "Alle sessies beheren",
+    "description": "Je ziet hieronder je huidige sessies. Je kan per sessie uitloggen door op de knop te klikken. Of scroll naar beneden en klik op de knop om overal (behalve bij deze sessie) in een keer uit te loggen.",
+    "login_header": "Ingelogd op {{login_datetime}}",
+    "location": "In de buurt van <2>{{approximate_location}}</2>",
+    "last_activity": "Laatste activiteit <2>{{last_activity_ago}}</2>",
+    "expiry": "Wordt uitgelogd op <1>{{expiry_datetime}}</1>",
+    "current_session": "Dit is je huidige sessie.",
+    "log_out_of_session": "Deze sessie uitloggen",
+    "log_out_of_all_session": "Log alle andere sessies uit"
+  },
+  "strong_verification": {
+    "learn_more": "Leer <a>hier</a> meer over Sterke verificatie.",
+    "title": "Sterke verificatie",
+    "subtitle": "Sterke verificatie is een functie voor extra veiligheid. Je kan er je geboortedatum en gender mee bevestigen door middel van je biometrische paspoort.",
+    "status": {
+      "enabled_message": "Je <1>bent op dit moment</1> geverifieerd met Sterke verificatie.",
+      "disabled_message": "Je <1>bent op dit moment niet</1> geverifieerd met Sterke verificatie."
+    },
+    "start_button": "Begin Sterke verificatie",
+    "complete_title": "We verwerken nu je verzoek tot Sterke verificatie",
+    "complete_message1": "Je paspoort wordt gecontroleerd. Je krijgt binnen een paar minuten een e-mail met het resultaat.",
+    "complete_message2": "Sterke verificatie loopt af als je paspoort verloopt. Zodra je een nieuw paspoort hebt, moet je opnieuw verifiëren.",
+    "delete_data_title": "Verwijder de paspoortgegevens van je Sterke verificatie",
+    "delete_information": "Je kan de gegevens van je Sterke verificatie (behalve het land van uitgifte, verloopdatum, en de laatste drie tekens van je documentnummer) op elk moment van onze server laten verwijderen.",
+    "delete_information_text2": "Als je je data laat verwijderen, kan je niet hetzelfde paspoort opnieuw gebruiken voor een Sterke verificatie.",
+    "delete_my_data_button": "Verwijder mijn data",
+    "delete_button": "Verwijder de data van mijn Sterke verificatie",
+    "delete_success": "Je paspoortgegevens zijn verwijderd.",
+    "donation_title": "Bedankt voor je verificatie. Samen maken we Couchers.org nog veiliger voor iedereen.",
+    "donation_message1": "Verificatie is gratis voor jou, maar het kost wel geld. Omdat wij een stichting zijn die helemaal door vrijwilligers wordt gedraaid, zijn we afhankelijk van donaties voor onze servers, de verificatie en andere benodigdheden.",
+    "donation_message2": "Als je kunt, zou het heel tof zijn als je iets wilt doneren. Zo kunnen we samen Couchers.org laten groeien en bloeien.",
+    "donate_button": "Doneer ook om Couchers.org te helpen",
+    "instructions": {
+      "title": "Zo regel je de Sterke verificatie",
+      "warning": "Belangrijk: Het scannen van je paspoortchip kan wat lastig zijn, lees daarom alle instructies goed door!",
+      "step1": "Download de <strong>Iris ID</strong> app",
+      "step1_apple_note": "<strong>Apple gebruikers:</strong> Je kan de download overslaan en het gewoon in je browser doen. Klik op \"Openen\" zodra het kan.",
+      "step2": "Klik <strong>\"Begin Sterke verificatie\"</strong> hieronder (opent in een nieuw tabblad)",
+      "step3": "Scan de QR-code met je telefoon",
+      "step4": "Zodra het kan, open de app en scan de QR-code opnieuw",
+      "step5": "Selecteer <strong>Paspoort</strong> (identiteitsbewijs werkt niet)",
+      "step6": "Maak een duidelijke foto van de paspoortpagina met de nummers onderaan",
+      "step7": "Houd je telefoon tegen de paspoortpagina met daarin de NFC-chip en <strong>houd hem minstens vijf seconden helemaal stil</strong>. Als je te snel je telefoon weer weghaalt, gaat het helaas mis",
+      "step8": "Je weet dat het werkt als je een laadbalk ziet en een stijgend percentage",
+      "download_app_store": "Download in de App Store",
+      "download_google_play": "Download bij Google Play",
+      "chip_location": {
+        "heading": "Zo vind je de NFC-chip in je paspoort",
+        "description": "Waar de chip zit, verschilt per paspoort en land. Soms moet je meerdere pagina's proberen. Hier zijn wat voorbeelden van plekken:",
+        "us_germany_mexico": "<strong>Brazilië, Verenigde Staten, Duitsland (2016), Indonesië, Mexico:</strong> Achterkant",
+        "finland_germany_new": "<strong>Finland, Duitsland (2017+), Rusland:</strong> Fotopagina",
+        "australia": "<strong>Australië:</strong> Middelste pagina (gemarkeerd met symbool + \"chipnaam\")"
+      },
+      "scanning_tips": {
+        "heading": "Tips voor het succesvol scannen met NFC",
+        "description": "De NFC-scan is het moeilijkste deel. Deze tips vergroten je kansen op succes:",
+        "remove_case": "<strong>Haal het hoesje van je mobiel.</strong> Ook dunne hoesjes kunnen helaas het signaal blokkeren",
+        "hold_still": "<strong>Houd je telefoon helemaal stil</strong> voor minstens vijf seconden. Te snel bewegen is hoe het vaak verkeerd gaat",
+        "flat_surface": "<strong>Plaats je paspoort op een plat oppervlak</strong>, houd hem niet in je hand",
+        "nfc_location": "<strong>Zoek de NFC-antenne van je telefoon</strong>, meestal zit die bovenaan, in het midden van de achterkant van je mobiel. Probeer verschillende plekken als het niet werkt",
+        "no_metal": "<strong>Vermijd metalen oppervlaktes</strong>, leg je paspoort niet op een metalen tafel of op je laptop",
+        "retry": "Als het scannen mislukt, probeer het dan nog een keer. Soms duurt het wel een paar keer voor je de juiste positie te pakken hebt"
+      },
+      "before_you_start": {
+        "heading": "Voor je begint",
+        "nfc_check": "Je telefoon moet een <strong>NFC-functie</strong> hebben, zoals de meeste nieuwere mobiels hebben. NFC staat meestal aan, maar soms moet je hem handmatig aanzetten in de instellingen van je telefoon.",
+        "passport_check": "Je paspoort moet een <strong>biometrisch paspoort</strong> zijn. Er staat dan een gouden chip-symbool op de voorkant. Als je een ouder paspoort zonder dit symbool hebt, dan lukt het helaas niet.",
+        "remove_case": "<strong>Verwijder je telefoonhoesje voor je begint</strong>, ook een dun hoesje kan het signaal blokkeren en dan werkt het helaas niet.",
+        "passport_symbol_alt": "Biometrisch paspoort-symbool"
+      },
+      "didnt_work": {
+        "heading": "Lukt het niet?",
+        "tip1": "Check vooral bij oudere Androids of NFC wel aanstaat. Kijk hiervoor in de instellingen van je mobiel (vaak staat het bij nieuwere telefoons automatisch aan)",
+        "tip2": "Probeer een andere pagina van je paspoort. De plek van de chip kan per land verschillen",
+        "tip3": "Heb je Android? Vergeet dan niet de Iris ID-app te downloaden (en niet de browser te gebruiken)",
+        "tip4": "Sommige oudere paspoorten hebben geen NFC-chip en doen het daarom niet",
+        "contact": "Lukt het nu nog steeds niet? <1>Laat het ons weten</1> en we helpen je graag."
+      }
+    }
+  },
+  "quick_links": {
+    "button_text": "Bevestig actie",
+    "error_message": "Fout: {{message}}",
+    "missing_payload_or_sig": "Ongeldige URL",
+    "title": "E-mailsnelactie"
+  },
+  "change_phone": {
+    "title": "Telefoonnummer",
+    "need_to_donate": "Je moet eerst <2>doneren</2> voordat je je telefoonverificatie kan afmaken.",
+    "no_phone_description": "Je hebt geen telefoonnummer toegevoegd aan je account. Je kan hem hieronder invullen. We zullen ter bevestiging je een sms sturen.",
+    "phone_label": "Je telefoonnummer",
+    "add_button_text": "Telefoonnummer toevoegen",
+    "add_success": "Telefoonnummer toegevoegd.",
+    "phone_not_verified_description": "We hebben een code gestuurd naar <2>{{phone}}</2>. Voer de code hieronder in om je nummer te verifiëren:",
+    "code_label": "Verificatiecode",
+    "wrong_code": "De code klopt niet.",
+    "verify_button_text": "Telefoonnummer verifiëren",
+    "verify_success": "Telefoonnummer geverifieerd.",
+    "remove_phone_description": "Je telefoonnummer is op dit moment <2>{{phone}}</2>. Je kan dat nummer hieronder verwijderen.",
+    "remove_button_text": "Huidige telefoonnummer verwijderen",
+    "remove_success": "Telefoonnummer verwijderd.",
+    "change_to_different_description": "Om je telefoonnummer te wijzigen, voer hieronder je nieuwe nummer in.",
+    "change_button_text": "Telefoonnummer wijzigen"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Account verwijderen",
+      "description": "Om je account te verwijderen, volg onderstaande stappen. Je krijgt een bevestiging per e-mail.",
+      "confirm_username_explanation": "Je gebruikersnaam is <1>{{ username }}</1>. Typ hieronder nog eens je gebruikersnaam in, om het verwijderen te bevestigen.",
+      "confirm_username_label": "Gebruikersnaam bevestigen",
+      "username_mismatch": "Gebruikersnaam komt niet overeen.",
+      "reason_explanation": "Het zou fijn zijn als je wilt aangeven waarom je je account wilt verwijderen, zodat wij er van kunnen leren.",
+      "reason_label": "Reden voor verwijderen account",
+      "success_message": "Account verwijderen gestart. Om dit proces af te maken, klik dan op de link in de e-mail die we je net hebben gestuurd."
+    },
+    "confirm": {
+      "title": "Bevestig account verwijderen",
+      "error_message": "Account verwijderen niet gelukt: {{message}}",
+      "button_text": "Bevestig account verwijderen",
+      "account_deleted": "Account verwijderd. Bedankt voor het gebruiken van Couchers.org!"
+    },
+    "recover": {
+      "title": "Herstel je account op Couchers.org",
+      "error_message": "Account herstellen mislukt: {{message}}",
+      "button_text": "Herstel je account",
+      "success": "Je account is hersteld, je kunt weer inloggen. Geweldig dat je er weer bent!"
+    },
+    "missing_token": "Fout: token ontbreekt"
+  },
+  "profile_visibility": {
+    "title": "Profiel zichtbaarheid",
+    "choose": "Kies welke informatie zichtbaar mag zijn voor mensen die niet zijn ingelogd",
+    "visiblility_options": {
+      "nothing": "<1>Niks</1>: verberg me volledig",
+      "map_only": "<1>Alleen op de kaart</1>: laat een anonieme pin zien, zonder meer informatie",
+      "limited": "<1>Beperkt</1>: toon mijn naam, locatie, hosting-/meetup-status, badges, aantal referenties en hoelang ik al lid ben van Couchers",
+      "most": "<1>Meest</1>: toon volledige \"Over mij\"-deel, behalve de aanvullende informatie",
+      "full_profile": "<1>Volledig profiel</1>: toon mijn volledige profiel (behalve referenties)"
+    }
+  },
+  "volunteer_management": {
+    "title": "Vrijwilligersmanagement",
+    "description": "Als je rol of de data niet kloppen, laat het ons dan weten.",
+    "card_preview_label": "Hoe je op de teampagina wordt weergegeven",
+    "not_a_volunteer_message": "Volgens onze gegevens ben je geen huidige of voormalige vrijwilliger. Als dit niet klopt, laat het ons dan weten door <1>dit formulier</1> in te vullen.",
+    "current_volunteer": "Vrijwilliger sinds {{startDate}}.",
+    "past_volunteer": "Vrijwilliger van {{startDate}} tot {{endDate}}.",
+    "shown_on_team_page_current": "Je wordt op de teampagina weergegeven als een huidig teamlid.",
+    "shown_on_team_page_past": "Je wordt op de teampagina weergegeven als voormalig vrijwilliger.",
+    "not_shown_on_team_page": "Verborgen op teampagina.",
+    "update_success": "Je vrijwilligersinformatie is bijgewerkt.",
+    "form": {
+      "title": "Update je vrijwilligersinformatie",
+      "override_name_label": "Gebruik een andere naam op de teampagina (in plaats van \"{{profileName}}\")",
+      "display_name_label": "Weergavenaam",
+      "override_location_label": "Gebruik een andere locatie op de teampagina (in plaats van \"{{profileLocation}}\")",
+      "display_location_label": "Locatie weergeven",
+      "show_on_team_page_label": "Toon mij op de teampagina",
+      "link_type_label": "Linktype",
+      "link_type_couchers": "Couchers-profiel",
+      "link_type_email": "E-mail",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Website",
+      "link_text_label": "Link invullen",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "jouw@email.com",
+      "link_text_website_placeholder": "https://jouw-website.com",
+      "link_text_linkedin_helper": "Je gebruikersnaam van je profiel-URL (bijvoorbeeld linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_helper": "Je e-mailadres",
+      "link_text_website_helper": "De tekst die voor de link wordt weergegeven",
+      "link_text_required": "Voer een waarde in voor de link",
+      "link_text_email_invalid": "Vul een geldig e-mailadres in",
+      "link_text_linkedin_invalid": "Voer een geldige LinkedIn-gebruikersnaam in (alleen letters, cijfers en koppeltekens)",
+      "link_url_label": "Link-URL",
+      "link_url_placeholder": "https://jouw-website.com",
+      "link_url_helper": "De hele URL waar de link naartoe moet verwijzen",
+      "link_url_required": "Voer een URL in voor de website",
+      "link_url_invalid": "Voer een geldige URL in die begint met http:// of https://",
+      "save_button": "Wijzigingen opslaan"
     }
   }
 }

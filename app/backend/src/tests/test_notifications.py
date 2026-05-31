@@ -49,7 +49,7 @@ from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.utils import not_none, now
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
@@ -139,7 +139,7 @@ def test_SetNotificationSettings_preferences_not_editable(db):
         assert e.value.details() == "That notification preference is not user editable."
 
 
-def test_unsubscribe(db):
+def test_unsubscribe(db, email_collector: EmailCollector):
     # this is the ugliest test i've written
 
     user, token = generate_user()
@@ -162,25 +162,24 @@ def test_unsubscribe(db):
             )
         )
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer for Couchers.org",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
 
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
+    email = email_collector.pop_for_recipient(user.email, last=True)
+
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+    for link in re.findall(r'<a href="(.*?)"', email.html):
         if "payload" not in link:
             continue
         print(link)
@@ -212,24 +211,23 @@ def test_unsubscribe(db):
                 if topic == topic_action.topic and item == topic_action.action:
                     assert not item.email
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer for Couchers.org",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
 
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
 
-def test_unsubscribe_do_not_email(db, moderator):
+def test_unsubscribe_do_not_email(db, email_collector: EmailCollector, moderator):
     user, token = generate_user()
 
     _, token2 = generate_user(complete_profile=True)
@@ -239,14 +237,13 @@ def test_unsubscribe_do_not_email(db, moderator):
         fr_id = res.sent[0].friend_request_id
 
     # Moderator approves the friend request, which triggers the notification email
-    with mock_notification_email() as mock:
-        moderator.approve_friend_request(fr_id)
+    moderator.approve_friend_request(fr_id)
 
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+    for link in re.findall(r'<a href="(.*?)"', email.html):
         if "payload" not in link:
             continue
         print(link)
@@ -276,10 +273,9 @@ def test_unsubscribe_do_not_email(db, moderator):
         fr_id3 = res.sent[0].friend_request_id
 
     # Approving this friend request should NOT send an email since user has do_not_email set
-    with mock_notification_email() as mock:
-        moderator.approve_friend_request(fr_id3)
+    moderator.approve_friend_request(fr_id3)
 
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
     with session_scope() as session:
         user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -552,7 +548,7 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
     assert push.content.body == "If you see this, then it's working :)"
 
 
-def test_SendBlogPostNotification(db, push_collector: PushCollector):
+def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
     user1, user1_token = generate_user()
@@ -591,26 +587,23 @@ def test_SendBlogPostNotification(db, push_collector: PushCollector):
             )
         )
 
-    with mock_notification_email() as mock:
-        with real_editor_session(super_token) as editor_api:
-            editor_api.SendBlogPostNotification(
-                editor_pb2.SendBlogPostNotificationReq(
-                    title="Couchers.org v0.9.9 Release Notes",
-                    blurb="Read about last major updates before v1!",
-                    url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
-                )
+    with real_editor_session(super_token) as editor_api:
+        editor_api.SendBlogPostNotification(
+            editor_pb2.SendBlogPostNotificationReq(
+                title="Couchers.org v0.9.9 Release Notes",
+                blurb="Read about last major updates before v1!",
+                url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
             )
+        )
 
-    process_jobs()
-
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user2.email
-    assert "Couchers.org v0.9.9 Release Notes" in email_fields(mock).html
-    assert "Couchers.org v0.9.9 Release Notes" in email_fields(mock).plain
-    assert "Read about last major updates before v1!" in email_fields(mock).html
-    assert "Read about last major updates before v1!" in email_fields(mock).plain
-    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).html
-    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).plain
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.recipient == user2.email
+    assert "Couchers.org v0.9.9 Release Notes" in email.html
+    assert "Couchers.org v0.9.9 Release Notes" in email.plain
+    assert "Read about last major updates before v1!" in email.html
+    assert "Read about last major updates before v1!" in email.plain
+    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email.html
+    assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email.plain
 
     push = push_collector.pop_for_user(user1.id, last=True)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
@@ -665,39 +658,38 @@ def test_get_topic_actions_by_delivery_type(db):
         assert NotificationTopicAction.account_deletion__start in deliver
 
 
-def test_event_reminder_email_sent(db):
+def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     user, token = generate_user()
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
 
     expected_time_str = LocalizationContext.from_user(user).localize_datetime(start_event_time)
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            user_in_session = session.get_one(User, user.id)
+    with session_scope() as session:
+        user_in_session = session.get_one(User, user.id)
 
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.event__reminder,
-                key="",
-                data=notification_data_pb2.EventReminder(
-                    event=events_pb2.Event(
-                        event_id=1,
-                        slug="board-game-night",
-                        title=title,
-                        start_time=start_event_time,
-                    ),
-                    user=user_model_to_pb(user_in_session, session, make_background_user_context(user_id=user.id)),
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.event__reminder,
+            key="",
+            data=notification_data_pb2.EventReminder(
+                event=events_pb2.Event(
+                    event_id=1,
+                    slug="board-game-night",
+                    title=title,
+                    start_time=start_event_time,
                 ),
-            )
+                user=user_model_to_pb(user_in_session, session, make_background_user_context(user_id=user.id)),
+            ),
+        )
 
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
-    assert title in email_fields(mock).html
-    assert title in email_fields(mock).plain
-    assert expected_time_str in email_fields(mock).html
-    assert expected_time_str in email_fields(mock).plain
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert title in email.html
+    assert title in email.plain
+    assert expected_time_str in email.html
+    assert expected_time_str in email.plain
 
 
 def test_RegisterMobilePushNotificationSubscription(db):
@@ -1374,7 +1366,7 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     assert push_collector.count_for_user(user.id) == 0
 
 
-def test_handle_notification_email_delivery(db):
+def test_handle_notification_email_delivery(db, email_collector: EmailCollector):
     """Test that email notifications are delivered when email preference is enabled."""
     user, token = generate_user()
 
@@ -1395,22 +1387,21 @@ def test_handle_notification_email_delivery(db):
             )
         )
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="test-badge",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
 
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
 
     with session_scope() as session:
         delivery = session.execute(
@@ -1509,7 +1500,7 @@ def test_handle_notification_digest_delivery(db):
         assert delivery.delivered is None
 
 
-def test_handle_notification_banned_user_no_email(db):
+def test_handle_notification_banned_user_no_email(db, email_collector: EmailCollector):
     """Test that banned users don't receive email notifications."""
     user, token = generate_user()
 
@@ -1534,25 +1525,24 @@ def test_handle_notification_banned_user_no_email(db):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(banned_at=now()))
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="test-badge",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
 
     # Email should not be sent to the banned user
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
 
-def test_handle_notification_deleted_user_no_regular_email(db):
+def test_handle_notification_deleted_user_no_regular_email(db, email_collector: EmailCollector):
     """Test that deleted users don't receive non-account-deletion email notifications."""
     user, token = generate_user()
 
@@ -1577,25 +1567,24 @@ def test_handle_notification_deleted_user_no_regular_email(db):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(deleted_at=now()))
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="test-badge",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
 
     # Email should not be sent to deleted user for non-account-deletion notification
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
 
-def test_handle_notification_deleted_user_receives_account_deletion_email(db):
+def test_handle_notification_deleted_user_receives_account_deletion_email(db, email_collector: EmailCollector):
     """Test that deleted users CAN receive account deletion notifications."""
     user, token = generate_user()
 
@@ -1605,25 +1594,24 @@ def test_handle_notification_deleted_user_receives_account_deletion_email(db):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(deleted_at=now()))
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="",
-                data=notification_data_pb2.AccountDeletionComplete(
-                    undelete_token="test-token",
-                    undelete_days=7,
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="",
+            data=notification_data_pb2.AccountDeletionComplete(
+                undelete_token="test-token",
+                undelete_days=7,
+            ),
+        )
 
     # Email SHOULD be sent to deleted user for account deletion notification
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
 
 
-def test_handle_notification_do_not_email_respected(db):
+def test_handle_notification_do_not_email_respected(db, email_collector: EmailCollector):
     """Test that users with do_not_email set don't receive non-critical emails."""
     user, token = generate_user()
 
@@ -1656,25 +1644,24 @@ def test_handle_notification_do_not_email_respected(db):
             )
         )
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="test-badge",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
 
     # Email should not be sent when do_not_email is True
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
 
-def test_handle_notification_critical_bypasses_do_not_email(db):
+def test_handle_notification_critical_bypasses_do_not_email(db, email_collector: EmailCollector):
     """Test that critical notifications bypass do_not_email setting."""
     user, token = generate_user()
 
@@ -1692,19 +1679,18 @@ def test_handle_notification_critical_bypasses_do_not_email(db):
             )
         )
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="",
-                data=None,
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="",
+            data=None,
+        )
 
     # Critical email SHOULD be sent even with do_not_email=True
-    assert mock.call_count == 1
-    assert email_fields(mock).recipient == user.email
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
 
 
 def test_handle_notification_duplicate_delivery_skipped(db, push_collector: PushCollector):
@@ -1825,7 +1811,9 @@ def test_handle_notification_delivered_when_content_visible(db, moderator):
         assert len(deliveries) > 0
 
 
-def test_handle_notification_multiple_delivery_types(db, push_collector: PushCollector):
+def test_handle_notification_multiple_delivery_types(
+    db, email_collector: EmailCollector, push_collector: PushCollector
+):
     """Test that multiple delivery types are processed for a single notification."""
     user, token = generate_user()
 
@@ -1858,22 +1846,21 @@ def test_handle_notification_multiple_delivery_types(db, push_collector: PushCol
             )
         )
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key="test-badge",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id="volunteer",
-                    badge_name="Active Volunteer",
-                    badge_description="This user is an active volunteer",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
 
     # Email should be sent
-    assert mock.call_count == 1
+    email_collector.pop_for_recipient(user.email, last=True)
 
     # Push should be sent
     push = push_collector.pop_for_user(user.id, last=True)

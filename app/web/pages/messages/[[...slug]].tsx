@@ -4,7 +4,7 @@ import GroupChatView from "features/messages/groupchats/GroupChatView";
 import MessagesHeader from "features/messages/MessagesHeader";
 import HostRequestView from "features/messages/requests/HostRequestView";
 import NotFoundPage from "features/NotFoundPage";
-import { GLOBAL, MESSAGES, NOTIFICATIONS } from "i18n/namespaces";
+import { GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -19,6 +19,7 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   GLOBAL,
   MESSAGES,
   NOTIFICATIONS,
+  PROFILE,
 ]);
 export default function LeaveReferencePage() {
   const router = useRouter();
@@ -29,17 +30,10 @@ export default function LeaveReferencePage() {
         ? [router.query.slug]
         : router.query.slug;
 
-  const tab = messageTypeStrings.find((valid) => valid === slugs?.[0]);
+  const tab = messageTypeStrings.find((valid) => valid === slugs[0]);
 
-  // Route: /messages, /messages/all, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
-  if (
-    (slugs[0] === "all" ||
-      slugs[0] === "chats" ||
-      slugs[0] === "hosting" ||
-      slugs[0] === "surfing" ||
-      slugs[0] === "archived") &&
-    !slugs[1]
-  ) {
+  // Route: /messages, /messages/all, /messages/unread, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
+  if (tab && !slugs[1]) {
     return (
       <>
         <MessagesHeader tab={tab} />

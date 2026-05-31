@@ -41,6 +41,10 @@ service Admin {
 
   rpc UnbanUser(UnbanUserReq) returns (UserDetails) {}
 
+  rpc ShadowUser(ShadowUserReq) returns (UserDetails) {}
+
+  rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
+
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
@@ -72,6 +76,8 @@ service Admin {
 
   rpc GetUserReferences(GetUserReferencesReq) returns (GetUserReferencesRes) {}
 
+  rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
@@ -95,6 +101,12 @@ service Admin {
   rpc AddAdminTagToUser(AddAdminTagToUserReq) returns (UserDetails) {}
 
   rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
+
+  rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
+
+  rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
+
+  rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
 }
 
 message AdminActionLog {
@@ -103,9 +115,12 @@ message AdminActionLog {
   int64 admin_user_id = 3;
   string admin_username = 4;
   string action_type = 5;
-  string note = 6;   // optional note/details
+  string note = 6;   // optional human-readable note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
+  int64 target_user_id = 9;
+  string target_username = 10;
+  string data = 11;  // optional machine-readable JSON payload
 }
 
 message AdminTagInfo {
@@ -122,6 +137,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  bool shadowed = 21;
   bool do_not_email = 15;
   repeated string badges = 8;
 
@@ -138,6 +154,8 @@ message UserDetails {
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
+
+  double mod_score = 20;
 }
 
 message GetUserDetailsReq {
@@ -167,6 +185,7 @@ message SearchUsersReq {
   repeated string language_codes = 17;
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue is_shadowed = 22;
   google.protobuf.BoolValue has_avatar = 20;
   repeated string admin_tags = 21;
 
@@ -219,11 +238,25 @@ message UnbanUserReq {
   string admin_note = 2;
 }
 
-message AddAdminNoteReq {
+message ShadowUserReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;
+}
+
+message UnshadowUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message AddAdminNoteReq {
+  // username, email, or user id
+  string user = 1;
+  // exactly one of admin_note or data must be provided; data is a JSON-encoded object
+  string admin_note = 2;
   AdminActionLevel level = 3;  // defaults to NORMAL if unset
+  string data = 4;
 }
 
 message ContentReport {
@@ -374,6 +407,9 @@ message GetUserReferencesReq {
 }
 
 message AdminReference {
+  reserved 11;
+  reserved "is_deleted";
+
   int64 reference_id = 1;
   int64 from_user_id = 2;
   int64 to_user_id = 3;
@@ -384,7 +420,6 @@ message AdminReference {
   int64 host_request_id = 8;
   double rating = 9;
   bool was_appropriate = 10;
-  bool is_deleted = 11;
 }
 
 message GetUserReferencesRes {
@@ -392,6 +427,28 @@ message GetUserReferencesRes {
   repeated AdminReference references_from = 1;
   // References written about the user
   repeated AdminReference references_to = 2;
+}
+
+message GetFriendRequestsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message AdminFriendRequest {
+  int64 friend_request_id = 1;
+  ChatUserInfo from_user = 2;
+  ChatUserInfo to_user = 3;
+  string status = 4; // "pending", "accepted", "rejected", "cancelled"
+  google.protobuf.Timestamp time_sent = 5;
+  google.protobuf.Timestamp time_responded = 6;
+  string moderation_visibility = 7; // "hidden", "shadowed", "unlisted", "visible"
+}
+
+message GetFriendRequestsRes {
+  // Friend requests sent by the user
+  repeated AdminFriendRequest sent = 1;
+  // Friend requests received by the user
+  repeated AdminFriendRequest received = 2;
 }
 
 message EditDiscussionReq {
@@ -499,4 +556,47 @@ message AddAdminTagToUserReq {
 message RemoveAdminTagFromUserReq {
   string user = 1;
   string tag = 2;
+}
+
+message SetModScoreReq {
+  // username, email, or user id
+  string user = 1;
+  double mod_score = 2;
+}
+
+message ListAdminActionsReq {
+  // Filter to actions performed by this admin (optional)
+  int64 admin_user_id = 1;
+  // Filter to actions targeting this user (optional)
+  int64 target_user_id = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListAdminActionsRes {
+  repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
+}
+
+message ListUserUploadsReq {
+  // username, email, or user id
+  string user = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message UserUpload {
+  string key = 1;
+  string filename = 2;
+  string full_url = 3;
+  string thumbnail_url = 4;
+  string credit = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message ListUserUploadsRes {
+  repeated UserUpload uploads = 1;
+  string next_page_token = 2;
 }

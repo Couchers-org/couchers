@@ -50,7 +50,9 @@
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <1>{{email}}</1>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
-    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen."
+    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen.",
+    "hide_current_password": "Aktuelles Passwort ausblenden",
+    "show_current_password": "Aktuelles Passwort anzeigen"
   },
   "change_email_confirmation": {
     "change_in_progress": "E-Mail-Adressänderung wird bearbeitet…",
@@ -86,7 +88,13 @@
     "token_error": "Bei der Verarbeitung des Passwort-Reset-Tokens ist ein Fehler aufgetreten. Bitte versuche erneut, den Link aus der E-Mail zu öffnen.",
     "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
     "user_logged_error": "Du kannst dein Passwort nicht zurücksetzen, wenn du angemeldet bist. Du kannst dein Passwort in den Einstellungen ändern oder dich abmelden, um es zurückzusetzen.",
-    "reset_password_success": "Dein Passwort wurde erfolgreich geändert!"
+    "reset_password_success": "Dein Passwort wurde erfolgreich geändert!",
+    "hide_old_password": "Altes Passwort ausblenden",
+    "show_old_password": "Altes Passwort anzeigen",
+    "hide_new_password": "Neues Passwort ausblenden",
+    "show_new_password": "Neues Passwort anzeigen",
+    "hide_confirm_password": "Passwortbestätigung ausblenden",
+    "show_confirm_password": "Passwortbestätigung anzeigen"
   },
   "reset_password_form": {
     "success_message": "Ein Link zum Zurücksetzen des Passworts wurde an die mit diesem Konto verknüpfte E-Mail-Adresse gesendet, sofern sie existiert und aktiv ist. Bitte beachte, dass die E-Mail möglicherweise im Spam-Ordner landet.",
@@ -197,7 +205,7 @@
     },
     "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
   },
-  "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
+  "unhandled_sign_up_state": "Fehler: Unbehandelter Anmelde-Ablaufstatus.",
   "change_phone": {
     "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
     "title": "Telefonnummer",
@@ -233,7 +241,7 @@
       "account_deleted": "Dein Account wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
       "button_text": "Accountlöschung bestätigen"
     },
-    "missing_token": "Fehler: missing token",
+    "missing_token": "Fehler: Token fehlt",
     "recover": {
       "title": "Stelle deinen Couchers.org-Account wieder her",
       "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",

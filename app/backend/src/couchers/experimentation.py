@@ -1,63 +1,146 @@
 """
 Experimentation framework for feature flags and experiments.
 
-Uses Statsig under the hood, but abstracts the implementation details.
+Uses GrowthBook under the hood, but abstracts the implementation details.
 
-IMPORTANT - FORKING SAFETY:
-The underlying SDK uses internal threading and async runtime components that
-do NOT work correctly when copied across process boundaries during fork().
-Initializing before forking will cause deadlocks and unpredictable behavior.
+Two ways to evaluate a flag:
+  - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
+    etc.), which evaluate for the context's user and own the per-request evaluator cache.
+  - Global (no user/request): use the module-level get_global_boolean_value / get_global_string_value
+    / ... below. Use these ONLY when there is genuinely no user to evaluate for and no way to thread
+    one through - per-user evaluation is impossible here, not merely that you don't expect the value
+    to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
+    per-user path can do percentage rollouts, experiments, and feature-usage tracking.
 
-This module provides fork-safe initialization:
-- Call `setup_experimentation()` ONLY in child processes AFTER forking
-- Call `setup_experimentation()` in the main process ONLY AFTER all child processes have been spawned
-- NEVER call setup_experimentation() at module load time
-
-The Couchers backend uses multiprocessing.Process for background workers, which forks.
-The initialization flow is:
-1. app.py starts, spawns worker processes via multiprocessing.Process (fork happens)
-2. Each worker process calls `_run_forever()` which calls `setup_experimentation()` post-fork
-3. The main process (API server) calls `setup_experimentation()` after spawning workers
+Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
+once at process startup.
 """
 
-import atexit
+import json
 import logging
-from typing import TYPE_CHECKING
+import threading
+import time
+from collections.abc import Callable
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from typing import Any
 
-from statsig_python_core import Statsig, StatsigOptions, StatsigUser
+import urllib3
+from growthbook import GrowthBook
+from growthbook.common_types import Experiment, FeatureResult, Result
+from sqlalchemy.dialects.postgresql import insert
 
+from couchers import metrics
 from couchers.config import config
-
-if TYPE_CHECKING:
-    from couchers.context import CouchersContext
+from couchers.db import session_scope
+from couchers.models.logging import ExperimentExposure, FeatureUsage
 
 logger = logging.getLogger(__name__)
 
-# Track whether we've initialized in this process to prevent double-initialization
+_REFRESH_INTERVAL_SECONDS = 60
+_HTTP_CONNECT_TIMEOUT_SECONDS = 1
+_HTTP_READ_TIMEOUT_SECONDS = 2
+
 _initialized = False
+_state: dict[str, Any] = {"features": {}, "savedGroups": {}}
+_state_lock = threading.Lock()
+_refresh_stop = threading.Event()
+_refresh_thread: threading.Thread | None = None
+# Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
+# load from the API or seed from the disk cache; drives the staleness metric.
+_last_fetch_time: float | None = None
 
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
 
 
+class GrowthBookUnavailableError(Exception):
+    """Raised at startup when features can't be fetched and there's no usable disk cache to fall back on."""
+
+
+def _fetch_features() -> dict[str, Any] | None:
+    """Fetch the GrowthBook feature payload over HTTP. Returns None on failure."""
+    api_host = config["GROWTHBOOK_API_HOST"].rstrip("/")
+    client_key = config["GROWTHBOOK_CLIENT_KEY"]
+    url = f"{api_host}/api/features/{client_key}"
+    try:
+        http = urllib3.PoolManager(
+            timeout=urllib3.Timeout(connect=_HTTP_CONNECT_TIMEOUT_SECONDS, read=_HTTP_READ_TIMEOUT_SECONDS)
+        )
+        r = http.request("GET", url, headers={"Accept-Encoding": "gzip, deflate"})
+        if r.status >= 400:
+            logger.warning("GrowthBook fetch returned status %d", r.status)
+            return None
+        return json.loads(r.data.decode("utf-8"))  # type: ignore[no-any-return]
+    except Exception:
+        logger.exception("GrowthBook fetch failed")
+        return None
+
+
+def _apply_response(response: dict[str, Any]) -> None:
+    """Atomically replace the current snapshot with a freshly fetched response."""
+    with _state_lock:
+        _state["features"] = response.get("features", {})
+        _state["savedGroups"] = response.get("savedGroups", {})
+
+
+def _set_last_fetch_time(when: float) -> None:
+    global _last_fetch_time
+    _last_fetch_time = when
+
+
+def seconds_since_last_fetch() -> float | None:
+    """Seconds since the last successful pull, or None if never pulled. Drives the staleness metric."""
+    when = _last_fetch_time
+    if when is None:
+        return None
+    return max(0.0, time.time() - when)
+
+
+def _write_cache(response: dict[str, Any]) -> None:
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    data = json.dumps({"fetched_at": time.time(), "response": response})
+    # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
+    # never sees a half-written cache.
+    with NamedTemporaryFile("w", dir=path.parent, prefix=".growthbook-cache-", suffix=".tmp", delete=False) as f:
+        f.write(data)
+        tmp = Path(f.name)
+    tmp.replace(path)
+
+
+def _read_cache() -> tuple[dict[str, Any], float] | None:
+    """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text())
+    return payload["response"], payload["fetched_at"]
+
+
+def _refresh_loop() -> None:
+    while not _refresh_stop.wait(_REFRESH_INTERVAL_SECONDS):
+        response = _fetch_features()
+        if response is not None:
+            _apply_response(response)
+            _write_cache(response)
+            _set_last_fetch_time(time.time())
+            logger.debug("GrowthBook features refreshed")
+        # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
+
+
 def setup_experimentation() -> None:
     """
-    Initialize the experimentation framework. Must be called AFTER process forking.
+    Initialize the experimentation framework.
 
-    This function is safe to call multiple times - subsequent calls will be no-ops.
-
-    Call this:
-    - In worker processes: inside _run_forever() after db_post_fork()
-    - In main process: after spawning all worker processes
-
-    IMPORTANT: Importing this module is safe before forking. Only calling this
-    function (which initializes internal threads) must happen after forking.
+    Safe to call multiple times - subsequent calls are no-ops. Fetches the
+    feature payload once synchronously, then starts a background thread that
+    refreshes every minute. Request threads only ever read the in-memory
+    snapshot - they never block on the GrowthBook CDN.
     """
-    global _initialized
+    global _initialized, _refresh_thread
 
     if _initialized:
-        logger.debug("Experimentation already initialized in this process, skipping")
         return
 
     if not config["EXPERIMENTATION_ENABLED"]:
@@ -67,158 +150,154 @@ def setup_experimentation() -> None:
 
     logger.info("Initializing experimentation framework")
 
-    options = StatsigOptions()
-    options.environment = config["STATSIG_ENVIRONMENT"]
+    response = _fetch_features()
+    if response is not None:
+        _apply_response(response)
+        _write_cache(response)
+        _set_last_fetch_time(time.time())
+        logger.info("GrowthBook features loaded from API")
+    else:
+        # Unreachable at startup: fall back to the disk cache rather than booting on in-code defaults.
+        cached = _read_cache()
+        if cached is None:
+            raise GrowthBookUnavailableError(
+                "Could not fetch features from GrowthBook and no disk cache is available - refusing to "
+                "start on in-code feature-flag defaults"
+            )
+        cached_response, fetched_at = cached
+        _apply_response(cached_response)
+        _set_last_fetch_time(fetched_at)
+        logger.warning(
+            "GrowthBook unavailable at startup; loaded features from disk cache (%.0fs old)",
+            max(0.0, time.time() - fetched_at),
+        )
 
-    # Create the shared instance for global access
-    statsig = Statsig.new_shared(config["STATSIG_SERVER_SECRET_KEY"], options)
+    with _state_lock:
+        smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])
+    test_gate_result = smoke_gb.is_on("test_growthbook_integration")
 
-    # initialize() starts internal threads - this MUST happen after forking
-    statsig.initialize().wait()
+    _refresh_stop.clear()
+    _refresh_thread = threading.Thread(target=_refresh_loop, name="growthbook-refresh", daemon=True)
+    _refresh_thread.start()
 
     _initialized = True
-    logger.info("Experimentation framework initialized successfully")
-
-    # Verify the integration works by checking a test gate
-    test_user = StatsigUser(user_id="integration_test")
-    test_gate_result = statsig.check_gate(test_user, "test_statsig_integration")
-    logger.info(f"Experimentation integration test: gate 'test_statsig_integration' = {test_gate_result}")
-
-    atexit.register(_shutdown_experimentation)
+    logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
 
 
-def _shutdown_experimentation() -> None:
+def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: Any) -> None:
+    data = {
+        "experiment_name": experiment.name,
+        "variation_key": result.key,
+        "variation_name": result.name,
+        "hash_attribute": result.hashAttribute,
+        "hash_value": result.hashValue,
+        "bucket": result.bucket,
+        "in_experiment": result.inExperiment,
+        "hash_used": result.hashUsed,
+        "sticky_bucket_used": result.stickyBucketUsed,
+        "feature_id": result.featureId,
+    }
+    stmt = (
+        insert(ExperimentExposure)
+        .values(
+            user_id=user_id,
+            experiment_key=experiment.key,
+            variation_id=result.variationId,
+            data=data,
+        )
+        .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
+    )
+    with session_scope() as session:
+        session.execute(stmt)
+
+
+def _record_feature_usage(user_id: int, key: str, result: FeatureResult, **_: Any) -> None:
+    with session_scope() as session:
+        session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
+
+
+def _create_evaluator(user_id: int | None) -> GrowthBook:
     """
-    Shutdown the experimentation framework, flushing any pending events.
-    Called automatically via atexit when the process exits.
+    Build a per-request GrowthBook evaluator over the current feature snapshot.
+
+    Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
+    can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
+    through to their defaults. No exposure or usage is recorded without a user.
+
+    Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
+    from the request path. Constructing without `client_key` keeps the GrowthBook a pure
+    evaluator: no callback registration on the library's process-wide singleton. The caller is
+    responsible for caching this for the lifetime of a request.
     """
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return
-
-    if Statsig.has_shared_instance():
-        logger.info("Shutting down experimentation framework")
-        Statsig.shared().shutdown().wait()
-        Statsig.remove_shared()
-
-
-def _check_initialized() -> None:
-    """
-    Check that experimentation is initialized if enabled.
-
-    Raises:
-        ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
-    """
-    if config["EXPERIMENTATION_ENABLED"] and not _initialized:
+    if not _initialized:
         raise ExperimentationNotInitializedError(
             "Experimentation is not initialized - call setup_experimentation() first"
         )
+    with _state_lock:
+        features = _state["features"]
+        saved_groups = _state["savedGroups"]
+
+    def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+        if user_id is not None:
+            _record_exposure(user_id, experiment, result)
+
+    def on_feature_usage(key: str, result: FeatureResult, *args: Any, **kwargs: Any) -> None:
+        if user_id is not None:
+            _record_feature_usage(user_id, key, result)
+
+    return GrowthBook(
+        attributes={"id": str(user_id)} if user_id is not None else {},
+        features=features,
+        savedGroups=saved_groups,
+        on_experiment_viewed=on_experiment_viewed,
+        on_feature_usage=on_feature_usage,
+    )
 
 
-def _get_statsig_user(context: CouchersContext) -> StatsigUser:
-    """
-    Get or create a cached StatsigUser for the given context.
-
-    The StatsigUser is cached on the context to avoid recreating it for each call.
-    """
-    if not hasattr(context, "_statsig_user"):
-        context._statsig_user = StatsigUser(user_id=str(context.user_id))  # type: ignore[attr-defined]
-    return context._statsig_user  # type: ignore[attr-defined, no-any-return]
+def _global_evaluator() -> GrowthBook:
+    """Build an anonymous evaluator for flag evaluation with no user/request context."""
+    return _create_evaluator(None)
 
 
-def check_gate(context: CouchersContext, gate_name: str) -> bool:
-    """
-    Check if a feature gate is enabled for the user in this context.
+# These two helpers are the single home of the gating logic, shared by the global functions below
+# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
+# invoked once gating passes, so it stays lazy.
+def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
+    if not config["EXPERIMENTATION_ENABLED"]:
+        return default
+    result = get_evaluator().eval_feature(flag_key)
+    value = default if result.value is None else result.value
+    metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
+    return value
 
-    Args:
-        context: The CouchersContext for the current request
-        gate_name: The name of the feature gate
 
-    Returns:
-        True if the gate is enabled for this user, False otherwise.
-        Returns False if experimentation is disabled.
-        Returns True if EXPERIMENTATION_PASS_ALL_GATES is enabled.
-
-    Raises:
-        ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
-    """
-    _check_initialized()
+def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
     if config["EXPERIMENTATION_PASS_ALL_GATES"]:
         return True
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return False
-    return Statsig.shared().check_gate(_get_statsig_user(context), gate_name)
+    return _feature_value(flag_key, default, get_evaluator)
 
 
-def get_experiment(context: CouchersContext, experiment_name: str) -> dict[str, object]:
-    """
-    Get experiment configuration for the user in this context.
-
-    Args:
-        context: The CouchersContext for the current request
-        experiment_name: The name of the experiment
-
-    Returns:
-        A dictionary with experiment values.
-        Returns empty dict if experimentation is disabled.
-
-    Raises:
-        ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
-    """
-    _check_initialized()
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return {}
-    # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
-    experiment = Statsig.shared().get_experiment(_get_statsig_user(context), experiment_name)  # type: ignore[attr-defined]
-    return experiment.value if experiment else {}
+# Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
+# no way to thread one through - per-user evaluation is impossible here, not merely that you don't
+# expect the value to vary per user. If a user is (or could reasonably be) available, use the
+# CouchersContext methods instead: only the per-user path does percentage rollouts, experiments, and
+# feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
+# through to their in-code defaults unless a rule forces a value globally.
+def get_global_boolean_value(flag_key: str, default: bool) -> bool:
+    return _boolean_value(flag_key, default, _global_evaluator)
 
 
-def get_dynamic_config(context: CouchersContext, config_name: str) -> dict[str, object]:
-    """
-    Get dynamic config for the user in this context.
-
-    Args:
-        context: The CouchersContext for the current request
-        config_name: The name of the dynamic config
-
-    Returns:
-        A dictionary with config values.
-        Returns empty dict if experimentation is disabled.
-
-    Raises:
-        ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
-    """
-    _check_initialized()
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return {}
-    # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
-    dynamic_config = Statsig.shared().get_dynamic_config(_get_statsig_user(context), config_name)  # type: ignore[attr-defined]
-    return dynamic_config.value if dynamic_config else {}
+def get_global_string_value(flag_key: str, default: str) -> str:
+    return _feature_value(flag_key, default, _global_evaluator)
 
 
-def log_event(
-    context: CouchersContext,
-    event_name: str,
-    value: str | float | None = None,
-    metadata: dict[str, str] | None = None,
-) -> None:
-    """
-    Log a custom event for analytics.
+def get_global_integer_value(flag_key: str, default: int) -> int:
+    return _feature_value(flag_key, default, _global_evaluator)
 
-    Args:
-        context: The CouchersContext for the current request
-        event_name: Name of the event
-        value: Optional value associated with the event
-        metadata: Optional metadata dictionary
 
-    Raises:
-        ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
-    """
-    _check_initialized()
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return
-    Statsig.shared().log_event(
-        user=_get_statsig_user(context),
-        event_name=event_name,
-        value=value,
-        metadata=metadata,
-    )
+def get_global_float_value(flag_key: str, default: float) -> float:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_object_value[T](flag_key: str, default: T) -> T:
+    return _feature_value(flag_key, default, _global_evaluator)

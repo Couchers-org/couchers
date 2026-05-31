@@ -1,1 +1,31 @@
-{}
+{
+  "errors": {
+    "failed_to_load": "載入失敗",
+    "check_connection": "請檢查您的網路連線後重試。",
+    "try_again": "重試",
+    "camera_permission_denied": "拍照需要相機權限。",
+    "camera_permission_required": "需要相機權限",
+    "camera_permission_explanation": "此應用程式需要存取相機才能拍照。請在提示時允許權限。",
+    "camera_permission_denied_permanently": "相機存取被拒絕。若要拍照，您需要在裝置的「設定」中啟用相機權限。"
+  },
+  "not_found": {
+    "title": "哎呀！",
+    "message": "此頁面不存在。",
+    "go_home": "前往首頁！"
+  },
+  "tabs": {
+    "home": "首頁",
+    "messages": "訊息",
+    "communities": "社群",
+    "search": "搜尋",
+    "events": "活動"
+  },
+  "common": {
+    "cancel": "取消",
+    "add_photo": "新增照片",
+    "choose_photo_source": "選擇照片來源",
+    "take_photo": "拍照",
+    "choose_from_library": "從相簿中選擇",
+    "open_settings": "開啟設定"
+  }
+}

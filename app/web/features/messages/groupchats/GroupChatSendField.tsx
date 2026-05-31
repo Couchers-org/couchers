@@ -6,7 +6,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { usePersistedState } from "platform/usePersistedState";
+import { useClearablePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -43,7 +43,7 @@ export default function GroupChatSendField({
   const { register, handleSubmit, reset, watch } = useForm<MessageFormData>();
 
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
-    usePersistedState(
+    useClearablePersistedState(
       `messages.${currentUserId}.${chatId}`,
       "",
       "sessionStorage",

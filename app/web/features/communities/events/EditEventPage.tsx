@@ -1,8 +1,11 @@
+import { styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
+import { BackIcon } from "components/Icons";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -10,17 +13,38 @@ import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
+import { theme } from "theme";
 import dayjs from "utils/dayjs";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { Event } from "../../../proto/events_pb";
-import { routeToEvent } from "../../../routes";
+import { eventsRoute, routeToEvent } from "../../../routes";
 import { communityEventsBaseKey, eventKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
+const StyledBackButton = styled(HeaderButton)(() => ({
+  width: "2.5rem",
+  height: "2.5rem",
+  marginTop: theme.spacing(2),
+}));
+
 export default function EditEventPage({ eventId }: { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
+
+  const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendNativeBack();
+      return;
+    }
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(eventsRoute);
+    }
+  };
 
   const {
     data: event,
@@ -117,6 +141,12 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     ) : (
       <>
         <HtmlMeta title={t("communities:edit_event")} />
+        <StyledBackButton
+          onClick={handleBackClick}
+          aria-label={t("communities:previous_page")}
+        >
+          <BackIcon />
+        </StyledBackButton>
         <EventForm
           error={error}
           event={event}

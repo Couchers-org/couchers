@@ -1,6 +1,4 @@
 {
-  "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees",
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
@@ -36,6 +34,8 @@
   "discussions_empty_state": "No discussions at the moment.",
   "discussions_label": "Discussions",
   "discussions_title": "Discussions",
+  "copy_link": "Copy link",
+  "copy_link_success": "Link copied to clipboard",
   "duplicate_event": "Duplicate event",
   "edit_event": "Edit event",
   "edit_info_page_title": "Edit local info",

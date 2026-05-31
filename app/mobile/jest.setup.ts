@@ -6,6 +6,11 @@ jest.useFakeTimers();
 // Common environment variables
 process.env.EXPO_PUBLIC_WEB_BASE_URL = "https://couchers.org";
 
+// Mock AsyncStorage with the library-provided in-memory implementation
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
+);
+
 // Mock expo-constants globally
 jest.mock("expo-constants", () => ({
   expoConfig: {
@@ -15,6 +20,10 @@ jest.mock("expo-constants", () => ({
       gitHash: "abc12345",
     },
   },
+}));
+
+// Mock expo-application globally
+jest.mock("expo-application", () => ({
   nativeBuildVersion: "42",
 }));
 
