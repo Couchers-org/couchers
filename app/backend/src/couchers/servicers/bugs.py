@@ -161,7 +161,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                 select(OTAPackage)
                 .where(OTAPackage.platform == OTAPlatform[platform])
                 .where(OTAPackage.fingerprint == fingerprint)
-                .where(OTAPackage.banned.is_(False))
+                .where(OTAPackage.banned_at.is_(None))
                 .order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
                 .limit(1)
             ).scalar_one_or_none()

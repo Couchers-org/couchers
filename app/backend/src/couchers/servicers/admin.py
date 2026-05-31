@@ -117,7 +117,7 @@ def _live_ota_package_ids(session: Session) -> set[int]:
     # matching what GetNativeUpdateManifest resolves.
     rows = session.execute(
         select(OTAPackage.id, OTAPackage.platform, OTAPackage.fingerprint, OTAPackage.manifest_created_at).where(
-            OTAPackage.banned.is_(False)
+            OTAPackage.banned_at.is_(None)
         )
     ).all()
     best: dict[tuple[OTAPlatform, str], tuple[datetime, int]] = {}
@@ -157,7 +157,7 @@ def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTA
         version=package.version,
         manifest_created_at=Timestamp_from_datetime(package.manifest_created_at),
         manifest_id=package.manifest_id,
-        banned=package.banned,
+        banned=package.banned_at is not None,
         banned_at=Timestamp_from_datetime(package.banned_at) if package.banned_at else None,
         banned_by_user_id=package.banned_by_user_id or 0,
         banned_reason=package.banned_reason or "",
@@ -1375,7 +1375,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.fingerprint:
             statement = statement.where(OTAPackage.fingerprint == request.fingerprint)
         if not request.include_banned:
-            statement = statement.where(OTAPackage.banned.is_(False))
+            statement = statement.where(OTAPackage.banned_at.is_(None))
 
         packages = session.execute(statement).scalars().all()
         live_ids = _live_ota_package_ids(session)
@@ -1390,8 +1390,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if package is None:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
 
-        if not package.banned:
-            package.banned = True
+        if package.banned_at is None:
             package.banned_at = now()
             package.banned_by_user_id = context.user_id
             package.banned_reason = request.reason or None
@@ -1408,7 +1407,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if package is None:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
 
-        package.banned = False
         package.banned_at = None
         package.banned_by_user_id = None
         package.banned_reason = None
