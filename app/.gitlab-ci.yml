@@ -547,7 +547,6 @@ test:mobile:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm test -- --ci --coverage
   after_script:
     - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
@@ -573,7 +572,6 @@ test:mobile-linting:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm run lint
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -590,7 +588,6 @@ test:mobile-typecheck:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npx tsc --noEmit
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -608,7 +605,6 @@ test:mobile-expo-doctor:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npx expo-doctor
   rules:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -854,7 +850,7 @@ preview:web-next:
       changes:
       - app/web/**/*
 
-build:mobile-ota:
+build:mobile-ota-devtool:
   needs: ["protos"]
   stage: build
   image: node:22
@@ -872,7 +868,6 @@ build:mobile-ota:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - |
       for P in $OTA_PLATFORMS; do
@@ -895,8 +890,8 @@ build:mobile-ota:
         - app/mobile/**/*
         - app/scripts/**/*
 
-preview:mobile-ota:
-  needs: ["build:mobile-ota"]
+preview:mobile-ota-devtool:
+  needs: ["build:mobile-ota-devtool"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -927,7 +922,7 @@ preview:mobile-ota:
 
 preview:pr-comment:
   needs:
-    - job: preview:mobile-ota
+    - job: preview:mobile-ota-devtool
       artifacts: false
   stage: preview
   image: python:3.12-slim
@@ -946,7 +941,7 @@ preview:pr-comment:
         - app/mobile/**/*
         - app/scripts/**/*
 
-build:devtool-native:
+build:mobile-native-devtool:
   needs: ["protos"]
   stage: build
   image: node:22
@@ -959,7 +954,6 @@ build:devtool-native:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/devtool-build.sh ios
     - bash scripts/devtool-build.sh android
@@ -987,7 +981,6 @@ build:mobile-ota-staging:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
     - OTA_CDN_BASE="https://next-static.couchershq.org/native/ota/$OTA_VERSION"
@@ -1041,7 +1034,7 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-.production-native:
+.mobile-native-prod:
   image: node:22
   inherit:
     default: false
@@ -1050,8 +1043,8 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-build:production-native-ios:
-  extends: .production-native
+build:mobile-native-prod-ios:
+  extends: .mobile-native-prod
   needs: ["protos"]
   stage: build
   variables:
@@ -1063,15 +1056,14 @@ build:production-native-ios:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/production-build.sh ios
   artifacts:
     reports:
       dotenv: app/mobile/native-build-ios.env
 
-build:production-native-android:
-  extends: .production-native
+build:mobile-native-prod-android:
+  extends: .mobile-native-prod
   needs: ["protos"]
   stage: build
   variables:
@@ -1083,7 +1075,6 @@ build:production-native-android:
   script:
     - cd app/mobile
     - npm ci
-    - npm run build:protos
     - npm install -g eas-cli
     - bash scripts/production-build.sh android
   artifacts:
@@ -1092,9 +1083,9 @@ build:production-native-android:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-deploy:production-native-ios:
-  extends: .production-native
-  needs: ["build:production-native-ios"]
+deploy:mobile-native-prod-ios:
+  extends: .mobile-native-prod
+  needs: ["build:mobile-native-prod-ios"]
   stage: deploy
   script:
     - cd app/mobile
@@ -1104,9 +1095,9 @@ deploy:production-native-ios:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-deploy:production-native-android:
-  extends: .production-native
-  needs: ["build:production-native-android"]
+deploy:mobile-native-prod-android:
+  extends: .mobile-native-prod
+  needs: ["build:mobile-native-prod-android"]
   stage: deploy
   script:
     - cd app/mobile
@@ -1134,7 +1125,6 @@ build:mobile-ota-prod:
   script:
     - cd app/mobile
     - npm ci
-    - mkdir -p proto && cp -a ../proto/gen/ts/proto/. proto/
     - npx expo config --type public --json > ota-expo-config.json
     - mkdir -p native-ota-dist
     - |
@@ -1167,7 +1157,7 @@ preview:mobile-ota-prod:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-build:native-ota-manifest:
+build:mobile-ota-manifest:
   needs: []
   stage: build
   variables:
@@ -1180,9 +1170,9 @@ build:native-ota-manifest:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-deploy:native-ota-info:
+deploy:mobile-ota-info:
   needs:
-    - job: build:native-ota-manifest
+    - job: build:mobile-ota-manifest
     - job: preview:mobile-ota-prod
       artifacts: false
   stage: deploy
