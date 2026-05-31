@@ -112,8 +112,15 @@ const intentFilters = variant.linkHost
   : [];
 
 // Dev Tool branches load OTA through the dev launcher's deep-link load path
-// (couchers-devtool://expo-development-client/?url=...), so no update URL is
-// baked in and manifests are served unsigned over HTTPS.
+// (couchers-devtool://expo-development-client/?url=...). The actual per-branch
+// URL is supplied at load time, but a `url` MUST still be baked in: expo-updates
+// only produces a valid embedded config (and exposes a runtimeVersion) when a URL
+// is present, and the dev launcher's published-update path needs that valid config
+// to load via EXUpdates. Without it the config is InvalidMissingURL, the launcher
+// falls back to a plain-JSON manifest parse, and the multipart manifest fails to
+// parse ("Couldn't parse the manifest"). The deep link overrides this at load time
+// and `developmentClient: true` still boots to the launcher, so this value is only
+// a formality. Manifests are served unsigned over HTTPS.
 //
 // Staging points at our self-hosted OTA backend (cut 1: validating the Expo
 // Updates protocol + native<->backend transport, unsigned).
@@ -124,7 +131,7 @@ const intentFilters = variant.linkHost
 // OTA_SIGNING_KEY_ID and rsa-v1_5-sha256.
 const updates =
   APP_VARIANT === "devtool"
-    ? { enabled: true }
+    ? { enabled: true, url: "https://dev-api.couchershq.org/native/ota/manifest" }
     : APP_VARIANT === "staging"
       ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
       : {
