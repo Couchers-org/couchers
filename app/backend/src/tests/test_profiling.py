@@ -103,4 +103,4 @@ def test_sample_rate_is_clamped(feature_flags, fake_agent):
     configure_calls, _ = fake_agent
     _enable(feature_flags, rate=100000)
     profiling._reconcile()
-    assert configure_calls[0]["sample_rate"] == profiling._MAX_SAMPLE_RATE
+    assert configure_calls[0]["sample_rate"] == 250

@@ -26,8 +26,6 @@ from couchers.config import config
 logger = logging.getLogger(__name__)
 
 _RECONCILE_INTERVAL_SECONDS = 30
-_MIN_SAMPLE_RATE = 1
-_MAX_SAMPLE_RATE = 250
 
 _initialized = False
 _stop = threading.Event()
@@ -49,10 +47,8 @@ def _reconcile() -> None:
             _running, _sample_rate, _oncpu = False, None, None
         return
 
-    sample_rate = max(
-        _MIN_SAMPLE_RATE,
-        min(_MAX_SAMPLE_RATE, experimentation.get_global_integer_value("profiling_sample_rate", 20)),
-    )
+    # clamp to 1..250: 0 divides by zero in the agent, and a runaway flag value shouldn't pin CPU
+    sample_rate = max(1, min(250, experimentation.get_global_integer_value("profiling_sample_rate", 20)))
     oncpu = experimentation.get_global_string_value("profiling_mode", "wall") == "cpu"
 
     if _running and (sample_rate, oncpu) == (_sample_rate, _oncpu):
