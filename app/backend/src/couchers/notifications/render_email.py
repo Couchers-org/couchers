@@ -131,6 +131,22 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
+        case NotificationTopicAction.event__create_approved:
+            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=True)
+        case NotificationTopicAction.event__create_any:
+            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=False)
+        case NotificationTopicAction.event__update:
+            return emails.EventUpdatedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__invite_organizer:
+            return emails.EventOrganizerInvitedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__comment:
+            return emails.EventCommentEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__reminder:
+            return emails.EventReminderEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__cancel:
+            return emails.EventCancelledEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__delete:
+            return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__create:
             return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
@@ -176,22 +192,6 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
-        case NotificationTopicAction.event__create_approved:
-            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=True)
-        case NotificationTopicAction.event__create_any:
-            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=False)
-        case NotificationTopicAction.event__update:
-            return emails.EventUpdatedEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.event__invite_organizer:
-            return emails.EventOrganizerInvitedEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.event__comment:
-            return emails.EventCommentEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.event__reminder:
-            return emails.EventReminderEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.event__cancel:
-            return emails.EventCancelledEmail.from_notification(data, user_name=user_name)
-        case NotificationTopicAction.event__delete:
-            return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case (
             NotificationTopicAction.donation__received
             | NotificationTopicAction.reference__receive_friend
