@@ -47,8 +47,6 @@ class OTAPackage(Base, kw_only=True):
     # reuses the same bundle content and so can repeat an id.
     manifest_id: Mapped[str] = mapped_column(String)
 
-    note: Mapped[str | None] = mapped_column(String, default=None)
-
     # Stops handing this bundle to NEW check-ins; it can't reclaim devices already on it (they only move
     # forward in createdAt). Use it to stop the bleeding while a re-stamped rollback is published.
     banned: Mapped[bool] = mapped_column(Boolean, server_default="false", init=False)

@@ -1655,16 +1655,13 @@ def test_CreateOTAPackage(db):
     manifests = {"v1.3.1.aaaa": _ota_manifest(version="v1.3.1.aaaa", fingerprint="ios-fp")}
     with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         res = api.CreateOTAPackage(
-            admin_pb2.CreateOTAPackageReq(
-                platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa", note="first ios bundle"
-            )
+            admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa")
         )
 
     assert res.platform == admin_pb2.OTA_PLATFORM_IOS
     assert res.fingerprint == "ios-fp"
     assert res.version == "v1.3.1.aaaa"
     assert res.manifest_id == "id-v1.3.1.aaaa"
-    assert res.note == "first ios bundle"
     assert res.banned is False
     assert res.live is True
     assert res.creator_user_id == super_user.id

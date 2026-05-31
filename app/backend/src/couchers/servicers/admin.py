@@ -160,7 +160,6 @@ def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTA
         version=package.version,
         manifest_created_at=Timestamp_from_datetime(package.manifest_created_at),
         manifest_id=package.manifest_id,
-        note=package.note or "",
         banned=package.banned,
         banned_at=Timestamp_from_datetime(package.banned_at) if package.banned_at else None,
         banned_by_user_id=package.banned_by_user_id or 0,
@@ -1362,7 +1361,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             version=request.version,
             manifest_created_at=manifest_created_at,
             manifest_id=manifest_id,
-            note=request.note or None,
         )
         session.add(package)
         session.flush()

@@ -635,14 +635,13 @@ message OTAPackage {
   google.protobuf.Timestamp manifest_created_at = 7;
   // The manifest's own id (uuid), for reference.
   string manifest_id = 8;
-  string note = 9;
-  bool banned = 10;
-  google.protobuf.Timestamp banned_at = 11;
-  int64 banned_by_user_id = 12;
-  string banned_reason = 13;
+  bool banned = 9;
+  google.protobuf.Timestamp banned_at = 10;
+  int64 banned_by_user_id = 11;
+  string banned_reason = 12;
   // True if this is the package currently served to a matching client: the newest non-banned
   // package for its platform + fingerprint.
-  bool live = 14;
+  bool live = 13;
 }
 
 message CreateOTAPackageReq {
@@ -651,8 +650,6 @@ message CreateOTAPackageReq {
   // v1.3.<commit>.<sha>). The backend fetches {cdn_root}/{version}/{platform}/manifest and reads
   // runtimeVersion / createdAt / id out of the manifest it's about to serve.
   string version = 2;
-  // Optional operator label.
-  string note = 3;
 }
 
 message ListOTAPackagesReq {
