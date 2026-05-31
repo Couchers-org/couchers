@@ -61,6 +61,10 @@ service Bugs {
     // logged out) and return the resolved value. Evaluated one flag at a time, on demand, so the
     // server only evaluates flags the client actually uses - which keeps exposure logging accurate.
   }
+
+  rpc LogExperimentExposure(LogExperimentExposureReq) returns (google.protobuf.Empty) {
+    // Record a client-side experiment exposure, reported by the SDK as the user is bucketed.
+  }
 }
 
 message VersionInfo {
@@ -169,4 +173,19 @@ message EvaluateFeatureFlagRes {
   // The flag's resolved value (bool, string, number, or JSON object/array). Unset when the flag
   // isn't configured server-side, so the frontend's in-code default applies.
   google.protobuf.Value value = 1;
+}
+
+message LogExperimentExposureReq {
+  string experiment_key = 1;
+  string experiment_name = 2;
+  int32 variation_id = 3;
+  string variation_key = 4;
+  string variation_name = 5;
+  string hash_attribute = 6;
+  string hash_value = 7;
+  string feature_id = 8;
+  bool in_experiment = 9;
+  optional double bucket = 10;
+  optional bool hash_used = 11;
+  optional bool sticky_bucket_used = 12;
 }

@@ -33,7 +33,7 @@ from sqlalchemy.dialects.postgresql import insert
 from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +203,7 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
             user_id=user_id,
             experiment_key=experiment.key,
             variation_id=result.variationId,
+            source=ExposureSource.backend,
             data=data,
         )
         .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
