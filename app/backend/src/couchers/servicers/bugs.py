@@ -28,9 +28,11 @@ logger = logging.getLogger(__name__)
 _start_time = time.monotonic()
 
 updateaction2api = {
+    UpdateAction.unspecified: bugs_pb2.NATIVE_UPDATE_ACTION_UNSPECIFIED,
     UpdateAction.none: bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
     UpdateAction.ota: bugs_pb2.NATIVE_UPDATE_ACTION_OTA,
     UpdateAction.store: bugs_pb2.NATIVE_UPDATE_ACTION_STORE,
+    UpdateAction.reinstall: bugs_pb2.NATIVE_UPDATE_ACTION_REINSTALL,
 }
 
 _OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
