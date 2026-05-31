@@ -5,7 +5,7 @@ import { recordExposure } from "./exposureLog";
 
 const FLAGS_URL =
   process.env.EXPO_PUBLIC_FEATURE_FLAGS_URL ||
-  "https://cdn.couchers.org/ff/flags.json";
+  "https://cdn.couchers.org/express/current.json";
 const CACHE_KEY = "featureFlagsPayload";
 
 export const growthbook = new GrowthBook({ trackingCallback: recordExposure });
