@@ -3,7 +3,11 @@ import { ReactNode, useEffect } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 
-import { growthbook, loadFeatureFlags } from "./growthbook";
+import {
+  growthbook,
+  loadFeatureFlags,
+  startFeatureFlagRefresh,
+} from "./growthbook";
 
 export default function FeatureFlagProvider({
   children,
@@ -14,6 +18,7 @@ export default function FeatureFlagProvider({
 
   useEffect(() => {
     void loadFeatureFlags();
+    return startFeatureFlagRefresh();
   }, []);
 
   useEffect(() => {
