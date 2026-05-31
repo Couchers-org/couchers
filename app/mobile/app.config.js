@@ -131,7 +131,10 @@ const intentFilters = variant.linkHost
 // OTA_SIGNING_KEY_ID and rsa-v1_5-sha256.
 const updates =
   APP_VARIANT === "devtool"
-    ? { enabled: true, url: "https://dev-api.couchershq.org/native/ota/manifest" }
+    ? {
+        enabled: true,
+        url: "https://dev-api.couchershq.org/native/ota/manifest",
+      }
     : APP_VARIANT === "staging"
       ? { url: "https://dev-api.couchershq.org/native/ota/manifest" }
       : {
