@@ -333,5 +333,6 @@
   },
   "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
   "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen.",
-  "do_not_email_error_link": "Aktualisiere deine E-Mail-Einstellungen, um dies wieder zu aktivieren."
+  "do_not_email_error_link": "Aktualisiere deine E-Mail-Einstellungen, um dies wieder zu aktivieren.",
+  "open_full_profile": "Vollständiges Profil öffnen"
 }
