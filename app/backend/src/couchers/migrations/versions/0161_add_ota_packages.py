@@ -27,7 +27,6 @@ def upgrade() -> None:
         sa.Column("version", sa.String(), nullable=False),
         sa.Column("manifest_created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("manifest_id", sa.String(), nullable=False),
-        sa.Column("note", sa.String(), nullable=True),
         sa.Column("banned", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("banned_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("banned_by_user_id", sa.BigInteger(), nullable=True),
