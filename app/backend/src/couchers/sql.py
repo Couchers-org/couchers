@@ -91,13 +91,17 @@ def where_users_column_visible[T: tuple[Any, ...]](
     """
     Filters the given column, not yet joined/selected from
     """
-    hidden_users = _relevant_user_blocks(context.user_id)
-    aliased_user = aliased(User)
-    return (
-        query.join(aliased_user, aliased_user.id == column)
-        .where(aliased_user.is_visible)
-        .where(_shadow_clause(context, aliased_user))
-        .where(~aliased_user.id.in_(hidden_users))
+    # EXISTS on the bare User table rather than aliased(User): aliasing the wide User entity per call
+    # is a major CPU hotspot (rebuilds the ORM proxy index). correlate_except keeps this User local to
+    # the subquery so it doesn't bind to a bare User already in the outer query (e.g. jobs/handlers.py).
+    return query.where(
+        exists(
+            select(1)
+            .select_from(User)
+            .where(User.id == column)
+            .where(users_visible(context, User))
+            .correlate_except(User)
+        )
     )
 
 
