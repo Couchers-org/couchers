@@ -949,6 +949,7 @@ build:mobile-native-devtool:
     default: false
   variables:
     APP_VARIANT: devtool
+  resource_group: mobile-eas-devtool
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
   script:
@@ -1059,6 +1060,7 @@ deploy:mobile-ota-staging:
 
 build:mobile-native-prod-ios:
   extends: .mobile-native-build
+  resource_group: mobile-eas-prod-ios
   variables:
     APP_VARIANT: production
   script:
@@ -1072,6 +1074,7 @@ build:mobile-native-prod-ios:
 
 build:mobile-native-prod-android:
   extends: .mobile-native-build
+  resource_group: mobile-eas-prod-android
   variables:
     APP_VARIANT: production
   script:
@@ -1086,6 +1089,7 @@ build:mobile-native-prod-android:
 deploy:mobile-native-prod-ios:
   extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-ios"]
+  resource_group: mobile-eas-prod-ios
   variables:
     APP_VARIANT: production
   script:
@@ -1097,6 +1101,7 @@ deploy:mobile-native-prod-ios:
 deploy:mobile-native-prod-android:
   extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-android"]
+  resource_group: mobile-eas-prod-android
   variables:
     APP_VARIANT: production
   script:
@@ -1107,6 +1112,7 @@ deploy:mobile-native-prod-android:
 
 build:mobile-native-staging-ios:
   extends: .mobile-native-build
+  resource_group: mobile-eas-staging-ios
   variables:
     APP_VARIANT: staging
   script:
@@ -1120,6 +1126,7 @@ build:mobile-native-staging-ios:
 
 build:mobile-native-staging-android:
   extends: .mobile-native-build
+  resource_group: mobile-eas-staging-android
   variables:
     APP_VARIANT: staging
   script:
@@ -1134,6 +1141,7 @@ build:mobile-native-staging-android:
 deploy:mobile-native-staging-ios:
   extends: .mobile-native-submit
   needs: ["build:mobile-native-staging-ios"]
+  resource_group: mobile-eas-staging-ios
   variables:
     APP_VARIANT: staging
   script:
@@ -1145,6 +1153,7 @@ deploy:mobile-native-staging-ios:
 deploy:mobile-native-staging-android:
   extends: .mobile-native-submit
   needs: ["build:mobile-native-staging-android"]
+  resource_group: mobile-eas-staging-android
   variables:
     APP_VARIANT: staging
   script:
@@ -1474,6 +1483,7 @@ deploy:staging:
   inherit:
     # no docker login
     default: false
+  resource_group: staging-deploy
   script:
     - apt-get update && apt install -y git wget openssh-client
     - export rev=$(git rev-parse @ | cut -c-8)
