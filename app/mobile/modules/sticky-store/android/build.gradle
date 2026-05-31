@@ -23,6 +23,6 @@ android {
 
 dependencies {
   implementation project(':expo-modules-core')
-  // Block Store: cross-device, reinstall-surviving credential storage.
+  // Block Store: small key/value data that survives reinstall and syncs across devices.
   implementation 'com.google.android.gms:play-services-auth-blockstore:16.4.0'
 }

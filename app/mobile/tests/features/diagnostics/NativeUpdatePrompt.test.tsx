@@ -4,19 +4,19 @@ import { Linking } from "react-native";
 
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateAction } from "@/proto/bugs_pb";
-import { NativeUpdateInfo } from "@/service/checkNativeStatus";
+import { NativeUpdateAction, NativeUpdateInfo } from "@/proto/bugs_pb";
 
 jest.mock("expo-updates", () => ({
   fetchUpdateAsync: jest.fn(),
   reloadAsync: jest.fn(),
 }));
 
-function info(overrides: Partial<NativeUpdateInfo> = {}): NativeUpdateInfo {
+function info(
+  overrides: Partial<NativeUpdateInfo.AsObject> = {},
+): NativeUpdateInfo.AsObject {
   return {
     action: NativeUpdateAction.NATIVE_UPDATE_ACTION_STORE,
     required: false,
-    nagIntervalSeconds: 0,
     message: "A new version is available.",
     linkUrl: "https://apps.apple.com/app/id123",
     linkText: "Update now",
@@ -26,7 +26,7 @@ function info(overrides: Partial<NativeUpdateInfo> = {}): NativeUpdateInfo {
 
 function prompt(
   mode: UpdatePrompt["mode"],
-  overrides: Partial<NativeUpdateInfo> = {},
+  overrides: Partial<NativeUpdateInfo.AsObject> = {},
 ): UpdatePrompt {
   return { info: info(overrides), mode };
 }

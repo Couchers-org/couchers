@@ -6,7 +6,7 @@
     "setup:local": "python3 ../scripts/dev-mobile-setup.py",
     "setup:local:restore": "python3 ../scripts/dev-mobile-setup.py --restore",
     "start": "expo start",
-    "start:devtool": "APP_VARIANT=devtool expo start --dev-client --scheme couchers-devtool",
+    "start:devtool": "APP_VARIANT=devtool expo start --scheme couchers-devtool",
     "start:localhost": "expo start --localhost",
     "build:protos": "bash ./ci-build-protos.sh",
     "eas-build-pre-install": "npm run build:protos",

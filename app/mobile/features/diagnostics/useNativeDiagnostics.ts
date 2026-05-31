@@ -18,6 +18,7 @@ import {
   updateMode,
   UpdatePrompt,
 } from "@/features/diagnostics/updateDecision";
+import { NativeUpdateInfo } from "@/proto/bugs_pb";
 import {
   appVariant,
   createdAt,
@@ -30,10 +31,7 @@ import {
   runtimeVersion,
   updateId,
 } from "@/service/buildInfo";
-import {
-  checkNativeStatus,
-  NativeUpdateInfo,
-} from "@/service/checkNativeStatus";
+import { checkNativeStatus } from "@/service/checkNativeStatus";
 
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
 const LAST_NAG_KEY = "diagnostics.lastNagDismissedAt";
@@ -56,7 +54,7 @@ async function isSuppressed(
     case "warn":
       return warnDismissedThisSession;
     case "nag": {
-      const interval = prompt.info.nagIntervalSeconds;
+      const interval = prompt.info.nagInterval?.seconds ?? 0;
       if (interval <= 0) return nagDismissedThisSession;
       const lastRaw = await AsyncStorage.getItem(LAST_NAG_KEY);
       const last = lastRaw ? Number(lastRaw) : null;
@@ -77,7 +75,7 @@ async function recordDismissal(
       warnDismissedThisSession = true;
       return;
     case "nag":
-      if (prompt.info.nagIntervalSeconds <= 0) {
+      if ((prompt.info.nagInterval?.seconds ?? 0) <= 0) {
         nagDismissedThisSession = true;
       } else {
         await AsyncStorage.setItem(LAST_NAG_KEY, String(now));
@@ -117,14 +115,17 @@ export function useNativeDiagnostics(): NativeDiagnostics {
   }, []);
 
   useEffect(() => {
-    async function surface(result: NativeUpdateInfo, now: number) {
-      if (!isActionable(result)) {
+    async function surface(
+      info: NativeUpdateInfo.AsObject | undefined,
+      now: number,
+    ) {
+      if (!info || !isActionable(info)) {
         setPrompt(null);
         return;
       }
       const candidate: UpdatePrompt = {
-        info: result,
-        mode: updateMode(result, new Date(now)),
+        info,
+        mode: updateMode(info, new Date(now)),
       };
       setPrompt((await isSuppressed(candidate, now)) ? null : candidate);
     }
@@ -206,7 +207,7 @@ export function useNativeDiagnostics(): NativeDiagnostics {
         });
 
         await AsyncStorage.setItem(LAST_OPEN_KEY, String(now));
-        await surface(result, now);
+        await surface(result.updateInfo, now);
       } catch (error) {
         console.warn("Failed to check native status:", error);
       }

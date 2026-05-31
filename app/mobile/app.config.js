@@ -61,13 +61,6 @@ const ICON_SETS = {
   },
 };
 
-// Per-variant configuration — add a new variant by adding an entry here.
-// `linkHost` is the https domain the app claims for universal/app links;
-// null means no claim (the Dev Tool build routes via its custom scheme only, so
-// it can't steal universal links from the staging app, which shares its backend).
-// `webcredHost` is the passkey relying-party domain (webcredentials: associated
-// domain). It's a native entitlement, so it can't be added over OTA — it's baked
-// in now even though the backend WebAuthn endpoint and hosted AASA come later.
 const VARIANTS = {
   production: {
     name: "Couchers",
@@ -156,9 +149,6 @@ export default {
     bundleIdentifier: variant.bundleIdentifier,
     icon: icons.ios,
     associatedDomains,
-    // Location is when-in-use only (the expo-location plugin entry below drops the
-    // "always" variants). Calendar strings + permissions come from the
-    // expo-calendar plugin entry; expo-camera's camera string from expo-image-picker.
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSLocationWhenInUseUsageDescription:
@@ -170,9 +160,6 @@ export default {
     package: variant.androidPackage,
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
-    // CAMERA and location permissions are merged in from the expo-camera and
-    // expo-location library manifests; calendar's READ/WRITE come from the
-    // expo-calendar plugin. Only POST_NOTIFICATIONS needs declaring here.
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
       foregroundImage: icons.adaptiveForeground,

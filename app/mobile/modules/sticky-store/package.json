@@ -1,7 +1,7 @@
 {
   "name": "sticky-store",
   "version": "0.0.1",
-  "description": "Cross-device, silently-readable key/value store (iCloud Keychain + Android Block Store)",
+  "description": "Cross-device synced key/value store (iCloud Keychain + Android Block Store)",
   "main": "index.ts",
   "private": true
 }

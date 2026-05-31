@@ -108,7 +108,9 @@ export default function NativeUpdatePrompt({
           {mode === "warn" && info.actBy && (
             <Text style={[styles.deadline, { color: colors.textSecondary }]}>
               {t("update.deadline", {
-                date: info.actBy.toLocaleString(i18n.language),
+                date: new Date(info.actBy.seconds * 1000).toLocaleString(
+                  i18n.language,
+                ),
               })}
             </Text>
           )}

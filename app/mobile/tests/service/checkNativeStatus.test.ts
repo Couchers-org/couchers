@@ -10,36 +10,8 @@ jest.mock("@/service/client", () => ({
 
 const mockCheckNativeStatus = client.bugs.checkNativeStatus as jest.Mock;
 
-function mockResponse(
-  info: Partial<{
-    action: NativeUpdateAction;
-    required: boolean;
-    actBy: Date;
-    nagIntervalSeconds: number;
-    message: string;
-    linkUrl: string;
-    linkText: string;
-  }> | null = {},
-) {
-  return {
-    getUpdateInfo: () =>
-      info === null
-        ? undefined
-        : {
-            getAction: () =>
-              info.action ?? NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE,
-            getRequired: () => info.required ?? false,
-            getActBy: () =>
-              info.actBy ? { toDate: () => info.actBy } : undefined,
-            getNagInterval: () =>
-              info.nagIntervalSeconds !== undefined
-                ? { getSeconds: () => info.nagIntervalSeconds }
-                : undefined,
-            getMessage: () => info.message ?? "",
-            getLinkUrl: () => info.linkUrl ?? "",
-            getLinkText: () => info.linkText ?? "",
-          },
-  };
+function mockResponse(asObject: unknown) {
+  return { toObject: () => asObject };
 }
 
 describe("checkNativeStatus", () => {
@@ -48,7 +20,7 @@ describe("checkNativeStatus", () => {
   });
 
   it("JSON-encodes the debug info into debug_json", async () => {
-    mockCheckNativeStatus.mockResolvedValue(mockResponse());
+    mockCheckNativeStatus.mockResolvedValue(mockResponse({}));
 
     const debugInfo = {
       installId: "install-1",
@@ -63,45 +35,20 @@ describe("checkNativeStatus", () => {
     expect(JSON.parse(req.getDebugJson())).toEqual(debugInfo);
   });
 
-  it("maps the backend's update info", async () => {
-    const actBy = new Date("2026-06-01T00:00:00.000Z");
-    mockCheckNativeStatus.mockResolvedValue(
-      mockResponse({
-        action: NativeUpdateAction.NATIVE_UPDATE_ACTION_STORE,
-        required: true,
-        actBy,
-        nagIntervalSeconds: 86400,
-        message: "Please update to continue.",
-        linkUrl: "https://apps.apple.com/app/id123",
-        linkText: "Update now",
-      }),
-    );
-
-    const result = await checkNativeStatus({ platform: "ios" });
-    expect(result).toEqual({
+  it("returns the response as a plain object", async () => {
+    const updateInfo = {
       action: NativeUpdateAction.NATIVE_UPDATE_ACTION_STORE,
       required: true,
-      actBy,
-      nagIntervalSeconds: 86400,
+      actBy: { seconds: 1780000000, nanos: 0 },
+      nagInterval: { seconds: 86400, nanos: 0 },
       message: "Please update to continue.",
       linkUrl: "https://apps.apple.com/app/id123",
       linkText: "Update now",
-    });
-  });
-
-  it("defaults to NONE when the backend sends no update info", async () => {
-    mockCheckNativeStatus.mockResolvedValue(mockResponse(null));
+    };
+    mockCheckNativeStatus.mockResolvedValue(mockResponse({ updateInfo }));
 
     const result = await checkNativeStatus({ platform: "ios" });
-    expect(result).toEqual({
-      action: NativeUpdateAction.NATIVE_UPDATE_ACTION_NONE,
-      required: false,
-      actBy: undefined,
-      nagIntervalSeconds: 0,
-      message: "",
-      linkUrl: "",
-      linkText: "",
-    });
+    expect(result).toEqual({ updateInfo });
   });
 
   it("propagates errors from the client", async () => {
