@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["StickyStoreModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.stickystore.StickyStoreModule"]
+  }
+}

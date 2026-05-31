@@ -1,0 +1,7 @@
+{
+  "name": "native-build-info",
+  "version": "0.0.1",
+  "description": "Exposes the native build's git hash and build timestamp to JS",
+  "main": "index.ts",
+  "private": true
+}

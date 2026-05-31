@@ -1,11 +1,10 @@
 import { appGetLayout } from "components/AppRoute";
 import PagePageComponent from "features/communities/PagePage";
 import NotFoundPage from "features/NotFoundPage";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
-import nextI18NextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { PageType } from "proto/pages_pb";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -16,11 +15,10 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [GLOBAL, NOTIFICATIONS],
-      nextI18NextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      GLOBAL,
+      NOTIFICATIONS,
+    ])),
   },
 });
 export default function PagePage() {
