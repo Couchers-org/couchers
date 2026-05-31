@@ -4,12 +4,24 @@ import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { dashboardRoute, donationsRoute } from "routes";
 import { theme } from "theme";
+import { sendNativeRequestReview, useIsNativeEmbed } from "utils/nativeLink";
 
 const ThankYouReference = () => {
   const { t } = useTranslation([PROFILE]);
   const router = useRouter();
+
+  const isNativeEmbed = useIsNativeEmbed();
+
+  useEffect(() => {
+    if (!isNativeEmbed) return;
+    const rating = Number(router.query.rating);
+    if (!isNaN(rating) && rating > 0.5) {
+      sendNativeRequestReview();
+    }
+  }, [isNativeEmbed, router.query.rating]);
 
   return (
     <>
