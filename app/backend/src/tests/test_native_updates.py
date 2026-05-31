@@ -17,8 +17,6 @@ NOW = datetime(2026, 5, 31, 12, 0, tzinfo=UTC)
 
 
 class _FakeContext:
-    """Minimal stand-in for CouchersContext's feature-flag accessors."""
-
     def __init__(self, flags: dict[str, Any] | None = None) -> None:
         self._flags = flags or {}
 
@@ -44,9 +42,6 @@ def _days_ago(days: float) -> datetime:
 def _decide(info: NativeClientInfo, flags: dict[str, Any] | None = None, registry: _FakeRegistry | None = None):
     context = cast(CouchersContext, _FakeContext(flags))
     return decide_native_update(context, info, NOW, registry=registry or _FakeRegistry())
-
-
-# --- parse_client_info ---
 
 
 def test_parse_full_payload():
@@ -85,9 +80,6 @@ def test_parse_non_dict_is_empty():
     assert parse_client_info(json.dumps([1, 2, 3])) == NativeClientInfo()
 
 
-# --- decide_native_update: store clock ---
-
-
 def test_no_timestamps_means_no_update():
     assert _decide(NativeClientInfo(platform="ios")).action == UpdateAction.none
 
@@ -98,7 +90,6 @@ def test_fresh_binary_no_update():
 
 
 def test_binary_in_warn_window_is_store_warn():
-    # 80% of the 91-day store window -> warn, deadline still in the future.
     info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_SUPPORT_DAYS * 0.8))
     decision = _decide(info)
     assert decision.action == UpdateAction.store
@@ -111,10 +102,7 @@ def test_binary_past_window_is_store_block():
     decision = _decide(info)
     assert decision.action == UpdateAction.store
     assert decision.required is True
-    assert decision.act_by <= NOW  # past deadline -> client blocks
-
-
-# --- decide_native_update: OTA clock ---
+    assert decision.act_by <= NOW
 
 
 def test_ota_in_warn_window_is_ota_warn():
@@ -127,7 +115,7 @@ def test_ota_in_warn_window_is_ota_warn():
     decision = _decide(info)
     assert decision.action == UpdateAction.ota
     assert decision.act_by > NOW
-    assert decision.link_url == ""  # OTA applies in-app, no link
+    assert decision.link_url == ""
 
 
 def test_ota_past_window_is_ota_block():
@@ -143,7 +131,6 @@ def test_ota_past_window_is_ota_block():
 
 
 def test_ota_clock_ignored_when_not_running_ota():
-    # An expired bundle timestamp is irrelevant if the client is on the embedded binary.
     info = NativeClientInfo(
         platform="ios",
         is_ota_launch=False,
@@ -153,12 +140,7 @@ def test_ota_clock_ignored_when_not_running_ota():
     assert _decide(info).action == UpdateAction.none
 
 
-# --- decide_native_update: resolving the two clocks ---
-
-
 def test_binary_warn_but_ota_block_resolves_to_ota_block():
-    # Severity wins: a fully-expired OTA on a still-supported binary -> fetch fresh JS, not a
-    # dismissible store warning.
     info = NativeClientInfo(
         platform="ios",
         is_ota_launch=True,
@@ -171,7 +153,6 @@ def test_binary_warn_but_ota_block_resolves_to_ota_block():
 
 
 def test_binary_block_beats_ota_warn():
-    # Store precedence: a dead binary can only be fixed via the store, regardless of OTA state.
     info = NativeClientInfo(
         platform="ios",
         is_ota_launch=True,
@@ -181,12 +162,8 @@ def test_binary_block_beats_ota_warn():
     assert _decide(info).action == UpdateAction.store
 
 
-# --- policy + presentation ---
-
-
 def test_windows_come_from_policy():
     info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(10))
-    # A 7-day store window makes a 10-day-old binary expired.
     decision = _decide(info, flags={"native_store_support_days": 7})
     assert decision.action == UpdateAction.store
 
@@ -213,11 +190,7 @@ def test_store_presentation_from_policy():
     assert decision.link_text == "Update now"
 
 
-# --- registry seam ---
-
-
 def test_registry_created_at_overrides_client():
-    # Client claims a fresh bundle, but the registry's authoritative publish time is old -> block.
     info = NativeClientInfo(
         platform="ios",
         is_ota_launch=True,
