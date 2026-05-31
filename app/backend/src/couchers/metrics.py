@@ -948,11 +948,6 @@ feature_flags_staleness_gauge: Gauge = Gauge(
 _set_hacky_gauges_funcs.append((feature_flags_staleness_gauge, _feature_flags_staleness_seconds))
 
 
-# Every flag evaluation goes through here. `source` is GrowthBook's FeatureResult.source
-# (unknownFeature / defaultValue / force / experiment / prerequisite / cyclicPrerequisite) plus two of
-# our own — "disabled" when EXPERIMENTATION_ENABLED is off, "passAllGates" when the gate short-circuit
-# fires. Missing flags surface as source="unknownFeature". `value` is stringified and length-capped to
-# keep cardinality bounded.
 feature_flag_evaluations_counter: Counter = Counter(
     "couchers_feature_flag_evaluations_total",
     "Number of feature flag evaluations, by flag key, evaluation source, and resolved value",

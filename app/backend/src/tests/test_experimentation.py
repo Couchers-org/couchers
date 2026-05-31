@@ -185,13 +185,6 @@ def test_pass_all_gates_increments_metric(monkeypatch, feature_flags):
     assert _flag_eval_count("metric_gated_flag", "passAllGates", "true") == before + 1
 
 
-def test_disabled_increments_metric(monkeypatch, feature_flags):
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
-    before = _flag_eval_count("metric_disabled_flag", "disabled", "fallback")
-    assert experimentation.get_global_string_value("metric_disabled_flag", "fallback") == "fallback"
-    assert _flag_eval_count("metric_disabled_flag", "disabled", "fallback") == before + 1
-
-
 @pytest.fixture
 def setup_isolation(monkeypatch, tmp_path):
     """Run setup_experimentation() against a clean module state and a tmp cache path, and make sure the

@@ -264,7 +264,6 @@ def _global_evaluator() -> GrowthBook:
 # invoked once gating passes, so it stays lazy.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
     if not config["EXPERIMENTATION_ENABLED"]:
-        metrics.observe_feature_flag_evaluation(flag_key, "disabled", default)
         return default
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
