@@ -21,12 +21,19 @@ from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.models.ota import OTAPackage, OTAPlatform
+from couchers.native_updates import UpdateAction, decide_native_update, parse_client_info
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
 _start_time = time.monotonic()
+
+_ACTION_TO_PROTO = {
+    UpdateAction.none: bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
+    UpdateAction.ota: bugs_pb2.NATIVE_UPDATE_ACTION_OTA,
+    UpdateAction.store: bugs_pb2.NATIVE_UPDATE_ACTION_STORE,
+}
 
 _OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
 
@@ -213,15 +220,21 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def CheckNativeStatus(
         self, request: bugs_pb2.CheckNativeStatusReq, context: CouchersContext, session: Session
     ) -> bugs_pb2.CheckNativeStatusRes:
-        # Stub: log the ping for now. TODO: persist it and decide whether to force-update.
         logger.info("CheckNativeStatus: user_id=%s debug=%s", context._user_id, request.debug_json)
 
-        return bugs_pb2.CheckNativeStatusRes(
-            update_info=bugs_pb2.NativeUpdateInfo(
-                action=bugs_pb2.NATIVE_UPDATE_ACTION_NONE,
-                required=False,
-            )
+        info = parse_client_info(request.debug_json)
+        decision = decide_native_update(context, info, datetime.now(UTC))
+
+        update_info = bugs_pb2.NativeUpdateInfo(
+            action=_ACTION_TO_PROTO[decision.action],
+            required=decision.required,
+            message=decision.message,
+            link_url=decision.link_url,
+            link_text=decision.link_text,
         )
+        if decision.act_by is not None:
+            update_info.act_by.FromDatetime(decision.act_by)
+        return bugs_pb2.CheckNativeStatusRes(update_info=update_info)
 
     def GeolocationSearchInfo(
         self, request: bugs_pb2.GeolocationSearchInfoReq, context: CouchersContext, session: Session
