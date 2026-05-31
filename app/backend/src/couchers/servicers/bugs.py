@@ -150,19 +150,19 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
 
         platform = cast(str, context.headers.get("expo-platform", ""))
-        runtime_version = cast(str, context.headers.get("expo-runtime-version", ""))
+        fingerprint = cast(str, context.headers.get("expo-runtime-version", ""))
 
-        # A bundle only runs on a build with the same fingerprint, so (platform, runtime_version) is the
+        # A bundle only runs on a build with the same fingerprint, so (platform, fingerprint) is the
         # compatibility key. We offer the newest non-banned bundle for it, ordered by the manifest's
         # createdAt: the device's selection policy then applies it only if it's newer than what it's
         # running, so a fresh-but-stale store build self-heals while a newer build keeps its embedded
         # bundle. A rollback is published as the good bundle re-stamped with a newer createdAt.
         package = None
-        if platform in OTAPlatform.__members__ and runtime_version:
+        if platform in OTAPlatform.__members__ and fingerprint:
             package = session.execute(
                 select(OTAPackage)
                 .where(OTAPackage.platform == OTAPlatform[platform])
-                .where(OTAPackage.runtime_version == runtime_version)
+                .where(OTAPackage.fingerprint == fingerprint)
                 .where(OTAPackage.banned.is_(False))
                 .order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
                 .limit(1)

@@ -21,9 +21,9 @@ def upgrade() -> None:
         "ota_packages",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("created_by_user_id", sa.BigInteger(), nullable=False),
+        sa.Column("creator_user_id", sa.BigInteger(), nullable=False),
         sa.Column("platform", sa.Enum("ios", "android", name="otaplatform"), nullable=False),
-        sa.Column("runtime_version", sa.String(), nullable=False),
+        sa.Column("fingerprint", sa.String(), nullable=False),
         sa.Column("version", sa.String(), nullable=False),
         sa.Column("manifest_created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("manifest_id", sa.String(), nullable=False),
@@ -32,17 +32,15 @@ def upgrade() -> None:
         sa.Column("banned_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("banned_by_user_id", sa.BigInteger(), nullable=True),
         sa.Column("banned_reason", sa.String(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["created_by_user_id"], ["users.id"], name=op.f("fk_ota_packages_created_by_user_id_users")
-        ),
+        sa.ForeignKeyConstraint(["creator_user_id"], ["users.id"], name=op.f("fk_ota_packages_creator_user_id_users")),
         sa.ForeignKeyConstraint(
             ["banned_by_user_id"], ["users.id"], name=op.f("fk_ota_packages_banned_by_user_id_users")
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_ota_packages")),
         sa.UniqueConstraint("platform", "version", name="uq_ota_packages_platform_version"),
     )
-    op.create_index(op.f("ix_ota_packages_created_by_user_id"), "ota_packages", ["created_by_user_id"])
-    op.create_index("ix_ota_packages_resolve", "ota_packages", ["platform", "runtime_version", "manifest_created_at"])
+    op.create_index(op.f("ix_ota_packages_creator_user_id"), "ota_packages", ["creator_user_id"])
+    op.create_index("ix_ota_packages_resolve", "ota_packages", ["platform", "fingerprint", "manifest_created_at"])
 
 
 def downgrade() -> None:

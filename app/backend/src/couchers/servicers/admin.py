@@ -112,16 +112,16 @@ def log_admin_action(
 
 def _live_ota_package_ids(session: Session) -> set[int]:
     # The package served to a matching client is the newest non-banned one per
-    # (platform, runtime_version), ordered by manifest_created_at (id as tiebreak) — exactly what
+    # (platform, fingerprint), ordered by manifest_created_at (id as tiebreak) — exactly what
     # GetNativeUpdateManifest resolves.
     rows = session.execute(
-        select(OTAPackage.id, OTAPackage.platform, OTAPackage.runtime_version, OTAPackage.manifest_created_at).where(
+        select(OTAPackage.id, OTAPackage.platform, OTAPackage.fingerprint, OTAPackage.manifest_created_at).where(
             OTAPackage.banned.is_(False)
         )
     ).all()
     best: dict[tuple[OTAPlatform, str], tuple[datetime, int]] = {}
-    for id_, platform, runtime_version, manifest_created_at in rows:
-        key = (platform, runtime_version)
+    for id_, platform, fingerprint, manifest_created_at in rows:
+        key = (platform, fingerprint)
         rank = (manifest_created_at, id_)
         if key not in best or rank > best[key]:
             best[key] = rank
@@ -132,9 +132,9 @@ def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTA
     return admin_pb2.OTAPackage(
         ota_package_id=package.id,
         created=Timestamp_from_datetime(package.created),
-        created_by_user_id=package.created_by_user_id,
+        creator_user_id=package.creator_user_id,
         platform=otaplatform2api[package.platform],
-        runtime_version=package.runtime_version,
+        fingerprint=package.fingerprint,
         version=package.version,
         manifest_created_at=Timestamp_from_datetime(package.manifest_created_at),
         manifest_id=package.manifest_id,
@@ -1305,15 +1305,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest_json")
 
         # We don't store or serve the manifest (the signed bytes come from the CDN), but we read the
-        # fields we key and order on out of it: runtimeVersion is the compatibility key, createdAt is
-        # the rollout-ordering lever, and id is kept for reference.
-        runtime_version = manifest.get("runtimeVersion") if isinstance(manifest, dict) else None
+        # fields we key and order on out of it: runtimeVersion is the fingerprint / compatibility key,
+        # createdAt is the rollout-ordering lever, and id is kept for reference.
+        fingerprint = manifest.get("runtimeVersion") if isinstance(manifest, dict) else None
         manifest_id = manifest.get("id") if isinstance(manifest, dict) else None
         created_at_raw = manifest.get("createdAt") if isinstance(manifest, dict) else None
         if (
             not isinstance(manifest, dict)
-            or not isinstance(runtime_version, str)
-            or not runtime_version
+            or not isinstance(fingerprint, str)
+            or not fingerprint
             or not isinstance(manifest_id, str)
             or not manifest_id
             or not isinstance(created_at_raw, str)
@@ -1334,9 +1334,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
 
         package = OTAPackage(
-            created_by_user_id=context.user_id,
+            creator_user_id=context.user_id,
             platform=platform,
-            runtime_version=runtime_version,
+            fingerprint=fingerprint,
             version=request.version,
             manifest_created_at=manifest_created_at,
             manifest_id=manifest_id,
@@ -1356,8 +1356,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if platform is None:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_platform")
             statement = statement.where(OTAPackage.platform == platform)
-        if request.runtime_version:
-            statement = statement.where(OTAPackage.runtime_version == request.runtime_version)
+        if request.fingerprint:
+            statement = statement.where(OTAPackage.fingerprint == request.fingerprint)
         if not request.include_banned:
             statement = statement.where(OTAPackage.banned.is_(False))
 

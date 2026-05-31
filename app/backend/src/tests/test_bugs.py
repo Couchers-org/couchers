@@ -449,13 +449,13 @@ def _patch_cdn():
     return patch("couchers.servicers.bugs.requests.get", side_effect=lambda url, timeout=None: _FakeCDNResponse(url))
 
 
-def _add_ota_package(*, platform, runtime_version, version, created_at, banned=False):
+def _add_ota_package(*, platform, fingerprint, version, created_at, banned=False):
     with session_scope() as session:
         creator, _ = generate_user()
         package = OTAPackage(
-            created_by_user_id=creator.id,
+            creator_user_id=creator.id,
             platform=platform,
-            runtime_version=runtime_version,
+            fingerprint=fingerprint,
             version=version,
             manifest_created_at=created_at,
             manifest_id=f"id-{version}",
@@ -470,7 +470,7 @@ def test_native_update_manifest_serves_matching_package(db, feature_flags):
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.aaaa",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
@@ -494,13 +494,13 @@ def test_native_update_manifest_resolves_per_platform(db, feature_flags):
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="shared-fingerprint",
+        fingerprint="shared-fingerprint",
         version="v1.3.1.ios",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
     _add_ota_package(
         platform=OTAPlatform.android,
-        runtime_version="shared-fingerprint",
+        fingerprint="shared-fingerprint",
         version="v1.3.1.android",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
@@ -520,13 +520,13 @@ def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
     # the newer createdAt wins regardless of insertion order
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.2.newer",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.older",
         created_at=datetime(2026, 5, 30, tzinfo=UTC),
     )
@@ -545,13 +545,13 @@ def test_native_update_manifest_banned_package_excluded(db, feature_flags):
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.good",
         created_at=datetime(2026, 5, 30, tzinfo=UTC),
     )
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.2.bad",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
         banned=True,
@@ -570,7 +570,7 @@ def test_native_update_manifest_banned_package_excluded(db, feature_flags):
 def test_native_update_manifest_runtime_mismatch_returns_directive(db):
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.aaaa",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
@@ -589,7 +589,7 @@ def test_native_update_manifest_runtime_mismatch_returns_directive(db):
 def test_native_update_manifest_only_banned_package_returns_directive(db):
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.aaaa",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
         banned=True,
@@ -606,7 +606,7 @@ def test_native_update_manifest_only_banned_package_returns_directive(db):
 def test_native_update_manifest_without_runtime_version_returns_directive(db):
     _add_ota_package(
         platform=OTAPlatform.ios,
-        runtime_version="ios-fingerprint",
+        fingerprint="ios-fingerprint",
         version="v1.3.1.aaaa",
         created_at=datetime(2026, 5, 31, tzinfo=UTC),
     )
