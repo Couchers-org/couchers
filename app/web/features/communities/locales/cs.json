@@ -5,9 +5,6 @@
     "open": "Pozvat komunitu"
   },
   "location": "Poloha",
-  "attendees_count_one": "{{count}} účastník",
-  "attendees_count_few": "{{count}} účastníci",
-  "attendees_count_other": "{{count}} účastníků",
   "by_creator": "Od {{name}}",
   "cancelled": "Zrušeno",
   "cancel_event": "Zrušit událost",

@@ -34,8 +34,6 @@
   "invalid_community_id": "Geçersiz topluluk kimliği.",
   "discussions_title": "Tartışmalar",
   "fill_out_comment": "Önce birşey yazman gerekli!",
-  "attendees_count_one": "{{count}} katılımcı",
-  "attendees_count_other": "{{count}} katılımcı",
   "by_creator": "{{name}} tarafından",
   "error_loading_community": "Topluluk yüklenirken bir hata oluştu.",
   "events_empty_state": "Şu anda herhangi bir etkinlik yok. Neden bir tane <0>oluşturmuyorsun</0> ✨?",
