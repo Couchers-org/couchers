@@ -64,11 +64,25 @@ def test_load_from_env_types() -> None:
         cfg.load_from_env({"ROLE": "not a valid role"})
 
 
-def test_indexer_access() -> None:
+def test_getitem() -> None:
     cfg = Config()
     cfg.base_url = "https://example.com"
     assert cfg.base_url == "https://example.com"
     assert cfg["BASE_URL"] == "https://example.com"
+
+
+def test_setitem() -> None:
+    cfg = Config()
+
+    cfg["BASE_URL"] = "https://example.com"
+    assert cfg.base_url == "https://example.com"
+    assert cfg["BASE_URL"] == "https://example.com"
+
+    with pytest.raises(KeyError):
+        cfg["NOT_A_KEY"] = "value"
+
+    with pytest.raises(TypeError):
+        cfg["BASE_URL"] = 123
 
 
 def test_instances_state_are_independent() -> None:

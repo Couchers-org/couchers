@@ -155,6 +155,22 @@ class Config:
         except AttributeError:
             raise KeyError(f"Config key undefined and has no default: {key}.") from None
 
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Weakly-typed indexer access using env var names for backcompat."""
+        attr_name = key.lower()
+        attr_type = Config.__annotations__.get(attr_name)
+        if attr_type is None:
+            raise KeyError(f"No such config key: {key}.")
+
+        if typing.get_origin(attr_type) is Literal:  # type: ignore[comparison-overlap]
+            options = typing.get_args(attr_type)
+            if value not in options:
+                raise ValueError(f"Invalid value for {key}, need one of {', '.join(options)}")
+        elif not isinstance(value, attr_type):
+            raise TypeError(f"Invalid type for {key}: expected {attr_type}, got {type(value)}")
+
+        self.__setattr__(attr_name, value)
+
     def get(self, key: str, default: Any = None) -> Any:
         """Weakly-typed indexer access using env var names for backcompat."""
         attr_name = key.lower()
