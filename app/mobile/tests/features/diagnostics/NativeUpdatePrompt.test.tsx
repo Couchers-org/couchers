@@ -4,7 +4,11 @@ import { Linking } from "react-native";
 
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateAction, NativeUpdateInfo } from "@/proto/bugs_pb";
+import {
+  NativeUpdateAction,
+  NativeUpdateCause,
+  NativeUpdateInfo,
+} from "@/proto/bugs_pb";
 
 jest.mock("expo-updates", () => ({
   fetchUpdateAsync: jest.fn(),
@@ -20,6 +24,7 @@ function info(
     message: "A new version is available.",
     linkUrl: "https://apps.apple.com/app/id123",
     linkText: "Update now",
+    cause: NativeUpdateCause.NATIVE_UPDATE_CAUSE_AGE,
     ...overrides,
   };
 }
