@@ -19,6 +19,16 @@
     "confirm": "Confirm",
     "close": "Cancel"
   },
+  "request_community_builder_button": "Become a community builder",
+  "request_community_builder_dialog": {
+    "title": "Request to become a community builder",
+    "message": "Community builders help moderate and grow this community. If you'd like to help out, send a request to the moderators and they'll get in touch.",
+    "toast_success": "Thanks, your request has been submitted."
+  },
+  "request_community_builder_dialog_buttons": {
+    "confirm": "Send request",
+    "close": "Cancel"
+  },
   "comment": "Comment",
   "comments": "Comments",
   "comments_count": "Comments | {{count}}",
