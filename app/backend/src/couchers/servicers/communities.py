@@ -13,11 +13,13 @@ from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.event_log import log_event
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    CommunityBuilderRequest,
     Discussion,
     Event,
     EventOccurrence,
@@ -33,6 +35,7 @@ from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible
+from couchers.tasks import send_community_builder_request_email
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -535,6 +538,50 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         log_event(
             context, session, "community.left", {"community_id": node.id, "community_name": node.official_cluster.name}
         )
+
+        return empty_pb2.Empty()
+
+    def RequestCommunityBuilder(
+        self, request: communities_pb2.RequestCommunityBuilderReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        if not node:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_become_community_builder"
+            )
+
+        existing_admin_subscription = session.execute(
+            select(ClusterSubscription)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+        ).scalar_one_or_none()
+        if existing_admin_subscription:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_community_builder")
+
+        pending_request = session.execute(
+            select(CommunityBuilderRequest)
+            .where(CommunityBuilderRequest.node_id == node.id)
+            .where(CommunityBuilderRequest.user_id == context.user_id)
+            .where(CommunityBuilderRequest.approved.is_(None))
+        ).scalar_one_or_none()
+        if pending_request:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "community_builder_request_already_pending"
+            )
+
+        req = CommunityBuilderRequest(
+            node_id=node.id,
+            user_id=context.user_id,
+        )
+        session.add(req)
+        session.flush()
+
+        send_community_builder_request_email(session, req)
 
         return empty_pb2.Empty()
 

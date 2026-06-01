@@ -16,7 +16,15 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models import (
+    ClusterRole,
+    ClusterSubscription,
+    CommunityBuilderRequest,
+    EventCommunityInviteRequest,
+    Node,
+    User,
+    Volunteer,
+)
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -203,6 +211,77 @@ class Editor(editor_pb2_grpc.EditorServicer):
             )
 
         return editor_pb2.DecideEventCommunityInviteRequestRes()
+
+    def ListCommunityBuilderRequests(
+        self, request: editor_pb2.ListCommunityBuilderRequestsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListCommunityBuilderRequestsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_request_id = int(request.page_token) if request.page_token else 0
+        requests = (
+            session.execute(
+                select(CommunityBuilderRequest)
+                .where(CommunityBuilderRequest.approved.is_(None))
+                .where(CommunityBuilderRequest.id >= next_request_id)
+                .order_by(CommunityBuilderRequest.id)
+                .limit(page_size + 1)
+            )
+            .scalars()
+            .all()
+        )
+
+        def _request_to_pb(req: CommunityBuilderRequest) -> editor_pb2.CommunityBuilderRequest:
+            return editor_pb2.CommunityBuilderRequest(
+                community_builder_request_id=req.id,
+                user_id=req.user_id,
+                community_id=req.node.id,
+                community_name=req.node.official_cluster.name,
+            )
+
+        return editor_pb2.ListCommunityBuilderRequestsRes(
+            requests=[_request_to_pb(req) for req in requests[:page_size]],
+            next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
+        )
+
+    def DecideCommunityBuilderRequest(
+        self, request: editor_pb2.DecideCommunityBuilderRequestReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.DecideCommunityBuilderRequestRes:
+        req = session.execute(
+            select(CommunityBuilderRequest).where(CommunityBuilderRequest.id == request.community_builder_request_id)
+        ).scalar_one_or_none()
+
+        if not req:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_builder_request_not_found")
+
+        if req.decided:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "community_builder_request_already_decided"
+            )
+
+        req.decided = now()
+        req.decided_by_user_id = context.user_id
+        req.approved = request.approve
+
+        if request.approve:
+            cluster_id = req.node.official_cluster.id
+            subscription = session.execute(
+                select(ClusterSubscription)
+                .where(ClusterSubscription.user_id == req.user_id)
+                .where(ClusterSubscription.cluster_id == cluster_id)
+            ).scalar_one_or_none()
+            if subscription:
+                subscription.role = ClusterRole.admin
+            else:
+                session.add(
+                    ClusterSubscription(
+                        user_id=req.user_id,
+                        cluster_id=cluster_id,
+                        role=ClusterRole.admin,
+                    )
+                )
+
+        session.flush()
+
+        return editor_pb2.DecideCommunityBuilderRequestRes()
 
     def SendBlogPostNotification(
         self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session

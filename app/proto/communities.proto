@@ -98,6 +98,15 @@ service Communities {
     // Gets a list of communities a member belongs to
   }
 
+  rpc RequestCommunityBuilder(RequestCommunityBuilderReq) returns (google.protobuf.Empty) {
+    // Request to become a community builder (admin) of a community. The request is reviewed by moderators.
+    //
+    // Raises: FAILED_PRECONDITION if
+    //   1. the user has not completed their profile
+    //   2. the user is already an admin of the community
+    //   3. the user already has a pending request for this community
+  }
+
   rpc SearchCommunities(SearchCommunitiesReq) returns (SearchCommunitiesRes) {
     // Gets a list of communities in accordance to search request
   }
@@ -292,6 +301,10 @@ message JoinCommunityReq {
 }
 
 message LeaveCommunityReq {
+  int64 community_id = 1;
+}
+
+message RequestCommunityBuilderReq {
   int64 community_id = 1;
 }
 
