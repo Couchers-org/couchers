@@ -934,6 +934,85 @@ postcards_sent_counter: Counter = Counter(
 )
 
 
+# Native app / OTA update metrics. The histograms are observed once per CheckNativeStatus call from each
+# client; the bucket layout is dense around the OTA window (~28d) and store window (~91d) so the warn/block
+# thresholds are visible on the percentile curves.
+_NATIVE_AGE_BUCKETS: tuple[float, ...] = (
+    3_600,
+    6 * 3_600,
+    86_400,
+    3 * 86_400,
+    7 * 86_400,
+    14 * 86_400,
+    21 * 86_400,
+    28 * 86_400,
+    35 * 86_400,
+    45 * 86_400,
+    60 * 86_400,
+    91 * 86_400,
+    120 * 86_400,
+    180 * 86_400,
+    365 * 86_400,
+    _INF,
+)
+
+native_bundle_age_histogram: Histogram = Histogram(
+    "couchers_native_bundle_age_seconds",
+    "Age of the OTA bundle reported by the client at CheckNativeStatus, by platform and launch source",
+    labelnames=["platform", "is_ota_launch"],
+    buckets=_NATIVE_AGE_BUCKETS,
+)
+
+
+def observe_native_bundle_age(platform: str, is_ota_launch: bool, age_s: float) -> None:
+    native_bundle_age_histogram.labels(platform or "unknown", "true" if is_ota_launch else "false").observe(age_s)
+
+
+native_binary_age_histogram: Histogram = Histogram(
+    "couchers_native_binary_age_seconds",
+    "Age of the embedded native binary reported by the client at CheckNativeStatus, by platform",
+    labelnames=["platform"],
+    buckets=_NATIVE_AGE_BUCKETS,
+)
+
+
+def observe_native_binary_age(platform: str, age_s: float) -> None:
+    native_binary_age_histogram.labels(platform or "unknown").observe(age_s)
+
+
+native_update_decisions_counter: Counter = Counter(
+    "couchers_native_update_decisions_total",
+    "CheckNativeStatus decisions, by platform / action / severity",
+    labelnames=["platform", "action", "severity"],
+)
+
+
+def observe_native_update_decision(platform: str, action: str, severity: str) -> None:
+    native_update_decisions_counter.labels(platform or "unknown", action, severity).inc()
+
+
+native_banned_bundle_hits_counter: Counter = Counter(
+    "couchers_native_banned_bundle_hits_total",
+    "CheckNativeStatus calls from a device running a banned OTA bundle, by platform",
+    labelnames=["platform"],
+)
+
+
+def observe_native_banned_bundle_hit(platform: str) -> None:
+    native_banned_bundle_hits_counter.labels(platform or "unknown").inc()
+
+
+native_ota_manifest_requests_counter: Counter = Counter(
+    "couchers_native_ota_manifest_requests_total",
+    "GetNativeUpdateManifest requests, by platform and result (served, no_update, no_match)",
+    labelnames=["platform", "result"],
+)
+
+
+def observe_native_ota_manifest_request(platform: str, result: str) -> None:
+    native_ota_manifest_requests_counter.labels(platform or "unknown", result).inc()
+
+
 # Recomputed at scrape time via the hacky-gauge mechanism, so it reflects live age. 0 when disabled
 # or never pulled.
 def _feature_flags_staleness_seconds() -> float:
