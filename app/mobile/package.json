@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@expo-google-fonts/ubuntu": "^0.4.1",
-    "@expo/app-integrity": "^56.0.3",
     "@expo/cli": "^55.0.0-canary-20260105-6b962e6",
     "@expo/vector-icons": "^15.0.3",
     "@expo/xcpretty": "^4.3.2",
