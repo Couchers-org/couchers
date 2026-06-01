@@ -1,6 +1,0 @@
-<mj-section padding="0px">
-  <mj-column>
-    <mj-text>Hi {{ user.name }},</mj-text>
-    <mj-text>The <b>{{ badge_name }}</b> badge was {{ actioned }} your profile.</mj-text>
-  </mj-column>
-</mj-section>

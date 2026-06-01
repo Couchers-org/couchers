@@ -99,11 +99,11 @@
       "explainer": "Signaler de manière confidentielle à l'équipe Sécurité et confiance"
     },
     "bug": {
-      "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
+      "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
       "button_label": "Signaler un problème technique",
       "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
       "title_label": "Titre du rapport",
-      "problem_helper": "Brève description du problème et de la façon de le reproduire",
+      "problem_helper": "Brève description du problème et de comment le reproduire",
       "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
       "expect_helper": "Brève description de ce qui était censé se produire à la place",
       "success_message2": "Merci d'avoir signalé ce bogue et d'avoir rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro du bogue est <id/>."
@@ -260,7 +260,8 @@
     "map_search": "Rechercher",
     "volunteer": "Bénévolat",
     "landing_page": "Page d'accueil",
-    "invite_members": "Inviter des membres"
+    "invite_members": "Inviter des membres",
+    "donate": "Faire un don"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",

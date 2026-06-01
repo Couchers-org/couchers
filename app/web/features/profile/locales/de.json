@@ -31,7 +31,8 @@
     "accept_friend_label": "Annehmen",
     "decline_friend_label": "Ablehnen",
     "request": "Anfragen",
-    "back_to_dashboard": "Zurück zur Übersicht"
+    "back_to_dashboard": "Zurück zur Übersicht",
+    "add_friend": "Freund hinzufügen"
   },
   "my_connections": "Meine Kontakte",
   "profile_tag_input": {
@@ -179,7 +180,7 @@
     "reference_form_heading_did_stay_hosted": "Hast du {{name}} gehostet?",
     "reason_didnt_meetup": "Warum habt ihr euch nicht getroffen? (Optional)",
     "text_explanation_hosted_surfed": "Die Referenz, die du unten eingibst, wird mit {{name}} geteilt, nachdem {{name}} eine Referenz für dich geschrieben hat oder nach 14 Tagen. Sie wird außerdem für den Rest der Couchers.org Community sichtbar sein.",
-    "text_label": "Lasse andere an deiner Erfahrungen teilhaben, indem du den Kontext und alle relevanten Details hier teilst.",
+    "text_label": "Lasse andere an deiner Erfahrung teilhaben, indem du den Kontext und alle relevanten Details hier teilst.",
     "thank_you_header": "Vielen Dank, dass du eine Referenz hinterlassen hast!",
     "thank_you_support": "Vor allem danke, dass du bei Couchers dabei bist und Teil unserer Community bist!",
     "thank_you_donation_prompt": "Erwäge, <2>eine Spende zu machen</2>! Couchers.org ist eine gemeinnützige Organisation nach 501(c)(3) und wir benötigen Spenden, um unsere Server am Laufen zu halten.",

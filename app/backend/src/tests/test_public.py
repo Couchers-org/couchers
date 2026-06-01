@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from math import sqrt
 from unittest.mock import patch
 
@@ -241,30 +241,30 @@ def test_GetVolunteers_mixed_current_and_past(db):
             make_volunteer(
                 user_id=current1.id,
                 role="Current Role 1",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=current2.id,
                 role="Current Role 2",
-                started_volunteering=datetime(2024, 1, 1).date(),
+                started_volunteering=date(2024, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=past1.id,
                 role="Past Role 1",
-                started_volunteering=datetime(2020, 1, 1).date(),
-                stopped_volunteering=datetime(2022, 6, 1).date(),
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=date(2022, 6, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=past2.id,
                 role="Past Role 2",
-                started_volunteering=datetime(2021, 1, 1).date(),
-                stopped_volunteering=datetime(2023, 12, 31).date(),
+                started_volunteering=date(2021, 1, 1),
+                stopped_volunteering=date(2023, 12, 31),
             )
         )
 
@@ -295,7 +295,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user2.id,
                 role="Role 2",
-                started_volunteering=datetime(2023, 3, 1).date(),
+                started_volunteering=date(2023, 3, 1),
                 sort_key=1.0,
             )
         )
@@ -304,7 +304,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user3.id,
                 role="Role 3",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 sort_key=2.0,
             )
         )
@@ -313,7 +313,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user1.id,
                 role="Role 1",
-                started_volunteering=datetime(2023, 2, 1).date(),
+                started_volunteering=date(2023, 2, 1),
             )
         )
 
@@ -340,14 +340,14 @@ def test_GetVolunteers_excludes_hidden(db):
             make_volunteer(
                 user_id=user1.id,
                 role="Visible Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=user2.id,
                 role="Hidden Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 show_on_team_page=False,
             )
         )
@@ -374,7 +374,7 @@ def test_GetVolunteers_link_types(db):
             make_volunteer(
                 user_id=user_default.id,
                 role="Default Link",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         # Volunteer with custom link
@@ -382,7 +382,7 @@ def test_GetVolunteers_link_types(db):
             make_volunteer(
                 user_id=user_custom.id,
                 role="Custom Link",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 link_type="email",
                 link_text="contact@example.com",
                 link_url="mailto:contact@example.com",
@@ -421,14 +421,14 @@ def test_GetVolunteers_board_member_flag(db):
             make_volunteer(
                 user_id=board_member.id,
                 role="Board Member Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=regular_volunteer.id,
                 role="Regular Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
 

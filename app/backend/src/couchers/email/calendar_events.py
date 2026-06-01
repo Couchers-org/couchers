@@ -25,16 +25,22 @@ def create_host_request_ics(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
     event = create_host_request_event(host_request, other_name, hosting, loc_context)
-    return event_to_ics(event, loc_context)
+
+    # METHOD:PUBLISH means this is part of a stream of calendar event information.
+    # It allows for later cancellation, and doesn't expose accept/decline functionality.
+    return event_to_ics(event, "PUBLISH", loc_context)
 
 
 def create_host_request_event(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext, sequence: int = 0
 ) -> Event:
     """Creates an ics event for a host request."""
 
     event = Event()
     event.uid = get_host_request_event_uid(host_request.host_request_id)
+
+    # Explicitly allow later sequencing of a cancellation with SEQUENCE:1
+    event.extra.append(ContentLine(name="SEQUENCE", value=str(sequence)))
 
     if hosting:
         event.name = get_emails_i18next().localize(
@@ -70,23 +76,23 @@ def create_host_request_cancellation_attachment(
 def create_host_request_cancellation_ics(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context)
+    event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
     event.name = get_emails_i18next().localize(
         "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
     )
     event.status = "CANCELLED"
 
-    # Cancellation is sequenced after creation (which defaults to sequence number 0)
-    event.extra.append(ContentLine(name="SEQUENCE", value="1"))
+    # METHOD:PUBLISH means this is part of a stream of calendar event information.
+    # Gmail™ will immediately remove the event from the user's calendar.
+    # METHOD:CANCEL might leave the event in cancelled state or not work.
+    return event_to_ics(event, "PUBLISH", loc_context)
 
-    return event_to_ics(event, loc_context)
 
-
-def event_to_ics(event: Event, loc_context: LocalizationContext) -> str:
+def event_to_ics(event: Event, method: str | None, loc_context: LocalizationContext) -> str:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
     calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
-    if event.status == "CANCELLED":
-        calendar.method = "CANCEL"
+    if method:
+        calendar.method = method
     calendar.events.add(event)
     return cast(str, calendar.serialize())
 
