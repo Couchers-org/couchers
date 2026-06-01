@@ -30,10 +30,6 @@
   },
   "update": {
     "required_title": "Update erforderlich",
-    "recommended_title": "Bitte update bald",
-    "available_title": "Update verfügbar",
-    "default_message": "Eine neue Version von Couchers ist verfügbar. update, um die App weiterhin nutzen zu können.",
-    "deadline": "Bitte update bis {{date}}.",
     "action_update": "Jetzt updaten",
     "action_reinstall": "Hol dir die neue App",
     "later": "Später",

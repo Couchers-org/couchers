@@ -1,6 +1,4 @@
 {
-  "attendees_count_one": "{{count}} 位参与者",
-  "attendees_count_other": "{{count}} 位参与者",
   "by_creator": "按{{name}}",
   "cancelled": "已取消",
   "cancel_event": "取消活动",
