@@ -35,11 +35,10 @@ describe("My events", () => {
         name: t("dashboard:events.your_upcoming_header"),
       }),
     ).toBeVisible();
-    // 3 event rows + "See all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(4);
-    // community filters are handled by CommunityEvents, not this component
+    // 3 event row links (no "See all" link — navigation uses arrow buttons)
+    expect(screen.getAllByRole("link")).toHaveLength(3);
     expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageToken: undefined,
+      pageNumber: 1,
       pageSize: 3,
     });
   });

@@ -35,10 +35,10 @@ describe("Community events", () => {
         name: t("dashboard:events.community_header"),
       }),
     ).toBeVisible();
-    // 3 event rows + "Browse all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(4);
+    // 3 event row links (no "Browse all" link — navigation uses arrow buttons)
+    expect(screen.getAllByRole("link")).toHaveLength(3);
     expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageToken: undefined,
+      pageNumber: 1,
       pageSize: 5,
       myCommunities: true,
       myCommunitiesExcludeGlobal: true,
@@ -67,31 +67,37 @@ describe("Community events", () => {
     await assertErrorAlert(errorMessage);
   });
 
-  it("loads more events when the load more button is clicked", async () => {
-    listMyEventsMock.mockImplementation(async ({ pageToken }) => ({
-      eventsList: pageToken
-        ? nonCancelledEvents.slice(2)
-        : nonCancelledEvents.slice(0, 2),
-      nextPageToken: pageToken ? "" : "2",
-      totalItems: nonCancelledEvents.length,
+  it("navigates to the next page when the next arrow is clicked", async () => {
+    const firstPage = nonCancelledEvents.slice(0, 2);
+    const secondPage = nonCancelledEvents.slice(2);
+
+    listMyEventsMock.mockImplementation(async ({ pageNumber }) => ({
+      eventsList: pageNumber === 2 ? secondPage : firstPage,
+      nextPageToken: "",
+      // totalItems > PAGE_SIZE so the next arrow is enabled on page 1
+      totalItems: 8,
     }));
 
     render(<CommunityEvents />, { wrapper });
 
-    await screen.findByText(nonCancelledEvents[0].title);
-    // 2 event rows + "Browse all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(3);
+    await screen.findByText(firstPage[0].title);
+    expect(screen.getByText(firstPage[1].title)).toBeVisible();
+    expect(screen.queryByText(secondPage[0].title)).not.toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(
-      screen.getByRole("button", { name: t("dashboard:load_more") }),
+      screen.getByRole("button", {
+        name: t("dashboard:discussions.next_page_label"),
+      }),
     );
 
-    // 3 event rows + "Browse all →" link
-    expect(await screen.findAllByRole("link")).toHaveLength(4);
-    expect(
-      screen.queryByRole("button", { name: t("dashboard:load_more") }),
-    ).not.toBeInTheDocument();
-    expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+    await screen.findByText(secondPage[0].title);
+    expect(screen.queryByText(firstPage[0].title)).not.toBeInTheDocument();
+    expect(listMyEventsMock).toHaveBeenCalledWith({
+      pageNumber: 2,
+      pageSize: 5,
+      myCommunities: true,
+      myCommunitiesExcludeGlobal: true,
+    });
   });
 });

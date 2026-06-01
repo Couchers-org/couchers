@@ -73,6 +73,22 @@
     "location_online_label": "Online",
     "today_label": "Today"
   },
+  "stays": {
+    "upcoming_trips_header": "Your upcoming trips",
+    "upcoming_guests_header": "Upcoming guests",
+    "today_label": "Today",
+    "tomorrow_label": "Tomorrow",
+    "in_n_days_label_one": "In {{count}} day",
+    "in_n_days_label_other": "In {{count}} days",
+    "next_week_label": "Next week",
+    "night_count_one": "{{count}} night",
+    "night_count_other": "{{count}} nights",
+    "with_name": "with {{name}}",
+    "from_city": "from {{city}}",
+    "plan_trip_label": "Plan a trip",
+    "no_upcoming_trips": "No upcoming trips. Ready to explore?",
+    "no_upcoming_guests": "No upcoming guests yet."
+  },
   "reminder": {
     "respond_to_host_request": {
       "title": "Respond to {{name}}",

@@ -167,10 +167,21 @@ export default function ReminderCarousel() {
   if (error) return <Alert severity="error">{error.message}</Alert>;
   if (!visibleReminders.length) return null;
 
+  const FADE = "40px";
+  const scrollerMask =
+    canScrollLeft && canScrollRight
+      ? `linear-gradient(to right, transparent, black ${FADE}, black calc(100% - ${FADE}), transparent)`
+      : canScrollLeft
+        ? `linear-gradient(to right, transparent, black ${FADE})`
+        : canScrollRight
+          ? `linear-gradient(to left, transparent, black ${FADE})`
+          : undefined;
+
   return (
     <StyledContainer>
       <StyledArrow
         aria-label="scroll left"
+        size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
       >
@@ -180,11 +191,14 @@ export default function ReminderCarousel() {
       <StyledScroller
         ref={scrollerRef}
         onScroll={updateScrollState}
-        sx={
-          isMobile && visibleReminders.length === 1
+        sx={{
+          ...(isMobile && visibleReminders.length === 1
             ? { justifyContent: "center" }
-            : undefined
-        }
+            : {}),
+          ...(scrollerMask
+            ? { maskImage: scrollerMask, WebkitMaskImage: scrollerMask }
+            : {}),
+        }}
       >
         {visibleReminders.map(({ id, reminder }) => (
           <StyledCardSlot key={id}>
@@ -198,6 +212,7 @@ export default function ReminderCarousel() {
 
       <StyledArrow
         aria-label="scroll right"
+        size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
       >

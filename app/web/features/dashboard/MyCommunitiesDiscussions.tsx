@@ -1,4 +1,4 @@
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Forum } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
@@ -62,7 +62,13 @@ export default function MyCommunitiesDiscussions() {
   return (
     <div>
       <SectionHeader>
-        <Typography variant="h2">
+        <Typography
+          variant="h2"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          <Forum
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
           {t("dashboard:discussions.community_header")}
         </Typography>
         <div>

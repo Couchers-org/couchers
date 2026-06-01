@@ -1,16 +1,14 @@
-import { styled, Typography } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { ArrowBack, ArrowForward, Event } from "@mui/icons-material";
+import { IconButton, styled, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import Button from "components/Button";
-import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
-import { eventsRoute } from "routes";
+import { useState } from "react";
 import { service } from "service";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { myCommunityEventsKey } from "../queryKeys";
 import EventListRow, {
@@ -20,15 +18,9 @@ import EventListRow, {
 
 const SectionHeader = styled("div")({
   display: "flex",
-  alignItems: "baseline",
+  alignItems: "center",
   justifyContent: "space-between",
   marginBottom: "8px",
-});
-
-const LoadMoreContainer = styled("div")({
-  display: "flex",
-  justifyContent: "center",
-  marginTop: "12px",
 });
 
 const PAGE_SIZE = 5;
@@ -36,29 +28,58 @@ const PAGE_SIZE = 5;
 export default function CommunityEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
-  const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-      queryKey: myCommunityEventsKey("upcoming"),
-      queryFn: ({ pageParam }) =>
-        service.events.listMyEvents({
-          pageToken: pageParam as string | undefined,
-          pageSize: PAGE_SIZE,
-          myCommunities: true,
-          myCommunitiesExcludeGlobal: true,
-        }),
-      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-      initialPageParam: undefined,
-    });
+  const [page, setPage] = useState(1);
+
+  const { data, error, isLoading } = useQuery<
+    ListMyEventsRes.AsObject,
+    RpcError
+  >({
+    queryKey: [...myCommunityEventsKey("upcoming"), page],
+    queryFn: () =>
+      service.events.listMyEvents({
+        pageNumber: page,
+        pageSize: PAGE_SIZE,
+        myCommunities: true,
+        myCommunitiesExcludeGlobal: true,
+      }),
+  });
+
+  const totalItems = data?.totalItems ?? 0;
+  const hasNext = page * PAGE_SIZE < totalItems;
+  const hasPrev = page > 1;
 
   return (
     <div>
       <SectionHeader>
-        <Typography variant="h2">
+        <Typography
+          variant="h2"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          <Event
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
           {t("dashboard:events.community_header")}
         </Typography>
-        <StyledLink href={`${eventsRoute}#discover`}>
-          {t("dashboard:events.see_all_link")}
-        </StyledLink>
+        <div>
+          <IconButton
+            size="small"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={!hasPrev}
+            color={hasPrev ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.prev_page_label")}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNext}
+            color={hasNext ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.next_page_label")}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
       </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
@@ -67,23 +88,12 @@ export default function CommunityEvents() {
             <EventListRowSkeleton key={i} />
           ))}
         </EventListContainer>
-      ) : hasAtLeastOnePage(data, "eventsList") ? (
-        <>
-          <EventListContainer>
-            {data.pages
-              .flatMap((page) => page.eventsList)
-              .map((event) => (
-                <EventListRow key={event.eventId} event={event} />
-              ))}
-          </EventListContainer>
-          {hasNextPage && (
-            <LoadMoreContainer>
-              <Button onClick={() => fetchNextPage()} loading={isFetching}>
-                {t("dashboard:load_more")}
-              </Button>
-            </LoadMoreContainer>
-          )}
-        </>
+      ) : data?.eventsList?.length ? (
+        <EventListContainer>
+          {data.eventsList.map((event) => (
+            <EventListRow key={event.eventId} event={event} />
+          ))}
+        </EventListContainer>
       ) : (
         !error && (
           <TextBody>{t("dashboard:events.community_empty_message")}</TextBody>
