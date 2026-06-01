@@ -486,6 +486,20 @@
     "@opentelemetry/semantic-conventions" "^1.28.0"
     minimatch "^10.2.4"
 
+"@growthbook/growthbook-react@^1.6.5":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/@growthbook/growthbook-react/-/growthbook-react-1.6.5.tgz#e849cff64a54e56d5c566512bdc839148ae613ed"
+  integrity sha512-afi/RUbwazVNKv2acn6wDQz4BJNRAEpwIuHfggQup2/aE5PLAxy3+95gjjRMgCcPR0Pf3sFmhYGvOmxLD0ZRbQ==
+  dependencies:
+    "@growthbook/growthbook" "^1.6.5"
+
+"@growthbook/growthbook@^1.6.5":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/@growthbook/growthbook/-/growthbook-1.6.5.tgz#c9e2119187ee3288525a77a7c64353276f5ba91b"
+  integrity sha512-mUaMsgeUTpRIUOTn33EUXHRK6j7pxBjwqH4WpQyq+pukjd1AIzWlEa6w7i6bInJUcweGgP2beXZmaP6b6UPn7A==
+  dependencies:
+    dom-mutator "^0.6.0"
+
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.13.0.tgz#fb907624df3256d04b9aa2df50d7aa97ec648748"
@@ -1301,21 +1315,6 @@
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@open-draft/until/-/until-1.0.3.tgz#db9cc719191a62e7d9200f6e7bab21c5b848adca"
   integrity sha512-Aq58f5HiWdyDlFffbbSjAlv596h/cOnt2DO1w3DOC7OJ5EHs0hd/nycJfiu9RJbT6Yk6F1knnRRXNSpxoIVZ9Q==
-
-"@openfeature/core@^1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@openfeature/core/-/core-1.10.0.tgz#6fdcc2e00909bc0de45eae602c6650604bff1ed0"
-  integrity sha512-C3ynxtPYhe5qVJgQIqCNxZXeRXo4t1Eo86uiROr8+sD6F2OjEJGIp6VOGxz+r6jkad2s8Br9BnUJOvskhai/3A==
-
-"@openfeature/react-sdk@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@openfeature/react-sdk/-/react-sdk-1.3.0.tgz#a69add2a221a418dad652495465a9c6284171db2"
-  integrity sha512-+9OjXMIjybTt39jlhq+nZ7JuZNGsY/Ua5WaJg8GgY6MSPkIhrewhGdghYYMKGi3VL4aHKhH3IE+iAITySBS2Ew==
-
-"@openfeature/web-sdk@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@openfeature/web-sdk/-/web-sdk-1.8.0.tgz#0c18a125fa920d14398ba2779086708e6dd718b5"
-  integrity sha512-B7NTG/mm9blV1Z7YjjcWhuoOHcDzyrHKwMRMcku9i9vvQGAE6ilVJPS3C/SsdvnOn2tDqm2lAg9SxvaJTRgp+Q==
 
 "@opentelemetry/api-logs@0.207.0":
   version "0.207.0"
@@ -3998,6 +3997,11 @@ dom-helpers@^5.0.1:
   dependencies:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
+
+dom-mutator@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/dom-mutator/-/dom-mutator-0.6.0.tgz#079d7a4b3e8981a562cd777548b99baab51d65c5"
+  integrity sha512-iCt9o0aYfXMUkz/43ZOAUFQYotjGB+GNbYJiJdz4TgXkyToXbbRy5S6FbTp72lRBtfpUMwEc1KmpFEU4CZeoNg==
 
 domexception@^4.0.0:
   version "4.0.0"

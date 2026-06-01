@@ -1,6 +1,5 @@
-import { LogExperimentExposureReq } from "proto/bugs_pb";
-
-import client from "./client";
+import { LogExperimentExposureReq } from "@/proto/bugs_pb";
+import client from "@/service/client";
 
 export type ExposureReport = {
   experimentKey: string;
