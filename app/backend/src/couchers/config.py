@@ -10,6 +10,12 @@ from typing import Any, Literal
 
 # Not a dataclass. Not all attributes must be initialized.
 class Config:
+    """
+    Defines strongly-typed application config values,
+    initializable from matching environment variables,
+    also supporting weakly-typed dict-like access for backcompat with existing code.
+    """
+
     # Whether we're in dev mode
     dev: bool
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
