@@ -20,7 +20,7 @@ import sentry_sdk
 from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
-from couchers.config import check_config, config
+from couchers.config import config
 from couchers.constants import API_BASE_PORT, API_WORKER_COUNT, GRACEFUL_SHUTDOWN_TIMEOUT, MEDIA_PORT
 from couchers.db import apply_migrations, db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
@@ -33,7 +33,7 @@ from couchers.supervisor import supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
-check_config(config)
+config.check()
 
 logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
