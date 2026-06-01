@@ -145,6 +145,15 @@ enum NativeUpdateAction {
   NATIVE_UPDATE_ACTION_REINSTALL = 4;
 }
 
+enum NativeUpdateCause {
+  NATIVE_UPDATE_CAUSE_UNSPECIFIED = 0;
+  // Bundle or binary is past its support window. The user is running an old version.
+  NATIVE_UPDATE_CAUSE_AGE = 1;
+  // The currently-running bundle has been banned (we shipped a buggy version). The framing on the
+  // device shifts so we take responsibility rather than implying the user is the one out of date.
+  NATIVE_UPDATE_CAUSE_BANNED = 2;
+}
+
 message NativeUpdateInfo {
   NativeUpdateAction action = 1;
   // Advisory when false; when true the client must act by act_by (in the past = block now).
@@ -159,6 +168,8 @@ message NativeUpdateInfo {
   string link_url = 6;
   // Label for the link_url button (e.g. "Update now", "Get the new app").
   string link_text = 7;
+  // Why the update is being asked for. The client uses this to pick the on-screen wording.
+  NativeUpdateCause cause = 8;
 }
 
 message CheckNativeStatusRes {

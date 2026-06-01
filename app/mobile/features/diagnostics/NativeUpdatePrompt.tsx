@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateAction } from "@/proto/bugs_pb";
+import { NativeUpdateAction, NativeUpdateCause } from "@/proto/bugs_pb";
 import { theme } from "@/theme";
 
 const logo = require("@/assets/images/couchers_logo.png");
@@ -89,7 +89,13 @@ export default function NativeUpdatePrompt({
   };
 
   const title = t("update.required_title");
-  const bodyKey = mode === "block" ? "update.body_block" : "update.body_warn";
+  // Pick the body + preamble pair by (cause, mode). Banned always blocks.
+  const variant =
+    info.cause === NativeUpdateCause.NATIVE_UPDATE_CAUSE_BANNED
+      ? "banned"
+      : mode === "block"
+        ? "block"
+        : "warn";
   const buttonLabel = info.linkText || defaultLinkText(info.action, t);
 
   return (
@@ -113,10 +119,10 @@ export default function NativeUpdatePrompt({
           ) : (
             <>
               <Text style={[styles.body, { color: colors.text }]}>
-                {t(bodyKey)}
+                {t(`update.body_${variant}`)}
               </Text>
               <Text style={[styles.preamble, { color: colors.textSecondary }]}>
-                {t("update.preamble")}
+                {t(`update.preamble_${variant}`)}
               </Text>
             </>
           )}

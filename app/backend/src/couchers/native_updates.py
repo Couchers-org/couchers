@@ -36,6 +36,14 @@ class UpdateAction(enum.Enum):
     reinstall = enum.auto()
 
 
+class UpdateCause(enum.Enum):
+    unspecified = enum.auto()
+    # Bundle or binary is past its support window — user is on an old version.
+    age = enum.auto()
+    # Currently-running bundle is banned — we shipped a buggy version.
+    banned = enum.auto()
+
+
 @dataclass(frozen=True)
 class NativeClientInfo:
     platform: str = ""
@@ -51,9 +59,12 @@ class NativeUpdateDecision:
     action: UpdateAction
     severity: Severity
     act_by: datetime | None
+    cause: UpdateCause
 
 
-_NO_UPDATE = NativeUpdateDecision(action=UpdateAction.none, severity=Severity.none, act_by=None)
+_NO_UPDATE = NativeUpdateDecision(
+    action=UpdateAction.none, severity=Severity.none, act_by=None, cause=UpdateCause.unspecified
+)
 
 
 def _parse_iso(value: object) -> datetime | None:
@@ -119,7 +130,9 @@ def decide_native_update(
     # unset deadline as block-now, which avoids a tiny clock-skew window where a now-timestamp
     # would land slightly in the client's future and read as warn.
     if banned and info.is_ota_launch:
-        return NativeUpdateDecision(action=UpdateAction.ota, severity=Severity.block, act_by=None)
+        return NativeUpdateDecision(
+            action=UpdateAction.ota, severity=Severity.block, act_by=None, cause=UpdateCause.banned
+        )
 
     store_warn = timedelta(days=context.get_integer_value("native_store_warn_days", DEFAULT_STORE_WARN_DAYS))
     store_block = timedelta(days=context.get_integer_value("native_store_block_days", DEFAULT_STORE_BLOCK_DAYS))
@@ -144,5 +157,7 @@ def decide_native_update(
 
     # Store precedence at equal severity: a failing binary cannot be rescued by an OTA.
     if store_state == severity:
-        return NativeUpdateDecision(action=UpdateAction.store, severity=severity, act_by=store_deadline)
-    return NativeUpdateDecision(action=UpdateAction.ota, severity=severity, act_by=ota_deadline)
+        return NativeUpdateDecision(
+            action=UpdateAction.store, severity=severity, act_by=store_deadline, cause=UpdateCause.age
+        )
+    return NativeUpdateDecision(action=UpdateAction.ota, severity=severity, act_by=ota_deadline, cause=UpdateCause.age)

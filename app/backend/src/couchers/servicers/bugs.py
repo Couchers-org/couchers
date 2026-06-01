@@ -32,6 +32,7 @@ from couchers.native_updates import (
     NativeClientInfo,
     Severity,
     UpdateAction,
+    UpdateCause,
     decide_native_update,
     parse_client_info,
 )
@@ -56,6 +57,18 @@ api2updateaction = {
     bugs_pb2.NATIVE_UPDATE_ACTION_OTA: UpdateAction.ota,
     bugs_pb2.NATIVE_UPDATE_ACTION_STORE: UpdateAction.store,
     bugs_pb2.NATIVE_UPDATE_ACTION_REINSTALL: UpdateAction.reinstall,
+}
+
+updatecause2api = {
+    UpdateCause.unspecified: bugs_pb2.NATIVE_UPDATE_CAUSE_UNSPECIFIED,
+    UpdateCause.age: bugs_pb2.NATIVE_UPDATE_CAUSE_AGE,
+    UpdateCause.banned: bugs_pb2.NATIVE_UPDATE_CAUSE_BANNED,
+}
+
+api2updatecause = {
+    bugs_pb2.NATIVE_UPDATE_CAUSE_UNSPECIFIED: UpdateCause.unspecified,
+    bugs_pb2.NATIVE_UPDATE_CAUSE_AGE: UpdateCause.age,
+    bugs_pb2.NATIVE_UPDATE_CAUSE_BANNED: UpdateCause.banned,
 }
 
 _OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
@@ -285,6 +298,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         update_info = bugs_pb2.NativeUpdateInfo(
             action=updateaction2api[decision.action],
             required=decision.severity != Severity.none,
+            cause=updatecause2api[decision.cause],
         )
         if decision.act_by is not None:
             update_info.act_by.FromDatetime(decision.act_by)
