@@ -3,12 +3,12 @@ Native app update decisions for CheckNativeStatus.
 """
 
 import enum
-import json
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from couchers.context import CouchersContext
+from couchers.proto import bugs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -67,43 +67,27 @@ _NO_UPDATE = NativeUpdateDecision(
 )
 
 
-def _parse_iso(value: object) -> datetime | None:
-    if not isinstance(value, str) or not value:
-        return None
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-    return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed
-
-
-def parse_client_info(debug_json: str) -> NativeClientInfo:
-    try:
-        raw = json.loads(debug_json)
-    except json.JSONDecodeError, ValueError:
-        logger.warning("CheckNativeStatus: could not parse debug_json")
-        return NativeClientInfo()
-    if not isinstance(raw, dict):
-        return NativeClientInfo()
-
-    update_id = raw.get("updateId") or None
+def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeClientInfo:
+    update_id = request.update_id or None
+    # "none" is the placeholder the client sends when expo-updates has no current updateId.
     if update_id == "none":
         update_id = None
 
-    if "launchSource" in raw:
-        is_ota_launch = raw.get("launchSource") == "ota"
-    elif "isEmbeddedLaunch" in raw:
-        is_ota_launch = not bool(raw.get("isEmbeddedLaunch"))
-    else:
-        is_ota_launch = False
+    # launch_source is authoritative; is_embedded_launch is wire-level diagnostics only.
+    is_ota_launch = request.launch_source == "ota"
+
+    binary_created_at = (
+        request.embedded_created_at.ToDatetime(tzinfo=UTC) if request.HasField("embedded_created_at") else None
+    )
+    bundle_created_at = request.created_at.ToDatetime(tzinfo=UTC) if request.HasField("created_at") else None
 
     return NativeClientInfo(
-        platform=str(raw.get("platform") or ""),
-        runtime_version=str(raw.get("runtimeVersion") or ""),
+        platform=request.platform,
+        runtime_version=request.runtime_version,
         update_id=update_id,
         is_ota_launch=is_ota_launch,
-        binary_created_at=_parse_iso(raw.get("embeddedCreatedAt")),
-        bundle_created_at=_parse_iso(raw.get("createdAt")),
+        binary_created_at=binary_created_at,
+        bundle_created_at=bundle_created_at,
     )
 
 

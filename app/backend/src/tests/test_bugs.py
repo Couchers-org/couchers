@@ -400,9 +400,7 @@ def test_report_diagnostics_frontend_version(db):
 def test_check_native_status_anonymous(db):
     with bugs_session() as bugs:
         res = bugs.CheckNativeStatus(
-            bugs_pb2.CheckNativeStatusReq(
-                debug_json=json.dumps({"app_version": "1.1.20", "platform": "ios", "user_state": "logged_out"})
-            )
+            bugs_pb2.CheckNativeStatusReq(app_version="1.1.20", platform="ios", user_state="logged_out")
         )
 
     # No build timestamps reported -> no clock runs -> no update asked for.
@@ -414,9 +412,7 @@ def test_check_native_status_authenticated(db):
     _, token = generate_user()
 
     with bugs_session(token) as bugs:
-        res = bugs.CheckNativeStatus(
-            bugs_pb2.CheckNativeStatusReq(debug_json=json.dumps({"platform": "android", "user_state": "authenticated"}))
-        )
+        res = bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(platform="android", user_state="authenticated"))
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
     assert res.update_info.required is False
@@ -424,12 +420,11 @@ def test_check_native_status_authenticated(db):
 
 def test_check_native_status_blocks_expired_binary(db):
     # A native binary older than the (default 91-day) store window -> required store update, blocking.
-    embedded_created_at = (datetime.now(UTC) - timedelta(days=120)).isoformat()
+    embedded_created_at = timestamp_pb2.Timestamp()
+    embedded_created_at.FromDatetime(datetime.now(UTC) - timedelta(days=120))
     with bugs_session() as bugs:
         res = bugs.CheckNativeStatus(
-            bugs_pb2.CheckNativeStatusReq(
-                debug_json=json.dumps({"platform": "ios", "embeddedCreatedAt": embedded_created_at})
-            )
+            bugs_pb2.CheckNativeStatusReq(platform="ios", embedded_created_at=embedded_created_at)
         )
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_STORE

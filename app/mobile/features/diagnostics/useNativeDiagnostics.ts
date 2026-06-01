@@ -172,7 +172,6 @@ export function useNativeDiagnostics(): NativeDiagnostics {
         }
 
         const result = await checkNativeStatus({
-          // Device / install identity
           installId,
           stickyId,
           idfv: deviceIds.idfv,
@@ -182,9 +181,7 @@ export function useNativeDiagnostics(): NativeDiagnostics {
           osVersion: String(Platform.Version),
           locale: localeRef.current,
           userState: authenticatedRef.current ? "authenticated" : "logged_out",
-          // Build identity — the same set we report to Sentry (service/buildInfo.ts):
-          // the embedded store build, the running (possibly OTA) bundle, and the
-          // runtimeVersion/channel that decide which OTAs apply.
+          // Same set we report to Sentry (service/buildInfo.ts).
           appVariant,
           appVersion: Constants.expoConfig?.version ?? "unknown",
           nativeBuild: Application.nativeBuildVersion ?? "unknown",
@@ -192,18 +189,18 @@ export function useNativeDiagnostics(): NativeDiagnostics {
           embeddedDebugVersion,
           runningDisplayVersion,
           runningDebugVersion,
-          runningDebugVersionOTA,
+          runningDebugVersionOta: runningDebugVersionOTA,
           runtimeVersion,
           updateId,
           isEmbeddedLaunch,
           launchSource: isEmbeddedLaunch ? "embedded" : "ota",
           createdAt,
-          // Push + timing
           pushPermission: permission.status,
-          pushPermissionInfo: permission,
           pushToken,
           timeSinceLastOpenSeconds,
           occurred: new Date(now).toISOString(),
+          // Full Notifications permission response; structured but Expo-specific, kept free-form.
+          debugJson: JSON.stringify({ pushPermissionInfo: permission }),
         });
 
         await AsyncStorage.setItem(LAST_OPEN_KEY, String(now));

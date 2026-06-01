@@ -1,6 +1,7 @@
-import json
 from datetime import UTC, datetime, timedelta
 from typing import Any, cast
+
+from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.context import CouchersContext
 from couchers.native_updates import (
@@ -11,9 +12,10 @@ from couchers.native_updates import (
     NativeClientInfo,
     Severity,
     UpdateAction,
+    client_info_from_request,
     decide_native_update,
-    parse_client_info,
 )
+from couchers.proto import bugs_pb2
 
 NOW = datetime(2026, 5, 31, 12, 0, tzinfo=UTC)
 
@@ -40,19 +42,22 @@ def _decide(
     return decide_native_update(context, info, NOW, banned=banned)
 
 
-def test_parse_full_payload():
-    info = parse_client_info(
-        json.dumps(
-            {
-                "platform": "ios",
-                "runtimeVersion": "ios-fingerprint",
-                "updateId": "abc-123",
-                "launchSource": "ota",
-                "createdAt": "2026-05-01T00:00:00Z",
-                "embeddedCreatedAt": "2026-01-01T00:00:00Z",
-            }
-        )
+def _ts(dt: datetime) -> Timestamp:
+    out = Timestamp()
+    out.FromDatetime(dt)
+    return out
+
+
+def test_client_info_from_full_proto():
+    req = bugs_pb2.CheckNativeStatusReq(
+        platform="ios",
+        runtime_version="ios-fingerprint",
+        update_id="abc-123",
+        launch_source="ota",
+        created_at=_ts(datetime(2026, 5, 1, tzinfo=UTC)),
+        embedded_created_at=_ts(datetime(2026, 1, 1, tzinfo=UTC)),
     )
+    info = client_info_from_request(req)
     assert info.platform == "ios"
     assert info.runtime_version == "ios-fingerprint"
     assert info.update_id == "abc-123"
@@ -61,19 +66,19 @@ def test_parse_full_payload():
     assert info.binary_created_at == datetime(2026, 1, 1, tzinfo=UTC)
 
 
-def test_parse_embedded_launch_from_is_embedded_launch():
-    info = parse_client_info(json.dumps({"platform": "android", "isEmbeddedLaunch": True, "updateId": "none"}))
+def test_client_info_embedded_launch_source():
+    req = bugs_pb2.CheckNativeStatusReq(
+        platform="android", launch_source="embedded", is_embedded_launch=True, update_id="none"
+    )
+    info = client_info_from_request(req)
     assert info.is_ota_launch is False
+    # "none" is the placeholder for absent updateId on the client.
     assert info.update_id is None
 
 
-def test_parse_malformed_json_is_empty():
-    info = parse_client_info("{not json")
+def test_client_info_defaults_when_request_empty():
+    info = client_info_from_request(bugs_pb2.CheckNativeStatusReq())
     assert info == NativeClientInfo()
-
-
-def test_parse_non_dict_is_empty():
-    assert parse_client_info(json.dumps([1, 2, 3])) == NativeClientInfo()
 
 
 def test_no_timestamps_means_no_update():

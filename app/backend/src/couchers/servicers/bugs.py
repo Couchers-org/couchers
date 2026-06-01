@@ -33,8 +33,8 @@ from couchers.native_updates import (
     Severity,
     UpdateAction,
     UpdateCause,
+    client_info_from_request,
     decide_native_update,
-    parse_client_info,
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
@@ -283,9 +283,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def CheckNativeStatus(
         self, request: bugs_pb2.CheckNativeStatusReq, context: CouchersContext, session: Session
     ) -> bugs_pb2.CheckNativeStatusRes:
-        logger.info("CheckNativeStatus: user_id=%s debug=%s", context._user_id, request.debug_json)
+        logger.info(
+            "CheckNativeStatus: user_id=%s install_id=%s platform=%s app_version=%s "
+            "running_debug_version_ota=%s update_id=%s launch_source=%s debug_json=%s",
+            context._user_id,
+            request.install_id,
+            request.platform,
+            request.app_version,
+            request.running_debug_version_ota,
+            request.update_id,
+            request.launch_source,
+            request.debug_json,
+        )
 
-        info = parse_client_info(request.debug_json)
+        info = client_info_from_request(request)
         now = datetime.now(UTC)
         banned = _is_update_id_banned(session, info)
         decision = decide_native_update(context, info, now, banned=banned)

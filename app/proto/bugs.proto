@@ -130,7 +130,43 @@ message ReportDiagnosticsReq {
 }
 
 message CheckNativeStatusReq {
-  string debug_json = 1;
+  // Device / install identity
+  string install_id = 1;
+  string sticky_id = 2;
+  string idfv = 3;
+  string android_id = 4;
+  string device_name = 5;
+  string platform = 6;
+  string os_version = 7;
+  string locale = 8;
+  string user_state = 9;
+
+  // Build identity — the embedded store build, the running (possibly OTA) bundle,
+  // and the runtimeVersion/channel that decide which OTAs apply.
+  string app_variant = 10;
+  string app_version = 11;
+  string native_build = 12;
+  string embedded_display_version = 13;
+  string embedded_debug_version = 14;
+  string running_display_version = 15;
+  string running_debug_version = 16;
+  string running_debug_version_ota = 17;
+  string runtime_version = 18;
+  string update_id = 19;
+  bool is_embedded_launch = 20;
+  string launch_source = 21;
+  google.protobuf.Timestamp embedded_created_at = 22;
+  google.protobuf.Timestamp created_at = 23;
+
+  // Push + timing
+  string push_permission = 24;
+  string push_token = 25;
+  google.protobuf.Duration time_since_last_open = 26;
+  google.protobuf.Timestamp occurred = 27;
+
+  // Free-form blob for nested data that doesn't fit a flat field (e.g. the full push
+  // permission response object), and for ad-hoc additions during testing.
+  string debug_json = 28;
 }
 
 enum NativeUpdateAction {
