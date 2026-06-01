@@ -8,10 +8,7 @@ import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from babel.dates import format_timedelta
-
 from couchers.context import CouchersContext
-from couchers.i18n import LocalizationContext
 
 logger = logging.getLogger(__name__)
 
@@ -118,9 +115,11 @@ def decide_native_update(
 ) -> NativeUpdateDecision:
     # A device running a banned OTA bundle is blocked immediately, ahead of the age clocks. The
     # banned ban only stops new check-ins being served the bundle; this is what forces the devices
-    # already on it to move.
+    # already on it to move. act_by is left unset: per the proto contract the client treats an
+    # unset deadline as block-now, which avoids a tiny clock-skew window where a now-timestamp
+    # would land slightly in the client's future and read as warn.
     if banned and info.is_ota_launch:
-        return NativeUpdateDecision(action=UpdateAction.ota, severity=Severity.block, act_by=now)
+        return NativeUpdateDecision(action=UpdateAction.ota, severity=Severity.block, act_by=None)
 
     store_warn = timedelta(days=context.get_integer_value("native_store_warn_days", DEFAULT_STORE_WARN_DAYS))
     store_block = timedelta(days=context.get_integer_value("native_store_block_days", DEFAULT_STORE_BLOCK_DAYS))
@@ -147,40 +146,3 @@ def decide_native_update(
     if store_state == severity:
         return NativeUpdateDecision(action=UpdateAction.store, severity=severity, act_by=store_deadline)
     return NativeUpdateDecision(action=UpdateAction.ota, severity=severity, act_by=ota_deadline)
-
-
-def native_update_message(
-    localization: LocalizationContext,
-    decision: NativeUpdateDecision,
-    *,
-    platform: str,
-    now: datetime,
-) -> tuple[str, str]:
-    """Returns (message, link_text) for a non-`none` decision. Empty strings otherwise.
-
-    The store action has no link_text — the user updates via the platform store, which there's no
-    deep-link button for. Only the OTA action surfaces a tappable "Update now" button.
-    """
-    if decision.severity == Severity.none or decision.action not in (UpdateAction.ota, UpdateAction.store):
-        return "", ""
-
-    action_key = "store" if decision.action == UpdateAction.store else "ota"
-    sev_key = "block" if decision.severity == Severity.block else "warn"
-
-    subs: dict[str, str | int] = {}
-    if decision.action == UpdateAction.store:
-        store_platform = platform if platform in ("ios", "android") else "ios"
-        subs["store_name"] = localization.localize_string(f"native_update.store_name_{store_platform}")
-
-    if sev_key == "warn" and decision.act_by is not None and decision.act_by > now:
-        subs["time_left"] = format_timedelta(decision.act_by - now, locale=localization.babel_locale)
-
-    preamble = localization.localize_string("native_update.preamble")
-    body = localization.localize_string(f"native_update.{action_key}.{sev_key}", substitutions=subs)
-    message = f"{preamble} {body}"
-
-    link_text = (
-        localization.localize_string("native_update.ota_link_text") if decision.action == UpdateAction.ota else ""
-    )
-
-    return message, link_text

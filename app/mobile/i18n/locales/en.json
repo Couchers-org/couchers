@@ -29,11 +29,10 @@
     "open_settings": "Open Settings"
   },
   "update": {
-    "required_title": "Update required",
-    "recommended_title": "Please update soon",
-    "available_title": "Update available",
-    "default_message": "A new version of Couchers is available. Update to keep using the app.",
-    "deadline": "Please update by {{date}}.",
+    "required_title": "Update Required",
+    "body_warn": "It looks like you are running an old version of the app, so you will need to update it soon.",
+    "body_block": "It looks like you are running an old version of the app, so you will need to update it now.",
+    "preamble": "We are a small volunteer team and supporting old versions is really hard, we are sorry for the hassle.",
     "action_update": "Update now",
     "action_reinstall": "Get the new app",
     "later": "Later",

@@ -33,7 +33,6 @@ from couchers.native_updates import (
     Severity,
     UpdateAction,
     decide_native_update,
-    native_update_message,
     parse_client_info,
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
@@ -280,13 +279,12 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         _observe_native_check_metrics(info, decision, now, banned=banned)
 
-        message, link_text = native_update_message(context.localization, decision, platform=info.platform, now=now)
-
+        # message and link_text intentionally left empty for the standard cases — the client
+        # hardcodes those. The fields are reserved for special-case overrides; nothing in the
+        # current decision logic populates them.
         update_info = bugs_pb2.NativeUpdateInfo(
             action=updateaction2api[decision.action],
             required=decision.severity != Severity.none,
-            message=message,
-            link_text=link_text,
         )
         if decision.act_by is not None:
             update_info.act_by.FromDatetime(decision.act_by)

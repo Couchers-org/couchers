@@ -3,7 +3,6 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 from couchers.context import CouchersContext
-from couchers.i18n import LocalizationContext
 from couchers.native_updates import (
     DEFAULT_OTA_BLOCK_DAYS,
     DEFAULT_OTA_WARN_DAYS,
@@ -13,7 +12,6 @@ from couchers.native_updates import (
     Severity,
     UpdateAction,
     decide_native_update,
-    native_update_message,
     parse_client_info,
 )
 
@@ -201,57 +199,10 @@ def test_banned_bundle_on_ota_launch_forces_block():
     decision = _decide(info, banned=True)
     assert decision.action == UpdateAction.ota
     assert decision.severity == Severity.block
-    assert decision.act_by == NOW
+    # Unset deadline = block-now per the proto contract; avoids clock-skew flipping into warn.
+    assert decision.act_by is None
 
 
 def test_banned_ignored_when_not_an_ota_launch():
     info = NativeClientInfo(platform="ios", is_ota_launch=False, binary_created_at=_days_ago(5))
     assert _decide(info, banned=True).severity == Severity.none
-
-
-def _localization() -> LocalizationContext:
-    return LocalizationContext(locale="en", timezone=UTC)
-
-
-def test_message_store_warn_has_store_name_and_time_left():
-    decision = _decide(NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_WARN_DAYS + 1)))
-    message, link_text = native_update_message(_localization(), decision, platform="ios", now=NOW)
-    assert "App Store" in message
-    assert "small volunteer team" in message
-    # time_left got substituted (not just left as the placeholder).
-    assert "{{" not in message
-    # Store action has no tappable button — there's no link.
-    assert link_text == ""
-
-
-def test_message_store_block_no_time_left():
-    decision = _decide(NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 10)))
-    message, link_text = native_update_message(_localization(), decision, platform="ios", now=NOW)
-    assert "App Store" in message
-    assert "within" not in message
-    assert link_text == ""
-
-
-def test_message_ota_warn_says_button_below():
-    decision = _decide(
-        NativeClientInfo(
-            platform="android",
-            is_ota_launch=True,
-            binary_created_at=_days_ago(5),
-            bundle_created_at=_days_ago(DEFAULT_OTA_WARN_DAYS + 1),
-        )
-    )
-    message, link_text = native_update_message(_localization(), decision, platform="android", now=NOW)
-    assert "button below" in message
-    assert link_text == "Update now"
-
-
-def test_message_android_uses_play_store_name():
-    decision = _decide(NativeClientInfo(platform="android", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 1)))
-    message, _ = native_update_message(_localization(), decision, platform="android", now=NOW)
-    assert "Play Store" in message
-
-
-def test_message_none_is_empty():
-    decision = _decide(NativeClientInfo(platform="ios"))
-    assert native_update_message(_localization(), decision, platform="ios", now=NOW) == ("", "")

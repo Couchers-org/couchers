@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Image,
   Linking,
   Modal,
   Pressable,
@@ -15,6 +16,8 @@ import {
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
 import { NativeUpdateAction } from "@/proto/bugs_pb";
 import { theme } from "@/theme";
+
+const logo = require("@/assets/images/couchers_logo.png");
 
 // Default button label per action when the backend doesn't supply link_text.
 function defaultLinkText(
@@ -29,9 +32,13 @@ function defaultLinkText(
   }
 }
 
-// Renders the backend's update decision: a non-dismissible block screen, or a
-// dismissible nag/deadline warning. OTA updates are applied in-app; store and
-// reinstall actions open the supplied link.
+// Renders the update prompt:
+//   - non-dismissible block screen (mode = "block")
+//   - dismissible warn screen (mode = "warn")
+//
+// The body and preamble are hardcoded on the client so they read naturally and translators
+// don't have to keep variants in sync. If the backend supplies info.message (reserved for
+// special cases — not generated today), it overrides the structured body.
 export default function NativeUpdatePrompt({
   prompt,
   onDismiss,
@@ -39,7 +46,7 @@ export default function NativeUpdatePrompt({
   prompt: UpdatePrompt | null;
   onDismiss: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const isDark = useColorScheme() === "dark";
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -81,14 +88,8 @@ export default function NativeUpdatePrompt({
     }
   };
 
-  const title =
-    info.required && mode === "block"
-      ? t("update.required_title")
-      : info.required
-        ? t("update.recommended_title")
-        : t("update.available_title");
-
-  const message = info.message || t("update.default_message");
+  const title = t("update.required_title");
+  const bodyKey = mode === "block" ? "update.body_block" : "update.body_warn";
   const buttonLabel = info.linkText || defaultLinkText(info.action, t);
 
   return (
@@ -101,23 +102,23 @@ export default function NativeUpdatePrompt({
     >
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.content}>
+          <Image source={logo} style={styles.logo} resizeMode="contain" />
+
           <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-          <Text style={[styles.message, { color: colors.text }]}>
-            {message}
-          </Text>
-          {mode === "warn" && info.actBy && (
-            <Text style={[styles.deadline, { color: colors.textSecondary }]}>
-              {t("update.deadline", {
-                date: new Date(info.actBy.seconds * 1000).toLocaleString(
-                  i18n.language,
-                ),
-              })}
+
+          {info.message ? (
+            <Text style={[styles.body, { color: colors.text }]}>
+              {info.message}
             </Text>
-          )}
-          {failed && (
-            <Text style={[styles.error, { color: theme.palette.error.main }]}>
-              {t("update.failed")}
-            </Text>
+          ) : (
+            <>
+              <Text style={[styles.body, { color: colors.text }]}>
+                {t(bodyKey)}
+              </Text>
+              <Text style={[styles.preamble, { color: colors.textSecondary }]}>
+                {t("update.preamble")}
+              </Text>
+            </>
           )}
 
           <Pressable
@@ -148,6 +149,12 @@ export default function NativeUpdatePrompt({
               </Text>
             </Pressable>
           )}
+
+          {failed && (
+            <Text style={[styles.error, { color: theme.palette.error.main }]}>
+              {t("update.failed")}
+            </Text>
+          )}
         </View>
       </View>
     </Modal>
@@ -167,18 +174,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
   },
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: 8,
+  },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "700",
     textAlign: "center",
   },
-  message: {
+  body: {
     fontSize: 16,
     lineHeight: 22,
     textAlign: "center",
   },
-  deadline: {
+  preamble: {
     fontSize: 14,
+    lineHeight: 20,
     textAlign: "center",
   },
   error: {

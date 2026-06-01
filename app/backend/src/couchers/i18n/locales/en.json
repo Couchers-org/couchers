@@ -266,20 +266,6 @@
     "chat_unsub": "That group chat has been muted.",
     "host_request_quick_decline": "Thank you for responding to the host request!"
   },
-  "native_update": {
-    "preamble": "Hey! It looks like you are running an old version of the app. We are a small volunteer team and supporting old versions is really hard. We are sorry for the hassle.",
-    "store": {
-      "warn": "Please update the app via the {{store_name}} within {{time_left}}.",
-      "block": "Please update the app via the {{store_name}}."
-    },
-    "ota": {
-      "warn": "Please click the button below to update the app within {{time_left}}.",
-      "block": "Please click the button below to update the app."
-    },
-    "ota_link_text": "Update now",
-    "store_name_ios": "App Store",
-    "store_name_android": "Play Store"
-  },
   "ghost_users": {
     "display_name": "Deactivated Account",
     "about_me": "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
