@@ -306,6 +306,41 @@
     "subject": "Postal Verification succeeded",
     "body": "You have been verified with Postal Verification! Your address has been confirmed."
   },
+  "reference": {
+    "received": {
+      "friend": {
+        "subject": "You've received a friend reference from {{name}}!",
+        "body": "<b>{{name}}</b> wrote a friend reference for you."
+      },
+      "hosted": {
+        "body": "<b>{{name}}</b> just wrote a reference for you from when you hosted them."
+      },
+      "surfed": {
+        "body": "<b>{{name}}</b> just wrote a reference for you from when you surfed with them."
+      },
+      "subject": "You've received a reference from {{name}}!",
+      "before_quote": "This is what they wrote:",
+      "view_action": "View the reference on your profile",
+      "reciprocate_encouragement": "Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{name}}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back."
+    },
+    "reminder": {
+      "subject_days_one": "You have {{count}} day to write a reference for {{name}}!",
+      "subject_days_other": "You have {{count}} days to write a reference for {{name}}!",
+      "hosted": {
+        "body_days_one": "<b>You have {{count}} day left to write a reference for {{name}}</b> from when you hosted them.",
+        "body_days_other": "<b>You have {{count}} days left to write a reference for {{name}}</b> from when you hosted them."
+      },
+      "surfed": {
+        "body_days_one": "<b>You have {{count}} day left to write a reference for {{name}}</b> from when you surfed with them.",
+        "body_days_other": "<b>You have {{count}} days left to write a reference for {{name}}</b> from when you surfed with them."
+      },
+      "importance_note": "Your reference is vital to keeping the community safe, trustworthy, and welcoming. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
+      "no_meeting_note": "If you didn't end up meeting {{name}}, please use the reference flow to let us know (and we'll stop reminding you to write a reference).",
+      "via_messaging_note": "You can also leave a reference by going to the Messaging tab, locating the request, then clicking on the \"Write Reference\" button at the bottom of the conversation.",
+      "visibility_note": "References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever comes sooner."
+    },
+    "write_action": "Write a reference for {{name}}"
+  },
   "signup": {
     "subject": "Finish signing up for Couchers.org",
     "closing": "See you in a bit :)",

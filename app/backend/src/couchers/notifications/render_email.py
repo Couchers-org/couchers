@@ -194,22 +194,24 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.PostalVerificationPostcardSentEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name=user_name)
+        case NotificationTopicAction.reference__receive_friend:
+            return emails.FriendReferenceReceivedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.reference__receive_hosted:
+            # Reference received from the host, so I'm the surfer
+            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
+        case NotificationTopicAction.reference__receive_surfed:
+            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
+        case NotificationTopicAction.reference__reminder_hosted:
+            # Reminder to send a "hosted" reference, so I'm the host
+            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
+        case NotificationTopicAction.reference__reminder_surfed:
+            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.thread__reply:
             return emails.ThreadReplyEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_fail:
             return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
-        case (
-            NotificationTopicAction.reference__receive_friend
-            | NotificationTopicAction.reference__receive_hosted
-            | NotificationTopicAction.reference__receive_surfed
-            | NotificationTopicAction.reference__reminder_hosted
-            | NotificationTopicAction.reference__reminder_surfed
-            | NotificationTopicAction.onboarding__reminder
-        ):
-            # Still implemented as a custom templated email
-            return None
         case _:
             # Enable mypy's exhaustiveness checking
             assert_never(notification.topic_action)
@@ -231,67 +233,6 @@ class CustomTemplatedEmail:
 # e.g. not yet using couchers.email.emails.
 def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    if notification.topic == "reference":
-        if notification.action == "receive_friend":
-            title = f"You've received a friend reference from {data.from_user.name}!"
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=data.text,
-                template_name="friend_reference",
-                template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
-                    "profile_references_link": urls.profile_references_link(),
-                    "text": data.text,
-                },
-            )
-        elif notification.action in ["receive_hosted", "receive_surfed"]:
-            title = f"You've received a reference from {data.from_user.name}!"
-            # what was my type? i surfed with them if i received a "hosted" request
-            surfed = notification.action == "receive_hosted"
-            leave_reference_link = urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=data.from_user.user_id,
-                host_request_id=data.host_request_id,
-            )
-            profile_references_link = urls.profile_references_link()
-            if data.text:
-                preview = data.text
-            else:
-                preview = "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=preview,
-                template_name="host_reference",
-                template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
-                    "leave_reference_link": leave_reference_link,
-                    "profile_references_link": profile_references_link,
-                    "text": data.text,
-                    "both_written": True if data.text else False,
-                    "surfed": surfed,
-                },
-            )
-        elif notification.action in ["reminder_hosted", "reminder_surfed"]:
-            # what was my type? i surfed with them if i get a surfed reminder
-            surfed = notification.action == "reminder_surfed"
-            leave_reference_link = urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=data.other_user.user_id,
-                host_request_id=data.host_request_id,
-            )
-            title = f"You have {data.days_left} days to write a reference for {data.other_user.name}!"
-            preview = "It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=preview,
-                template_name="reference_reminder",
-                template_args={
-                    "other_user": UserTemplateArgs.from_protobuf_user(data.other_user),
-                    "leave_reference_link": leave_reference_link,
-                    "days_left": str(data.days_left),
-                    "surfed": surfed,
-                },
-            )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 

@@ -212,9 +212,29 @@ class LocalizationError(Exception):
 
 
 def full_string_key(key: str, *, relative_base: str | None) -> str:
-    """Resolves any relative string key (starting with '.') into a full string key."""
-    if key.startswith("."):
-        if relative_base is None:
-            raise ValueError("Relative string key requires a relative base.")
+    """
+    Resolves any relative string key into a full string key.
+    - .key is resolved to relative_base.key
+    - ..key is resolved to <parent of relative_base>.key
+    """
+    dot_prefix_count = 0
+    while dot_prefix_count < len(key) and key[dot_prefix_count] == ".":
+        dot_prefix_count += 1
+
+    if dot_prefix_count == 0:
+        return key  # Fully qualified key, return as is.
+
+    if relative_base is None:
+        raise ValueError("Relative string key requires a relative base.")
+
+    if dot_prefix_count == 1:
+        # Relative key
         return relative_base + key
-    return key
+    else:
+        # Parent-relative key, remove one more segment from the relative base for each additional dot
+        base_segments = relative_base.split(".")
+        if dot_prefix_count - 1 > len(base_segments):
+            raise ValueError("Relative string key goes beyond the root level.")
+        base_segments.pop(len(base_segments) - (dot_prefix_count - 1))
+
+        return ".".join(base_segments) + key[dot_prefix_count - 1 :]

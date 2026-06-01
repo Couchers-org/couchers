@@ -199,3 +199,7 @@ def test_full_string_key():
     assert full_string_key(".key", relative_base="base") == "base.key"
     with pytest.raises(ValueError):
         assert full_string_key(".key", relative_base=None)
+
+    assert full_string_key("..key", relative_base="root.base") == "root.key"
+    with pytest.raises(ValueError):
+        assert full_string_key("..key", relative_base="base")
