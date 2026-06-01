@@ -27,5 +27,17 @@
     "take_photo": "Vyfotit",
     "choose_from_library": "Vybrat z galerie",
     "open_settings": "Otevřít nastavení"
+  },
+  "update": {
+    "later": "Později",
+    "failed": "Aktualizaci se nepodařilo použít. Zkus to prosím znovu.",
+    "required_title": "Vyžadována aktualizace",
+    "body_warn": "Vypadá to, že používáš starou verzi aplikace, takže ji budeš muset brzy aktualizovat.",
+    "body_block": "Vypadá to, že používáš starou verzi aplikace, takže ji nyní budeš muset aktualizovat.",
+    "body_banned": "Zdá se, že se k tobě dostala chybná verze aplikace, takže ji bude potřeba aktualizovat.",
+    "preamble_warn": "Jsme malý tým dobrovolníků a podpora starších verzí je pro nás velmi náročná. Omlouváme se za komplikace.",
+    "preamble_block": "Jsme malý tým dobrovolníků a podpora starších verzí je pro nás velmi náročná. Omlouváme se za komplikace.",
+    "preamble_banned": "Jsme malý tým dobrovolníků a občas uděláme chybu, omlouváme se za potíže!",
+    "action_update": "Aktualizovat nyní"
   }
 }

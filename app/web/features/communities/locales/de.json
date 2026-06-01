@@ -6,8 +6,6 @@
     "message": "Verwende dieses Formular, um die Moderatoren aufzufordern, eine Benachrichtigung über dieses Event an alle Benutzer in der Nähe zu senden."
   },
   "show_cancelled_events": "Abgesagte Events anzeigen",
-  "attendees_count_one": "{{count}} Teilnehmende Person",
-  "attendees_count_other": "{{count}} Teilnehmende",
   "cancelled": "Abgesagt",
   "cancel_event": "Event absagen",
   "cancel_event_success_message": "Das Event wurde erfolgreich abgesagt.",
