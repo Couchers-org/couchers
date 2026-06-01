@@ -9,7 +9,8 @@ import UpcomingStays from "./UpcomingStays";
 
 const { t } = i18n;
 
-const listHostRequestsMock = service.requests.listHostRequests as jest.MockedFunction<
+const listHostRequestsMock = service.requests
+  .listHostRequests as jest.MockedFunction<
   typeof service.requests.listHostRequests
 >;
 
@@ -42,7 +43,11 @@ describe("UpcomingStays", () => {
   });
 
   it("does not show past stays", async () => {
-    const pastStay = { ...upcomingTrip, fromDate: "2000-01-01", toDate: "2000-01-05" };
+    const pastStay = {
+      ...upcomingTrip,
+      fromDate: "2000-01-01",
+      toDate: "2000-01-05",
+    };
     listHostRequestsMock.mockResolvedValue({
       hostRequestsList: [pastStay],
       noMore: true,

@@ -1,9 +1,10 @@
 import {
-  ChevronLeft,
-  ChevronRight,
+  ArrowBack,
+  ArrowForward,
   EventOutlined,
   Luggage,
   MeetingRoom,
+  PlaceOutlined,
 } from "@mui/icons-material";
 import { Box, IconButton, Skeleton, styled, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
@@ -223,7 +224,27 @@ function UpcomingStayCard({ hostRequest, kind }: UpcomingStayCardProps) {
     >
       <StyledCard sx={{ flex: 1 }}>
         <IdentityRow>
-          <Avatar user={otherUser} isProfileLink={false} />
+          {kind === "trip" ? (
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "8px",
+                border: "1px solid var(--mui-palette-divider)",
+                background: "var(--mui-palette-grey-50)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <PlaceOutlined
+                sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+              />
+            </Box>
+          ) : (
+            <Avatar user={otherUser} isProfileLink={false} />
+          )}
           <TextBlock>
             <Typography
               variant="h3"
@@ -356,8 +377,6 @@ function UpcomingStaysWidget({
     });
   };
 
-  const hasOverflow = canScrollLeft || canScrollRight;
-
   return (
     <section>
       <SectionHeader>
@@ -385,28 +404,26 @@ function UpcomingStaysWidget({
             </Box>
           )}
         </Typography>
-        {hasOverflow && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <IconButton
-              size="small"
-              onClick={() => scroll(-1)}
-              disabled={!canScrollLeft}
-              color={canScrollLeft ? "primary" : "default"}
-              aria-label="Previous"
-            >
-              <ChevronLeft />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => scroll(1)}
-              disabled={!canScrollRight}
-              color={canScrollRight ? "primary" : "default"}
-              aria-label="Next"
-            >
-              <ChevronRight />
-            </IconButton>
-          </Box>
-        )}
+        <div>
+          <IconButton
+            size="small"
+            onClick={() => scroll(-1)}
+            disabled={!canScrollLeft}
+            color={canScrollLeft ? "primary" : "default"}
+            aria-label="Previous"
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => scroll(1)}
+            disabled={!canScrollRight}
+            color={canScrollRight ? "primary" : "default"}
+            aria-label="Next"
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
       </SectionHeader>
 
       {isLoading ? (
