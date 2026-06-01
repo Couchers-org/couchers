@@ -151,6 +151,7 @@ message UserDetails {
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count = 17;
+  google.protobuf.Timestamp last_mod_note_acknowledged = 22;
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;

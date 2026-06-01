@@ -137,6 +137,10 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         .all()
     )
 
+    last_mod_note_acknowledged = session.execute(
+        select(func.max(ModNote.acknowledged)).where(ModNote.user_id == user.id)
+    ).scalar()
+
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
@@ -153,6 +157,9 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         pending_mod_notes_count=user.mod_notes.where(ModNote.is_pending).count(),
         acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
+        last_mod_note_acknowledged=(
+            Timestamp_from_datetime(last_mod_note_acknowledged) if last_mod_note_acknowledged else None
+        ),
         admin_actions=action_pbs,
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
