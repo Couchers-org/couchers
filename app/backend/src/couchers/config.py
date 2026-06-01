@@ -155,6 +155,31 @@ class Config:
         except AttributeError:
             raise KeyError(f"Config key undefined and has no default: {key}.") from None
 
+    def get(self, key: str, default: Any = None) -> Any:
+        """Weakly-typed indexer access using env var names for backcompat."""
+        attr_name = key.lower()
+        try:
+            return self.__getitem__(attr_name)
+        except KeyError:
+            return default
+
+    def copy(self) -> Config:
+        copy = Config()
+        copy.copy_from(self)
+        return copy
+
+    def copy_from(self, other: Config) -> None:
+        for attr_name in Config.__annotations__.keys():
+            try:
+                attr_value = other.__getattribute__(attr_name)
+            except AttributeError:
+                try:
+                    self.__delattr__(attr_name)
+                except AttributeError:
+                    pass
+                continue
+            self.__setattr__(attr_name, attr_value)
+
     def check(self) -> None:
         """Checks that the config is valid, i.e., all required values are set to valid values."""
         for attr_name in Config.__annotations__.keys():

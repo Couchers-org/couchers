@@ -74,18 +74,30 @@ def test_indexer_access() -> None:
 def test_instances_state_are_independent() -> None:
     """"""
     # Default values are declared at the class level, but should be copied to each instance.
-    assert Config.in_test == "0"
+    assert Config.in_test is False
 
     cfg1 = Config()
     cfg2 = Config()
 
-    assert cfg1.in_test == "0"
-    assert cfg2.in_test == "0"
+    assert cfg1.in_test is False
+    assert cfg2.in_test is False
 
-    cfg1.in_test = "1"
+    cfg1.in_test = True
 
-    assert cfg1.in_test == "1"
-    assert cfg2.in_test == "0"
+    assert cfg1.in_test is True
+    assert cfg2.in_test is False
+
+
+def test_copy() -> None:
+    cfg = Config()
+
+    cfg.background_worker_count = 1
+    copy1 = cfg.copy()
+    cfg.background_worker_count = 2
+    copy2 = cfg.copy()
+
+    assert copy1.background_worker_count == 1
+    assert copy2.background_worker_count == 2
 
 
 @pytest.mark.parametrize("dev", [True, False])

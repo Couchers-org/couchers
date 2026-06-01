@@ -151,8 +151,6 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
 @pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
-    config.clear()
-    config.update(prevconfig)
 
     config["IN_TEST"] = True
 
@@ -251,8 +249,7 @@ def testconfig():
 
     yield None
 
-    config.clear()
-    config.update(prevconfig)
+    config.copy_from(prevconfig)
 
 
 class FeatureFlags:
