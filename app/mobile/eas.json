@@ -19,7 +19,8 @@
         "APP_VARIANT": "staging",
         "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
-        "EXPO_PUBLIC_COUCHERS_ENV": "preview"
+        "EXPO_PUBLIC_COUCHERS_ENV": "preview",
+        "EXPO_PUBLIC_FEATURE_FLAGS_URL": "https://next-static.couchershq.org/express/current.json"
       }
     },
     "production": {
@@ -29,7 +30,29 @@
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
-        "EXPO_PUBLIC_COUCHERS_ENV": "prod"
+        "EXPO_PUBLIC_COUCHERS_ENV": "prod",
+        "EXPO_PUBLIC_FEATURE_FLAGS_URL": "https://cdn.couchers.org/express/current.json"
+      }
+    },
+    "devtool": {
+      "developmentClient": true,
+      "distribution": "store",
+      "autoIncrement": true,
+      "channel": "development",
+      "environment": "preview",
+      "env": {
+        "APP_VARIANT": "devtool",
+        "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "devtool",
+        "EXPO_PUBLIC_FEATURE_FLAGS_URL": "https://gbapi.couchershq.org/api/features/sdk-f8lwseEODN02p"
+      }
+    },
+    "devtool-apk": {
+      "extends": "devtool",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
       }
     }
   },
@@ -50,7 +73,13 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "completed"
+        "releaseStatus": "completed",
+        "changesNotSentForReview": true
+      }
+    },
+    "devtool": {
+      "ios": {
+        "ascAppId": "6772371797"
       }
     }
   }

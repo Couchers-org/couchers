@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -217,10 +218,13 @@ export default function EventCard({ event, className }: EventCardProps) {
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
-              <Typography variant="body2" color="textSecondary">
-                {t("communities:attendees_count", {
-                  count: event.goingCount,
-                })}
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
+                {event.goingCount}
               </Typography>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {

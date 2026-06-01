@@ -4,6 +4,10 @@
 .DS_Store
 ._.DS_Store
 
+# python
+__pycache__/
+*.pyc
+
 .envrc
 
 # helps Lennart configure his vim

@@ -18,7 +18,8 @@
     {
       "id": "moderator",
       "color": "#c74f5b",
-      "admin_editable": false
+      "admin_editable": false,
+      "flag": "show_moderator_badge"
     },
     {
       "id": "volunteer",

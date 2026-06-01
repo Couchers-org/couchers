@@ -1,6 +1,8 @@
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import { makeSearchQueryId } from "features/analytics/searchAttribution";
 import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
+import { useRef } from "react";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";
@@ -86,6 +88,19 @@ export function useUserSearch(
     totalItems,
   });
 
+  // Rolls when filters/bbox/query change, stays put across pagination within
+  // the same intent. searchParams keeps a stable reference across pagination.
+  const searchQueryIdRef = useRef<string | null>(null);
+  const prevSearchParamsRef = useRef<FilterOptions | null>(null);
+  if (
+    searchQueryIdRef.current === null ||
+    prevSearchParamsRef.current !== searchParams
+  ) {
+    prevSearchParamsRef.current = searchParams;
+    searchQueryIdRef.current = makeSearchQueryId();
+  }
+  const searchQueryId = searchQueryIdRef.current;
+
   return {
     error,
     users,
@@ -96,5 +111,6 @@ export function useUserSearch(
     fetchPreviousPage,
     currentRange,
     totalItems,
+    searchQueryId,
   };
 }

@@ -2,24 +2,38 @@
 Experimentation framework for feature flags and experiments.
 
 Uses GrowthBook under the hood, but abstracts the implementation details.
+
+Two ways to evaluate a flag:
+  - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
+    etc.), which evaluate for the context's user and own the per-request evaluator cache.
+  - Global (no user/request): use the module-level get_global_boolean_value / get_global_string_value
+    / ... below. Use these ONLY when there is genuinely no user to evaluate for and no way to thread
+    one through - per-user evaluation is impossible here, not merely that you don't expect the value
+    to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
+    per-user path can do percentage rollouts, experiments, and feature-usage tracking.
+
+Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
+once at process startup.
 """
 
 import json
 import logging
 import threading
-from typing import TYPE_CHECKING, Any
+import time
+from collections.abc import Callable
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from typing import Any
 
 import urllib3
 from growthbook import GrowthBook
-from growthbook.common_types import Experiment, Result
+from growthbook.common_types import Experiment, FeatureResult, Result
 from sqlalchemy.dialects.postgresql import insert
 
+from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models.logging import ExperimentExposure
-
-if TYPE_CHECKING:
-    from couchers.context import CouchersContext
+from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +46,17 @@ _state: dict[str, Any] = {"features": {}, "savedGroups": {}}
 _state_lock = threading.Lock()
 _refresh_stop = threading.Event()
 _refresh_thread: threading.Thread | None = None
+# Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
+# load from the API or seed from the disk cache; drives the staleness metric.
+_last_fetch_time: float | None = None
 
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
+
+
+class GrowthBookUnavailableError(Exception):
+    """Raised at startup when features can't be fetched and there's no usable disk cache to fall back on."""
 
 
 def _fetch_features() -> dict[str, Any] | None:
@@ -64,13 +85,48 @@ def _apply_response(response: dict[str, Any]) -> None:
         _state["savedGroups"] = response.get("savedGroups", {})
 
 
+def _set_last_fetch_time(when: float) -> None:
+    global _last_fetch_time
+    _last_fetch_time = when
+
+
+def seconds_since_last_fetch() -> float | None:
+    """Seconds since the last successful pull, or None if never pulled. Drives the staleness metric."""
+    when = _last_fetch_time
+    if when is None:
+        return None
+    return max(0.0, time.time() - when)
+
+
+def _write_cache(response: dict[str, Any]) -> None:
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    data = json.dumps({"fetched_at": time.time(), "response": response})
+    # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
+    # never sees a half-written cache.
+    with NamedTemporaryFile("w", dir=path.parent, prefix=".growthbook-cache-", suffix=".tmp", delete=False) as f:
+        f.write(data)
+        tmp = Path(f.name)
+    tmp.replace(path)
+
+
+def _read_cache() -> tuple[dict[str, Any], float] | None:
+    """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
+    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text())
+    return payload["response"], payload["fetched_at"]
+
+
 def _refresh_loop() -> None:
     while not _refresh_stop.wait(_REFRESH_INTERVAL_SECONDS):
         response = _fetch_features()
         if response is not None:
             _apply_response(response)
+            _write_cache(response)
+            _set_last_fetch_time(time.time())
             logger.debug("GrowthBook features refreshed")
-        # On failure, keep last-known-good state and try again next tick.
+        # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
 def setup_experimentation() -> None:
@@ -97,6 +153,24 @@ def setup_experimentation() -> None:
     response = _fetch_features()
     if response is not None:
         _apply_response(response)
+        _write_cache(response)
+        _set_last_fetch_time(time.time())
+        logger.info("GrowthBook features loaded from API")
+    else:
+        # Unreachable at startup: fall back to the disk cache rather than booting on in-code defaults.
+        cached = _read_cache()
+        if cached is None:
+            raise GrowthBookUnavailableError(
+                "Could not fetch features from GrowthBook and no disk cache is available - refusing to "
+                "start on in-code feature-flag defaults"
+            )
+        cached_response, fetched_at = cached
+        _apply_response(cached_response)
+        _set_last_fetch_time(fetched_at)
+        logger.warning(
+            "GrowthBook unavailable at startup; loaded features from disk cache (%.0fs old)",
+            max(0.0, time.time() - fetched_at),
+        )
 
     with _state_lock:
         smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])
@@ -108,13 +182,6 @@ def setup_experimentation() -> None:
 
     _initialized = True
     logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
-
-
-def _check_initialized() -> None:
-    if config["EXPERIMENTATION_ENABLED"] and not _initialized:
-        raise ExperimentationNotInitializedError(
-            "Experimentation is not initialized - call setup_experimentation() first"
-        )
 
 
 def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: Any) -> None:
@@ -136,6 +203,7 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
             user_id=user_id,
             experiment_key=experiment.key,
             variation_id=result.variationId,
+            source=ExposureSource.backend,
             data=data,
         )
         .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
@@ -144,59 +212,93 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         session.execute(stmt)
 
 
-def _get_growthbook(context: CouchersContext) -> GrowthBook:
+def _record_feature_usage(user_id: int, key: str, result: FeatureResult, **_: Any) -> None:
+    with session_scope() as session:
+        session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
+
+
+def _create_evaluator(user_id: int | None) -> GrowthBook:
     """
-    Get or create a cached GrowthBook instance for the given context.
+    Build a per-request GrowthBook evaluator over the current feature snapshot.
 
-    Reads the in-memory feature snapshot maintained by the background refresh
-    thread - never does HTTP from the request path. Constructing without
-    `client_key` keeps the GrowthBook a pure evaluator: no callback
-    registration on the library's process-wide singleton.
+    Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
+    can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
+    through to their defaults. No exposure or usage is recorded without a user.
+
+    Reads the in-memory snapshot maintained by the background refresh thread - never does HTTP
+    from the request path. Constructing without `client_key` keeps the GrowthBook a pure
+    evaluator: no callback registration on the library's process-wide singleton. The caller is
+    responsible for caching this for the lifetime of a request.
     """
-    gb = context._growthbook
-    if gb is None:
-        with _state_lock:
-            features = _state["features"]
-            saved_groups = _state["savedGroups"]
+    if not _initialized:
+        raise ExperimentationNotInitializedError(
+            "Experimentation is not initialized - call setup_experimentation() first"
+        )
+    with _state_lock:
+        features = _state["features"]
+        saved_groups = _state["savedGroups"]
 
-        user_id = context.user_id
-
-        def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+    def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+        if user_id is not None:
             _record_exposure(user_id, experiment, result)
 
-        gb = GrowthBook(
-            attributes={"id": str(user_id)},
-            features=features,
-            savedGroups=saved_groups,
-            on_experiment_viewed=on_experiment_viewed,
-        )
-        context._growthbook = gb
-    return gb
+    def on_feature_usage(key: str, result: FeatureResult, *args: Any, **kwargs: Any) -> None:
+        if user_id is not None:
+            _record_feature_usage(user_id, key, result)
+
+    return GrowthBook(
+        attributes={"id": str(user_id)} if user_id is not None else {},
+        features=features,
+        savedGroups=saved_groups,
+        on_experiment_viewed=on_experiment_viewed,
+        on_feature_usage=on_feature_usage,
+    )
 
 
-def check_gate(context: CouchersContext, gate_name: str) -> bool:
-    """
-    Check if a feature gate is enabled for the user in this context.
-
-    Returns False if experimentation is disabled, True if EXPERIMENTATION_PASS_ALL_GATES is set.
-    """
-    _check_initialized()
-    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        return True
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return False
-    return _get_growthbook(context).is_on(gate_name)
+def _global_evaluator() -> GrowthBook:
+    """Build an anonymous evaluator for flag evaluation with no user/request context."""
+    return _create_evaluator(None)
 
 
-def get_feature_value[T](context: CouchersContext, feature_name: str, default: T) -> T:
-    """
-    Get the value of a feature for the user in this context.
-
-    Use this for non-boolean features: strings, numbers, dicts, experiment variations,
-    dynamic configs - anything other than a simple on/off gate. The default's type
-    determines the return type and is returned verbatim when experimentation is disabled.
-    """
-    _check_initialized()
+# These two helpers are the single home of the gating logic, shared by the global functions below
+# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
+# invoked once gating passes, so it stays lazy.
+def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
     if not config["EXPERIMENTATION_ENABLED"]:
         return default
-    return _get_growthbook(context).get_feature_value(feature_name, default)  # type: ignore[no-any-return]
+    result = get_evaluator().eval_feature(flag_key)
+    value = default if result.value is None else result.value
+    metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
+    return value
+
+
+def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
+    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
+        return True
+    return _feature_value(flag_key, default, get_evaluator)
+
+
+# Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
+# no way to thread one through - per-user evaluation is impossible here, not merely that you don't
+# expect the value to vary per user. If a user is (or could reasonably be) available, use the
+# CouchersContext methods instead: only the per-user path does percentage rollouts, experiments, and
+# feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
+# through to their in-code defaults unless a rule forces a value globally.
+def get_global_boolean_value(flag_key: str, default: bool) -> bool:
+    return _boolean_value(flag_key, default, _global_evaluator)
+
+
+def get_global_string_value(flag_key: str, default: str) -> str:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_integer_value(flag_key: str, default: int) -> int:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_float_value(flag_key: str, default: float) -> float:
+    return _feature_value(flag_key, default, _global_evaluator)
+
+
+def get_global_object_value[T](flag_key: str, default: T) -> T:
+    return _feature_value(flag_key, default, _global_evaluator)

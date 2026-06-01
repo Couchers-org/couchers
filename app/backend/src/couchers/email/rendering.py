@@ -3,7 +3,7 @@ Renders HTML and plaintext emails out of well-known blocks.
 """
 
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import lru_cache
 from html import unescape
 from pathlib import Path
@@ -11,9 +11,11 @@ from typing import Any, Self
 
 from markupsafe import Markup
 
+from couchers import urls
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import I18Next, SubstitutionDict
+from couchers.i18n.i18next import I18Next, SubstitutionDict, full_string_key
 from couchers.i18n.locales import load_locales
+from couchers.proto import api_pb2
 from couchers.templating import Jinja2Template, _markdown, template_folder
 from couchers.utils import now
 
@@ -25,14 +27,14 @@ class EmailBlock:
     pass
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class ParaBlock(EmailBlock):
     """A paragraph of text which may contain span-level HTML."""
 
     text: str | Markup
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class UserBlock(EmailBlock):
     """A banner with another user's profile information, for example preceding a quoted message."""
 
@@ -40,13 +42,23 @@ class UserBlock(EmailBlock):
     comment: str | Markup | None
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class UserInfo:
     name: str
     age: int
     city: str
     avatar_url: str
     profile_url: str
+
+    @classmethod
+    def from_protobuf(cls, user: api_pb2.User) -> Self:
+        return cls(
+            name=user.name,
+            age=user.age,
+            city=user.city,
+            avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
+            profile_url=urls.user_link(username=user.username),
+        )
 
     @staticmethod
     def dummy_bob() -> UserInfo:
@@ -59,7 +71,7 @@ class UserInfo:
         )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class QuoteBlock(EmailBlock):
     """A quoted message, typically from another user. Either plaintext or markdown."""
 
@@ -67,7 +79,7 @@ class QuoteBlock(EmailBlock):
     markdown: bool
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class ActionBlock(EmailBlock):
     """An action that can be performed by the user in response to the email."""
 
@@ -75,19 +87,29 @@ class ActionBlock(EmailBlock):
     target_url: str
 
 
+@dataclass(kw_only=True, slots=True)
+class TwoButtonHTMLBlock(EmailBlock):
+    """An HTML-only block for rendering as side-by-side buttons."""
+
+    text_1: str
+    target_url_1: str
+    text_2: str
+    target_url_2: str
+
+
 class EmailBlocksBuilder:
     """
-    Builder object for constructing a list of EmailBlock's to form the body of an email.
+    Builder object for constructing a list of localized EmailBlock's to form the body of an email.
     """
 
     _locale: str
-    _string_key_prefix: str
+    _string_key_base: str
     blocks: list[EmailBlock]
 
-    def __init__(self, locale: str, string_key_prefix: str):
+    def __init__(self, locale: str, string_key_base: str):
         self.blocks = []
         self._locale = locale
-        self._string_key_prefix = string_key_prefix
+        self._string_key_base = string_key_base
 
     def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ParaBlock(text=self._markup(key, substitutions)))
@@ -107,25 +129,17 @@ class EmailBlocksBuilder:
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
 
-    def do_not_reply_request_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.do_not_reply_request", self._locale)
-        return self.block(ParaBlock(text=line))
-
-    def security_warning_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)
-        return self.block(ParaBlock(text=line))
-
     def block(self, block: EmailBlock) -> Self:
         self.blocks.append(block)
         return self
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:
-        full_key = f"{self._string_key_prefix}.{key}"
-        return get_emails_i18next().localize(full_key, self._locale, substitutions)
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize(key, self._locale, substitutions)
 
     def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
-        full_key = f"{self._string_key_prefix}.{key}"
-        return get_emails_i18next().localize_with_markup(full_key, self._locale, substitutions)
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize_with_markup(key, self._locale, substitutions)
 
 
 @dataclass(kw_only=True)
@@ -276,6 +290,7 @@ class HTMLRenderer:
     user_block_template: Jinja2Template
     quote_block_template: Jinja2Template
     action_block_template: Jinja2Template
+    two_buttons_block_template: Jinja2Template
 
     def render(
         self,
@@ -300,10 +315,10 @@ class HTMLRenderer:
         )
 
         # Render each block
-        for block in blocks:
+        for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
-                    concats.append(self.para_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.para_block_template.render(asdict(block), loc_context))
                 case UserBlock():
                     concats.append(
                         self.user_block_template.render(
@@ -321,7 +336,9 @@ class HTMLRenderer:
                     args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args, loc_context))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(block.__dict__, loc_context))
+                    concats.append(self.action_block_template.render(asdict(block), loc_context))
+                case TwoButtonHTMLBlock():
+                    concats.append(self.two_buttons_block_template.render(asdict(block), loc_context))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
@@ -330,6 +347,28 @@ class HTMLRenderer:
         concats.append(self.footer_template.render(footer_template_args, loc_context))
 
         return "\n".join(concats)
+
+    @staticmethod
+    def _merge_action_blocks(blocks: list[EmailBlock]) -> list[EmailBlock]:
+        """Merge any two subsequent action blocks into a single two-button block."""
+        blocks = blocks.copy()
+
+        block_index = 0
+        while block_index + 1 < len(blocks):
+            block = blocks[block_index]
+            next_block = blocks[block_index + 1]
+            if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
+                blocks[block_index] = TwoButtonHTMLBlock(
+                    target_url_1=block.target_url,
+                    text_1=block.text,
+                    target_url_2=next_block.target_url,
+                    text_2=next_block.text,
+                )
+                blocks.pop(block_index + 1)
+
+            block_index += 1
+
+        return blocks
 
     @lru_cache(maxsize=1)
     @staticmethod
@@ -352,13 +391,14 @@ class HTMLRenderer:
             user_block_template=Jinja2Template(source=block_templates["user"], html=True),
             quote_block_template=Jinja2Template(source=block_templates["quote"], html=True),
             action_block_template=Jinja2Template(source=block_templates["action"], html=True),
+            two_buttons_block_template=Jinja2Template(source=block_templates["two-buttons"], html=True),
         )
 
 
 # Matches a begin-block / end-block pair of comments in the html file containing template blocks.
 _block_regex = re.compile(
     r"""
-<!-- begin-block:(?P<name>\w+) -->\s*
+<!-- begin-block:(?P<name>[\w-]+) -->\s*
 (?P<snippet>[\s\S]*?)
 \s*<!-- end-block:(?P=name) -->
 """.strip(),

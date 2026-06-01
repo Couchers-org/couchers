@@ -60,8 +60,7 @@
     "your_upcoming_empty_message": "目前沒有活動。何不<0>建立</0>一個✨？",
     "community_header": "您所在社群的活動",
     "community_empty_message": "您所在的社群目前沒有即將開始的活動。",
-    "location_online_label": "線上",
-    "attendees_count_label_other": "{{count}} 位參與者"
+    "location_online_label": "線上"
   },
   "reminder": {
     "respond_to_host_request": {
@@ -71,7 +70,6 @@
     },
     "write_reference": {
       "title": "撰寫評語",
-      "description": "為 {{name}} 的住宿經歷留下評語",
       "button": "撰寫評語"
     },
     "complete_profile": {

@@ -17,7 +17,7 @@ import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
 
 const CARD_WIDTH_DESKTOP = 280;
-const CARD_WIDTH_MOBILE = 240;
+const CARD_WIDTH_MOBILE = 200;
 const CARD_GAP = 16;
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -36,6 +36,9 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   }
   if (reminder.completeProfileReminder) {
     return "complete_profile";
+  }
+  if (reminder.completeMyHomeReminder) {
+    return "complete_my_home";
   }
   if (reminder.completeVerificationReminder) {
     return "complete_verification";
@@ -174,7 +177,15 @@ export default function ReminderCarousel() {
         <ChevronLeftIcon />
       </StyledArrow>
 
-      <StyledScroller ref={scrollerRef} onScroll={updateScrollState}>
+      <StyledScroller
+        ref={scrollerRef}
+        onScroll={updateScrollState}
+        sx={
+          isMobile && visibleReminders.length === 1
+            ? { justifyContent: "center" }
+            : undefined
+        }
+      >
         {visibleReminders.map(({ id, reminder }) => (
           <StyledCardSlot key={id}>
             <ReminderItem

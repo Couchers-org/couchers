@@ -17,6 +17,7 @@ import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
+  pingQueryKey,
 } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -153,6 +154,7 @@ export default function GroupChatView({
       service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(
@@ -194,6 +196,7 @@ export default function GroupChatView({
           )}
           <ChatContent
             isHostRequest={false}
+            isDm={groupChat?.isDm}
             isLoading={isMessagesLoading}
             messages={messagesRes}
             fetchNextPage={fetchNextPage}

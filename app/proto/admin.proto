@@ -107,6 +107,18 @@ service Admin {
   rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
 
   rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
+
+  rpc CreateOTAPackage(CreateOTAPackageReq) returns (OTAPackage) {
+    // Register a published Expo OTA bundle so the backend serves it to compatible native builds
+  }
+
+  rpc ListOTAPackages(ListOTAPackagesReq) returns (ListOTAPackagesRes) {}
+
+  rpc BanOTAPackage(BanOTAPackageReq) returns (OTAPackage) {
+    // Ban a package so it's no longer served; a matching client falls back to the next-newest
+    // non-banned package (i.e. a rollback), or to no update if none remain. Irreversible — to undo
+    // an accidental ban, republish the bundle as a new package (rolling forward).
+  }
 }
 
 message AdminActionLog {
@@ -151,6 +163,7 @@ message UserDetails {
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count = 17;
+  google.protobuf.Timestamp last_mod_note_acknowledged = 22;
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
@@ -407,6 +420,9 @@ message GetUserReferencesReq {
 }
 
 message AdminReference {
+  reserved 11;
+  reserved "is_deleted";
+
   int64 reference_id = 1;
   int64 from_user_id = 2;
   int64 to_user_id = 3;
@@ -417,7 +433,6 @@ message AdminReference {
   int64 host_request_id = 8;
   double rating = 9;
   bool was_appropriate = 10;
-  bool is_deleted = 11;
 }
 
 message GetUserReferencesRes {
@@ -597,4 +612,60 @@ message UserUpload {
 message ListUserUploadsRes {
   repeated UserUpload uploads = 1;
   string next_page_token = 2;
+}
+
+enum OTAPlatform {
+  OTA_PLATFORM_UNSPECIFIED = 0;
+  OTA_PLATFORM_IOS = 1;
+  OTA_PLATFORM_ANDROID = 2;
+}
+
+message OTAPackage {
+  int64 ota_package_id = 1;
+  google.protobuf.Timestamp created = 2;
+  int64 creator_user_id = 3;
+  OTAPlatform platform = 4;
+  // The Expo build fingerprint this bundle is compatible with (the manifest's runtimeVersion).
+  string fingerprint = 5;
+  // The immutable CDN path component the signed manifest is published under (e.g. v1.3.<commit>.<sha>).
+  string version = 6;
+  // The manifest's createdAt: the publish/stamp time used to order rollouts (a rollback re-stamps a
+  // newer one). The newest per fingerprint is served.
+  google.protobuf.Timestamp manifest_created_at = 7;
+  // The manifest's own id (uuid), for reference.
+  string manifest_id = 8;
+  bool banned = 9;
+  google.protobuf.Timestamp banned_at = 10;
+  int64 banned_by_user_id = 11;
+  string banned_reason = 12;
+  // True if this is the package currently served to a matching client: the newest non-banned
+  // package for its platform + fingerprint.
+  bool live = 13;
+}
+
+message CreateOTAPackageReq {
+  OTAPlatform platform = 1;
+  // The immutable CDN path component the signed manifest was published under (e.g.
+  // v1.3.<commit>.<sha>). The backend fetches {cdn_root}/{version}/{platform}/manifest and reads
+  // runtimeVersion / createdAt / id out of the manifest it's about to serve.
+  string version = 2;
+}
+
+message ListOTAPackagesReq {
+  // Optional: only return packages for this platform.
+  OTAPlatform platform = 1;
+  // Optional: only return packages with this fingerprint (the build's runtimeVersion).
+  string fingerprint = 2;
+  // Include banned packages too (default only non-banned).
+  bool include_banned = 3;
+}
+
+message ListOTAPackagesRes {
+  // Newest first.
+  repeated OTAPackage packages = 1;
+}
+
+message BanOTAPackageReq {
+  int64 ota_package_id = 1;
+  string reason = 2;
 }

@@ -164,7 +164,12 @@ class FakeChannel:
 
         def fake_handler(request):
             auth_info = _try_get_and_update_user_details(
-                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                self._token,
+                is_api_key=False,
+                ip_address="127.0.0.1",
+                user_agent="Testing User-Agent",
+                sofa=None,
+                client_platform=None,
             )
             auth_level = find_auth_level(self._pool, method)
             check_permissions(auth_info, auth_level)
@@ -183,6 +188,7 @@ class FakeChannel:
                         locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
                         timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
                     ),
+                    sofa="test_sofa_cookie_value",
                 )
 
                 response = handler.unary_unary(request, context, session)
@@ -304,6 +310,17 @@ def real_iris_session():
     with run_server() as (server, channel, metadata_interceptor):
         iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
         yield iris_pb2_grpc.IrisStub(channel)
+
+
+@contextmanager
+def real_bugs_session():
+    """
+    Bugs over a real server so requests can carry metadata (HTTP request headers)
+    and the response's initial metadata (HTTP response headers) can be asserted.
+    """
+    with run_server() as (server, channel, metadata_interceptor):
+        bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), server)
+        yield bugs_pb2_grpc.BugsStub(channel), metadata_interceptor
 
 
 @contextmanager

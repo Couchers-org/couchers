@@ -29,6 +29,7 @@ from sqlalchemy.sql import (
     update,
 )
 
+from couchers import experimentation
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -210,7 +211,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             GroupChatSubscription.group_chat_id.label("group_chat_id"),
                             func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                             func.max(Message.id).label("message_id"),
-                            func.count(Message.id).label("count_unseen"),
+                            func.count(Message.id).label("unseen_count"),
                         )
                         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id),
@@ -235,7 +236,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             unseen_messages = session.execute(
                 where_moderated_content_visible(
-                    select(GroupChat, Message, subquery.c.count_unseen)
+                    select(GroupChat, Message, subquery.c.unseen_count)
                     .join(subquery, subquery.c.message_id == Message.id)
                     .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id),
                     context,
@@ -248,12 +249,6 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 continue
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
-
-            def format_title(message: Message, group_chat: GroupChat, count_unseen: int) -> str:
-                if group_chat.is_dm:
-                    return f"You missed {count_unseen} message(s) from {message.author.name}"
-                else:
-                    return f"You missed {count_unseen} message(s) in {group_chat.title}"
 
             notify(
                 session,
@@ -268,11 +263,12 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                                 session,
                                 context,
                             ),
-                            message=format_title(message, group_chat, count_unseen),
                             text=message.text,
                             group_chat_id=message.conversation_id,
+                            group_chat_title=group_chat.title,
+                            unseen_count=unseen_count,
                         )
-                        for group_chat, message, count_unseen in unseen_messages
+                        for group_chat, message, unseen_count in unseen_messages
                     ],
                 ),
             )
@@ -613,9 +609,29 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
 
 
 def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
-    if not config["LISTMONK_ENABLED"]:
+    if not experimentation.get_global_boolean_value("listmonk_enabled", default=False):
         logger.info("Not adding users to mailing list")
         return
+
+    sess = requests.Session()
+    sess.auth = (config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"])
+
+    def sync_subscriber(user: User, status: str) -> None:
+        r = sess.post(
+            config["LISTMONK_BASE_URL"] + "/api/subscribers",
+            json={
+                "email": user.email,
+                "name": user.name,
+                "lists": [config["LISTMONK_LIST_ID"]],
+                "preconfirm_subscriptions": True,
+                "attribs": {"couchers_user_id": user.id},
+                "status": status,
+            },
+            timeout=10,
+        )
+        # the API returns 409 if the subscriber already exists
+        if r.status_code not in (200, 409):
+            raise Exception("Failed to update user mailing list status")
 
     logger.info("Adding users to mailing list")
 
@@ -626,32 +642,39 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
             ).scalar_one_or_none()
             if not user:
                 logger.info("Finished adding users to mailing list")
-                return
+                break
 
-            if user.opt_out_of_newsletter:
-                user.in_sync_with_newsletter = True
-                session.commit()
-                continue
+            if not user.opt_out_of_newsletter:
+                sync_subscriber(user, "enabled")
 
-            r = requests.post(
-                config["LISTMONK_BASE_URL"] + "/api/subscribers",
-                auth=(config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"]),
-                json={
-                    "email": user.email,
-                    "name": user.name,
-                    "lists": [config["LISTMONK_LIST_ID"]],
-                    "preconfirm_subscriptions": True,
-                    "attribs": {"couchers_user_id": user.id},
-                    "status": "enabled",
-                },
-                timeout=10,
+            user.in_sync_with_newsletter = True
+            session.commit()
+
+    if experimentation.get_global_boolean_value("remove_removed_users_from_mailing_list_enabled", default=False):
+        with session_scope() as session:
+            session.execute(
+                update(User)
+                .where(~User.is_visible | User.is_shadowed)
+                .where(User.opt_out_of_newsletter == False)
+                .values(opt_out_of_newsletter=True, in_sync_with_newsletter=False)
             )
-            # the API returns if the user is already subscribed
-            if r.status_code == 200 or r.status_code == 409:
+            session.commit()
+
+        while True:
+            with session_scope() as session:
+                user = session.execute(
+                    select(User)
+                    .where(~User.is_visible | User.is_shadowed)
+                    .where(User.in_sync_with_newsletter == False)
+                    .limit(1)
+                ).scalar_one_or_none()
+                if not user:
+                    logger.info("Finished removing users from mailing list")
+                    return
+
+                sync_subscriber(user, "blocklisted")
                 user.in_sync_with_newsletter = True
                 session.commit()
-            else:
-                raise Exception("Failed to add users to mailing list")
 
 
 def enforce_community_membership(payload: empty_pb2.Empty) -> None:
@@ -838,6 +861,9 @@ def update_badges(payload: empty_pb2.Empty) -> None:
 
         def update_badge(badge_id: str, members: Sequence[int]) -> None:
             badge = get_badge_dict()[badge_id]
+            # this batch job has no per-user context to evaluate the gate against, so it's global
+            if badge.flag is not None and not experimentation.get_global_boolean_value(badge.flag, default=True):
+                members = []
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
             actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
@@ -1305,7 +1331,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    if not config["ENABLE_POSTAL_VERIFICATION"]:
+    if not experimentation.get_global_boolean_value("postal_verification_enabled", default=False):
         return
 
     with session_scope() as session:

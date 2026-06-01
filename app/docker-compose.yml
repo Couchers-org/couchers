@@ -28,8 +28,8 @@ services:
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
     restart: unless-stopped
     ports:
-      # grpc: main apis
-      - 1751:1751
+      # grpc: main api workers
+      - 1761-1764:1761-1764
       # grpc: media upload receiver
       - 1753:1753
       # http: prometheus metrics

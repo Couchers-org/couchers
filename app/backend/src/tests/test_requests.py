@@ -1,11 +1,12 @@
 import html
 import re
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy_utils import refresh_materialized_view
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
@@ -20,6 +21,7 @@ from couchers.models import (
     MessageType,
     Node,
     NodeType,
+    Notification,
     RateLimitAction,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
@@ -33,7 +35,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
 
@@ -208,6 +210,61 @@ def test_create_request(db, moderator):
     assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
+def test_create_host_request_rejects_date_past_in_host_timezone(db):
+    # When the host's timezone has already rolled over to the next day, a
+    # from_date of "today in UTC" is in the past from the host's perspective and
+    # must be rejected. The frontend blocks this date before submission; the
+    # backend enforces the same rule for consistency.
+    user1, token1 = generate_user()
+    # geom inside the fake Europe/Helsinki timezone polygon used in tests
+    user2, _ = generate_user(geom=create_coordinate(61, 25))
+
+    # Helsinki is already on 2026-01-16; requester submits 2026-01-15.
+    fake_today_by_tz = {"Europe/Helsinki": date(2026, 1, 16)}
+
+    with patch(
+        "couchers.servicers.requests.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
+    ):
+        with requests_session(token1) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=user2.id,
+                        from_date="2026-01-15",
+                        to_date="2026-01-18",
+                        text=valid_request_text(),
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_create_host_request_date_valid_when_host_behind_requester(db):
+    # Simulate the opposite timezone direction: the host (America/New_York) is
+    # still on 2026-01-15 while the requester has already rolled into 2026-01-16.
+    # A from_date of 2026-01-16 is "today" for the requester and "tomorrow" for
+    # the host — must be accepted without issue.
+    user1, token1 = generate_user()
+    user2, _ = generate_user()  # default geom resolves to America/New_York
+
+    fake_today_by_tz = {"America/New_York": date(2026, 1, 15)}
+
+    with patch(
+        "couchers.servicers.requests.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
+    ):
+        with requests_session(token1) as api:
+            res = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date="2026-01-16",
+                    to_date="2026-01-20",
+                    text=valid_request_text(),
+                )
+            )
+            assert res.host_request_id
+
+
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, _ = generate_user()
@@ -227,7 +284,7 @@ def test_create_request_incomplete_profile(db):
     assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
-def test_excessive_requests_are_reported(db):
+def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
     """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
@@ -235,20 +292,49 @@ def test_excessive_requests_are_reported(db):
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
     with requests_session(token) as api:
         # Test warning email
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.warning_limit):
-                host_user, _ = generate_user()
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text(),
-                    )
-                )
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.warning_limit):
             host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+
+        assert email_collector.count_for_reports() == 0
+        host_user, _ = generate_user()
+        _ = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Excessive test request"),
+            )
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
+        )
+
+        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+
+        assert email_collector.count_for_reports() == 0
+
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
             _ = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=host_user.id,
@@ -257,48 +343,17 @@ def test_excessive_requests_are_reported(db):
                     text=valid_request_text("Excessive test request"),
                 )
             )
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
-            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
+        )
 
-        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
-                host_user, _ = generate_user()
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text(),
-                    )
-                )
-
-            assert mock_email.call_count == 0
-            host_user, _ = generate_user()
-            with pytest.raises(grpc.RpcError) as exc_info:
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text("Excessive test request"),
-                    )
-                )
-            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert (
-                exc_info.value.details()
-                == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
-            )
-
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
-            )
-            assert "The user has been blocked from sending further host requests for now." in email
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further host requests for now." in email.plain
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -1084,6 +1139,44 @@ def test_mark_last_seen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
+def test_mark_last_seen_clears_notifications(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Test message"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    def unseen_notification_count(user_id):
+        with session_scope() as session:
+            return session.execute(
+                select(func.count())
+                .select_from(Notification)
+                .where(Notification.user_id == user_id)
+                .where(Notification.key == str(host_request_id))
+                .where(Notification.is_seen == False)
+            ).scalar_one()
+
+    assert unseen_notification_count(user2.id) > 0
+
+    with requests_session(token2) as api:
+        api.MarkLastSeenHostRequest(
+            requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=1)
+        )
+
+    assert unseen_notification_count(user2.id) == 0
+
+
 def test_response_rate(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1313,7 +1406,7 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, push_collector: PushCollector, moderator):
+def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1333,62 +1426,59 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
             )
         ).host_request_id
 
-    with mock_notification_email() as mock:
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == host.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert "quick decline" in e.plain.lower(), e.plain
-    assert "quick decline" in e.html.lower()
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert host_loc_context.localize_date(today_plus_2) in e.plain
-    assert host_loc_context.localize_date(today_plus_2) in e.html
-    assert host_loc_context.localize_date(today_plus_3) in e.plain
-    assert host_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
-    assert not e.attachments
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.recipient == host.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert "quick decline" in email.plain.lower(), email.plain
+    assert "quick decline" in email.html.lower()
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
+    assert not email.attachments
 
     assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     with requests_session(host_token) as api:
-        with mock_notification_email() as mock:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    text="Accepting host request",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
             )
+        )
 
-    e = email_fields(mock)
-    assert e.recipient == surfer.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert surfer_loc_context.localize_date(today_plus_2) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_2) in e.html
-    assert surfer_loc_context.localize_date(today_plus_3) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
-    assert len(e.attachments or []) == 1
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.recipient == surfer.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
+    assert len(email.attachments or []) == 1
 
     assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} accepted your host request"
 
 
-def test_quick_decline(db, push_collector: PushCollector, moderator):
+def test_quick_decline(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1407,33 +1497,31 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
             )
         ).host_request_id
 
-    with mock_notification_email() as mock:
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == host.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert "quick decline" in e.plain.lower(), e.plain
-    assert "quick decline" in e.html.lower()
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert host_loc_context.localize_date(today_plus_2) in e.plain
-    assert host_loc_context.localize_date(today_plus_2) in e.html
-    assert host_loc_context.localize_date(today_plus_3) in e.plain
-    assert host_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.recipient == host.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert "quick decline" in email.plain.lower(), email.plain
+    assert "quick decline" in email.html.lower()
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
 
     assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+    for link in re.findall(r'<a href="(.*?)"', email.html):
         if "payload" not in link:
             continue
         print(link)

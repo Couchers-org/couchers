@@ -41,10 +41,11 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
-from couchers.notifications.quick_links import respond_quick_link
+from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
+from couchers.servicers.auth_unsubscribe import handle_unsubscribe
 from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
@@ -705,10 +706,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def Unsubscribe(
         self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
     ) -> auth_pb2.UnsubscribeRes:
-        return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
+        payload = decode_quick_link(request.payload, request.sig, context)
+        return auth_pb2.UnsubscribeRes(response=handle_unsubscribe(payload, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not config["RECAPTHCA_ENABLED"]:
+        if not context.get_boolean_value("recaptcha_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
         ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
@@ -756,7 +758,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if config["RECAPTHCA_ENABLED"]:
+        if context.get_boolean_value("recaptcha_enabled", default=False):
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:

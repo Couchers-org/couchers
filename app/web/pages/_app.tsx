@@ -16,7 +16,6 @@ import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
 import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
-import ExperimentationProvider from "features/experimentation/ExperimentationProvider";
 import ProfileSheet from "features/profile/ProfileSheet";
 import { ProfileSheetProvider } from "features/profile/ProfileSheetContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
@@ -84,17 +83,15 @@ function MyApp(props: AppWithLayoutProps) {
               <AnalyticsProvider>
                 <ReactQueryClientProvider>
                   <AuthProvider>
-                    <ExperimentationProvider>
-                      <CssBaseline />
-                      <NativeColorSchemeSync />
-                      <NativeMobileNavigationHandler />
-                      <EnvironmentBanner />
-                      <HtmlMeta />
-                      <ProfileSheetProvider>
-                        {getLayout(<Component {...pageProps} />)}
-                        <ProfileSheet />
-                      </ProfileSheetProvider>
-                    </ExperimentationProvider>
+                    <CssBaseline />
+                    <NativeColorSchemeSync />
+                    <NativeMobileNavigationHandler />
+                    <EnvironmentBanner />
+                    <HtmlMeta />
+                    <ProfileSheetProvider>
+                      {getLayout(<Component {...pageProps} />)}
+                      <ProfileSheet />
+                    </ProfileSheetProvider>
                   </AuthProvider>
                 </ReactQueryClientProvider>
               </AnalyticsProvider>

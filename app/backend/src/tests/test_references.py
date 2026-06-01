@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -18,16 +17,18 @@ from couchers.models import (
     Message,
     MessageType,
     ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Reference,
     ReferenceType,
     User,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, references_pb2, requests_pb2
+from couchers.proto import conversations_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
-from tests.fixtures.sessions import account_session, references_session, requests_session
+from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.sessions import account_session, real_moderation_session, references_session, requests_session
 from tests.test_requests import valid_request_text
 
 
@@ -194,6 +195,14 @@ def create_host_reference(
         to_user_id = host_request.initiator_user_id
         assert from_user_id == host_request.recipient_user_id
 
+    moderation_state = ModerationState(
+        object_type=ModerationObjectType.reference,
+        object_id=0,  # placeholder, set after Reference flush
+        visibility=ModerationVisibility.visible,
+    )
+    session.add(moderation_state)
+    session.flush()
+
     reference = Reference(
         from_user_id=from_user_id,
         to_user_id=to_user_id,
@@ -202,15 +211,26 @@ def create_host_reference(
         rating=0.5,
         was_appropriate=True,
         reference_type=reference_type,
+        moderation_state_id=moderation_state.id,
     )
     reference.time = now() - reference_age
 
     session.add(reference)
+    session.flush()
+    moderation_state.object_id = reference.id
     session.commit()
     return reference.id, actual_host_request_id
 
 
 def create_friend_reference(session: Session, from_user_id: int, to_user_id: int, reference_age: timedelta) -> int:
+    moderation_state = ModerationState(
+        object_type=ModerationObjectType.reference,
+        object_id=0,  # placeholder, set after Reference flush
+        visibility=ModerationVisibility.visible,
+    )
+    session.add(moderation_state)
+    session.flush()
+
     reference = Reference(
         from_user_id=from_user_id,
         to_user_id=to_user_id,
@@ -218,9 +238,12 @@ def create_friend_reference(session: Session, from_user_id: int, to_user_id: int
         text="Test friend request",
         rating=0.4,
         was_appropriate=True,
+        moderation_state_id=moderation_state.id,
     )
     reference.time = now() - reference_age
     session.add(reference)
+    session.flush()
+    moderation_state.object_id = reference.id
     session.commit()
     return reference.id
 
@@ -428,7 +451,7 @@ def test_ListReference_banned_deleted_users(db):
         assert len(refs_sent) == 1
 
 
-def test_WriteFriendReference(db):
+def test_WriteFriendReference(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -452,6 +475,8 @@ def test_WriteFriendReference(db):
         assert res.text == "A test reference"
         assert now() - timedelta(hours=24) <= to_aware_datetime(res.written_time) <= now()
         assert not res.host_request_id
+
+    moderator.approve_reference(res.reference_id)
 
     with references_session(token3) as api:
         # check it shows up
@@ -511,7 +536,9 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == "The text of a reference must not be empty"
 
 
-def test_WriteFriendReference_with_private_text(db, push_collector: PushCollector):
+def test_WriteFriendReference_with_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -519,24 +546,23 @@ def test_WriteFriendReference_with_private_text(db, push_collector: PushCollecto
     make_friends(user1, user2)
 
     with references_session(token1) as api:
-        with patch("couchers.email.queuing.queue_email") as mock1:
-            with mock_notification_email() as mock2:
-                api.WriteFriendReference(
-                    references_pb2.WriteFriendReferenceReq(
-                        to_user_id=user2.id,
-                        text="They were nice!",
-                        was_appropriate=True,
-                        rating=0.6,
-                        private_text="A bit of an odd ball, but a nice person nonetheless.",
-                    )
-                )
+        ref = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="They were nice!",
+                was_appropriate=True,
+                rating=0.6,
+                private_text="A bit of an odd ball, but a nice person nonetheless.",
+            )
+        )
+        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
+        moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    assert mock1.call_count == 1
-    assert mock2.call_count == 1
-    e = email_fields(mock2)
-    assert e.subject == f"[TEST] You've received a friend reference from {user1.name}!"
-    assert e.recipient == user2.email
+    email_collector.pop_for_reports(last=True)
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.subject == f"[TEST] You've received a friend reference from {user1.name}!"
+    assert email.recipient == user2.email
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New friend reference from {user1.name}"
@@ -837,33 +863,34 @@ def test_WriteHostRequestReference(db, moderator):
         )
 
 
-def test_WriteHostRequestReference_private_text(db, push_collector: PushCollector):
+def test_WriteHostRequestReference_private_text(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     with session_scope() as session:
         hr = create_host_request(session, user1.id, user2.id, timedelta(days=10))
+    moderator.approve_host_request(hr)
 
     with references_session(token1) as api:
-        with patch("couchers.email.queuing.queue_email") as mock1:
-            with mock_notification_email() as mock2:
-                api.WriteHostRequestReference(
-                    references_pb2.WriteHostRequestReferenceReq(
-                        host_request_id=hr,
-                        text="Should work!",
-                        was_appropriate=True,
-                        rating=0.9,
-                        private_text="Something",
-                    )
-                )
+        ref = api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+                private_text="Something",
+            )
+        )
+        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
+        moderator.approve_reference(ref.reference_id)
 
     # make sure an email was sent to the user receiving the ref as well as the mods
-    assert mock1.call_count == 1
-    assert mock2.call_count == 1
-
-    e = email_fields(mock2)
-    assert e.subject == f"[TEST] You've received a reference from {user1.name}!"
-    assert e.recipient == user2.email
+    email_collector.pop_for_reports(last=True)
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.subject == f"[TEST] You've received a reference from {user1.name}!"
+    assert email.recipient == user2.email
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New reference from {user1.name}"
@@ -1300,3 +1327,76 @@ def test_regression_disappearing_refs(db, hs, moderator):
             assert len(res.available_write_references) == 1
             assert res.available_write_references[0].host_request_id == host_request_id
             assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+
+def test_WriteFriendReference_creates_shadowed_moderation_state(db):
+    """New friend references start out shadowed and are not visible to non-authors."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+
+    with references_session(token1) as api:
+        ref = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id, text="Nice friend", was_appropriate=True, rating=0.9
+            )
+        )
+
+    with session_scope() as session:
+        reference = session.execute(select(Reference).where(Reference.id == ref.reference_id)).scalar_one()
+        assert reference.moderation_state.visibility == ModerationVisibility.shadowed
+        assert reference.moderation_state.object_type == ModerationObjectType.reference
+        assert reference.moderation_state.object_id == reference.id
+
+    # Author can see their own shadowed reference.
+    with references_session(token1) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id))
+        assert [r.reference_id for r in res.references] == [ref.reference_id]
+
+    # Non-author user cannot see it while shadowed.
+    with references_session(token3) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user2.id))
+        assert [r.reference_id for r in res.references] == []
+
+
+def test_reference_hidden_via_ums_disappears_from_listings(db, moderator):
+    """Hiding a reference through UMS removes it from listings, including for the author."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+
+    with references_session(token1) as api:
+        ref = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id, text="Visible for now", was_appropriate=True, rating=0.9
+            )
+        )
+    moderator.approve_reference(ref.reference_id)
+
+    with references_session(token3) as api:
+        assert api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user2.id)).references
+
+    # Hide the reference via the moderation API.
+    with real_moderation_session(moderator.token) as mod_api:
+        state_res = mod_api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
+                object_id=ref.reference_id,
+            )
+        )
+        mod_api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_res.moderation_state.moderation_state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="test",
+            )
+        )
+
+    # Hidden references are invisible to the author and to other users.
+    with references_session(token1) as api:
+        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+    with references_session(token3) as api:
+        assert not api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user2.id)).references

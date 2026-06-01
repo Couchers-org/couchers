@@ -100,13 +100,6 @@ export default function BasicForm({
               message: t("auth:basic_form.name.invalid_characters_error"),
               value: nameValidationPattern,
             },
-            validate: (value) => {
-              const trimmed = value.trim();
-              if (trimmed.length < 2) {
-                return t("auth:basic_form.name.min_length_error");
-              }
-              return true;
-            },
           })}
           fullWidth
           name="name"

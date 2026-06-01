@@ -60,8 +60,7 @@
     "your_upcoming_empty_message": "目前没有活动。何不<0>创建</0>一个✨？",
     "community_header": "您所在社区的活动",
     "community_empty_message": "您所在的社区目前没有即将开始的活动。",
-    "location_online_label": "线上",
-    "attendees_count_label_other": "{{count}} 位参与者"
+    "location_online_label": "线上"
   },
   "reminder": {
     "respond_to_host_request": {
@@ -71,7 +70,6 @@
     },
     "write_reference": {
       "title": "写评语",
-      "description": "为 {{name}} 的住宿经历留下评语",
       "button": "写评语"
     },
     "complete_profile": {

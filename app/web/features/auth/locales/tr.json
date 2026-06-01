@@ -69,7 +69,7 @@
   "basic_form": {
     "name": {
       "field_label": "İsim",
-      "required_error": "Bu alan boş bırakılamaz."
+      "required_error": "Bu alan boş bırakılamaz"
     },
     "email": {
       "field_label": "E-posta",
@@ -102,6 +102,16 @@
     },
     "mod_note_section": {
       "title": "Moderatörlerden bir not aldınız"
+    },
+    "activeness_probe": {
+      "title": "Sörf yapanlara ev sahipliği yapmaya hala açık mısın?",
+      "description": "Bir süredir giriş yapmadığınızı fark ettik ve sörfçülere ev sahipliği yapmaya hâlâ açık olup olmadığınızı kontrol etmek istedik.",
+      "still_hosting": "Hâlâ ev sahipliği yapmak istiyorum!",
+      "not_hosting": "Artık ev sahipliği yapamıyorum.",
+      "note": "Profilinizi bu seçimi gösterecek şekilde güncelleyeceğiz!"
     }
+  },
+  "active_logins": {
+    "heading": "Aktif oturumlar"
   }
 }

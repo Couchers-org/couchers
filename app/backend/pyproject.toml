@@ -33,6 +33,7 @@ dependencies = [
     "qrcode>=8.0",
     "python-dateutil>=2.9.0.post0",
     "pyyaml>=6.0.3",
+    "regex>=2024.0.0",
     "requests>=2.33.1",
     "sentry-sdk>=2.43.0",
     "Shapely>=2.1.1",
@@ -42,6 +43,7 @@ dependencies = [
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
     "growthbook>=1.2.0",
+    "pyroscope-io>=1.0.9",
 ]
 
 [project.scripts]
@@ -64,6 +66,7 @@ dev = [
     "types-python-dateutil>=2.9.0.20251115",
     "pytest-split>=0.11.0",
     "types-qrcode>=8.2.0.20260408",
+    "types-regex>=2026.4.4.20260408",
 ]
 
 
@@ -136,7 +139,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

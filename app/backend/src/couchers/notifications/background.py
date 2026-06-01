@@ -1,4 +1,3 @@
-import dataclasses
 import logging
 
 from google.protobuf import empty_pb2
@@ -41,11 +40,18 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is deleted")
         return
 
-    loc_context = LocalizationContext.from_user(user)
-    if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
-        loc_context = dataclasses.replace(loc_context, locale="en")
+    context = make_background_user_context(user.id)
 
-    rendered = render_email_notification(user, notification, loc_context)
+    loc_context = LocalizationContext.from_user(user)
+    if not context.get_boolean_value("notification_translations_enabled", default=False):
+        loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
+
+    rendered = render_email_notification(
+        user,
+        notification,
+        loc_context,
+        include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
+    )
 
     queue_email(
         session,

@@ -64,8 +64,9 @@
     },
     "write_reference": {
       "title": "Schreibe eine Referenz",
-      "description": "Hinterlasse eine Bewertung für den Aufenthalt von {{name}}",
-      "button": "Referenz schreiben"
+      "button": "Referenz schreiben",
+      "description_surfed": "Schreibe eine Referenz für deinen Aufenthalt bei {{name}}",
+      "description_hosted": "Schreibe eine Referenz für den Aufenthalt von {{name}}"
     },
     "complete_profile": {
       "title": "Profil vervollständigen",
@@ -76,6 +77,12 @@
       "title": "Starke Verifizierung",
       "description": "Verifiziere deine Identität für eine sicherere Community",
       "button": "Konto verifizieren"
+    },
+    "carousel_dismiss_button_a11y": "Erinnerung ausblenden",
+    "complete_my_home": {
+      "title": "Vervollständige den Abschnitt „Mein Zuhause“ deines Profils",
+      "description": "Trage deine Schlafmöglichkeiten, Hausregeln und eine Beschreibung deiner Wohnung ein",
+      "button": "Bearbeite dein Zuhause"
     }
   },
   "events": {
@@ -85,7 +92,14 @@
     "community_header": "Events in deinen Communitys",
     "community_empty_message": "Keine bevorstehenden Events in deinen Communitys.",
     "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} Teilnehmende Person",
-    "attendees_count_label_other": "{{count}} Teilnehmende"
+    "today_label": "Heute"
+  },
+  "discussions": {
+    "community_header": "Diskussionen in deinen Communitys",
+    "community_empty_message": "Bisher gibt es keine Diskussionen in deinen Communitys.",
+    "replies_count_label_one": "{{count}} Antwort",
+    "replies_count_label_other": "{{count}} Antworten",
+    "prev_page_label": "Vorherige Seite",
+    "next_page_label": "Nächste Seite"
   }
 }

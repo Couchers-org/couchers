@@ -71,8 +71,7 @@
     "community_header": "Events in your communities",
     "community_empty_message": "No upcoming events in your communities.",
     "location_online_label": "Online",
-    "attendees_count_label_one": "{{count}} attendee",
-    "attendees_count_label_other": "{{count}} attendees"
+    "today_label": "Today"
   },
   "reminder": {
     "respond_to_host_request": {
@@ -82,8 +81,14 @@
     },
     "write_reference": {
       "title": "Write a reference",
-      "description": "Leave a reference for {{name}}'s stay",
+      "description_surfed": "Leave a reference for your stay at {{name}}'s",
+      "description_hosted": "Leave a reference for {{name}}'s stay",
       "button": "Write reference"
+    },
+    "complete_my_home": {
+      "title": "Complete your profile \"My Home\" section",
+      "description": "Fill in your sleeping arrangements, house rules, and a description of your place",
+      "button": "Edit your home"
     },
     "complete_profile": {
       "title": "Complete your profile",

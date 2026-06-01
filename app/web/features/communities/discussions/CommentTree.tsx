@@ -31,6 +31,8 @@ const StyledCommentsListContainer = styled("div")(({ theme }) => ({
   },
 }));
 
+const COMMENT_REFETCH_INTERVAL_MS = 30_000;
+
 interface CommentTreeProps {
   threadId: number;
 }
@@ -45,7 +47,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
     hasNextPage,
     isFetchingNextPage,
     isLoading: isCommentsLoading,
-  } = useThread(threadId);
+  } = useThread(threadId, { refetchInterval: COMMENT_REFETCH_INTERVAL_MS });
 
   return (
     <>

@@ -1,4 +1,5 @@
-import { Card, styled, Typography } from "@mui/material";
+import { Group } from "@mui/icons-material";
+import { Box, Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import CursorPagination from "components/CursorPagination";
 import { EllipsisMenuItem } from "components/EllipsisMenu";
@@ -44,6 +45,7 @@ export interface EventUsersProps {
   getUserMenuItems?: (
     user: LiteUser.AsObject,
   ) => EllipsisMenuItem[] | undefined;
+  attendeeCount?: number;
 }
 
 export default function EventUsers({
@@ -57,12 +59,34 @@ export default function EventUsers({
   isLoading,
   pagination,
   getUserMenuItems,
+  attendeeCount,
 }: EventUsersProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
     <StyledWrapper>
-      <Typography variant="h2">{title}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Typography variant="h2" component="span" role="heading">
+          {title}
+        </Typography>
+        <Group
+          fontSize="small"
+          sx={{
+            marginLeft: "0.5ch",
+            marginRight: "0.15rem",
+            color: "var(--mui-palette-text-secondary)",
+          }}
+        />
+        <Box
+          component="span"
+          sx={{
+            color: "var(--mui-palette-text-secondary)",
+            fontSize: "0.85em",
+          }}
+        >
+          {attendeeCount?.toString()}
+        </Box>
+      </Box>
       <UsersList
         error={error}
         userIds={userIds}

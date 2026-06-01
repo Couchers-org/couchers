@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 
 import grpc
@@ -13,7 +13,7 @@ from user_agents import parse as user_agents_parse
 
 from couchers import urls
 from couchers.config import config
-from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
 from couchers.crypto import (
     b64decode,
@@ -27,7 +27,6 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.event_log import log_event
-from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -44,6 +43,7 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    HostingStatus,
     HostRequest,
     HostRequestStatus,
     InviteCode,
@@ -169,11 +169,16 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # Test experimentation integration - check if user is in the test gate
         # Create 'test_growthbook_integration' in GrowthBook to test
-        test_gate = check_gate(context, "test_growthbook_integration")
+        test_gate = context.get_boolean_value("test_growthbook_integration", default=False)
         logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
-        should_show_donation_banner = DONATION_DRIVE_START is not None and (
-            user.last_donated is None or user.last_donated < DONATION_DRIVE_START
+        # The donation drive (and its banner) is controlled by the donation_drive_start flag: a Unix
+        # epoch in seconds when a drive is running, or 0/unset when there's no drive. Users who haven't
+        # donated since the drive started see the banner.
+        drive_start_epoch = context.get_integer_value("donation_drive_start", 0)
+        drive_start = datetime.fromtimestamp(drive_start_epoch, tz=UTC) if drive_start_epoch else None
+        should_show_donation_banner = drive_start is not None and (
+            user.last_donated is None or user.last_donated < drive_start
         )
 
         return account_pb2.GetAccountInfoRes(
@@ -338,6 +343,10 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_attempts = 0
             return empty_pb2.Empty()
 
+        # Removing a number is always allowed; sending a verification SMS is gated.
+        if not context.get_boolean_value("sms_enabled", default=False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "sms_disabled")
+
         if not is_known_operator(phone):
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "unrecognized_phone_number")
 
@@ -424,7 +433,7 @@ class Account(account_pb2_grpc.AccountServicer):
     def InitiateStrongVerification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.InitiateStrongVerificationRes:
-        if not config["ENABLE_STRONG_VERIFICATION"]:
+        if not context.get_boolean_value("strong_verification_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -780,6 +789,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not has_completed_profile(session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
+
+        if user.hosting_status in (HostingStatus.can_host, HostingStatus.maybe) and not user.has_completed_my_home:
+            reminders.append(account_pb2.Reminder(complete_my_home_reminder=account_pb2.CompleteMyHomeReminder()))
 
         return account_pb2.GetRemindersRes(reminders=reminders)
 

@@ -6,15 +6,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import { useFeatureValue } from "experimentation";
 import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 
-import BadgeUserList from "./BadgeUserList";
+import BadgeDetail from "./BadgeDetail";
 
 const BadgeListItem = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
@@ -26,13 +26,10 @@ const StyledDivider = styled(Divider)<DividerProps>(({ theme }) => ({
   margin: theme.spacing(2),
 }));
 
-const FlexDiv = styled("div")(({ theme }) => ({
+const ParentFlexDiv = styled("div")(({ theme }) => ({
   display: "flex",
   gap: theme.spacing(2),
   alignItems: "start",
-}));
-
-const ParentFlexDiv = styled(FlexDiv)(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",
     gap: theme.spacing(0),
@@ -45,11 +42,11 @@ const ContentDiv = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
+const CenteredDiv = styled(ContentDiv)({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-}));
+});
 
 interface BadgesPageProps {
   badgeId?: string;
@@ -57,10 +54,16 @@ interface BadgesPageProps {
 
 export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const { badges, isLoading: isBadgesLoading } = useBadges();
+  const { badges } = useBadges();
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // the catalog still lists the moderator badge; the award job stops granting it once
+  // show_moderator_badge is off, so hide it from the explorer to match.
+  const showModeratorBadge = useFeatureValue("show_moderator_badge", true);
+  const isHiddenBadge = (badgeId: string) =>
+    badgeId === "moderator" && !showModeratorBadge;
 
   return (
     <>
@@ -73,11 +76,13 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
       <ParentFlexDiv>
         <div>
           {badges &&
-            Object.values(badges).map((badge) => (
-              <BadgeListItem key={badge.id}>
-                <Badge badge={badge} />
-              </BadgeListItem>
-            ))}
+            Object.values(badges)
+              .filter((badge) => !isHiddenBadge(badge.id))
+              .map((badge) => (
+                <BadgeListItem key={badge.id}>
+                  <Badge badge={badge} />
+                </BadgeListItem>
+              ))}
         </div>
         <StyledDivider
           orientation={isMobile ? "horizontal" : "vertical"}
@@ -85,21 +90,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
         />
         {badgeId ? (
           <ContentDiv>
-            {isBadgesLoading ? (
-              <CenteredSpinner />
-            ) : badges && badgeId in badges ? (
-              <>
-                <FlexDiv>
-                  <Badge badge={badges[badgeId]} />
-                  <Typography variant="body1">
-                    {badges[badgeId].description}
-                  </Typography>
-                </FlexDiv>
-                <BadgeUserList badgeId={badgeId} />
-              </>
-            ) : (
-              <>{t("profile:badges.not_found")}</>
-            )}
+            <BadgeDetail badgeId={badgeId} />
           </ContentDiv>
         ) : (
           <CenteredDiv>

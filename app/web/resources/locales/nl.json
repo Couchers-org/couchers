@@ -90,7 +90,7 @@
       "midway": "Halverwege",
       "complete": "Afgerond",
       "almost_there": "Bijna klaar",
-      "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
+      "description": "Bekijk hieronder hoe ver we zijn met het vertalen van onze website. Help ook mee om Couchers toegankelijker te maken voor iedereen wereldwijd!",
       "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
     },
     "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
@@ -337,5 +337,7 @@
     "zh-Hans": "Chinees (vereenvoudigd)",
     "zh-Hant": "Chinees (traditioneel)",
     "hu": "Hongaars"
-  }
+  },
+  "app_store_badge_a11y": "Download in de App Store",
+  "google_play_badge_a11y": "Ontdek het op Google Play"
 }

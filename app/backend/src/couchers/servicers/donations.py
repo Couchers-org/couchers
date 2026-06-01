@@ -41,7 +41,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(
         self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
     ) -> donations_pb2.InitiateDonationRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not context.get_boolean_value("donations_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -108,7 +108,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def GetDonationPortalLink(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> donations_pb2.GetDonationPortalLinkRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not context.get_boolean_value("donations_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()

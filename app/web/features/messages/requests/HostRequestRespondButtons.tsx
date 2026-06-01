@@ -1,109 +1,122 @@
+import { Box, styled, Typography } from "@mui/material";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/conversations_pb";
-import React from "react";
 
 import FieldButton from "./FieldButton";
+
+const StyledCard = styled(Box)(({ theme }) => ({
+  background: "var(--mui-palette-grey-50)",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(2),
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(1.5),
+  alignSelf: "flex-start",
+}));
+
+const StyledButtonRow = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: theme.spacing(1),
+  justifyContent: "flex-end",
+}));
 
 export default function HostRequestRespondButtons({
   isHost,
   status,
   isLoading,
   handleStatus,
+  name,
 }: {
   isHost: boolean;
   status: HostRequestStatus;
   isLoading: boolean;
   handleStatus: (status: HostRequestStatus) => () => void;
+  name?: string;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
 
-  const handleAccept = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-  );
-  const handleReject = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
-  );
-  const handleCancel = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
-  );
-  const handleConfirm = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-  );
-
   if (isHost) {
-    const canAccept =
-      status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
-
-    const canReject =
-      status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED;
+    if (status !== HostRequestStatus.HOST_REQUEST_STATUS_PENDING) return null;
 
     return (
-      <>
-        {canReject && (
-          <ConfirmationDialogWrapper
-            title={t("messages:close_request_dialog_title")}
-            message={t("messages:close_request_dialog_host")}
-            onConfirm={handleReject}
-          >
-            {(setIsOpen) => (
-              <FieldButton
-                isLoading={isLoading}
-                callback={() => setIsOpen(true)}
-                variant="outlined"
-              >
-                {t("messages:close_request_button_text")}
-              </FieldButton>
+      <StyledCard>
+        <div>
+          <Typography variant="subtitle2">
+            {t("messages:respond_box_title")}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t("messages:respond_box_description", { name })}
+          </Typography>
+        </div>
+        <StyledButtonRow>
+          <FieldButton
+            isLoading={isLoading}
+            callback={handleStatus(
+              HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
             )}
-          </ConfirmationDialogWrapper>
-        )}
-        {canAccept && (
-          <FieldButton callback={handleAccept} isLoading={isLoading}>
+            variant="outlined"
+          >
+            {t("messages:close_request_button_text")}
+          </FieldButton>
+          <FieldButton
+            callback={handleStatus(
+              HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+            )}
+            isLoading={isLoading}
+          >
             {t("global:accept")}
           </FieldButton>
-        )}
-      </>
-    );
-  } else {
-    //user is the surfer
-    const canConfirm =
-      status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED;
-
-    const canCancel =
-      status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
-      status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED;
-
-    return (
-      <>
-        {canCancel && (
-          <ConfirmationDialogWrapper
-            title={t("messages:close_request_dialog_title")}
-            message={t("messages:close_request_dialog_surfer")}
-            onConfirm={handleCancel}
-          >
-            {(setIsOpen) => (
-              <FieldButton
-                isLoading={isLoading}
-                callback={() => setIsOpen(true)}
-                variant="outlined"
-              >
-                {t("global:cancel")}
-              </FieldButton>
-            )}
-          </ConfirmationDialogWrapper>
-        )}
-        {canConfirm && (
-          <FieldButton callback={handleConfirm} isLoading={isLoading}>
-            {t("messages:confirm_request_button_text")}
-          </FieldButton>
-        )}
-      </>
+        </StyledButtonRow>
+      </StyledCard>
     );
   }
+
+  if (status !== HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) return null;
+
+  return (
+    <StyledCard>
+      <div>
+        <Typography variant="subtitle2">
+          {t("messages:surfer_confirm_box_title", { name })}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t("messages:surfer_confirm_box_description")}
+        </Typography>
+      </div>
+      <StyledButtonRow>
+        <ConfirmationDialogWrapper
+          title={t("messages:cancel_request_dialog_title")}
+          message={t("messages:cancel_request_dialog_message")}
+          confirmButtonLabel={t(
+            "messages:cancel_request_dialog_confirm_button",
+          )}
+          cancelButtonLabel={t("messages:cancel_request_dialog_dismiss_button")}
+          onConfirm={handleStatus(
+            HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
+          )}
+        >
+          {(setIsOpen) => (
+            <FieldButton
+              isLoading={isLoading}
+              callback={() => setIsOpen(true)}
+              variant="outlined"
+            >
+              {t("messages:cancel_request_button")}
+            </FieldButton>
+          )}
+        </ConfirmationDialogWrapper>
+        <FieldButton
+          callback={handleStatus(
+            HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
+          )}
+          isLoading={isLoading}
+        >
+          {t("messages:confirm_request_button_text")}
+        </FieldButton>
+      </StyledButtonRow>
+    </StyledCard>
+  );
 }

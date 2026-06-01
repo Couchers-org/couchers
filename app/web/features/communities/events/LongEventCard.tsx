@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -200,9 +201,8 @@ const LongEventCard = ({
             </EventInfo>
             <ActivityStatsWrapper>
               <Attendees>
-                {t("communities:attendees_count", {
-                  count: event.goingCount,
-                })}
+                <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
+                {event.goingCount}
               </Attendees>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {

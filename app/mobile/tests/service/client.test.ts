@@ -1,9 +1,12 @@
-import { StatusCode } from "grpc-web";
+import { Request, StatusCode } from "grpc-web";
 
 import {
   AuthInterceptor,
+  PlatformInterceptor,
   setUnauthenticatedErrorHandler,
+  UserAgentInterceptor,
 } from "@/service/client";
+import { getClientPlatform } from "@/utils/clientPlatform";
 
 describe("AuthInterceptor", () => {
   it("returns a successful response", async () => {
@@ -35,5 +38,40 @@ describe("AuthInterceptor", () => {
       interceptor.intercept(null, invokerMock),
     ).rejects.toMatchObject({ code: StatusCode.NOT_FOUND });
     expect(errorHandler).not.toHaveBeenCalled();
+  });
+});
+
+describe("UserAgentInterceptor", () => {
+  it("sets a CouchersNative User-Agent on the request metadata", async () => {
+    const metadata: Record<string, string> = {};
+    const request = {
+      getMetadata: () => metadata,
+    } as unknown as Request<unknown, unknown>;
+    const invokerMock = jest.fn(() => ({ test: "test" }));
+    const interceptor = new UserAgentInterceptor();
+
+    const response = await interceptor.intercept(request, invokerMock);
+
+    expect(response).toMatchObject({ test: "test" });
+    expect(metadata["User-Agent"]).toContain("CouchersNative/");
+  });
+});
+
+describe("PlatformInterceptor", () => {
+  it("declares the native client platform on the request metadata", async () => {
+    const metadata: Record<string, string> = {};
+    const request = {
+      getMetadata: () => metadata,
+    } as unknown as Request<unknown, unknown>;
+    const invokerMock = jest.fn(() => ({ test: "test" }));
+    const interceptor = new PlatformInterceptor();
+
+    const response = await interceptor.intercept(request, invokerMock);
+
+    expect(response).toMatchObject({ test: "test" });
+    expect(metadata["x-couchers-client-platform"]).toBe(getClientPlatform());
+    expect(["app_ios", "app_android"]).toContain(
+      metadata["x-couchers-client-platform"],
+    );
   });
 });

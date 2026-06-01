@@ -6,6 +6,7 @@ import { Appearance, BackHandler, Linking, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
+import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
 import client from "@/service/client";
@@ -37,7 +38,7 @@ async function waitForSessionSync(
 }
 
 export default function LoginScreen() {
-  const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+  const WEB_BASE_URL = getWebBaseUrl();
   const { markAuthenticated, markLoggedOut, setUserId, setJailed } =
     useAuthContext();
   const router = useRouter();
@@ -99,6 +100,7 @@ export default function LoginScreen() {
         key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
         applicationNameForUserAgent={applicationNameForUserAgent}
+        injectedJavaScriptObject={{ isNativeEmbed: true }}
         sharedCookiesEnabled
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
