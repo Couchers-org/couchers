@@ -10,7 +10,6 @@ const FLAGS_URL =
 const CACHE_KEY = "featureFlagsPayload";
 // At startup we reuse the cache without a network fetch unless it's older than this.
 const CACHE_MAX_AGE_MS = 5 * 60 * 1000;
-// Matches the payload's CDN Cache-Control max-age=60, so each poll lands as the HTTP cache lapses.
 const REFRESH_INTERVAL_MS = 60 * 1000;
 
 export const growthbook = new GrowthBook({ trackingCallback: recordExposure });
