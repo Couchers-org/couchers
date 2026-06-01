@@ -13,8 +13,7 @@ import {
 } from "./growthbook";
 
 // Provides the GrowthBook SDK and waits for the first flag load before rendering its subtree, so
-// flag-driven UI never flickers. Currently mounted around the only flag-consuming page; promoting it
-// to the app root (in _app.tsx) is the intended next step once this is proven in prod.
+// flag-driven UI never flickers. Mounted at the app root (in _app.tsx) so every page sees flags.
 export default function WithFlags({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
 
