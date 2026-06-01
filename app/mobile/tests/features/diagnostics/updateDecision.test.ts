@@ -2,7 +2,11 @@ import {
   isActionable,
   updateMode,
 } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateAction, NativeUpdateInfo } from "@/proto/bugs_pb";
+import {
+  NativeUpdateAction,
+  NativeUpdateCause,
+  NativeUpdateInfo,
+} from "@/proto/bugs_pb";
 
 function info(
   overrides: Partial<NativeUpdateInfo.AsObject> = {},
@@ -13,6 +17,7 @@ function info(
     message: "",
     linkUrl: "",
     linkText: "",
+    cause: NativeUpdateCause.NATIVE_UPDATE_CAUSE_AGE,
     ...overrides,
   };
 }
