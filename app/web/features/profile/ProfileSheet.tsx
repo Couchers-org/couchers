@@ -98,6 +98,8 @@ export default function ProfileSheet() {
   const {
     openProfileUserId,
     closeProfileSheet,
+    goBackProfile,
+    profileHistory,
     openGroupChatId,
     closeGroupChat,
     selectedBadgeId,
@@ -135,24 +137,35 @@ export default function ProfileSheet() {
   }, [router.events, closeProfileSheet]);
 
   // On Android, the hardware back gesture triggers webview.goBack() in the native
-  // layer. Push a history entry when the sheet opens so goBack() fires popstate
-  // here instead of routing to the previous page.
+  // layer. Push ONE history entry when the sheet opens so goBack() fires popstate
+  // here instead of routing to the previous page. Keyed on isSheetOpen (not the
+  // specific userId) so switching profiles doesn't re-run this and call history.back()
+  // mid-session, which would trigger the popstate listener and close the sheet.
+  const isSheetOpen = openProfileUserId !== null;
   useEffect(() => {
-    if (!isMobile || openProfileUserId === null) return;
-
+    if (!isMobile || !isSheetOpen) return;
     window.history.pushState({ profileSheetOpen: true }, "");
-
-    const handlePopState = () => closeProfileSheet();
-    window.addEventListener("popstate", handlePopState);
-
     return () => {
-      window.removeEventListener("popstate", handlePopState);
-      // Sheet closed via button — our pushed state is still on top, pop it.
       if (window.history.state?.profileSheetOpen) {
         window.history.back();
       }
     };
-  }, [openProfileUserId, closeProfileSheet, isMobile]);
+  }, [isSheetOpen, isMobile]);
+
+  // Keep a ref so the popstate handler always has the latest back/close logic
+  // without re-registering the listener on every profile navigation.
+  const goBackOrCloseRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    goBackOrCloseRef.current =
+      profileHistory.length > 0 ? goBackProfile : closeProfileSheet;
+  }, [profileHistory, goBackProfile, closeProfileSheet]);
+
+  useEffect(() => {
+    if (!isMobile || !isSheetOpen) return;
+    const handlePopState = () => goBackOrCloseRef.current();
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isSheetOpen, isMobile]);
 
   useLayoutEffect(() => {
     if (isRequesting || isMessaging) {
@@ -175,9 +188,13 @@ export default function ProfileSheet() {
     >
       <SheetHeader>
         <Puller />
-        {(openGroupChatId || selectedBadgeId) && (
+        {(openGroupChatId || selectedBadgeId || profileHistory.length > 0) && (
           <IconButton
-            onClick={selectedBadgeId ? closeBadge : closeGroupChat}
+            onClick={() => {
+              if (selectedBadgeId) closeBadge();
+              else if (openGroupChatId) closeGroupChat();
+              else goBackProfile();
+            }}
             aria-label={t("global:back")}
             size="small"
           >
