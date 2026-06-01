@@ -22,6 +22,7 @@
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
+    "isRecurring": false,
     "offlineInformation": {
       "address": "Concertgebouw",
       "lat": 1,
@@ -58,6 +59,7 @@
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
+    "isRecurring": false,
     "offlineInformation": {
       "address": "Mayjor A. Colijnweg 68, Amstelveen",
       "lat": 53,
@@ -94,6 +96,7 @@
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
+    "isRecurring": false,
     "offlineInformation": {
       "address": "Amsterdam",
       "lat": 1,
@@ -130,6 +133,7 @@
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
+    "isRecurring": false,
     "offlineInformation": {
       "address": "Mayjor A. Colijnweg 68, Amstelveen",
       "lat": 53,

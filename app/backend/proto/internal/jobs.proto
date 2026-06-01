@@ -90,6 +90,9 @@ message GenerateEventUpdateNotificationsPayload {
 message GenerateEventCancelNotificationsPayload {
   int64 cancelling_user_id = 1;
   int64 occurrence_id = 2;
+  // for recurring cancellations, the ids of all additional future occurrences that were cancelled;
+  // attendees/subscribers are notified once across the whole set to minimize notifications
+  repeated int64 additional_occurrence_ids = 3;
 }
 
 message GenerateEventDeleteNotificationsPayload {

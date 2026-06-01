@@ -77,6 +77,9 @@ class Event(Base, kw_only=True):
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True, default=None)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
+    # whether this event is part of a recurring series (has occurrences generated on a schedule)
+    is_recurring: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
+
     parent_node: Mapped[Node] = relationship(
         init=False, backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )

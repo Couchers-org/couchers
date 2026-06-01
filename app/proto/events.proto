@@ -101,6 +101,26 @@ enum AttendanceState {
   ATTENDANCE_STATE_GOING = 2;
 }
 
+enum RecurrenceFrequency {
+  RECURRENCE_FREQUENCY_WEEKLY = 0;
+  RECURRENCE_FREQUENCY_BIWEEKLY = 1;
+  RECURRENCE_FREQUENCY_MONTHLY = 2;
+}
+
+message RecurrenceSpec {
+  // how often the event repeats
+  RecurrenceFrequency frequency = 1;
+  // the last date on which an occurrence may start; capped server-side to at most 6 months in the future
+  google.protobuf.Timestamp until = 2;
+}
+
+enum CancelEventScope {
+  // cancel only this single occurrence
+  CANCEL_EVENT_SCOPE_SINGLE = 0;
+  // cancel this occurrence and all future occurrences of a recurring event
+  CANCEL_EVENT_SCOPE_ALL_FUTURE = 1;
+}
+
 message Event {
   int64 event_id = 1; // = occurrence_id
   // whether this is the next occurrence of this particular event
@@ -158,6 +178,9 @@ message Event {
 
   bool can_edit = 32;
   bool can_moderate = 33;
+
+  // whether this event is part of a recurring series
+  bool is_recurring = 36;
 }
 
 message CreateEventReq {
@@ -173,6 +196,8 @@ message CreateEventReq {
   google.protobuf.Timestamp end_time = 10;
   // the tzdata timezone identifier, empty string means tz of creating user
   string timezone = 11;
+  // if set, creates a recurring series of occurrences instead of a single event
+  RecurrenceSpec recurrence = 12;
 }
 
 message ScheduleEventReq {
@@ -206,6 +231,9 @@ message UpdateEventReq {
 
   // whether to notify all attendees about the change
   bool should_notify = 12;
+
+  // an event cannot be made recurring via update; this field is always rejected if set to true
+  bool recurring = 13;
 }
 
 message GetEventReq {
@@ -214,6 +242,8 @@ message GetEventReq {
 
 message CancelEventReq {
   int64 event_id = 1;
+  // for recurring events, whether to cancel only this occurrence or all future occurrences
+  CancelEventScope scope = 2;
 }
 
 message RequestCommunityInviteReq {

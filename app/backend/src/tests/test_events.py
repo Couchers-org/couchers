@@ -1,4 +1,5 @@
 from datetime import timedelta
+from types import SimpleNamespace
 
 import grpc
 import pytest
@@ -13,6 +14,7 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     Comment,
+    Event,
     EventOccurrence,
     ModerationState,
     ModerationVisibility,
@@ -3177,3 +3179,253 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
         reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
         assert len(reply_notifs) == 1
         assert reply_notifs[0].moderation_state_id == nested_reply.moderation_state_id
+
+
+def _occurrences_for(occurrence_id: int) -> list[SimpleNamespace]:
+    """Return all occurrences of the event the given occurrence belongs to, ordered by start time.
+
+    Returns detached snapshots (fields read inside the session) so callers can inspect them after the
+    session has closed.
+    """
+    with session_scope() as session:
+        event_id = session.execute(
+            select(EventOccurrence.event_id).where(EventOccurrence.id == occurrence_id)
+        ).scalar_one()
+        occurrences = (
+            session.execute(
+                select(EventOccurrence)
+                .where(EventOccurrence.event_id == event_id)
+                .order_by(EventOccurrence.during.asc())
+            )
+            .scalars()
+            .all()
+        )
+        return [
+            SimpleNamespace(
+                id=o.id,
+                event_id=o.event_id,
+                start_time=o.start_time,
+                end_time=o.end_time,
+                is_cancelled=o.is_cancelled,
+            )
+            for o in occurrences
+        ]
+
+
+def test_CreateRecurringEvent_weekly(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user2], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    # 5 weeks => first occurrence + 4 more
+    until = start_time + timedelta(weeks=4)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Weekly Meetup",
+                content="Every week.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+                recurrence=events_pb2.RecurrenceSpec(
+                    frequency=events_pb2.RECURRENCE_FREQUENCY_WEEKLY,
+                    until=Timestamp_from_datetime(until),
+                ),
+            )
+        )
+        assert res.is_recurring
+        first_occurrence_id = res.event_id
+
+    occurrences = _occurrences_for(first_occurrence_id)
+    assert len(occurrences) == 5
+    # occurrences are spaced exactly a week apart and within the requested window
+    for i, occurrence in enumerate(occurrences):
+        assert occurrence.start_time == start_time + timedelta(weeks=i)
+        assert occurrence.end_time == end_time + timedelta(weeks=i)
+
+    # the event template is marked recurring
+    with session_scope() as session:
+        event = session.execute(select(Event).where(Event.id == occurrences[0].event_id)).scalar_one()
+        assert event.is_recurring
+
+
+def test_CreateRecurringEvent_biweekly_and_monthly(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        # biweekly: first + every 2 weeks until 6 weeks => 4 occurrences
+        biweekly = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Biweekly",
+                content="c",
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                recurrence=events_pb2.RecurrenceSpec(
+                    frequency=events_pb2.RECURRENCE_FREQUENCY_BIWEEKLY,
+                    until=Timestamp_from_datetime(start_time + timedelta(weeks=6)),
+                ),
+            )
+        )
+        biweekly_occ = _occurrences_for(biweekly.event_id)
+        assert [o.start_time for o in biweekly_occ] == [start_time + timedelta(weeks=2 * i) for i in range(4)]
+
+        # monthly: first + each following calendar month within ~2.3 months => 3 occurrences
+        monthly = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Monthly",
+                content="c",
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                recurrence=events_pb2.RecurrenceSpec(
+                    frequency=events_pb2.RECURRENCE_FREQUENCY_MONTHLY,
+                    until=Timestamp_from_datetime(start_time + timedelta(days=70)),
+                ),
+            )
+        )
+        monthly_occ = _occurrences_for(monthly.event_id)
+        assert len(monthly_occ) == 3
+        # consecutive occurrences are roughly one calendar month apart
+        for earlier, later in zip(monthly_occ, monthly_occ[1:]):
+            gap_days = (later.start_time - earlier.start_time).days
+            assert 27 <= gap_days <= 32
+
+
+def test_CreateRecurringEvent_six_month_cap(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    # ask for a full year, but it must be capped to ~6 months
+    until = start_time + timedelta(days=365)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Capped",
+                content="c",
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                recurrence=events_pb2.RecurrenceSpec(
+                    frequency=events_pb2.RECURRENCE_FREQUENCY_WEEKLY,
+                    until=Timestamp_from_datetime(until),
+                ),
+            )
+        )
+
+    occurrences = _occurrences_for(res.event_id)
+    # no occurrence may start more than 6 months (182 days) from now
+    assert all(o.start_time <= now() + timedelta(days=182, hours=3) for o in occurrences)
+    # and it should not have generated the full year of weekly occurrences
+    assert len(occurrences) <= 27
+
+
+def test_CannotUpdateEventToRecurring(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="One off",
+                content="c",
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+            )
+        )
+        event_id = res.event_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateEvent(
+                events_pb2.UpdateEventReq(
+                    event_id=event_id,
+                    recurring=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_CancelEvent_scopes(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    until = start_time + timedelta(weeks=4)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Series",
+                content="c",
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                recurrence=events_pb2.RecurrenceSpec(
+                    frequency=events_pb2.RECURRENCE_FREQUENCY_WEEKLY,
+                    until=Timestamp_from_datetime(until),
+                ),
+            )
+        )
+
+    occurrences = _occurrences_for(res.event_id)
+    assert len(occurrences) == 5
+    occurrence_ids = [o.id for o in occurrences]
+
+    # cancelling the middle occurrence with SINGLE scope only cancels that one
+    with events_session(token1) as api:
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=occurrence_ids[2]))
+
+    cancelled = {o.id: o.is_cancelled for o in _occurrences_for(res.event_id)}
+    assert cancelled[occurrence_ids[2]]
+    assert not cancelled[occurrence_ids[1]]
+    assert not cancelled[occurrence_ids[3]]
+
+    # cancelling the second occurrence with ALL_FUTURE cancels it and all later occurrences
+    with events_session(token1) as api:
+        api.CancelEvent(
+            events_pb2.CancelEventReq(
+                event_id=occurrence_ids[1],
+                scope=events_pb2.CANCEL_EVENT_SCOPE_ALL_FUTURE,
+            )
+        )
+
+    cancelled = {o.id: o.is_cancelled for o in _occurrences_for(res.event_id)}
+    assert not cancelled[occurrence_ids[0]]
+    assert cancelled[occurrence_ids[1]]
+    assert cancelled[occurrence_ids[2]]
+    assert cancelled[occurrence_ids[3]]
+    assert cancelled[occurrence_ids[4]]
