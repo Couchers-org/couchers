@@ -796,6 +796,57 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
         assert "The user has been blocked from sending further chat initiations for now." in email.plain
 
 
+def test_send_direct_message_rate_limit(db, moderator, email_collector: EmailCollector):
+    """SendDirectMessage should enforce the chat_initiation rate limit when creating a new DM, but not when sending into an existing one."""
+    user, token = generate_user(complete_profile=True)
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
+
+    with conversations_session(token) as c:
+        for _ in range(rate_limit_definition.warning_limit):
+            recipient, _ = generate_user()
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+
+        assert email_collector.count_for_reports() == 0
+
+        recipient, _ = generate_user()
+        existing_dm_recipient_id = recipient.id
+        c.SendDirectMessage(
+            conversations_pb2.SendDirectMessageReq(recipient_user_id=existing_dm_recipient_id, text="hi")
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
+
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+            recipient, _ = generate_user()
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+
+        assert email_collector.count_for_reports() == 0
+
+        # follow-up into an existing DM must not count as a new initiation
+        c.SendDirectMessage(
+            conversations_pb2.SendDirectMessageReq(recipient_user_id=existing_dm_recipient_id, text="follow-up")
+        )
+        assert email_collector.count_for_reports() == 0
+
+        recipient, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further chat initiations for now." in email.plain
+
+
 def test_leave_invite_to_group_chat(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
