@@ -67,5 +67,13 @@ async function refreshFeatureFlags(): Promise<void> {
 
 export function startFeatureFlagRefresh(): () => void {
   const id = setInterval(() => void refreshFeatureFlags(), REFRESH_INTERVAL_MS);
-  return () => clearInterval(id);
+  // Timers are throttled while the tab/webview is hidden, so refresh on return to keep flags fresh.
+  const onVisible = () => {
+    if (document.visibilityState === "visible") void refreshFeatureFlags();
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    clearInterval(id);
+    document.removeEventListener("visibilitychange", onVisible);
+  };
 }

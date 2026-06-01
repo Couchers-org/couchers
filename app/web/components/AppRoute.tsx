@@ -1,4 +1,3 @@
-import { useGrowthBook } from "@growthbook/growthbook-react";
 import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -109,7 +108,6 @@ function AppRoute({
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
   const isNativeEmbed = useIsNativeEmbed();
-  const featuresReady = useGrowthBook().ready;
 
   const headerRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -146,7 +144,7 @@ function AppRoute({
 
   return (
     <ErrorBoundary>
-      {isPrivate && (!isMounted || !isAuthenticated || !featuresReady) ? (
+      {isPrivate && (!isMounted || !isAuthenticated) ? (
         <CenteredSpinner minHeight="50vh" />
       ) : (
         <>

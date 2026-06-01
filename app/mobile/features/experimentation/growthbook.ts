@@ -1,5 +1,6 @@
 import { FeatureApiResponse, GrowthBook } from "@growthbook/growthbook";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppState } from "react-native";
 
 import { recordExposure } from "./exposureLog";
 
@@ -68,5 +69,12 @@ async function refreshFeatureFlags(): Promise<void> {
 
 export function startFeatureFlagRefresh(): () => void {
   const id = setInterval(() => void refreshFeatureFlags(), REFRESH_INTERVAL_MS);
-  return () => clearInterval(id);
+  // Timers are suspended while the app is backgrounded, so refresh on resume to keep flags fresh.
+  const sub = AppState.addEventListener("change", (state) => {
+    if (state === "active") void refreshFeatureFlags();
+  });
+  return () => {
+    clearInterval(id);
+    sub.remove();
+  };
 }

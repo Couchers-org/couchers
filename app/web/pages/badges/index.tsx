@@ -1,5 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import BadgesPageComponent from "features/badges/BadgesPage";
+import WithFlags from "features/experimentation/WithFlags";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { GetStaticProps } from "next";
@@ -15,7 +16,11 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 export default function BadgesPage() {
-  return <BadgesPageComponent />;
+  return (
+    <WithFlags>
+      <BadgesPageComponent />
+    </WithFlags>
+  );
 }
 
 BadgesPage.getLayout = appGetLayout();
