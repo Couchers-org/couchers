@@ -206,13 +206,13 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             | NotificationTopicAction.reference__receive_surfed
             | NotificationTopicAction.reference__reminder_hosted
             | NotificationTopicAction.reference__reminder_surfed
-            | NotificationTopicAction.activeness__probe
+            | NotificationTopicAction.onboarding__reminder
         ):
             # Still implemented as a custom templated email
             return None
         case _:
             # Enable mypy's exhaustiveness checking
-            assert_never("Unexpected NotificationTopicAction enumerant")
+            assert_never(notification.topic_action)
 
 
 @dataclass(kw_only=True)
