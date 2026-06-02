@@ -4,6 +4,7 @@ Native app update decisions for CheckNativeStatus.
 
 import enum
 import logging
+import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -52,6 +53,16 @@ class NativeClientInfo:
     is_ota_launch: bool = False
     binary_created_at: datetime | None = None
     bundle_created_at: datetime | None = None
+    eas_client_id: uuid.UUID | None = None
+
+
+def parse_optional_eas_client_id(value: str | None) -> uuid.UUID | None:
+    if not value:
+        return None
+    try:
+        return uuid.UUID(value)
+    except ValueError:
+        return None
 
 
 @dataclass(frozen=True)
@@ -88,6 +99,7 @@ def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeCl
         is_ota_launch=is_ota_launch,
         binary_created_at=binary_created_at,
         bundle_created_at=bundle_created_at,
+        eas_client_id=parse_optional_eas_client_id(request.eas_client_id),
     )
 
 
