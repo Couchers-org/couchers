@@ -17,6 +17,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    HostRequest,
     Message,
     MessageType,
     Node,
@@ -599,6 +600,145 @@ def test_ListHostRequests_active_filter(db, moderator):
         assert len(res.host_requests) == 1
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
         assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_active_filter_excludes_past(db, moderator):
+    """only_active must exclude requests whose end date has passed (regression test for <= bug)."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+
+    with requests_session(token1) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Past stay regression"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            )
+        )
+
+    # Future request is visible with only_active
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        assert len(res.host_requests) == 1
+
+    # Move dates into the past
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == request_id)).scalar_one()
+        hr.from_date = today() - timedelta(days=3)
+        hr.to_date = today() - timedelta(days=2)
+
+    # Past request must be excluded by only_active
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        assert len(res.host_requests) == 0
+
+    # Still visible without the filter
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 1
+
+
+def test_ListHostRequests_status_in_filter(db, moderator):
+    """status_in must return only requests with the specified statuses."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_4 = today() + timedelta(days=4)
+    today_plus_5 = today() + timedelta(days=5)
+
+    # Create a pending request
+    with requests_session(token1) as api:
+        pending_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Pending"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(pending_id)
+
+    # Create an accepted request
+    with requests_session(token1) as api:
+        accepted_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_4.isoformat(),
+                to_date=today_plus_5.isoformat(),
+                text=valid_request_text("Accepted"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(accepted_id)
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=accepted_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            )
+        )
+
+    # Filter to accepted only
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
+            )
+        )
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+
+    # Filter to pending only
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
+            )
+        )
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+
+    # Filter to accepted + pending — both appear
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[
+                    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    conversations_pb2.HOST_REQUEST_STATUS_PENDING,
+                ],
+            )
+        )
+        assert len(res.host_requests) == 2
+
+    # Filter to confirmed — none appear
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
+            )
+        )
+        assert len(res.host_requests) == 0
+
+    # Empty status_in — all requests returned (no filter applied)
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 2
 
 
 def test_RespondHostRequests(db, moderator):
