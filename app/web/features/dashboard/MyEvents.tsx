@@ -3,7 +3,6 @@ import { IconButton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
@@ -24,6 +23,16 @@ const SectionHeader = styled("div")({
   justifyContent: "space-between",
   marginBottom: "8px",
 });
+
+const EmptyStateRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  padding: theme.spacing(2),
+  border: "1px dashed var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-grey-50)",
+}));
 
 const PAGE_SIZE = 3;
 
@@ -96,15 +105,20 @@ export default function MyUpcomingEvents() {
         </EventListContainer>
       ) : (
         !error && (
-          <TextBody>
-            <Trans
-              t={t}
-              i18nKey="dashboard:events.your_upcoming_empty_message"
-              components={[
-                <StyledLink key="create-link" href={routeToNewEvent()} />,
-              ]}
-            />
-          </TextBody>
+          <EmptyStateRow>
+            <Typography
+              variant="body2"
+              sx={{ color: "var(--mui-palette-text-secondary)" }}
+            >
+              <Trans
+                t={t}
+                i18nKey="dashboard:events.your_upcoming_empty_message"
+                components={[
+                  <StyledLink key="create-link" href={routeToNewEvent()} />,
+                ]}
+              />
+            </Typography>
+          </EmptyStateRow>
         )
       )}
     </div>

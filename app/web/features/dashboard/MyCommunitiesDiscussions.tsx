@@ -1,6 +1,5 @@
 import { ArrowBack, ArrowForward, Forum } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
-import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useState } from "react";
@@ -19,6 +18,16 @@ const SectionHeader = styled("div")({
   justifyContent: "space-between",
   marginBottom: "8px",
 });
+
+const EmptyStateRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  padding: theme.spacing(2),
+  border: "1px dashed var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-grey-50)",
+}));
 
 export default function MyCommunitiesDiscussions() {
   const { t } = useTranslation([DASHBOARD]);
@@ -105,9 +114,14 @@ export default function MyCommunitiesDiscussions() {
           ))}
         </DiscussionListContainer>
       ) : (
-        <TextBody>
-          {t("dashboard:discussions.community_empty_message")}
-        </TextBody>
+        <EmptyStateRow>
+          <Typography
+            variant="body2"
+            sx={{ color: "var(--mui-palette-text-secondary)" }}
+          >
+            {t("dashboard:discussions.community_empty_message")}
+          </Typography>
+        </EmptyStateRow>
       )}
     </div>
   );

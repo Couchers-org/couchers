@@ -626,7 +626,7 @@ export default function EditProfileForm() {
             </ProfileSection>
 
             {/* Preferences Section */}
-            <ProfileSection>
+            <ProfileSection id="preferences">
               <SectionTitle>
                 {t("profile:edit_profile_headings.preferences")}
               </SectionTitle>

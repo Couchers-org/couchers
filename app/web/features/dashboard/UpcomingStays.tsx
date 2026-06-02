@@ -24,11 +24,13 @@ import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, routeToHostRequest, searchRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
+import {
+  localizeDateTimeRange,
+  localizeRelativeDays,
+  UTC_TIMEZONE,
+} from "utils/date";
 import dayjs from "utils/dayjs";
-import { firstName } from "utils/names";
 
-type Kind = "trip" | "guest";
 
 const CARD_WIDTH = 220;
 const CARD_GAP = 12;
@@ -50,8 +52,6 @@ function filterUpcoming(
     )
     .sort((a, b) => dayjs(a.fromDate).diff(dayjs(b.fromDate)));
 }
-
-// ── Styled components ──────────────────────────────────────────────────────
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -152,21 +152,13 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
 
 interface UpcomingStayCardProps {
   hostRequest: HostRequest.AsObject;
-  kind: Kind;
 }
 
-function daysUntilLabel(
-  days: number,
-  t: ReturnType<typeof useTranslation>["t"],
-): string {
-  if (days === 0) return t("dashboard:stays.today_label");
-  if (days === 1) return t("dashboard:stays.tomorrow_label");
-  if (days <= 7) return t("dashboard:stays.in_n_days_label", { count: days });
-  if (days <= 14) return t("dashboard:stays.next_week_label");
-  return t("dashboard:stays.in_n_days_label", { count: days });
+function daysUntilLabel(days: number, locale: string): string {
+  return localizeRelativeDays(days, locale);
 }
 
-function UpcomingStayCard({ hostRequest, kind }: UpcomingStayCardProps) {
+function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps) {
   const { authState } = useAuthContext();
   const {
     t,
@@ -192,24 +184,8 @@ function UpcomingStayCard({ hostRequest, kind }: UpcomingStayCardProps) {
     abbreviate: true,
   });
 
-  const cityName = (city: string | undefined) =>
-    city?.split(",")[0].trim() ?? "—";
+  const primary = isLoading ? <Skeleton width={80} /> : (otherUser?.name ?? "—");
 
-  const primary = isLoading ? (
-    <Skeleton width={80} />
-  ) : kind === "trip" ? (
-    cityName(otherUser?.city)
-  ) : (
-    (otherUser?.name ?? "—")
-  );
-
-  const secondary = isLoading ? (
-    <Skeleton width={60} />
-  ) : kind === "trip" ? (
-    t("dashboard:stays.with_name", { name: firstName(otherUser?.name) })
-  ) : (
-    t("dashboard:stays.from_city", { city: cityName(otherUser?.city) })
-  );
 
   return (
     <Link
@@ -224,27 +200,7 @@ function UpcomingStayCard({ hostRequest, kind }: UpcomingStayCardProps) {
     >
       <StyledCard sx={{ flex: 1 }}>
         <IdentityRow>
-          {kind === "trip" ? (
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "8px",
-                border: "1px solid var(--mui-palette-divider)",
-                background: "var(--mui-palette-grey-50)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <PlaceOutlined
-                sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-              />
-            </Box>
-          ) : (
-            <Avatar user={otherUser} isProfileLink={false} />
-          )}
+          <Avatar user={otherUser} isProfileLink={false} />
           <TextBlock>
             <Typography
               variant="h3"
@@ -255,14 +211,29 @@ function UpcomingStayCard({ hostRequest, kind }: UpcomingStayCardProps) {
             </Typography>
             <Typography
               variant="body2"
-              noWrap
-              sx={{ fontSize: 12, color: "var(--mui-palette-text-secondary)" }}
+              sx={{
+                fontSize: 12,
+                color: "var(--mui-palette-text-secondary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "3px",
+                overflow: "hidden",
+              }}
             >
-              {secondary}
+              {isLoading ? (
+                <Skeleton width={60} />
+              ) : (
+                <>
+                  <PlaceOutlined style={{ fontSize: 12, flexShrink: 0 }} />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {otherUser?.city}
+                  </span>
+                </>
+              )}
             </Typography>
           </TextBlock>
           {isImminent && (
-            <DaysChip imminent>{daysUntilLabel(daysUntil, t)}</DaysChip>
+            <DaysChip imminent>{daysUntilLabel(daysUntil, locale)}</DaysChip>
           )}
         </IdentityRow>
         <MetaRow>
@@ -335,7 +306,6 @@ function UpcomingStayCardSkeleton() {
 // ── UpcomingStaysWidget ────────────────────────────────────────────────────
 
 interface UpcomingStaysWidgetProps {
-  kind: Kind;
   icon: React.ReactNode;
   title: string;
   requests: HostRequest.AsObject[];
@@ -350,7 +320,6 @@ function UpcomingStaysWidget({
   title,
   requests,
   isLoading,
-  kind,
   emptyMessage,
   emptyCtaLabel,
   emptyCtaHref,
@@ -473,7 +442,7 @@ function UpcomingStaysWidget({
                 scrollSnapAlign: "start",
               }}
             >
-              <UpcomingStayCard hostRequest={r} kind={kind} />
+              <UpcomingStayCard hostRequest={r} />
             </Box>
           ))}
         </Track>
@@ -523,7 +492,6 @@ export default function UpcomingStays() {
       {error && <Alert severity="error">{error.message}</Alert>}
 
       <UpcomingStaysWidget
-        kind="trip"
         icon={
           <Luggage
             sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
@@ -540,7 +508,6 @@ export default function UpcomingStays() {
       <Box sx={{ height: theme.spacing(3) }} />
 
       <UpcomingStaysWidget
-        kind="guest"
         icon={
           <MeetingRoom
             sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
@@ -551,7 +518,7 @@ export default function UpcomingStays() {
         isLoading={guestsLoading}
         emptyMessage={t("dashboard:stays.no_upcoming_guests")}
         emptyCtaLabel={t("dashboard:become_a_host")}
-        emptyCtaHref={routeToEditProfile("about")}
+        emptyCtaHref={`${routeToEditProfile("about")}#preferences`}
       />
     </div>
   );
