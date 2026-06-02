@@ -469,9 +469,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             statement = statement.where(HostRequest.end_time >= func.now())
 
         if request.is_statuses:
-            statement = statement.where(
-                HostRequest.status.in_([api2hostrequeststatus[s] for s in request.is_statuses])
-            )
+            statement = statement.where(HostRequest.status.in_([api2hostrequeststatus[s] for s in request.is_statuses]))
 
         statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
         results = session.execute(statement).all()
