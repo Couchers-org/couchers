@@ -151,6 +151,8 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
 @pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
+    prev_initialized = experimentation._initialized
+    prev_local_flags = experimentation._local_flags
 
     config["IN_TEST"] = True
 
@@ -222,12 +224,29 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
-    config["EXPERIMENTATION_ENABLED"] = False
-    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
+    # Default tests to local-file mode with every production boolean gate forced True. This preserves
+    # the prior "everything's enabled in tests" convenience that the old EXPERIMENTATION_PASS_ALL_GATES
+    # provided. Tests that need a specific GrowthBook setup use the `feature_flags` fixture instead.
+    config["FEATURE_FLAGS_ENABLED"] = True
+    config["FEATURE_FLAGS_USE_LOCAL_FILE"] = True
+    config["FEATURE_FLAGS_LOCAL_FILE_PATH"] = ""
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
     config["GROWTHBOOK_CACHE_PATH"] = ""
-    config["FEATURE_FLAG_OVERRIDE_PATH"] = ""
+    experimentation._initialized = True
+    experimentation._local_flags = {
+        "test_growthbook_integration": True,
+        "sms_enabled": True,
+        "strong_verification_enabled": True,
+        "log_native_ota_requests": True,
+        "donations_enabled": True,
+        "recaptcha_enabled": True,
+        "postal_verification_enabled": True,
+        "listmonk_enabled": True,
+        "remove_removed_users_from_mailing_list_enabled": True,
+        "notification_translations_enabled": True,
+        "email_ics_attachments_enabled": True,
+    }
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
@@ -251,6 +270,8 @@ def testconfig():
     yield None
 
     config.copy_from(prevconfig)
+    experimentation._initialized = prev_initialized
+    experimentation._local_flags = prev_local_flags
 
 
 class FeatureFlags:
@@ -271,7 +292,7 @@ class FeatureFlags:
 @pytest.fixture
 def feature_flags(monkeypatch) -> FeatureFlags:
     """
-    Enable experimentation with an in-memory snapshot and let tests set flag values by key.
+    Enable GrowthBook-mode flag evaluation against an in-memory snapshot; tests set values by key.
 
     Usage:
         def test_x(db, feature_flags):
@@ -281,8 +302,8 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", False)
     return FeatureFlags(features)
 
 

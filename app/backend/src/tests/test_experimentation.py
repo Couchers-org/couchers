@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pytest
 from growthbook.common_types import FeatureResult
@@ -68,7 +69,7 @@ def test_unknown_feature_returns_in_code_default(feature_flags):
 
 def test_value_method_returns_in_code_default_when_disabled(monkeypatch, feature_flags):
     feature_flags.set("global_flag", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", False)
     context = make_background_user_context(123)
     assert context.get_string_value("global_flag", "off") == "off"
 
@@ -185,7 +186,8 @@ def setup_isolation(monkeypatch, tmp_path):
     monkeypatch.setattr(experimentation, "_initialized", False)
     monkeypatch.setattr(experimentation, "_last_fetch_time", None)
     monkeypatch.setattr(experimentation, "_state", {"features": {}, "savedGroups": {}})
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", False)
     monkeypatch.setitem(config, "GROWTHBOOK_CACHE_PATH", str(tmp_path / "cache.json"))
     yield tmp_path / "cache.json"
     experimentation._refresh_stop.set()
@@ -244,68 +246,84 @@ def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
 
 
 @pytest.fixture
-def overrides(monkeypatch):
-    """Set the in-memory override dict directly, without touching disk."""
-    overrides: dict[str, object] = {}
-    monkeypatch.setattr(experimentation, "_overrides", overrides)
-    return overrides
+def local_file_flags(monkeypatch):
+    """Switch into local-file mode and let tests set values in the in-memory snapshot directly."""
+    flags: dict[str, Any] = {}
+    monkeypatch.setattr(experimentation, "_initialized", True)
+    monkeypatch.setattr(experimentation, "_local_flags", flags)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", True)
+    return flags
 
 
-def test_override_takes_precedence_over_growthbook(feature_flags, overrides):
-    feature_flags.set("my_flag", "from_growthbook")
-    overrides["my_flag"] = "from_override"
+def test_local_file_value_returned(local_file_flags):
+    local_file_flags["my_flag"] = "from_file"
     context = make_logged_out_context(LocalizationContext.en_utc())
-    assert context.get_string_value("my_flag", "fallback") == "from_override"
+    assert context.get_string_value("my_flag", "fallback") == "from_file"
 
 
-def test_override_works_when_experimentation_disabled(monkeypatch, overrides):
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
-    overrides["my_flag"] = "forced"
+def test_local_file_missing_key_returns_in_code_default(local_file_flags):
+    local_file_flags["other_flag"] = "x"
     context = make_logged_out_context(LocalizationContext.en_utc())
-    assert context.get_string_value("my_flag", "fallback") == "forced"
+    assert context.get_string_value("missing_flag", "fallback") == "fallback"
 
 
-def test_override_takes_precedence_over_pass_all_gates(monkeypatch, overrides):
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", True)
-    overrides["my_flag"] = False
+def test_local_file_boolean_value(local_file_flags):
+    local_file_flags["bool_flag"] = False
     context = make_logged_out_context(LocalizationContext.en_utc())
-    assert context.get_boolean_value("my_flag", default=True) is False
+    assert context.get_boolean_value("bool_flag", default=True) is False
 
 
-def test_override_records_metric_with_override_source(overrides):
-    overrides["override_metric_flag"] = "x"
-    before = _flag_eval_count("override_metric_flag", "override", "x")
-    assert experimentation.get_global_string_value("override_metric_flag", "y") == "x"
-    assert _flag_eval_count("override_metric_flag", "override", "x") == before + 1
+def test_local_file_records_metric_with_local_file_source(local_file_flags):
+    local_file_flags["metric_local_flag"] = "x"
+    before = _flag_eval_count("metric_local_flag", "local_file", "x")
+    assert experimentation.get_global_string_value("metric_local_flag", "y") == "x"
+    assert _flag_eval_count("metric_local_flag", "local_file", "x") == before + 1
 
 
-def test_unset_flag_falls_through_when_overrides_present(feature_flags, overrides):
-    feature_flags.set("real_flag", "real_value")
-    overrides["other_flag"] = "other_value"
-    context = make_logged_out_context(LocalizationContext.en_utc())
-    assert context.get_string_value("real_flag", "fallback") == "real_value"
+def test_local_file_missing_key_records_metric_with_missing_source(local_file_flags):
+    before = _flag_eval_count("absent_local_flag", "local_file_missing", "fallback")
+    assert experimentation.get_global_string_value("absent_local_flag", "fallback") == "fallback"
+    assert _flag_eval_count("absent_local_flag", "local_file_missing", "fallback") == before + 1
 
 
-def test_load_overrides_from_file(monkeypatch, tmp_path):
-    path = tmp_path / "overrides.json"
+def test_load_local_flags_from_file(monkeypatch, tmp_path):
+    path = tmp_path / "flags.json"
     path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
-    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", str(path))
-    monkeypatch.setattr(experimentation, "_overrides", {})
-    experimentation._load_overrides()
-    assert experimentation._overrides == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
+    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    monkeypatch.setattr(experimentation, "_local_flags", {})
+    experimentation._load_local_flags()
+    assert experimentation._local_flags == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
 
 
-def test_load_overrides_empty_when_path_unset(monkeypatch):
-    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", "")
-    monkeypatch.setattr(experimentation, "_overrides", {"stale": "value"})
-    experimentation._load_overrides()
-    assert experimentation._overrides == {}
+def test_load_local_flags_requires_path(monkeypatch):
+    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", "")
+    monkeypatch.setattr(experimentation, "_local_flags", {})
+    with pytest.raises(ValueError, match="FEATURE_FLAGS_LOCAL_FILE_PATH is empty"):
+        experimentation._load_local_flags()
 
 
-def test_load_overrides_rejects_non_object(monkeypatch, tmp_path):
-    path = tmp_path / "overrides.json"
+def test_load_local_flags_rejects_non_object(monkeypatch, tmp_path):
+    path = tmp_path / "flags.json"
     path.write_text(json.dumps(["not", "an", "object"]))
-    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", str(path))
-    monkeypatch.setattr(experimentation, "_overrides", {})
+    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    monkeypatch.setattr(experimentation, "_local_flags", {})
     with pytest.raises(ValueError, match="must contain a JSON object"):
-        experimentation._load_overrides()
+        experimentation._load_local_flags()
+
+
+def test_setup_in_local_file_mode_loads_file_and_skips_growthbook(monkeypatch, tmp_path):
+    path = tmp_path / "flags.json"
+    path.write_text(json.dumps({"flag_x": "from_file"}))
+    monkeypatch.setattr(experimentation, "_initialized", False)
+    monkeypatch.setattr(experimentation, "_local_flags", {})
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    # If GrowthBook were touched, this would blow up.
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: pytest.fail("GrowthBook should not be touched"))
+
+    setup_experimentation()
+
+    assert experimentation._local_flags == {"flag_x": "from_file"}
+    assert experimentation._refresh_thread is None

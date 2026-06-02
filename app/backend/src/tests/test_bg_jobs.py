@@ -1369,8 +1369,8 @@ def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
         "_state",
         {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
     )
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", False)
 
     superuser, _ = generate_user(is_superuser=True, last_donated=None)
 

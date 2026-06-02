@@ -1,7 +1,13 @@
 """
-Experimentation framework for feature flags and experiments.
+Feature flag and experimentation framework.
 
-Uses GrowthBook under the hood, but abstracts the implementation details.
+The flag source is picked by config:
+  - FEATURE_FLAGS_ENABLED=False: all evaluations return the in-code default.
+  - FEATURE_FLAGS_ENABLED=True, FEATURE_FLAGS_USE_LOCAL_FILE=True: values are read from a JSON file
+    at FEATURE_FLAGS_LOCAL_FILE_PATH, loaded once at startup. Keys missing from the file fall
+    through to the in-code default. No GrowthBook contact - intended for local dev and tests.
+  - FEATURE_FLAGS_ENABLED=True, FEATURE_FLAGS_USE_LOCAL_FILE=False: values come from GrowthBook, with
+    a background-refreshed in-memory snapshot and a disk cache fallback at startup.
 
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
@@ -12,8 +18,7 @@ Two ways to evaluate a flag:
     to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
     per-user path can do percentage rollouts, experiments, and feature-usage tracking.
 
-Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
-once at process startup.
+setup_experimentation() is called once at process startup.
 """
 
 import json
@@ -50,11 +55,10 @@ _refresh_thread: threading.Thread | None = None
 # load from the API or seed from the disk cache; drives the staleness metric.
 _last_fetch_time: float | None = None
 
-# Local development override: maps flag keys to forced values, loaded from the file at
-# FEATURE_FLAG_OVERRIDE_PATH if set. Takes precedence over GrowthBook, PASS_ALL_GATES, and the
-# EXPERIMENTATION_ENABLED gate.
-_overrides: dict[str, Any] = {}
-_NO_OVERRIDE = object()
+# Flag values loaded from FEATURE_FLAGS_LOCAL_FILE_PATH when FEATURE_FLAGS_USE_LOCAL_FILE is on.
+# Missing keys fall through to the in-code default; this dict is the entire source of flag values
+# in local-file mode.
+_local_flags: dict[str, Any] = {}
 
 
 class ExperimentationNotInitializedError(Exception):
@@ -135,38 +139,40 @@ def _refresh_loop() -> None:
         # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
-def _load_overrides() -> None:
-    """Load local feature-flag overrides from FEATURE_FLAG_OVERRIDE_PATH, if set."""
-    global _overrides
-    path_str = config["FEATURE_FLAG_OVERRIDE_PATH"]
+def _load_local_flags() -> None:
+    """Load flag values from FEATURE_FLAGS_LOCAL_FILE_PATH into the in-memory snapshot."""
+    global _local_flags
+    path_str = config["FEATURE_FLAGS_LOCAL_FILE_PATH"]
     if not path_str:
-        _overrides = {}
-        return
-    _overrides = json.loads(Path(path_str).read_text())
-    if not isinstance(_overrides, dict):
-        raise ValueError(f"Feature flag override file {path_str} must contain a JSON object")
-    logger.warning("Loaded %d local feature-flag override(s) from %s", len(_overrides), path_str)
+        raise ValueError("FEATURE_FLAGS_USE_LOCAL_FILE is on but FEATURE_FLAGS_LOCAL_FILE_PATH is empty")
+    loaded = json.loads(Path(path_str).read_text())
+    if not isinstance(loaded, dict):
+        raise ValueError(f"Feature flag local file {path_str} must contain a JSON object")
+    _local_flags = loaded
+    logger.info("Loaded %d feature flag(s) from local file %s", len(_local_flags), path_str)
 
 
 def setup_experimentation() -> None:
     """
-    Initialize the experimentation framework.
+    Initialize the feature flag framework.
 
-    Safe to call multiple times - subsequent calls are no-ops. Fetches the
-    feature payload once synchronously, then starts a background thread that
-    refreshes every minute. Request threads only ever read the in-memory
-    snapshot - they never block on the GrowthBook CDN.
+    Safe to call multiple times - subsequent calls are no-ops. In GrowthBook mode this fetches the
+    feature payload once synchronously, then starts a background thread that refreshes every minute;
+    request threads only ever read the in-memory snapshot. In local-file mode it loads the JSON file
+    once. When feature flags are disabled, evaluations short-circuit to in-code defaults.
     """
     global _initialized, _refresh_thread
 
     if _initialized:
         return
 
-    # Local overrides apply even when experimentation is disabled, so load before that gate.
-    _load_overrides()
+    if not config["FEATURE_FLAGS_ENABLED"]:
+        logger.info("Feature flags disabled, all evaluations return in-code defaults")
+        _initialized = True
+        return
 
-    if not config["EXPERIMENTATION_ENABLED"]:
-        logger.info("Experimentation is disabled, skipping initialization")
+    if config["FEATURE_FLAGS_USE_LOCAL_FILE"]:
+        _load_local_flags()
         _initialized = True
         return
 
@@ -282,30 +288,23 @@ def _global_evaluator() -> GrowthBook:
     return _create_evaluator(None)
 
 
-# These two helpers are the single home of the gating logic, shared by the global functions below
-# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
-# invoked once gating passes, so it stays lazy.
+# Single home of the gating logic, shared by the global functions below and by CouchersContext (which
+# passes its own cached per-request evaluator). get_evaluator is only invoked on the GrowthBook path,
+# so it stays lazy in the disabled and local-file paths.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    override = _overrides.get(flag_key, _NO_OVERRIDE)
-    if override is not _NO_OVERRIDE:
-        metrics.observe_feature_flag_evaluation(flag_key, "override", override)
-        return override  # type: ignore[no-any-return]
-    if not config["EXPERIMENTATION_ENABLED"]:
+    if not config["FEATURE_FLAGS_ENABLED"]:
+        return default
+    if config["FEATURE_FLAGS_USE_LOCAL_FILE"]:
+        if flag_key in _local_flags:
+            value = _local_flags[flag_key]
+            metrics.observe_feature_flag_evaluation(flag_key, "local_file", value)
+            return value  # type: ignore[no-any-return]
+        metrics.observe_feature_flag_evaluation(flag_key, "local_file_missing", default)
         return default
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
     metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
     return value
-
-
-def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
-    override = _overrides.get(flag_key, _NO_OVERRIDE)
-    if override is not _NO_OVERRIDE:
-        metrics.observe_feature_flag_evaluation(flag_key, "override", override)
-        return bool(override)
-    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        return True
-    return _feature_value(flag_key, default, get_evaluator)
 
 
 # Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
@@ -315,7 +314,7 @@ def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], Gro
 # feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
 # through to their in-code defaults unless a rule forces a value globally.
 def get_global_boolean_value(flag_key: str, default: bool) -> bool:
-    return _boolean_value(flag_key, default, _global_evaluator)
+    return _feature_value(flag_key, default, _global_evaluator)
 
 
 def get_global_string_value(flag_key: str, default: str) -> str:
