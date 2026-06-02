@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, cast
@@ -35,7 +36,6 @@ from couchers.native_updates import (
     UpdateCause,
     client_info_from_request,
     decide_native_update,
-    parse_optional_eas_client_id,
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
@@ -208,12 +208,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def GetNativeUpdateManifest(
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
-        # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
-        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
-
         platform = cast(str, context.headers.get("expo-platform", ""))
         fingerprint = cast(str, context.headers.get("expo-runtime-version", ""))
-        eas_client_id = parse_optional_eas_client_id(cast(str, context.headers.get("eas-client-id", "")))
+        eas_client_id = uuid.UUID(cast(str, context.headers.get("eas-client-id", "")))
         if context.get_boolean_value("log_native_ota_requests", False):
             logger.info(
                 "OTA GetNativeUpdateManifest: platform=%s fingerprint=%s eas_client_id=%s "
@@ -225,6 +222,8 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                 dict(context.headers),
                 request.data,
             )
+        # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
+        context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
 
         # Newest non-banned bundle for the build's fingerprint, by manifest createdAt. The device's
         # selection policy only applies it if it's newer than what it's running, so a stale store build
