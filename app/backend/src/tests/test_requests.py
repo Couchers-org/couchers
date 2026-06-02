@@ -651,8 +651,8 @@ def test_ListHostRequests_active_filter_excludes_past(db, moderator):
         assert len(res.host_requests) == 1
 
 
-def test_ListHostRequests_is_statuses_filter(db, moderator):
-    """is_statuses must return only requests with the specified statuses."""
+def test_ListHostRequests_status_in_filter(db, moderator):
+    """status_in must return only requests with the specified statuses."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = today() + timedelta(days=2)
@@ -698,7 +698,7 @@ def test_ListHostRequests_is_statuses_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                is_statuses=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
             )
         )
         assert len(res.host_requests) == 1
@@ -708,7 +708,7 @@ def test_ListHostRequests_is_statuses_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                is_statuses=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
             )
         )
         assert len(res.host_requests) == 1
@@ -718,7 +718,7 @@ def test_ListHostRequests_is_statuses_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                is_statuses=[
+                status_in=[
                     conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                     conversations_pb2.HOST_REQUEST_STATUS_PENDING,
                 ],
@@ -730,12 +730,12 @@ def test_ListHostRequests_is_statuses_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                is_statuses=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
             )
         )
         assert len(res.host_requests) == 0
 
-    # Empty is_statuses — all requests returned (no filter applied)
+    # Empty status_in — all requests returned (no filter applied)
     with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 2
