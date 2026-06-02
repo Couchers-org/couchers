@@ -8,10 +8,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy.orm import Session
-
 from couchers.context import CouchersContext
-from couchers.models.ota import NativeClientUser
 from couchers.proto import bugs_pb2
 
 logger = logging.getLogger(__name__)
@@ -95,10 +92,6 @@ def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeCl
         bundle_created_at=bundle_created_at,
         eas_client_id=uuid.UUID(request.eas_client_id),
     )
-
-
-def record_native_client_user(session: Session, eas_client_id: uuid.UUID, user_id: int) -> None:
-    session.add(NativeClientUser(eas_client_id=eas_client_id, user_id=user_id))
 
 
 def _clock_state(age: timedelta, warn: timedelta, block: timedelta) -> Severity:
