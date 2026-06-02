@@ -1,7 +1,7 @@
 """Backend: map eas-client-id to last-authenticated user_id
 
-Revision ID: 0163
-Revises: 0162
+Revision ID: 0164
+Revises: 0163
 Create Date: 2026-06-02 02:34:30.660517
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0163"
-down_revision = "0162"
+revision = "0164"
+down_revision = "0163"
 branch_labels = None
 depends_on = None
 
