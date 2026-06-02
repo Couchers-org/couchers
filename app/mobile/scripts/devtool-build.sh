@@ -43,9 +43,6 @@ json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
 CURRENT="$(npx expo-updates fingerprint:generate --platform "$PLATFORM" 2>/dev/null | json_field '.hash')"
 echo "current $PLATFORM fingerprint:    $CURRENT"
 
-# Refuse to cut a Dev Tool client whose fingerprint isn't blessed in git, same
-# rule as native-build.sh — the devtool client and store builds share the same
-# fingerprint baseline, so an unblessed change blocks both.
 bash scripts/check-fingerprint-baseline.sh "$PLATFORM"
 
 PREVIOUS="$(aws s3 cp "$MARKER" - 2>/dev/null || true)"
