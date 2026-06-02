@@ -12,7 +12,7 @@ from markupsafe import Markup, escape
 
 from couchers import urls
 from couchers.config import config
-from couchers.constants import BLOG_URL, LATEST_RELEASE_BLOG_URL
+from couchers.constants import LATEST_RELEASE_BLOG_URL
 from couchers.email.rendering import (
     ActionBlock,
     EmailBlock,

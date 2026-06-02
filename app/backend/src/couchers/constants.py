@@ -6,8 +6,6 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
-BLOG_URL = "https://couchers.org/blog"
-
 # When updating this, also update the "activeness_probe" notification strings in
 # src/couchers/email/locales/en.json
 LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
