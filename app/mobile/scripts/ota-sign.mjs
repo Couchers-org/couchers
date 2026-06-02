@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-// Sign a staged ota-stage.mjs multipart manifest in place for expo-updates code
-// signing — the CI-side equivalent of the prod publish lambda's
-// sign_manifest_multipart. Signs the `manifest` part's exact body bytes
-// (RSA-SHA256, PKCS#1 v1.5) and inserts an expo-signature header.
+// Restamp + sign a staged ota-stage.mjs multipart manifest in place. The id is
+// restamped because expo-updates skips updates whose id matches the installed
+// one; createdAt is restamped because it's the client's newest-wins key.
 // Usage: node scripts/ota-sign.mjs --dir <dir> --key-file <pem> --key-id staging
 
 import crypto from "node:crypto";
@@ -31,7 +30,33 @@ function parseBoundary(contentType) {
     .replace(/^"|"$/g, "");
 }
 
-// Sign the `manifest` part's exact body bytes and insert the expo-signature header.
+function restampManifest(raw, boundary) {
+  const i = raw.indexOf('name="manifest"');
+  if (i === -1) throw new Error("manifest part not found in multipart body");
+  const hdrEnd = raw.indexOf("\r\n\r\n", i);
+  if (hdrEnd === -1) throw new Error("malformed manifest part headers");
+  const bodyStart = hdrEnd + 4;
+  const bodyEnd = raw.indexOf(`\r\n--${boundary}`, bodyStart);
+  if (bodyEnd === -1)
+    throw new Error("manifest part body terminator not found");
+
+  const manifest = JSON.parse(
+    raw.subarray(bodyStart, bodyEnd).toString("utf8"),
+  );
+  manifest.id = crypto.randomUUID();
+  manifest.createdAt = new Date().toISOString();
+  const newBody = Buffer.from(JSON.stringify(manifest));
+
+  return {
+    manifest,
+    raw: Buffer.concat([
+      raw.subarray(0, bodyStart),
+      newBody,
+      raw.subarray(bodyEnd),
+    ]),
+  };
+}
+
 function signMultipart(raw, boundary, key, keyId) {
   const i = raw.indexOf('name="manifest"');
   if (i === -1) throw new Error("manifest part not found in multipart body");
@@ -75,10 +100,13 @@ function main() {
   if (raw.includes("expo-signature:")) {
     throw new Error(`manifest already signed: ${manifestPath}`);
   }
-  const signed = signMultipart(raw, boundary, key, keyId);
+  const { manifest, raw: restamped } = restampManifest(raw, boundary);
+  const signed = signMultipart(restamped, boundary, key, keyId);
   fs.writeFileSync(manifestPath, signed);
 
   console.log(`signed ${manifestPath} (keyid=${keyId}, alg=${ALG})`);
+  console.log(`  id         ${manifest.id}`);
+  console.log(`  createdAt  ${manifest.createdAt}`);
 }
 
 main();
