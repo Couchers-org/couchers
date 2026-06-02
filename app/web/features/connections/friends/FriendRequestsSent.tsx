@@ -28,6 +28,7 @@ function CancelFriendRequestAction({
 }: CancelFriendRequestActionProps) {
   const { cancelFriendRequest, isPending, isSuccess, reset } =
     useCancelFriendRequest();
+    const { t } = useTranslation(["a11y"]);
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
@@ -35,7 +36,7 @@ function CancelFriendRequestAction({
         <CenteredSpinner />
       ) : (
         <IconButton
-          aria-label="Cancel request"
+          aria-label={t("a11y:cancelRequest")}
           onClick={() => {
             reset();
             cancelFriendRequest({ friendRequestId, setMutationError, userId });

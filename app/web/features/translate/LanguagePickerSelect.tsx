@@ -75,7 +75,7 @@ export default function LanguagePickerSelect({
   const isAuthenticated = authState.authenticated;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { t } = useTranslation([GLOBAL]);
+  const { t } = useTranslation([GLOBAL, "a11y"]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
   const { showAllLanguages } = useShowAllLanguages();
@@ -135,7 +135,7 @@ export default function LanguagePickerSelect({
       return (
         <CatalanFlagIcon
           sx={{ width: 25, height: 18.75, ...commonStyles }}
-          aria-label="Catalan flag"
+          aria-label={t("a11y:catalanFlag")}
         />
       );
     }

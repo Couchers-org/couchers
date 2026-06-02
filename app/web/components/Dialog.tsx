@@ -14,6 +14,7 @@ import {
 import IconButton from "components/IconButton";
 import React from "react";
 import { theme } from "theme";
+import { useTranslation } from "react-i18next";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
   "aria-labelledby": string;
@@ -70,6 +71,8 @@ export function DialogTitle({
   onClose,
   ...dialogTitleProps
 }: DialogTitleProps) {
+  const { t } = useTranslation(["a11y"]);
+
   return (
     <MuiDialogTitle
       {...dialogTitleProps}
@@ -81,7 +84,7 @@ export function DialogTitle({
     >
       {onClose && (
         <IconButton
-          aria-label="close"
+          aria-label={t("close")}
           onClick={onClose}
           size="large"
           sx={{

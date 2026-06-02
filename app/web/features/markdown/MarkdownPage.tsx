@@ -254,7 +254,9 @@ export default function MarkdownPage({
         maxWidth="md"
         sx={{ marginTop: theme.spacing(3) }}
       >
-        <StyledBreadcrumbs aria-label="breadcrumb">
+        <StyledBreadcrumbs
+          aria-label={t("a11y:breadcrumb")}
+        >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (

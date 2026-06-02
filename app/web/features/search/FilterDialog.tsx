@@ -145,7 +145,7 @@ const FilterDialog = ({
   resetFilters,
   updateFilter,
 }: FilterDialogProps) => {
-  const { t } = useTranslation([GLOBAL, SEARCH]);
+  const { t } = useTranslation([GLOBAL, SEARCH, "a11y"]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { data: currentUser } = useCurrentUser();
 
@@ -258,7 +258,7 @@ const FilterDialog = ({
           : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
       <IconButton
-        aria-label="close"
+        aria-label={t("a11y:close")}
         onClick={onCloseDialog}
         sx={(theme) => ({
           position: "absolute",

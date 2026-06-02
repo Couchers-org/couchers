@@ -11,6 +11,7 @@ import { usePersistedState } from "platform/usePersistedState";
 import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
+import { useTranslation } from "next-i18next";
 
 import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
@@ -111,6 +112,8 @@ const StyledArrow = styled(IconButton)({
 });
 
 export default function ReminderCarousel() {
+  const { t } = useTranslation(["a11y"]);
+
   const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
     queryKey: [remindersKey],
     queryFn: () => service.account.getReminders(),
@@ -170,7 +173,7 @@ export default function ReminderCarousel() {
   return (
     <StyledContainer>
       <StyledArrow
-        aria-label="scroll left"
+        aria-label={t("a11y:scrollLeft")}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
       >
@@ -197,7 +200,7 @@ export default function ReminderCarousel() {
       </StyledScroller>
 
       <StyledArrow
-        aria-label="scroll right"
+        aria-label={t("a11y:scrollRight")}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
       >

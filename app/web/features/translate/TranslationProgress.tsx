@@ -137,13 +137,13 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 
 export default function TranslationProgress() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { t } = useTranslation([GLOBAL]);
+  const { t } = useTranslation([GLOBAL, "a11y"]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
 
   const renderFlag = (flagCode: string, percent: number) => {
     if (flagCode === "CAT") {
-      return <CatalanFlag percent={percent} aria-label="Catalan flag" />;
+      return <CatalanFlag percent={percent} aria-label={t("a11y:catalanFlag")} />;
     }
     return (
       <FlagImage
