@@ -31,7 +31,6 @@ import {
 } from "utils/date";
 import dayjs from "utils/dayjs";
 
-
 const CARD_WIDTH = 220;
 const CARD_GAP = 12;
 
@@ -184,8 +183,11 @@ function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps) {
     abbreviate: true,
   });
 
-  const primary = isLoading ? <Skeleton width={80} /> : (otherUser?.name ?? "—");
-
+  const primary = isLoading ? (
+    <Skeleton width={80} />
+  ) : (
+    (otherUser?.name ?? "—")
+  );
 
   return (
     <Link
@@ -225,7 +227,13 @@ function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps) {
               ) : (
                 <>
                   <PlaceOutlined style={{ fontSize: 12, flexShrink: 0 }} />
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {otherUser?.city}
                   </span>
                 </>
