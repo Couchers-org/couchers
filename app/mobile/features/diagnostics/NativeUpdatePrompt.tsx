@@ -35,8 +35,7 @@ function defaultLinkText(
 // Renders the update prompt:
 //   - non-dismissible block screen (mode = "block")
 //   - dismissible warn screen (mode = "warn")
-//   - non-dismissible "applying" overlay (autoApplying = true): logo + spinner shown
-//     while a cold-start OTA download is in progress, in place of any prompt.
+//   - silent logo + spinner overlay (autoApplying = true) for cold-start OTAs
 //
 // The body and preamble are hardcoded on the client so they read naturally and translators
 // don't have to keep variants in sync. If the backend supplies info.message (reserved for
@@ -68,8 +67,6 @@ export default function NativeUpdatePrompt({
     primary: isDark ? theme.dark.primary.main : theme.palette.primary.main,
   };
 
-  // Cold-start auto-apply: render only the logo + spinner — no prompt, no text.
-  // The user hasn't been told there's an update; we're just continuing the splash.
   if (autoApplying) {
     return (
       <Modal

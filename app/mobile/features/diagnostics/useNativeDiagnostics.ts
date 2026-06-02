@@ -37,8 +37,7 @@ import { checkNativeStatus } from "@/service/checkNativeStatus";
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
 const LAST_NAG_KEY = "diagnostics.lastNagDismissedAt";
 const PING_THROTTLE_MS = 5 * 60 * 1000;
-// Safety fallback: if the cold-start diagnostics ping is slow or hangs, open the
-// startup gate after this so the app loads instead of sitting on the splash.
+// Safety net so a slow/hung diagnostics ping can't keep the splash up forever.
 const STARTUP_GATE_TIMEOUT_MS = 5_000;
 
 // Cleared on process restart, so dismissing a session-scoped prompt suppresses it
@@ -88,15 +87,12 @@ async function recordDismissal(
 }
 
 export interface NativeDiagnostics {
-  // The update prompt to render right now, or null when nothing should be shown.
   prompt: UpdatePrompt | null;
-  // Dismisses the current prompt (no-op for non-dismissible "block" prompts).
   dismiss: () => void;
-  // True while a cold-start OTA download is in progress. The caller should
-  // render the applying overlay (logo + spinner) instead of the app shell.
+  // True while a cold-start OTA download is in progress; render the spinner
+  // overlay instead of the app shell.
   autoApplyingOta: boolean;
-  // True until the cold-start diagnostics decision has been made (or the safety
-  // timeout has elapsed). Callers should keep the splash up while this is true.
+  // True while the cold-start decision is still pending; keep the splash up.
   startupGate: boolean;
 }
 
@@ -116,8 +112,8 @@ export function useNativeDiagnostics(): NativeDiagnostics {
   const [startupGate, setStartupGate] = useState(true);
   const startupGateOpenedRef = useRef(false);
 
-  // Cold-start = the very first ping after this hook mounts. AppState 'active'
-  // pings after that are NOT cold starts and never auto-apply.
+  // Only the very first ping is a "cold start"; later AppState 'active' pings
+  // never auto-apply, since the user is already using the app.
   const coldStartRef = useRef(true);
 
   const openStartupGate = useCallback(() => {
@@ -140,8 +136,6 @@ export function useNativeDiagnostics(): NativeDiagnostics {
   }, []);
 
   useEffect(() => {
-    // Safety net: if the first ping is slow, hangs, or never starts, drop the
-    // gate so the user isn't stuck staring at the splash forever.
     const timer = setTimeout(openStartupGate, STARTUP_GATE_TIMEOUT_MS);
 
     async function surface(
@@ -155,10 +149,8 @@ export function useNativeDiagnostics(): NativeDiagnostics {
       }
       const mode = updateMode(info, new Date(now));
 
-      // Cold-start auto-apply: if the user is in the warn period and the
-      // configured action is an OTA, silently download + reload instead of
-      // showing the prompt. If anything goes wrong we fall through to the
-      // normal warn screen, which is still actionable.
+      // Cold-start warn + OTA: silently download + reload instead of prompting.
+      // Falls through to the regular warn screen on any failure.
       if (
         isColdStart &&
         mode === "warn" &&
@@ -169,10 +161,8 @@ export function useNativeDiagnostics(): NativeDiagnostics {
           const result = await Updates.fetchUpdateAsync();
           if (result.isNew) {
             await Updates.reloadAsync();
-            return; // reloadAsync restarts the JS context; nothing past this runs
+            return;
           }
-          // No new bundle was actually downloaded (already current, or expo-updates
-          // disabled in dev). Treat as a no-op and don't surface a prompt.
           setAutoApplyingOta(false);
           return;
         } catch (error) {
@@ -265,10 +255,6 @@ export function useNativeDiagnostics(): NativeDiagnostics {
       } catch (error) {
         console.warn("Failed to check native status:", error);
       } finally {
-        // The cold-start decision has now been made (success, throttle, fail,
-        // or auto-apply finished without reloading). Drop the gate so the app
-        // can render — by this point autoApplyingOta reflects whether the
-        // caller should render the overlay or the app shell.
         if (isColdStart) openStartupGate();
       }
     }

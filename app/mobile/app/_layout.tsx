@@ -76,10 +76,9 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     useNativeDiagnostics();
 
   const basicsReady = fontsLoaded && checkedAuthStatus && featuresReady;
-  // Hide splash once basics are ready and we've either committed to auto-applying
-  // (the JS overlay takes over from the splash) or know there's no auto-apply
-  // pending (gate is open). While the gate is still closed with no auto-apply
-  // in flight, we keep the splash up rather than flashing the app for a moment.
+  // Keep the splash up until either the cold-start decision is in (gate open)
+  // or the JS spinner overlay takes over (auto-applying); avoids flashing the
+  // app for a frame before the overlay appears.
   const splashCanHide = basicsReady && (autoApplyingOta || !startupGate);
 
   useEffect(() => {
