@@ -45,7 +45,8 @@ class OTAPackage(Base, kw_only=True):
     # The manifest's createdAt: the publish/stamp time used to order rollouts. A rollback rolls forward by
     # republishing the good bundle re-stamped with a newer createdAt so it sorts newest.
     manifest_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    # NOT unique: a re-stamped rollback reuses the same bundle content and so can repeat an id.
+    # Restamped to a fresh UUID on every publish — expo-updates skips updates whose id matches the
+    # installed one, so reusing an id silently drops the publish.
     manifest_id: Mapped[str] = mapped_column(String)
 
     # Stops handing this bundle to new check-ins; can't reclaim devices already on it (they only move
@@ -59,6 +60,7 @@ class OTAPackage(Base, kw_only=True):
 
     __table_args__ = (
         UniqueConstraint("platform", "version", name="uq_ota_packages_platform_version"),
+        UniqueConstraint("platform", "manifest_id", name="uq_ota_packages_platform_manifest_id"),
         Index("ix_ota_packages_resolve", "platform", "fingerprint", "manifest_created_at"),
         # All three ban columns move together: either the package isn't banned, or every audit field
         # is filled in. Bans are irreversible (rolled forward by republishing) so the reason is
