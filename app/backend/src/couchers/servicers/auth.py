@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import cast
 
 import grpc
 import requests
@@ -108,8 +107,8 @@ def create_session(
         token=token,
         user_id=user.id,
         long_lived=long_lived,
-        ip_address=cast(str | None, context.headers.get("x-couchers-real-ip")),
-        user_agent=cast(str | None, context.headers.get("user-agent")),
+        ip_address=context.get_header("x-couchers-real-ip"),
+        user_agent=context.get_header("user-agent"),
         is_api_key=is_api_key,
     )
     if duration:
@@ -713,8 +712,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not context.get_boolean_value("recaptcha_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
-        ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
-        user_agent = cast(str | None, context.headers.get("user-agent"))
+        ip_address = context.get_header("x-couchers-real-ip")
+        user_agent = context.get_header("user-agent")
         user_id = context.user_id if context.is_logged_in() else None
 
         resp = requests.post(

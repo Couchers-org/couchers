@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
@@ -18,6 +19,7 @@ from couchers.native_updates import (
 from couchers.proto import bugs_pb2
 
 NOW = datetime(2026, 5, 31, 12, 0, tzinfo=UTC)
+EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
 class _FakeContext:
@@ -50,6 +52,7 @@ def _ts(dt: datetime) -> Timestamp:
 
 def test_client_info_from_full_proto():
     req = bugs_pb2.CheckNativeStatusReq(
+        eas_client_id=str(EAS_CLIENT_ID),
         platform="ios",
         runtime_version="ios-fingerprint",
         update_id="abc-123",
@@ -68,7 +71,11 @@ def test_client_info_from_full_proto():
 
 def test_client_info_embedded_launch_source():
     req = bugs_pb2.CheckNativeStatusReq(
-        platform="android", launch_source="embedded", is_embedded_launch=True, update_id="none"
+        eas_client_id=str(EAS_CLIENT_ID),
+        platform="android",
+        launch_source="embedded",
+        is_embedded_launch=True,
+        update_id="none",
     )
     info = client_info_from_request(req)
     assert info.is_ota_launch is False
@@ -77,23 +84,25 @@ def test_client_info_embedded_launch_source():
 
 
 def test_client_info_defaults_when_request_empty():
-    info = client_info_from_request(bugs_pb2.CheckNativeStatusReq())
-    assert info == NativeClientInfo()
+    info = client_info_from_request(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID)))
+    assert info == NativeClientInfo(eas_client_id=EAS_CLIENT_ID)
 
 
 def test_no_timestamps_means_no_update():
-    decision = _decide(NativeClientInfo(platform="ios"))
+    decision = _decide(NativeClientInfo(eas_client_id=EAS_CLIENT_ID, platform="ios"))
     assert decision.action == UpdateAction.none
     assert decision.severity == Severity.none
 
 
 def test_fresh_binary_no_update():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(10))
+    info = NativeClientInfo(eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(10))
     assert _decide(info).severity == Severity.none
 
 
 def test_binary_between_warn_and_block_is_store_warn():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_WARN_DAYS + 1))
+    info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_WARN_DAYS + 1)
+    )
     decision = _decide(info)
     assert decision.action == UpdateAction.store
     assert decision.severity == Severity.warn
@@ -101,7 +110,9 @@ def test_binary_between_warn_and_block_is_store_warn():
 
 
 def test_binary_past_block_is_store_block():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 5))
+    info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 5)
+    )
     decision = _decide(info)
     assert decision.action == UpdateAction.store
     assert decision.severity == Severity.block
@@ -110,6 +121,7 @@ def test_binary_past_block_is_store_block():
 
 def test_ota_between_warn_and_block_is_ota_warn():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         binary_created_at=_days_ago(5),
@@ -123,6 +135,7 @@ def test_ota_between_warn_and_block_is_ota_warn():
 
 def test_ota_past_block_is_ota_block():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         binary_created_at=_days_ago(5),
@@ -135,6 +148,7 @@ def test_ota_past_block_is_ota_block():
 
 def test_ota_clock_ignored_when_not_running_ota():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=False,
         binary_created_at=_days_ago(5),
@@ -145,6 +159,7 @@ def test_ota_clock_ignored_when_not_running_ota():
 
 def test_binary_warn_but_ota_block_resolves_to_ota_block():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         binary_created_at=_days_ago(DEFAULT_STORE_WARN_DAYS + 1),
@@ -157,6 +172,7 @@ def test_binary_warn_but_ota_block_resolves_to_ota_block():
 
 def test_store_precedence_when_severities_tie():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 1),
@@ -167,6 +183,7 @@ def test_store_precedence_when_severities_tie():
 
 def test_binary_block_beats_ota_warn():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         binary_created_at=_days_ago(DEFAULT_STORE_BLOCK_DAYS + 1),
@@ -176,25 +193,26 @@ def test_binary_block_beats_ota_warn():
 
 
 def test_warn_days_drive_warn_threshold():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(8))
+    info = NativeClientInfo(eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(8))
     decision = _decide(info, flags={"native_store_warn_days": 7, "native_store_block_days": 30})
     assert decision.severity == Severity.warn
 
 
 def test_block_days_drive_block_threshold():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(10))
+    info = NativeClientInfo(eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(10))
     decision = _decide(info, flags={"native_store_warn_days": 5, "native_store_block_days": 7})
     assert decision.action == UpdateAction.store
     assert decision.severity == Severity.block
 
 
 def test_zero_block_disables_clock():
-    info = NativeClientInfo(platform="ios", binary_created_at=_days_ago(1000))
+    info = NativeClientInfo(eas_client_id=EAS_CLIENT_ID, platform="ios", binary_created_at=_days_ago(1000))
     assert _decide(info, flags={"native_store_block_days": 0}).severity == Severity.none
 
 
 def test_banned_bundle_on_ota_launch_forces_block():
     info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID,
         platform="ios",
         is_ota_launch=True,
         update_id="abc",
@@ -209,5 +227,7 @@ def test_banned_bundle_on_ota_launch_forces_block():
 
 
 def test_banned_ignored_when_not_an_ota_launch():
-    info = NativeClientInfo(platform="ios", is_ota_launch=False, binary_created_at=_days_ago(5))
+    info = NativeClientInfo(
+        eas_client_id=EAS_CLIENT_ID, platform="ios", is_ota_launch=False, binary_created_at=_days_ago(5)
+    )
     assert _decide(info, banned=True).severity == Severity.none

@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
@@ -17,6 +18,8 @@ from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.bugs import _fetch_signed_manifest
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import bugs_session, real_bugs_session
+
+EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
 @pytest.fixture(autouse=True)
@@ -400,7 +403,9 @@ def test_report_diagnostics_frontend_version(db):
 def test_check_native_status_anonymous(db):
     with bugs_session() as bugs:
         res = bugs.CheckNativeStatus(
-            bugs_pb2.CheckNativeStatusReq(app_version="1.1.20", platform="ios", user_state="logged_out")
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), app_version="1.1.20", platform="ios", user_state="logged_out"
+            )
         )
 
     # No build timestamps reported -> no clock runs -> no update asked for.
@@ -412,7 +417,11 @@ def test_check_native_status_authenticated(db):
     _, token = generate_user()
 
     with bugs_session(token) as bugs:
-        res = bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(platform="android", user_state="authenticated"))
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), platform="android", user_state="authenticated"
+            )
+        )
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
     assert res.update_info.required is False
@@ -424,7 +433,9 @@ def test_check_native_status_blocks_expired_binary(db):
     embedded_created_at.FromDatetime(datetime.now(UTC) - timedelta(days=120))
     with bugs_session() as bugs:
         res = bugs.CheckNativeStatus(
-            bugs_pb2.CheckNativeStatusReq(platform="ios", embedded_created_at=embedded_created_at)
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), platform="ios", embedded_created_at=embedded_created_at
+            )
         )
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_STORE
@@ -490,7 +501,11 @@ def test_native_update_manifest_serves_matching_package(db, feature_flags):
         with real_bugs_session() as (bugs, metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
             )
 
     # the signed bytes are fetched from the CDN under the package's version and served verbatim
@@ -520,7 +535,11 @@ def test_native_update_manifest_resolves_per_platform(db, feature_flags):
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "android"), ("expo-runtime-version", "shared-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "android"),
+                    ("expo-runtime-version", "shared-fingerprint"),
+                ),
             )
 
     assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.android/android/manifest"
@@ -546,7 +565,11 @@ def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
             )
 
     assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.2.newer/ios/manifest"
@@ -572,7 +595,11 @@ def test_native_update_manifest_banned_package_excluded(db, feature_flags):
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
             )
 
     # the newest is banned, so new check-ins get the previous one (a re-stamp would supersede it)
@@ -590,7 +617,11 @@ def test_native_update_manifest_runtime_mismatch_returns_directive(db):
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "some-other-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "some-other-fingerprint"),
+                ),
             )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
@@ -609,7 +640,11 @@ def test_native_update_manifest_only_banned_package_returns_directive(db):
     with real_bugs_session() as (bugs, _metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+                ("expo-runtime-version", "ios-fingerprint"),
+            ),
         )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
@@ -625,7 +660,10 @@ def test_native_update_manifest_without_runtime_version_returns_directive(db):
     with real_bugs_session() as (bugs, metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"),),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+            ),
         )
 
     body = res.data.decode()
@@ -637,7 +675,11 @@ def test_native_update_manifest_no_package_returns_directive(db):
     with real_bugs_session() as (bugs, _metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+                ("expo-runtime-version", "ios-fingerprint"),
+            ),
         )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
