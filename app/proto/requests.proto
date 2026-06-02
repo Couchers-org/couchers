@@ -119,6 +119,9 @@ message ListHostRequestsReq {
   bool only_sent = 4;
   bool only_received = 5;
   optional bool only_archived = 6;
+
+  // If non-empty, only return requests with one of these statuses.
+  repeated org.couchers.api.conversations.HostRequestStatus is_statuses = 7;
 }
 
 message ListHostRequestsRes {
