@@ -22,24 +22,30 @@ export async function listHostRequests({
   type = "all",
   onlyActive,
   onlyArchived,
+  statusIn,
 }: {
   lastRequestId?: number;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
   onlyArchived?: boolean;
+  statusIn?: HostRequestStatus[];
 }) {
   const req = new ListHostRequestsReq();
   if (onlyActive !== undefined) {
     req.setOnlyActive(onlyActive);
   }
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  if (statusIn !== undefined) {
+    req.setStatusInList(statusIn);
+  }
+
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
   req.setLastRequestId(lastRequestId);
   req.setNumber(count);
-  if (onlyArchived !== undefined) {
-    req.setOnlyArchived(onlyArchived);
-  }
 
   const response = await client.requests.listHostRequests(req);
 

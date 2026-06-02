@@ -18,25 +18,21 @@ import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
 
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
 
+interface UpcomingStaysWidgetProps {
+  icon: React.ReactNode;
+  title: string;
+  requests: HostRequest.AsObject[];
+  isLoading: boolean;
+  emptyMessage: string;
+  emptyCtaLabel: string;
+  emptyCtaHref: string;
+}
+
 const CARD_WIDTH = 220;
 const CARD_GAP = 12;
-
-const ACCEPTED_STATUSES = new Set([
-  HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-  HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-]);
-
-function filterUpcoming(
-  requests: HostRequest.AsObject[],
-): HostRequest.AsObject[] {
-  return requests
-    .filter((r) => ACCEPTED_STATUSES.has(r.status))
-    .sort((a, b) => dayjs.utc(a.fromDate).diff(dayjs.utc(b.fromDate)));
-}
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -64,18 +60,6 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   borderRadius: 10,
   background: "var(--mui-palette-grey-50)",
 }));
-
-// ── UpcomingStaysWidget ────────────────────────────────────────────────────
-
-interface UpcomingStaysWidgetProps {
-  icon: React.ReactNode;
-  title: string;
-  requests: HostRequest.AsObject[];
-  isLoading: boolean;
-  emptyMessage: string;
-  emptyCtaLabel: string;
-  emptyCtaHref: string;
-}
 
 function UpcomingStaysWidget({
   icon,
@@ -218,7 +202,10 @@ function UpcomingStaysWidget({
   );
 }
 
-// ── UpcomingStays (default export) ─────────────────────────────────────────
+const UPCOMING_STATUSES = [
+  HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+  HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
+];
 
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
@@ -234,6 +221,7 @@ export default function UpcomingStays() {
         type: "surfing",
         count: 20,
         onlyActive: true,
+        statusIn: UPCOMING_STATUSES,
       }),
   });
 
@@ -248,11 +236,12 @@ export default function UpcomingStays() {
         type: "hosting",
         count: 20,
         onlyActive: true,
+        statusIn: UPCOMING_STATUSES,
       }),
   });
 
-  const upcomingTrips = filterUpcoming(tripsData?.hostRequestsList ?? []);
-  const upcomingGuests = filterUpcoming(guestsData?.hostRequestsList ?? []);
+  const upcomingTrips = tripsData?.hostRequestsList ?? [];
+  const upcomingGuests = guestsData?.hostRequestsList ?? [];
 
   const error = tripsError ?? guestsError;
 
