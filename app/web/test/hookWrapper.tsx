@@ -1,3 +1,5 @@
+import { GrowthBook } from "@growthbook/growthbook";
+import { GrowthBookProvider } from "@growthbook/growthbook-react";
 import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -7,6 +9,13 @@ import React, { Suspense } from "react";
 import { theme } from "theme";
 
 import AuthProvider from "../features/auth/AuthProvider";
+
+// In prod the GrowthBook provider sits at the app root (see pages/_app.tsx), so any component using
+// flag hooks expects one. Mirror that here with a fresh, uninitialized SDK; flag hooks will return
+// the caller's default and useGrowthBook().ready stays false, which is what tests want.
+function makeGrowthBook() {
+  return new GrowthBook();
+}
 
 export default function hookWrapper({
   children,
@@ -27,7 +36,11 @@ export default function hookWrapper({
           <ThemeProvider theme={theme}>
             <QueryClientProvider client={client}>
               <MemoryRouterProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                  <GrowthBookProvider growthbook={makeGrowthBook()}>
+                    {children}
+                  </GrowthBookProvider>
+                </AuthProvider>
               </MemoryRouterProvider>
             </QueryClientProvider>
           </ThemeProvider>
@@ -56,7 +69,11 @@ export function getHookWrapperWithClient() {
           <ThemeProvider theme={theme}>
             <QueryClientProvider client={client}>
               <MemoryRouterProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                  <GrowthBookProvider growthbook={makeGrowthBook()}>
+                    {children}
+                  </GrowthBookProvider>
+                </AuthProvider>
               </MemoryRouterProvider>
             </QueryClientProvider>
           </ThemeProvider>
