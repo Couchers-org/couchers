@@ -129,8 +129,9 @@ def main() -> None:
         children.append(scheduler)
 
     if config.ROLE in ["worker", "all"]:
-        for i in range(config.BACKGROUND_WORKER_COUNT):
-            worker = start_jobs_worker(i)
+        threads_per_process = config.BACKGROUND_WORKER_THREADS_PER_PROCESS
+        for i in range(config.BACKGROUND_WORKER_PROCESSES):
+            worker = start_jobs_worker(i, threads_per_process)
             worker.name = f"worker-{i}"
             children.append(worker)
 

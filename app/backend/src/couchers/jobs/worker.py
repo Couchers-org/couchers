@@ -3,6 +3,7 @@ Background job workers
 """
 
 import logging
+import threading
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
@@ -94,9 +95,12 @@ def process_job() -> bool:
         except Exception as e:
             finished = perf_counter_ns()
             logger.exception(e)
-            sentry_sdk.set_tag("context", "job")
-            sentry_sdk.set_tag("job", job.job_type)
-            sentry_sdk.capture_exception(e)
+            # new_scope keeps these tags isolated to this thread's report — without it, sibling
+            # worker threads sharing the process would see each other's `context`/`job` tags.
+            with sentry_sdk.new_scope() as scope:
+                scope.set_tag("context", "job")
+                scope.set_tag("job", job.job_type)
+                sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
@@ -172,15 +176,18 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _run_forever(func: Callable[[], None], profile_instance: str | None = None) -> None:
+def _per_process_init(profile_instance: str | None) -> None:
     # Post-fork initialization: these services use threading/async internals that
-    # don't survive fork() and must be initialized fresh in each child process
+    # don't survive fork() and must be initialized fresh in each child process.
+    # Pyroscope in particular can only be initialized once per process.
     db_post_fork()
     setup_tracing()
     setup_experimentation()
     if profile_instance is not None:
         setup_profiling(role="worker", instance=profile_instance)
 
+
+def _run_forever(func: Callable[[], None]) -> None:
     while True:
         try:
             logger.info("Background worker starting")
@@ -191,16 +198,39 @@ def _run_forever(func: Callable[[], None], profile_instance: str | None = None) 
             sleep(60)
 
 
+def _scheduler_process_entry() -> None:
+    # No profile_instance: matches prior behavior of leaving the scheduler unprofiled.
+    _per_process_init(None)
+    _run_forever(run_scheduler)
+
+
+def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
+    _per_process_init(profile_instance)
+    # Each worker process fans out into N threads sharing the same SQLAlchemy engine and HTTP
+    # clients. The handlers are I/O-bound (Postgres, SMTP, push, Stripe), so the GIL is released
+    # during the syscalls that matter and threads parallelize cleanly. Threads share memory with
+    # the parent process, so an extra thread costs ~nothing vs. a ~200 MB extra process.
+    threads = [
+        threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
+        for i in range(threads_per_process)
+    ]
+    for t in threads:
+        t.start()
+    # _run_forever never returns, so this join blocks until the process is signalled.
+    for t in threads:
+        t.join()
+
+
 def start_jobs_scheduler() -> Process:
-    scheduler = Process(
-        target=_run_forever,
-        args=(run_scheduler,),
-    )
+    scheduler = Process(target=_scheduler_process_entry)
     scheduler.start()
     return scheduler
 
 
-def start_jobs_worker(index: int) -> Process:
-    worker = Process(target=_run_forever, args=(service_jobs,), kwargs={"profile_instance": f"worker-{index}"})
+def start_jobs_worker(index: int, threads_per_process: int) -> Process:
+    worker = Process(
+        target=_worker_process_entry,
+        args=(f"worker-{index}", threads_per_process),
+    )
     worker.start()
     return worker

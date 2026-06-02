@@ -49,10 +49,10 @@ def test_load_from_env_types() -> None:
     with pytest.raises(ValueError):
         cfg.load_from_env({"IN_TEST": "not a bool"})
 
-    cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "42"})
-    assert cfg.BACKGROUND_WORKER_COUNT == 42
+    cfg.load_from_env({"BACKGROUND_WORKER_PROCESSES": "42"})
+    assert cfg.BACKGROUND_WORKER_PROCESSES == 42
     with pytest.raises(ValueError):
-        cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "not an int"})
+        cfg.load_from_env({"BACKGROUND_WORKER_PROCESSES": "not an int"})
 
     cfg.load_from_env({"SECRET": bytes.hex(b"abc")})
     assert cfg.SECRET == b"abc"
@@ -105,13 +105,13 @@ def test_instances_state_are_independent() -> None:
 def test_copy() -> None:
     cfg = Config()
 
-    cfg.BACKGROUND_WORKER_COUNT = 1
+    cfg.BACKGROUND_WORKER_PROCESSES = 1
     copy1 = cfg.copy()
-    cfg.BACKGROUND_WORKER_COUNT = 2
+    cfg.BACKGROUND_WORKER_PROCESSES = 2
     copy2 = cfg.copy()
 
-    assert copy1.BACKGROUND_WORKER_COUNT == 1
-    assert copy2.BACKGROUND_WORKER_COUNT == 2
+    assert copy1.BACKGROUND_WORKER_PROCESSES == 1
+    assert copy2.BACKGROUND_WORKER_PROCESSES == 2
 
 
 @pytest.mark.parametrize("dev", [True, False])

@@ -21,8 +21,12 @@ class Config:
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
-    # number of bg worker processes, requires worker or all above
-    BACKGROUND_WORKER_COUNT: int = 2
+    # number of bg worker processes (requires worker or all above). Each process spawns
+    # BACKGROUND_WORKER_THREADS_PER_PROCESS threads; total in-flight jobs is the product.
+    BACKGROUND_WORKER_PROCESSES: int = 1
+    # threads per worker process; raising this is far cheaper than another process (~200 MB saved per process)
+    # and fine for these I/O-bound handlers
+    BACKGROUND_WORKER_THREADS_PER_PROCESS: int = 2
     # Version string
     VERSION: str = "unknown"
     # ISO 8601 timestamp of the deployed commit (CI_COMMIT_TIMESTAMP), empty outside CI builds
