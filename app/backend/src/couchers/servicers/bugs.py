@@ -208,9 +208,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def GetNativeUpdateManifest(
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
-        platform = cast(str, context.headers.get("expo-platform", ""))
-        fingerprint = cast(str, context.headers.get("expo-runtime-version", ""))
-        eas_client_id = uuid.UUID(cast(str, context.headers.get("eas-client-id", "")))
+        platform = context.get_header("expo-platform") or ""
+        fingerprint = context.get_header("expo-runtime-version") or ""
+        eas_client_id = uuid.UUID(context.get_header("eas-client-id") or "")
         if context.get_boolean_value("log_native_ota_requests", False):
             logger.info(
                 "OTA GetNativeUpdateManifest: platform=%s fingerprint=%s eas_client_id=%s "
