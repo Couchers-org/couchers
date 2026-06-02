@@ -436,10 +436,10 @@ def test_check_native_status_authenticated_records_mapping(db):
         )
 
     with session_scope() as session:
-        mapping = session.execute(
+        row = session.execute(
             select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
         ).scalar_one()
-        assert mapping.user_id == user.id
+        assert row.user_id == user.id
 
 
 def test_check_native_status_anonymous_does_not_record_mapping(db):
@@ -453,8 +453,8 @@ def test_check_native_status_anonymous_does_not_record_mapping(db):
         assert count == 0
 
 
-def test_check_native_status_remaps_install_to_latest_user(db):
-    # A shared install — same eas-client-id, two users — ends up pointing at whoever checked in last.
+def test_check_native_status_append_only_log_of_sightings(db):
+    # A shared install — same eas-client-id, two users — produces two rows; newest is user_b.
     user_a, token_a = generate_user()
     user_b, token_b = generate_user()
 
@@ -464,10 +464,16 @@ def test_check_native_status_remaps_install_to_latest_user(db):
         bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
 
     with session_scope() as session:
-        mapping = session.execute(
-            select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
-        ).scalar_one()
-        assert mapping.user_id == user_b.id
+        rows = (
+            session.execute(
+                select(NativeClientUser)
+                .where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+                .order_by(NativeClientUser.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert [r.user_id for r in rows] == [user_a.id, user_b.id]
 
 
 def test_check_native_status_blocks_expired_binary(db):

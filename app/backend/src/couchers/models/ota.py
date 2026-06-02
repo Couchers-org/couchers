@@ -76,15 +76,15 @@ class OTAPackage(Base, kw_only=True):
 
 
 class NativeClientUser(Base, kw_only=True):
-    # Maps the per-install eas-client-id (from expo-eas-client) to the user_id of the most
-    # recently authenticated user on that install. Lets the unauthenticated manifest path resolve
-    # an install back to a user so OTA targeting (e.g. beta/stable channel feature flags) can run.
-    # Last-write-wins on user_id: a shared device hands the mapping to whoever logged in last.
+    # Append-only log of (eas_client_id, user_id) sightings. Each authenticated CheckNativeStatus
+    # writes a row; the newest row for a given eas_client_id is the current user-of-record. Keeping
+    # history (rather than upserting) lets us reconstruct who was using an install at any past time
+    # for incident debugging, and a shared install shows up as alternating user_ids over time.
     __tablename__ = "native_client_users"
 
-    eas_client_id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    eas_client_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped[User] = relationship(init=False)

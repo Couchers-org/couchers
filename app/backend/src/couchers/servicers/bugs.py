@@ -310,7 +310,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         _observe_native_check_metrics(info, decision, now, banned=banned)
 
         if context.is_logged_in():
-            record_native_client_user(info.eas_client_id, context.user_id)
+            record_native_client_user(session, info.eas_client_id, context.user_id)
 
         # message and link_text intentionally left empty for the standard cases — the client
         # hardcodes those. The fields are reserved for special-case overrides; nothing in the
