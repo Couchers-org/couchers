@@ -1,4 +1,5 @@
 import enum
+import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -11,6 +12,7 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    Uuid,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -71,3 +73,18 @@ class OTAPackage(Base, kw_only=True):
             name="ck_ota_packages_ban_columns_consistent",
         ),
     )
+
+
+class NativeClientUser(Base, kw_only=True):
+    # Append-only log of (eas_client_id, user_id) sightings. Each authenticated CheckNativeStatus
+    # writes a row; the newest row for a given eas_client_id is the current user-of-record. Keeping
+    # history (rather than upserting) lets us reconstruct who was using an install at any past time
+    # for incident debugging, and a shared install shows up as alternating user_ids over time.
+    __tablename__ = "native_client_users"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    eas_client_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    user: Mapped[User] = relationship(init=False)

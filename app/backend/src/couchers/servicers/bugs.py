@@ -26,7 +26,7 @@ from couchers.metrics import (
     observe_native_ota_manifest_request,
     observe_native_update_decision,
 )
-from couchers.models import User
+from couchers.models import NativeClientUser, User
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.models.ota import OTAPackage, OTAPlatform
 from couchers.native_updates import (
@@ -307,6 +307,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         decision = decide_native_update(context, info, now, banned=banned)
 
         _observe_native_check_metrics(info, decision, now, banned=banned)
+
+        if context.is_logged_in():
+            session.add(NativeClientUser(eas_client_id=info.eas_client_id, user_id=context.user_id))
 
         # message and link_text intentionally left empty for the standard cases — the client
         # hardcodes those. The fields are reserved for special-case overrides; nothing in the
