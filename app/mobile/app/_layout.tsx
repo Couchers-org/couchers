@@ -72,16 +72,31 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
   const featuresReady = useGrowthBook().ready;
+  const { prompt, dismiss, autoApplyingOta, startupGate } =
+    useNativeDiagnostics();
+
+  const basicsReady = fontsLoaded && checkedAuthStatus && featuresReady;
+  // Hide splash once basics are ready and we've either committed to auto-applying
+  // (the JS overlay takes over from the splash) or know there's no auto-apply
+  // pending (gate is open). While the gate is still closed with no auto-apply
+  // in flight, we keep the splash up rather than flashing the app for a moment.
+  const splashCanHide = basicsReady && (autoApplyingOta || !startupGate);
 
   useEffect(() => {
-    if (fontsLoaded && checkedAuthStatus && featuresReady) {
+    if (splashCanHide) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, checkedAuthStatus, featuresReady]);
+  }, [splashCanHide]);
 
-  if (!fontsLoaded || !checkedAuthStatus || !featuresReady) {
-    return null;
+  if (!basicsReady) return null;
+
+  if (autoApplyingOta) {
+    return (
+      <NativeUpdatePrompt prompt={null} onDismiss={() => {}} autoApplying />
+    );
   }
+
+  if (startupGate) return null;
 
   // Using Stack.Protected with guard prop is the recommended Expo Router pattern
   // for auth flows. When the guard condition changes, Expo Router automatically:
@@ -89,19 +104,22 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   // - Resets the navigation state appropriately
   // - Prevents back navigation to screens that shouldn't be accessible
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={authenticated}>
-        <Stack.Screen name="(tabs)" />
-      </Stack.Protected>
-      <Stack.Protected guard={!authenticated}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="complete-password-reset" />
-      </Stack.Protected>
-      {/* Accessible regardless of auth state */}
-      <Stack.Screen name="confirm-email" />
-      <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Protected guard={authenticated}>
+          <Stack.Screen name="(tabs)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!authenticated}>
+          <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="complete-password-reset" />
+        </Stack.Protected>
+        {/* Accessible regardless of auth state */}
+        <Stack.Screen name="confirm-email" />
+        <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
+      </Stack>
+      <NativeUpdatePrompt prompt={prompt} onDismiss={dismiss} />
+    </>
   );
 }
 
@@ -226,6 +244,5 @@ function useNotificationObserver() {
 function PushNotificationsRegistrar() {
   useRegisterPushNotifications();
   useNotificationObserver();
-  const { prompt, dismiss } = useNativeDiagnostics();
-  return <NativeUpdatePrompt prompt={prompt} onDismiss={dismiss} />;
+  return null;
 }

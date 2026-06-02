@@ -35,6 +35,8 @@ function defaultLinkText(
 // Renders the update prompt:
 //   - non-dismissible block screen (mode = "block")
 //   - dismissible warn screen (mode = "warn")
+//   - non-dismissible "applying" overlay (autoApplying = true): logo + spinner shown
+//     while a cold-start OTA download is in progress, in place of any prompt.
 //
 // The body and preamble are hardcoded on the client so they read naturally and translators
 // don't have to keep variants in sync. If the backend supplies info.message (reserved for
@@ -42,19 +44,18 @@ function defaultLinkText(
 export default function NativeUpdatePrompt({
   prompt,
   onDismiss,
+  autoApplying = false,
 }: {
   prompt: UpdatePrompt | null;
   onDismiss: () => void;
+  autoApplying?: boolean;
 }) {
   const { t } = useTranslation();
   const isDark = useColorScheme() === "dark";
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  if (!prompt) return null;
-
-  const { info, mode } = prompt;
-  const dismissible = mode !== "block";
+  if (!prompt && !autoApplying) return null;
 
   const colors = {
     background: isDark
@@ -66,6 +67,31 @@ export default function NativeUpdatePrompt({
       : theme.palette.text.secondary,
     primary: isDark ? theme.dark.primary.main : theme.palette.primary.main,
   };
+
+  // Cold-start auto-apply: render only the logo + spinner — no prompt, no text.
+  // The user hasn't been told there's an update; we're just continuing the splash.
+  if (autoApplying) {
+    return (
+      <Modal
+        visible
+        transparent={false}
+        animationType="fade"
+        onRequestClose={() => {}}
+      >
+        <View
+          style={[styles.container, { backgroundColor: colors.background }]}
+        >
+          <View style={styles.content}>
+            <Image source={logo} style={styles.logo} resizeMode="contain" />
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  const { info, mode } = prompt!;
+  const dismissible = mode !== "block";
 
   const isOta = info.action === NativeUpdateAction.NATIVE_UPDATE_ACTION_OTA;
 

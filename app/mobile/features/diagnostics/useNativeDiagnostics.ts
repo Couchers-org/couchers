@@ -3,6 +3,7 @@ import * as Application from "expo-application";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import * as Updates from "expo-updates";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppState, AppStateStatus, Platform } from "react-native";
@@ -18,7 +19,7 @@ import {
   updateMode,
   UpdatePrompt,
 } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateInfo } from "@/proto/bugs_pb";
+import { NativeUpdateAction, NativeUpdateInfo } from "@/proto/bugs_pb";
 import {
   appVariant,
   createdAt,
@@ -36,6 +37,9 @@ import { checkNativeStatus } from "@/service/checkNativeStatus";
 const LAST_OPEN_KEY = "diagnostics.lastOpenAt";
 const LAST_NAG_KEY = "diagnostics.lastNagDismissedAt";
 const PING_THROTTLE_MS = 5 * 60 * 1000;
+// Safety fallback: if the cold-start diagnostics ping is slow or hangs, open the
+// startup gate after this so the app loads instead of sitting on the splash.
+const STARTUP_GATE_TIMEOUT_MS = 5_000;
 
 // Cleared on process restart, so dismissing a session-scoped prompt suppresses it
 // until the next cold start.
@@ -88,6 +92,12 @@ export interface NativeDiagnostics {
   prompt: UpdatePrompt | null;
   // Dismisses the current prompt (no-op for non-dismissible "block" prompts).
   dismiss: () => void;
+  // True while a cold-start OTA download is in progress. The caller should
+  // render the applying overlay (logo + spinner) instead of the app shell.
+  autoApplyingOta: boolean;
+  // True until the cold-start diagnostics decision has been made (or the safety
+  // timeout has elapsed). Callers should keep the splash up while this is true.
+  startupGate: boolean;
 }
 
 // Reports a diagnostics snapshot to CheckNativeStatus on cold start and each foreground
@@ -100,6 +110,21 @@ export function useNativeDiagnostics(): NativeDiagnostics {
   const [prompt, setPrompt] = useState<UpdatePrompt | null>(null);
   const promptRef = useRef<UpdatePrompt | null>(null);
   promptRef.current = prompt;
+
+  const [autoApplyingOta, setAutoApplyingOta] = useState(false);
+
+  const [startupGate, setStartupGate] = useState(true);
+  const startupGateOpenedRef = useRef(false);
+
+  // Cold-start = the very first ping after this hook mounts. AppState 'active'
+  // pings after that are NOT cold starts and never auto-apply.
+  const coldStartRef = useRef(true);
+
+  const openStartupGate = useCallback(() => {
+    if (startupGateOpenedRef.current) return;
+    startupGateOpenedRef.current = true;
+    setStartupGate(false);
+  }, []);
 
   // Refs so the AppState listener sees current values without re-subscribing.
   const authenticatedRef = useRef(authenticated);
@@ -115,22 +140,54 @@ export function useNativeDiagnostics(): NativeDiagnostics {
   }, []);
 
   useEffect(() => {
+    // Safety net: if the first ping is slow, hangs, or never starts, drop the
+    // gate so the user isn't stuck staring at the splash forever.
+    const timer = setTimeout(openStartupGate, STARTUP_GATE_TIMEOUT_MS);
+
     async function surface(
       info: NativeUpdateInfo.AsObject | undefined,
       now: number,
+      isColdStart: boolean,
     ) {
       if (!info || !isActionable(info)) {
         setPrompt(null);
         return;
       }
-      const candidate: UpdatePrompt = {
-        info,
-        mode: updateMode(info, new Date(now)),
-      };
+      const mode = updateMode(info, new Date(now));
+
+      // Cold-start auto-apply: if the user is in the warn period and the
+      // configured action is an OTA, silently download + reload instead of
+      // showing the prompt. If anything goes wrong we fall through to the
+      // normal warn screen, which is still actionable.
+      if (
+        isColdStart &&
+        mode === "warn" &&
+        info.action === NativeUpdateAction.NATIVE_UPDATE_ACTION_OTA
+      ) {
+        setAutoApplyingOta(true);
+        try {
+          const result = await Updates.fetchUpdateAsync();
+          if (result.isNew) {
+            await Updates.reloadAsync();
+            return; // reloadAsync restarts the JS context; nothing past this runs
+          }
+          // No new bundle was actually downloaded (already current, or expo-updates
+          // disabled in dev). Treat as a no-op and don't surface a prompt.
+          setAutoApplyingOta(false);
+          return;
+        } catch (error) {
+          console.warn("Auto OTA failed, falling back to prompt:", error);
+          setAutoApplyingOta(false);
+        }
+      }
+
+      const candidate: UpdatePrompt = { info, mode };
       setPrompt((await isSuppressed(candidate, now)) ? null : candidate);
     }
 
     async function maybeReport() {
+      const isColdStart = coldStartRef.current;
+      coldStartRef.current = false;
       try {
         const now = Date.now();
         const lastOpenRaw = await AsyncStorage.getItem(LAST_OPEN_KEY);
@@ -204,9 +261,15 @@ export function useNativeDiagnostics(): NativeDiagnostics {
         });
 
         await AsyncStorage.setItem(LAST_OPEN_KEY, String(now));
-        await surface(result.updateInfo, now);
+        await surface(result.updateInfo, now, isColdStart);
       } catch (error) {
         console.warn("Failed to check native status:", error);
+      } finally {
+        // The cold-start decision has now been made (success, throttle, fail,
+        // or auto-apply finished without reloading). Drop the gate so the app
+        // can render — by this point autoApplyingOta reflects whether the
+        // caller should render the overlay or the app shell.
+        if (isColdStart) openStartupGate();
       }
     }
 
@@ -222,9 +285,10 @@ export function useNativeDiagnostics(): NativeDiagnostics {
     );
 
     return () => {
+      clearTimeout(timer);
       subscription.remove();
     };
-  }, []);
+  }, [openStartupGate]);
 
-  return { prompt, dismiss };
+  return { prompt, dismiss, autoApplyingOta, startupGate };
 }

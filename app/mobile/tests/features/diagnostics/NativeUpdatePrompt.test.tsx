@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import * as Updates from "expo-updates";
-import { Linking } from "react-native";
+import { ActivityIndicator, Linking } from "react-native";
 
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
@@ -46,6 +46,17 @@ describe("NativeUpdatePrompt", () => {
       <NativeUpdatePrompt prompt={null} onDismiss={jest.fn()} />,
     );
     expect(toJSON()).toBeNull();
+  });
+
+  it("renders a silent overlay (no buttons, no copy) when autoApplying", () => {
+    render(
+      <NativeUpdatePrompt prompt={null} onDismiss={jest.fn()} autoApplying />,
+    );
+    // No prompt copy and no buttons — the user shouldn't know there's an update.
+    expect(screen.queryByText("update.required_title")).toBeNull();
+    expect(screen.queryByText("update.later")).toBeNull();
+    expect(screen.queryByText("Update now")).toBeNull();
+    expect(screen.UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
   });
 
   it("shows the backend message and link text", () => {
