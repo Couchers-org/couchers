@@ -87,6 +87,9 @@ class _MockCouchersContext:
     def headers(self):
         return {}
 
+    def get_header(self, name):
+        return None
+
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
     """

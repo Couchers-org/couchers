@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, cast
@@ -207,18 +208,22 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def GetNativeUpdateManifest(
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
+        platform = context.get_header("expo-platform") or ""
+        fingerprint = context.get_header("expo-runtime-version") or ""
+        eas_client_id = uuid.UUID(context.get_header("eas-client-id") or "")
         if context.get_boolean_value("log_native_ota_requests", False):
             logger.info(
-                "OTA GetNativeUpdateManifest: content_type=%r headers=%s body=%r",
+                "OTA GetNativeUpdateManifest: platform=%s fingerprint=%s eas_client_id=%s "
+                "content_type=%r headers=%s body=%r",
+                platform,
+                fingerprint,
+                eas_client_id,
                 request.content_type,
                 dict(context.headers),
                 request.data,
             )
         # Expo rejects the manifest without these; Envoy forwards them as HTTP response headers.
         context.set_response_headers([("expo-protocol-version", "1"), ("expo-sfv-version", "0")])
-
-        platform = cast(str, context.headers.get("expo-platform", ""))
-        fingerprint = cast(str, context.headers.get("expo-runtime-version", ""))
 
         # Newest non-banned bundle for the build's fingerprint, by manifest createdAt. The device's
         # selection policy only applies it if it's newer than what it's running, so a stale store build
@@ -283,11 +288,13 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def CheckNativeStatus(
         self, request: bugs_pb2.CheckNativeStatusReq, context: CouchersContext, session: Session
     ) -> bugs_pb2.CheckNativeStatusRes:
+        info = client_info_from_request(request)
         logger.info(
-            "CheckNativeStatus: user_id=%s install_id=%s platform=%s app_version=%s "
+            "CheckNativeStatus: user_id=%s install_id=%s eas_client_id=%s platform=%s app_version=%s "
             "running_debug_version_ota=%s update_id=%s launch_source=%s debug_json=%s",
             context._user_id,
             request.install_id,
+            info.eas_client_id,
             request.platform,
             request.app_version,
             request.running_debug_version_ota,
@@ -295,8 +302,6 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             request.launch_source,
             request.debug_json,
         )
-
-        info = client_info_from_request(request)
         now = datetime.now(UTC)
         banned = _is_update_id_banned(session, info)
         decision = decide_native_update(context, info, now, banned=banned)
