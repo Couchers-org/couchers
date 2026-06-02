@@ -351,8 +351,6 @@ export default function Navigation() {
       >
         <LanguagePickerSelect />
       </Box>
-        <LanguagePickerSelect />
-      </Box>
     </Box>
   );
 
