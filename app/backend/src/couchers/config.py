@@ -124,6 +124,10 @@ class Config:
     # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
     # is unreachable. Required when experimentation is enabled so we never start on in-code defaults.
     GROWTHBOOK_CACHE_PATH: str = ""
+    # Local-override JSON file mapping flag keys to values. When set, overrides take precedence over
+    # GrowthBook, EXPERIMENTATION_PASS_ALL_GATES, and EXPERIMENTATION_ENABLED. Intended for local
+    # development; leave empty in production.
+    FEATURE_FLAG_OVERRIDE_PATH: str = ""
     # Continuous profiling (Pyroscope). Profiling is gated at runtime by the `profiling_enabled` feature
     # flag; PYROSCOPE_ENABLED is the per-deployment master switch.
     PYROSCOPE_ENABLED: bool

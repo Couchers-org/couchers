@@ -50,6 +50,12 @@ _refresh_thread: threading.Thread | None = None
 # load from the API or seed from the disk cache; drives the staleness metric.
 _last_fetch_time: float | None = None
 
+# Local development override: maps flag keys to forced values, loaded from the file at
+# FEATURE_FLAG_OVERRIDE_PATH if set. Takes precedence over GrowthBook, PASS_ALL_GATES, and the
+# EXPERIMENTATION_ENABLED gate.
+_overrides: dict[str, Any] = {}
+_NO_OVERRIDE = object()
+
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
@@ -129,6 +135,19 @@ def _refresh_loop() -> None:
         # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
+def _load_overrides() -> None:
+    """Load local feature-flag overrides from FEATURE_FLAG_OVERRIDE_PATH, if set."""
+    global _overrides
+    path_str = config["FEATURE_FLAG_OVERRIDE_PATH"]
+    if not path_str:
+        _overrides = {}
+        return
+    _overrides = json.loads(Path(path_str).read_text())
+    if not isinstance(_overrides, dict):
+        raise ValueError(f"Feature flag override file {path_str} must contain a JSON object")
+    logger.warning("Loaded %d local feature-flag override(s) from %s", len(_overrides), path_str)
+
+
 def setup_experimentation() -> None:
     """
     Initialize the experimentation framework.
@@ -142,6 +161,9 @@ def setup_experimentation() -> None:
 
     if _initialized:
         return
+
+    # Local overrides apply even when experimentation is disabled, so load before that gate.
+    _load_overrides()
 
     if not config["EXPERIMENTATION_ENABLED"]:
         logger.info("Experimentation is disabled, skipping initialization")
@@ -264,6 +286,10 @@ def _global_evaluator() -> GrowthBook:
 # and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
 # invoked once gating passes, so it stays lazy.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
+    override = _overrides.get(flag_key, _NO_OVERRIDE)
+    if override is not _NO_OVERRIDE:
+        metrics.observe_feature_flag_evaluation(flag_key, "override", override)
+        return override  # type: ignore[no-any-return]
     if not config["EXPERIMENTATION_ENABLED"]:
         return default
     result = get_evaluator().eval_feature(flag_key)
@@ -273,6 +299,10 @@ def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], Gro
 
 
 def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
+    override = _overrides.get(flag_key, _NO_OVERRIDE)
+    if override is not _NO_OVERRIDE:
+        metrics.observe_feature_flag_evaluation(flag_key, "override", override)
+        return bool(override)
     if config["EXPERIMENTATION_PASS_ALL_GATES"]:
         return True
     return _feature_value(flag_key, default, get_evaluator)

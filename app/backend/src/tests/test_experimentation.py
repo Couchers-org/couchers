@@ -241,3 +241,71 @@ def test_setup_raises_on_corrupt_cache(setup_isolation, monkeypatch):
 
 def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
     assert experimentation.seconds_since_last_fetch() is None
+
+
+@pytest.fixture
+def overrides(monkeypatch):
+    """Set the in-memory override dict directly, without touching disk."""
+    overrides: dict[str, object] = {}
+    monkeypatch.setattr(experimentation, "_overrides", overrides)
+    return overrides
+
+
+def test_override_takes_precedence_over_growthbook(feature_flags, overrides):
+    feature_flags.set("my_flag", "from_growthbook")
+    overrides["my_flag"] = "from_override"
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_string_value("my_flag", "fallback") == "from_override"
+
+
+def test_override_works_when_experimentation_disabled(monkeypatch, overrides):
+    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
+    overrides["my_flag"] = "forced"
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_string_value("my_flag", "fallback") == "forced"
+
+
+def test_override_takes_precedence_over_pass_all_gates(monkeypatch, overrides):
+    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", True)
+    overrides["my_flag"] = False
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_boolean_value("my_flag", default=True) is False
+
+
+def test_override_records_metric_with_override_source(overrides):
+    overrides["override_metric_flag"] = "x"
+    before = _flag_eval_count("override_metric_flag", "override", "x")
+    assert experimentation.get_global_string_value("override_metric_flag", "y") == "x"
+    assert _flag_eval_count("override_metric_flag", "override", "x") == before + 1
+
+
+def test_unset_flag_falls_through_when_overrides_present(feature_flags, overrides):
+    feature_flags.set("real_flag", "real_value")
+    overrides["other_flag"] = "other_value"
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_string_value("real_flag", "fallback") == "real_value"
+
+
+def test_load_overrides_from_file(monkeypatch, tmp_path):
+    path = tmp_path / "overrides.json"
+    path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
+    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", str(path))
+    monkeypatch.setattr(experimentation, "_overrides", {})
+    experimentation._load_overrides()
+    assert experimentation._overrides == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
+
+
+def test_load_overrides_empty_when_path_unset(monkeypatch):
+    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", "")
+    monkeypatch.setattr(experimentation, "_overrides", {"stale": "value"})
+    experimentation._load_overrides()
+    assert experimentation._overrides == {}
+
+
+def test_load_overrides_rejects_non_object(monkeypatch, tmp_path):
+    path = tmp_path / "overrides.json"
+    path.write_text(json.dumps(["not", "an", "object"]))
+    monkeypatch.setitem(config, "FEATURE_FLAG_OVERRIDE_PATH", str(path))
+    monkeypatch.setattr(experimentation, "_overrides", {})
+    with pytest.raises(ValueError, match="must contain a JSON object"):
+        experimentation._load_overrides()
