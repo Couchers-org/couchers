@@ -72,6 +72,12 @@ def test_is_valid_name() -> None:
     assert is_valid_name("O'Connor")
     assert is_valid_name("Jean-Luc")
     assert is_valid_name("老子")
+    assert is_valid_name("Combining Diặcritics")
+    assert is_valid_name("काव्य")  # Hindi combining diacritics
+    assert is_valid_name("Meritxell Col·lell")  # Catalan middle dot
+    assert is_valid_name("レオナルド・ディカプリオ")  # Japanese middle dot
+    assert is_valid_name("Homer J. Simpson")  # Abbreviating dot
+    assert is_valid_name("Lanaʻi")  # Hawaiian ʻokina glottal stop
 
     # invalid: too short
     assert not is_valid_name("a")
