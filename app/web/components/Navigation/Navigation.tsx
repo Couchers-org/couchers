@@ -345,7 +345,12 @@ export default function Navigation() {
         ))}
       </List>
 
-      <Box sx={{ marginX: "auto", marginBottom: theme.spacing(2) }}>
+      <Box
+        sx={{ marginX: "auto", marginBottom: theme.spacing(2) }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <LanguagePickerSelect />
+      </Box>
         <LanguagePickerSelect />
       </Box>
     </Box>
