@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import OTAPackage, OTAPlatform
+from couchers.models import NativeClientUser, OTAPackage, OTAPlatform
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
@@ -425,6 +425,49 @@ def test_check_native_status_authenticated(db):
 
     assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
     assert res.update_info.required is False
+
+
+def test_check_native_status_authenticated_records_mapping(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="authenticated")
+        )
+
+    with session_scope() as session:
+        mapping = session.execute(
+            select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+        ).scalar_one()
+        assert mapping.user_id == user.id
+
+
+def test_check_native_status_anonymous_does_not_record_mapping(db):
+    with bugs_session() as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="logged_out")
+        )
+
+    with session_scope() as session:
+        count = session.execute(select(func.count()).select_from(NativeClientUser)).scalar_one()
+        assert count == 0
+
+
+def test_check_native_status_remaps_install_to_latest_user(db):
+    # A shared install — same eas-client-id, two users — ends up pointing at whoever checked in last.
+    user_a, token_a = generate_user()
+    user_b, token_b = generate_user()
+
+    with bugs_session(token_a) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+    with bugs_session(token_b) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+
+    with session_scope() as session:
+        mapping = session.execute(
+            select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+        ).scalar_one()
+        assert mapping.user_id == user_b.id
 
 
 def test_check_native_status_blocks_expired_binary(db):

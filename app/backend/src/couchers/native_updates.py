@@ -8,7 +8,12 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.sql import func
+
 from couchers.context import CouchersContext
+from couchers.db import session_scope
+from couchers.models.ota import NativeClientUser
 from couchers.proto import bugs_pb2
 
 logger = logging.getLogger(__name__)
@@ -92,6 +97,20 @@ def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeCl
         bundle_created_at=bundle_created_at,
         eas_client_id=uuid.UUID(request.eas_client_id),
     )
+
+
+def record_native_client_user(eas_client_id: uuid.UUID, user_id: int) -> None:
+    # Upsert with its own session so the mapping write isn't bound to the caller's transaction
+    # (matches the _record_exposure / _record_feature_usage pattern in experimentation.py).
+    with session_scope() as session:
+        session.execute(
+            pg_insert(NativeClientUser)
+            .values(eas_client_id=eas_client_id, user_id=user_id)
+            .on_conflict_do_update(
+                index_elements=["eas_client_id"],
+                set_={"user_id": user_id, "last_seen": func.now()},
+            )
+        )
 
 
 def _clock_state(age: timedelta, warn: timedelta, block: timedelta) -> Severity:

@@ -1,4 +1,5 @@
 import enum
+import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -11,6 +12,7 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    Uuid,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -71,3 +73,18 @@ class OTAPackage(Base, kw_only=True):
             name="ck_ota_packages_ban_columns_consistent",
         ),
     )
+
+
+class NativeClientUser(Base, kw_only=True):
+    # Maps the per-install eas-client-id (from expo-eas-client) to the user_id of the most
+    # recently authenticated user on that install. Lets the unauthenticated manifest path resolve
+    # an install back to a user so OTA targeting (e.g. beta/stable channel feature flags) can run.
+    # Last-write-wins on user_id: a shared device hands the mapping to whoever logged in last.
+    __tablename__ = "native_client_users"
+
+    eas_client_id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped[User] = relationship(init=False)
