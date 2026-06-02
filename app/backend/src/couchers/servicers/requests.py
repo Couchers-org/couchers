@@ -241,9 +241,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         # Check if user has been sending host requests excessively
-        if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.host_request
-        ):
+        if process_rate_limits_and_check_abort(context=context, session=session, action=RateLimitAction.host_request):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "host_request_rate_limit2",

@@ -1,15 +1,19 @@
 import logging
 from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy import RowMapping, exists, select
 from sqlalchemy.orm import Session
 
+from couchers.context import CouchersContext
 from couchers.models import RateLimitAction, RateLimitViolation
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL
 from couchers.tasks import send_rate_limit_violation_report_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
+
+RATE_LIMIT_OVERRIDES_FLAG = "rate_limit_overrides"
 
 
 def _get_user_events_in_past_time_interval(
@@ -52,17 +56,40 @@ def _user_has_violated_rate_limit_in_past_time_interval(
     ).scalar_one()
 
 
-def process_rate_limits_and_check_abort(session: Session, user_id: int, action: RateLimitAction) -> bool:
+def _coerce_int_limit(value: Any, fallback: int) -> int:
+    # Reject bools explicitly: bool is a subclass of int, so `True` would otherwise pass through as 1
+    # and silently set a hard limit of 1.
+    if isinstance(value, bool) or not isinstance(value, int):
+        return fallback
+    return int(value)
+
+
+def _resolve_limits(context: CouchersContext, action: RateLimitAction) -> tuple[int, int]:
+    """Resolve (warning_limit, hard_limit) for this user, applying any per-user override from the
+    `rate_limit_overrides` object flag. Schema: `{<action.name>: {warning_limit?: int, hard_limit?: int}}`."""
+    definition = RATE_LIMIT_DEFINITIONS[action]
+    overrides: dict[str, Any] = context.get_object_value(RATE_LIMIT_OVERRIDES_FLAG, {})
+    action_override = overrides.get(action.name) if isinstance(overrides, dict) else None
+    if not isinstance(action_override, dict):
+        return definition.warning_limit, definition.hard_limit
+    return (
+        _coerce_int_limit(action_override.get("warning_limit"), definition.warning_limit),
+        _coerce_int_limit(action_override.get("hard_limit"), definition.hard_limit),
+    )
+
+
+def process_rate_limits_and_check_abort(context: CouchersContext, session: Session, action: RateLimitAction) -> bool:
     """
     Check if the user has reached a rate limit. Notify the moderation team in a separate background job if so.
 
     Returns True if the user has reached a hard rate limit.
     """
-    rate_limit_definition = RATE_LIMIT_DEFINITIONS[action]
-    count_last_interval = rate_limit_definition.count_actions_query(session, user_id)
+    user_id = context.user_id
+    warning_limit, hard_limit = _resolve_limits(context, action)
+    count_last_interval = RATE_LIMIT_DEFINITIONS[action].count_actions_query(session, user_id)
     for limit, is_hard_limit in [
-        (rate_limit_definition.hard_limit, True),
-        (rate_limit_definition.warning_limit, False),
+        (hard_limit, True),
+        (warning_limit, False),
     ]:
         if count_last_interval >= limit:
             if not _user_has_violated_rate_limit_in_past_time_interval(

@@ -356,6 +356,40 @@ def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
         assert "The user has been blocked from sending further host requests for now." in email.plain
 
 
+def test_rate_limit_feature_flag_override_lowers_hard_limit(db, feature_flags, email_collector: EmailCollector):
+    """A per-user override via the `rate_limit_overrides` flag should be applied instead of the static definition."""
+    feature_flags.set(
+        "rate_limit_overrides",
+        {"host_request": {"warning_limit": 1, "hard_limit": 2}},
+    )
+    user, token = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    with requests_session(token) as api:
+        for _ in range(2):
+            host_user, _ = generate_user()
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text("Excessive"),
+                )
+            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+
+
 def add_message(db, text, author_id, conversation_id):
     with session_scope() as session:
         message = Message(

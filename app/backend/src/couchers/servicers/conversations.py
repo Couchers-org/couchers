@@ -756,7 +756,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         # Check if user has been initiating chats excessively
         if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.chat_initiation
+            context=context, session=session, action=RateLimitAction.chat_initiation
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,

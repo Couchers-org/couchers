@@ -760,9 +760,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "friends_already_or_pending")
 
         # Check if user has been sending friend requests excessively
-        if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.friend_request
-        ):
+        if process_rate_limits_and_check_abort(context=context, session=session, action=RateLimitAction.friend_request):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit2",
