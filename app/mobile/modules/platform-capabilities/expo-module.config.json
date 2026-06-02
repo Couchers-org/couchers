@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["PlatformCapabilitiesModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.platformcapabilities.PlatformCapabilitiesModule"]
+  }
+}

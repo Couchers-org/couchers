@@ -78,6 +78,7 @@
     "grpc-web": "^2.0.1",
     "i18next": "^25.0.2",
     "native-build-info": "file:./modules/native-build-info",
+    "platform-capabilities": "file:./modules/platform-capabilities",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-i18next": "^15.7.3",

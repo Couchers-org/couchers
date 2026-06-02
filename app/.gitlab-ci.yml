@@ -612,6 +612,31 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
+# The committed fingerprint baseline is the contract that a fingerprint change
+# (i.e. a real change to the native binary) goes through code review. This job
+# fails any branch whose working-tree fingerprint doesn't match
+# .fingerprint-baseline-{ios,android}; the PR that intentionally changes native
+# bumps both files in lockstep. native-build.sh / devtool-build.sh re-check the
+# same condition before invoking EAS, so develop won't ship an unblessed binary
+# even if this job is somehow bypassed.
+test:mobile-fingerprint-baseline:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - bash scripts/check-fingerprint-baseline.sh ios
+    - bash scripts/check-fingerprint-baseline.sh android
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test

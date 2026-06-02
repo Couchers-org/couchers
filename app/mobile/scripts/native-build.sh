@@ -52,6 +52,12 @@ json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
 CURRENT="$(npx expo-updates fingerprint:generate --platform "$PLATFORM" 2>/dev/null | json_field '.hash')"
 echo "current $PLATFORM fingerprint:        $CURRENT"
 
+# Refuse to ship a store build whose fingerprint hasn't been blessed in git: the
+# baseline file is committed alongside the native change that produced it, so
+# bumping it is the auditable manual override. Reuses the working-tree
+# fingerprint we just computed via the same expo-updates call.
+bash scripts/check-fingerprint-baseline.sh "$PLATFORM"
+
 # The submit job records the marker once it succeeds, so hand it the fingerprint.
 echo "EAS_FINGERPRINT=$CURRENT" > "$DOTENV"
 

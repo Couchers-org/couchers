@@ -1,0 +1,7 @@
+{
+  "name": "platform-capabilities",
+  "version": "0.0.1",
+  "description": "Exposes the native build's capability registry to JS",
+  "main": "index.ts",
+  "private": true
+}

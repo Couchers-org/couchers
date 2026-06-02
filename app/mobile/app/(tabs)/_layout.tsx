@@ -13,6 +13,10 @@ import {
   runningDebugVersionOTA,
   runningDisplayVersion,
 } from "@/service/buildInfo";
+import {
+  allCapabilities,
+  capabilityPlatformVersion,
+} from "@/service/platformCapabilities";
 import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 
@@ -30,6 +34,7 @@ function getDebugInfo(): string {
     `Source: ${isEmbeddedLaunch ? "embedded build" : "OTA update"}`,
     `Published: ${createdAt}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
+    `Capability platform: v${capabilityPlatformVersion} (${allCapabilities.length} caps)`,
   ].join("\n");
 }
 

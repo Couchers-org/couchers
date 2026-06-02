@@ -13,6 +13,10 @@ import {
   runtimeVersion,
   updateId,
 } from "@/service/buildInfo";
+import {
+  allCapabilities,
+  capabilityPlatformVersion,
+} from "@/service/platformCapabilities";
 
 // The backend/web the build is wired to. Read the build defaults rather than
 // the runtime getters, since Sentry inits before any dev URL override hydrates.
@@ -48,6 +52,7 @@ if (sentryEnabled) {
         runningDebugVersion,
         runningDebugVersionOTA,
         runtimeVersion,
+        capabilityPlatformVersion,
         launchSource: isEmbeddedLaunch ? "embedded" : "ota",
         // Backend/web wiring
         apiBaseUrl,
@@ -70,6 +75,10 @@ if (sentryEnabled) {
           runtimeVersion,
           isEmbeddedLaunch,
           createdAt,
+        },
+        platform_capabilities: {
+          version: capabilityPlatformVersion,
+          capabilities: allCapabilities,
         },
       },
     },
