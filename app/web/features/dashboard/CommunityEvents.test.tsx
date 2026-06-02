@@ -87,7 +87,7 @@ describe("Community events", () => {
     const user = userEvent.setup();
     await user.click(
       screen.getByRole("button", {
-        name: t("dashboard:discussions.next_page_label"),
+        name: t("dashboard:next_page_button_a11y"),
       }),
     );
 

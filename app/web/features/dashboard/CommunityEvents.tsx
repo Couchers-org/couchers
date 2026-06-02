@@ -77,7 +77,7 @@ export default function CommunityEvents() {
             onClick={() => setPage((p) => p - 1)}
             disabled={!hasPrev}
             color={hasPrev ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.prev_page_label")}
+            aria-label={t("dashboard:prev_page_button_a11y")}
           >
             <ArrowBack fontSize="small" />
           </IconButton>
@@ -86,7 +86,7 @@ export default function CommunityEvents() {
             onClick={() => setPage((p) => p + 1)}
             disabled={!hasNext}
             color={hasNext ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.next_page_label")}
+            aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
           </IconButton>

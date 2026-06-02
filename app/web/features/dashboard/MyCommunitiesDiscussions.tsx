@@ -86,7 +86,7 @@ export default function MyCommunitiesDiscussions() {
             onClick={goPrev}
             disabled={!hasPrev}
             color={hasPrev ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.prev_page_label")}
+            aria-label={t("dashboard:prev_page_button_a11y")}
           >
             <ArrowBack fontSize="small" />
           </IconButton>
@@ -95,7 +95,7 @@ export default function MyCommunitiesDiscussions() {
             onClick={goNext}
             disabled={!hasNext}
             color={hasNext ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.next_page_label")}
+            aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
           </IconButton>
