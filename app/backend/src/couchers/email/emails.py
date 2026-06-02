@@ -1840,7 +1840,7 @@ class HostReferenceReceivedEmail(EmailBase):
         return "surfed" if self.surfed else "hosted"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, f".{self.string_role_subkey}.subject", {"name": self.from_user.name})
+        return self._localize(loc_context, ".subject", {"name": self.from_user.name})
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.para(f".{self.string_role_subkey}.body", {"name": self.from_user.name})
@@ -1906,7 +1906,7 @@ class HostReferenceReminderEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
             loc_context,
-            f".{self.string_role_subkey}.subject_days",
+            ".subject_days",
             {"name": self.other_user.name, "count": self.days_left},
         )
 
