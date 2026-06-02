@@ -1833,20 +1833,24 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"reference.received.{'surfed' if self.surfed else 'hosted'}"
+        return "reference.received"
+
+    @property
+    def string_role_subkey(self) -> str:
+        return "surfed" if self.surfed else "hosted"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "..subject", {"name": self.from_user.name})
+        return self._localize(loc_context, f".{self.string_role_subkey}.subject", {"name": self.from_user.name})
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para(".body", {"name": self.from_user.name})
+        builder.para(f".{self.string_role_subkey}.body", {"name": self.from_user.name})
         builder.user(self.from_user)
         if self.text:
-            builder.para("..before_quote")
+            builder.para(".before_quote")
             builder.quote(self.text, markdown=False)
-            builder.action(urls.profile_references_link(), "..view_action")
+            builder.action(urls.profile_references_link(), ".view_action")
         else:
-            builder.para("..reciprocate_encouragement", {"name": self.from_user.name})
+            builder.para(".reciprocate_encouragement", {"name": self.from_user.name})
             builder.action(self.leave_reference_url, "reference.write_action", {"name": self.from_user.name})
 
     @classmethod
@@ -1858,9 +1862,8 @@ class HostReferenceReceivedEmail(EmailBase):
             from_user=UserInfo.from_protobuf(data.from_user),
             text=data.text or None,
             surfed=surfed,
-            # If I surfed, I leave a hosted reference, and vice versa
             leave_reference_url=urls.leave_reference_link(
-                reference_type="hosted" if surfed else "surfed",
+                reference_type="surfed" if surfed else "hosted",
                 to_user_id=str(data.from_user.user_id),
                 host_request_id=str(data.host_request_id),
             ),
@@ -1894,23 +1897,27 @@ class HostReferenceReminderEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"reference.reminder.{'surfed' if self.surfed else 'hosted'}"
+        return "reference.reminder"
+
+    @property
+    def string_role_subkey(self) -> str:
+        return "surfed" if self.surfed else "hosted"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "..subject_days", {"name": self.other_user.name, "count": self.days_left})
+        return self._localize(loc_context, f".{self.string_role_subkey}.subject_days", {"name": self.other_user.name, "count": self.days_left})
 
     def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.para(".body_days", {"name": self.other_user.name, "count": self.days_left})
-        builder.para("..no_meeting_note", {"name": self.other_user.name})
+        builder.para(f".{self.string_role_subkey}.body_days", {"name": self.other_user.name, "count": self.days_left})
+        builder.para(".no_meeting_note", {"name": self.other_user.name})
         builder.user(self.other_user)
         builder.action(
             self.leave_reference_url,
             "reference.write_action",
             {"name": self.other_user.name},
         )
-        builder.para("..via_messaging_note")
-        builder.para("..importance_note")
-        builder.para("..visibility_note")
+        builder.para(".via_messaging_note")
+        builder.para(".importance_note")
+        builder.para(".visibility_note")
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ReferenceReminder, *, user_name: str, surfed: bool) -> Self:
@@ -1919,9 +1926,8 @@ class HostReferenceReminderEmail(EmailBase):
             other_user=UserInfo.from_protobuf(data.other_user),
             days_left=data.days_left,
             surfed=surfed,
-            # If I surfed, I leave a hosted reference, and vice versa
             leave_reference_url=urls.leave_reference_link(
-                reference_type="hosted" if surfed else "surfed",
+                reference_type="surfed" if surfed else "hosted",
                 to_user_id=str(data.other_user.user_id),
                 host_request_id=str(data.host_request_id),
             ),
