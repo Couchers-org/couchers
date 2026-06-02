@@ -888,6 +888,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         ).scalar_one_or_none()
 
         if not chat:
+            if process_rate_limits_and_check_abort(
+                session=session, user_id=user_id, action=RateLimitAction.chat_initiation
+            ):
+                context.abort_with_error_code(
+                    grpc.StatusCode.RESOURCE_EXHAUSTED,
+                    "chat_initiation_rate_limit2",
+                    substitutions={"count": RATE_LIMIT_HOURS},
+                )
             chat = _create_chat(session, user_id, [recipient_id])
 
         # Retrieve the sender's active subscription to the chat

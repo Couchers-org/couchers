@@ -4,6 +4,7 @@ Native app update decisions for CheckNativeStatus.
 
 import enum
 import logging
+import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -44,8 +45,9 @@ class UpdateCause(enum.Enum):
     banned = enum.auto()
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class NativeClientInfo:
+    eas_client_id: uuid.UUID
     platform: str = ""
     runtime_version: str = ""
     update_id: str | None = None
@@ -88,6 +90,7 @@ def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeCl
         is_ota_launch=is_ota_launch,
         binary_created_at=binary_created_at,
         bundle_created_at=bundle_created_at,
+        eas_client_id=uuid.UUID(request.eas_client_id),
     )
 
 
