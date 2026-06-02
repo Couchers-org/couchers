@@ -399,7 +399,7 @@ export default function AccountForm() {
                 id="gender"
                 {...field}
                 row
-                aria-label={t("a11y:breadcrumb")}
+                aria-label={t("a11y:gender")}
                 name="gender-radio"
               >
                 <FormControlLabel
