@@ -130,6 +130,8 @@ export default function AllMessagesTab() {
     : "all";
 
   const showArchived = filter === "archived";
+  const requestType =
+    filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
 
   // Navigate to the appropriate route when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
@@ -168,16 +170,16 @@ export default function AllMessagesTab() {
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({
       onlyArchived: showArchived,
-      type: "all",
+      type: requestType,
     }),
-    queryFn: ({ pageParam: lastRequestId }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.requests.listHostRequests({
-        lastRequestId: lastRequestId as number | undefined,
+        pageToken: pageToken as string | undefined,
         onlyArchived: showArchived,
-        type: "all",
+        type: requestType,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastRequestId,
+      lastPage.noMore ? undefined : lastPage.nextPageToken,
     initialPageParam: undefined,
   });
 
