@@ -30,7 +30,7 @@ export default function CommunityPageSubHeader({
   community: Community.AsObject;
   tab: CommunityTab;
 }) {
-  const { t } = useTranslation([COMMUNITIES], "a11y");
+  const { t } = useTranslation([COMMUNITIES]);
 
   const router = useRouter();
   const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
@@ -47,7 +47,7 @@ export default function CommunityPageSubHeader({
     <>
       <StyledBreadcrumbsContainer>
         <StyledBreadcrumbs
-          aria-label={t("a11y:breadcrumb")}
+          aria-label={t("communities:breadcrumb")}
         >
 
           {community.parentsList

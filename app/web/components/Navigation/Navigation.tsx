@@ -285,7 +285,7 @@ export default function Navigation() {
   const isAuthenticated = isMounted && authState.authenticated;
   const isNativeEmbed = useIsNativeEmbed();
 
-  const { t } = useTranslation(GLOBAL, "a11y");
+  const { t } = useTranslation(GLOBAL);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -344,7 +344,7 @@ export default function Navigation() {
           {isMobile && !isAuthenticated && (
             <>
               <IconButton
-                aria-label={t("a11y:openDrawer")}
+                aria-label={t("nav.open_drawer")}
                 onClick={handleDrawerOpen}
                 edge="start"
               >
@@ -368,7 +368,7 @@ export default function Navigation() {
                 <StyledDrawerHeader>
                   <StyledDrawerTitle>{t("couchers")}</StyledDrawerTitle>
                   <IconButton
-                    aria-label={t("a11y:closeDrawer")}
+                    aria-label={t("nav.close_drawer")}
                     onClick={handleDrawerClose}
                     sx={{ marginLeft: theme.spacing(1) }}
                   >

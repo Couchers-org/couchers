@@ -264,7 +264,7 @@ export default function LoggedInMenu({
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
-  const { t } = useTranslation([GLOBAL, "a11y"]);
+  const { t } = useTranslation([GLOBAL]);
   const isNativeEmbed = useIsNativeEmbed();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -384,7 +384,7 @@ export default function LoggedInMenu({
             }}
           >
             <IconButton
-              aria-label={t("a11y:closeMenu")}
+              aria-label={t("global:nav.close_menu")}
               onClick={() => setMenuOpen(false)}
               sx={{
                 backgroundColor: "var(--mui-palette-grey-200)",

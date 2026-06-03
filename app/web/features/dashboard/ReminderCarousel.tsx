@@ -16,6 +16,7 @@ import { useTranslation } from "next-i18next";
 import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
+import { DASHBOARD } from "../../i18n/namespaces";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;
@@ -112,7 +113,7 @@ const StyledArrow = styled(IconButton)({
 });
 
 export default function ReminderCarousel() {
-  const { t } = useTranslation(["a11y"]);
+  const { t } = useTranslation(DASHBOARD);
 
   const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
     queryKey: [remindersKey],
@@ -173,7 +174,7 @@ export default function ReminderCarousel() {
   return (
     <StyledContainer>
       <StyledArrow
-        aria-label={t("a11y:scrollLeft")}
+        aria-label={t("dashboard:scroll.left")}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
       >
@@ -200,7 +201,7 @@ export default function ReminderCarousel() {
       </StyledScroller>
 
       <StyledArrow
-        aria-label={t("a11y:scrollRight")}
+        aria-label={t("dashboard:scroll.right")}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
       >

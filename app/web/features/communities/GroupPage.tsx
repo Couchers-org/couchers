@@ -31,7 +31,7 @@ export default function GroupPage({
   groupId: number;
   groupSlug?: string;
 }) {
-  const { t } = useTranslation(["communities", "global", "a11y"]);
+  const { t } = useTranslation(["communities", "global"]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [group, setGroup] = useState<Group.AsObject | null>(null);
@@ -141,7 +141,7 @@ export default function GroupPage({
           <HtmlMeta title={`${group.name} Group Page`} />
           <PageTitle>{group.name} Group Page</PageTitle>
           <Breadcrumbs
-            aria-label={t("a11y:breadcrumb")}
+            aria-label={t("communities:breadcrumb")}
           >
             {group.parentsList
               .filter((parent) => !!parent.community || !!parent.group)

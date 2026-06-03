@@ -198,7 +198,10 @@
     "invite_members": "Invite members",
     "merch_shop": "Merch Shop",
     "switch_to_light_mode": "Switch to light mode",
-    "switch_to_dark_mode": "Switch to dark mode"
+    "switch_to_dark_mode": "Switch to dark mode",
+    "close_menu": "close menu",
+    "open_drawer": "open drawer",
+    "close_drawer": "close drawer"
   },
   "invites": {
     "title": "Invite members",
@@ -339,5 +342,11 @@
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)",
     "hu": "Hungarian"
+  },
+  "bar": {
+    "help_icon": "help icon"
+  },
+  "country_flag": {
+    "ca": "Catalan flag"
   }
 }

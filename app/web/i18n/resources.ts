@@ -10,7 +10,6 @@ import notifications from "features/notifications/locales/en.json";
 import profile from "features/profile/locales/en.json";
 import search from "features/search/locales/en.json";
 import global from "resources/locales/en.json";
-import a11y from "features/a11y/locales/en.json";
 
 const resources = {
   auth,
@@ -24,8 +23,7 @@ const resources = {
   notifications,
   profile,
   search,
-  global,
-  a11y
+  global
 } as const;
 
 export default resources;

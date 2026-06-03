@@ -109,7 +109,7 @@ const StyledEditLocationMap = styled(EditLocationMap)(({ theme }) => ({
 }));
 
 export default function AccountForm() {
-  const { t } = useTranslation([AUTH, GLOBAL, "a11y"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [showPassword, setShowPassword] = useState(false);
@@ -399,7 +399,7 @@ export default function AccountForm() {
                 id="gender"
                 {...field}
                 row
-                aria-label={t("a11y:gender")}
+                aria-label={t("auth:account_form.gender.aria-label")}
                 name="gender-radio"
               >
                 <FormControlLabel

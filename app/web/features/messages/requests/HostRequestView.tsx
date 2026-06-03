@@ -114,7 +114,7 @@ export default function HostRequestView({
 }: {
   hostRequestId: number;
 }) {
-  const { t } = useTranslation([MESSAGES, "a11y"]);
+  const { t } = useTranslation([MESSAGES]);
   const isNativeEmbed = useIsNativeEmbed();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -282,7 +282,7 @@ export default function HostRequestView({
 
         <HeaderButton
           onClick={() => setIsMenuOpen(true)}
-          aria-label={t("a11y:showMoreActions")}
+          aria-label={t("show_more_actions")}
           aria-haspopup="true"
           aria-controls="request-menu"
           ref={menuAnchor}

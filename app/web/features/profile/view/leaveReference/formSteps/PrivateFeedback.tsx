@@ -88,7 +88,7 @@ export default function PrivateFeedback({
   referenceType,
   hostRequestId,
 }: ReferenceStepProps) {
-  const { t } = useTranslation([GLOBAL, PROFILE, "a11y"]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
@@ -154,7 +154,7 @@ export default function PrivateFeedback({
           )}
           <Controller
             render={({ field }) => (
-              <RadioGroup {...field} aria-label={t("a11y:wasAppropriate")}>
+              <RadioGroup {...field} aria-label={t("profile:leave_reference.was_appropriate")}>
                 <FormControlLabel
                   value="true"
                   control={<Radio />}

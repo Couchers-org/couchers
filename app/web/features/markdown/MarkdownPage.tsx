@@ -11,6 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import Head from "next/head";
 import { theme } from "theme";
+import { COMMUNITIES } from "../../i18n/namespaces";
 
 const mkd = new markdown();
 
@@ -231,6 +232,7 @@ export default function MarkdownPage({
     : null;
 
   const crumbs = createBreadcrumbs({ slug, frontmatter });
+  const { tAriaLabel } = useTranslation(COMMUNITIES);
 
   return (
     <>
@@ -255,7 +257,7 @@ export default function MarkdownPage({
         sx={{ marginTop: theme.spacing(3) }}
       >
         <StyledBreadcrumbs
-          aria-label={t("a11y:breadcrumb")}
+          aria-label={tAriaLabel("communities:breadcrumb")}
         >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;

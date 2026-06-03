@@ -279,7 +279,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href={githubURL}
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:github")}
+                aria-label="GitHub"
                 color="inherit"
               >
                 <GitHubIcon />
@@ -288,7 +288,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href={instagramURL}
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:instagram")}
+                aria-label="Instagram"
                 color="inherit"
               >
                 <InstagramIcon />
@@ -297,7 +297,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href={redditURL}
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:reddit")}
+                aria-label="Reddit"
                 color="inherit"
               >
                 <RedditIcon />
@@ -306,7 +306,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href="https://bsky.app/profile/couchers.bsky.social"
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:bluesky")}
+                aria-label="BlueSky"
                 color="inherit"
               >
                 <BlueSkyIcon />
@@ -315,7 +315,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href="https://www.tiktok.com/@couchersorg"
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:tiktok")}
+                aria-label="TikTok"
                 color="inherit"
               >
                 <TikTokIcon />
@@ -324,7 +324,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 href={facebookURL}
                 target="_blank"
                 rel="noopener"
-                aria-label={t("a11y:facebook")}
+                aria-label="Facebook"
                 color="inherit"
               >
                 <FacebookIcon />
