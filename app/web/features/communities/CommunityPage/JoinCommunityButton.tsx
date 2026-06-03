@@ -7,11 +7,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 
-import {
-  communityKey,
-  listMyCommunitiesDiscussionsKey,
-  userCommunitiesKey,
-} from "../../queryKeys";
+import { communityKey } from "../../queryKeys";
 
 export default function JoinCommunityButton({
   community,
@@ -20,14 +16,6 @@ export default function JoinCommunityButton({
 }) {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
-  const invalidateMembershipQueries = () => {
-    queryClient.invalidateQueries({ queryKey: [userCommunitiesKey] });
-    queryClient.invalidateQueries({
-      queryKey: [listMyCommunitiesDiscussionsKey],
-    });
-    queryClient.invalidateQueries({ queryKey: ["myCommunityEvents"] });
-  };
-
   const join = useMutation<void, RpcError>({
     mutationFn: () => service.communities.joinCommunity(community.communityId),
     onSuccess() {
@@ -44,7 +32,6 @@ export default function JoinCommunityButton({
       queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
       });
-      invalidateMembershipQueries();
     },
   });
   const leave = useMutation<void, RpcError>({
@@ -63,7 +50,6 @@ export default function JoinCommunityButton({
       queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
       });
-      invalidateMembershipQueries();
     },
   });
   const isLoading = join.isPending || leave.isPending;
