@@ -112,14 +112,12 @@ export default function ProfileSheet() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
   const [isMessaging, setIsMessaging] = useState(false);
-  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
 
   useEffect(() => {
     setTab("about");
     setIsRequesting(false);
     setIsSuccessRequest(false);
     setIsMessaging(false);
-    setIsSuccessMessage(false);
   }, [openProfileUserId]);
 
   useEffect(() => {
@@ -240,11 +238,6 @@ export default function ProfileSheet() {
               {t("profile:request_form.success")}
             </Snackbar>
           )}
-          {isSuccessMessage && (
-            <Snackbar severity="success">
-              {t("profile:message_form.success")}
-            </Snackbar>
-          )}
           {isLoading && <ProfileSheetSkeleton />}
           {user && (
             <ProfileUserProvider user={user}>
@@ -266,10 +259,7 @@ export default function ProfileSheet() {
                       />
                     </Collapse>
                     <Collapse in={isMessaging}>
-                      <NewMessage
-                        setIsMessaging={setIsMessaging}
-                        setIsMessageSuccess={setIsSuccessMessage}
-                      />
+                      <NewMessage setIsMessaging={setIsMessaging} />
                     </Collapse>
                   </>
                 }
