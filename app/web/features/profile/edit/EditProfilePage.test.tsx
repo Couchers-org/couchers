@@ -216,6 +216,36 @@ describe("Edit profile", () => {
     });
   }, 10000);
 
+  it("should reject names with invalid characters like !@#$", async () => {
+    getUserMock.mockImplementation(getUser);
+
+    await renderPage();
+
+    const user = userEvent.setup();
+
+    const nameInput = await screen.findByLabelText(
+      t("profile:edit_profile_headings.name"),
+    );
+
+    await user.clear(nameInput);
+    await user.type(nameInput, "John!@#$");
+    await user.tab();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t("auth:basic_form.name.invalid_characters_error")),
+      ).toBeInTheDocument();
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save_changes") }),
+    );
+
+    await waitFor(() => {
+      expect(updateProfileMock).not.toHaveBeenCalled();
+    });
+  });
+
   it("should only show save bar when form is dirty", async () => {
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 

@@ -45,6 +45,11 @@ import {
   useUnsavedChangesWarning,
 } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import {
+  nameMaxLength,
+  nameMinLength,
+  nameValidationPattern,
+} from "utils/validation";
 
 import {
   ABOUT_ME_MIN_LENGTH,
@@ -568,13 +573,27 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <StyledProfileTextInput
                   id="name"
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: t("auth:basic_form.name.required_error"),
+                    minLength: {
+                      value: nameMinLength,
+                      message: t("auth:basic_form.name.min_length_error"),
+                    },
+                    maxLength: {
+                      value: nameMaxLength,
+                      message: t("auth:basic_form.name.max_length_error"),
+                    },
+                    pattern: {
+                      message: t(
+                        "auth:basic_form.name.invalid_characters_error",
+                      ),
+                      value: nameValidationPattern,
+                    },
+                  })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
-                  error={!!errors.name}
-                  helperText={
-                    errors.name ? t("profile:edit_profile_name_required") : ""
-                  }
+                  error={!!errors?.name?.message}
+                  helperText={errors?.name?.message ?? " "}
                 />
               </FieldGroup>
 
