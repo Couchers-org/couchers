@@ -4,9 +4,10 @@
 # The Dev Tool dev client only needs a fresh native build when the Expo
 # fingerprint (runtimeVersion) changes — a new native module, an app.config.js
 # change, or an Expo SDK bump. Pure JS/TS changes load over the air (see
-# docs/mobile-dev-tool-ota.md), so this no-ops on them. We record the last-built
-# fingerprint per platform in S3 and compare; on a change we build a fresh client
-# and update the marker only once that succeeds, so a failed build is retried.
+# docs/mobile-dev-tool-ota.md), so this no-ops on them. The current fingerprint
+# is read from app/mobile/fingerprints.json (verified on every branch by
+# test:mobile-fingerprints) and compared against the same file at the previous
+# develop commit; on a change we build a fresh client.
 #
 #   iOS:     eas build --auto-submit -> TestFlight (Apple's tester channel).
 #   Android: eas build -> a sideloadable APK we host ourselves. Google Play has no
@@ -15,10 +16,11 @@
 #            the APK to the dev-assets bucket at a stable URL devs bookmark.
 #
 # Usage: devtool-build.sh <ios|android>
-# Env:   EXPO_TOKEN          EAS auth (build + submit scope)
-#        AWS_PREVIEW_BUCKET  the couchers-dev-assets bucket
-#        PREVIEW_DOMAIN      the dev-assets CDN domain (preview.couchershq.org)
-#        CI_COMMIT_SHORT_SHA tags the immutable APK filename
+# Env:   EXPO_TOKEN             EAS auth (build + submit scope)
+#        AWS_PREVIEW_BUCKET     the couchers-dev-assets bucket (hosts the APK)
+#        PREVIEW_DOMAIN         the dev-assets CDN domain (preview.couchershq.org)
+#        CI_COMMIT_SHORT_SHA    tags the immutable APK filename
+#        CI_COMMIT_BEFORE_SHA   GitLab-provided previous HEAD; reads prior file
 #        plus the AWS creds the aws CLI reads from the environment
 # Run from app/mobile (eas.json, the project, and node_modules must be present).
 set -euo pipefail
@@ -32,21 +34,47 @@ case "$PLATFORM" in
     ;;
 esac
 
-MARKER="s3://${AWS_PREVIEW_BUCKET}/devtool-builds/${PLATFORM}.fingerprint"
+VARIANT=devtool
 
 # Read a single JSON field from stdin with node (no jq in the node:22 image).
 json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(String(eval("j"+process.argv[1])??""))})' "$1"; }
 
-# Fingerprint of the working tree — the same value EAS stamps as runtimeVersion.
-# .fingerprintignore keeps this reproducible (google-services.json is an EAS-only
-# secret), so the CI-computed hash matches what the EAS build will compute.
-CURRENT="$(npx expo-updates fingerprint:generate --platform "$PLATFORM" 2>/dev/null | json_field '.hash')"
-echo "current $PLATFORM fingerprint:    $CURRENT"
+# Read the (variant, platform) fingerprint out of a fingerprints.json blob on
+# stdin. Prints empty when the blob is empty or the entry is missing.
+read_fp() {
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{if(!s){process.stdout.write("");return}try{const j=JSON.parse(s);process.stdout.write(String(j?.[process.argv[1]]?.[process.argv[2]]??""))}catch{process.stdout.write("")}})' "$VARIANT" "$PLATFORM"
+}
 
-PREVIOUS="$(aws s3 cp "$MARKER" - 2>/dev/null || true)"
-echo "last-built $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
+# Current fingerprint comes from the committed file at HEAD. The
+# test:mobile-fingerprints job verifies on every branch that this value matches
+# what `npx expo-updates fingerprint:generate` produces, so we trust it here.
+CURRENT="$(read_fp < fingerprints.json)"
+[ -n "$CURRENT" ] || {
+  echo "Missing fingerprint for $VARIANT/$PLATFORM in app/mobile/fingerprints.json" >&2
+  exit 1
+}
+echo "current $PLATFORM fingerprint:  $CURRENT"
 
-if [ -n "$PREVIOUS" ] && [ "$PREVIOUS" = "$CURRENT" ]; then
+# Previous fingerprint comes from fingerprints.json at CI_COMMIT_BEFORE_SHA.
+# Missing file at the previous commit means this is the migration commit that
+# first introduced fingerprints.json, where the file should reflect what's
+# already deployed — treat as unchanged.
+PREVIOUS=""
+PREV_FILE_PRESENT=false
+if [ -n "${CI_COMMIT_BEFORE_SHA:-}" ] && [ "${CI_COMMIT_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
+  PREV_JSON="$(git show "${CI_COMMIT_BEFORE_SHA}:app/mobile/fingerprints.json" 2>/dev/null || true)"
+  if [ -n "$PREV_JSON" ]; then
+    PREV_FILE_PRESENT=true
+    PREVIOUS="$(printf '%s' "$PREV_JSON" | read_fp)"
+  fi
+fi
+echo "previous $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
+
+if [ "$PREV_FILE_PRESENT" = "false" ]; then
+  echo "fingerprints.json wasn't present at the previous develop commit — treating as unchanged (migration)."
+  exit 0
+fi
+if [ "$PREVIOUS" = "$CURRENT" ]; then
   echo "Fingerprint unchanged for $PLATFORM — installed Dev Tool client still current, skipping build."
   exit 0
 fi
@@ -100,7 +128,4 @@ HTML
   echo "Stable page:   https://${HOST}/index.html"
 fi
 
-# Record the new fingerprint only after a successful build (and publish), so a
-# failed build is retried on the next pipeline instead of being marked as done.
-printf '%s' "$CURRENT" | aws s3 cp - "$MARKER"
-echo "Recorded $PLATFORM fingerprint $CURRENT — Dev Tool client is up to date."
+echo "Built Dev Tool $PLATFORM client at fingerprint $CURRENT."
