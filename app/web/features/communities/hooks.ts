@@ -19,6 +19,7 @@ import {
   QueryType,
   subCommunitiesKey,
   threadKey,
+  userCommunitiesListKey,
   volunteersKey,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -31,6 +32,7 @@ import {
   ListEventsRes,
   ListMembersRes,
   ListNearbyUsersRes,
+  ListUserCommunitiesRes,
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
 import { GetVolunteersRes } from "proto/public_pb";
@@ -203,6 +205,18 @@ export const useListMyCommunitiesDiscussions = ({
     queryKey: [listMyCommunitiesDiscussionsKey],
     queryFn: () =>
       service.communities.listMyCommunitiesDiscussions({ pageSize, pageToken }),
+  });
+
+export const useListUserCommunities = ({
+  pageSize,
+  pageToken,
+}: {
+  pageSize: number;
+  pageToken?: string;
+}) =>
+  useQuery<ListUserCommunitiesRes.AsObject, RpcError>({
+    queryKey: [userCommunitiesListKey, pageToken],
+    queryFn: () => service.communities.listUserCommunities(pageToken, pageSize),
   });
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {

@@ -1,14 +1,22 @@
-import { Skeleton, styled, Typography } from "@mui/material";
+import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { IconButton, Skeleton, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import { useListSubCommunities } from "features/communities/hooks";
-import useUserCommunities from "features/userQueries/useUserCommunities";
+import TextBody from "components/TextBody";
+import { useListUserCommunities } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import React from "react";
+import { useState } from "react";
 import { routeToCommunity } from "routes";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+const PAGE_SIZE = 2;
+
+const SectionControls = styled("div")({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  marginBottom: "8px",
+});
 
 const GridContainer = styled("div")(({ theme }) => ({
   display: "grid",
@@ -39,65 +47,97 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   borderRadius: theme.spacing(1),
 }));
 
-export default function CommunitiesList({ all = false }: { all?: boolean }) {
+export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
-  const userCommunities = useUserCommunities({ pageSize: 6 });
-  const allCommunities = useListSubCommunities(0);
-  const communities = all ? allCommunities : userCommunities;
+
+  const [pageToken, setPageToken] = useState<string | undefined>(undefined);
+  const [history, setHistory] = useState<(string | undefined)[]>([]);
+
+  const currentPage = history.length;
+
+  const { data, isPending, error } = useListUserCommunities({
+    pageSize: PAGE_SIZE,
+    pageToken,
+  });
+
+  const communities = data?.communitiesList ?? [];
+  const hasPrev = currentPage > 0;
+  const hasNext = Boolean(data?.nextPageToken);
+
+  const goNext = () => {
+    setHistory((h) => [...h, pageToken]);
+    setPageToken(data?.nextPageToken);
+  };
+
+  const goPrev = () => {
+    setHistory((h) => {
+      const prev = [...h];
+      const token = prev.pop();
+      setPageToken(token);
+      return prev;
+    });
+  };
 
   return (
     <div>
-      {communities.error?.message && (
-        <Alert severity="error">{communities.error.message}</Alert>
-      )}
-      {communities.isLoading ? (
+      {error?.message && <Alert severity="error">{error.message}</Alert>}
+      {isPending ? (
         <GridContainer>
-          {[0, 1, 2, 3, 4, 5].map((i) => (
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
             <SkeletonCard key={i}>
               <Skeleton width="60%" height={24} />
               <Skeleton width="40%" height={20} />
             </SkeletonCard>
           ))}
         </GridContainer>
-      ) : communities.data &&
-        hasAtLeastOnePage(communities.data, "communitiesList") ? (
+      ) : communities.length > 0 ? (
         <>
-          <GridContainer>
-            {communities.data.pages
-              .flatMap((page) => page.communitiesList)
-              .map((community) => (
-                <CommunityCard
-                  key={`community-${community.communityId}`}
-                  href={routeToCommunity(community.communityId, community.slug)}
-                >
-                  <Typography
-                    variant="subtitle2"
-                    component="span"
-                    fontWeight={600}
-                  >
-                    {community.name}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {t("dashboard:member_count", {
-                      count: community.memberCount,
-                    })}
-                  </Typography>
-                </CommunityCard>
-              ))}
-          </GridContainer>
-          {communities.hasNextPage && (
-            <Button
-              onClick={() => communities.fetchNextPage()}
-              loading={communities.isFetching}
-            >
-              {t("dashboard:load_more")}
-            </Button>
+          {(hasPrev || hasNext) && (
+            <SectionControls>
+              <IconButton
+                size="small"
+                onClick={goPrev}
+                disabled={!hasPrev}
+                color={hasPrev ? "primary" : "default"}
+                aria-label={t("dashboard:discussions.prev_page_label")}
+              >
+                <ArrowBack fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={goNext}
+                disabled={!hasNext}
+                color={hasNext ? "primary" : "default"}
+                aria-label={t("dashboard:discussions.next_page_label")}
+              >
+                <ArrowForward fontSize="small" />
+              </IconButton>
+            </SectionControls>
           )}
+          <GridContainer>
+            {communities.map((community) => (
+              <CommunityCard
+                key={`community-${community.communityId}`}
+                href={routeToCommunity(community.communityId, community.slug)}
+              >
+                <Typography
+                  variant="subtitle2"
+                  component="span"
+                  fontWeight={600}
+                >
+                  {community.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {t("dashboard:member_count", {
+                    count: community.memberCount,
+                  })}
+                </Typography>
+              </CommunityCard>
+            ))}
+          </GridContainer>
         </>
       ) : (
-        <Typography variant="body1" color="textSecondary">
-          {t("dashboard:no_community")}
-        </Typography>
+        <TextBody>{t("dashboard:no_community")}</TextBody>
       )}
     </div>
   );
