@@ -1,4 +1,17 @@
 {
   "active": "Attivo",
-  "my_connections": "I miei contatti"
+  "my_connections": "I miei contatti",
+  "complete_profile_dialog": {
+    "title": "Quasi ci siamo: completa il tuo profilo per continuare!",
+    "description_1": "Before you can {{action_name}}, you must <4>write a bit about yourself</4> in your profile and <7>upload a profile photo</7>.",
+    "description_2": "Questo aiuta a costruire una comunità affidabile e riduce lo spam. Per ulteriori informazioni <2>consulta questa pagina di aiuto</2>. Grazie per il tuo aiuto!",
+    "actions": {
+      "send_request": "send a request",
+      "send_message": "send a message",
+      "send_friend_request": "send a friend request",
+      "create_event": "create an event"
+    },
+    "edit_profile_button": "Edit your profile now",
+    "cancel_button": "Never mind"
+  }
 }

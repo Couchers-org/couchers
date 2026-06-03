@@ -1,4 +1,4 @@
-﻿{
+{
   "actions": {
     "message_label": "資訊",
     "accept_friend_label": "接受",
@@ -320,5 +320,18 @@
     "next_photo": "下一張照片",
     "close_viewer": "關閉照片查看器",
     "report_photo": "報告照片"
+  },
+  "complete_profile_dialog": {
+    "title": "只差一步：請填寫您的個人資料以繼續！",
+    "description_1": "在您能 {{action_name}} 之前，您必須 <4>寫一些關於自己的內容</4> 並 <7>上傳一張頭像</7>。",
+    "description_2": "這有助於建立信任的社群並減少垃圾資訊。更多資訊，<2>請參閱此幫助頁面</2>。感謝您的幫助！",
+    "actions": {
+      "send_request": "發送請求",
+      "send_message": "發送訊息",
+      "send_friend_request": "send a friend request",
+      "create_event": "建立活動"
+    },
+    "edit_profile_button": "現在編輯您的個人資料",
+    "cancel_button": "算了"
   }
 }

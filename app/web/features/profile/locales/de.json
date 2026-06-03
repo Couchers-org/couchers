@@ -334,5 +334,18 @@
   "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
   "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen.",
   "do_not_email_error_link": "Aktualisiere deine E-Mail-Einstellungen, um dies wieder zu aktivieren.",
-  "open_full_profile": "Vollständiges Profil öffnen"
+  "open_full_profile": "Vollständiges Profil öffnen",
+  "complete_profile_dialog": {
+    "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
+    "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
+    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über sich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
+    "actions": {
+      "send_request": "Eine Anfrage senden",
+      "send_message": "Eine Nachricht senden",
+      "create_event": "Erstelle ein Event",
+      "send_friend_request": "Eine Freundschafts-Anfrage senden"
+    },
+    "edit_profile_button": "Jetzt dein Profil bearbeiten",
+    "cancel_button": "Doch nicht"
+  }
 }

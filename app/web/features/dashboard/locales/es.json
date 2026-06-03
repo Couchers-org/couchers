@@ -16,19 +16,6 @@
   "profile_summary_view": "Ver mi perfil",
   "profile_mobile_summary_view": "Ir al perfil",
   "find_a_host": "Buscar anfitrión",
-  "complete_profile_dialog": {
-    "description_1": "Antes de que puedas {{action_name}}, debes <4>escribir algo sobre ti</4> en tu perfil y <7>subir una foto de perfil</7>.",
-    "actions": {
-      "create_event": "crear un evento",
-      "send_message": "enviar un mensaje",
-      "send_request": "enviar una solicitud",
-      "send_friend_request": "enviar una solicitud de amistad"
-    },
-    "edit_profile_button": "Edita tu perfil ahora",
-    "cancel_button": "Ahora no",
-    "title": "Ya casi estás, ¡completa tu perfil para continuar!",
-    "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
-  },
   "your_communities_helper_text": "Se te ha añadido a todas las comunidades basándonos en tu ubicación. También eres libre de <1>explorar comunidades</1> en otras ubicaciones.",
   "your_communities_helper_text2": "¿No ves tu comunidad? <1>¡Créala!</1>",
   "community_builder_form_text": "Crear tu propia comunidad local",
