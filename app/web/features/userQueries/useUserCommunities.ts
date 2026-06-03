@@ -20,5 +20,8 @@ export default function useUserCommunities({
     initialPageParam: undefined,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    // Community membership only changes when joining/leaving — those actions
+    // invalidate this query, so there's no need to refetch on every page visit.
+    staleTime: 10 * 60 * 1000,
   });
 }
