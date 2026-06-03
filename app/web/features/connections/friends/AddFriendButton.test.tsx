@@ -193,9 +193,7 @@ describe("AddFriendButton", () => {
     await user.click(button);
 
     expect(
-      await screen.findByLabelText(
-        t("profile:complete_profile_dialog.title"),
-      ),
+      await screen.findByLabelText(t("profile:complete_profile_dialog.title")),
     ).toBeVisible();
     expect(sendFriendRequestMock).not.toHaveBeenCalled();
   });
