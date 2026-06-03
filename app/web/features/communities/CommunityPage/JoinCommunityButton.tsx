@@ -22,7 +22,9 @@ export default function JoinCommunityButton({
   const queryClient = useQueryClient();
   const invalidateMembershipQueries = () => {
     queryClient.invalidateQueries({ queryKey: [userCommunitiesKey] });
-    queryClient.invalidateQueries({ queryKey: [listMyCommunitiesDiscussionsKey] });
+    queryClient.invalidateQueries({
+      queryKey: [listMyCommunitiesDiscussionsKey],
+    });
     queryClient.invalidateQueries({ queryKey: ["myCommunityEvents"] });
   };
   const join = useMutation<void, RpcError>({
