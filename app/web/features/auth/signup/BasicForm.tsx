@@ -16,8 +16,8 @@ import { service } from "service";
 import {
   emailValidationPattern,
   lowercaseAndTrimField,
-  nameMinLength,
   nameMaxLength,
+  nameMinLength,
   nameValidationPattern,
 } from "utils/validation";
 
