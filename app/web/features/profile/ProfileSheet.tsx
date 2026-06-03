@@ -137,20 +137,42 @@ export default function ProfileSheet() {
   }, [router.events, closeProfileSheet]);
 
   // On Android, the hardware back gesture triggers webview.goBack() in the native
-  // layer. Push ONE history entry when the sheet opens so goBack() fires popstate
-  // here instead of routing to the previous page. Keyed on isSheetOpen (not the
-  // specific userId) so switching profiles doesn't re-run this and call history.back()
-  // mid-session, which would trigger the popstate listener and close the sheet.
+  // layer. Push a history entry when the sheet opens (and another for each deeper
+  // profile navigation) so goBack() fires popstate here instead of routing away.
+  // We track how many entries we pushed so cleanup removes them all at once.
   const isSheetOpen = openProfileUserId !== null;
+  const pushedCountRef = useRef(0);
+  const prevProfileHistoryLengthRef = useRef(0);
+
   useEffect(() => {
     if (!isMobile || !isSheetOpen) return;
     window.history.pushState({ profileSheetOpen: true }, "");
+    pushedCountRef.current = 1;
+    prevProfileHistoryLengthRef.current = 0;
     return () => {
-      if (window.history.state?.profileSheetOpen) {
-        window.history.back();
+      const count = pushedCountRef.current;
+      pushedCountRef.current = 0;
+      // The route-change handler replaces the current entry with null before
+      // calling closeProfileSheet, so the check fails there and we don't fight
+      // the incoming navigation. For explicit closes (tap-outside, programmatic)
+      // the state is still ours and we go back the full stack depth.
+      if (count > 0 && window.history.state?.profileSheetOpen) {
+        window.history.go(-count);
       }
     };
   }, [isSheetOpen, isMobile]);
+
+  // Push an extra history entry each time the user navigates deeper so every
+  // back press has a matching popstate to intercept.
+  useEffect(() => {
+    if (!isMobile || !isSheetOpen) return;
+    const currentLength = profileHistory.length;
+    if (currentLength > prevProfileHistoryLengthRef.current) {
+      window.history.pushState({ profileSheetOpen: true }, "");
+      pushedCountRef.current++;
+    }
+    prevProfileHistoryLengthRef.current = currentLength;
+  }, [isMobile, isSheetOpen, profileHistory.length]);
 
   // Keep a ref so the popstate handler always has the latest back/close logic
   // without re-registering the listener on every profile navigation.
@@ -162,7 +184,10 @@ export default function ProfileSheet() {
 
   useEffect(() => {
     if (!isMobile || !isSheetOpen) return;
-    const handlePopState = () => goBackOrCloseRef.current();
+    const handlePopState = () => {
+      pushedCountRef.current = Math.max(0, pushedCountRef.current - 1);
+      goBackOrCloseRef.current();
+    };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [isSheetOpen, isMobile]);
