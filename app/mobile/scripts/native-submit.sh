@@ -3,8 +3,8 @@
 # stores (deploy phase). Reads the EAS build id and fingerprint that
 # native-build.sh emitted into the dotenv artifact; an empty build id means the
 # build was skipped (fingerprint unchanged) and there is nothing to submit. The
-# fingerprint of record lives in app/mobile/fingerprints.json — nothing here
-# writes it.
+# fingerprint of record lives in app/mobile/fingerprints — nothing here writes
+# it.
 #
 #   iOS:     eas submit -> App Store Connect. The build lands in TestFlight and as
 #            an available build; it is NOT submitted for App Store review and no

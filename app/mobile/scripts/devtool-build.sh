@@ -5,7 +5,7 @@
 # fingerprint (runtimeVersion) changes — a new native module, an app.config.js
 # change, or an Expo SDK bump. Pure JS/TS changes load over the air (see
 # docs/mobile-dev-tool-ota.md), so this no-ops on them. The current fingerprint
-# is read from app/mobile/fingerprints.json (verified on every branch by
+# is read from app/mobile/fingerprints (verified on every branch by
 # test:mobile-fingerprints) and compared against the same file at the previous
 # develop commit; on a change we build a fresh client.
 #
@@ -39,39 +39,38 @@ VARIANT=devtool
 # Read a single JSON field from stdin with node (no jq in the node:22 image).
 json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(String(eval("j"+process.argv[1])??""))})' "$1"; }
 
-# Read the (variant, platform) fingerprint out of a fingerprints.json blob on
-# stdin. Prints empty when the blob is empty or the entry is missing.
-read_fp() {
-  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{if(!s){process.stdout.write("");return}try{const j=JSON.parse(s);process.stdout.write(String(j?.[process.argv[1]]?.[process.argv[2]]??""))}catch{process.stdout.write("")}})' "$VARIANT" "$PLATFORM"
-}
+# Read the (variant, platform) fingerprint out of an `app/mobile/fingerprints`
+# blob on stdin. The file is one `variant/platform=hash` line per entry; print
+# the first matching value, empty when missing.
+read_fp() { grep -m1 "^${VARIANT}/${PLATFORM}=" | cut -d= -f2-; }
 
 # Current fingerprint comes from the committed file at HEAD. The
 # test:mobile-fingerprints job verifies on every branch that this value matches
 # what `npx expo-updates fingerprint:generate` produces, so we trust it here.
-CURRENT="$(read_fp < fingerprints.json)"
+CURRENT="$(read_fp < fingerprints)"
 [ -n "$CURRENT" ] || {
-  echo "Missing fingerprint for $VARIANT/$PLATFORM in app/mobile/fingerprints.json" >&2
+  echo "Missing fingerprint for $VARIANT/$PLATFORM in app/mobile/fingerprints" >&2
   exit 1
 }
 echo "current $PLATFORM fingerprint:  $CURRENT"
 
-# Previous fingerprint comes from fingerprints.json at CI_COMMIT_BEFORE_SHA.
-# Missing file at the previous commit means this is the migration commit that
-# first introduced fingerprints.json, where the file should reflect what's
-# already deployed — treat as unchanged.
+# Previous fingerprint comes from the same file at CI_COMMIT_BEFORE_SHA. Missing
+# file at the previous commit means this is the migration commit that first
+# introduced fingerprints, where the file should reflect what's already
+# deployed — treat as unchanged.
 PREVIOUS=""
 PREV_FILE_PRESENT=false
 if [ -n "${CI_COMMIT_BEFORE_SHA:-}" ] && [ "${CI_COMMIT_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
-  PREV_JSON="$(git show "${CI_COMMIT_BEFORE_SHA}:app/mobile/fingerprints.json" 2>/dev/null || true)"
-  if [ -n "$PREV_JSON" ]; then
+  PREV_BLOB="$(git show "${CI_COMMIT_BEFORE_SHA}:app/mobile/fingerprints" 2>/dev/null || true)"
+  if [ -n "$PREV_BLOB" ]; then
     PREV_FILE_PRESENT=true
-    PREVIOUS="$(printf '%s' "$PREV_JSON" | read_fp)"
+    PREVIOUS="$(printf '%s' "$PREV_BLOB" | read_fp)"
   fi
 fi
 echo "previous $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 
 if [ "$PREV_FILE_PRESENT" = "false" ]; then
-  echo "fingerprints.json wasn't present at the previous develop commit — treating as unchanged (migration)."
+  echo "fingerprints file wasn't present at the previous develop commit — treating as unchanged (migration)."
   exit 0
 fi
 if [ "$PREVIOUS" = "$CURRENT" ]; then
