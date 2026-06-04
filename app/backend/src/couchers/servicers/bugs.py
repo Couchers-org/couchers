@@ -114,9 +114,6 @@ def _is_update_id_banned(session: Session, info: NativeClientInfo) -> bool:
 
 
 def _newest_non_banned_ota_package(session: Session, platform: str, fingerprint: str) -> OTAPackage | None:
-    # The bundle GetNativeUpdateManifest would serve a build on this (platform, fingerprint): the
-    # newest non-banned one by manifest createdAt. The device only applies it if it's strictly newer
-    # than what it's running.
     if platform not in OTAPlatform.__members__ or not fingerprint:
         return None
     return session.execute(
@@ -313,11 +310,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         banned = _is_update_id_banned(session, info)
         decision = decide_native_update(context, info, now, banned=banned)
 
-        # A forced OTA update we can't actually serve — the manifest endpoint has nothing newer than
-        # the bundle the client is running — would loop it on the block screen forever. That's a
-        # publish/ban misconfiguration, never a state to serve a user: raise so it pages (Sentry), and
-        # the client, which ignores CheckNativeStatus errors, is simply left unblocked. Store blocks
-        # aren't checkable here — the backend keeps no record of the latest store build.
+        # An OTA block with no newer bundle to serve would loop the client on the block screen
+        # forever, so refuse to serve it: raise (pages via Sentry) and the client, which ignores
+        # these errors, stays unblocked. Store blocks aren't checkable — no record of the latest build.
         if decision.action == UpdateAction.ota and decision.severity == Severity.block:
             newest = _newest_non_banned_ota_package(session, info.platform, info.runtime_version)
             newer_available = newest is not None and (

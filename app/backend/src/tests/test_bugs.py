@@ -735,7 +735,6 @@ def test_native_update_manifest_no_package_returns_directive(db):
 
 
 def _ota_check_req(*, created_at, update_id=""):
-    # An OTA-launched client running a bundle published `created_at`, past the default 28-day block.
     ts = timestamp_pb2.Timestamp()
     ts.FromDatetime(created_at)
     return bugs_pb2.CheckNativeStatusReq(
@@ -749,7 +748,6 @@ def _ota_check_req(*, created_at, update_id=""):
 
 
 def test_check_native_status_ota_block_with_newer_bundle(db):
-    # OTA bundle past its window, and a newer non-banned bundle exists to move to -> OTA block served.
     _add_ota_package(
         platform=OTAPlatform.ios,
         fingerprint="ios-fingerprint",
@@ -765,13 +763,11 @@ def test_check_native_status_ota_block_with_newer_bundle(db):
 
 
 def test_check_native_status_ota_block_without_target_raises(db):
-    # OTA bundle past its window but nothing to move to -> the client would loop, so we raise loudly.
     with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
         bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
 
 
 def test_check_native_status_ota_block_only_older_target_raises(db):
-    # The only available bundle is older than what the client runs; the device won't move backwards.
     _add_ota_package(
         platform=OTAPlatform.ios,
         fingerprint="ios-fingerprint",
@@ -783,7 +779,6 @@ def test_check_native_status_ota_block_only_older_target_raises(db):
 
 
 def test_check_native_status_banned_ota_block_with_successor(db):
-    # Running a banned bundle with a newer non-banned successor -> banned OTA block served.
     _add_ota_package(
         platform=OTAPlatform.ios,
         fingerprint="ios-fingerprint",
@@ -808,7 +803,6 @@ def test_check_native_status_banned_ota_block_with_successor(db):
 
 
 def test_check_native_status_banned_ota_block_no_successor_raises(db):
-    # Banning the only bundle on this fingerprint leaves its devices nowhere to go -> raise loudly.
     _add_ota_package(
         platform=OTAPlatform.ios,
         fingerprint="ios-fingerprint",
