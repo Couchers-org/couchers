@@ -612,6 +612,30 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
+# Verifies that app/mobile/fingerprints matches what
+# `npx expo-updates fingerprint:generate` produces for each release variant on
+# each platform. The fingerprint is the runtimeVersion Expo stamps into a native
+# binary; a change to it means a fresh store build is needed. Pinning the value
+# in the repo turns "did the fingerprint move?" into a file diff, so every
+# branch sees the answer before merge and develop's native-build job uses the
+# diff against the previous develop commit to decide whether to rebuild.
+test:mobile-fingerprints:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run fingerprints:check
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -948,6 +972,7 @@ build:mobile-native-devtool:
     default: false
   variables:
     APP_VARIANT: devtool
+    GIT_DEPTH: 0
   resource_group: mobile-eas-devtool
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
@@ -1358,6 +1383,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-fingerprints
       artifacts: false
       optional: true
 

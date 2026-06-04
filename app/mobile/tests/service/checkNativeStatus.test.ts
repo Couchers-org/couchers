@@ -19,6 +19,7 @@ function mockResponse(asObject: unknown) {
 
 function basePayload(): NativeStatusPayload {
   return {
+    easClientId: "00000000-0000-0000-0000-000000000001",
     installId: "install-1",
     platform: "ios",
     osVersion: "17.4",
@@ -54,6 +55,7 @@ describe("checkNativeStatus", () => {
 
     expect(mockCheckNativeStatus).toHaveBeenCalledTimes(1);
     const req = mockCheckNativeStatus.mock.calls[0][0];
+    expect(req.getEasClientId()).toBe("00000000-0000-0000-0000-000000000001");
     expect(req.getInstallId()).toBe("install-1");
     expect(req.getPlatform()).toBe("ios");
     expect(req.getAppVersion()).toBe("1.1.20");
