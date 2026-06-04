@@ -784,8 +784,8 @@ class Account(account_pb2_grpc.AccountServicer):
         accepted_host_requests = session.execute(
             confirm_query.where(HostRequest.initiator_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.accepted)
-            .where(HostRequest.start_time > func.now())
-            .order_by(HostRequest.conversation_id.asc())
+            .where(HostRequest.end_time > func.now())
+            .order_by(HostRequest.end_time.asc())
         ).all()
         reminders += [
             account_pb2.Reminder(
