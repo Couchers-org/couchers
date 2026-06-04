@@ -57,7 +57,7 @@ export default function CommunitiesList() {
   const currentPage = history.length;
 
   const { data, isPending, error } = useListUserCommunities({
-    pageSize: PAGE_SIZE,
+    pageSize,
     pageToken,
   });
 
