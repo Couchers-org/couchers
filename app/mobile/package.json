@@ -16,6 +16,8 @@
     "lint": "expo lint",
     "format": "expo lint --fix && prettier --write .",
     "test": "jest",
+    "fingerprints:check": "node scripts/fingerprints.mjs check",
+    "fingerprints:write": "node scripts/fingerprints.mjs write",
     "release:ios:devtool": "eas build --platform ios --profile devtool --auto-submit",
     "release:ios:staging": "eas build --platform ios --profile staging --auto-submit",
     "release:ios:production": "eas build --platform ios --profile production --auto-submit",
