@@ -127,6 +127,66 @@ describe("localizeDateTime", () => {
         locale: "de",
       }),
     ).toContain("Januar");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "pt-BR",
+      }),
+    ).toContain("janeiro");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "ca",
+      }),
+    ).toContain("gener");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "zh-Hans",
+      }),
+    ).toContain("1月");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "zh-Hant",
+      }),
+    ).toContain("1月");
+  });
+
+  it("does not capitalize day/month names by default (assumed mid-sentence)", () => {
+    // Spanish weekday + month stay lowercase when the date may be part of a sentence.
+    const formatted = localizeDateTime(dayjs("2000-01-01"), {
+      timezone: UTC_TIMEZONE,
+      locale: "es",
+      includeDayOfWeek: true,
+      includeTime: false,
+    });
+    expect(formatted).toMatch(/^sábado/);
+    expect(formatted).toContain("enero");
+  });
+
+  it("capitalizes only the first letter when capitalize is set (standalone date)", () => {
+    const formatted = localizeDateTime(dayjs("2000-01-01"), {
+      timezone: UTC_TIMEZONE,
+      locale: "es",
+      includeDayOfWeek: true,
+      includeTime: false,
+      capitalize: true,
+    });
+    expect(formatted).toMatch(/^Sábado/);
+    // day/month names mid-string are still lowercase
+    expect(formatted).toContain("enero");
+  });
+
+  it("leaves a non-letter first grapheme unchanged when capitalize is set", () => {
+    // Spanish dates without a weekday start with the day number.
+    const formatted = localizeDateTime(dayjs("2000-01-01"), {
+      timezone: UTC_TIMEZONE,
+      locale: "es",
+      includeTime: false,
+      capitalize: true,
+    });
+    expect(formatted).toMatch(/^1 de enero/);
   });
 });
 
