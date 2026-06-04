@@ -211,7 +211,7 @@ export const useListUserCommunities = ({
   pageSize,
   pageToken,
 }: {
-  pageSize: number;
+  pageSize?: number;
   pageToken?: string;
 }) =>
   useQuery<ListUserCommunitiesRes.AsObject, RpcError>({
