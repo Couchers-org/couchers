@@ -49,7 +49,8 @@ const SkeletonCard = styled("div")(({ theme }) => ({
 
 export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
-
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const pageSize = isSmallScreen ? 2 : 3;
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
   const [history, setHistory] = useState<(string | undefined)[]>([]);
 
