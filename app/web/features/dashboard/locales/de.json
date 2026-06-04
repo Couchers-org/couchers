@@ -8,7 +8,7 @@
   "complete_profile_dialog": {
     "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
     "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
-    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über sich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
+    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über dich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
     "actions": {
       "send_request": "Eine Anfrage senden",
       "send_message": "Eine Nachricht senden",
@@ -83,6 +83,11 @@
       "title": "Vervollständige den Abschnitt „Mein Zuhause“ deines Profils",
       "description": "Trage deine Schlafmöglichkeiten, Hausregeln und eine Beschreibung deiner Wohnung ein",
       "button": "Bearbeite dein Zuhause"
+    },
+    "confirm_host_request": {
+      "title": "Bestätige deinen Aufenthalt bei {{name}}",
+      "description": "{{name}} hat deine Anfrage angenommen. Bestätige deinen Aufenthalt, um ihn zu sichern.",
+      "button": "Aufenthalt bestätigen"
     }
   },
   "events": {
