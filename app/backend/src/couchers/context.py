@@ -120,17 +120,34 @@ class CouchersContext:
             context.abort(status_code, error_message)
 
     def abort_with_error_code(
-        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict[str, str | int] | None = None
+        self,
+        status_code: grpc.StatusCode,
+        error_message_id: str,
+        *,
+        substitutions: dict[str, str | int] | None = None,
+        localize: bool = True,
     ) -> NoReturn:
         """
-        Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
+        Raises an error that's returned to the user.
+
+        When `localize` is True (the default), `error_message_id` is a key into the translatable errors catalog and is
+        localized using the user's language preference. When `localize` is False, `error_message_id` is used verbatim as
+        the error message; use this for technical errors (e.g. those only surfaced by admin APIs) that don't need to be
+        translated and would just confuse translators.
         """
+        if not localize and substitutions is not None:
+            raise ValueError("substitutions cannot be used with localize=False")
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message_id)
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
-            # Get the translated error message using the user's language preference
-            error_message = self.localization.localize_string(f"errors.{error_message_id}", substitutions=substitutions)
+            if localize:
+                # Get the translated error message using the user's language preference
+                error_message = self.localization.localize_string(
+                    f"errors.{error_message_id}", substitutions=substitutions
+                )
+            else:
+                error_message = error_message_id
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:

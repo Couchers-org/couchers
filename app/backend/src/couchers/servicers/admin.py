@@ -422,10 +422,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         if not badge.admin_editable:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "Admins cannot edit that badge.", localize=False
+            )
 
         if badge.id in [b.badge_id for b in user.badges]:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_badge")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "The user already has that badge.", localize=False
+            )
 
         user_add_badge(session, user.id, request.badge_id)
         log_admin_action(session, context, user, "add_badge", note=f"Added badge {request.badge_id}")
@@ -444,13 +448,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         if not badge.admin_editable:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "Admins cannot edit that badge.", localize=False
+            )
 
         user_badge = session.execute(
             select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge.id)
         ).scalar_one_or_none()
         if not user_badge:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_badge")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "The user does not have that badge.", localize=False
+            )
 
         user_remove_badge(session, user.id, request.badge_id)
         log_admin_action(session, context, user, "remove_badge", note=f"Removed badge {request.badge_id}")
@@ -481,7 +489,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "The admin note cannot be empty.", localize=False
+            )
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = now()
         return _user_to_details(session, user)
@@ -493,7 +503,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "The admin note cannot be empty.", localize=False
+            )
         log_admin_action(session, context, user, "unban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = None
         return _user_to_details(session, user)
@@ -505,7 +517,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "The admin note cannot be empty.", localize=False
+            )
         log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = now()
         # Bulk-shadow all UMS-governed content authored by this user so existing visible content is hidden too
@@ -525,7 +539,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "The admin note cannot be empty.", localize=False
+            )
         log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = None
         # Sweep content shadowed by the cascade back to visible; leave hidden/unlisted content where moderators put it
@@ -549,14 +565,16 @@ class Admin(admin_pb2_grpc.AdminServicer):
         has_data = bool(request.data.strip())
         if has_note == has_data:
             context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT, "admin_note_requires_exactly_one_of_note_or_data"
+                grpc.StatusCode.INVALID_ARGUMENT, "Provide exactly one of admin_note or data.", localize=False
             )
         data = None
         if has_data:
             try:
                 data = json.loads(request.data)
             except json.JSONDecodeError:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_data_must_be_valid_json")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "The admin note data must be valid JSON.", localize=False
+                )
         level = api2adminactionlevel.get(request.level, AdminActionLevel.normal)
         log_admin_action(
             session,
@@ -576,7 +594,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             select(ContentReport).where(ContentReport.id == request.content_report_id)
         ).scalar_one_or_none()
         if not content_report:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "content_report_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Content report not found.", localize=False)
         return admin_pb2.GetContentReportRes(
             content_report=_content_report_to_pb(content_report),
         )
@@ -873,7 +891,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
 
         if reference is None:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "reference_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Reference not found.", localize=False)
 
         if not request.new_text.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
@@ -889,7 +907,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
     ) -> empty_pb2.Empty:
         context.abort_with_error_code(
             grpc.StatusCode.FAILED_PRECONDITION,
-            "deletereference_deprecated_use_ums",
+            "DeleteReference is deprecated. Use the Unified Moderation System (UMS) to hide a reference.",
+            localize=False,
         )
 
     def GetUserReferences(
@@ -999,7 +1018,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             obj = None
 
         if not obj:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "object_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Object not found.", localize=False)
         obj.content = request.new_content.strip()
         return empty_pb2.Empty()
 
@@ -1020,7 +1039,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.moderation_list_id:
             moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
             if not moderation_user_list:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_user_list_not_found")
+                context.abort_with_error_code(
+                    grpc.StatusCode.NOT_FOUND, "Moderation user list not found.", localize=False
+                )
         # Create a new moderation user list if no one is provided
         else:
             moderation_user_list = ModerationUserList()
@@ -1060,13 +1081,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.moderation_list_id:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_moderation_user_list_id")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "Missing moderation user list id.", localize=False
+            )
 
         moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
         if not moderation_user_list:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_user_list_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Moderation user list not found.", localize=False)
         if user not in moderation_user_list.users:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_not_in_the_moderation_user_list")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "User is not in the moderation user list.", localize=False
+            )
 
         moderation_user_list.users.remove(user)
         log_admin_action(session, context, user, "remove_from_moderation_list")
@@ -1162,10 +1187,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.CreateAdminTagReq, context: CouchersContext, session: Session
     ) -> admin_pb2.AdminTagInfo:
         if not request.tag.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_tag_cant_be_empty")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "The admin tag cannot be empty.", localize=False
+            )
         existing = session.execute(select(AdminTag).where(AdminTag.tag == request.tag.strip())).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "admin_tag_already_exists")
+            context.abort_with_error_code(
+                grpc.StatusCode.ALREADY_EXISTS, "That admin tag already exists.", localize=False
+            )
         admin_tag = AdminTag(tag=request.tag.strip())
         session.add(admin_tag)
         session.flush()
@@ -1187,12 +1216,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Admin tag not found.", localize=False)
         existing = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_admin_tag")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "The user already has that admin tag.", localize=False
+            )
         session.add(UserAdminTag(user_id=user.id, admin_tag_id=admin_tag.id))
         session.flush()
         log_admin_action(session, context, user, "add_tag", tag=request.tag)
@@ -1206,12 +1237,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "Admin tag not found.", localize=False)
         user_admin_tag = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if not user_admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_admin_tag")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "The user does not have that admin tag.", localize=False
+            )
         session.delete(user_admin_tag)
         session.flush()
         log_admin_action(session, context, user, "remove_tag", tag=request.tag)
@@ -1316,16 +1349,22 @@ class Admin(admin_pb2_grpc.AdminServicer):
     ) -> admin_pb2.OTAPackage:
         platform = api2otaplatform.get(request.platform)
         if platform is None:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_platform")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "Invalid OTA platform.", localize=False)
 
         if not request.version:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_version")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "An OTA package version (CDN path) is required.", localize=False
+            )
 
         existing = session.execute(
             select(OTAPackage.id).where(OTAPackage.platform == platform).where(OTAPackage.version == request.version)
         ).scalar_one_or_none()
         if existing is not None:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "ota_package_already_exists")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION,
+                "An OTA package with this manifest id already exists for this platform.",
+                localize=False,
+            )
 
         # Read the keying/ordering fields out of the manifest we're about to serve, so the row can't
         # disagree with the bytes on the CDN.
@@ -1346,11 +1385,19 @@ class Admin(admin_pb2_grpc.AdminServicer):
             or not isinstance(created_at_raw, str)
             or not created_at_raw
         ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "Could not read a valid manifest (runtimeVersion, id, createdAt) from the CDN for this version.",
+                localize=False,
+            )
         try:
             manifest_created_at = datetime.fromisoformat(created_at_raw)
         except ValueError:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_manifest")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "Could not read a valid manifest (runtimeVersion, id, createdAt) from the CDN for this version.",
+                localize=False,
+            )
         if manifest_created_at.tzinfo is None:
             manifest_created_at = manifest_created_at.replace(tzinfo=UTC)
 
@@ -1374,7 +1421,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.platform != admin_pb2.OTA_PLATFORM_UNSPECIFIED:
             platform = api2otaplatform.get(request.platform)
             if platform is None:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_ota_platform")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "Invalid OTA platform.", localize=False)
             statement = statement.where(OTAPackage.platform == platform)
         if request.fingerprint:
             statement = statement.where(OTAPackage.fingerprint == request.fingerprint)
@@ -1391,13 +1438,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         # Bans are irreversible — to roll back an accidental ban, republish the bundle as a new
         # package — so a reason is required for the audit trail.
         if not request.reason.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "ota_ban_reason_required")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "A reason is required when banning an OTA package.", localize=False
+            )
 
         package = session.execute(
             select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
         ).scalar_one_or_none()
         if package is None:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "ota_package_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "OTA package not found.", localize=False)
 
         if package.banned_at is None:
             package.banned_at = now()
