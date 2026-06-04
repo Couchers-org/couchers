@@ -278,6 +278,7 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
 
   const {
     control,
@@ -297,8 +298,11 @@ export default function EditProfileForm() {
 
   // Reset form with user data when user and data are loaded
   // This allows only showing save bar once something changes
+  // hasInitialized prevents background refetches from overwriting in-progress edits
   useEffect(() => {
     if (user && languages && regions) {
+      if (hasInitialized.current) return;
+      hasInitialized.current = true;
       reset(
         {
           name: user.name,
@@ -584,10 +588,10 @@ export default function EditProfileForm() {
                       message: t("auth:basic_form.name.max_length_error"),
                     },
                     pattern: {
+                      value: nameValidationPattern,
                       message: t(
                         "auth:basic_form.name.invalid_characters_error",
                       ),
-                      value: nameValidationPattern,
                     },
                   })}
                   label={t("profile:edit_profile_headings.name")}
