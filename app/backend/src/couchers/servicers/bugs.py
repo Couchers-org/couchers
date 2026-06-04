@@ -113,6 +113,22 @@ def _is_update_id_banned(session: Session, info: NativeClientInfo) -> bool:
     )
 
 
+def _newest_non_banned_ota_package(session: Session, platform: str, fingerprint: str) -> OTAPackage | None:
+    # The bundle GetNativeUpdateManifest would serve a build on this (platform, fingerprint): the
+    # newest non-banned one by manifest createdAt. The device only applies it if it's strictly newer
+    # than what it's running.
+    if platform not in OTAPlatform.__members__ or not fingerprint:
+        return None
+    return session.execute(
+        select(OTAPackage)
+        .where(OTAPackage.platform == OTAPlatform[platform])
+        .where(OTAPackage.fingerprint == fingerprint)
+        .where(OTAPackage.banned_at.is_(None))
+        .order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+
+
 def _observe_native_check_metrics(info: NativeClientInfo, decision: Any, now: datetime, *, banned: bool) -> None:
     if info.binary_created_at is not None:
         observe_native_binary_age(info.platform, (now - info.binary_created_at).total_seconds())
@@ -228,16 +244,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         # Newest non-banned bundle for the build's fingerprint, by manifest createdAt. The device's
         # selection policy only applies it if it's newer than what it's running, so a stale store build
         # self-heals while a newer one keeps its embedded bundle.
-        package = None
-        if platform in OTAPlatform.__members__ and fingerprint:
-            package = session.execute(
-                select(OTAPackage)
-                .where(OTAPackage.platform == OTAPlatform[platform])
-                .where(OTAPackage.fingerprint == fingerprint)
-                .where(OTAPackage.banned_at.is_(None))
-                .order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
-                .limit(1)
-            ).scalar_one_or_none()
+        package = _newest_non_banned_ota_package(session, platform, fingerprint)
 
         if package is None:
             observe_native_ota_manifest_request(platform, "no_match" if not fingerprint else "no_update")
@@ -305,6 +312,25 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         now = datetime.now(UTC)
         banned = _is_update_id_banned(session, info)
         decision = decide_native_update(context, info, now, banned=banned)
+
+        # A forced OTA update we can't actually serve — the manifest endpoint has nothing newer than
+        # the bundle the client is running — would loop it on the block screen forever. That's a
+        # publish/ban misconfiguration, never a state to serve a user: raise so it pages (Sentry), and
+        # the client, which ignores CheckNativeStatus errors, is simply left unblocked. Store blocks
+        # aren't checkable here — the backend keeps no record of the latest store build.
+        if decision.action == UpdateAction.ota and decision.severity == Severity.block:
+            newest = _newest_non_banned_ota_package(session, info.platform, info.runtime_version)
+            newer_available = newest is not None and (
+                info.bundle_created_at is None or newest.manifest_created_at > info.bundle_created_at
+            )
+            if not newer_available:
+                raise Exception(
+                    "CheckNativeStatus would force an OTA update with no newer bundle to move to "
+                    f"(platform={info.platform!r} fingerprint={info.runtime_version!r} "
+                    f"cause={decision.cause.name} update_id={info.update_id!r} "
+                    f"running_bundle_created_at={info.bundle_created_at} "
+                    f"newest_non_banned_created_at={None if newest is None else newest.manifest_created_at})"
+                )
 
         _observe_native_check_metrics(info, decision, now, banned=banned)
 

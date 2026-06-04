@@ -734,6 +734,92 @@ def test_native_update_manifest_no_package_returns_directive(db):
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
 
 
+def _ota_check_req(*, created_at, update_id=""):
+    # An OTA-launched client running a bundle published `created_at`, past the default 28-day block.
+    ts = timestamp_pb2.Timestamp()
+    ts.FromDatetime(created_at)
+    return bugs_pb2.CheckNativeStatusReq(
+        eas_client_id=str(EAS_CLIENT_ID),
+        platform="ios",
+        runtime_version="ios-fingerprint",
+        launch_source="ota",
+        update_id=update_id,
+        created_at=ts,
+    )
+
+
+def test_check_native_status_ota_block_with_newer_bundle(db):
+    # OTA bundle past its window, and a newer non-banned bundle exists to move to -> OTA block served.
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.2.newer",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_AGE
+
+
+def test_check_native_status_ota_block_without_target_raises(db):
+    # OTA bundle past its window but nothing to move to -> the client would loop, so we raise loudly.
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_ota_block_only_older_target_raises(db):
+    # The only available bundle is older than what the client runs; the device won't move backwards.
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.older",
+        created_at=datetime.now(UTC) - timedelta(days=50),
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_banned_ota_block_with_successor(db):
+    # Running a banned bundle with a newer non-banned successor -> banned OTA block served.
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.good",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            _ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad")
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_BANNED
+
+
+def test_check_native_status_banned_ota_block_no_successor_raises(db):
+    # Banning the only bundle on this fingerprint leaves its devices nowhere to go -> raise loudly.
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad"))
+
+
 def test_log_experiment_exposure(db):
     user, token = generate_user()
 
