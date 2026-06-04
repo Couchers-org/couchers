@@ -116,7 +116,6 @@ message ListHostRequestsReq {
   reserved 1;
   reserved "last_request_id";
 
-  string page_token = 9;
   uint32 number = 2;
 
   // Whether to only show pending, accepted and
@@ -132,6 +131,7 @@ message ListHostRequestsReq {
   repeated org.couchers.api.conversations.HostRequestStatus status_in = 7;
 
   HostRequestSortBy sort_by = 8;
+  string page_token = 9;
 }
 
 message ListHostRequestsRes {
