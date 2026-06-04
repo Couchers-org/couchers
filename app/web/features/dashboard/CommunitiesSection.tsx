@@ -6,7 +6,6 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { communityCreationFormURL } from "routes";
 import { theme } from "theme";
 
-
 const StyledCreateCommunityText = styled(Typography)(() => ({
   paddingBlockStart: theme.spacing(2),
 }));
