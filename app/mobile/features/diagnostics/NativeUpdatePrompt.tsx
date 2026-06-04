@@ -1,5 +1,5 @@
 import * as Updates from "expo-updates";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -51,25 +51,12 @@ export default function NativeUpdatePrompt({
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  if (!prompt) return null;
+  const info = prompt?.info ?? null;
+  const mode = prompt?.mode ?? null;
+  const isOta = info?.action === NativeUpdateAction.NATIVE_UPDATE_ACTION_OTA;
 
-  const { info, mode } = prompt;
-  const dismissible = mode !== "block";
-
-  const colors = {
-    background: isDark
-      ? theme.dark.background.default
-      : theme.palette.background.default,
-    text: isDark ? theme.dark.text.primary : theme.palette.text.primary,
-    textSecondary: isDark
-      ? theme.dark.text.secondary
-      : theme.palette.text.secondary,
-    primary: isDark ? theme.dark.primary.main : theme.palette.primary.main,
-  };
-
-  const isOta = info.action === NativeUpdateAction.NATIVE_UPDATE_ACTION_OTA;
-
-  const handlePrimary = async () => {
+  const handlePrimary = useCallback(async () => {
+    if (!info) return;
     setFailed(false);
     if (isOta) {
       setBusy(true);
@@ -86,6 +73,31 @@ export default function NativeUpdatePrompt({
     if (info.linkUrl) {
       await Linking.openURL(info.linkUrl);
     }
+  }, [info, isOta]);
+
+  // A forced OTA leaves the user no choice, so apply it automatically instead of
+  // making them tap. The button below stays as the retry path if the fetch fails.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (mode === "block" && isOta && !autoStarted.current) {
+      autoStarted.current = true;
+      void handlePrimary();
+    }
+  }, [mode, isOta, handlePrimary]);
+
+  if (!prompt || !info) return null;
+
+  const dismissible = mode !== "block";
+
+  const colors = {
+    background: isDark
+      ? theme.dark.background.default
+      : theme.palette.background.default,
+    text: isDark ? theme.dark.text.primary : theme.palette.text.primary,
+    textSecondary: isDark
+      ? theme.dark.text.secondary
+      : theme.palette.text.secondary,
+    primary: isDark ? theme.dark.primary.main : theme.palette.primary.main,
   };
 
   const title = t("update.required_title");
