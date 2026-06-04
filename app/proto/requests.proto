@@ -113,7 +113,10 @@ enum HostRequestSortBy {
 }
 
 message ListHostRequestsReq {
-  string page_token = 1;
+  reserved 1;
+  reserved "last_request_id";
+
+  string page_token = 9;
   uint32 number = 2;
 
   // Whether to only show pending, accepted and
@@ -132,9 +135,12 @@ message ListHostRequestsReq {
 }
 
 message ListHostRequestsRes {
+  reserved 2;
+  reserved "last_request_id";
+
   repeated HostRequest host_requests = 1;
-  string next_page_token = 2;
   bool no_more = 3;
+  string next_page_token = 4;
 }
 
 message GetHostRequestMessagesReq {
