@@ -287,6 +287,14 @@ export default function Navigation() {
 
   const { t } = useTranslation(GLOBAL);
 
+  const shouldShowLanguagePickerSelect = useMemo(() => {
+    if (!isMobile) return true;
+
+    if (isMobile && authState.authenticated) return true;
+
+    return false;
+  }, [authState.authenticated, isMobile]);
+
   useEffect(() => setIsMounted(true), []);
 
   const handleDrawerOpen = () => {
@@ -298,7 +306,14 @@ export default function Navigation() {
   };
 
   const drawerItems = (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        justifyContent: "space-between",
+      }}
+    >
       <List>
         {(isAuthenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
           t,
@@ -329,7 +344,14 @@ export default function Navigation() {
           </ListItem>
         ))}
       </List>
-    </div>
+
+      <Box
+        sx={{ marginX: "auto", marginBottom: theme.spacing(2) }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <LanguagePickerSelect />
+      </Box>
+    </Box>
   );
 
   const loggedInMenuItems = useMemo(
@@ -431,7 +453,7 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
-              {!isMobile && <LanguagePickerSelect />}
+              {shouldShowLanguagePickerSelect && <LanguagePickerSelect />}
               {!isLoginPage && (
                 <Button
                   variant="outlined"

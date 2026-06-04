@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
+import { clientID as easClientID } from "expo-eas-client";
 import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -172,6 +173,7 @@ export function useNativeDiagnostics(): NativeDiagnostics {
         }
 
         const result = await checkNativeStatus({
+          easClientId: easClientID,
           installId,
           stickyId,
           idfv: deviceIds.idfv,

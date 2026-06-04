@@ -43,6 +43,9 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   if (reminder.completeVerificationReminder) {
     return "complete_verification";
   }
+  if (reminder.confirmHostRequestReminder?.hostRequestId != null) {
+    return `confirm_host_request:${reminder.confirmHostRequestReminder.hostRequestId}`;
+  }
   return null;
 }
 

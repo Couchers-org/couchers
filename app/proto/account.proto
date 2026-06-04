@@ -318,6 +318,11 @@ message RespondToHostRequestReminder {
   org.couchers.api.core.LiteUser surfer_user = 2;
 }
 
+message ConfirmHostRequestReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser host_user = 2;
+}
+
 message WriteReferenceReminder {
   int64 host_request_id = 1;
   org.couchers.api.core.LiteUser other_user = 2;
@@ -331,6 +336,7 @@ message Reminder {
     RespondToHostRequestReminder respond_to_host_request_reminder = 3;
     WriteReferenceReminder write_reference_reminder  = 4;
     CompleteMyHomeReminder complete_my_home_reminder = 5;
+    ConfirmHostRequestReminder confirm_host_request_reminder = 6;
   }
 }
 
