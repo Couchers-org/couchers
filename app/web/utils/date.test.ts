@@ -120,13 +120,37 @@ describe("localizeDateTime", () => {
         timezone: UTC_TIMEZONE,
         locale: "es",
       }),
-    ).toContain("enero");
+    ).toContain("Enero");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "de",
       }),
     ).toContain("Januar");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "pt-BR",
+      }),
+    ).toContain("Janeiro");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "ca",
+      }),
+    ).toContain("Gener");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "zh-Hans",
+      }),
+    ).toContain("1月");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "zh-Hant",
+      }),
+    ).toContain("1月");
   });
 });
 

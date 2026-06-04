@@ -4,6 +4,15 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
+const MINOR_WORDS = new Set(['de', 'del', 'el', 'la', 'los', 'las', 'do', 'da', 'dos', 'das', 'a']);
+
+function capitalizeDateString(dateStr: string): string {
+  return dateStr.replace(/\p{L}+/gu, (word) => {
+    if (MINOR_WORDS.has(word.toLowerCase())) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+}
+
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
@@ -42,7 +51,7 @@ export function localizeDateTime(
     date = date.toDate();
   }
   const format = getIntlDateTimeFormat(args);
-  return format.format(date);
+  return capitalizeDateString(format.format(date));
 }
 
 /// Localizes only the year and month of a date.
@@ -54,13 +63,15 @@ export function localizeYearMonth(
     abbreviate?: boolean;
   },
 ): string {
-  return localizeDateTime(date, {
-    timezone: args.timezone,
-    locale: args.locale,
-    abbreviate: args.abbreviate,
-    includeDay: false,
-    includeTime: false,
-  });
+  return capitalizeDateString(
+    localizeDateTime(date, {
+      timezone: args.timezone,
+      locale: args.locale,
+      abbreviate: args.abbreviate,
+      includeDay: false,
+      includeTime: false,
+    })
+  );
 }
 
 /// Localizes a range of date and times as a string.
@@ -76,7 +87,7 @@ export function localizeDateTimeRange(
     end = end.toDate();
   }
   const format = getIntlDateTimeFormat(args);
-  return format.formatRange(start, end);
+  return capitalizeDateString(format.formatRange(start, end));
 }
 
 // Creating Intl.DateTimeFormat every time is 40x slower.
@@ -147,7 +158,7 @@ export function localizeMonthAbbreviation(
     format = Intl.DateTimeFormat(args.locale, options);
     intlDateTimeFormatCache.set(cacheKey, format);
   }
-  return format.format(date);
+  return capitalizeDateString(format.format(date));
 }
 
 const isoMuiDateFormat = "YYYY-MM-DD";
