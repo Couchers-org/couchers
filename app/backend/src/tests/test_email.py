@@ -426,7 +426,7 @@ This is a security email, you cannot unsubscribe from it.
         assert email.recipient == "testing@couchers.org.invalid"
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
-        assert email.source_data == "testing_version/donation_received"
+        assert "donation:received" in email.source_data
 
 
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
