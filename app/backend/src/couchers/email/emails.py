@@ -1506,7 +1506,7 @@ class OnboardingReminderEmail(EmailBase):
             builder.para(".edit_profile_prompt")
             builder.action(edit_profile_url, ".edit_profile_action")
             builder.para(".share_with_friends")
-            builder.para(".link", { "url": urls.app_link() })
+            builder.para(".link", {"url": urls.app_link()})
             builder.para(".platform_under_development")
             builder.para(".thanks_for_joining")
             builder.para(".signature")
