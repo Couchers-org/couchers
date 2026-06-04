@@ -1,20 +1,21 @@
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
-import { IconButton, Skeleton, styled, Typography } from "@mui/material";
+import { IconButton, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useListUserCommunities } from "features/communities/hooks";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useState } from "react";
 import { routeToCommunity } from "routes";
+import { theme } from "theme";
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 3;
 
-const SectionControls = styled("div")({
+const SectionHeader = styled("div")({
   display: "flex",
-  justifyContent: "flex-end",
   alignItems: "center",
+  justifyContent: "space-between",
   marginBottom: "8px",
 });
 
@@ -45,6 +46,10 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   padding: theme.spacing(1.5),
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: theme.spacing(1),
+}));
+
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
 }));
 
 export default function CommunitiesList() {
@@ -81,40 +86,54 @@ export default function CommunitiesList() {
 
   return (
     <div>
+      <SectionHeader>
+        <Typography variant="h2">
+          {t("dashboard:your_communities_heading")}
+        </Typography>
+        <div>
+          <IconButton
+            size="small"
+            onClick={goPrev}
+            disabled={!hasPrev}
+            color={hasPrev ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.prev_page_label")}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={goNext}
+            disabled={!hasNext}
+            color={hasNext ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.next_page_label")}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
+      </SectionHeader>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
+        <Trans i18nKey="dashboard:your_communities_helper_text">
+          {`You have been added to all communities based on your location. Feel free to `}
+          <StyledBrowseCommunitiesLink href="/communities" underline="hover">
+            browse communities
+          </StyledBrowseCommunitiesLink>
+          {` in other locations as well.`}
+        </Trans>
+      </Typography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
         <GridContainer>
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <SkeletonCard key={i}>
-              <Skeleton width="60%" height={24} />
-              <Skeleton width="40%" height={20} />
-            </SkeletonCard>
+            <SkeletonCard key={i}></SkeletonCard>
           ))}
         </GridContainer>
       ) : communities.length > 0 ? (
         <>
-          {(hasPrev || hasNext) && (
-            <SectionControls>
-              <IconButton
-                size="small"
-                onClick={goPrev}
-                disabled={!hasPrev}
-                color={hasPrev ? "primary" : "default"}
-                aria-label={t("dashboard:discussions.prev_page_label")}
-              >
-                <ArrowBack fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={goNext}
-                disabled={!hasNext}
-                color={hasNext ? "primary" : "default"}
-                aria-label={t("dashboard:discussions.next_page_label")}
-              >
-                <ArrowForward fontSize="small" />
-              </IconButton>
-            </SectionControls>
-          )}
           <GridContainer>
             {communities.map((community) => (
               <CommunityCard
