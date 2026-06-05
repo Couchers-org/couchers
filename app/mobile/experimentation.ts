@@ -3,7 +3,7 @@ import {
   useFeatureValue as useGrowthBookFeatureValue,
 } from "@growthbook/growthbook-react";
 
-// Flags are evaluated locally by the GrowthBook SDK (see features/experimentation/growthbook.ts).
+// Flags are evaluated locally by the GrowthBook SDK (see features/experimentation/FeatureFlagProvider).
 // Always pass an in-code default; it's returned when the flag isn't configured or not yet loaded.
 
 export type JsonValue =

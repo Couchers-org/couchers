@@ -5,8 +5,8 @@ import { reportExposure } from "service/experiments";
 export function recordExposure(
   experiment: Experiment<unknown>,
   result: Result<unknown>,
-): void {
-  void reportExposure({
+) {
+  return reportExposure({
     experimentKey: experiment.key,
     experimentName: experiment.name ?? "",
     variationId: result.variationId,
@@ -19,5 +19,7 @@ export function recordExposure(
     bucket: result.bucket,
     hashUsed: result.hashUsed,
     stickyBucketUsed: result.stickyBucketUsed,
-  }).catch((e) => Sentry.captureException(e));
+  }).catch((e) => {
+    Sentry.captureException(e);
+  });
 }
