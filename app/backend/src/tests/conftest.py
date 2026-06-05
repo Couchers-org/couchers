@@ -224,12 +224,11 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
-    # Default tests to local-file mode with every production boolean gate forced True. This preserves
-    # the prior "everything's enabled in tests" convenience that the old EXPERIMENTATION_PASS_ALL_GATES
-    # provided. Tests that need a specific GrowthBook setup use the `feature_flags` fixture instead.
-    config["FEATURE_FLAGS_ENABLED"] = True
-    config["FEATURE_FLAGS_USE_LOCAL_FILE"] = True
-    config["FEATURE_FLAGS_LOCAL_FILE_PATH"] = ""
+    # Default tests to local-file mode with every production boolean gate forced True. The path is just
+    # a sentinel that selects the mode - the in-memory _local_flags below is the actual source (the file
+    # is never read because _initialized is set directly). Missing keys fall through to their in-code
+    # default and GrowthBook is never contacted. Tests needing a GrowthBook setup use `feature_flags`.
+    config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"] = "feature-flags.dev.json"
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
     config["GROWTHBOOK_CACHE_PATH"] = ""
@@ -302,8 +301,9 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
-    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", False)
+    # Switch to GrowthBook mode (empty local-file path) and clear any local-file values.
+    monkeypatch.setattr(experimentation, "_local_flags", {})
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
 
 

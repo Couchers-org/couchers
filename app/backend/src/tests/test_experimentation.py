@@ -67,13 +67,6 @@ def test_unknown_feature_returns_in_code_default(feature_flags):
     assert context.get_string_value("does_not_exist", "my_default") == "my_default"
 
 
-def test_value_method_returns_in_code_default_when_disabled(monkeypatch, feature_flags):
-    feature_flags.set("global_flag", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", False)
-    context = make_background_user_context(123)
-    assert context.get_string_value("global_flag", "off") == "off"
-
-
 def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_flags):
     # Evaluating an experiment-backed flag for a bucketed user records exactly one exposure - this is
     # the whole point of per-flag evaluation: exposure is logged only for flags the user actually hits.
@@ -186,8 +179,8 @@ def setup_isolation(monkeypatch, tmp_path):
     monkeypatch.setattr(experimentation, "_initialized", False)
     monkeypatch.setattr(experimentation, "_last_fetch_time", None)
     monkeypatch.setattr(experimentation, "_state", {"features": {}, "savedGroups": {}})
-    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", False)
+    monkeypatch.setattr(experimentation, "_local_flags", {})
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     monkeypatch.setitem(config, "GROWTHBOOK_CACHE_PATH", str(tmp_path / "cache.json"))
     yield tmp_path / "cache.json"
     experimentation._refresh_stop.set()
@@ -247,12 +240,15 @@ def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
 
 @pytest.fixture
 def local_file_flags(monkeypatch):
-    """Switch into local-file mode and let tests set values in the in-memory snapshot directly."""
+    """Switch into local-file mode (dev only) and let tests set values in the in-memory snapshot directly.
+
+    A listed flag resolves from the file; an unlisted flag falls through to the in-code default and
+    GrowthBook is never contacted.
+    """
     flags: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_local_flags", flags)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "feature-flags.dev.json")
     return flags
 
 
@@ -290,23 +286,23 @@ def test_local_file_missing_key_records_metric_with_missing_source(local_file_fl
 def test_load_local_flags_from_file(monkeypatch, tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
-    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", str(path))
     monkeypatch.setattr(experimentation, "_local_flags", {})
     experimentation._load_local_flags()
     assert experimentation._local_flags == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
 
 
 def test_load_local_flags_requires_path(monkeypatch):
-    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", "")
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     monkeypatch.setattr(experimentation, "_local_flags", {})
-    with pytest.raises(ValueError, match="FEATURE_FLAGS_LOCAL_FILE_PATH is empty"):
+    with pytest.raises(ValueError, match="FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty"):
         experimentation._load_local_flags()
 
 
 def test_load_local_flags_rejects_non_object(monkeypatch, tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps(["not", "an", "object"]))
-    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", str(path))
     monkeypatch.setattr(experimentation, "_local_flags", {})
     with pytest.raises(ValueError, match="must contain a JSON object"):
         experimentation._load_local_flags()
@@ -317,9 +313,7 @@ def test_setup_in_local_file_mode_loads_file_and_skips_growthbook(monkeypatch, t
     path.write_text(json.dumps({"flag_x": "from_file"}))
     monkeypatch.setattr(experimentation, "_initialized", False)
     monkeypatch.setattr(experimentation, "_local_flags", {})
-    monkeypatch.setitem(config, "FEATURE_FLAGS_ENABLED", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_USE_LOCAL_FILE", True)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_LOCAL_FILE_PATH", str(path))
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", str(path))
     # If GrowthBook were touched, this would blow up.
     monkeypatch.setattr(experimentation, "_fetch_features", lambda: pytest.fail("GrowthBook should not be touched"))
 

@@ -1,13 +1,12 @@
 """
 Feature flag and experimentation framework.
 
-The flag source is picked by config:
-  - FEATURE_FLAGS_ENABLED=False: all evaluations return the in-code default.
-  - FEATURE_FLAGS_ENABLED=True, FEATURE_FLAGS_USE_LOCAL_FILE=True: values are read from a JSON file
-    at FEATURE_FLAGS_LOCAL_FILE_PATH, loaded once at startup. Keys missing from the file fall
-    through to the in-code default. No GrowthBook contact - intended for local dev and tests.
-  - FEATURE_FLAGS_ENABLED=True, FEATURE_FLAGS_USE_LOCAL_FILE=False: values come from GrowthBook, with
-    a background-refreshed in-memory snapshot and a disk cache fallback at startup.
+FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the flag source:
+  - Set (dev only): flags are resolved entirely from that JSON file, loaded once at startup. A key
+    present in the file gives its value; a key absent falls through to the in-code default. GrowthBook
+    is never contacted. Setting it in production is rejected at config check.
+  - Empty: flags come from GrowthBook, with a background-refreshed in-memory snapshot and a disk cache
+    fallback at startup. A flag with no GrowthBook value falls through to the in-code default.
 
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
@@ -55,9 +54,8 @@ _refresh_thread: threading.Thread | None = None
 # load from the API or seed from the disk cache; drives the staleness metric.
 _last_fetch_time: float | None = None
 
-# Flag values loaded from FEATURE_FLAGS_LOCAL_FILE_PATH when FEATURE_FLAGS_USE_LOCAL_FILE is on.
-# Missing keys fall through to the in-code default; this dict is the entire source of flag values
-# in local-file mode.
+# Flag values loaded from FEATURE_FLAGS_FILE_OVERRIDE_PATH in local-file mode (dev only). In that mode this
+# dict is the entire source of flag values; keys absent here fall through to the in-code default.
 _local_flags: dict[str, Any] = {}
 
 
@@ -140,16 +138,16 @@ def _refresh_loop() -> None:
 
 
 def _load_local_flags() -> None:
-    """Load flag values from FEATURE_FLAGS_LOCAL_FILE_PATH into the in-memory snapshot."""
+    """Load the dev-only override flags from FEATURE_FLAGS_FILE_OVERRIDE_PATH into the in-memory layer."""
     global _local_flags
-    path_str = config["FEATURE_FLAGS_LOCAL_FILE_PATH"]
+    path_str = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
     if not path_str:
-        raise ValueError("FEATURE_FLAGS_USE_LOCAL_FILE is on but FEATURE_FLAGS_LOCAL_FILE_PATH is empty")
+        raise ValueError("FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty")
     loaded = json.loads(Path(path_str).read_text())
     if not isinstance(loaded, dict):
         raise ValueError(f"Feature flag local file {path_str} must contain a JSON object")
     _local_flags = loaded
-    logger.info("Loaded %d feature flag(s) from local file %s", len(_local_flags), path_str)
+    logger.info("Loaded %d feature flag override(s) from local file %s", len(_local_flags), path_str)
 
 
 def setup_experimentation() -> None:
@@ -158,20 +156,15 @@ def setup_experimentation() -> None:
 
     Safe to call multiple times - subsequent calls are no-ops. In GrowthBook mode this fetches the
     feature payload once synchronously, then starts a background thread that refreshes every minute;
-    request threads only ever read the in-memory snapshot. In local-file mode it loads the JSON file
-    once. When feature flags are disabled, evaluations short-circuit to in-code defaults.
+    request threads only ever read the in-memory snapshot. In local-file mode (dev only) it loads the
+    JSON file once and never contacts GrowthBook.
     """
     global _initialized, _refresh_thread
 
     if _initialized:
         return
 
-    if not config["FEATURE_FLAGS_ENABLED"]:
-        logger.info("Feature flags disabled, all evaluations return in-code defaults")
-        _initialized = True
-        return
-
-    if config["FEATURE_FLAGS_USE_LOCAL_FILE"]:
+    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
         _load_local_flags()
         _initialized = True
         return
@@ -290,11 +283,11 @@ def _global_evaluator() -> GrowthBook:
 
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which
 # passes its own cached per-request evaluator). get_evaluator is only invoked on the GrowthBook path,
-# so it stays lazy in the disabled and local-file paths.
+# so it stays lazy in local-file mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    if not config["FEATURE_FLAGS_ENABLED"]:
-        return default
-    if config["FEATURE_FLAGS_USE_LOCAL_FILE"]:
+    # Local-file mode (dev only): the file is the entire source - a listed flag gives its value, an
+    # unlisted flag falls through to the in-code default. GrowthBook is never contacted.
+    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
         if flag_key in _local_flags:
             value = _local_flags[flag_key]
             metrics.observe_feature_flag_evaluation(flag_key, "local_file", value)

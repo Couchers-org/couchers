@@ -114,19 +114,16 @@ class Config:
     RECAPTHCA_SITE_KEY: str
     # Whether we're in test
     IN_TEST: bool = False
-    # Feature flag evaluation. When FEATURE_FLAGS_ENABLED is off, every flag falls through to its
-    # in-code default. When on, FEATURE_FLAGS_USE_LOCAL_FILE picks the source: True reads values from
-    # a local JSON file (for dev/test), False uses the GrowthBook integration.
-    FEATURE_FLAGS_ENABLED: bool = False
-    FEATURE_FLAGS_USE_LOCAL_FILE: bool = False
-    # Local JSON file mapping flag keys to values. Used when FEATURE_FLAGS_USE_LOCAL_FILE is on.
-    FEATURE_FLAGS_LOCAL_FILE_PATH: str = ""
-    # GrowthBook SDK configuration; used when FEATURE_FLAGS_USE_LOCAL_FILE is off.
+    # Feature flag source. FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the mode: when set (dev only), flags
+    # are resolved entirely from that JSON file - a key present there gives its value, a key absent
+    # falls through to the in-code default, and GrowthBook is never contacted. When empty, flags are
+    # resolved from GrowthBook (the production path).
+    FEATURE_FLAGS_FILE_OVERRIDE_PATH: str = ""
+    # GrowthBook SDK configuration; the flag source when FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty.
     GROWTHBOOK_API_HOST: str = "https://cdn.growthbook.io"
     GROWTHBOOK_CLIENT_KEY: str = ""
     # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
-    # is unreachable. Required when feature flags are enabled in GrowthBook mode so we never start
-    # on in-code defaults.
+    # is unreachable, so we never start on in-code defaults.
     GROWTHBOOK_CACHE_PATH: str = ""
     # Continuous profiling (Pyroscope). Profiling is gated at runtime by the `profiling_enabled` feature
     # flag; PYROSCOPE_ENABLED is the per-deployment master switch.
@@ -217,15 +214,16 @@ class Config:
             if not self.RECAPTHCA_PROJECT_ID or not self.RECAPTHCA_API_KEY or not self.RECAPTHCA_SITE_KEY:
                 raise Exception("reCAPTCHA credentials must be configured in production")
 
-        if self.FEATURE_FLAGS_ENABLED:
-            if self.FEATURE_FLAGS_USE_LOCAL_FILE:
-                if not self.FEATURE_FLAGS_LOCAL_FILE_PATH:
-                    raise Exception("Feature flags in local-file mode but no FEATURE_FLAGS_LOCAL_FILE_PATH set")
-            else:
-                if not self.GROWTHBOOK_CLIENT_KEY:
-                    raise Exception("No GrowthBook client key but feature flags enabled")
-                if not self.GROWTHBOOK_CACHE_PATH:
-                    raise Exception("No GrowthBook cache path but feature flags enabled")
+            # The local-file flag source is a dev-only convenience; production always resolves via GrowthBook.
+            if self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+                raise Exception("FEATURE_FLAGS_FILE_OVERRIDE_PATH is dev-only and must not be set in production")
+
+        # GrowthBook is the flag source unless the dev-only local file is configured.
+        if not self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+            if not self.GROWTHBOOK_CLIENT_KEY:
+                raise Exception("No GrowthBook client key configured")
+            if not self.GROWTHBOOK_CACHE_PATH:
+                raise Exception("No GrowthBook cache path configured")
 
         if self.PYROSCOPE_ENABLED:
             if not self.PYROSCOPE_SERVER or not self.PYROSCOPE_AUTH_TOKEN:
