@@ -133,8 +133,6 @@ def _refresh_loop() -> None:
 @cache
 def _load_local_flags(path_str: str) -> dict[str, Any]:
     """Read and validate the dev-only override file; cached per path."""
-    if not path_str:
-        raise ValueError("FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty")
     loaded = json.loads(Path(path_str).read_text())
     if not isinstance(loaded, dict):
         raise ValueError(f"Feature flag override file {path_str} must contain a JSON object")

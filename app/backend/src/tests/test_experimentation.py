@@ -259,11 +259,6 @@ def test_load_local_flags_from_file(tmp_path):
     assert experimentation._load_local_flags(str(path)) == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
 
 
-def test_load_local_flags_requires_path():
-    with pytest.raises(ValueError, match="FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty"):
-        experimentation._load_local_flags("")
-
-
 def test_load_local_flags_rejects_non_object(tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps(["not", "an", "object"]))
