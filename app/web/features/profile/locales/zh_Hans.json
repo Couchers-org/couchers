@@ -320,5 +320,18 @@
     "next_photo": "下一张照片",
     "close_viewer": "关闭照片查看器",
     "report_photo": "报告照片"
+  },
+  "complete_profile_dialog": {
+    "title": "只差一步：请填写您的个人资料以继续！",
+    "description_1": "在您能 {{action_name}} 之前，您必须 <4>写一些关于自己的内容</4> 并 <7>上传一张头像</7>。",
+    "description_2": "这有助于建立信任的社区并减少垃圾信息。更多信息，<2>请参阅此帮助页面</2>。感谢您的帮助！",
+    "actions": {
+      "send_request": "发送请求",
+      "send_message": "发送消息",
+      "send_friend_request": "send a friend request",
+      "create_event": "创建活动"
+    },
+    "edit_profile_button": "现在编辑您的个人资料",
+    "cancel_button": "算了"
   }
 }

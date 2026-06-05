@@ -20,5 +20,6 @@ export default function useUserCommunities({
     initialPageParam: undefined,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    staleTime: 10 * 60 * 1000,
   });
 }

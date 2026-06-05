@@ -17,14 +17,14 @@ import {
 import client from "./client";
 
 export async function listHostRequests({
-  lastRequestId = 0,
+  pageToken = "",
   count = 10,
   type = "all",
   onlyActive,
   onlyArchived,
   statusIn,
 }: {
-  lastRequestId?: number;
+  pageToken?: string;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
@@ -44,7 +44,7 @@ export async function listHostRequests({
 
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
-  req.setLastRequestId(lastRequestId);
+  req.setPageToken(pageToken);
   req.setNumber(count);
 
   const response = await client.requests.listHostRequests(req);

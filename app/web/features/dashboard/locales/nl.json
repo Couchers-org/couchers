@@ -4,19 +4,6 @@
   "fill_in_who_i_am": "1. Schrijf bij \"Wie ik ben\" een paar regels over jezelf",
   "upload_photo": "2. Upload een foto (door op je profielfoto te klikken op de Bewerken-pagina)",
   "edit_profile_button_text": "Bewerk je profiel",
-  "complete_profile_dialog": {
-    "actions": {
-      "send_request": "een verzoek doen",
-      "send_message": "een bericht sturen",
-      "create_event": "een event aanmaken",
-      "send_friend_request": "stuur een vriendschapsverzoek"
-    },
-    "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
-    "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",
-    "edit_profile_button": "Bewerk nu je profiel",
-    "cancel_button": "Laat maar",
-    "description_2": "Dit helpt om een vertrouwde community op te bouwen en spam te verminderen. Voor meer informatie, <2>kijk op deze hulppagina</2>. Bedankt voor je hulp!"
-  },
   "complete_profile_explanation": "Vind jij het ook zo vervelend, van die lege \"ghost\" profielen zonder informatie? Ghost ons alsjeblieft niet! 👻👻👻",
   "your_communities_heading": "Jouw communities",
   "welcome": "Welkom bij Couchers.org!",

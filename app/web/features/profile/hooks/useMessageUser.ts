@@ -3,7 +3,6 @@ import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import { useRouter } from "next/router";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
-import { useIsNativeEmbed } from "utils/nativeLink";
 
 interface UseMessageUserParams {
   userId: number;
@@ -17,8 +16,7 @@ export default function useMessageUser({
   setIsMessaging,
 }: UseMessageUserParams) {
   const router = useRouter();
-  const isNativeEmbed = useIsNativeEmbed();
-  const { openGroupChat } = useProfileSheet();
+  const { openGroupChat, openProfileUserId } = useProfileSheet();
 
   return useMutation<number | false, Error>({
     mutationFn: () => service.conversations.getDirectMessage(userId),
@@ -32,7 +30,7 @@ export default function useMessageUser({
       if (!groupChatId) {
         // no existing thread — open inline compose form
         setIsMessaging(true);
-      } else if (isNativeEmbed) {
+      } else if (openProfileUserId !== null) {
         openGroupChat(groupChatId);
       } else {
         router.push(routeToGroupChat(groupChatId));

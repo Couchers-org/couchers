@@ -30,5 +30,12 @@
     "title": "Manage your donations",
     "description": "Click the button below to update or cancel your recurring donation, or to view past invoices.",
     "button_text": "Go to donations management portal"
+  },
+  "logged_out": {
+    "title": "Donation Amount",
+    "body": "Log in to donate so we can give you a donor badge on your profile.",
+    "login_button": "Log in to donate",
+    "signup_prompt": "Don't have an account? <1>Sign up</1>",
+    "anonymous_donation": "To make a one-off donation of ${{ amount }} or more without tying it to an account, contact us at <1>{{ email }}</1>."
   }
 }

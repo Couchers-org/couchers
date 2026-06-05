@@ -437,8 +437,26 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             is_list_operation=True,
         ).where(message_2.id == None)
 
-        if request.last_request_id != 0:
-            statement = statement.where(Message.id < request.last_request_id)
+        sort_by_from_date = request.sort_by == requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
+
+        if sort_by_from_date:
+            if request.page_token:
+                token_date_str, token_conv_id_str = request.page_token.split(":")
+                token_date = parse_date(token_date_str)
+                token_conv_id = int(token_conv_id_str)
+                statement = statement.where(
+                    or_(
+                        HostRequest.from_date > token_date,
+                        and_(
+                            HostRequest.from_date == token_date,
+                            HostRequest.conversation_id > token_conv_id,
+                        ),
+                    )
+                )
+        else:
+            if request.page_token:
+                statement = statement.where(Message.id < int(request.page_token))
+
         if request.only_sent:
             statement = statement.where(HostRequest.initiator_user_id == context.user_id)
         elif request.only_received:
@@ -477,7 +495,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.status_in:
             statement = statement.where(HostRequest.status.in_([api2hostrequeststatus[s] for s in request.status_in]))
 
-        statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
+        if sort_by_from_date:
+            statement = statement.order_by(HostRequest.from_date.asc(), HostRequest.conversation_id.asc())
+        else:
+            statement = statement.order_by(Message.id.desc())
+        statement = statement.limit(pagination + 1)
         results = session.execute(statement).all()
 
         host_requests = []
@@ -505,11 +527,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
             )
 
-        last_request_id = min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0  # TODO
         no_more = len(results) <= pagination
 
+        if len(results) > pagination:
+            if sort_by_from_date:
+                last = results[pagination - 1]
+                next_page_token = f"{date_to_api(last.HostRequest.from_date)}:{last.HostRequest.conversation_id}"
+            else:
+                next_page_token = str(min(g.Message.id for g in results[:pagination]))
+        else:
+            next_page_token = None
+
         return requests_pb2.ListHostRequestsRes(
-            last_request_id=last_request_id, no_more=no_more, host_requests=host_requests
+            next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
         )
 
     def RespondHostRequest(

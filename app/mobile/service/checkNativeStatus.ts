@@ -6,6 +6,7 @@ import client from "@/service/client";
 
 export interface NativeStatusPayload {
   // Identity
+  easClientId: string;
   installId: string;
   stickyId?: string;
   idfv?: string;
@@ -66,6 +67,7 @@ function secondsToDuration(seconds: number | undefined): Duration | null {
 export async function checkNativeStatus(payload: NativeStatusPayload) {
   const req = new CheckNativeStatusReq();
 
+  req.setEasClientId(payload.easClientId);
   req.setInstallId(payload.installId);
   if (payload.stickyId) req.setStickyId(payload.stickyId);
   if (payload.idfv) req.setIdfv(payload.idfv);
