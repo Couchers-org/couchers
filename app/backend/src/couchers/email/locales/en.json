@@ -90,9 +90,61 @@
     "subject": "An email change was initiated on your account",
     "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
   },
+  "email_address_change_confirmation": {
+    "subject": "Confirm your new email for Couchers.org",
+    "context": "You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ old_email }}</b>. This is the final step in the process.",
+    "instructions": "To complete this change, please confirm your email by clicking the following link:",
+    "confirm_action": "Confirm new email"
+  },
   "email_address_verified": {
     "subject": "Email change completed",
     "body": "Your new email address has been verified."
+  },
+  "event": {
+    "generic": {
+      "online_link": "Online",
+      "view_action": "View event"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} invited you to \"{{title}}\"",
+        "body_with_community": "You've been invited to a new event in the {{community}} community:",
+        "body_no_community": "You've been invited to a new event nearby:"
+      },
+      "notification": {
+        "subject": "{{user}} created an event called \"{{title}}\"",
+        "body_with_community": "A new event was created in the {{community}} community:",
+        "body_no_community": "A new event was created nearby:"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} updated \"{{title}}\"",
+      "body": "An event you are subscribed to was updated.",
+      "updated_items": "The following information was updated: <b>{{items_list}}</b>. Here is the updated event:"
+    },
+    "organizer_invited": {
+      "subject": "{{user}} invited you to co-organize \"{{title}}\"",
+      "body": "<b>{{user}}</b> invited you to co-organize \"{{title}}\". The event information is below:",
+      "user_card_text": "Invited you to co-organize the event."
+    },
+    "comment": {
+      "subject": "{{author}} commented on \"{{title}}\"",
+      "body": "<b>{{author}}</b> commented on the event <b>{{title}}</b>:",
+      "event_details": "Here are the details of the event:"
+    },
+    "reminder": {
+      "subject": "Reminder: \"{{title}}\" starts soon",
+      "body": "This is a reminder that the following event is starting in less than 24 hours:"
+    },
+    "cancel": {
+      "subject": "{{user}} cancelled \"{{title}}\"",
+      "body": "An event you are subscribed to has been cancelled:",
+      "user_card_text": "Cancelled the event."
+    },
+    "deleted": {
+      "subject": "A moderator deleted \"{{title}}\"",
+      "body": "An event you are subscribed to has been deleted by the moderators:"
+    }
   },
   "friend_request_received": {
     "subject": "{{name}} wants to be your friend on Couchers.org!",
@@ -201,6 +253,21 @@
   "postal_verification_succeeded": {
     "subject": "Postal Verification succeeded",
     "body": "You have been verified with Postal Verification! Your address has been confirmed."
+  },
+  "signup": {
+    "subject": "Finish signing up for Couchers.org",
+    "closing": "See you in a bit :)",
+    "verify": {
+      "thanks": "Thanks for signing up for Couchers.org!",
+      "instructions": "To finish setting up your account, please click on the following link to confirm your email:",
+      "confirm_action": "Confirm your email address"
+    },
+    "continue": {
+      "request": "Please finish signing up for Couchers.org.",
+      "instructions": "Please click on this link to continue:",
+      "continue_action": "Finish signing up",
+      "ignore_if_unexpected": "If you did not request a signup, someone else did with your email, and you can safely ignore this message."
+    }
   },
   "strong_verification_failed": {
     "subject": "Strong Verification failed",
