@@ -18,11 +18,7 @@ import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { GroupChat, ListGroupChatsRes } from "proto/conversations_pb";
-import {
-  HostRequest,
-  HostRequestSortBy,
-  ListHostRequestsRes,
-} from "proto/requests_pb";
+import { HostRequest, ListHostRequestsRes } from "proto/requests_pb";
 import React, { useMemo } from "react";
 import { routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
@@ -142,6 +138,9 @@ export default function AllMessagesTab() {
     router.push(`/messages/${newFilter}`);
   };
 
+  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
+  const shouldFetchRequests = filter !== "chats";
+
   // Fetch group chats
   const {
     data: chatsData,
@@ -163,6 +162,7 @@ export default function AllMessagesTab() {
         ? undefined
         : lastPage.lastMessageId,
     initialPageParam: undefined,
+    enabled: shouldFetchChats,
   });
 
   // Fetch host requests
@@ -183,13 +183,13 @@ export default function AllMessagesTab() {
         pageToken: pageToken as string | undefined,
         onlyArchived: showArchived,
         type: requestType,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_LAST_ACTIVE,
       }),
     getNextPageParam: (lastPage) =>
       lastPage.noMore || !lastPage.nextPageToken
         ? undefined
         : lastPage.nextPageToken,
     initialPageParam: undefined,
+    enabled: shouldFetchRequests,
   });
 
   const isLoading = chatsLoading || requestsLoading;
@@ -261,9 +261,6 @@ export default function AllMessagesTab() {
     }
     return allMessages;
   }, [allMessages, filter, currentUser?.userId]);
-
-  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
-  const shouldFetchRequests = filter !== "chats";
 
   const hasMoreMessages =
     (shouldFetchChats && chatsHasNextPage) ||
