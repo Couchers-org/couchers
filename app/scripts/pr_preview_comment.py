@@ -53,16 +53,22 @@ def mobile_ota_section(short_sha, domain, platforms):
     names = {"ios": "iOS", "android": "Android"}
     display = {p: names.get(p, p) for p in platforms}
 
-    # A centered paragraph (not a table) keeps the QRs side by side without
-    # GitHub drawing cell borders; the &nbsp; run is the gap between platforms.
-    gap = "&nbsp;" * 12
-    qrs = gap.join(
-        f'<a href="{bases[p]}/open.html"><img src="{bases[p]}/qr.png" '
-        f'alt="QR to open the {display[p]} build" width="200" height="200" /></a>'
+    # GitHub strips inline style, so pad the cell contents with &nbsp; to give
+    # the columns some breathing room.
+    pad = "&nbsp;" * 4
+    lines.append("<table><tr>")
+    lines += [f"<th>{pad}{display[p]}{pad}</th>" for p in platforms]
+    lines.append("</tr><tr>")
+    lines += [
+        f'<td align="center">{pad}<img src="{bases[p]}/qr.png" '
+        f'alt="QR to open the {display[p]} build" width="180" height="180" />{pad}</td>'
         for p in platforms
-    )
-    opens = gap.join(f'<a href="{bases[p]}/open.html">Open {display[p]} in Dev Tool</a>' for p in platforms)
-    lines += ['<p align="center">', qrs, "<br>", opens, "</p>"]
+    ]
+    lines.append("</tr><tr>")
+    lines += [
+        f'<td align="center">{pad}<a href="{bases[p]}/open.html">Open in Dev Tool</a>{pad}</td>' for p in platforms
+    ]
+    lines.append("</tr></table>")
 
     lines += ["", "<details><summary>Deep links</summary>"]
     for platform in platforms:
