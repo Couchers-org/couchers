@@ -792,7 +792,6 @@ class API(api_pb2_grpc.APIServicer):
 
         assert friend_relationship is not None  # set by create_friend_relationship callback
 
-        # the notification is rendered for the recipient, so serialize the sender from their perspective
         notify(
             session,
             user_id=friend_relationship.to_user_id,
@@ -881,7 +880,6 @@ class API(api_pb2_grpc.APIServicer):
 
         session.flush()
 
-        # the notification is rendered for the original requester, so serialize the responder from their perspective
         if friend_request.status == FriendStatus.accepted:
             notify(
                 session,
