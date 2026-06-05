@@ -1,6 +1,6 @@
 import { ArrowBack, ArrowForward, Event } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { RpcError } from "grpc-web";
@@ -9,8 +9,8 @@ import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
 import { useState } from "react";
 import { routeToNewEvent } from "routes";
-import { service } from "service";
 
+import { service } from "../../service";
 import { myEventsKey } from "../queryKeys";
 import EventListRow, {
   EventListContainer,
@@ -34,28 +34,49 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
 }));
 
-const PAGE_SIZE = 3;
-
 export default function MyUpcomingEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
-  const [page, setPage] = useState(1);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const { data, error, isLoading } = useQuery<
-    ListMyEventsRes.AsObject,
-    RpcError
-  >({
-    queryKey: [...myEventsKey("upcoming"), page],
-    queryFn: () =>
+  const {
+    data,
+    error,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
+    queryKey: myEventsKey("upcoming"),
+    queryFn: ({ pageParam: pageToken }) =>
       service.events.listMyEvents({
-        pageNumber: page,
-        pageSize: PAGE_SIZE,
+        pageToken: pageToken as string | undefined,
+        pageSize: 3,
       }),
+    getNextPageParam: (lastPage) =>
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    initialPageParam: undefined as string | undefined,
   });
 
-  const totalItems = data?.totalItems ?? 0;
-  const hasNext = page * PAGE_SIZE < totalItems;
-  const hasPrev = page > 1;
+  const pages = data?.pages ?? [];
+  const isLastLoadedPage =
+    pages.length === 0 || currentPageIndex === pages.length - 1;
+  const currentItems = pages[currentPageIndex]?.eventsList;
+
+  const hasPrev = currentPageIndex > 0;
+  const hasForward = !isLastLoadedPage || !!hasNextPage;
+
+  const handleNext = () => {
+    if (!isLastLoadedPage) {
+      setCurrentPageIndex((i) => i + 1);
+    } else if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+      setCurrentPageIndex((i) => i + 1);
+    }
+  };
+
+  const showingSkeleton =
+    isLoading || (isFetchingNextPage && currentItems === undefined);
 
   return (
     <div>
@@ -72,7 +93,7 @@ export default function MyUpcomingEvents() {
         <div>
           <IconButton
             size="small"
-            onClick={() => setPage((p) => p - 1)}
+            onClick={() => setCurrentPageIndex((i) => i - 1)}
             disabled={!hasPrev}
             color={hasPrev ? "primary" : "default"}
             aria-label={t("dashboard:prev_page_button_a11y")}
@@ -81,9 +102,9 @@ export default function MyUpcomingEvents() {
           </IconButton>
           <IconButton
             size="small"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={!hasNext}
-            color={hasNext ? "primary" : "default"}
+            onClick={handleNext}
+            disabled={!hasForward || isFetchingNextPage}
+            color={hasForward ? "primary" : "default"}
             aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
@@ -91,15 +112,15 @@ export default function MyUpcomingEvents() {
         </div>
       </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
+      {showingSkeleton ? (
         <EventListContainer>
           {[0, 1, 2].map((i) => (
             <EventListRowSkeleton key={i} />
           ))}
         </EventListContainer>
-      ) : data?.eventsList?.length ? (
+      ) : currentItems?.length ? (
         <EventListContainer>
-          {data.eventsList.map((event) => (
+          {currentItems.map((event) => (
             <EventListRow key={event.eventId} event={event} />
           ))}
         </EventListContainer>

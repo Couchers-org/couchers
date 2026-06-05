@@ -15,7 +15,6 @@ import {
   communityKey,
   communityMembersKey,
   communityNearbyUsersKey,
-  listMyCommunitiesDiscussionsKey,
   QueryType,
   subCommunitiesKey,
   threadKey,
@@ -191,19 +190,6 @@ export interface CreateDiscussionInput {
   content: string;
   ownerCommunityId: number;
 }
-
-export const useListMyCommunitiesDiscussions = ({
-  pageSize,
-  pageToken,
-}: {
-  pageSize: number;
-  pageToken?: string;
-}) =>
-  useQuery<ListDiscussionsRes.AsObject, RpcError>({
-    queryKey: [listMyCommunitiesDiscussionsKey],
-    queryFn: () =>
-      service.communities.listMyCommunitiesDiscussions({ pageSize, pageToken }),
-  });
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();

@@ -15,6 +15,7 @@ import {
   ListUserCommunitiesReq,
   SearchCommunitiesReq,
 } from "proto/communities_pb";
+import { ListMyCommunitiesDiscussionsReq } from "proto/discussions_pb";
 
 import client from "./client";
 
@@ -131,7 +132,7 @@ export async function listMyCommunitiesDiscussions({
   pageToken?: string;
   pageSize?: number;
 }) {
-  const req = new ListDiscussionsReq();
+  const req = new ListMyCommunitiesDiscussionsReq();
   if (pageToken) {
     req.setPageToken(pageToken);
   }

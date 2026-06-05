@@ -37,12 +37,13 @@ describe("Community events", () => {
     ).toBeVisible();
     // 3 event row links (no "Browse all" link — navigation uses arrow buttons)
     expect(screen.getAllByRole("link")).toHaveLength(3);
-    expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageNumber: 1,
-      pageSize: 5,
-      myCommunities: true,
-      myCommunitiesExcludeGlobal: true,
-    });
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageSize: 3,
+        myCommunities: true,
+        myCommunitiesExcludeGlobal: true,
+      }),
+    );
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -79,11 +80,10 @@ describe("Community events", () => {
     const firstPage = nonCancelledEvents.slice(0, 2);
     const secondPage = nonCancelledEvents.slice(2);
 
-    listMyEventsMock.mockImplementation(async ({ pageNumber }) => ({
-      eventsList: pageNumber === 2 ? secondPage : firstPage,
-      nextPageToken: "",
-      // totalItems > PAGE_SIZE so the next arrow is enabled on page 1
-      totalItems: 8,
+    listMyEventsMock.mockImplementation(async ({ pageToken }) => ({
+      eventsList: pageToken ? secondPage : firstPage,
+      nextPageToken: pageToken ? "" : "page2_token",
+      totalItems: firstPage.length + secondPage.length,
     }));
 
     render(<CommunityEvents />, { wrapper });
@@ -102,8 +102,8 @@ describe("Community events", () => {
     await screen.findByText(secondPage[0].title);
     expect(screen.queryByText(firstPage[0].title)).not.toBeInTheDocument();
     expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageNumber: 2,
-      pageSize: 5,
+      pageToken: "page2_token",
+      pageSize: 3,
       myCommunities: true,
       myCommunitiesExcludeGlobal: true,
     });

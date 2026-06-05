@@ -37,10 +37,9 @@ describe("My events", () => {
     ).toBeVisible();
     // 3 event row links (no "See all" link — navigation uses arrow buttons)
     expect(screen.getAllByRole("link")).toHaveLength(3);
-    expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageNumber: 1,
-      pageSize: 3,
-    });
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ pageSize: 3 }),
+    );
   });
 
   it("renders the empty state if there are no events", async () => {
