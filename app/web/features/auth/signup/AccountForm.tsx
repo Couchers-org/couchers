@@ -295,8 +295,10 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
+          format="LL"
           inputProps={{
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
+            readOnly: true,
           }}
         />
         <StyledInputLabel htmlFor="location">
