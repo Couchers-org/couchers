@@ -4,7 +4,19 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
-const MINOR_WORDS = new Set(['de', 'del', 'el', 'la', 'los', 'las', 'do', 'da', 'dos', 'das', 'a']);
+const MINOR_WORDS = new Set([
+  "de",
+  "del",
+  "el",
+  "la",
+  "los",
+  "las",
+  "do",
+  "da",
+  "dos",
+  "das",
+  "a",
+]);
 
 function capitalizeDateString(dateStr: string): string {
   return dateStr.replace(/\p{L}+/gu, (word) => {
@@ -70,7 +82,7 @@ export function localizeYearMonth(
       abbreviate: args.abbreviate,
       includeDay: false,
       includeTime: false,
-    })
+    }),
   );
 }
 
