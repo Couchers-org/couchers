@@ -224,9 +224,7 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
-    # Run tests in file-override mode with every production gate forced True via _local_flags below. The
-    # path is just a mode-selecting sentinel (the file is never read). Tests needing GrowthBook use
-    # the `feature_flags` fixture.
+    # File-override mode; gates forced True via _local_flags below. Tests needing GrowthBook use `feature_flags`.
     config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"] = "feature-flags.dev.json"
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""

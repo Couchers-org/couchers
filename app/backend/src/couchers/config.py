@@ -114,8 +114,7 @@ class Config:
     RECAPTHCA_SITE_KEY: str
     # Whether we're in test
     IN_TEST: bool = False
-    # Dev-only: when set, flags are read from this JSON file and GrowthBook is not contacted. Empty in
-    # production, where flags come from GrowthBook.
+    # Dev-only override file; when set, flags are read from it instead of GrowthBook.
     FEATURE_FLAGS_FILE_OVERRIDE_PATH: str = ""
     # GrowthBook (feature flags)
     GROWTHBOOK_API_HOST: str = "https://cdn.growthbook.io"

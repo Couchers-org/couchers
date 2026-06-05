@@ -1,9 +1,8 @@
 """
 Feature flag and experimentation framework.
 
-FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the flag source: when set (dev only) flags come from that
-JSON file and GrowthBook is not contacted; when empty they come from GrowthBook. Unknown flags fall
-through to their in-code default either way.
+FEATURE_FLAGS_FILE_OVERRIDE_PATH (dev only) reads flags from a JSON file instead of GrowthBook;
+unknown flags fall through to their in-code default either way.
 
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
@@ -281,12 +280,7 @@ def _global_evaluator() -> GrowthBook:
 # passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
     if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
-        if flag_key in _local_flags:
-            value = _local_flags[flag_key]
-            metrics.observe_feature_flag_evaluation(flag_key, "local_file", value)
-            return value  # type: ignore[no-any-return]
-        metrics.observe_feature_flag_evaluation(flag_key, "local_file_missing", default)
-        return default
+        return _local_flags.get(flag_key, default)  # type: ignore[no-any-return]
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
     metrics.observe_feature_flag_evaluation(flag_key, result.source, value)

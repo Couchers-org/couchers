@@ -266,19 +266,6 @@ def test_local_file_boolean_value(local_file_flags):
     assert context.get_boolean_value("bool_flag", default=True) is False
 
 
-def test_local_file_records_metric_with_local_file_source(local_file_flags):
-    local_file_flags["metric_local_flag"] = "x"
-    before = _flag_eval_count("metric_local_flag", "local_file", "x")
-    assert experimentation.get_global_string_value("metric_local_flag", "y") == "x"
-    assert _flag_eval_count("metric_local_flag", "local_file", "x") == before + 1
-
-
-def test_local_file_missing_key_records_metric_with_missing_source(local_file_flags):
-    before = _flag_eval_count("absent_local_flag", "local_file_missing", "fallback")
-    assert experimentation.get_global_string_value("absent_local_flag", "fallback") == "fallback"
-    assert _flag_eval_count("absent_local_flag", "local_file_missing", "fallback") == before + 1
-
-
 def test_load_local_flags_from_file(monkeypatch, tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
