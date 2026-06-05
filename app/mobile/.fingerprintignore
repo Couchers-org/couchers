@@ -14,3 +14,7 @@ google-services.json
 # build and its OTA bundles would get different runtimeVersions and never match.
 # Its values only flow into `extra` (skipped) and the generated plist/manifest.
 build-version.json
+
+# eas.json's EXPO_PUBLIC_* env is inlined into the JS bundle and delivered via OTA,
+# so an env tweak mustn't bump the runtimeVersion. Still tracked by fingerprints.full.
+eas.json

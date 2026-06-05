@@ -612,7 +612,8 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
-# Fails when app/mobile/fingerprints no longer matches the computed fingerprints.
+# Checks app/mobile/fingerprints (the runtimeVersion) and fingerprints.full (the
+# review tripwire) against the computed fingerprints.
 test:mobile-fingerprints:
   needs: ["protos"]
   stage: test
