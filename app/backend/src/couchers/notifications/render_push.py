@@ -104,6 +104,9 @@ def render_push_notification(notification: Notification, loc_context: Localizati
             return _render_modnote__create(loc_context)
         case NotificationTopicAction.onboarding__reminder:
             return _render_onboarding__reminder(notification.key, loc_context)
+        case NotificationTopicAction.host_my_home__nudge:
+            # Delivery defaults to email only; this case exists to satisfy exhaustiveness.
+            raise NotImplementedError("host_my_home__nudge is email-only")
         case NotificationTopicAction.password__change:
             return _render_password__change(loc_context)
         case NotificationTopicAction.password_reset__start:
