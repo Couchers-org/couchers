@@ -298,7 +298,6 @@ export default function AccountForm() {
           format="LL"
           inputProps={{
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
-            readOnly: true,
           }}
         />
         <StyledInputLabel htmlFor="location">

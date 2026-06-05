@@ -215,4 +215,39 @@ describe("DatePicker", () => {
     expect(date).toBeDefined();
     expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
+
+  it("uses the locale date format when no format prop is given", async () => {
+    render(<Form setDate={() => {}} />, { wrapper });
+
+    const group = await screen.findByRole("group", { name: /Date field/i });
+
+    // en locale format is MM/DD/YYYY, system time is 2021-03-20
+    expect(group).toHaveTextContent("03/20/2021");
+  });
+
+  it("uses the format prop to override the locale date format", async () => {
+    const FormatForm = () => {
+      const { control } = useForm();
+      return (
+        <Datepicker
+          control={control}
+          error={false}
+          helperText=""
+          id="date-field"
+          testId="datepicker"
+          label="Date field"
+          name="datefield"
+          defaultValue={dayjs("2021-03-20")}
+          format="LL"
+        />
+      );
+    };
+
+    render(<FormatForm />, { wrapper });
+
+    const group = await screen.findByRole("group", { name: /Date field/i });
+
+    // LL is the localized long date format, e.g. "March 20, 2021"
+    expect(group).toHaveTextContent("March 20, 2021");
+  });
 });

@@ -149,6 +149,15 @@ describe("AccountForm", () => {
       });
     });
 
+    it("displays the birthdate in the localized LL format", async () => {
+      const birthdayGroup = await screen.findByRole("group", {
+        name: t("global:components.datepicker.change_date"),
+      });
+
+      // beforeEach types 01011990; with format="LL" it renders as a long date
+      expect(birthdayGroup).toHaveTextContent("January 01, 1990");
+    });
+
     it("lowercases the username before submitting", async () => {
       const usernameField = screen.getByLabelText(
         t("auth:account_form.username.field_label"),
