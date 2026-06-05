@@ -612,13 +612,7 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
-# Verifies that app/mobile/fingerprints matches what
-# `npx expo-updates fingerprint:generate` produces for each release variant on
-# each platform. The fingerprint is the runtimeVersion Expo stamps into a native
-# binary; a change to it means a fresh store build is needed. Pinning the value
-# in the repo turns "did the fingerprint move?" into a file diff, so every
-# branch sees the answer before merge and develop's native-build job uses the
-# diff against the previous develop commit to decide whether to rebuild.
+# Fails when app/mobile/fingerprints no longer matches the computed fingerprints.
 test:mobile-fingerprints:
   needs: ["protos"]
   stage: test

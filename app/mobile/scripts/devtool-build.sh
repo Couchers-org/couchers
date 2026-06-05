@@ -1,28 +1,12 @@
 #!/usr/bin/env bash
-# Rebuild the Couchers Dev Tool native client on EAS when its fingerprint changes.
-#
-# The Dev Tool dev client only needs a fresh native build when the Expo
-# fingerprint (runtimeVersion) changes — a new native module, an app.config.js
-# change, or an Expo SDK bump. Pure JS/TS changes load over the air (see
-# docs/mobile-dev-tool-ota.md), so this no-ops on them. The current fingerprint
-# is read from app/mobile/fingerprints (verified on every branch by
-# test:mobile-fingerprints) and compared against the same file at the previous
-# develop commit; on a change we build a fresh client.
-#
-#   iOS:     eas build --auto-submit -> TestFlight (Apple's tester channel).
-#   Android: eas build -> a sideloadable APK we host ourselves. Google Play has no
-#            TestFlight-equivalent for a dev-client APK (Play distributes AABs
-#            through release tracks, not downloadable installers), so we publish
-#            the APK to the dev-assets bucket at a stable URL devs bookmark.
-#
-# Usage: devtool-build.sh <ios|android>
+# Rebuild the Dev Tool native client on EAS when its fingerprint changes.
+# Usage: devtool-build.sh <ios|android>  (run from app/mobile)
 # Env:   EXPO_TOKEN             EAS auth (build + submit scope)
 #        AWS_PREVIEW_BUCKET     the couchers-dev-assets bucket (hosts the APK)
 #        PREVIEW_DOMAIN         the dev-assets CDN domain (preview.couchershq.org)
 #        CI_COMMIT_SHORT_SHA    tags the immutable APK filename
 #        CI_COMMIT_BEFORE_SHA   GitLab-provided previous HEAD; reads prior file
 #        plus the AWS creds the aws CLI reads from the environment
-# Run from app/mobile (eas.json, the project, and node_modules must be present).
 set -euo pipefail
 
 PLATFORM="${1:?usage: devtool-build.sh <ios|android>}"
@@ -36,17 +20,11 @@ esac
 
 VARIANT=devtool
 
-# Read a single JSON field from stdin with node (no jq in the node:22 image).
+# node, not jq — the node:22 image has no jq.
 json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(String(eval("j"+process.argv[1])??""))})' "$1"; }
 
-# Read the (variant, platform) fingerprint out of an `app/mobile/fingerprints`
-# blob on stdin. The file is one `variant/platform=hash` line per entry; print
-# the first matching value, empty when missing.
 read_fp() { grep -m1 "^${VARIANT}/${PLATFORM}=" | cut -d= -f2-; }
 
-# Current fingerprint comes from the committed file at HEAD. The
-# test:mobile-fingerprints job verifies on every branch that this value matches
-# what `npx expo-updates fingerprint:generate` produces, so we trust it here.
 CURRENT="$(read_fp < fingerprints)"
 [ -n "$CURRENT" ] || {
   echo "Missing fingerprint for $VARIANT/$PLATFORM in app/mobile/fingerprints" >&2
@@ -54,10 +32,8 @@ CURRENT="$(read_fp < fingerprints)"
 }
 echo "current $PLATFORM fingerprint:  $CURRENT"
 
-# Previous fingerprint comes from the same file at CI_COMMIT_BEFORE_SHA. Missing
-# file at the previous commit means this is the migration commit that first
-# introduced fingerprints, where the file should reflect what's already
-# deployed — treat as unchanged.
+# A missing file at the previous commit is the migration commit that introduced
+# fingerprints — treat as unchanged.
 PREVIOUS=""
 PREV_FILE_PRESENT=false
 if [ -n "${CI_COMMIT_BEFORE_SHA:-}" ] && [ "${CI_COMMIT_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
@@ -81,11 +57,9 @@ fi
 echo "Fingerprint changed for $PLATFORM — building a new Dev Tool client."
 
 if [ "$PLATFORM" = "ios" ]; then
-  # Store distribution + auto-submit lands the build in TestFlight; devs update there.
   eas build --platform ios --profile devtool --auto-submit --non-interactive
 else
-  # devtool-apk: internal-distribution APK dev client (extends devtool). Not
-  # submitted anywhere — we download the artifact and host it ourselves.
+  # No Play TestFlight-equivalent for a dev-client APK, so we host it ourselves.
   BUILD_JSON="$(eas build --platform android --profile devtool-apk --non-interactive --json)"
   APK_URL="$(printf '%s' "$BUILD_JSON" | json_field '[0].artifacts.applicationArchiveUrl')"
   [ -n "$APK_URL" ] || {
@@ -95,8 +69,6 @@ else
   echo "APK artifact: $APK_URL"
   curl -fSL "$APK_URL" -o couchers-devtool.apk
 
-  # Immutable per-commit APK (cache forever, no CDN invalidation — matching the OTA
-  # infra), plus a stable landing page devs bookmark that links to the current one.
   PREFIX="devtool-builds/android"
   APK_NAME="couchers-devtool-${CI_COMMIT_SHORT_SHA}.apk"
   HOST="android--devtool-builds.${PREVIEW_DOMAIN}"
