@@ -105,8 +105,6 @@ def _try_get_and_update_user_details(
 
     with session_scope() as session:
         result = session.execute(
-            # compute is_jailed as a column so the two jail checks ride along in this query as EXISTS subqueries,
-            # rather than firing a separate count + relationship lazy-load when we read user.is_jailed below
             select(User, UserSession, User.is_jailed)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
@@ -157,8 +155,7 @@ def _try_get_and_update_user_details(
             )
         )
 
-        # build the result before committing: the default expire_on_commit=True would otherwise expire
-        # every attribute, forcing a fresh SELECT to reload user + user_session when we read them here
+        # build before committing to avoid expire_on_commit reloading these attributes
         auth_info = UserAuthInfo(
             user_id=user.id,
             is_jailed=is_jailed,
