@@ -159,6 +159,10 @@ class CouchersContext:
         self.__verify_interactive()
         return self.__headers
 
+    def get_header(self, name: str) -> str | None:
+        self.__verify_interactive()
+        return cast(str | None, self.__headers.get(name))
+
     @property
     def user_id(self) -> int:
         """

@@ -4,6 +4,7 @@ Native app update decisions for CheckNativeStatus.
 
 import enum
 import logging
+import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -13,10 +14,10 @@ from couchers.proto import bugs_pb2
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_OTA_WARN_DAYS = 21
-DEFAULT_OTA_BLOCK_DAYS = 28
-DEFAULT_STORE_WARN_DAYS = 70
-DEFAULT_STORE_BLOCK_DAYS = 91
+DEFAULT_OTA_WARN_DAYS = 21.0
+DEFAULT_OTA_BLOCK_DAYS = 28.0
+DEFAULT_STORE_WARN_DAYS = 70.0
+DEFAULT_STORE_BLOCK_DAYS = 91.0
 
 
 class Severity(enum.IntEnum):
@@ -44,8 +45,9 @@ class UpdateCause(enum.Enum):
     banned = enum.auto()
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class NativeClientInfo:
+    eas_client_id: uuid.UUID
     platform: str = ""
     runtime_version: str = ""
     update_id: str | None = None
@@ -88,6 +90,7 @@ def client_info_from_request(request: bugs_pb2.CheckNativeStatusReq) -> NativeCl
         is_ota_launch=is_ota_launch,
         binary_created_at=binary_created_at,
         bundle_created_at=bundle_created_at,
+        eas_client_id=uuid.UUID(request.eas_client_id),
     )
 
 
@@ -118,10 +121,10 @@ def decide_native_update(
             action=UpdateAction.ota, severity=Severity.block, act_by=None, cause=UpdateCause.banned
         )
 
-    store_warn = timedelta(days=context.get_integer_value("native_store_warn_days", DEFAULT_STORE_WARN_DAYS))
-    store_block = timedelta(days=context.get_integer_value("native_store_block_days", DEFAULT_STORE_BLOCK_DAYS))
-    ota_warn = timedelta(days=context.get_integer_value("native_ota_warn_days", DEFAULT_OTA_WARN_DAYS))
-    ota_block = timedelta(days=context.get_integer_value("native_ota_block_days", DEFAULT_OTA_BLOCK_DAYS))
+    store_warn = timedelta(days=context.get_float_value("native_store_warn_days", DEFAULT_STORE_WARN_DAYS))
+    store_block = timedelta(days=context.get_float_value("native_store_block_days", DEFAULT_STORE_BLOCK_DAYS))
+    ota_warn = timedelta(days=context.get_float_value("native_ota_warn_days", DEFAULT_OTA_WARN_DAYS))
+    ota_block = timedelta(days=context.get_float_value("native_ota_block_days", DEFAULT_OTA_BLOCK_DAYS))
 
     store_state = Severity.none
     store_deadline: datetime | None = None

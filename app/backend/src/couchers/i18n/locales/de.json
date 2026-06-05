@@ -252,7 +252,13 @@
     "admin_note_requires_exactly_one_of_note_or_data": "Gib genau eines an, admin_note oder data.",
     "invalid_password_login": "Benutzername/E-Mail oder Passwort ist falsch.",
     "deletereference_deprecated_use_ums": "DeleteReference ist veraltet. Verwende das Unified Moderation System (UMS), um eine Referenz auszublenden.",
-    "sms_disabled": "Die SMS-Verifizierung ist derzeit deaktiviert."
+    "sms_disabled": "Die SMS-Verifizierung ist derzeit deaktiviert.",
+    "invalid_ota_manifest": "Es konnte kein gültiges Manifest (runtimeVersion, id, createdAt) von der CDN für diese Version gelesen werden.",
+    "invalid_ota_platform": "Ungültige OTA-Plattform.",
+    "invalid_ota_version": "Eine OTA-Paketversion (CDN-Pfad) ist erforderlich.",
+    "ota_ban_reason_required": "Beim Sperren eines OTA-Pakets ist eine Begründung erforderlich.",
+    "ota_package_already_exists": "Ein OTA-Paket mit dieser Manifest-ID existiert bereits für diese Plattform.",
+    "ota_package_not_found": "OTA-Paket nicht gefunden."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

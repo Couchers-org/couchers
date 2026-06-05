@@ -64,6 +64,14 @@ hostrequeststatus2api = {
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
 }
 
+api2hostrequeststatus = {
+    conversations_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
+    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
+    conversations_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
+    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
+    conversations_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
+}
+
 hostrequestquality2sql = {
     requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: HostRequestQuality.high_quality,
     requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.okay_quality,
@@ -464,7 +472,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     HostRequest.status == HostRequestStatus.confirmed,
                 )
             )
-            statement = statement.where(HostRequest.end_time <= func.now())
+            statement = statement.where(HostRequest.end_time >= func.now())
+
+        if request.status_in:
+            statement = statement.where(HostRequest.status.in_([api2hostrequeststatus[s] for s in request.status_in]))
 
         statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
         results = session.execute(statement).all()

@@ -612,6 +612,24 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
+# Fails when app/mobile/fingerprints no longer matches the computed fingerprints.
+test:mobile-fingerprints:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run fingerprints:check
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -924,7 +942,7 @@ preview:pr-comment:
     - job: preview:mobile-ota-devtool
       artifacts: false
   stage: preview
-  image: python:3.12-slim
+  image: python:3.14-slim
   inherit:
     default: false
   variables:
@@ -948,6 +966,7 @@ build:mobile-native-devtool:
     default: false
   variables:
     APP_VARIANT: devtool
+    GIT_DEPTH: 0
   resource_group: mobile-eas-devtool
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
@@ -979,7 +998,7 @@ build:mobile-ota-staging:
     - cd app/mobile
     - npm ci
     - npx expo config --type public --json > ota-expo-config.json
-    - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
+    - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}.$(date -u -d "$CI_COMMIT_TIMESTAMP" +%Y%m%dZ%H%M).r$(date -u +%Y%m%dZ%H%M%S)"
     - OTA_CDN_BASE="https://next-static.couchershq.org/native/ota/$OTA_VERSION"
     - echo "$STAGING_OTA_PRIVATE_KEY" | base64 -d > ota-staging-private-key.pem
     - |
@@ -993,7 +1012,6 @@ build:mobile-ota-staging:
         node scripts/ota-sign.mjs --dir "ota-staging-out/$P" --key-file ota-staging-private-key.pem --key-id staging
       done
     - rm -f ota-staging-private-key.pem
-    - node scripts/ota-growthbook-flag.mjs --out ota-staging-out --platforms "$OTA_PLATFORMS" | tee ota-staging-out/native_ota_bundles.json
     - echo "OTA_VERSION=$OTA_VERSION" > ota-staging.env
   artifacts:
     reports:
@@ -1004,9 +1022,9 @@ build:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-deploy:mobile-ota-staging:
+preview:mobile-ota-staging:
   needs: ["build:mobile-ota-staging"]
-  stage: deploy
+  stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
@@ -1026,8 +1044,20 @@ deploy:mobile-ota-staging:
         fi
         echo "Published signed $P OTA: https://next-static.couchershq.org/native/ota/$OTA_VERSION/$P/manifest"
       done
-    - echo "Set the staging GrowthBook 'native_ota_bundles' flag (native_ota_cdn_root = https://next-static.couchershq.org/native/ota):"
-    - cat app/mobile/ota-staging-out/native_ota_bundles.json
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+
+deploy:mobile-ota-staging:
+  needs: ["build:mobile-ota-staging", "preview:mobile-ota-staging"]
+  stage: deploy
+  image: python:3.14-slim
+  inherit:
+    default: false
+  variables:
+    BACKEND_SERVER_ADDRESS: "dev-api.couchershq.org:8443"
+  script:
+    - pip install --quiet --no-cache-dir couchers
+    - python3 app/mobile/scripts/ota_create_package.py
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
@@ -1347,6 +1377,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-fingerprints
       artifacts: false
       optional: true
 

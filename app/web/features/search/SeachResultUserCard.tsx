@@ -292,7 +292,7 @@ const SearchResultUserCard = ({
                 </Typography>
               </ProfileLink>
             </FlexRow>
-            {!isNativeEmbed && (
+            {!isNativeEmbed && !isMobile && (
               <StyledLink
                 aria-label={t("profile:open_profile_new_tab")}
                 href={routeToUser(user.username)}
