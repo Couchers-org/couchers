@@ -547,6 +547,42 @@ class DiscussionCommentEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class DonationReceivedEmail(EmailBase):
+    """Sent to a user to thank them for a donation."""
+
+    amount: int
+    receipt_url: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "donation_received"
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".thanks_amount", {"amount": self.amount})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context, standard_closing=False)
+        builder.para(".thanks_amount", {"amount": self.amount})
+        builder.para(".purpose")
+        builder.para(".invoice_receipt_info")
+        builder.action(self.receipt_url, ".download_invoice")
+        builder.para(".tax_acknowledgment")
+        builder.para(".questions_contact")
+        builder.para(".generosity_helps")
+        builder.para(".thank_you")
+        builder.para("generic.founders_signature")
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.DonationReceived, *, user_name: str) -> Self:
+        return cls(user_name=user_name, amount=data.amount, receipt_url=data.receipt_url)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", amount=25, receipt_url="https://couchers.org/receipts/123")]
+
+
+@dataclass(kw_only=True, slots=True)
 class EmailAddressChangedEmail(EmailBase):
     """Sent to a user to notify them that their email address was changed."""
 
@@ -1448,6 +1484,45 @@ class ModeratorNoteEmail(EmailBase):
     @classmethod
     def test_instances(cls) -> list[Self]:
         return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class OnboardingReminderEmail(EmailBase):
+    """Onboarding email sent to new users; initial=True for the first email, False for the second."""
+
+    initial: bool
+
+    @property
+    def string_key_base(self) -> str:
+        return f"onboarding_reminder.{'initial' if self.initial else 'follow_up'}"
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context, standard_closing=False)
+        edit_profile_url = urls.edit_profile_link()
+        if self.initial:
+            builder.para(".welcome")
+            builder.para(".early_user_role")
+            builder.para(".fill_in_profile")
+            builder.para(".edit_profile_prompt")
+            builder.action(edit_profile_url, ".edit_profile_action")
+            builder.para(".share_with_friends")
+            builder.para(".link", {"url": urls.app_link()})
+            builder.para(".platform_under_development")
+            builder.para(".thanks_for_joining")
+            builder.para(".signature")
+        else:
+            builder.para(".intro")
+            builder.para(".fill_in_profile")
+            builder.action(edit_profile_url, ".edit_profile_action")
+            builder.para(".no_empty_accounts")
+            builder.para(".profile_importance")
+            builder.para(".signature")
+        return builder.build()
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(user_name="Alice", initial=True)
+        return [replace(prototype, initial=True), replace(prototype, initial=False)]
 
 
 @dataclass(kw_only=True, slots=True)

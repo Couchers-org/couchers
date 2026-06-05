@@ -393,29 +393,26 @@ def test_send_donation_email(db, monkeypatch):
         assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
         assert (
             email.plain
-            == """Dear Testy von Test,
+            == """Hi Testy von Test,
 
 Thank you so much for your donation of $20 to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
-
 You can download an invoice and receipt for the donation here:
 
-<https://example.com/receipt/12345>
+Download invoice: https://example.com/receipt/12345
 
 Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.
 
-If you have any questions about your donation, please email us at <donations@couchers.org>.
+If you have any questions about your donation, please email us at donations@couchers.org.
 
 Your generosity will help deliver the platform for everyone.
-
 
 Thank you!
 
 Aapeli and Itsi,
 Couchers.org Founders
-
 
 ---
 
@@ -429,7 +426,7 @@ This is a security email, you cannot unsubscribe from it.
         assert email.recipient == "testing@couchers.org.invalid"
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
-        assert email.source_data == "testing_version/donation_received"
+        assert "donation:received" in email.source_data
 
 
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
