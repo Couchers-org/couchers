@@ -211,5 +211,5 @@
     "request_duration_other": "{{count}} nights"
   },
   "unknown_user": "Unknown user",
-  "show_more_actions": "Show more actions"
+  "show_more_actions_button_a11y": "Show more actions"
 }

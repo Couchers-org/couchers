@@ -384,7 +384,7 @@ export default function LoggedInMenu({
             }}
           >
             <IconButton
-              aria-label={t("global:nav.close_menu")}
+              aria-label={t("global:nav.close_menu_a11y")}
               onClick={() => setMenuOpen(false)}
               sx={{
                 backgroundColor: "var(--mui-palette-grey-200)",

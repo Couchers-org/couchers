@@ -174,7 +174,7 @@ export default function ReminderCarousel() {
   return (
     <StyledContainer>
       <StyledArrow
-        aria-label={t("dashboard:scroll.left")}
+        aria-label={t("dashboard:carousel_scroller.left_arrow_a11y")}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
       >
@@ -201,7 +201,7 @@ export default function ReminderCarousel() {
       </StyledScroller>
 
       <StyledArrow
-        aria-label={t("dashboard:scroll.right")}
+        aria-label={t("dashboard:carousel_scroller.right_arrow_a11y")}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
       >

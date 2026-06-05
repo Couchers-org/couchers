@@ -223,7 +223,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation([COMMUNITIES]);
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -232,8 +232,6 @@ export default function MarkdownPage({
     : null;
 
   const crumbs = createBreadcrumbs({ slug, frontmatter });
-  const { tAriaLabel } = useTranslation(COMMUNITIES);
-
   return (
     <>
       <HtmlMeta
@@ -257,7 +255,7 @@ export default function MarkdownPage({
         sx={{ marginTop: theme.spacing(3) }}
       >
         <StyledBreadcrumbs
-          aria-label={tAriaLabel("communities:breadcrumb")}
+          aria-label={t("communities:community_breadcrumb_a11y")}
         >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;

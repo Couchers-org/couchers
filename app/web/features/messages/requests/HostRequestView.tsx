@@ -282,7 +282,7 @@ export default function HostRequestView({
 
         <HeaderButton
           onClick={() => setIsMenuOpen(true)}
-          aria-label={t("show_more_actions")}
+          aria-label={t("show_more_actions_button_a11y")}
           aria-haspopup="true"
           aria-controls="request-menu"
           ref={menuAnchor}

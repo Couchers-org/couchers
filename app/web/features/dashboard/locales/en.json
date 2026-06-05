@@ -102,8 +102,8 @@
     },
     "carousel_dismiss_button_a11y": "Dismiss reminder",
   },
-  "scroll": {
-    "left": "scroll left",
-    "right": "scroll right"
+  "carousel_scroller": {
+    "left_arrow_a11y": "scroll left",
+    "right_arrow_a11y": "scroll right"
   }
 }

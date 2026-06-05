@@ -33,7 +33,7 @@ export default function BarWithHelp({
       <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
         <IconButton
-          aria-label={t("global:bar.help_icon")}
+          aria-label={t("global:bar.help_icon_a11y")}
           size="large"
           sx={{ padding: 0, paddingLeft: theme.spacing(1) }}
         >

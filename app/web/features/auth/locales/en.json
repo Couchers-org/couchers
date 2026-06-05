@@ -98,7 +98,7 @@
       "man": "Man",
       "non_binary": "Non-binary",
       "woman": "Woman",
-      "aria-label": "gender"
+      "selector_a11y": "gender"
     },
     "opt_in_newsletter": "Subscribe to our occasional newsletter about community updates.",
     "tos_prompt": "To continue, please read and accept the <1></1>.",

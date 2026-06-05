@@ -36,7 +36,7 @@ function CancelFriendRequestAction({
         <CenteredSpinner />
       ) : (
         <IconButton
-          aria-label={t("connections:cancel_request")}
+          aria-label={t("connections:cancel_request_button_a11y")}
           onClick={() => {
             reset();
             cancelFriendRequest({ friendRequestId, setMutationError, userId });
