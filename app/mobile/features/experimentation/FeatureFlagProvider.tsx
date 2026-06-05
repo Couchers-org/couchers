@@ -5,11 +5,11 @@ import {
 } from "@growthbook/growthbook";
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { ReactNode, useEffect } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-
-import { recordExposure } from "./exposureLog";
+import { reportExposure } from "@/service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
 const REFRESH_INTERVAL_MS = 60 * 1000;
@@ -33,7 +33,24 @@ setPolyfills({
 const growthbook = new GrowthBook({
   apiHost: process.env.EXPO_PUBLIC_GROWTHBOOK_API_HOST,
   clientKey: process.env.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY,
-  trackingCallback: recordExposure,
+  trackingCallback: (experiment, result) => {
+    return reportExposure({
+      experimentKey: experiment.key,
+      experimentName: experiment.name ?? "",
+      variationId: result.variationId,
+      variationKey: result.key,
+      variationName: result.name ?? "",
+      hashAttribute: result.hashAttribute,
+      hashValue: result.hashValue,
+      featureId: result.featureId ?? "",
+      inExperiment: result.inExperiment,
+      bucket: result.bucket,
+      hashUsed: result.hashUsed,
+      stickyBucketUsed: result.stickyBucketUsed,
+    }).catch((e) => {
+      Sentry.captureException(e);
+    });
+  },
 });
 
 export default function FeatureFlagProvider({

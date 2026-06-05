@@ -1,9 +1,9 @@
 import { configureCache, GrowthBook } from "@growthbook/growthbook";
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
 import { useAuthContext } from "features/auth/AuthProvider";
+import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
-
-import { recordExposure } from "./exposureLog";
+import { reportExposure } from "service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
 const REFRESH_INTERVAL_MS = 60 * 1000;
@@ -15,7 +15,24 @@ configureCache({ staleTTL: CACHE_STALE_TTL_MS });
 const growthbook = new GrowthBook({
   apiHost: process.env.NEXT_PUBLIC_GROWTHBOOK_API_HOST,
   clientKey: process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY,
-  trackingCallback: recordExposure,
+  trackingCallback: (experiment, result) => {
+    return reportExposure({
+      experimentKey: experiment.key,
+      experimentName: experiment.name ?? "",
+      variationId: result.variationId,
+      variationKey: result.key,
+      variationName: result.name ?? "",
+      hashAttribute: result.hashAttribute,
+      hashValue: result.hashValue,
+      featureId: result.featureId ?? "",
+      inExperiment: result.inExperiment,
+      bucket: result.bucket,
+      hashUsed: result.hashUsed,
+      stickyBucketUsed: result.stickyBucketUsed,
+    }).catch((e) => {
+      Sentry.captureException(e);
+    });
+  },
 });
 
 export default function FeatureFlagProvider({
