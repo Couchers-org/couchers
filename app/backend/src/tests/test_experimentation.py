@@ -1,5 +1,4 @@
 import json
-from typing import Any
 
 import pytest
 from growthbook.common_types import FeatureResult
@@ -237,29 +236,19 @@ def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
     assert experimentation.seconds_since_last_fetch() is None
 
 
-@pytest.fixture
-def local_file_flags(monkeypatch):
-    """File-override mode: tests set flag values directly; unlisted flags fall through to the default."""
-    flags: dict[str, Any] = {}
-    monkeypatch.setattr(experimentation, "_load_local_flags", lambda _path: flags)
-    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "feature-flags.dev.json")
-    return flags
-
-
-def test_local_file_value_returned(local_file_flags):
-    local_file_flags["my_flag"] = "from_file"
+def test_flags_value_returned(flags):
+    flags.set_string("my_flag", "from_file")
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("my_flag", "fallback") == "from_file"
 
 
-def test_local_file_missing_key_returns_in_code_default(local_file_flags):
-    local_file_flags["other_flag"] = "x"
+def test_flags_missing_key_returns_in_code_default(flags):
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("missing_flag", "fallback") == "fallback"
 
 
-def test_local_file_boolean_value(local_file_flags):
-    local_file_flags["bool_flag"] = False
+def test_flags_boolean_value(flags):
+    flags.set_boolean("bool_flag", False)
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_boolean_value("bool_flag", default=True) is False
 
