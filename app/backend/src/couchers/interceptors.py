@@ -105,7 +105,9 @@ def _try_get_and_update_user_details(
 
     with session_scope() as session:
         result = session.execute(
-            select(User, UserSession)
+            # compute is_jailed as a column so the two jail checks ride along in this query as EXISTS subqueries,
+            # rather than firing a separate count + relationship lazy-load when we read user.is_jailed below
+            select(User, UserSession, User.is_jailed)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
             .where(User.is_visible)
@@ -117,7 +119,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session = result._tuple()
+        user, user_session, is_jailed = result._tuple()
 
         # update user last active time if it's been a while
         if now() - user.last_active > timedelta(minutes=5):
@@ -155,11 +157,11 @@ def _try_get_and_update_user_details(
             )
         )
 
-        session.commit()
-
-        return UserAuthInfo(
+        # build the result before committing: the default expire_on_commit=True would otherwise expire
+        # every attribute, forcing a fresh SELECT to reload user + user_session when we read them here
+        auth_info = UserAuthInfo(
             user_id=user.id,
-            is_jailed=user.is_jailed,
+            is_jailed=is_jailed,
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
@@ -168,6 +170,10 @@ def _try_get_and_update_user_details(
             token=token,
             is_api_key=is_api_key,
         )
+
+        session.commit()
+
+        return auth_info
 
 
 def abort_handler[T, R](
