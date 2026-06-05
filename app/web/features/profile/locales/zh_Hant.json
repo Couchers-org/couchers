@@ -328,7 +328,6 @@
     "actions": {
       "send_request": "發送請求",
       "send_message": "發送訊息",
-      "send_friend_request": "send a friend request",
       "create_event": "建立活動"
     },
     "edit_profile_button": "現在編輯您的個人資料",
