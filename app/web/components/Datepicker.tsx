@@ -23,6 +23,7 @@ interface DatepickerProps {
   testId?: string;
   variant?: "standard" | "outlined" | "filled";
   inputProps?: InputProps;
+  format?: string;
 }
 
 const Datepicker = ({
@@ -42,6 +43,7 @@ const Datepicker = ({
   testId,
   variant = "standard",
   inputProps = {},
+  format: formatProp,
 }: DatepickerProps) => {
   const { t, i18n } = useTranslation();
   return (
@@ -64,7 +66,7 @@ const Datepicker = ({
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
-          format={getMuiDateFormat(i18n.language)}
+          format={formatProp ?? getMuiDateFormat(i18n.language)}
           slotProps={{
             textField: {
               fullWidth: true,
