@@ -144,9 +144,12 @@ function AppRoute({
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
+  const isPrivateRouteNotReady =
+    isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
+
   return (
     <ErrorBoundary>
-      {isPrivate && (!isMounted || !isAuthenticated || !featuresReady) ? (
+      {isPrivateRouteNotReady ? (
         <CenteredSpinner minHeight="50vh" />
       ) : (
         <>
