@@ -138,6 +138,9 @@ export default function AllMessagesTab() {
     router.push(`/messages/${newFilter}`);
   };
 
+  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
+  const shouldFetchRequests = filter !== "chats";
+
   // Fetch group chats
   const {
     data: chatsData,
@@ -155,8 +158,11 @@ export default function AllMessagesTab() {
         showArchived,
       ),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+      lastPage.noMore || !lastPage.lastMessageId
+        ? undefined
+        : lastPage.lastMessageId,
     initialPageParam: undefined,
+    enabled: shouldFetchChats,
   });
 
   // Fetch host requests
@@ -179,8 +185,11 @@ export default function AllMessagesTab() {
         type: requestType,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.nextPageToken,
+      lastPage.noMore || !lastPage.nextPageToken
+        ? undefined
+        : lastPage.nextPageToken,
     initialPageParam: undefined,
+    enabled: shouldFetchRequests,
   });
 
   const isLoading = chatsLoading || requestsLoading;
@@ -253,13 +262,19 @@ export default function AllMessagesTab() {
     return allMessages;
   }, [allMessages, filter, currentUser?.userId]);
 
-  const hasMoreMessages = chatsHasNextPage || requestsHasNextPage;
-  const isFetchingMore = chatsIsFetchingNextPage || requestsIsFetchingNextPage;
+  const hasMoreMessages =
+    (shouldFetchChats && chatsHasNextPage) ||
+    (shouldFetchRequests && requestsHasNextPage);
+  const isFetchingMore =
+    (shouldFetchChats && chatsIsFetchingNextPage) ||
+    (shouldFetchRequests && requestsIsFetchingNextPage);
 
   const loadMoreMessages = async () => {
     const promises = [];
-    if (chatsHasNextPage) promises.push(chatsFetchNextPage());
-    if (requestsHasNextPage) promises.push(requestsFetchNextPage());
+    if (shouldFetchChats && chatsHasNextPage)
+      promises.push(chatsFetchNextPage());
+    if (shouldFetchRequests && requestsHasNextPage)
+      promises.push(requestsFetchNextPage());
     await Promise.all(promises);
   };
 
