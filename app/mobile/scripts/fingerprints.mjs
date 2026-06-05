@@ -11,8 +11,10 @@ const FILE = resolve(HERE, "..", "fingerprints");
 const VARIANTS = ["devtool", "staging", "production"];
 const PLATFORMS = ["ios", "android"];
 
-const HEADER =
-  "# Expo runtimeVersion fingerprints per variant × platform. Regenerate with: cd app/mobile && npm run fingerprints:write";
+const HEADER = [
+  "# DO NOT EDIT MANUALLY!",
+  "# Regenerate with `cd app/mobile && npm run fingerprints:write`",
+].join("\n");
 
 function compute(variant, platform) {
   const r = spawnSync(

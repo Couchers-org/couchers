@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # Build the staging/production store app on EAS when its fingerprint changes,
 # emitting the build id + fingerprint to a dotenv for native-submit.sh.
-# Usage: native-build.sh <ios|android>  (APP_VARIANT=staging|production, run from app/mobile)
+# Usage: native-build.sh <ios|android>  (run from app/mobile)
+# Env:   APP_VARIANT             staging | production — selects the bundle id /
+#                                scheme / signed updates config and the eas.json
+#                                build profile and the matching fingerprints entry
+#        EXPO_TOKEN              EAS auth (build scope)
+#        CI_COMMIT_BEFORE_SHA    GitLab-provided previous HEAD on this branch;
+#                                used to read the prior fingerprints file
 set -euo pipefail
 
 PLATFORM="${1:?usage: native-build.sh <ios|android>}"

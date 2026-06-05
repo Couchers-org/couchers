@@ -1,4 +1,5 @@
-# Expo runtimeVersion fingerprints per variant × platform. Regenerate with: cd app/mobile && npm run fingerprints:write
+# DO NOT EDIT MANUALLY!
+# Regenerate with `cd app/mobile && npm run fingerprints:write`
 devtool/ios=6b238b87ad144ebdcbc7d49a7359c5f2b9cd5e6f
 devtool/android=6e72ee772e49c553678d854867c22a5d12c23ee1
 staging/ios=db697158b6248b8e15719b562190cc430bb3bc30

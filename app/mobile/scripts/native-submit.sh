@@ -3,7 +3,12 @@
 # native-build.sh's dotenv (empty id => build skipped, nothing to submit).
 # Neither platform makes anything public on its own (iOS → TestFlight, Android →
 # Play internal track); promote to public by hand.
-# Usage: native-submit.sh <ios|android>  (APP_VARIANT=staging|production, run from app/mobile)
+# Usage: native-submit.sh <ios|android>  (run from app/mobile)
+# Env:   APP_VARIANT      staging | production — selects the eas.json submit
+#                         profile and the matching build's binary
+#        EXPO_TOKEN       EAS auth (submit scope)
+#        EAS_BUILD_ID     from the build job's dotenv (empty => nothing to submit)
+#        EAS_FINGERPRINT  from the build job's dotenv (logged for traceability)
 set -euo pipefail
 
 PLATFORM="${1:?usage: native-submit.sh <ios|android>}"

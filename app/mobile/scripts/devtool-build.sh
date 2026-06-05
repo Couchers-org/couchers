@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Rebuild the Dev Tool native client on EAS when its fingerprint changes.
 # Usage: devtool-build.sh <ios|android>  (run from app/mobile)
+# Env:   EXPO_TOKEN             EAS auth (build + submit scope)
+#        AWS_PREVIEW_BUCKET     the couchers-dev-assets bucket (hosts the APK)
+#        PREVIEW_DOMAIN         the dev-assets CDN domain (preview.couchershq.org)
+#        CI_COMMIT_SHORT_SHA    tags the immutable APK filename
+#        CI_COMMIT_BEFORE_SHA   GitLab-provided previous HEAD; reads prior file
+#        plus the AWS creds the aws CLI reads from the environment
 set -euo pipefail
 
 PLATFORM="${1:?usage: devtool-build.sh <ios|android>}"
