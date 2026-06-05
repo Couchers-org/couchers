@@ -1,15 +1,9 @@
-import {
-  configureCache,
-  GrowthBook,
-  setPolyfills,
-} from "@growthbook/growthbook";
+import { configureCache, GrowthBook } from "@growthbook/growthbook";
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Sentry from "@sentry/react-native";
+import { useAuthContext } from "features/auth/AuthProvider";
+import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
-
-import { useAuthContext } from "@/features/auth/AuthContext";
-import { reportExposure } from "@/service/experiments";
+import { reportExposure } from "service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
 const REFRESH_INTERVAL_MS = 60 * 1000;
@@ -18,21 +12,10 @@ const CACHE_STALE_TTL_MS = 5 * 60 * 1000;
 
 configureCache({ staleTTL: CACHE_STALE_TTL_MS });
 
-setPolyfills({
-  localStorage: {
-    getItem: async (key) => {
-      const v = await AsyncStorage.getItem(key);
-      return v != null ? JSON.parse(v) : null;
-    },
-    setItem: async (key, value) => {
-      await AsyncStorage.setItem(key, JSON.stringify(value));
-    },
-  },
-});
-
 const growthbook = new GrowthBook({
-  apiHost: process.env.EXPO_PUBLIC_GROWTHBOOK_API_HOST,
-  clientKey: process.env.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY,
+  apiHost: process.env.NEXT_PUBLIC_GROWTHBOOK_API_HOST,
+  clientKey: process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY,
+  enableDevMode: process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
   trackingCallback: (experiment, result) => {
     return reportExposure({
       experimentKey: experiment.key,
@@ -58,7 +41,7 @@ export default function FeatureFlagProvider({
 }: {
   children: ReactNode;
 }) {
-  const { userId } = useAuthContext();
+  const { authState } = useAuthContext();
 
   useEffect(() => {
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
@@ -70,8 +53,9 @@ export default function FeatureFlagProvider({
   }, []);
 
   useEffect(() => {
+    const userId = authState.userId;
     growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
-  }, [userId]);
+  }, [authState.userId]);
 
   return (
     <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>

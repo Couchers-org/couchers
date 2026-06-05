@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import {
   Divider,
   DividerProps,
@@ -8,7 +9,6 @@ import {
 } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import { useFeatureValue } from "experimentation";
 import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
