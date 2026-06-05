@@ -21,6 +21,7 @@ import logging
 import threading
 import time
 from collections.abc import Callable
+from functools import cache
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
@@ -49,9 +50,6 @@ _refresh_thread: threading.Thread | None = None
 # Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
 # load from the API or seed from the disk cache; drives the staleness metric.
 _last_fetch_time: float | None = None
-
-# Flag values loaded from FEATURE_FLAGS_FILE_OVERRIDE_PATH; the entire flag source in file-override mode.
-_local_flags: dict[str, Any] = {}
 
 
 class ExperimentationNotInitializedError(Exception):
@@ -132,17 +130,16 @@ def _refresh_loop() -> None:
         # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
-def _load_local_flags() -> None:
-    """Load the dev-only override flags from FEATURE_FLAGS_FILE_OVERRIDE_PATH into the in-memory layer."""
-    global _local_flags
-    path_str = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
+@cache
+def _load_local_flags(path_str: str) -> dict[str, Any]:
+    """Read and validate the dev-only override file; cached per path."""
     if not path_str:
         raise ValueError("FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty")
     loaded = json.loads(Path(path_str).read_text())
     if not isinstance(loaded, dict):
-        raise ValueError(f"Feature flag local file {path_str} must contain a JSON object")
-    _local_flags = loaded
-    logger.info("Loaded %d feature flag override(s) from local file %s", len(_local_flags), path_str)
+        raise ValueError(f"Feature flag override file {path_str} must contain a JSON object")
+    logger.info("Loaded %d feature flag override(s) from %s", len(loaded), path_str)
+    return loaded
 
 
 def setup_experimentation() -> None:
@@ -159,8 +156,9 @@ def setup_experimentation() -> None:
     if _initialized:
         return
 
-    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
-        _load_local_flags()
+    override_path = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
+    if override_path:
+        _load_local_flags(override_path)
         _initialized = True
         return
 
@@ -279,8 +277,9 @@ def _global_evaluator() -> GrowthBook:
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which
 # passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
-        return _local_flags.get(flag_key, default)  # type: ignore[no-any-return]
+    override_path = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
+    if override_path:
+        return _load_local_flags(override_path).get(flag_key, default)  # type: ignore[no-any-return]
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
     metrics.observe_feature_flag_evaluation(flag_key, result.source, value)

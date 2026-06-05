@@ -152,7 +152,7 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
 def testconfig():
     prevconfig = config.copy()
     prev_initialized = experimentation._initialized
-    prev_local_flags = experimentation._local_flags
+    prev_load_local_flags = experimentation._load_local_flags
 
     config["IN_TEST"] = True
 
@@ -224,13 +224,13 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
-    # File-override mode; gates forced True via _local_flags below. Tests needing GrowthBook use `feature_flags`.
+    # File-override mode; gates forced True via the stubbed loader below. Tests needing GrowthBook use `feature_flags`.
     config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"] = "feature-flags.dev.json"
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
     config["GROWTHBOOK_CACHE_PATH"] = ""
     experimentation._initialized = True
-    experimentation._local_flags = {
+    experimentation._load_local_flags = lambda _path: {  # type: ignore[assignment]
         "test_growthbook_integration": True,
         "sms_enabled": True,
         "strong_verification_enabled": True,
@@ -267,7 +267,7 @@ def testconfig():
 
     config.copy_from(prevconfig)
     experimentation._initialized = prev_initialized
-    experimentation._local_flags = prev_local_flags
+    experimentation._load_local_flags = prev_load_local_flags
 
 
 class FeatureFlags:
@@ -298,8 +298,7 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
-    # Switch to GrowthBook mode (empty local-file path) and clear any local-file values.
-    monkeypatch.setattr(experimentation, "_local_flags", {})
+    # Switch to GrowthBook mode (empty override path).
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
 
