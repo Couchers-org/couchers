@@ -156,9 +156,8 @@ def setup_experimentation() -> None:
     if _initialized:
         return
 
-    override_path = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
-    if override_path:
-        _load_local_flags(override_path)
+    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
+        _load_local_flags(config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"])
         _initialized = True
         return
 
@@ -277,9 +276,8 @@ def _global_evaluator() -> GrowthBook:
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which
 # passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    override_path = config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]
-    if override_path:
-        return _load_local_flags(override_path).get(flag_key, default)  # type: ignore[no-any-return]
+    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
+        return _load_local_flags(config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]).get(flag_key, default)  # type: ignore[no-any-return]
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
     metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
