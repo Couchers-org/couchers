@@ -581,11 +581,12 @@ class EmailAddressChangeConfirmationEmail(EmailBase):
     def string_key_base(self) -> str:
         return "email_address_change_confirmation"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context, security_warning=True)
         builder.para(".context", {"old_email": self.old_email})
         builder.para(".instructions")
         builder.action(self.confirm_url, ".confirm_action")
-        builder.para(_security_warning_string_key)
+        return builder.build()
 
     @classmethod
     def test_instances(cls) -> list[Self]:
@@ -697,7 +698,8 @@ class EventCreatedEmail(EmailBase):
             loc_context, ".subject", {"user": self.inviting_user.name, "title": self.event_info.title}
         )
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         if self.community_name:
             builder.para(".body_with_community", {"community": self.community_name})
         else:
@@ -706,6 +708,7 @@ class EventCreatedEmail(EmailBase):
         builder.user(self.inviting_user)
         builder.block(self.event_info.get_description_block())
         builder.block(self.event_info.get_view_action_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventCreate, *, user_name: str, is_invite: bool) -> Self:
@@ -759,7 +762,8 @@ class EventUpdatedEmail(EmailBase):
             loc_context, ".subject", {"user": self.updating_user.name, "title": self.event_info.title}
         )
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body")
 
         # TODO(#8875): Localize the updated items
@@ -769,6 +773,7 @@ class EventUpdatedEmail(EmailBase):
         builder.user(self.updating_user)
         builder.block(self.event_info.get_description_block())
         builder.block(self.event_info.get_view_action_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventUpdate, *, user_name: str) -> Self:
@@ -809,13 +814,15 @@ class EventOrganizerInvitedEmail(EmailBase):
             {"user": self.inviting_user.name, "title": self.event_info.title},
         )
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body", {"user": self.inviting_user.name, "title": self.event_info.title})
         builder.block(self.event_info.get_details_block(loc_context))
         builder.user(self.inviting_user, comment_key=".user_card_text")
         builder.block(self.event_info.get_description_block())
         builder.block(self.event_info.get_view_action_block(loc_context))
         builder.para(_do_not_reply_request_string_key)
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventInviteOrganizer, *, user_name: str) -> Self:
@@ -845,13 +852,15 @@ class EventCommentEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.event_info.title})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body", {"author": self.author.name, "title": self.event_info.title})
         builder.user(self.author)
         builder.quote(self.comment_markdown, markdown=True)
         builder.para(".event_details")
         builder.block(self.event_info.get_details_block(loc_context))
         builder.block(self.event_info.get_view_action_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventComment, *, user_name: str) -> Self:
@@ -887,11 +896,13 @@ class EventReminderEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"title": self.event_info.title})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body")
         builder.block(self.event_info.get_details_block(loc_context))
         builder.block(self.event_info.get_description_block())
         builder.block(self.event_info.get_view_action_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventReminder, *, user_name: str) -> Self:
@@ -923,12 +934,14 @@ class EventCancelledEmail(EmailBase):
             {"user": self.cancelling_user.name, "title": self.event_info.title},
         )
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body")
         builder.block(self.event_info.get_details_block(loc_context))
         builder.user(self.cancelling_user, ".user_card_text")
         builder.quote(self.event_info.description_markdown, markdown=True)
         builder.block(self.event_info.get_view_action_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventCancel, *, user_name: str) -> Self:
@@ -956,9 +969,11 @@ class EventDeletedEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"title": self.event_info.title})
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body")
         builder.block(self.event_info.get_details_block(loc_context))
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventDelete, *, user_name: str) -> Self:
@@ -1629,11 +1644,13 @@ class SignupVerifyEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, "signup.subject")
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".thanks")
         builder.para(".instructions")
         builder.action(self.verify_url, ".confirm_action")
         builder.para("signup.closing")
+        return builder.build()
 
     @classmethod
     def test_instances(cls) -> list[Self]:
@@ -1653,12 +1670,14 @@ class SignupContinueEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, "signup.subject")
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".request")
         builder.para(".instructions")
         builder.action(self.continue_url, ".continue_action")
         builder.para("signup.closing")
         builder.para(".ignore_if_unexpected")
+        return builder.build()
 
     @classmethod
     def test_instances(cls) -> list[Self]:
