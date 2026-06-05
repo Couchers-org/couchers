@@ -5,19 +5,6 @@
   "fill_in_who_i_am": "1. Fülle den Abschnitt „Wer ich bin“ mit ein paar Sätzen über dich selbst aus",
   "edit_profile_button_text": "Bearbeite dein Profil",
   "dashboard": "Übersicht",
-  "complete_profile_dialog": {
-    "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
-    "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
-    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über dich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
-    "actions": {
-      "send_request": "Eine Anfrage senden",
-      "send_message": "Eine Nachricht senden",
-      "create_event": "Erstelle ein Event",
-      "send_friend_request": "Eine Freundschafts-Anfrage senden"
-    },
-    "edit_profile_button": "Jetzt dein Profil bearbeiten",
-    "cancel_button": "Doch nicht"
-  },
   "find_a_host": "Finde einen Host",
   "browse_communities": "Communitys durchsuchen",
   "search_input_label": "Wo gehst du hin?",

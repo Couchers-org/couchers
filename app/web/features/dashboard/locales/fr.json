@@ -2,18 +2,6 @@
   "upload_photo": "2. Ajouter une photo (en cliquant sur l'avatar sur la page de modification)",
   "edit_profile_button_text": "Modifier votre profil",
   "please_complete_profile": "Veuillez compléter votre profil afin d'apparaître dans les résultats de recherche :",
-  "complete_profile_dialog": {
-    "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
-    "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
-    "actions": {
-      "send_request": "demander une demande à séjourner",
-      "send_message": "envoyer un message",
-      "create_event": "créer un événement"
-    },
-    "edit_profile_button": "Modifier votre profil",
-    "cancel_button": "Qu'à cela ne tienne !",
-    "description_2": "Cela contribue à bâtir une communauté de confiance et à réduire le spam. Pour plus d'informations, <2>veuillez consulter cette page d'aide</2>. Merci pour votre aide !"
-  },
   "fill_in_who_i_am": "1. Remplissez la section « Qui suis-je » avec quelques phrases à propos de vous",
   "complete_profile_explanation": "Ne détestez-vous pas la façon dont les autres plateformes ont des profils « fantômes » vides et sans aucune information ? S'il vous plaît, ne nous faites pas ghosté ! 👻👻👻",
   "dashboard": "Tableau de bord",

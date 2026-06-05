@@ -169,5 +169,18 @@
     "request_chars_remaining_few": "Napiš ještě alespoň {{count}} znaky, aby bylo možné odeslat žádost o ubytování.",
     "request_chars_remaining_other": "Napiš ještě alespoň {{count}} znaků, aby bylo možné odeslat žádost o ubytování."
   },
-  "do_not_email_error_link": "Uprav si nastavení e-mailů, pro reaktivaci."
+  "do_not_email_error_link": "Uprav si nastavení e-mailů, pro reaktivaci.",
+  "complete_profile_dialog": {
+    "actions": {
+      "send_request": "odeslat žádost",
+      "send_message": "poslat zprávu",
+      "create_event": "vytvořit událost",
+      "send_friend_request": "send a friend request"
+    },
+    "title": "Už jsme skoro hotoví: prosím, dokonči svůj profil, abychom mohli pokračovat!",
+    "description_2": "Pomáhá nám to budovat důvěryhodnou komunitu a snižovat množství spamu. Pro více informací <2>se podívej na tuto stránku nápovědy</2>. Děkujeme za tvou pomoc!",
+    "edit_profile_button": "Upravit si svůj profil nyní",
+    "cancel_button": "To nevadí",
+    "description_1": "Než budeš moci {{action_name}}, musíš ve svém profilu <4>napsat něco o sobě</4> a <7>nahrát profilovou fotografii</7>."
+  }
 }
