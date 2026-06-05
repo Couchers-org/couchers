@@ -27,6 +27,10 @@ def edit_profile_link() -> str:
     return f"{config['BASE_URL']}/profile/edit"
 
 
+def edit_home_link() -> str:
+    return f"{config['BASE_URL']}/profile/edit/home"
+
+
 def signup_link(*, token: str) -> str:
     return f"{config['BASE_URL']}/signup?token={token}"
 

@@ -162,6 +162,14 @@
       "body": "<b>{{other_name}}</b> cancelled their host request:"
     }
   },
+  "host_my_home_nudge": {
+    "subject": "Get ready to host a couch surfer",
+    "preview": "Travellers are looking for a host in your area &mdash; finish your My Home section to start showing up.",
+    "intro": "You signed up as someone who's open to hosting on Couchers.org, and there are travellers passing through who would love to stay with you.",
+    "details": "The last step before surfers can find you and send you a request is your \"My Home\" section: a bit about your place, how many guests you can take, and your sleeping arrangement.",
+    "cta_action": "Complete your My Home section",
+    "closing": "It only takes a couple of minutes, and once it's done you'll start showing up to people searching to stay in your area."
+  },
   "moderator_note": {
     "subject": "You have received a mod note",
     "body": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."

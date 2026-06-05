@@ -987,6 +987,28 @@ class HostRequestStatusChangedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class HostMyHomeNudgeEmail(EmailBase):
+    """Sent to a host-status user who hasn't filled in their "My Home" section."""
+
+    @property
+    def string_key_base(self) -> str:
+        return "host_my_home_nudge"
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".preview")
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".intro")
+        builder.para(".details")
+        builder.action(urls.edit_home_link(), ".cta_action")
+        builder.para(".closing")
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
 class ModeratorNoteEmail(EmailBase):
     """Sent to a user to notify them they have received a moderator note."""
 

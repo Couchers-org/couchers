@@ -131,6 +131,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
+        case NotificationTopicAction.host_my_home__nudge:
+            return emails.HostMyHomeNudgeEmail(user_name=user_name)
         case NotificationTopicAction.host_request__create:
             return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
@@ -555,6 +557,8 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
             return "accepted friend requests"
         case NotificationTopicAction.onboarding__reminder:
             return "onboarding emails"
+        case NotificationTopicAction.host_my_home__nudge:
+            return "hosting nudges"
         case NotificationTopicAction.postal_verification__postcard_sent:
             return "postal verification postcards"
         case NotificationTopicAction.general__new_blog_post:

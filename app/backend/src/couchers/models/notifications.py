@@ -155,6 +155,7 @@ class NotificationTopicAction(enum.Enum):
     donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
     onboarding__reminder = ("onboarding:reminder", dt_sec, False, empty_pb2.Empty)
+    host_my_home__nudge = ("host_my_home:nudge", [dt.email], False, empty_pb2.Empty)
 
     modnote__create = ("modnote:create", dt_sec, True, empty_pb2.Empty)
 

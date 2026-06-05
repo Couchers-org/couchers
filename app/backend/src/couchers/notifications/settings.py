@@ -205,6 +205,13 @@ settings_layout = [
                 ],
             ),
             (
+                "host_my_home",
+                "Hosting Nudges",
+                [
+                    NotificationTopicAction.host_my_home__nudge,
+                ],
+            ),
+            (
                 "badge",
                 "Updates to Badges on your profile",
                 [

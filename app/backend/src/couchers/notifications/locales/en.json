@@ -352,6 +352,11 @@
       }
     }
   },
+  "host_my_home": {
+    "nudge": {
+      "event_description": "Reminder to fill in your My Home section so you can host"
+    }
+  },
   "password": {
     "change": {
       "event_description": "Your password is changed",
