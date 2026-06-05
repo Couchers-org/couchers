@@ -114,12 +114,10 @@ class Config:
     RECAPTHCA_SITE_KEY: str
     # Whether we're in test
     IN_TEST: bool = False
-    # Feature flag source. FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the mode: when set (dev only), flags
-    # are resolved entirely from that JSON file - a key present there gives its value, a key absent
-    # falls through to the in-code default, and GrowthBook is never contacted. When empty, flags are
-    # resolved from GrowthBook (the production path).
+    # Dev-only: when set, flags are read from this JSON file and GrowthBook is not contacted. Empty in
+    # production, where flags come from GrowthBook.
     FEATURE_FLAGS_FILE_OVERRIDE_PATH: str = ""
-    # GrowthBook SDK configuration; the flag source when FEATURE_FLAGS_FILE_OVERRIDE_PATH is empty.
+    # GrowthBook (feature flags)
     GROWTHBOOK_API_HOST: str = "https://cdn.growthbook.io"
     GROWTHBOOK_CLIENT_KEY: str = ""
     # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
@@ -214,11 +212,9 @@ class Config:
             if not self.RECAPTHCA_PROJECT_ID or not self.RECAPTHCA_API_KEY or not self.RECAPTHCA_SITE_KEY:
                 raise Exception("reCAPTCHA credentials must be configured in production")
 
-            # The local-file flag source is a dev-only convenience; production always resolves via GrowthBook.
             if self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
                 raise Exception("FEATURE_FLAGS_FILE_OVERRIDE_PATH is dev-only and must not be set in production")
 
-        # GrowthBook is the flag source unless the dev-only local file is configured.
         if not self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
             if not self.GROWTHBOOK_CLIENT_KEY:
                 raise Exception("No GrowthBook client key configured")

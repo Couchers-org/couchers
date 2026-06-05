@@ -240,11 +240,7 @@ def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
 
 @pytest.fixture
 def local_file_flags(monkeypatch):
-    """Switch into local-file mode (dev only) and let tests set values in the in-memory snapshot directly.
-
-    A listed flag resolves from the file; an unlisted flag falls through to the in-code default and
-    GrowthBook is never contacted.
-    """
+    """File-override mode: tests set flag values directly; unlisted flags fall through to the default."""
     flags: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_local_flags", flags)

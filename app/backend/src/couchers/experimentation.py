@@ -1,12 +1,9 @@
 """
 Feature flag and experimentation framework.
 
-FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the flag source:
-  - Set (dev only): flags are resolved entirely from that JSON file, loaded once at startup. A key
-    present in the file gives its value; a key absent falls through to the in-code default. GrowthBook
-    is never contacted. Setting it in production is rejected at config check.
-  - Empty: flags come from GrowthBook, with a background-refreshed in-memory snapshot and a disk cache
-    fallback at startup. A flag with no GrowthBook value falls through to the in-code default.
+FEATURE_FLAGS_FILE_OVERRIDE_PATH selects the flag source: when set (dev only) flags come from that
+JSON file and GrowthBook is not contacted; when empty they come from GrowthBook. Unknown flags fall
+through to their in-code default either way.
 
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
@@ -54,8 +51,7 @@ _refresh_thread: threading.Thread | None = None
 # load from the API or seed from the disk cache; drives the staleness metric.
 _last_fetch_time: float | None = None
 
-# Flag values loaded from FEATURE_FLAGS_FILE_OVERRIDE_PATH in local-file mode (dev only). In that mode this
-# dict is the entire source of flag values; keys absent here fall through to the in-code default.
+# Flag values loaded from FEATURE_FLAGS_FILE_OVERRIDE_PATH; the entire flag source in file-override mode.
 _local_flags: dict[str, Any] = {}
 
 
@@ -282,11 +278,8 @@ def _global_evaluator() -> GrowthBook:
 
 
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which
-# passes its own cached per-request evaluator). get_evaluator is only invoked on the GrowthBook path,
-# so it stays lazy in local-file mode.
+# passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    # Local-file mode (dev only): the file is the entire source - a listed flag gives its value, an
-    # unlisted flag falls through to the in-code default. GrowthBook is never contacted.
     if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
         if flag_key in _local_flags:
             value = _local_flags[flag_key]
