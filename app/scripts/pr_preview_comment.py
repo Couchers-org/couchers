@@ -50,23 +50,23 @@ def mobile_ota_section(short_sha, domain, platforms):
     ]
 
     bases = {p: f"https://{short_sha}--ota.{domain}/{p}" for p in platforms}
+    names = {"ios": "iOS", "android": "Android"}
+    display = {p: names.get(p, p) for p in platforms}
 
-    # Raw HTML table so the per-platform QRs render side by side.
-    lines.append("<table><tr>")
-    lines += [f"<th>{p}</th>" for p in platforms]
-    lines.append("</tr><tr>")
-    lines += [
-        f'<td align="center"><img src="{bases[p]}/qr.png" '
-        f'alt="QR to open the {p} build" width="180" height="180" /></td>'
+    # A centered paragraph (not a table) keeps the QRs side by side without
+    # GitHub drawing cell borders; the &nbsp; run is the gap between platforms.
+    gap = "&nbsp;" * 12
+    qrs = gap.join(
+        f'<a href="{bases[p]}/open.html"><img src="{bases[p]}/qr.png" '
+        f'alt="QR to open the {display[p]} build" width="200" height="200" /></a>'
         for p in platforms
-    ]
-    lines.append("</tr><tr>")
-    lines += [f'<td align="center"><a href="{bases[p]}/open.html">Open in Dev Tool</a></td>' for p in platforms]
-    lines.append("</tr></table>")
+    )
+    opens = gap.join(f'<a href="{bases[p]}/open.html">Open {display[p]} in Dev Tool</a>' for p in platforms)
+    lines += ['<p align="center">', qrs, "<br>", opens, "</p>"]
 
     lines += ["", "<details><summary>Deep links</summary>"]
     for platform in platforms:
-        lines += ["", f"**{platform}**", "", "```", deep_link(f"{bases[platform]}/manifest"), "```"]
+        lines += ["", f"**{display[platform]}**", "", "```", deep_link(f"{bases[platform]}/manifest"), "```"]
     lines.append("</details>")
     return "\n".join(lines)
 
