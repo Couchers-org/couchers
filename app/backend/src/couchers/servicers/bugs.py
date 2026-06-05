@@ -23,6 +23,7 @@ from couchers.metrics import (
     observe_native_banned_bundle_hit,
     observe_native_binary_age,
     observe_native_bundle_age,
+    observe_native_client_checkin,
     observe_native_ota_manifest_request,
     observe_native_update_decision,
 )
@@ -126,12 +127,27 @@ def _newest_non_banned_ota_package(session: Session, platform: str, fingerprint:
     ).scalar_one_or_none()
 
 
-def _observe_native_check_metrics(info: NativeClientInfo, decision: Any, now: datetime, *, banned: bool) -> None:
+def _observe_native_check_metrics(
+    request: bugs_pb2.CheckNativeStatusReq,
+    info: NativeClientInfo,
+    decision: Any,
+    now: datetime,
+    *,
+    banned: bool,
+) -> None:
     if info.binary_created_at is not None:
         observe_native_binary_age(info.platform, (now - info.binary_created_at).total_seconds())
     if info.bundle_created_at is not None:
         observe_native_bundle_age(info.platform, info.is_ota_launch, (now - info.bundle_created_at).total_seconds())
     observe_native_update_decision(info.platform, decision.action.name, decision.severity.name)
+    observe_native_client_checkin(
+        platform=info.platform,
+        is_ota_launch=info.is_ota_launch,
+        embedded_display_version=request.embedded_display_version,
+        embedded_runtime_version=info.runtime_version,
+        ota_display_version=request.running_display_version if info.is_ota_launch else "",
+        ota_update_id=info.update_id or "",
+    )
     if banned:
         observe_native_banned_bundle_hit(info.platform)
 
@@ -327,7 +343,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                     f"newest_non_banned_created_at={None if newest is None else newest.manifest_created_at})"
                 )
 
-        _observe_native_check_metrics(info, decision, now, banned=banned)
+        _observe_native_check_metrics(request, info, decision, now, banned=banned)
 
         if context.is_logged_in():
             session.add(NativeClientUser(eas_client_id=info.eas_client_id, user_id=context.user_id))
