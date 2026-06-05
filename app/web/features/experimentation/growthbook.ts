@@ -2,9 +2,7 @@ import { FeatureApiResponse, GrowthBook } from "@growthbook/growthbook";
 
 import { recordExposure } from "./exposureLog";
 
-const FLAGS_URL =
-  process.env.NEXT_PUBLIC_FEATURE_FLAGS_URL ||
-  "https://cdn.couchers.org/express/current.json";
+const FLAGS_URL = process.env.NEXT_PUBLIC_FEATURE_FLAGS_URL!;
 const CACHE_KEY = "featureFlagsPayload";
 // At startup we reuse the cache without a network fetch unless it's older than this.
 const CACHE_MAX_AGE_MS = 5 * 60 * 1000;
