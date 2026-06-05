@@ -8,10 +8,15 @@ from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from typing import Self, assert_never
 
+from markupsafe import Markup, escape
+
 from couchers import urls
 from couchers.email.rendering import (
+    ActionBlock,
     EmailBlock,
     EmailBlocksBuilder,
+    ParaBlock,
+    QuoteBlock,
     UserInfo,
     get_emails_i18next,
 )
@@ -19,7 +24,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.i18n.localize import format_phone_number
 from couchers.notifications.quick_links import generate_quick_decline_link
-from couchers.proto import conversations_pb2, notification_data_pb2
+from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 
 
 @dataclass
@@ -456,7 +461,7 @@ class DiscussionCreatedEmail(EmailBase):
                 user_name="Alice",
                 author=UserInfo.dummy_bob(),
                 title="Best hiking trails near Berlin",
-                parent_context="Berlin Community",
+                parent_context="Berlin",
                 markdown_text="I've been exploring the area and found some **great** spots...",
                 view_link="https://couchers.org/discussions/123",
             )
@@ -514,7 +519,7 @@ class DiscussionCommentEmail(EmailBase):
                 user_name="Alice",
                 author=UserInfo.dummy_bob(),
                 discussion_title="Best hiking trails near Berlin",
-                discussion_parent_context="Berlin Community",
+                discussion_parent_context="Berlin",
                 markdown_text="Great recommendations, I also **love** the Grünewald forest!",
                 view_link="https://couchers.org/discussions/123",
             )
@@ -559,6 +564,373 @@ class EmailAddressVerifiedEmail(EmailBase):
     @classmethod
     def test_instances(cls) -> list[Self]:
         return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventInfo:
+    """Common display fields for an event, extracted from its proto representation."""
+
+    title: str
+    start_time: datetime
+    end_time: datetime
+    online_link: str | None
+    address: str | None
+    view_url: str
+    description_markdown: str
+
+    def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
+        # TODO(#8695): Support localized time ranges
+        start_time_display = loc_context.localize_datetime(self.start_time, with_year=False, with_day_of_week=True)
+        end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
+        time_range_display = f"{start_time_display} - {end_time_display}"
+
+        # Format the following. Only "Online" is translated and it's on its own line,
+        # so the string concatenation is fine.
+        # **<title>**
+        # <datetime-range>
+        # *<address> / [Online](<online_link>)*
+        html = f"<b>{escape(self.title)}</b>"
+        html += "<br>"
+        html += time_range_display
+        if self.online_link:
+            html += "<br>"
+            online_link_text = get_emails_i18next().localize("event.generic.online_link", loc_context.locale)
+            html += f'<i><a href="{escape(self.online_link)}">{escape(online_link_text)}</a></i>'
+        elif self.address:
+            html += "<br>"
+            html += f"<i>{escape(self.address)}</i>"
+
+        return ParaBlock(text=Markup(html))
+
+    def get_description_block(self) -> EmailBlock:
+        return QuoteBlock(text=Markup(self.description_markdown), markdown=True)
+
+    def get_view_action_block(self, loc_context: LocalizationContext) -> EmailBlock:
+        view_action_text = get_emails_i18next().localize("event.generic.view_action", loc_context.locale)
+        return ActionBlock(text=view_action_text, target_url=self.view_url)
+
+    @classmethod
+    def from_proto(cls, event: events_pb2.Event) -> EventInfo:
+        return cls(
+            title=event.title,
+            start_time=event.start_time.ToDatetime(tzinfo=UTC),
+            end_time=event.end_time.ToDatetime(tzinfo=UTC),
+            online_link=event.online_information.link or None,
+            address=event.offline_information.address or None,
+            view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
+            description_markdown=event.content or "",
+        )
+
+    @staticmethod
+    def dummy() -> EventInfo:
+        return EventInfo(
+            title="Berlin Meetup",
+            start_time=datetime(2025, 7, 15, 18, 0, 0, tzinfo=UTC),
+            end_time=datetime(2025, 7, 15, 21, 0, 0, tzinfo=UTC),
+            online_link=None,
+            address="Alexanderplatz, Berlin",
+            view_url="https://couchers.org/events/123/berlin-community-meetup",
+            description_markdown="Come join us for our monthly meetup!",
+        )
+
+
+@dataclass(kw_only=True, slots=True)
+class EventCreatedEmail(EmailBase):
+    """Sent when a user is invited to an event (create_approved) or a new event is created (create_any)."""
+
+    inviting_user: UserInfo
+    event_info: EventInfo
+    community_name: str | None
+    community_url: str | None
+    is_invite: bool  # True = create_approved (invitation), False = create_any
+
+    @property
+    def string_key_base(self) -> str:
+        return f"event.created.{'invitation' if self.is_invite else 'notification'}"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, ".subject", {"user": self.inviting_user.name, "title": self.event_info.title}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        if self.community_name:
+            builder.para(".body_with_community", {"community": self.community_name})
+        else:
+            builder.para(".body_no_community")
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.user(self.inviting_user)
+        builder.block(self.event_info.get_description_block())
+        builder.block(self.event_info.get_view_action_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventCreate, *, user_name: str, is_invite: bool) -> Self:
+        has_community = bool(data.in_community.community_id)
+        community_url = (
+            urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
+            if has_community
+            else None
+        )
+        return cls(
+            user_name=user_name,
+            inviting_user=UserInfo.from_protobuf(data.inviting_user),
+            event_info=EventInfo.from_proto(data.event),
+            community_name=data.in_community.name if has_community else None,
+            community_url=community_url,
+            is_invite=is_invite,
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            inviting_user=UserInfo.dummy_bob(),
+            event_info=EventInfo.dummy(),
+            community_name="Berlin",
+            community_url="https://couchers.org/community/1/berlin-community",
+            is_invite=True,
+        )
+        return [
+            replace(prototype, is_invite=True),
+            replace(prototype, is_invite=True, community_name=None, community_url=None),
+            replace(prototype, is_invite=False),
+            replace(prototype, is_invite=False, community_name=None, community_url=None),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventUpdatedEmail(EmailBase):
+    """Sent to subscribers when an event is updated."""
+
+    updating_user: UserInfo
+    event_info: EventInfo
+    updated_items: list[str]
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.updated"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context, ".subject", {"user": self.updating_user.name, "title": self.event_info.title}
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+
+        # TODO(#8875): Localize the updated items
+        updated_items_text = ", ".join(self.updated_items)
+        builder.para(".updated_items", {"items_list": updated_items_text})
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.user(self.updating_user)
+        builder.block(self.event_info.get_description_block())
+        builder.block(self.event_info.get_view_action_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventUpdate, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            updating_user=UserInfo.from_protobuf(data.updating_user),
+            event_info=EventInfo.from_proto(data.event),
+            updated_items=list(data.updated_items),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                updating_user=UserInfo.dummy_bob(),
+                event_info=EventInfo.dummy(),
+                updated_items=["time", "location"],
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventOrganizerInvitedEmail(EmailBase):
+    """Sent when a user is invited to co-organize an event."""
+
+    inviting_user: UserInfo
+    event_info: EventInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.organizer_invited"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context,
+            ".subject",
+            {"user": self.inviting_user.name, "title": self.event_info.title},
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"user": self.inviting_user.name, "title": self.event_info.title})
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.user(self.inviting_user, comment_key=".user_card_text")
+        builder.block(self.event_info.get_description_block())
+        builder.block(self.event_info.get_view_action_block(loc_context))
+        builder.para(_do_not_reply_request_string_key)
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventInviteOrganizer, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            inviting_user=UserInfo.from_protobuf(data.inviting_user),
+            event_info=EventInfo.from_proto(data.event),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", inviting_user=UserInfo.dummy_bob(), event_info=EventInfo.dummy())]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventCommentEmail(EmailBase):
+    """Sent to subscribers when someone comments on an event."""
+
+    author: UserInfo
+    event_info: EventInfo
+    comment_markdown: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.comment"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.event_info.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body", {"author": self.author.name, "title": self.event_info.title})
+        builder.user(self.author)
+        builder.quote(self.comment_markdown, markdown=True)
+        builder.para(".event_details")
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.block(self.event_info.get_view_action_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventComment, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            author=UserInfo.from_protobuf(data.author),
+            event_info=EventInfo.from_proto(data.event),
+            comment_markdown=data.reply.content,
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                author=UserInfo.dummy_bob(),
+                event_info=EventInfo.dummy(),
+                comment_markdown="Looking forward to it, see you all there!",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventReminderEmail(EmailBase):
+    """Sent to subscribers as a reminder that an event starts soon."""
+
+    event_info: EventInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.reminder"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"title": self.event_info.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.block(self.event_info.get_description_block())
+        builder.block(self.event_info.get_view_action_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventReminder, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            event_info=EventInfo.from_proto(data.event),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", event_info=EventInfo.dummy())]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventCancelledEmail(EmailBase):
+    """Sent to subscribers when an event is cancelled."""
+
+    cancelling_user: UserInfo
+    event_info: EventInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.cancel"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context,
+            ".subject",
+            {"user": self.cancelling_user.name, "title": self.event_info.title},
+        )
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.block(self.event_info.get_details_block(loc_context))
+        builder.user(self.cancelling_user, ".user_card_text")
+        builder.quote(self.event_info.description_markdown, markdown=True)
+        builder.block(self.event_info.get_view_action_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventCancel, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            cancelling_user=UserInfo.from_protobuf(data.cancelling_user),
+            event_info=EventInfo.from_proto(data.event),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", cancelling_user=UserInfo.dummy_bob(), event_info=EventInfo.dummy())]
+
+
+@dataclass(kw_only=True, slots=True)
+class EventDeletedEmail(EmailBase):
+    """Sent to subscribers when a moderator deletes an event."""
+
+    event_info: EventInfo
+
+    @property
+    def string_key_base(self) -> str:
+        return "event.deleted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"title": self.event_info.title})
+
+    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para(".body")
+        builder.block(self.event_info.get_details_block(loc_context))
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.EventDelete, *, user_name: str) -> Self:
+        return cls(
+            user_name=user_name,
+            event_info=EventInfo.from_proto(data.event),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                event_info=EventInfo.dummy(),
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)

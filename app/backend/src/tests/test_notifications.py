@@ -663,7 +663,8 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
 
-    expected_time_str = LocalizationContext.from_user(user).localize_datetime(start_event_time)
+    loc_context = LocalizationContext.from_user(user)
+    expected_time_str = loc_context.localize_datetime(start_event_time, with_year=False, with_day_of_week=True)
 
     with session_scope() as session:
         user_in_session = session.get_one(User, user.id)
