@@ -557,17 +557,153 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, page_token=res.next_page_token)
         )
         assert not res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 1"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, page_token=res.next_page_token)
         )
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
+
+
+def test_ListHostRequests_sort_by_from_date(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_5 = today() + timedelta(days=5)
+    today_plus_7 = today() + timedelta(days=7)
+    today_plus_10 = today() + timedelta(days=10)
+
+    with requests_session(token1) as api:
+        hr_late = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_7.isoformat(),
+                to_date=today_plus_10.isoformat(),
+                text=valid_request_text("Late request"),
+            )
+        ).host_request_id
+
+        hr_early = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Early request"),
+            )
+        ).host_request_id
+
+        hr_mid = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_5.isoformat(),
+                to_date=today_plus_7.isoformat(),
+                text=valid_request_text("Mid request"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_late)
+    moderator.approve_host_request(hr_early)
+    moderator.approve_host_request(hr_mid)
+
+    with requests_session(token2) as api:
+        # default sort: latest message first (creation order reversed)
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert res.no_more
+        assert [r.host_request_id for r in res.host_requests] == [hr_mid, hr_early, hr_late]
+
+        # from_date sort: ascending by travel date
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+            )
+        )
+        assert res.no_more
+        assert [r.host_request_id for r in res.host_requests] == [hr_early, hr_mid, hr_late]
+
+
+def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
+    """Pagination cursor correctly handles both different and identical from_dates."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_5 = today() + timedelta(days=5)
+
+    with requests_session(token1) as api:
+        hr_a = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Request A"),
+            )
+        ).host_request_id
+
+        # Same from_date as A — tiebreaker by conversation_id
+        hr_b = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Request B"),
+            )
+        ).host_request_id
+
+        hr_c = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_5.isoformat(),
+                to_date=(today_plus_5 + timedelta(days=2)).isoformat(),
+                text=valid_request_text("Request C"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_a)
+    moderator.approve_host_request(hr_b)
+    moderator.approve_host_request(hr_c)
+
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+            )
+        )
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_a
+
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                page_token=res.next_page_token,
+            )
+        )
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_b
+
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                page_token=res.next_page_token,
+            )
+        )
+        assert res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_c
 
 
 def test_ListHostRequests_active_filter(db, moderator):

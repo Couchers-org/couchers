@@ -70,6 +70,11 @@
       "title": "Vervollständige den Abschnitt „Mein Zuhause“ deines Profils",
       "description": "Trage deine Schlafmöglichkeiten, Hausregeln und eine Beschreibung deiner Wohnung ein",
       "button": "Bearbeite dein Zuhause"
+    },
+    "confirm_host_request": {
+      "title": "Bestätige deinen Aufenthalt bei {{name}}",
+      "description": "{{name}} hat deine Anfrage angenommen. Bestätige deinen Aufenthalt, um ihn zu sichern.",
+      "button": "Aufenthalt bestätigen"
     }
   },
   "events": {

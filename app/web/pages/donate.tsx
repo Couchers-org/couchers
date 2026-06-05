@@ -18,4 +18,7 @@ export default function DonatePage() {
   return <Donations />;
 }
 
-DonatePage.getLayout = appGetLayout({ variant: "full-width" });
+DonatePage.getLayout = appGetLayout({
+  isPrivate: false,
+  variant: "full-width",
+});

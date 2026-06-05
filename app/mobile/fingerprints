@@ -1,0 +1,8 @@
+# DO NOT EDIT MANUALLY!
+# Regenerate with `cd app/mobile && npm run fingerprints:write`
+devtool/ios=39a79dc343e28bd532ff009fa0a622f7439e50e7
+devtool/android=f707949d2e90773192d2f30d626aae35fae31904
+staging/ios=8c53e7b9d0e486da8fab97139d928a82a234c1b1
+staging/android=3625e9e21c8c7f89c8f8fadd5ccfb78d006a2898
+production/ios=ca952602407aba49797d3a590583106e253d0ee7
+production/android=c3d065694dbdd89ef935845e4e57d96464273d51
