@@ -34,39 +34,45 @@ def gh_headers(token):
 
 
 def deep_link(manifest_url):
-    return "couchers-devtool://expo-development-client/?url=" + urllib.parse.quote(
-        manifest_url, safe=""
-    )
+    return "couchers-devtool://expo-development-client/?url=" + urllib.parse.quote(manifest_url, safe="")
 
 
 def mobile_ota_section(short_sha, domain, platforms):
+    apk_url = f"https://android--devtool-builds.{domain}/index.html"
     lines = [
-        "### Mobile Dev Tool preview",
+        "## Mobile Dev Tool preview",
+        "",
+        f"Download the Dev Tool for iOS from TestFlight, for Android, you can get the latest .apk [here]({apk_url}).",
         "",
         "Scan the QR with your phone camera, or tap **Open in Dev Tool** on the device, "
         "to open this branch in the installed **Dev Tool** dev client.",
+        "",
     ]
+
+    bases = {p: f"https://{short_sha}--ota.{domain}/{p}" for p in platforms}
+
+    # Raw HTML table so the per-platform QRs render side by side.
+    lines.append("<table><tr>")
+    lines += [f"<th>{p}</th>" for p in platforms]
+    lines.append("</tr><tr>")
+    lines += [
+        f'<td align="center"><img src="{bases[p]}/qr.png" '
+        f'alt="QR to open the {p} build" width="180" height="180" /></td>'
+        for p in platforms
+    ]
+    lines.append("</tr><tr>")
+    lines += [f'<td align="center"><a href="{bases[p]}/open.html">Open in Dev Tool</a></td>' for p in platforms]
+    lines.append("</tr></table>")
+
+    lines += ["", "<details><summary>Deep links</summary>"]
     for platform in platforms:
-        base = f"https://{short_sha}--ota.{domain}/{platform}"
-        link = deep_link(f"{base}/manifest")
-        lines += [
-            "",
-            f"**{platform}** — [Open in Dev Tool]({base}/open.html)",
-            "",
-            f'<img src="{base}/qr.png" alt="QR to open the {platform} build" width="180" height="180" />',
-            "",
-            "<details><summary>Deep link</summary>",
-            "",
-            "```",
-            link,
-            "```",
-            "</details>",
-        ]
+        lines += ["", f"**{platform}**", "", "```", deep_link(f"{bases[platform]}/manifest"), "```"]
+    lines.append("</details>")
     return "\n".join(lines)
 
 
 def build_body(sections, sha, pipeline_url):
-    parts = [MARKER, "## Preview builds", ""]
+    parts = [MARKER]
     parts += [section for section in sections if section]
     footer = f"commit `{sha[:8]}`"
     if pipeline_url:
