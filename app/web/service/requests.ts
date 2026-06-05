@@ -6,6 +6,7 @@ import {
   GetHostRequestReq,
   GetResponseRateReq,
   HostRequestQuality,
+  HostRequestSortBy,
   ListHostRequestsReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
@@ -23,6 +24,7 @@ export async function listHostRequests({
   onlyActive,
   onlyArchived,
   statusIn,
+  sortBy,
 }: {
   pageToken?: string;
   count?: number;
@@ -30,6 +32,7 @@ export async function listHostRequests({
   onlyActive?: boolean;
   onlyArchived?: boolean;
   statusIn?: HostRequestStatus[];
+  sortBy?: HostRequestSortBy;
 }) {
   const req = new ListHostRequestsReq();
   if (onlyActive !== undefined) {
@@ -40,6 +43,9 @@ export async function listHostRequests({
   }
   if (statusIn !== undefined) {
     req.setStatusInList(statusIn);
+  }
+  if (sortBy !== undefined) {
+    req.setSortBy(sortBy);
   }
 
   req.setOnlyReceived(type === "hosting");

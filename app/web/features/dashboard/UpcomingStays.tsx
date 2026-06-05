@@ -13,7 +13,11 @@ import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
-import { HostRequest, ListHostRequestsRes } from "proto/requests_pb";
+import {
+  HostRequest,
+  HostRequestSortBy,
+  ListHostRequestsRes,
+} from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
@@ -222,6 +226,7 @@ export default function UpcomingStays() {
         count: 20,
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
+        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
   });
 
@@ -237,6 +242,7 @@ export default function UpcomingStays() {
         count: 20,
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
+        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
   });
 
