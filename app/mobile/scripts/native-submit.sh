@@ -1,27 +1,9 @@
 #!/usr/bin/env bash
-# Submit a release variant's store app build (staging or production) to the
-# stores (deploy phase). Reads the EAS build id and fingerprint that
-# native-build.sh emitted into the dotenv artifact; an empty build id means the
-# build was skipped (fingerprint unchanged) and there is nothing to submit. The
-# fingerprint of record lives in app/mobile/fingerprints — nothing here writes
-# it.
-#
-#   iOS:     eas submit -> App Store Connect. The build lands in TestFlight and as
-#            an available build; it is NOT submitted for App Store review and no
-#            release notes change — do that by hand in App Store Connect.
-#   Android: eas submit -> the Play *internal* testing track (the submit profile
-#            sets track: internal). Promote to the public production track by hand
-#            in the Play Console.
-#
-# Neither platform makes anything public on its own.
-#
-# Usage: native-submit.sh <ios|android>
-# Env:   APP_VARIANT      staging | production — selects the eas.json submit
-#                         profile and the matching build's binary
-#        EXPO_TOKEN       EAS auth (submit scope)
-#        EAS_BUILD_ID     from the build job's dotenv (empty => nothing to submit)
-#        EAS_FINGERPRINT  from the build job's dotenv (logged for traceability)
-# Run from app/mobile (eas.json must be present).
+# Submit a staging/production build to the stores, reading the EAS build id from
+# native-build.sh's dotenv (empty id => build skipped, nothing to submit).
+# Neither platform makes anything public on its own (iOS → TestFlight, Android →
+# Play internal track); promote to public by hand.
+# Usage: native-submit.sh <ios|android>  (APP_VARIANT=staging|production, run from app/mobile)
 set -euo pipefail
 
 PLATFORM="${1:?usage: native-submit.sh <ios|android>}"
