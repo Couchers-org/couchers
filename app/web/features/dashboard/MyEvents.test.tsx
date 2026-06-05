@@ -52,12 +52,15 @@ describe("My events", () => {
     render(<MyEvents />, { wrapper });
 
     expect(
-      await screen.findByText((_content, element) => {
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
-      }),
+      await screen.findByText(
+        (_content, element) => {
+          return (
+            element?.textContent ===
+            "No events at the moment. Why don't you create one ✨?"
+          );
+        },
+        { selector: "p" },
+      ),
     ).toBeVisible();
     expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });

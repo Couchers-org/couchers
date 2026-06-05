@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import { service } from "service";
-import hostRequest from "test/fixtures/hostRequest.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { addDefaultUser, assertErrorAlert, mockConsoleError } from "test/utils";
@@ -14,16 +13,7 @@ const listHostRequestsMock = service.requests
   typeof service.requests.listHostRequests
 >;
 
-const emptyResponse = { hostRequestsList: [], noMore: true, lastRequestId: 0 };
-
-const upcomingTrip = {
-  ...hostRequest,
-  fromDate: "2099-06-01",
-  toDate: "2099-06-05",
-  status: 1, // HOST_REQUEST_STATUS_ACCEPTED
-  surferUserId: 1,
-  hostUserId: 2,
-};
+const emptyResponse = { hostRequestsList: [], noMore: true, nextPageToken: "" };
 
 describe("UpcomingStays", () => {
   beforeEach(() => {
@@ -42,38 +32,17 @@ describe("UpcomingStays", () => {
     ).toBeVisible();
   });
 
-  it("does not show past stays", async () => {
-    const pastStay = {
-      ...upcomingTrip,
-      fromDate: "2000-01-01",
-      toDate: "2000-01-05",
-    };
-    listHostRequestsMock.mockResolvedValue({
-      hostRequestsList: [pastStay],
-      noMore: true,
-      lastRequestId: 0,
-    });
-
+  it("filters past and pending stays via API parameters", async () => {
     render(<UpcomingStays />, { wrapper });
 
-    expect(
-      await screen.findByText(t("dashboard:stays.no_upcoming_trips")),
-    ).toBeVisible();
-  });
+    await screen.findByText(t("dashboard:stays.no_upcoming_trips"));
 
-  it("does not show pending requests", async () => {
-    const pendingStay = { ...upcomingTrip, status: 0 }; // HOST_REQUEST_STATUS_PENDING
-    listHostRequestsMock.mockResolvedValue({
-      hostRequestsList: [pendingStay],
-      noMore: true,
-      lastRequestId: 0,
-    });
-
-    render(<UpcomingStays />, { wrapper });
-
-    expect(
-      await screen.findByText(t("dashboard:stays.no_upcoming_trips")),
-    ).toBeVisible();
+    expect(listHostRequestsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onlyActive: true,
+        statusIn: [1, 3], // HOST_REQUEST_STATUS_ACCEPTED, HOST_REQUEST_STATUS_CONFIRMED
+      }),
+    );
   });
 
   it("shows an error alert if requests fail to load", async () => {

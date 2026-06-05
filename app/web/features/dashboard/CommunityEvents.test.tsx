@@ -54,7 +54,15 @@ describe("Community events", () => {
     render(<CommunityEvents />, { wrapper });
 
     expect(
-      await screen.findByText(t("dashboard:events.community_empty_message")),
+      await screen.findByText(
+        (_content, element) => {
+          return (
+            element?.textContent ===
+            "No events at the moment. Why don't you create one ✨?"
+          );
+        },
+        { selector: "p" },
+      ),
     ).toBeVisible();
   });
 
