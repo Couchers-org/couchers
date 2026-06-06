@@ -77,7 +77,6 @@
     "see_all_link": "Alles bekijken →",
     "your_upcoming_empty_message": "Geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
     "community_header": "Events in jouw communities",
-    "community_empty_message": "Geen aankomende events in jouw communities.",
     "location_online_label": "Online",
     "today_label": "Vandaag"
   },
@@ -85,8 +84,6 @@
     "community_header": "Discussies in jouw communities",
     "community_empty_message": "Nog geen discussies in jouw communities.",
     "replies_count_label_one": "{{count}} reactie",
-    "replies_count_label_other": "{{count}} reacties",
-    "prev_page_label": "Vorige pagina",
-    "next_page_label": "Volgende pagina"
+    "replies_count_label_other": "{{count}} reacties"
   }
 }
