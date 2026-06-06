@@ -7,6 +7,7 @@ import {
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import FadingScrollTrack from "components/FadingScrollTrack";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -44,15 +45,6 @@ const SectionHeader = styled("div")({
   justifyContent: "space-between",
   marginBottom: theme.spacing(1.5),
   minHeight: 28,
-});
-
-const Track = styled(Box)({
-  display: "flex",
-  gap: `${CARD_GAP}px`,
-  overflowX: "auto",
-  scrollSnapType: "x proximity",
-  scrollbarWidth: "none",
-  "&::-webkit-scrollbar": { display: "none" },
 });
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
@@ -151,7 +143,7 @@ function UpcomingStaysWidget({
       </SectionHeader>
 
       {isLoading ? (
-        <Track>
+        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
           {[0, 1, 2].map((i) => (
             <Box
               key={i}
@@ -160,7 +152,7 @@ function UpcomingStaysWidget({
               <UpcomingStayCardSkeleton />
             </Box>
           ))}
-        </Track>
+        </FadingScrollTrack>
       ) : requests.length === 0 ? (
         <EmptyStateRow>
           <Typography
@@ -187,7 +179,14 @@ function UpcomingStaysWidget({
           </Link>
         </EmptyStateRow>
       ) : (
-        <Track ref={scrollerRef} onScroll={updateScrollState}>
+        <FadingScrollTrack
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          $gap={CARD_GAP}
+          $snapType="x proximity"
+          $canScrollLeft={canScrollLeft}
+          $canScrollRight={canScrollRight}
+        >
           {requests.map((r) => (
             <Box
               key={r.hostRequestId}
@@ -200,7 +199,7 @@ function UpcomingStaysWidget({
               <UpcomingStayCard hostRequest={r} />
             </Box>
           ))}
-        </Track>
+        </FadingScrollTrack>
       )}
     </section>
   );
@@ -223,7 +222,6 @@ export default function UpcomingStays() {
     queryFn: () =>
       service.requests.listHostRequests({
         type: "surfing",
-        count: 20,
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
@@ -239,7 +237,6 @@ export default function UpcomingStays() {
     queryFn: () =>
       service.requests.listHostRequests({
         type: "hosting",
-        count: 20,
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
@@ -257,22 +254,6 @@ export default function UpcomingStays() {
 
       <UpcomingStaysWidget
         icon={
-          <Luggage
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
-        }
-        title={t("dashboard:stays.upcoming_trips_header")}
-        requests={upcomingTrips}
-        isLoading={tripsLoading}
-        emptyMessage={t("dashboard:stays.no_upcoming_trips")}
-        emptyCtaLabel={t("dashboard:find_a_host")}
-        emptyCtaHref={searchRoute}
-      />
-
-      <Box sx={{ height: theme.spacing(3) }} />
-
-      <UpcomingStaysWidget
-        icon={
           <MeetingRoom
             sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
           />
@@ -283,6 +264,22 @@ export default function UpcomingStays() {
         emptyMessage={t("dashboard:stays.no_upcoming_guests")}
         emptyCtaLabel={t("dashboard:become_a_host")}
         emptyCtaHref={`${routeToEditProfile("about")}#preferences`}
+      />
+
+      <Box sx={{ height: theme.spacing(3) }} />
+
+      <UpcomingStaysWidget
+        icon={
+          <Luggage
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
+        }
+        title={t("dashboard:stays.upcoming_trips_header")}
+        requests={upcomingTrips}
+        isLoading={tripsLoading}
+        emptyMessage={t("dashboard:stays.no_upcoming_trips")}
+        emptyCtaLabel={t("dashboard:find_a_host")}
+        emptyCtaHref={searchRoute}
       />
     </div>
   );
