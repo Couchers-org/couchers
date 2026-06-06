@@ -264,6 +264,44 @@ class ClusterSubscription(Base, kw_only=True):
     )
 
 
+class CommunityBuilderRequest(Base, kw_only=True):
+    """
+    Requests by users to become community builders (admins) of a given community.
+    """
+
+    __tablename__ = "community_builder_requests"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    decided: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    decided_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
+    approved: Mapped[bool | None] = mapped_column(Boolean, default=None)
+
+    node: Mapped[Node] = relationship(init=False)
+    user: Mapped[User] = relationship(init=False, foreign_keys="CommunityBuilderRequest.user_id")
+
+    __table_args__ = (
+        # at most one pending request per (community, user); after a decision a new request may be filed
+        Index(
+            "ix_community_builder_requests_pending_unique",
+            node_id,
+            user_id,
+            unique=True,
+            postgresql_where=approved.is_(None),
+        ),
+        CheckConstraint(
+            "((decided IS NULL) AND (decided_by_user_id IS NULL) AND (approved IS NULL)) OR \
+             ((decided IS NOT NULL) AND (decided_by_user_id IS NOT NULL) AND (approved IS NOT NULL))",
+            name="decided_approved",
+        ),
+    )
+
+
 class ClusterPageAssociation(Base, kw_only=True):
     """
     pages related to clusters

@@ -8,13 +8,24 @@ import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "routes";
+import { theme } from "theme";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+import RequestCommunityBuilderButton from "./RequestCommunityBuilderButton";
 
 const StyledBreadcrumbsContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  gap: theme.spacing(1),
+  flexWrap: "wrap",
+}));
+
+const StyledActions = styled("div")(() => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  flexWrap: "wrap",
 }));
 
 const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
@@ -75,7 +86,10 @@ export default function CommunityPageSubHeader({
               ),
             )}
         </StyledBreadcrumbs>
-        <JoinCommunityButton community={community} />
+        <StyledActions>
+          <RequestCommunityBuilderButton community={community} />
+          <JoinCommunityButton community={community} />
+        </StyledActions>
       </StyledBreadcrumbsContainer>
       <TabContext value={tab}>
         <TabBar

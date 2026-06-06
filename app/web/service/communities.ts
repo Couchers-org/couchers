@@ -13,6 +13,7 @@ import {
   ListPlacesReq,
   ListRecentCommunitiesReq,
   ListUserCommunitiesReq,
+  RequestCommunityBuilderReq,
   SearchCommunitiesReq,
 } from "proto/communities_pb";
 
@@ -154,6 +155,12 @@ export async function leaveCommunity(communityId: number) {
   const req = new LeaveCommunityReq();
   req.setCommunityId(communityId);
   await client.communities.leaveCommunity(req);
+}
+
+export async function requestCommunityBuilder(communityId: number) {
+  const req = new RequestCommunityBuilderReq();
+  req.setCommunityId(communityId);
+  await client.communities.requestCommunityBuilder(req);
 }
 
 export async function listUserCommunities(
