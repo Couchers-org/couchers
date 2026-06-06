@@ -12,62 +12,62 @@ def _complete_config(dev: bool) -> Config:
     so Config.check() should succeed against it.
     """
     cfg = Config()
-    for attr_name, attr_type in Config.__annotations__.items():
-        if attr_type is bool:
-            setattr(cfg, attr_name, True)
-        elif attr_type is int:
-            setattr(cfg, attr_name, 1)
-        elif attr_type is bytes:
-            setattr(cfg, attr_name, b"x")
-        elif typing.get_origin(attr_type) is typing.Literal:
-            setattr(cfg, attr_name, typing.get_args(attr_type)[0])
+    for var_name, var_type in Config.__annotations__.items():
+        if var_type is bool:
+            setattr(cfg, var_name, True)
+        elif var_type is int:
+            setattr(cfg, var_name, 1)
+        elif var_type is bytes:
+            setattr(cfg, var_name, b"x")
+        elif typing.get_origin(var_type) is typing.Literal:
+            setattr(cfg, var_name, typing.get_args(var_type)[0])
         else:
-            setattr(cfg, attr_name, "x")
+            setattr(cfg, var_name, "x")
 
-    cfg.dev = dev
+    cfg.DEV = dev
     if not dev:
         # production invariants that aren't satisfiable by a generic truthy value
-        cfg.base_url = "https://example.com"
-        cfg.enable_email = True
-        cfg.in_test = False
+        cfg.BASE_URL = "https://example.com"
+        cfg.ENABLE_EMAIL = True
+        cfg.IN_TEST = False
     return cfg
 
 
 def test_load_from_env() -> None:
     cfg = Config()
-    assert not hasattr(cfg, "base_url")
+    assert not hasattr(cfg, "BASE_URL")
     cfg.load_from_env({"BASE_URL": "https://example.com"})
-    assert cfg.base_url == "https://example.com"
+    assert cfg.BASE_URL == "https://example.com"
 
 
 def test_load_from_env_types() -> None:
     cfg = Config()
 
     cfg.load_from_env({"IN_TEST": "1"})
-    assert cfg.in_test is True
+    assert cfg.IN_TEST is True
     with pytest.raises(ValueError):
         cfg.load_from_env({"IN_TEST": "not a bool"})
 
     cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "42"})
-    assert cfg.background_worker_count == 42
+    assert cfg.BACKGROUND_WORKER_COUNT == 42
     with pytest.raises(ValueError):
         cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "not an int"})
 
     cfg.load_from_env({"SECRET": bytes.hex(b"abc")})
-    assert cfg.secret == b"abc"
+    assert cfg.SECRET == b"abc"
     with pytest.raises(ValueError):
         cfg.load_from_env({"SECRET": "not hex"})
 
     cfg.load_from_env({"ROLE": "worker"})
-    assert cfg.role == "worker"
+    assert cfg.ROLE == "worker"
     with pytest.raises(ValueError):
         cfg.load_from_env({"ROLE": "not a valid role"})
 
 
 def test_getitem() -> None:
     cfg = Config()
-    cfg.base_url = "https://example.com"
-    assert cfg.base_url == "https://example.com"
+    cfg.BASE_URL = "https://example.com"
+    assert cfg.BASE_URL == "https://example.com"
     assert cfg["BASE_URL"] == "https://example.com"
 
 
@@ -75,7 +75,7 @@ def test_setitem() -> None:
     cfg = Config()
 
     cfg["BASE_URL"] = "https://example.com"
-    assert cfg.base_url == "https://example.com"
+    assert cfg.BASE_URL == "https://example.com"
     assert cfg["BASE_URL"] == "https://example.com"
 
     with pytest.raises(KeyError):
@@ -86,32 +86,31 @@ def test_setitem() -> None:
 
 
 def test_instances_state_are_independent() -> None:
-    """"""
     # Default values are declared at the class level, but should be copied to each instance.
-    assert Config.in_test is False
+    assert Config.IN_TEST is False
 
     cfg1 = Config()
     cfg2 = Config()
 
-    assert cfg1.in_test is False
-    assert cfg2.in_test is False
+    assert cfg1.IN_TEST is False
+    assert cfg2.IN_TEST is False
 
-    cfg1.in_test = True
+    cfg1.IN_TEST = True
 
-    assert cfg1.in_test is True
-    assert cfg2.in_test is False
+    assert cfg1.IN_TEST is True
+    assert cfg2.IN_TEST is False
 
 
 def test_copy() -> None:
     cfg = Config()
 
-    cfg.background_worker_count = 1
+    cfg.BACKGROUND_WORKER_COUNT = 1
     copy1 = cfg.copy()
-    cfg.background_worker_count = 2
+    cfg.BACKGROUND_WORKER_COUNT = 2
     copy2 = cfg.copy()
 
-    assert copy1.background_worker_count == 1
-    assert copy2.background_worker_count == 2
+    assert copy1.BACKGROUND_WORKER_COUNT == 1
+    assert copy2.BACKGROUND_WORKER_COUNT == 2
 
 
 @pytest.mark.parametrize("dev", [True, False])
