@@ -103,7 +103,7 @@
     "carousel_dismiss_button_a11y": "Dismiss reminder",
   },
   "carousel_scroller": {
-    "left_arrow_a11y": "scroll left",
-    "right_arrow_a11y": "scroll right"
+    "left_arrow_a11y": "Scroll left",
+    "right_arrow_a11y": "Scroll right"
   }
 }

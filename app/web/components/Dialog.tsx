@@ -85,7 +85,7 @@ export function DialogTitle({
     >
       {onClose && (
         <IconButton
-          aria-label={t("close_a11y")}
+          aria-label={t("close_button_a11y")}
           onClick={onClose}
           size="large"
           sx={{

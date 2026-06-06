@@ -141,19 +141,15 @@ export default function TranslationProgress() {
 
   const { data: languages, isLoading, error } = useWeblateStats();
 
-  const renderFlag = (flagCode: string, percent: number, languageCode: string) => {
-
-    const langName = t(`global:language_names.${languageCode}`);
-    const altText = t("global:language_flag_alt_a11y", { langName });
+  const renderFlag = (flagCode: string, percent: number) => {
 
     if (flagCode === "CAT") {
-      return <CatalanFlag percent={percent} aria-label={altText} />;
+      return <CatalanFlag percent={percent} />;
     }
-    
+
     return (
       <FlagImage
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-        alt={altText}
         percent={percent}
       />
     );

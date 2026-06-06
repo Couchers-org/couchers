@@ -124,29 +124,23 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
-  const renderFlag = (flagCode: string, percent?: number, languageName?: string) => {
+  const renderFlag = (flagCode: string, percent?: number) => {
     const shouldGreyOut = percent !== undefined && percent < ALMOST_DONE_CUTOFF;
     const commonStyles = {
       filter: shouldGreyOut ? "grayscale(100%)" : "none",
       opacity: shouldGreyOut ? 0.4 : 1,
     } as const;
 
-    const a11yName = languageName
-      ? t('global:language_flag_alt_a11y', { languageName })
-      : `${flagCode} flag`;
-
     if (flagCode === "CAT") {
       return (
         <CatalanFlagIcon
           sx={{ width: 25, height: 18.75, ...commonStyles }}
-          aria-label={a11yName}
         />
       );
     }
 
     return (
       <img
-        alt={a11yName}
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
         style={{ width: 25, ...commonStyles }}
       />
