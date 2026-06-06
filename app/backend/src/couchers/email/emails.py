@@ -209,7 +209,13 @@ class ActivenessProbeEmail(EmailBase):
         builder.para(".instructions_days", {"count": self.days_left})
         builder.action(urls.app_link(), ".login_action")
         builder.para(".encouragement")
-        builder.para(".latest_release", {"version": config["VERSION"]})
+
+        # Extract major.minor from the version string. "v1.3.18927" -> "1.3"
+        version = config["VERSION"]
+        if version_match := re.search(r"^v?(\d+\.\d+)\b", version):
+            version = version_match[1]
+
+        builder.para(".latest_release", {"version": version})
         builder.action(LATEST_RELEASE_BLOG_URL, ".read_blog_action")
         return builder.build()
 
