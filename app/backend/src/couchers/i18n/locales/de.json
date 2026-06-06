@@ -247,7 +247,7 @@
     "public_trips_not_enabled": "Öffentliche Trips sind in dieser Community nicht aktiviert.",
     "duplicate_host_request_for_trip": "Du hast bereits angeboten, diesen Trip zu hosten.",
     "public_trip_same_gender_only": "Dieser Trip akzeptiert nur Angebote von Personen des gleichen Geschlechts.",
-    "incomplete_profile_send_friend_request": "Du musst dein Profil vervollständigen, bevor du eine Freundschafts-Anfrage senden kannst.",
+    "incomplete_profile_send_friend_request": "Du musst dein Profil vervollständigen, bevor du eine Freundschaftsanfrage senden kannst.",
     "admin_note_data_must_be_valid_json": "Die Admin-Notiz-Daten müssen gültiges JSON sein.",
     "admin_note_requires_exactly_one_of_note_or_data": "Gib genau eines an, admin_note oder data.",
     "invalid_password_login": "Benutzername/E-Mail oder Passwort ist falsch.",
