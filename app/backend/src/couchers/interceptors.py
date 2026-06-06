@@ -3,6 +3,7 @@ from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from functools import cache
 from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
@@ -12,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 import grpc
 import sentry_sdk
-from google.protobuf.descriptor import ServiceDescriptor
+from google.protobuf.descriptor import Descriptor, ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
@@ -190,35 +191,71 @@ def unauthenticated_handler[T, R](
     return abort_handler(message, status_code)
 
 
+@cache
+def _descriptor_has_sensitive(descriptor: Descriptor) -> bool:
+    """Whether this message type transitively contains any field marked sensitive."""
+    seen: set[Descriptor] = set()
+    stack = [descriptor]
+    while stack:
+        d = stack.pop()
+        if d in seen:
+            continue
+        seen.add(d)
+        for f in d.fields:
+            if f.GetOptions().Extensions[annotations_pb2.sensitive]:
+                return True
+            if f.message_type is not None:
+                stack.append(f.message_type)
+    return False
+
+
+@cache
+def _sanitize_plan(descriptor: Descriptor) -> tuple[tuple[str, ...], tuple[tuple[str, bool], ...]]:
+    """For a message type, the fields to clear and the (name, is_repeated) subfields worth recursing into."""
+    clear = []
+    recurse = []
+    for f in descriptor.fields:
+        if f.GetOptions().Extensions[annotations_pb2.sensitive]:
+            clear.append(f.name)
+        elif f.message_type is not None and _descriptor_has_sensitive(f.message_type):
+            recurse.append((f.name, f.is_repeated))
+    return tuple(clear), tuple(recurse)
+
+
+def _sanitize_message(message: Message) -> None:
+    clear, recurse = _sanitize_plan(message.DESCRIPTOR)
+    for name in clear:
+        message.ClearField(name)
+    for name, is_repeated in recurse:
+        submessage = getattr(message, name)
+        if not submessage:
+            continue
+        if is_repeated:
+            for msg in submessage:
+                _sanitize_message(msg)
+        else:
+            _sanitize_message(submessage)
+
+
 @overload
 def _sanitized_bytes(proto: Message) -> bytes: ...
 @overload
 def _sanitized_bytes(proto: None) -> None: ...
 def _sanitized_bytes(proto: Message | None) -> bytes | None:
     """
-    Remove fields marked sensitive and return serialized bytes
+    Remove fields marked sensitive and return serialized bytes.
+
+    Sensitivity is static per message type, so the descriptor analysis is cached: messages whose type has no
+    sensitive field anywhere serialize directly without a copy or walk.
     """
     if not proto:
         return None
 
+    if not _descriptor_has_sensitive(proto.DESCRIPTOR):
+        return proto.SerializeToString()
+
     new_proto = deepcopy(proto)
-
-    def _sanitize_message(message: Message) -> None:
-        for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
-                message.ClearField(name)
-            if descriptor.message_type:
-                submessage = getattr(message, name)
-                if not submessage:
-                    continue
-                if descriptor.is_repeated:
-                    for msg in submessage:
-                        _sanitize_message(msg)
-                else:
-                    _sanitize_message(submessage)
-
     _sanitize_message(new_proto)
-
     return new_proto.SerializeToString()
 
 
