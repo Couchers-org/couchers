@@ -203,13 +203,15 @@ class ActivenessProbeEmail(EmailBase):
     def string_key_base(self) -> str:
         return "activeness_probe"
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".body")
         builder.para(".instructions_days", {"count": self.days_left})
         builder.action(urls.app_link(), ".login_action")
         builder.para(".encouragement")
         builder.para(".latest_release", {"version": config["VERSION"]})
         builder.action(LATEST_RELEASE_BLOG_URL, ".read_blog_action")
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ActivenessProbe, *, user_name: str) -> Self:
@@ -1535,11 +1537,13 @@ class NewBlogPostEmail(EmailBase):
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
         return self.blurb
 
-    def build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
         builder.para(".intro")
         builder.para(".post_title", {"title": self.title})
         builder.quote(self.blurb, markdown=False)
         builder.action(self.url, ".read_action")
+        return builder.build()
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.GeneralNewBlogPost, *, user_name: str) -> Self:
