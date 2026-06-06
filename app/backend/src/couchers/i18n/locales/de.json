@@ -301,20 +301,5 @@
     "be_kind_title": "Seid freundlich zueinander",
     "be_kind_guideline": "Couchers.org ist eine inklusive Community, in der Menschen aller Kulturen und Hintergründe zusammenkommen. Behandle alle mit gegenseitigem Respekt und Würde.",
     "no_money_guideline": "Halte es unkommerziell. Tausche kein Geld während des Surfens oder beim Hosten. Couchers.org dreht sich um Lernen, Erfahrungen und das Kennenlernen von Menschen."
-  },
-  "notifications": {
-    "dear_name": "Hallo {{name}},",
-    "thank_you": "Danke!",
-    "founders_signature": "Aapeli und Itsi,\nGründer von Couchers.org",
-    "donation_received": {
-      "title": "Vielen Dank für deine Spende an Couchers.org!",
-      "thanks_amount": "vielen Dank für deine Spende in höhe von ${{amount}} an Couchers.org.",
-      "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
-      "download_invoice": "Rechnung herunterladen",
-      "questions_contact": "Wenn du Fragen zu deiner Spende hast, schreib uns bitte eine E-Mail an <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-      "generosity_helps": "Deine Großzügigkeit wird dazu beitragen, die Plattform für alle bereitzustellen.",
-      "purpose": "Dein Beitrag wird für den Aufbau und Erhalt der Couchers.org-Plattform und Community verwendet und ist entscheidend für unser Ziel einer völlig kostenlosen und gemeinnützigen Generation des Couchsurfings.",
-      "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht."
-    }
   }
 }

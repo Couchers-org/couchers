@@ -105,7 +105,7 @@ def _try_get_and_update_user_details(
 
     with session_scope() as session:
         result = session.execute(
-            select(User, UserSession)
+            select(User, UserSession, User.is_jailed)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
             .where(User.is_visible)
@@ -117,7 +117,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session = result._tuple()
+        user, user_session, is_jailed = result._tuple()
 
         # update user last active time if it's been a while
         if now() - user.last_active > timedelta(minutes=5):
@@ -155,11 +155,10 @@ def _try_get_and_update_user_details(
             )
         )
 
-        session.commit()
-
-        return UserAuthInfo(
+        # build before committing to avoid expire_on_commit reloading these attributes
+        auth_info = UserAuthInfo(
             user_id=user.id,
-            is_jailed=user.is_jailed,
+            is_jailed=is_jailed,
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
@@ -168,6 +167,10 @@ def _try_get_and_update_user_details(
             token=token,
             is_api_key=is_api_key,
         )
+
+        session.commit()
+
+        return auth_info
 
 
 def abort_handler[T, R](

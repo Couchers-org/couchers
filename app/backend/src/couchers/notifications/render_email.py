@@ -127,6 +127,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:
             return emails.DiscussionCommentEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.donation__received:
+            return emails.DonationReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__change:
             return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
@@ -170,6 +172,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.GenderChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.modnote__create:
             return emails.ModeratorNoteEmail(user_name=user_name)
+        case NotificationTopicAction.onboarding__reminder:
+            return emails.OnboardingReminderEmail(user_name=user_name, initial=notification.key == "1")
         case NotificationTopicAction.password__change:
             return emails.PasswordChangedEmail(user_name=user_name)
         case NotificationTopicAction.password_reset__complete:
@@ -193,13 +197,11 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
         case (
-            NotificationTopicAction.donation__received
-            | NotificationTopicAction.reference__receive_friend
+            NotificationTopicAction.reference__receive_friend
             | NotificationTopicAction.reference__receive_hosted
             | NotificationTopicAction.reference__receive_surfed
             | NotificationTopicAction.reference__reminder_hosted
             | NotificationTopicAction.reference__reminder_surfed
-            | NotificationTopicAction.onboarding__reminder
             | NotificationTopicAction.activeness__probe
             | NotificationTopicAction.general__new_blog_post
         ):
@@ -226,24 +228,7 @@ class CustomTemplatedEmail:
 # e.g. not yet using couchers.email.emails.
 def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    if notification.topic_action == NotificationTopicAction.donation__received:
-        title = loc_context.localize_string("notifications.donation_received.title")
-        message = loc_context.localize_string(
-            "notifications.donation_received.thanks_amount",
-            substitutions={
-                "amount": data.amount,
-            },
-        )
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="donation_received",
-            template_args={
-                "amount": data.amount,
-                "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic == "reference":
+    if notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"
             return CustomTemplatedEmail(
@@ -302,26 +287,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "leave_reference_link": leave_reference_link,
                     "days_left": str(data.days_left),
                     "surfed": surfed,
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.onboarding__reminder:
-        if notification.key == "1":
-            return CustomTemplatedEmail(
-                subject="Welcome to Couchers.org and the future of couch surfing",
-                preview="We are so excited to have you join our community!",
-                template_name="onboarding1",
-                template_args={
-                    "app_link": urls.app_link(),
-                    "edit_profile_link": urls.edit_profile_link(),
-                },
-            )
-        elif notification.key == "2":
-            return CustomTemplatedEmail(
-                subject="Complete your profile on Couchers.org",
-                preview="We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
-                template_name="onboarding2",
-                template_args={
-                    "edit_profile_link": urls.edit_profile_link(),
                 },
             )
     elif notification.topic_action == NotificationTopicAction.activeness__probe:

@@ -337,15 +337,15 @@
   "open_full_profile": "Vollständiges Profil öffnen",
   "complete_profile_dialog": {
     "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
-    "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
+    "description_2": "Dies hilft, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
     "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über dich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
     "actions": {
-      "send_request": "Eine Anfrage senden",
-      "send_message": "Eine Nachricht senden",
-      "create_event": "Erstelle ein Event",
-      "send_friend_request": "Eine Freundschafts-Anfrage senden"
+      "send_request": "Anfrage senden",
+      "send_message": "Nachricht senden",
+      "create_event": "Event erstellen",
+      "send_friend_request": "Freundschaftsanfrage senden"
     },
-    "edit_profile_button": "Jetzt dein Profil bearbeiten",
+    "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"
   }
 }
