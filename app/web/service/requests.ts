@@ -6,6 +6,7 @@ import {
   GetHostRequestReq,
   GetResponseRateReq,
   HostRequestQuality,
+  HostRequestSortBy,
   ListHostRequestsReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
@@ -22,24 +23,35 @@ export async function listHostRequests({
   type = "all",
   onlyActive,
   onlyArchived,
+  statusIn,
+  sortBy,
 }: {
   pageToken?: string;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
   onlyArchived?: boolean;
+  statusIn?: HostRequestStatus[];
+  sortBy?: HostRequestSortBy;
 }) {
   const req = new ListHostRequestsReq();
   if (onlyActive !== undefined) {
     req.setOnlyActive(onlyActive);
   }
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  if (statusIn !== undefined) {
+    req.setStatusInList(statusIn);
+  }
+  if (sortBy !== undefined) {
+    req.setSortBy(sortBy);
+  }
+
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
   req.setPageToken(pageToken);
   req.setNumber(count);
-  if (onlyArchived !== undefined) {
-    req.setOnlyArchived(onlyArchived);
-  }
 
   const response = await client.requests.listHostRequests(req);
 

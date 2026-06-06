@@ -234,4 +234,12 @@ function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
 }
 
+/// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
+export function localizeRelativeDays(days: number, locale: string): string {
+  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
+    days,
+    "day",
+  );
+}
+
 export { isSameOrFutureDate, numNights, timestamp2Date };
