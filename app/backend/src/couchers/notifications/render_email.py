@@ -23,7 +23,6 @@ from couchers.notifications.quick_links import (
 )
 from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
-from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -42,51 +41,16 @@ class RenderedEmailNotification:
 def render_email_notification(
     user: User, notification: Notification, loc_context: LocalizationContext, *, include_ics_attachments: bool
 ) -> RenderedEmailNotification:
+    email = _notification_to_email(notification, user_name=user.name)
+    subject = email.get_subject_line(loc_context)
+    preview = email.get_preview_line(loc_context)
+    body_blocks = email.get_body_blocks(loc_context)
     footer = get_email_footer(user, notification, loc_context)
-
-    subject: str
-    body_plaintext: str
-    body_html: str
-    source_data: str | None = None
-    # Progressively migrate to the new email templating system in couchers.email.emails,
-    # which supports localization and uses a single generic html template.
-    if email := _get_generic_templated_email(user.name, notification):
-        subject = email.get_subject_line(loc_context)
-        preview = email.get_preview_line(loc_context)
-        body_blocks = email.get_body_blocks(loc_context)
-        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
-        body_html = render_html_body(
-            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
-        )
-        source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
-    else:
-        # Email is still a custom-templated, nonlocalizable email.
-        custom_templated = _get_custom_templated_email(notification, loc_context)
-        subject = custom_templated.subject
-
-        template_args = {
-            **custom_templated.template_args,
-            "header_subject": custom_templated.subject,
-            "header_preview": custom_templated.preview,
-            "user": user,
-            "time": notification.created,
-            **footer.to_template_args(),
-        }
-
-        # Format plaintext template
-        plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
-        plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-        plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-        body_plaintext = plain_tmplt.render(template_args, loc_context)
-
-        # Format html template
-        html_tmplt = Jinja2Template(
-            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(),
-            html=True,
-        )
-        body_html = html_tmplt.render(template_args, loc_context)
-
-        source_data = config["VERSION"] + f"/{custom_templated.template_name}"
+    body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+    body_html = render_html_body(
+        subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
+    )
+    source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
     if include_ics_attachments:
@@ -104,7 +68,7 @@ def render_email_notification(
     )
 
 
-def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
+def _notification_to_email(notification: Notification, *, user_name: str) -> emails.EmailBase:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
         case NotificationTopicAction.account_deletion__start:
@@ -227,14 +191,6 @@ class CustomTemplatedEmail:
     template_name: str
     # other template args
     template_args: dict[str, Any]
-
-
-# Gets the data necessary to template an email for which we have a custom template,
-# e.g. not yet using couchers.email.emails.
-def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
-    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-
-    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
 
 def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachmentV2 | None:
