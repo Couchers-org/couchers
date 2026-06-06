@@ -38,6 +38,16 @@
     "login_action": "Log back in",
     "redelete_instructions": "If you change your mind, you can delete your account at any time."
   },
+  "activeness_probe": {
+    "subject": "Are you still open to hosting on Couchers.org?",
+    "body": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
+    "instructions_days_one": "To keep your \"Can Host\" status, please log back in within the next {{count}} day. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "instructions_days_other": "To keep your \"Can Host\" status, please log back in within the next {{count}} days. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "login_action": "Log back in to respond",
+    "encouragement": "These check-ins help surfers find active hosts more easily and keep response times accurate.",
+    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include new mobile app on iOS and Android, improved dashboard, overhauled messaging and new event features.",
+    "read_blog_action": "Read more on our blog"
+  },
   "api_key_issued": {
     "subject": "Your API key for Couchers.org",
     "header": "You recently requested an API key for Couchers.org. We've issued you with the following API key:",
@@ -229,6 +239,12 @@
   "moderator_note": {
     "subject": "You have received a mod note",
     "body": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
+  },
+  "new_blog_post": {
+    "subject": "New blog post: {{title}}",
+    "intro": "We published a new blog post:",
+    "post_title": "<b>{{title}}</b>",
+    "read_action": "Read the post"
   },
   "onboarding_reminder": {
     "initial": {

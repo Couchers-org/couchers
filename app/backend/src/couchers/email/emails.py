@@ -11,6 +11,8 @@ from typing import Self, assert_never
 from markupsafe import Markup, escape
 
 from couchers import urls
+from couchers.config import config
+from couchers.constants import LATEST_RELEASE_BLOG_URL
 from couchers.email.rendering import (
     ActionBlock,
     EmailBlock,
@@ -25,6 +27,7 @@ from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.i18n.localize import format_phone_number
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
+from couchers.utils import now, to_aware_datetime
 
 
 @dataclass
@@ -188,6 +191,42 @@ class AccountDeletionRecoveredEmail(EmailBase):
     @classmethod
     def test_instances(cls) -> list[Self]:
         return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class ActivenessProbeEmail(EmailBase):
+    """Sent to a host to check if they are still open to hosting."""
+
+    days_left: int
+
+    @property
+    def string_key_base(self) -> str:
+        return "activeness_probe"
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".body")
+        builder.para(".instructions_days", {"count": self.days_left})
+        builder.action(urls.app_link(), ".login_action")
+        builder.para(".encouragement")
+
+        # Extract major.minor from the version string. "v1.3.18927" -> "1.3"
+        version = config["VERSION"]
+        if version_match := re.search(r"^v?(\d+\.\d+)\b", version):
+            version = version_match[1]
+
+        builder.para(".latest_release", {"version": version})
+        builder.action(LATEST_RELEASE_BLOG_URL, ".read_blog_action")
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ActivenessProbe, *, user_name: str) -> Self:
+        days_left = (to_aware_datetime(data.deadline) - now()).days
+        return cls(user_name=user_name, days_left=days_left)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [cls(user_name="Alice", days_left=7)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1484,6 +1523,48 @@ class ModeratorNoteEmail(EmailBase):
     @classmethod
     def test_instances(cls) -> list[Self]:
         return [cls(user_name="Alice")]
+
+
+@dataclass(kw_only=True, slots=True)
+class NewBlogPostEmail(EmailBase):
+    """Sent to notify users of a new blog post."""
+
+    title: str
+    blurb: str
+    url: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "new_blog_post"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"title": self.title})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.blurb
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".intro")
+        builder.para(".post_title", {"title": self.title})
+        builder.quote(self.blurb, markdown=False)
+        builder.action(self.url, ".read_action")
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.GeneralNewBlogPost, *, user_name: str) -> Self:
+        return cls(user_name=user_name, title=data.title, blurb=data.blurb, url=data.url)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                title="Exciting new features on Couchers.org",
+                blurb="We've launched some great new features including improved messaging and event discovery.",
+                url="https://couchers.org/blog/2025/01/01/new-features",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)

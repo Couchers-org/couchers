@@ -6,6 +6,10 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
+# When updating this, also update the "activeness_probe" notification strings in
+# src/couchers/email/locales/en.json
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
 # Must match the frontend pattern in app/web/utils/validation.ts

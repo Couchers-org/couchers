@@ -24,7 +24,7 @@ from couchers.notifications.quick_links import (
 from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
 from couchers.templating import Jinja2Template, template_folder
-from couchers.utils import now, to_aware_datetime
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +113,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.AccountDeletionCompletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.account_deletion__recovered:
             return emails.AccountDeletionRecoveredEmail(user_name=user_name)
+        case NotificationTopicAction.activeness__probe:
+            return emails.ActivenessProbeEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.badge__add | NotificationTopicAction.badge__remove:
@@ -170,6 +172,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.FriendRequestAcceptedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.general__new_blog_post:
+            return emails.NewBlogPostEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.modnote__create:
             return emails.ModeratorNoteEmail(user_name=user_name)
         case NotificationTopicAction.onboarding__reminder:
@@ -202,14 +206,13 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             | NotificationTopicAction.reference__receive_surfed
             | NotificationTopicAction.reference__reminder_hosted
             | NotificationTopicAction.reference__reminder_surfed
-            | NotificationTopicAction.activeness__probe
-            | NotificationTopicAction.general__new_blog_post
+            | NotificationTopicAction.onboarding__reminder
         ):
             # Still implemented as a custom templated email
             return None
         case _:
             # Enable mypy's exhaustiveness checking
-            assert_never("Unexpected NotificationTopicAction enumerant")
+            assert_never(notification.topic_action)
 
 
 @dataclass(kw_only=True)
@@ -289,29 +292,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "surfed": surfed,
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.activeness__probe:
-        title = "Are you still open to hosting on Couchers.org?"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="activeness_probe",
-            template_args={
-                "app_link": urls.app_link(),
-                "days_left": (to_aware_datetime(data.deadline) - now()).days,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.general__new_blog_post:
-        title = f"New blog post: {data.title}"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=data.blurb,
-            template_name="new_blog_post",
-            template_args={
-                "title": data.title,
-                "blurb": data.blurb,
-                "url": data.url,
-            },
-        )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
