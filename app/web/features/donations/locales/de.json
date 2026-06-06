@@ -30,5 +30,12 @@
     "title": "Verwalte deine Spenden",
     "button_text": "Zum Spendenverwaltungsportal gehen",
     "description": "Klicke auf die Schaltfläche unten, um deine wiederkehrende Spende zu aktualisieren oder zu stornieren oder um frühere Rechnungen einzusehen."
+  },
+  "logged_out": {
+    "title": "Spenden Betrag",
+    "body": "Melde dich an, um zu spenden, damit wir dir ein Spender-Abzeichen auf deinem Profil verleihen können.",
+    "login_button": "Anmelden um zu spenden",
+    "signup_prompt": "Noch kein Konto? <1>Registrieren</1>",
+    "anonymous_donation": "Um eine einmalige Spende von {{ amount }} $ oder mehr zu tätigen, ohne sie mit einem Konto zu verknüpfen, kontaktiere uns unter <1>{{ email }}</1>."
   }
 }
