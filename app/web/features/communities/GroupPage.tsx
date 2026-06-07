@@ -140,9 +140,7 @@ export default function GroupPage({
         <>
           <HtmlMeta title={`${group.name} Group Page`} />
           <PageTitle>{group.name} Group Page</PageTitle>
-          <Breadcrumbs
-            aria-label={t("communities:community_breadcrumb_a11y")}
-          >
+          <Breadcrumbs aria-label={t("communities:community_breadcrumb_a11y")}>
             {group.parentsList
               .filter((parent) => !!parent.community || !!parent.group)
               .map((parent) => {

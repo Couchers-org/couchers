@@ -142,7 +142,6 @@ export default function TranslationProgress() {
   const { data: languages, isLoading, error } = useWeblateStats();
 
   const renderFlag = (flagCode: string, percent: number) => {
-
     if (flagCode === "CAT") {
       return <CatalanFlag percent={percent} />;
     }

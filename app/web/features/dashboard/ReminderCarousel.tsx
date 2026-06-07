@@ -8,16 +8,16 @@ import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import IconButton from "components/IconButton";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
 import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
-import { useTranslation } from "next-i18next";
 
+import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
-import { DASHBOARD } from "../../i18n/namespaces";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;

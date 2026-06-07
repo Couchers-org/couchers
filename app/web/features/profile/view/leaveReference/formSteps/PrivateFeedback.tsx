@@ -154,7 +154,12 @@ export default function PrivateFeedback({
           )}
           <Controller
             render={({ field }) => (
-              <RadioGroup {...field} aria-label={t("profile:leave_reference.safety_rating_selector_a11y")}>
+              <RadioGroup
+                {...field}
+                aria-label={t(
+                  "profile:leave_reference.safety_rating_selector_a11y",
+                )}
+              >
                 <FormControlLabel
                   value="true"
                   control={<Radio />}

@@ -1,11 +1,11 @@
 import { IconButton, styled, Tooltip } from "@mui/material";
 import { HelpIcon } from "components/Icons";
 import React from "react";
-import { theme } from "theme";
 import { useTranslation } from "react-i18next";
+import { theme } from "theme";
 
-import ScoreBar from "./ScoreBar";
 import { GLOBAL } from "../../i18n/namespaces";
+import ScoreBar from "./ScoreBar";
 
 interface BarWithHelpProps {
   value: number;

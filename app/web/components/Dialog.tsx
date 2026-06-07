@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import React from "react";
-import { theme } from "theme";
 import { useTranslation } from "react-i18next";
+import { theme } from "theme";
+
 import { GLOBAL } from "../i18n/namespaces";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
