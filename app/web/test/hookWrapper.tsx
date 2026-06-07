@@ -81,7 +81,7 @@ export default function hookWrapper({
  * Useful for when you need access to the client as well for certain tests.
  */
 export function getHookWrapperWithClient(
-  features: FeatureApiResponse["features"],
+  features: FeatureApiResponse["features"] = {},
 ) {
   const growthbook = newGrowthBook(features);
   const client = newQueryClient();
