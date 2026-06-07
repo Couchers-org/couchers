@@ -133,10 +133,12 @@ def _refresh_loop() -> None:
 @cache
 def _load_local_flags(path_str: str) -> dict[str, Any]:
     """Read and validate the dev-only override file; cached per path."""
-    loaded = json.loads(Path(path_str).read_text())
+    # resolve relative to the backend root, independent of cwd (absolute paths are left untouched)
+    path = Path(__file__).parent / ".." / ".." / path_str
+    loaded = json.loads(path.read_text())
     if not isinstance(loaded, dict):
-        raise ValueError(f"Feature flag override file {path_str} must contain a JSON object")
-    logger.info("Loaded %d feature flag override(s) from %s", len(loaded), path_str)
+        raise ValueError(f"Feature flag override file {path} must contain a JSON object")
+    logger.info("Loaded %d feature flag override(s) from %s", len(loaded), path)
     return loaded
 
 
