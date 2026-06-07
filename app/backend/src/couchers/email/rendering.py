@@ -9,6 +9,7 @@ from html import unescape
 from pathlib import Path
 from typing import Any, Self
 
+from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from couchers import urls
@@ -16,7 +17,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, SubstitutionDict, full_string_key
 from couchers.i18n.locales import load_locales
 from couchers.proto import api_pb2
-from couchers.templating import Jinja2Template, _markdown, template_folder
+from couchers.templating import Jinja2Template
 from couchers.utils import now
 
 
@@ -202,6 +203,13 @@ def get_emails_i18next() -> I18Next:
     return load_locales(Path(__file__).parent / "locales")
 
 
+template_folder = Path(__file__).parent.parent.parent / "templates" / "v2"
+
+_markdown = MarkdownIt("zero", {"typographer": True}).enable(
+    ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
+)
+
+
 def render_html_body(
     *,
     subject: str,
@@ -260,7 +268,7 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
         source=(template_folder / "_footer.txt").read_text(encoding="utf8").strip(), html=False
     )
     footer_template_args = footer.to_template_args()
-    return "".join(concat) + footer_template.render(footer_template_args, loc_context)
+    return "".join(concat) + footer_template.render(footer_template_args)
 
 
 def _to_plaintext(text: str | Markup) -> str:
@@ -318,7 +326,6 @@ class HTMLRenderer:
                     "header_subject": subject,
                     "header_preview": preview or "",
                 },
-                loc_context,
             )
         )
 
@@ -326,7 +333,7 @@ class HTMLRenderer:
         for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
-                    concats.append(self.para_block_template.render(asdict(block), loc_context))
+                    concats.append(self.para_block_template.render(asdict(block)))
                 case UserBlock():
                     concats.append(
                         self.user_block_template.render(
@@ -337,22 +344,21 @@ class HTMLRenderer:
                                 "avatar_url": block.info.avatar_url,
                                 "comment": block.comment,
                             },
-                            loc_context,
                         )
                     )
                 case QuoteBlock():
                     args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
-                    concats.append(self.quote_block_template.render(args, loc_context))
+                    concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(asdict(block), loc_context))
+                    concats.append(self.action_block_template.render(asdict(block)))
                 case TwoButtonHTMLBlock():
-                    concats.append(self.two_buttons_block_template.render(asdict(block), loc_context))
+                    concats.append(self.two_buttons_block_template.render(asdict(block)))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
         footer_template_args = footer.to_template_args()
-        concats.append(self.footer_template.render(footer_template_args, loc_context))
+        concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)
 

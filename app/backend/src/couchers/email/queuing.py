@@ -79,11 +79,10 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
     source = (_system_email_templates_dir / f"{template_name}.md").read_text(encoding="utf8")
     _, frontmatter_source, text_source = source.split("---", 2)
 
-    loc_context = LocalizationContext.en_utc()
-    rendered_frontmatter = Jinja2Template(source=frontmatter_source, html=False).render(template_args, loc_context)
+    rendered_frontmatter = Jinja2Template(source=frontmatter_source, html=False).render(template_args)
     frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
 
-    plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args, loc_context)
+    plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args)
 
     queue_email(
         session,
