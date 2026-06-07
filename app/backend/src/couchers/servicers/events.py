@@ -1205,6 +1205,16 @@ class Events(events_pb2_grpc.EventsServicer):
 
         query = query.where(or_(*where_))
 
+        if request.exclude_attending:
+            attending_occurrence_ids = select(EventOccurrenceAttendee.occurrence_id).where(
+                EventOccurrenceAttendee.user_id == context.user_id
+            )
+            organizing_event_ids = select(EventOrganizer.event_id).where(EventOrganizer.user_id == context.user_id)
+            query = query.where(
+                EventOccurrence.id.not_in(attending_occurrence_ids),
+                EventOccurrence.event_id.not_in(organizing_event_ids),
+            )
+
         if request.my_communities_exclude_global:
             query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)
 
