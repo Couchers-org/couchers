@@ -1546,7 +1546,7 @@ class HostRequestStatusChangedEmail(EmailBase):
 
 @dataclass(kw_only=True, slots=True)
 class HostReferenceReceivedEmail(EmailBase):
-    """Sent to a user when they receive a reference from a host request stay."""
+    """Sent to a user when they receive a reference from a past host or surfer."""
 
     from_user: UserInfo
     text: str | None  # None if hidden because receiver hasn't written their reference yet.
