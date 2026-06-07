@@ -91,8 +91,11 @@ def profile_references_link() -> str:
     return f"{config['BASE_URL']}/profile/references"
 
 
-def friend_requests_link() -> str:
-    return f"{config['BASE_URL']}/connections/friends/"
+def friend_requests_link(*, from_user_id: int | None = None) -> str:
+    url = f"{config['BASE_URL']}/connections/friends/"
+    if from_user_id is not None:
+        url += f"?from={from_user_id}"
+    return url
 
 
 def media_upload_url(*, path: str) -> str:

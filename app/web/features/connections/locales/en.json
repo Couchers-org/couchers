@@ -22,6 +22,7 @@
   "no_blocked_users": "No blocked users",
   "no_friends": "No friends available",
   "no_friend_requests": "No pending friend requests",
+  "friend_request_no_longer_available": "This friend request is no longer available.",
   "no_friend_requests_sent": "No pending friend requests",
   "pending": "Pending",
   "remove_friend": "Remove friend",

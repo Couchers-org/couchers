@@ -361,7 +361,7 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert n.title == f"Friend request from {user2.name}"
     assert n.body == f"{user2.name} wants to be your friend."
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
-    assert n.url == "http://localhost:3000/connections/friends/"
+    assert n.url == f"http://localhost:3000/connections/friends/?from={user2.id}"
 
     with conversations_session(token2) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
