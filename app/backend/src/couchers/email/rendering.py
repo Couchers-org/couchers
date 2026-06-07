@@ -203,7 +203,7 @@ def get_emails_i18next() -> I18Next:
     return load_locales(Path(__file__).parent / "locales")
 
 
-template_folder = Path(__file__).parent.parent.parent / "templates" / "v2"
+template_folder = Path(__file__).parent.parent.parent.parent / "templates" / "v2"
 
 _markdown = MarkdownIt("zero", {"typographer": True}).enable(
     ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
