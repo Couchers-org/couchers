@@ -24,7 +24,7 @@ from couchers.notifications.quick_links import (
 from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
 from couchers.templating import Jinja2Template, template_folder
-from couchers.utils import now, to_aware_datetime
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +113,8 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.AccountDeletionCompletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.account_deletion__recovered:
             return emails.AccountDeletionRecoveredEmail(user_name=user_name)
+        case NotificationTopicAction.activeness__probe:
+            return emails.ActivenessProbeEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.api_key__create:
             return emails.APIKeyIssuedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.badge__add | NotificationTopicAction.badge__remove:
@@ -127,10 +129,28 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.DiscussionCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.discussion__comment:
             return emails.DiscussionCommentEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.donation__received:
+            return emails.DonationReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__change:
             return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
             return emails.EmailAddressVerifiedEmail(user_name=user_name)
+        case NotificationTopicAction.event__create_approved:
+            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=True)
+        case NotificationTopicAction.event__create_any:
+            return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=False)
+        case NotificationTopicAction.event__update:
+            return emails.EventUpdatedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__invite_organizer:
+            return emails.EventOrganizerInvitedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__comment:
+            return emails.EventCommentEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__reminder:
+            return emails.EventReminderEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__cancel:
+            return emails.EventCancelledEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.event__delete:
+            return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__create:
             return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
@@ -152,8 +172,12 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.FriendRequestAcceptedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.general__new_blog_post:
+            return emails.NewBlogPostEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.modnote__create:
             return emails.ModeratorNoteEmail(user_name=user_name)
+        case NotificationTopicAction.onboarding__reminder:
+            return emails.OnboardingReminderEmail(user_name=user_name, initial=notification.key == "1")
         case NotificationTopicAction.password__change:
             return emails.PasswordChangedEmail(user_name=user_name)
         case NotificationTopicAction.password_reset__complete:
@@ -177,29 +201,18 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
         case (
-            NotificationTopicAction.donation__received
-            | NotificationTopicAction.event__create_any
-            | NotificationTopicAction.event__create_approved
-            | NotificationTopicAction.event__reminder
-            | NotificationTopicAction.event__comment
-            | NotificationTopicAction.event__update
-            | NotificationTopicAction.event__invite_organizer
-            | NotificationTopicAction.event__cancel
-            | NotificationTopicAction.event__delete
-            | NotificationTopicAction.reference__receive_friend
+            NotificationTopicAction.reference__receive_friend
             | NotificationTopicAction.reference__receive_hosted
             | NotificationTopicAction.reference__receive_surfed
             | NotificationTopicAction.reference__reminder_hosted
             | NotificationTopicAction.reference__reminder_surfed
             | NotificationTopicAction.onboarding__reminder
-            | NotificationTopicAction.activeness__probe
-            | NotificationTopicAction.general__new_blog_post
         ):
             # Still implemented as a custom templated email
             return None
         case _:
             # Enable mypy's exhaustiveness checking
-            assert_never("Unexpected NotificationTopicAction enumerant")
+            assert_never(notification.topic_action)
 
 
 @dataclass(kw_only=True)
@@ -218,131 +231,7 @@ class CustomTemplatedEmail:
 # e.g. not yet using couchers.email.emails.
 def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    if notification.topic_action == NotificationTopicAction.donation__received:
-        title = loc_context.localize_string("notifications.donation_received.title")
-        message = loc_context.localize_string(
-            "notifications.donation_received.thanks_amount",
-            substitutions={
-                "amount": data.amount,
-            },
-        )
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="donation_received",
-            template_args={
-                "amount": data.amount,
-                "receipt_url": data.receipt_url,
-            },
-        )
-    elif notification.topic == "event":
-        event = data.event
-        start_time = loc_context.localize_datetime(event.start_time)
-        end_time = loc_context.localize_datetime(event.end_time)
-        time_display = f"{start_time} - {end_time}"
-        event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
-        if notification.action in ["create_approved", "create_any"]:
-            # create_approved = invitation, approved by mods
-            # create_any = new event created by anyone (no need for approval) -- off by default
-            if notification.action == "create_approved":
-                subject = f'{data.inviting_user.name} invited you to "{event.title}"'
-                start_text = "You've been invited to a new event"
-            elif notification.action == "create_any":
-                subject = f'{data.inviting_user.name} created an event called "{event.title}"'
-                start_text = "A new event was created"
-            community_link = (
-                urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
-                if data.in_community
-                else None
-            )
-            return CustomTemplatedEmail(
-                subject=subject,
-                preview=f"{start_text} on Couchers.org!",
-                template_name="event_create",
-                template_args={
-                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
-                    "time_display": time_display,
-                    "start_text": start_text,
-                    "nearby": "nearby" if data.nearby else None,
-                    "community": data.in_community if data.in_community else None,
-                    "community_link": community_link,
-                    "event": event,
-                    "view_link": event_link,
-                },
-            )
-        elif notification.action == "update":
-            updated_text = ", ".join(data.updated_items)
-            return CustomTemplatedEmail(
-                subject=f'{data.updating_user.name} updated "{event.title}"',
-                preview="An event you are subscribed to was updated.",
-                template_name="event_update",
-                template_args={
-                    "updating_user": UserTemplateArgs.from_protobuf_user(data.updating_user),
-                    "time_display": time_display,
-                    "event": event,
-                    "updated_text": updated_text,
-                    "view_link": event_link,
-                },
-            )
-        elif notification.action == "cancel":
-            return CustomTemplatedEmail(
-                subject=f'{data.cancelling_user.name} cancelled "{event.title}"',
-                preview="An event you are subscribed to has been cancelled.",
-                template_name="event_cancel",
-                template_args={
-                    "cancelling_user": UserTemplateArgs.from_protobuf_user(data.cancelling_user),
-                    "time_display": time_display,
-                    "event": event,
-                    "view_link": event_link,
-                },
-            )
-        elif notification.action == "delete":
-            return CustomTemplatedEmail(
-                subject=f'A moderator deleted "{event.title}"',
-                preview="An event you are subscribed to has been deleted.",
-                template_name="event_delete",
-                template_args={
-                    "time_display": time_display,
-                    "event": event,
-                },
-            )
-        elif notification.action == "invite_organizer":
-            return CustomTemplatedEmail(
-                subject=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
-                preview="You were invited to co-organize an event on Couchers.org.",
-                template_name="event_invite_organizer",
-                template_args={
-                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
-                    "time_display": time_display,
-                    "event": event,
-                    "view_link": event_link,
-                },
-            )
-        elif notification.action == "comment":
-            return CustomTemplatedEmail(
-                subject=f'{data.author.name} commented on "{event.title}"',
-                preview="Someone commented on an event you are attending.",
-                template_name="event_comment",
-                template_args={
-                    "author": UserTemplateArgs.from_protobuf_user(data.author),
-                    "time_display": time_display,
-                    "event": event,
-                    "content": data.reply.content,
-                    "view_link": event_link,
-                },
-            )
-        elif notification.action == "reminder":
-            return CustomTemplatedEmail(
-                subject=f'Reminder: "{data.event.title}" starts soon',
-                preview="Don't forget your upcoming event on Couchers.org",
-                template_name="event_reminder",
-                template_args={
-                    "time_display": time_display,
-                    "event": event,
-                    "view_link": event_link,
-                },
-            )
-    elif notification.topic == "reference":
+    if notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"
             return CustomTemplatedEmail(
@@ -403,49 +292,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
                     "surfed": surfed,
                 },
             )
-    elif notification.topic_action == NotificationTopicAction.onboarding__reminder:
-        if notification.key == "1":
-            return CustomTemplatedEmail(
-                subject="Welcome to Couchers.org and the future of couch surfing",
-                preview="We are so excited to have you join our community!",
-                template_name="onboarding1",
-                template_args={
-                    "app_link": urls.app_link(),
-                    "edit_profile_link": urls.edit_profile_link(),
-                },
-            )
-        elif notification.key == "2":
-            return CustomTemplatedEmail(
-                subject="Complete your profile on Couchers.org",
-                preview="We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
-                template_name="onboarding2",
-                template_args={
-                    "edit_profile_link": urls.edit_profile_link(),
-                },
-            )
-    elif notification.topic_action == NotificationTopicAction.activeness__probe:
-        title = "Are you still open to hosting on Couchers.org?"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="activeness_probe",
-            template_args={
-                "app_link": urls.app_link(),
-                "days_left": (to_aware_datetime(data.deadline) - now()).days,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.general__new_blog_post:
-        title = f"New blog post: {data.title}"
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=data.blurb,
-            template_name="new_blog_post",
-            template_args={
-                "title": data.title,
-                "blurb": data.blurb,
-                "url": data.url,
-            },
-        )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 

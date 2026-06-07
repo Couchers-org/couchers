@@ -104,15 +104,20 @@ class EmailBlocksBuilder:
 
     _locale: str
     _string_key_base: str
-    blocks: list[EmailBlock]
+    _blocks: list[EmailBlock]
+    _epilogue: list[EmailBlock]
 
     def __init__(self, locale: str, string_key_base: str):
-        self.blocks = []
         self._locale = locale
         self._string_key_base = string_key_base
+        self._blocks = []
+        self._epilogue = []
 
-    def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
-        return self.block(ParaBlock(text=self._markup(key, substitutions)))
+    def build(self) -> list[EmailBlock]:
+        return self._blocks + self._epilogue
+
+    def para(self, key: str, substitutions: SubstitutionDict | None = None, epilogue: bool = False) -> Self:
+        return self.block(ParaBlock(text=self._markup(key, substitutions)), epilogue=epilogue)
 
     def quote(self, text: str, *, markdown: bool) -> Self:
         return self.block(QuoteBlock(text=text, markdown=markdown))
@@ -129,8 +134,11 @@ class EmailBlocksBuilder:
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
 
-    def block(self, block: EmailBlock) -> Self:
-        self.blocks.append(block)
+    def block(self, block: EmailBlock, epilogue: bool = False) -> Self:
+        if epilogue:
+            self._epilogue.append(block)
+        else:
+            self._blocks.append(block)
         return self
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:

@@ -16,19 +16,6 @@
   "profile_summary_view": "Ver mi perfil",
   "profile_mobile_summary_view": "Ir al perfil",
   "find_a_host": "Buscar anfitrión",
-  "complete_profile_dialog": {
-    "description_1": "Antes de que puedas {{action_name}}, debes <4>escribir algo sobre ti</4> en tu perfil y <7>subir una foto de perfil</7>.",
-    "actions": {
-      "create_event": "crear un evento",
-      "send_message": "enviar un mensaje",
-      "send_request": "enviar una solicitud",
-      "send_friend_request": "enviar una solicitud de amistad"
-    },
-    "edit_profile_button": "Edita tu perfil ahora",
-    "cancel_button": "Ahora no",
-    "title": "Ya casi estás, ¡completa tu perfil para continuar!",
-    "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
-  },
   "your_communities_helper_text": "Se te ha añadido a todas las comunidades basándonos en tu ubicación. También eres libre de <1>explorar comunidades</1> en otras ubicaciones.",
   "your_communities_helper_text2": "¿No ves tu comunidad? <1>¡Créala!</1>",
   "community_builder_form_text": "Crear tu propia comunidad local",
@@ -91,7 +78,6 @@
     "see_all_link": "Ver todos →",
     "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
     "community_header": "Eventos en tus comunidades",
-    "community_empty_message": "No hay próximos eventos en tus comunidades.",
     "location_online_label": "En línea",
     "today_label": "Hoy"
   },
@@ -100,8 +86,6 @@
     "community_empty_message": "Aún no hay discusiones en tus comunidades.",
     "replies_count_label_one": "{{count}} respuesta",
     "replies_count_label_many": "{{count}} de respuestas",
-    "replies_count_label_other": "{{count}} respuestas",
-    "prev_page_label": "Página anterior",
-    "next_page_label": "Página siguiente"
+    "replies_count_label_other": "{{count}} respuestas"
   }
 }

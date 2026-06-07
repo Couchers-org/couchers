@@ -56,14 +56,14 @@ export default function RequestsTab({
       onlyArchived: showArchived,
       type,
     }),
-    queryFn: ({ pageParam: lastRequestId }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.requests.listHostRequests({
-        lastRequestId: lastRequestId as number | undefined,
+        pageToken: pageToken as string | undefined,
         onlyArchived: showArchived,
         type,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastRequestId,
+      lastPage.noMore ? undefined : lastPage.nextPageToken,
     initialPageParam: undefined,
   });
 

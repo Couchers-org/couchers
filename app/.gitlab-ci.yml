@@ -612,6 +612,25 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
+# Checks app/mobile/fingerprints (the runtimeVersion) and fingerprints.full (the
+# review tripwire) against the computed fingerprints.
+test:mobile-fingerprints:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run fingerprints:check
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -948,6 +967,7 @@ build:mobile-native-devtool:
     default: false
   variables:
     APP_VARIANT: devtool
+    GIT_DEPTH: 0
   resource_group: mobile-eas-devtool
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
@@ -1358,6 +1378,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-fingerprints
       artifacts: false
       optional: true
 

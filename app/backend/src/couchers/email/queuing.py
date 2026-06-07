@@ -5,11 +5,13 @@ import yaml
 from sqlalchemy.orm.session import Session
 
 from couchers.config import config
+from couchers.email.emails import EmailBase
+from couchers.email.rendering import EmailFooter, render_html_body, render_plaintext_body
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
 from couchers.proto.internal import jobs_pb2
-from couchers.templating import Jinja2Template, template_folder
+from couchers.templating import Jinja2Template
 from couchers.utils import now
 
 
@@ -35,9 +37,7 @@ def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     _queue_email(session, payload)
 
 
-def queue_userless_email(
-    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
-) -> None:
+def queue_userless_email(session: Session, recipient: str, email: EmailBase, source_data_header: str) -> None:
     """
     This is a simplified version of couchers.notifications.background._send_email_notification
 
@@ -47,25 +47,16 @@ def queue_userless_email(
     # Not yet localizable
     loc_context = LocalizationContext.en_utc()
 
-    template_args = {
-        **template_args,
-        "header_subject": subject,
-        "footer_timezone_name": loc_context.localized_timezone,
-        "footer_copyright_year": now().year,
-        "footer_email_is_critical": True,  # Results in no unsubscribe footer.
-    }
+    subject = email.get_subject_line(loc_context)
+    preview = email.get_preview_line(loc_context)
+    body_blocks = email.get_body_blocks(loc_context)
 
-    # Format plaintext template
-    plain_tmplt_body = (template_folder / f"{template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-    plain = plain_tmplt.render(template_args, loc_context)
+    footer = EmailFooter(timezone_name=loc_context.localized_timezone, copyright_year=now().year, unsubscribe_info=None)
 
-    # Format html template
-    html_tmplt = Jinja2Template(
-        source=(template_folder / "generated_html" / f"{template_name}.html").read_text(), html=True
+    body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+    body_html = render_html_body(
+        subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
     )
-    html = html_tmplt.render(template_args, loc_context)
 
     queue_email(
         session,
@@ -74,9 +65,9 @@ def queue_userless_email(
             sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
             recipient=recipient,
             subject=config["NOTIFICATION_PREFIX"] + subject,
-            plain=plain,
-            html=html,
-            source_data=config["VERSION"] + f"/{template_name}",
+            plain=body_plaintext,
+            html=body_html,
+            source_data=f"{source_data_header}; version={config['VERSION']}",
         ),
     )
 

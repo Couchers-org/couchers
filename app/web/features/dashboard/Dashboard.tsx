@@ -15,6 +15,7 @@ import Hero from "./Hero";
 import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
 import MyEvents from "./MyEvents";
 import ReminderCarousel from "./ReminderCarousel";
+import UpcomingStays from "./UpcomingStays";
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
@@ -42,8 +43,19 @@ export default function Dashboard() {
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
-            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
-              <Typography variant="body1">
+            <Alert
+              severity="info"
+              sx={{
+                marginBottom: theme.spacing(2),
+                [theme.breakpoints.down("sm")]: { py: 0.75 },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  [theme.breakpoints.down("sm")]: { fontSize: "0.8125rem" },
+                }}
+              >
                 New blog post:{" "}
                 <StyledLink href={dashboardNews["2026-05-25"].link}>
                   {dashboardNews["2026-05-25"].title}
@@ -51,8 +63,19 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
-              <Typography variant="body1">
+            <Alert
+              severity="info"
+              sx={{
+                marginBottom: theme.spacing(2),
+                [theme.breakpoints.down("sm")]: { py: 0.75 },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  [theme.breakpoints.down("sm")]: { fontSize: "0.8125rem" },
+                }}
+              >
                 New blog post:{" "}
                 <StyledLink href={dashboardNews["2026-05-15"].link}>
                   {dashboardNews["2026-05-15"].title}
@@ -63,6 +86,10 @@ export default function Dashboard() {
             <ReminderCarousel />
 
             <Divider spacing={3} />
+
+            <UpcomingStays />
+
+            <Box sx={{ height: theme.spacing(3) }} />
 
             <MyEvents />
 

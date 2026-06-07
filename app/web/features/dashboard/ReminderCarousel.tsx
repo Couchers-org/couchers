@@ -5,6 +5,7 @@ import {
 import { Box, styled, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import FadingScrollTrack from "components/FadingScrollTrack";
 import IconButton from "components/IconButton";
 import { RpcError } from "grpc-web";
 import { usePersistedState } from "platform/usePersistedState";
@@ -45,6 +46,9 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   if (reminder.completeVerificationReminder) {
     return "complete_verification";
   }
+  if (reminder.confirmHostRequestReminder?.hostRequestId != null) {
+    return `confirm_host_request:${reminder.confirmHostRequestReminder.hostRequestId}`;
+  }
   return null;
 }
 
@@ -79,17 +83,6 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   width: "100%",
 }));
-
-const StyledScroller = styled(Box)({
-  display: "flex",
-  gap: `${CARD_GAP}px`,
-  flex: 1,
-  minWidth: 0,
-  overflowX: "auto",
-  scrollSnapType: "x mandatory",
-  scrollbarWidth: "none",
-  "&::-webkit-scrollbar": { display: "none" },
-});
 
 const StyledCardSlot = styled(Box)({
   flex: `0 0 ${CARD_WIDTH_DESKTOP}px`,
@@ -175,20 +168,26 @@ export default function ReminderCarousel() {
     <StyledContainer>
       <StyledArrow
         aria-label={t("dashboard:carousel_scroller.left_arrow_a11y")}
+        size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
       >
         <ChevronLeftIcon />
       </StyledArrow>
 
-      <StyledScroller
+      <FadingScrollTrack
         ref={scrollerRef}
         onScroll={updateScrollState}
-        sx={
-          isMobile && visibleReminders.length === 1
+        $gap={CARD_GAP}
+        $canScrollLeft={canScrollLeft}
+        $canScrollRight={canScrollRight}
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          ...(isMobile && visibleReminders.length === 1
             ? { justifyContent: "center" }
-            : undefined
-        }
+            : {}),
+        }}
       >
         {visibleReminders.map(({ id, reminder }) => (
           <StyledCardSlot key={id}>
@@ -198,10 +197,11 @@ export default function ReminderCarousel() {
             />
           </StyledCardSlot>
         ))}
-      </StyledScroller>
+      </FadingScrollTrack>
 
       <StyledArrow
         aria-label={t("dashboard:carousel_scroller.right_arrow_a11y")}
+        size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
       >

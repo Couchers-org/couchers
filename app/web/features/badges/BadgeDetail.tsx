@@ -1,6 +1,6 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Box, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { useFeatureValue } from "experimentation";
 import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";

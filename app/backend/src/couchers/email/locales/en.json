@@ -2,6 +2,7 @@
   "generic": {
     "greeting_line": "Hi {{name}},",
     "closing_line": "Best,<br>The Couchers.org Team",
+    "founders_signature": "Aapeli and Itsi,<br>Couchers.org Founders",
     "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
     "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request."
   },
@@ -36,6 +37,16 @@
     "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
     "login_action": "Log back in",
     "redelete_instructions": "If you change your mind, you can delete your account at any time."
+  },
+  "activeness_probe": {
+    "subject": "Are you still open to hosting on Couchers.org?",
+    "body": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
+    "instructions_days_one": "To keep your \"Can Host\" status, please log back in within the next {{count}} day. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "instructions_days_other": "To keep your \"Can Host\" status, please log back in within the next {{count}} days. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "login_action": "Log back in to respond",
+    "encouragement": "These check-ins help surfers find active hosts more easily and keep response times accurate.",
+    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include new mobile app on iOS and Android, improved dashboard, overhauled messaging and new event features.",
+    "read_blog_action": "Read more on our blog"
   },
   "api_key_issued": {
     "subject": "Your API key for Couchers.org",
@@ -86,13 +97,76 @@
     "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
     "view_action": "View discussion"
   },
+  "donation_received": {
+    "subject": "Thank you for your donation to Couchers.org!",
+    "thanks_amount": "Thank you so much for your donation of ${{amount}} to Couchers.org.",
+    "purpose": "Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.",
+    "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
+    "download_invoice": "Download invoice",
+    "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
+    "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
+    "generosity_helps": "Your generosity will help deliver the platform for everyone.",
+    "thank_you": "Thank you!"
+  },
   "email_address_change_initiated": {
     "subject": "An email change was initiated on your account",
     "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
   },
+  "email_address_change_confirmation": {
+    "subject": "Confirm your new email for Couchers.org",
+    "context": "You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ old_email }}</b>. This is the final step in the process.",
+    "instructions": "To complete this change, please confirm your email by clicking the following link:",
+    "confirm_action": "Confirm new email"
+  },
   "email_address_verified": {
     "subject": "Email change completed",
     "body": "Your new email address has been verified."
+  },
+  "event": {
+    "generic": {
+      "online_link": "Online",
+      "view_action": "View event"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} invited you to \"{{title}}\"",
+        "body_with_community": "You've been invited to a new event in the {{community}} community:",
+        "body_no_community": "You've been invited to a new event nearby:"
+      },
+      "notification": {
+        "subject": "{{user}} created an event called \"{{title}}\"",
+        "body_with_community": "A new event was created in the {{community}} community:",
+        "body_no_community": "A new event was created nearby:"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} updated \"{{title}}\"",
+      "body": "An event you are subscribed to was updated.",
+      "updated_items": "The following information was updated: <b>{{items_list}}</b>. Here is the updated event:"
+    },
+    "organizer_invited": {
+      "subject": "{{user}} invited you to co-organize \"{{title}}\"",
+      "body": "<b>{{user}}</b> invited you to co-organize \"{{title}}\". The event information is below:",
+      "user_card_text": "Invited you to co-organize the event."
+    },
+    "comment": {
+      "subject": "{{author}} commented on \"{{title}}\"",
+      "body": "<b>{{author}}</b> commented on the event <b>{{title}}</b>:",
+      "event_details": "Here are the details of the event:"
+    },
+    "reminder": {
+      "subject": "Reminder: \"{{title}}\" starts soon",
+      "body": "This is a reminder that the following event is starting in less than 24 hours:"
+    },
+    "cancel": {
+      "subject": "{{user}} cancelled \"{{title}}\"",
+      "body": "An event you are subscribed to has been cancelled:",
+      "user_card_text": "Cancelled the event."
+    },
+    "deleted": {
+      "subject": "A moderator deleted \"{{title}}\"",
+      "body": "An event you are subscribed to has been deleted by the moderators:"
+    }
   },
   "friend_request_received": {
     "subject": "{{name}} wants to be your friend on Couchers.org!",
@@ -166,6 +240,36 @@
     "subject": "You have received a mod note",
     "body": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
   },
+  "new_blog_post": {
+    "subject": "New blog post: {{title}}",
+    "intro": "We published a new blog post:",
+    "post_title": "<b>{{title}}</b>",
+    "read_action": "Read the post"
+  },
+  "onboarding_reminder": {
+    "initial": {
+      "subject": "Welcome to Couchers.org and the future of couch surfing",
+      "welcome": "Welcome to Couchers.org, and our growing worldwide community of couch surfers. We are excited that you have joined us!",
+      "early_user_role": "We are still a small platform and are growing quickly. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.",
+      "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P",
+      "edit_profile_prompt": "To edit your profile, click on the following link:",
+      "edit_profile_action": "Complete your profile",
+      "share_with_friends": "Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.",
+      "link": "Link: <a href=\"{{ url }}\">{{ url }}",
+      "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
+      "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!",
+      "signature": "Aapeli<br>Couchers.org Co-founder<br><a href=\"mailto:aapeli@couchers.org\">aapeli@couchers.org</a> (feel free to shoot me an email at any time)<br><br><a href=\"https://couchers.org/user/aapeli\">https://couchers.org/user/aapeli</a>"
+    },
+    "follow_up": {
+      "subject": "Complete your profile on Couchers.org",
+      "intro": "I hope you've taken a bit of time to look around the Couchers.org platform!",
+      "fill_in_profile": "We would love to ask one quick favor of you: please take a moment to fill out your profile by adding a photo and some text.",
+      "edit_profile_action": "Go to edit your profile",
+      "no_empty_accounts": "A big problem that some platforms have is that there are so many empty accounts, and we really want to avoid that!",
+      "profile_importance": "We would really appreciate it if you could add a photo and fill in at least the \"Who I am\" section of your profile, although a full profile would be even better! It's an easy way to help showcase the amazing community we're building together, and it means you'll be fully ready to connect, host, or surf as the community thrives.",
+      "signature": "Emily from Couchers.org<br><a href=\"mailto:community@couchers.org\">community@couchers.org</a><br><br><a href=\"https://couchers.org/user/emily\">https://couchers.org/user/emily</a>"
+    }
+  },
   "password_changed": {
     "subject": "Your password was changed",
     "body": "Your login password for Couchers.org was changed."
@@ -201,6 +305,21 @@
   "postal_verification_succeeded": {
     "subject": "Postal Verification succeeded",
     "body": "You have been verified with Postal Verification! Your address has been confirmed."
+  },
+  "signup": {
+    "subject": "Finish signing up for Couchers.org",
+    "closing": "See you in a bit :)",
+    "verify": {
+      "thanks": "Thanks for signing up for Couchers.org!",
+      "instructions": "To finish setting up your account, please click on the following link to confirm your email:",
+      "confirm_action": "Confirm your email address"
+    },
+    "continue": {
+      "request": "Please finish signing up for Couchers.org.",
+      "instructions": "Please click on this link to continue:",
+      "continue_action": "Finish signing up",
+      "ignore_if_unexpected": "If you did not request a signup, someone else did with your email, and you can safely ignore this message."
+    }
   },
   "strong_verification_failed": {
     "subject": "Strong Verification failed",

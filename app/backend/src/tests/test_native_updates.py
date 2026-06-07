@@ -26,8 +26,20 @@ class _FakeContext:
     def __init__(self, flags: dict[str, Any] | None = None) -> None:
         self._flags = flags or {}
 
+    def get_boolean_value(self, key: str, default: bool) -> bool:
+        return bool(self._flags.get(key, default))
+
+    def get_string_value(self, key: str, default: str) -> str:
+        return str(self._flags.get(key, default))
+
     def get_integer_value(self, key: str, default: int) -> int:
         return int(self._flags.get(key, default))
+
+    def get_float_value(self, key: str, default: float) -> float:
+        return float(self._flags.get(key, default))
+
+    def get_object_value(self, key: str, default: Any) -> Any:
+        return self._flags.get(key, default)
 
 
 def _days_ago(days: float) -> datetime:

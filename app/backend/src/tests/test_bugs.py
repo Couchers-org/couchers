@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import OTAPackage, OTAPlatform
+from couchers.models import NativeClientUser, OTAPackage, OTAPlatform
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
@@ -427,6 +427,55 @@ def test_check_native_status_authenticated(db):
     assert res.update_info.required is False
 
 
+def test_check_native_status_authenticated_records_mapping(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="authenticated")
+        )
+
+    with session_scope() as session:
+        row = session.execute(
+            select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+        ).scalar_one()
+        assert row.user_id == user.id
+
+
+def test_check_native_status_anonymous_does_not_record_mapping(db):
+    with bugs_session() as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="logged_out")
+        )
+
+    with session_scope() as session:
+        count = session.execute(select(func.count()).select_from(NativeClientUser)).scalar_one()
+        assert count == 0
+
+
+def test_check_native_status_append_only_log_of_sightings(db):
+    # A shared install — same eas-client-id, two users — produces two rows; newest is user_b.
+    user_a, token_a = generate_user()
+    user_b, token_b = generate_user()
+
+    with bugs_session(token_a) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+    with bugs_session(token_b) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+
+    with session_scope() as session:
+        rows = (
+            session.execute(
+                select(NativeClientUser)
+                .where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+                .order_by(NativeClientUser.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert [r.user_id for r in rows] == [user_a.id, user_b.id]
+
+
 def test_check_native_status_blocks_expired_binary(db):
     # A native binary older than the (default 91-day) store window -> required store update, blocking.
     embedded_created_at = timestamp_pb2.Timestamp()
@@ -683,6 +732,86 @@ def test_native_update_manifest_no_package_returns_directive(db):
         )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+
+
+def _ota_check_req(*, created_at, update_id=""):
+    ts = timestamp_pb2.Timestamp()
+    ts.FromDatetime(created_at)
+    return bugs_pb2.CheckNativeStatusReq(
+        eas_client_id=str(EAS_CLIENT_ID),
+        platform="ios",
+        runtime_version="ios-fingerprint",
+        launch_source="ota",
+        update_id=update_id,
+        created_at=ts,
+    )
+
+
+def test_check_native_status_ota_block_with_newer_bundle(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.2.newer",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_AGE
+
+
+def test_check_native_status_ota_block_without_target_raises(db):
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_ota_block_only_older_target_raises(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.older",
+        created_at=datetime.now(UTC) - timedelta(days=50),
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_banned_ota_block_with_successor(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.good",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            _ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad")
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_BANNED
+
+
+def test_check_native_status_banned_ota_block_no_successor_raises(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad"))
 
 
 def test_log_experiment_exposure(db):
