@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, ForeignKey, String, UniqueConstrain
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from couchers.models.base import Base, communities_seq
+from couchers.models.moderation import ModerationObjectType
 
 if TYPE_CHECKING:
     from couchers.models import Cluster, User
@@ -16,6 +17,8 @@ class Discussion(Base, kw_only=True):
     """
 
     __tablename__ = "discussions"
+    __moderation_author_column__ = "creator_user_id"
+    __moderation_object_type__ = ModerationObjectType.discussion
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
@@ -24,6 +27,7 @@ class Discussion(Base, kw_only=True):
     title: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -81,10 +85,13 @@ class Comment(Base, kw_only=True):
     """
 
     __tablename__ = "comments"
+    __moderation_author_column__ = "author_user_id"
+    __moderation_object_type__ = ModerationObjectType.comment
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
@@ -99,10 +106,13 @@ class Reply(Base, kw_only=True):
     """
 
     __tablename__ = "replies"
+    __moderation_author_column__ = "author_user_id"
+    __moderation_object_type__ = ModerationObjectType.reply
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)

@@ -17,6 +17,7 @@ import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
+  pingQueryKey,
 } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -47,23 +48,27 @@ const StyledHeader = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(
-  ({ theme, isNativeEmbed }) => ({
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden", // Prevent page scroll - only messages should scroll
-    // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-    // Use CSS custom property set by Navigation component for actual height
-    height: isNativeEmbed
-      ? "calc(100dvh - var(--nav-height, 3.5rem))"
-      : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
+const StyledPageWrapper = styled("div")<{
+  isNativeEmbed: boolean;
+  embedded: boolean;
+}>(({ theme, isNativeEmbed, embedded }) => ({
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden", // Prevent page scroll - only messages should scroll
+  ...(embedded
+    ? { flex: 1, minHeight: 0 }
+    : {
+        // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+        // Use CSS custom property set by Navigation component for actual height
+        height: isNativeEmbed
+          ? "calc(100dvh - var(--nav-height, 3.5rem))"
+          : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
 
-    [theme.breakpoints.up("md")]: {
-      // On desktop, only subtract top nav (no bottom nav)
-      height: "calc(100dvh - var(--nav-height, 4rem))",
-    },
-  }),
-);
+        [theme.breakpoints.up("md")]: {
+          height: "calc(100dvh - var(--nav-height, 4rem))",
+        },
+      }),
+}));
 
 // Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
@@ -85,7 +90,13 @@ const StyledCannotMessageText = styled("div")(({ theme }) => ({
   textAlign: "center",
 }));
 
-export default function GroupChatView({ chatId }: { chatId: number }) {
+export default function GroupChatView({
+  chatId,
+  embedded = false,
+}: {
+  chatId: number;
+  embedded?: boolean;
+}) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -143,6 +154,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(
@@ -164,7 +176,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
           {t("messages:chat_view.invalid_id_error")}
         </Alert>
       ) : (
-        <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
+        <StyledPageWrapper isNativeEmbed={isNativeEmbed} embedded={embedded}>
           <StyledHeader>
             <GroupChatHeaderBar
               chatId={chatId}
@@ -184,6 +196,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
           )}
           <ChatContent
             isHostRequest={false}
+            isDm={groupChat?.isDm}
             isLoading={isMessagesLoading}
             messages={messagesRes}
             fetchNextPage={fetchNextPage}

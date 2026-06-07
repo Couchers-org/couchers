@@ -9,7 +9,7 @@
     "title": "Bu etkinlik için bir topluluk daveti iste",
     "toast_success": "Teşekkürler, isteğin alındı",
     "link": "Bu özellik hakkında daha fazla bilgi",
-    "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim yollamaları için modaretörlerden bu formla istekte bulun."
+    "message": "Bu etkinliği çevredeki tüm kullanıcılara duyuracak bir bildirim göndermeleri için moderatörlerden bu formla istekte bulun."
   },
   "invite_community_dialog_buttons": {
     "open": "Topluluğu davet et",
@@ -34,8 +34,6 @@
   "invalid_community_id": "Geçersiz topluluk kimliği.",
   "discussions_title": "Tartışmalar",
   "fill_out_comment": "Önce birşey yazman gerekli!",
-  "attendees_count_one": "{{count}} katılımcı",
-  "attendees_count_other": "{{count}} katılımcı",
   "by_creator": "{{name}} tarafından",
   "error_loading_community": "Topluluk yüklenirken bir hata oluştu.",
   "events_empty_state": "Şu anda herhangi bir etkinlik yok. Neden bir tane <0>oluşturmuyorsun</0> ✨?",

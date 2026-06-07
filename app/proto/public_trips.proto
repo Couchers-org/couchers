@@ -31,8 +31,9 @@ service PublicTrips {
 
   rpc UpdatePublicTrip(UpdatePublicTripReq) returns (PublicTrip) {
     // Edit a public trip. Owner-only. Content edits (dates, description)
-    // require the trip's end date to be today or later; status can be
-    // updated at any time but only to CLOSED.
+    // require the trip's end date to be today or later. Status can be set to
+    // CLOSED at any time, or back to SEARCHING_FOR_HOST as long as the trip is
+    // not in the past.
   }
 }
 
@@ -53,6 +54,10 @@ message PublicTrip {
   string description = 6;
   PublicTripStatus status = 7;
   google.protobuf.Timestamp created = 8;
+  // Slug of the community this trip belongs to, for client-side routing
+  string node_slug = 9;
+  // If true, only users with the same gender as the poster can see this trip
+  bool same_gender_only = 10;
 }
 
 message CreatePublicTripReq {
@@ -60,6 +65,7 @@ message CreatePublicTripReq {
   string from_date = 2; // YYYY-MM-DD
   string to_date = 3; // YYYY-MM-DD
   string description = 4;
+  bool same_gender_only = 5;
 }
 
 message GetPublicTripReq {
@@ -100,4 +106,5 @@ message UpdatePublicTripReq {
   optional string to_date = 3; // YYYY-MM-DD
   optional string description = 4;
   optional PublicTripStatus status = 5;
+  optional bool same_gender_only = 6;
 }

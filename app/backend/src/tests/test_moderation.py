@@ -26,12 +26,13 @@ from couchers.models import (
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
+    User,
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.misc import PushCollector, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
@@ -145,7 +146,7 @@ def test_add_to_moderation_queue(db):
         assert res.queue_item.moderation_state_id == state_id
         assert res.queue_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
         assert res.queue_item.reason == "Admin manually flagged for additional review"
-        assert res.queue_item.moderation_state.author_user_id == user1.id
+        assert res.queue_item.moderation_state.author.user_id == user1.id
         assert res.queue_item.is_resolved == False
 
 
@@ -1184,13 +1185,13 @@ def test_GetModerationQueue_filter_by_author(db):
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user1.id))
         assert len(res.queue_items) == 2
-        assert all(item.moderation_state.author_user_id == user1.id for item in res.queue_items)
+        assert all(item.moderation_state.author.user_id == user1.id for item in res.queue_items)
 
     # Filter by user2 (should get 1)
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user2.id))
         assert len(res.queue_items) == 1
-        assert res.queue_items[0].moderation_state.author_user_id == user2.id
+        assert res.queue_items[0].moderation_state.author.user_id == user2.id
         assert res.queue_items[0].moderation_state_id == state3_id
 
     # Filter by non-existent user (should get 0)
@@ -1784,7 +1785,7 @@ def test_group_chat_moderation_shadow(db):
 # ============================================================================
 
 
-def test_auto_approve_moderation_queue_disabled_when_zero(db):
+def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: EmailCollector):
     """Test that auto-approval is disabled when deadline is 0"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1795,18 +1796,17 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
 
         # No email should have been sent (request is shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
         # Ensure deadline is 0 (disabled)
         config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
@@ -1849,7 +1849,9 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
 
-def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: PushCollector):
+def test_auto_approve_moderation_queue_approves_old_items(
+    db, email_collector: EmailCollector, push_collector: PushCollector
+):
     """Test that auto-approval approves items older than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1860,18 +1862,17 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text("Test request for auto-approval"),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request for auto-approval"),
+            )
+        ).host_request_id
 
         # No email sent initially (shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host cannot see the request yet
     with requests_session(token2) as api:
@@ -1942,7 +1943,7 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
         assert approve_entries[0].moderator_user_id == moderator.id
 
 
-def test_auto_approve_does_not_approve_recent_items(db):
+def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCollector):
     """Test that auto-approval does not approve items that are newer than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -1953,29 +1954,27 @@ def test_auto_approve_does_not_approve_recent_items(db):
 
     # Create a host request
     with requests_session(token1) as api:
-        with mock_notification_email() as mock:
-            host_request_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
 
         # No email sent (shadowed)
-        mock.assert_not_called()
+        assert email_collector.count_for_recipient(user2.email) == 0
 
     # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 3600
     config["MODERATION_BOT_USER_ID"] = moderator.id
 
     # Run the job - the item was just created, so it shouldn't be approved
-    with mock_notification_email() as mock:
-        auto_approve_moderation_queue(empty_pb2.Empty())
+    auto_approve_moderation_queue(empty_pb2.Empty())
 
-        # Still no email sent
-        mock.assert_not_called()
+    # Still no email sent
+    assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host still cannot see the request
     with requests_session(token2) as api:
@@ -2148,12 +2147,76 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+def test_auto_approve_skips_shadowed_user_authored_items(db):
+    """Auto-approval must not promote content authored by a currently-shadowed user."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Shadow the surfer after the host request was created
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
+
+    # Backdate the queue item to make it eligible for auto-approval
+    with session_scope() as session:
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == host_request.moderation_state_id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        ).scalar_one()
+        queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
+
+    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 60
+    config["MODERATION_BOT_USER_ID"] = moderator.id
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    # State should remain SHADOWED — the auto-approve job must skip shadowed-user content
+    with real_moderation_session(mod_token) as api:
+        state_res = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+                object_id=host_request_id,
+            )
+        )
+        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
+
+    # Host still cannot see the request
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # But the (shadowed) author can still see their own request
+    with requests_session(surfer_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.host_request_id == host_request_id
+
+
 # ============================================================================
 # Notification Suppression Tests
 # ============================================================================
 
 
-def test_host_request_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
+def test_host_request_message_notifications_suppressed_before_approval(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     """
     Test that notifications are NOT sent for messages in host requests
     that haven't been approved yet.
@@ -2176,6 +2239,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
         ).host_request_id
 
     # No notifications should have been sent to the host (request is SHADOWED)
+    assert email_collector.count_for_recipient(host.email) == 0
     assert push_collector.count_for_user(host.id) == 0
 
     # Send additional messages BEFORE approval - should NOT generate notifications
@@ -2194,11 +2258,12 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
         )
 
     # Host should STILL have no notifications (messages sent while SHADOWED)
+    assert email_collector.count_for_recipient(host.email) == 0
     assert push_collector.count_for_user(host.id) == 0
 
     # Now approve the request
-    with mock_notification_email():
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
+    email_collector.pop_for_recipient(host.email)
 
     # Host should now have 3 notifications (all deferred notifications are delivered on approval):
     # 1. host_request:create (the initial request)
@@ -2252,7 +2317,9 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
     assert push_collector.count_for_user(host.id) == 0
 
 
-def test_host_request_notifications_sent_after_approval(db, push_collector: PushCollector, moderator):
+def test_host_request_notifications_sent_after_approval(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator
+):
     """
     Test that after a host request is approved, all notifications work normally.
     """
@@ -2273,39 +2340,39 @@ def test_host_request_notifications_sent_after_approval(db, push_collector: Push
             )
         ).host_request_id
 
-    with mock_notification_email():
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
     # Host should have received 1 notification (the approval notification)
+    email_collector.pop_for_recipient(host.email, last=True)
     push_collector.pop_for_user(host.id, last=True)
 
     # Host accepts the request - surfer should be notified
     with requests_session(host_token) as api:
-        with mock_notification_email():
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    text="Sure, come on over!",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Sure, come on over!",
             )
+        )
 
     # Surfer should have 1 notification (the accept notification)
+    email_collector.pop_for_recipient(surfer.email, last=True)
     push = push_collector.pop_for_user(surfer.id, last=True)
     assert push.content.title == f"{host.name} accepted your host request"
 
     # Surfer confirms - host should be notified
     with requests_session(surfer_token) as api:
-        with mock_notification_email():
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-                    text="See you then!",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                text="See you then!",
             )
+        )
 
     # Host should now have received the confirmation notifications
+    email_collector.pop_for_recipient(host.email, last=True)
     push = push_collector.pop_for_user(host.id, last=True)
     assert push.content.title == f"{surfer.name} confirmed their host request"
 
@@ -2844,3 +2911,226 @@ def test_SetUserContentVisibility_user_not_found(db):
                 )
             )
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_SetUserContentVisibility_from_visibility_filter(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with real_moderation_session(super_token) as api:
+        api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[moderation_pb2.MODERATION_VISIBILITY_SHADOWED],
+            )
+        )
+    assert res.updated_count == 0
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.visible
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+                from_visibility=[moderation_pb2.MODERATION_VISIBILITY_VISIBLE],
+            )
+        )
+    assert res.updated_count == 1
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_SetUserContentVisibility_from_visibility_multi(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host1, _ = generate_user()
+    host2, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host1.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        state1_id = _get_moderation_state(session, ModerationObjectType.host_request, hr1_id).id
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state1_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[
+                    moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+                ],
+            )
+        )
+    assert res.updated_count == 2
+
+    with session_scope() as session:
+        state1 = _get_moderation_state(session, ModerationObjectType.host_request, hr1_id)
+        state2 = _get_moderation_state(session, ModerationObjectType.host_request, hr2_id)
+        assert state1.visibility == ModerationVisibility.hidden
+        assert state2.visibility == ModerationVisibility.hidden
+
+
+def test_SetUserContentVisibility_from_visibility_empty_is_any(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[],
+            )
+        )
+    assert res.updated_count == 1
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.hidden
+
+
+def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    target, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetUserContentVisibility(
+                moderation_pb2.SetUserContentVisibilityReq(
+                    user_id=target.id,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                    from_visibility=[moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED],
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_ListModerationStates_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
+    assert len(res.moderation_states) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListModerationStates_returns_states_chronologically(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state1_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    state2_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    state3_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
+        assert [s.moderation_state_id for s in res.moderation_states] == [state1_id, state2_id, state3_id]
+
+        res_newest = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(newest_first=True))
+        assert [s.moderation_state_id for s in res_newest.moderation_states] == [state3_id, state2_id, state1_id]
+
+
+def test_ListModerationStates_filter_by_author(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer1, surfer1_token = generate_user()
+    surfer2, surfer2_token = generate_user()
+    host, _ = generate_user()
+
+    state1_id = create_test_host_request_with_moderation(surfer1_token, host.id)
+    state2_id = create_test_host_request_with_moderation(surfer2_token, host.id)
+    state3_id = create_test_host_request_with_moderation(surfer1_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer1.id))
+        assert {s.moderation_state_id for s in res.moderation_states} == {state1_id, state3_id}
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer2.id))
+        assert [s.moderation_state_id for s in res.moderation_states] == [state2_id]
+
+
+def test_ListModerationStates_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state_ids = [create_test_host_request_with_moderation(surfer_token, host.id) for _ in range(3)]
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2))
+        assert [s.moderation_state_id for s in res.moderation_states] == state_ids[:2]
+        assert res.next_page_token != ""
+
+        res2 = api.ListModerationStates(
+            moderation_pb2.ListModerationStatesReq(page_size=2, page_token=res.next_page_token)
+        )
+        assert [s.moderation_state_id for s in res2.moderation_states] == [state_ids[2]]
+        assert res2.next_page_token == ""

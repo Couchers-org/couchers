@@ -233,6 +233,9 @@
     "request_chars_remaining_other": "Escriu almenys {{count}} caràcters més per enviar una sol·licitud d'allotjament.",
     "success": "Sol·licitud enviada!"
   },
+  "message_form": {
+    "hosting_request_hint": "Envies una sol·licitud d'allotjament? Fes servir el botó <request>Sol·licita</request>."
+  },
   "reference_filter_label": {
     "friend": "D'amics",
     "hosted": "D'amfitrions",
@@ -268,7 +271,6 @@
   "response_time_text_almost_all": "Normalment en {{p33}} a {{p66}}",
   "unsaved_changes_warning": "No has desat els canvis. Estàs segur que vols deixar la pàgina?",
   "profile_tag_input": {
-    "header_text": "Prem 'Retorn' per afegir\n<support_link>Envia'ns un correu</support_link> per afegir una entrada",
     "remove_button_a11y_text": "Elimina {{tag}}"
   },
   "view_in_admin_console": "Visualitza l'usuari a la consola d'administració",
@@ -326,5 +328,18 @@
     "next_photo": "Foto següent",
     "close_viewer": "Tanca el visualitzador de fotos",
     "report_photo": "Reporta la foto"
+  },
+  "complete_profile_dialog": {
+    "title": "Gairebé, completa el teu perfil per continuar!",
+    "description_1": "Abans de poder {{action_name}}, has de <4>escriure una mica sobre tu</4> al teu perfil i <7>pujar una foto de perfil</7>.",
+    "actions": {
+      "send_request": "enviar una sol·licitud",
+      "send_message": "enviar un missatge",
+      "create_event": "crear un esdeveniment",
+      "send_friend_request": "send a friend request"
+    },
+    "edit_profile_button": "Edita el teu perfil ara",
+    "cancel_button": "Ara no",
+    "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <2>consulta aquesta pàgina d'ajuda</2>. Gràcies per la teva ajuda!"
   }
 }

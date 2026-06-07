@@ -41,7 +41,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(
         self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
     ) -> donations_pb2.InitiateDonationRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not context.get_boolean_value("donations_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -108,7 +108,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def GetDonationPortalLink(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> donations_pb2.GetDonationPortalLinkRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not context.get_boolean_value("donations_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -134,7 +134,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # invoice. There are other events too, but we don't handle them right now.
         event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
             payload=request.data,
-            sig_header=context.headers.get("stripe-signature"),
+            sig_header=context.get_header("stripe-signature"),
             secret=config["STRIPE_WEBHOOK_SECRET"],
             api_key=config["STRIPE_API_KEY"],
         )

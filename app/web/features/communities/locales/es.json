@@ -85,9 +85,6 @@
     "open": "Invitar a la comunidad"
   },
   "members_label": "Miembros",
-  "attendees_count_one": "{{count}} asistente",
-  "attendees_count_many": "{{count}} de asistentes",
-  "attendees_count_other": "{{count}} asistentes",
   "page_content_field_label": "Contenido de la página",
   "by_creator": "Por {{name}}",
   "cancel_event": "Cancelar evento",
@@ -150,5 +147,7 @@
   "search_communities_helper": "Seleccionar una comunidad para ir a su página",
   "discussion_creation_date": "Creado el {{dateOnly}}",
   "duplicate_event": "Evento duplicado",
-  "event_title_label": "Título"
+  "event_title_label": "Título",
+  "copy_link": "Copiar enlace",
+  "copy_link_success": "Enlace copiado al portapapeles"
 }

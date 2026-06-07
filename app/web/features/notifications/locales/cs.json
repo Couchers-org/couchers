@@ -20,6 +20,10 @@
       },
       "collapse_all": "Sbalit vše",
       "expand_all": "Rozbalit vše"
+    },
+    "push_notifications": {
+      "title": "Push notifikace",
+      "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce."
     }
   },
   "all": "Vše",

@@ -96,8 +96,7 @@
     "user_load_error_message": "(Erro de carregamento de usuário)",
     "friends_input_label": "Amigos",
     "create_button": "Criar conversa",
-    "back_button": "Voltar",
-    "hosting_request_hint": "Enviando uma solicitação de hospedagem? <back>Volte</back> e use o botão <request>Solicitar</request> em vez disso."
+    "back_button": "Voltar"
   },
   "group_chat_settings_dialog": {
     "title": "Configurações de conversa em grupo",
@@ -109,7 +108,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Nenhuma conversa em grupo ainda",
     "load_more_button_label": "Carregar mais"
   },
   "requests_tab": {
@@ -142,11 +140,7 @@
   },
   "unknown_user": "Usuário desconhecido",
   "mark_all_read_button_text": "Marcar tudo como lido",
-  "request_closed_message": "Esta solicitação de hospedagem está encerrada. Para continuar a conversar, envie uma mensagem normal para a outra pessoa.",
-  "close_request_dialog_host": "Certifique-se de que a conversa terminou antes de recusar a solicitação.",
-  "close_request_dialog_surfer": "Certifique-se de que a conversa terminou antes de cancelar a solicitação.",
   "write_reference_button_text": "Escrever uma Referência",
-  "close_request_dialog_title": "Terminaram as mensagens?",
   "close_request_button_text": "Recusar",
   "messages_page": {
     "title": "Mensagens",
@@ -167,7 +161,6 @@
     "archived": "Arquivado",
     "archive_button": "Arquivar",
     "unarchive_button": "Desarquivar",
-    "no_archived_chats": "Nenhuma conversa arquivada",
     "no_archived_requests": "Nenhuma solicitação arquivada",
     "no_archived_messages": "Nenhuma mensagem arquivada"
   },

@@ -1,6 +1,7 @@
 import json
 from unittest.mock import patch
 
+import grpc
 import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -21,13 +22,23 @@ def _(testconfig):
     pass
 
 
+def test_donations_disabled(db, feature_flags):
+    feature_flags.set("donations_enabled", False)
+    _, token = generate_user()
+
+    with donations_session(token) as donations:
+        with pytest.raises(grpc.RpcError) as e:
+            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100))
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert e.value.details() == "Donations are currently disabled."
+
+
 def test_one_time_donation_flow(db, monkeypatch):
     user, token = generate_user()
     user_email = user.email
     user_id = user.id
 
     new_config = config.copy()
-    new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
@@ -132,7 +143,6 @@ def test_recurring_donation_flow(db, monkeypatch):
     user_id = user.id
 
     new_config = config.copy()
-    new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
@@ -257,7 +267,6 @@ def test_customer_portal_url(db, monkeypatch):
     user_id = user.id
 
     new_config = config.copy()
-    new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
@@ -376,7 +385,6 @@ def test_slack_notification_on_one_time_donation(db, monkeypatch):
     user, token = generate_user()
 
     new_config = config.copy()
-    new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
@@ -407,7 +415,6 @@ def test_slack_notification_on_recurring_donation(db, monkeypatch):
     user, token = generate_user()
 
     new_config = config.copy()
-    new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"

@@ -6,25 +6,26 @@ requires-python = "==3.14.*"
 dependencies = [
     "alembic>=1.17.1",
     "babel>=2.18.0",
-    "boto3>=1.39.3",
+    "boto3>=1.43.1",
     "cachetools>=6.2.1",
     "cryptography>=46.0.3",
     "geoalchemy2>=0.18.0",
     "geoip2>=5.1.0",
-    "grpcio>=1.76.0",
+    "grpcio>=1.80.0",
     "http-ece>=1.2.1",
+    "ics>=0.7.3",
     "Jinja2>=3.1.6",
     "luhn>=0.2.0",
-    "markdown-it-py>=4.0.0",
+    "markdown-it-py>=4.2.0",
     "opentelemetry-api>=1.29.0",
     "opentelemetry-exporter-otlp>=1.29.0",
     "opentelemetry-instrumentation-grpc>=0.50b0",
     "opentelemetry-instrumentation-sqlalchemy>=0.50b0",
     "opentelemetry-instrumentation-threading>=0.50b0",
-    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-sdk>=1.41.1",
     "Pillow>=11.0.0",
     "phonenumbers>=9.0.4",
-    "prometheus-client>=0.23.1",
+    "prometheus-client>=0.25.0",
     "protobuf>=6.33.1",
     "psycopg[binary]>=3.2.0",
     "py-vapid>=1.9.2",
@@ -32,15 +33,17 @@ dependencies = [
     "qrcode>=8.0",
     "python-dateutil>=2.9.0.post0",
     "pyyaml>=6.0.3",
-    "requests>=2.32.5",
+    "regex>=2024.0.0",
+    "requests>=2.34.2",
     "sentry-sdk>=2.43.0",
     "Shapely>=2.1.1",
     "sqlalchemy>=2.0.43",
     "sqlalchemy-utils>=0.42.0",
     "stripe>=13.1.0",
-    "ua-parser>=1.0.1",
+    "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
-    "statsig-python-core>=0.8.0",
+    "growthbook>=1.2.0",
+    "pyroscope-io>=1.0.9",
 ]
 
 [project.scripts]
@@ -62,7 +65,8 @@ dev = [
     "types-cachetools",
     "types-python-dateutil>=2.9.0.20251115",
     "pytest-split>=0.11.0",
-    "types-qrcode>=8.2.0.20250914",
+    "types-qrcode>=8.2.0.20260408",
+    "types-regex>=2026.4.4.20260408",
 ]
 
 
@@ -135,7 +139,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_core", "user_agents"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

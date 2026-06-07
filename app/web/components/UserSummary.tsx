@@ -9,21 +9,21 @@ import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { OpenInNewIcon } from "components/Icons";
-import StyledLink from "components/StyledLink";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
-import { routeToUser } from "routes";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
-const StyledWrapper = styled("div")(({ theme }) => ({
+const StyledWrapper = styled("div")({
   display: "flex",
   padding: 0,
   width: "100%",
   alignItems: "center",
   wordBreak: "break-word",
-}));
+});
 
 const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
   display: "block",
@@ -84,6 +84,7 @@ export default function UserSummary({
     },
   );
 
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -156,15 +157,15 @@ export default function UserSummary({
         disableTypography
         primary={
           titleIsLink && user ? (
-            <StyledLink
-              href={routeToUser(user.username)}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ display: "flex", alignItems: "center" }}
+            <ProfileLink
+              userId={"userId" in user ? user.userId : undefined}
+              username={user.username}
+              openInNewTab={!isMobile}
+              style={{ display: "flex", alignItems: "center" }}
             >
               {title}
-              <StyledOpenInNewIcon />
-            </StyledLink>
+              {!isMobile && <StyledOpenInNewIcon />}
+            </ProfileLink>
           ) : (
             title
           )

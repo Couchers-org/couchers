@@ -281,19 +281,5 @@
     "be_safe_guideline": "阅读个人资料、评语和资源。举报任何不当内容或行为。",
     "no_money_title": "不要牵涉金钱",
     "no_money_guideline": "保持非交易性质。入住或接待期间不要金钱往来。Couchers.org 关乎学习、体验和结识他人。"
-  },
-  "notifications": {
-    "dear_name": "亲爱的 {{name}}，",
-    "thank_you": "谢谢您！",
-    "founders_signature": "Aapeli 和 Itsi，\nCouchers.org 创始人",
-    "donation_received": {
-      "title": "感谢您向 Couchers.org 捐款！",
-      "thanks_amount": "非常感谢您向 Couchers.org 捐赠 ${{amount}}。",
-      "purpose": "您的捐款将用于建设和维护 Couchers.org 平台与社区，对我们实现完全免费、非营利的沙发客新时代目标至关重要。",
-      "invoice_receipt_info": "您可以在这里下载此次捐款的发票和收据：",
-      "download_invoice": "下载发票",
-      "questions_contact": "如果您对捐款有任何疑问，请发送邮件至 <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>。",
-      "generosity_helps": "您的慷慨将帮助我们为所有人建设这个平台。"
-    }
   }
 }

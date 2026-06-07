@@ -29,7 +29,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
@@ -196,11 +196,6 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             .all()
         )
 
-        if group_chat.is_dm:
-            msg = f"{message.author.name} sent you a message"
-        else:
-            msg = f"{message.author.name} sent a message in {group_chat.title}"
-
         for user_id in user_ids_to_notify:
             notify(
                 session,
@@ -213,9 +208,10 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                         session,
                         make_background_user_context(user_id=user_id),
                     ),
-                    message=msg,
                     text=message.text,
                     group_chat_id=message.conversation_id,
+                    group_chat_title=group_chat.title,
+                    # unseen_count irrelevant for this notification
                 ),
                 moderation_state_id=group_chat.moderation_state_id,
             )
@@ -613,6 +609,16 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         subscription.last_seen_message_id = request.last_seen_message_id
 
+        mark_notifications_seen(
+            session,
+            user_id=context.user_id,
+            key=str(request.group_chat_id),
+            topic_actions=[
+                NotificationTopicAction.chat__message,
+                NotificationTopicAction.chat__missed_messages,
+            ],
+        )
+
         return empty_pb2.Empty()
 
     def MuteGroupChat(
@@ -882,6 +888,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         ).scalar_one_or_none()
 
         if not chat:
+            if process_rate_limits_and_check_abort(
+                session=session, user_id=user_id, action=RateLimitAction.chat_initiation
+            ):
+                context.abort_with_error_code(
+                    grpc.StatusCode.RESOURCE_EXHAUSTED,
+                    "chat_initiation_rate_limit2",
+                    substitutions={"count": RATE_LIMIT_HOURS},
+                )
             chat = _create_chat(session, user_id, [recipient_id])
 
         # Retrieve the sender's active subscription to the chat

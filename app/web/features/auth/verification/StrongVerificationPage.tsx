@@ -22,9 +22,14 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 export default function StrongVerificationInstructions() {
-  const { t } = useTranslation([GLOBAL, AUTH]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, AUTH]);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const {
     error,
@@ -33,8 +38,15 @@ export default function StrongVerificationInstructions() {
   } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>({
     mutationFn: () => service.account.initiateStrongVerification(),
     onSuccess: async (data) => {
-      // Open Iris ID in a new tab so user can keep these instructions open
-      window.open(data.redirectUrl, "_blank");
+      if (isNativeEmbed) {
+        // In the WebView, window.open() is unreliable. Using location.href
+        // triggers handleShouldStartLoad which opens the URL in the system
+        // browser via Linking.openURL() while keeping the WebView in place.
+        window.location.href = data.redirectUrl;
+      } else {
+        // Open Iris ID in a new tab so user can keep these instructions open
+        window.open(data.redirectUrl, "_blank");
+      }
     },
   });
 
@@ -151,7 +163,7 @@ export default function StrongVerificationInstructions() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  src={`/img/app-store-badge/${locale}.svg`}
                   alt={t(
                     "auth:strong_verification.instructions.download_app_store",
                   )}
@@ -164,11 +176,11 @@ export default function StrongVerificationInstructions() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="/img/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  src={`/img/google-play-badge/${locale}.svg`}
                   alt={t(
                     "auth:strong_verification.instructions.download_google_play",
                   )}
-                  style={{ height: "45px", width: "auto" }}
+                  style={{ height: "30px", width: "auto" }}
                 />
               </a>
             </Box>

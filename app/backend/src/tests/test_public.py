@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from math import sqrt
 from unittest.mock import patch
 
@@ -14,6 +14,9 @@ from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Invoice,
     InvoiceType,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     ProfilePublicVisibility,
     Reference,
     ReferenceType,
@@ -88,21 +91,19 @@ def test_GetPublicMapLayer(db):
                 assert dist > 0.02 and dist < 0.1
 
 
-def test_GetDonationStats_empty(db):
+def test_GetDonationStats_empty(db, feature_flags):
     """Test GetDonationStats with no donations returns zero and goal"""
     _get_donation_stats.cache_clear()
 
-    with (
-        patch("couchers.servicers.public.DONATION_GOAL_USD", 2500),
-        patch("couchers.servicers.public.DONATION_OFFSET_USD", 700),
-    ):
-        with public_session() as public:
-            res = public.GetDonationStats(empty_pb2.Empty())
-            assert res.total_donated_ytd == 0
-            assert res.goal == 2500
+    feature_flags.set("donation_goal_usd", 2500)
+    feature_flags.set("donation_offset_usd", 700)
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        assert res.total_donated_ytd == 0
+        assert res.goal == 2500
 
 
-def test_GetDonationStats_with_donations(db):
+def test_GetDonationStats_with_donations(db, feature_flags):
     """Test GetDonationStats sums on_platform donations correctly"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -137,17 +138,15 @@ def test_GetDonationStats_with_donations(db):
             )
         )
 
-    with (
-        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
-        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
-    ):
-        with public_session() as public:
-            res = public.GetDonationStats(empty_pb2.Empty())
-            assert res.total_donated_ytd == 850
-            assert res.goal == 5000
+    feature_flags.set("donation_goal_usd", 5000)
+    feature_flags.set("donation_offset_usd", 0)
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        assert res.total_donated_ytd == 850
+        assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_merch(db):
+def test_GetDonationStats_excludes_merch(db, feature_flags):
     """Test GetDonationStats excludes external_shop (merch) invoices"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -174,18 +173,16 @@ def test_GetDonationStats_excludes_merch(db):
             )
         )
 
-    with (
-        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
-        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
-    ):
-        with public_session() as public:
-            res = public.GetDonationStats(empty_pb2.Empty())
-            # Should only count the on_platform donation, not the merch
-            assert res.total_donated_ytd == 200
-            assert res.goal == 5000
+    feature_flags.set("donation_goal_usd", 5000)
+    feature_flags.set("donation_offset_usd", 0)
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        # Should only count the on_platform donation, not the merch
+        assert res.total_donated_ytd == 200
+        assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_previous_years(db):
+def test_GetDonationStats_excludes_previous_years(db, feature_flags):
     """Test GetDonationStats only counts current year donations"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -215,15 +212,40 @@ def test_GetDonationStats_excludes_previous_years(db):
         # Manually set the created date to last year
         invoice.created = last_year
 
-    with (
-        patch("couchers.servicers.public.DONATION_GOAL_USD", 5000),
-        patch("couchers.servicers.public.DONATION_OFFSET_USD", 0),
-    ):
-        with public_session() as public:
-            res = public.GetDonationStats(empty_pb2.Empty())
-            # Should only count this year's donation
-            assert res.total_donated_ytd == 300
-            assert res.goal == 5000
+    feature_flags.set("donation_goal_usd", 5000)
+    feature_flags.set("donation_offset_usd", 0)
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        # Should only count this year's donation
+        assert res.total_donated_ytd == 300
+        assert res.goal == 5000
+
+
+def test_GetDonationStats_uses_flags(db, feature_flags):
+    """Goal and offset come from the donation_goal_usd / donation_offset_usd flags when configured"""
+    _get_donation_stats.cache_clear()
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.add(
+            Invoice(
+                user_id=user.id,
+                amount=1000,
+                stripe_payment_intent_id="pi_test_flag",
+                stripe_receipt_url="https://example.com/receipt/flag",
+                invoice_type=InvoiceType.on_platform,
+            )
+        )
+
+    feature_flags.set("donation_goal_usd", 12000)
+    feature_flags.set("donation_offset_usd", 300)
+
+    with public_session() as public:
+        res = public.GetDonationStats(empty_pb2.Empty())
+        assert res.goal == 12000
+        assert res.total_donated_ytd == 700  # 1000 donated minus the 300 offset
+
+    _get_donation_stats.cache_clear()
 
 
 def test_GetVolunteers_mixed_current_and_past(db):
@@ -241,30 +263,30 @@ def test_GetVolunteers_mixed_current_and_past(db):
             make_volunteer(
                 user_id=current1.id,
                 role="Current Role 1",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=current2.id,
                 role="Current Role 2",
-                started_volunteering=datetime(2024, 1, 1).date(),
+                started_volunteering=date(2024, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=past1.id,
                 role="Past Role 1",
-                started_volunteering=datetime(2020, 1, 1).date(),
-                stopped_volunteering=datetime(2022, 6, 1).date(),
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=date(2022, 6, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=past2.id,
                 role="Past Role 2",
-                started_volunteering=datetime(2021, 1, 1).date(),
-                stopped_volunteering=datetime(2023, 12, 31).date(),
+                started_volunteering=date(2021, 1, 1),
+                stopped_volunteering=date(2023, 12, 31),
             )
         )
 
@@ -295,7 +317,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user2.id,
                 role="Role 2",
-                started_volunteering=datetime(2023, 3, 1).date(),
+                started_volunteering=date(2023, 3, 1),
                 sort_key=1.0,
             )
         )
@@ -304,7 +326,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user3.id,
                 role="Role 3",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 sort_key=2.0,
             )
         )
@@ -313,7 +335,7 @@ def test_GetVolunteers_custom_sort_key(db):
             make_volunteer(
                 user_id=user1.id,
                 role="Role 1",
-                started_volunteering=datetime(2023, 2, 1).date(),
+                started_volunteering=date(2023, 2, 1),
             )
         )
 
@@ -340,14 +362,14 @@ def test_GetVolunteers_excludes_hidden(db):
             make_volunteer(
                 user_id=user1.id,
                 role="Visible Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=user2.id,
                 role="Hidden Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 show_on_team_page=False,
             )
         )
@@ -374,7 +396,7 @@ def test_GetVolunteers_link_types(db):
             make_volunteer(
                 user_id=user_default.id,
                 role="Default Link",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         # Volunteer with custom link
@@ -382,7 +404,7 @@ def test_GetVolunteers_link_types(db):
             make_volunteer(
                 user_id=user_custom.id,
                 role="Custom Link",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
                 link_type="email",
                 link_text="contact@example.com",
                 link_url="mailto:contact@example.com",
@@ -421,14 +443,14 @@ def test_GetVolunteers_board_member_flag(db):
             make_volunteer(
                 user_id=board_member.id,
                 role="Board Member Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
                 user_id=regular_volunteer.id,
                 role="Regular Role",
-                started_volunteering=datetime(2023, 1, 1).date(),
+                started_volunteering=date(2023, 1, 1),
             )
         )
 
@@ -509,16 +531,25 @@ def test_GetPublicUser_limited_visibility(db):
     # Add a reference to test reference counting
     referrer, _ = generate_user(username="referrer")
     with session_scope() as session:
-        session.add(
-            Reference(
-                from_user_id=referrer.id,
-                to_user_id=user.id,
-                reference_type=ReferenceType.friend,
-                text="Great host!",
-                rating=0.8,
-                was_appropriate=True,
-            )
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.reference,
+            object_id=0,
+            visibility=ModerationVisibility.visible,
         )
+        session.add(moderation_state)
+        session.flush()
+        reference = Reference(
+            from_user_id=referrer.id,
+            to_user_id=user.id,
+            reference_type=ReferenceType.friend,
+            text="Great host!",
+            rating=0.8,
+            was_appropriate=True,
+            moderation_state_id=moderation_state.id,
+        )
+        session.add(reference)
+        session.flush()
+        moderation_state.object_id = reference.id
 
     with public_session() as public:
         res = public.GetPublicUser(public_pb2.GetPublicUserReq(user="limited_user"))

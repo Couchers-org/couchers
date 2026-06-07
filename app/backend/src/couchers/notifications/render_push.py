@@ -6,6 +6,8 @@ import logging
 from datetime import date
 from typing import Any, assert_never
 
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from couchers import urls
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import LocalizationError
@@ -179,7 +181,7 @@ def _get_content(
     icon_url = _avatar_url_or_default(icon_user) if icon_user else None
 
     return PushNotificationContent(
-        title=title, ios_title=title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
+        title=title, ios_title=ios_title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
     )
 
 
@@ -279,10 +281,17 @@ def _render_chat__message(
 def _render_chat__missed_messages(
     data: notification_data_pb2.ChatMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # Each message is from a different chat, so this counts conversations.
+    missed_count: int = len(data.messages)
+
+    # Newer version of protos include a per-chat unseen message count (1 or more)
+    if data.messages and data.messages[0].unseen_count:
+        missed_count = sum(message.unseen_count for message in data.messages)
+
     return _get_content(
         NotificationTopicAction.chat__missed_messages,
         loc_context,
-        substitutions={"count": len(data.messages)},
+        substitutions={"count": missed_count},
         action_url=urls.messages_link(),
     )
 
@@ -358,7 +367,7 @@ def _render_event__create_any(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -373,7 +382,7 @@ def _render_event__create_approved(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -433,7 +442,7 @@ def _render_event__reminder(
         loc_context,
         substitutions={
             "title": data.event.title,
-            "date_and_time": loc_context.localize_datetime(data.event.start_time),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -467,7 +476,7 @@ def _render_friend_request__create(
         loc_context,
         substitutions={"from_user": data.other_user.name},
         icon_user=data.other_user,
-        action_url=urls.friend_requests_link(),
+        action_url=urls.friend_requests_link(from_user_id=data.other_user.user_id),
     )
 
 
@@ -509,14 +518,14 @@ def _render_general__new_blog_post(
 def _render_host_request__create(
     data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    days = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days + 1
+    night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
     return _get_content(
         NotificationTopicAction.host_request__create,
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "start_date": loc_context.localize_date_from_iso(data.host_request.from_date),
-            "count": days,
+            "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+            "count": night_count,
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -568,7 +577,7 @@ def _render_host_request__accept(
         loc_context,
         substitutions={
             "user": data.host.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.host,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -583,7 +592,7 @@ def _render_host_request__reject(
         loc_context,
         substitutions={
             "user": data.host.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.host,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -598,7 +607,7 @@ def _render_host_request__cancel(
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -613,7 +622,7 @@ def _render_host_request__confirm(
         loc_context,
         substitutions={
             "user": data.surfer.name,
-            "date": loc_context.localize_date_from_iso(data.host_request.from_date),
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -854,3 +863,15 @@ def _render_verification__sv_fail(
         body=_get_string(NotificationTopicAction.verification__sv_fail, body_key, loc_context),
         action_url=urls.account_settings_link(),
     )
+
+
+def _format_host_request_start_date(date: str, loc_context: LocalizationContext) -> str:
+    # Events are typically in the near future future,
+    # so the year is not useful but the day of week is.
+    return loc_context.localize_date_from_iso(date, with_year=False, with_day_of_week=True)
+
+
+def _format_event_start_datetime(timestamp: Timestamp, loc_context: LocalizationContext) -> str:
+    # Events are typically in the near future future,
+    # so the year is not useful but the day of week is.
+    return loc_context.localize_datetime(timestamp, with_year=False, with_day_of_week=True)

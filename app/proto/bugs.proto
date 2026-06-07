@@ -4,7 +4,9 @@ package org.couchers.bugs;
 
 import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
@@ -37,11 +39,32 @@ service Bugs {
     };
   }
 
+  rpc GetNativeUpdateManifest(google.api.HttpBody) returns (google.api.HttpBody) {
+    // Serves the Expo Updates protocol (v1) manifest for the native app
+    option (google.api.http) = {
+      get : "/native/ota/manifest"
+    };
+  }
+
   rpc GeolocationSearchInfo(GeolocationSearchInfoReq) returns (google.protobuf.Empty) {}
 
   rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
 
   rpc ReportDiagnostics(ReportDiagnosticsReq) returns (google.protobuf.Empty) {}
+
+  rpc CheckNativeStatus(CheckNativeStatusReq) returns (CheckNativeStatusRes) {
+    // Diagnostics ping from the native mobile apps.
+  }
+
+  rpc EvaluateFeatureFlag(EvaluateFeatureFlagReq) returns (EvaluateFeatureFlagRes) {
+    // Remotely evaluate a single feature flag for the current session's user (anonymously when
+    // logged out) and return the resolved value. Evaluated one flag at a time, on demand, so the
+    // server only evaluates flags the client actually uses - which keeps exposure logging accurate.
+  }
+
+  rpc LogExperimentExposure(LogExperimentExposureReq) returns (google.protobuf.Empty) {
+    // Record a client-side experiment exposure, reported by the SDK as the user is bucketed.
+  }
 }
 
 message VersionInfo {
@@ -104,4 +127,111 @@ message DiagnosticInfo {
 message ReportDiagnosticsReq {
   string frontend_version = 1;
   repeated DiagnosticInfo infos = 2;
+}
+
+message CheckNativeStatusReq {
+  string debug_json = 1;
+
+  // Device / install identity
+  string eas_client_id = 2;
+  string install_id = 3;
+  string sticky_id = 4;
+  string idfv = 5;
+  string android_id = 6;
+  string device_name = 7;
+  string platform = 8;
+  string os_version = 9;
+  string locale = 10;
+  string user_state = 11;
+
+  // Build identity — the embedded store build, the running (possibly OTA) bundle,
+  // and the runtimeVersion/channel that decide which OTAs apply.
+  string app_variant = 12;
+  string app_version = 13;
+  string native_build = 14;
+  string embedded_display_version = 15;
+  string embedded_debug_version = 16;
+  string running_display_version = 17;
+  string running_debug_version = 18;
+  string running_debug_version_ota = 19;
+  string runtime_version = 20;
+  string update_id = 21;
+  bool is_embedded_launch = 22;
+  string launch_source = 23;
+  google.protobuf.Timestamp embedded_created_at = 24;
+  google.protobuf.Timestamp created_at = 25;
+
+  // Push + timing
+  string push_permission = 26;
+  string push_token = 27;
+  google.protobuf.Duration time_since_last_open = 28;
+  google.protobuf.Timestamp occurred = 29;
+}
+
+enum NativeUpdateAction {
+  NATIVE_UPDATE_ACTION_UNSPECIFIED = 0;
+  // No update needed.
+  NATIVE_UPDATE_ACTION_NONE = 1;
+  // Fetch and reload an OTA bundle; the client can apply this itself.
+  NATIVE_UPDATE_ACTION_OTA = 2;
+  // Update via the App Store / Play Store.
+  NATIVE_UPDATE_ACTION_STORE = 3;
+  // Delete and reinstall the app (worst case).
+  NATIVE_UPDATE_ACTION_REINSTALL = 4;
+}
+
+enum NativeUpdateCause {
+  NATIVE_UPDATE_CAUSE_UNSPECIFIED = 0;
+  // Bundle or binary is past its support window. The user is running an old version.
+  NATIVE_UPDATE_CAUSE_AGE = 1;
+  // The currently-running bundle has been banned (we shipped a buggy version). The framing on the
+  // device shifts so we take responsibility rather than implying the user is the one out of date.
+  NATIVE_UPDATE_CAUSE_BANNED = 2;
+}
+
+message NativeUpdateInfo {
+  NativeUpdateAction action = 1;
+  // Advisory when false; when true the client must act by act_by (in the past = block now).
+  bool required = 2;
+  google.protobuf.Timestamp act_by = 3;
+  // For advisory updates (required == false): after showing the nag, the client waits at least this
+  // long before showing it again. Ignored when required. Unset/zero = show once per app session.
+  google.protobuf.Duration nag_interval = 4;
+  // Shown on the nag/block screen.
+  string message = 5;
+  // Where to send the user to update (store listing, or a different app for reinstall).
+  string link_url = 6;
+  // Label for the link_url button (e.g. "Update now", "Get the new app").
+  string link_text = 7;
+  // Why the update is being asked for. The client uses this to pick the on-screen wording.
+  NativeUpdateCause cause = 8;
+}
+
+message CheckNativeStatusRes {
+  NativeUpdateInfo update_info = 1;
+}
+
+message EvaluateFeatureFlagReq {
+  string flag_key = 1;
+}
+
+message EvaluateFeatureFlagRes {
+  // The flag's resolved value (bool, string, number, or JSON object/array). Unset when the flag
+  // isn't configured server-side, so the frontend's in-code default applies.
+  google.protobuf.Value value = 1;
+}
+
+message LogExperimentExposureReq {
+  string experiment_key = 1;
+  string experiment_name = 2;
+  int32 variation_id = 3;
+  string variation_key = 4;
+  string variation_name = 5;
+  string hash_attribute = 6;
+  string hash_value = 7;
+  string feature_id = 8;
+  bool in_experiment = 9;
+  optional double bucket = 10;
+  optional bool hash_used = 11;
+  optional bool sticky_bucket_used = 12;
 }

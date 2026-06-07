@@ -4,7 +4,9 @@
     "current_email_message": "Tvá současná e-mailová adresa je <1>{{email}}</1>.",
     "success_message": "Žádost o změnu e-mailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou e-mailovou schránku.",
     "current_password": "Současné heslo",
-    "new_email": "Nový e-mail"
+    "new_email": "Nový e-mail",
+    "hide_current_password": "Skrýt aktuální heslo",
+    "show_current_password": "Zobrazit aktuální heslo"
   },
   "change_email_confirmation": {
     "success_message": "Změna e-mailu proběhla úspěšně!",
@@ -21,7 +23,9 @@
     "reset_password_success": "Tvé heslo bylo úspěšně změněno!",
     "subtitle": "Použij tento formulář k obnovení svého přihlašovacího hesla.",
     "reset_password_error": "Chyba při resetování hesla: {{message}}",
-    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu."
+    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu.",
+    "user_logged_error": "Když jsi přihlášený, nemůžeš si resetovat heslo. Můžeš si ho změnit v nastavení, nebo se odhlásit a pak ho resetovat.",
+    "hide_old_password": "Skrýt staré heslo"
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
@@ -207,7 +211,7 @@
       "no_emails_enable_text": "Neposílejte mi e-maily",
       "no_emails_disable_text": "Znovu povolit e-maily"
     },
-    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat newsletter, ze kterého se můžeš odhlásit pomocí odkazu v patičce newsletteru."
+    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat zpravodaj, ze kterého se můžeš odhlásit pomocí odkazu v patičce zpravodaje."
   },
   "location": {
     "field_label": "Tvá poloha",
@@ -216,7 +220,7 @@
   "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
   "unhandled_sign_up_state": "Chyba: unhandled signup flow state.",
-  "sign_up_need_verification_title": "Už jsme skoro hotovi, ještě poslední věc!",
+  "sign_up_need_verification_title": "Ještě poslední věc: potvrď svůj e-mail.",
   "feature_preview": {
     "title": "Náhled funkcionality"
   },

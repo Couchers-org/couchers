@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
+import { hasUnreadMessages } from "features/messages/utils";
 import {
   groupChatsListKey,
   hostRequestsListKey,
@@ -34,8 +35,7 @@ export default function MarkAllReadButton({
         });
         await Promise.all(
           data.map<void>((chat) =>
-            chat.latestMessage &&
-            chat.lastSeenMessageId < chat.latestMessage.messageId
+            hasUnreadMessages(chat)
               ? service.conversations.markLastSeenGroupChat(
                   chat.groupChatId,
                   chat.latestMessage.messageId,
@@ -52,15 +52,14 @@ export default function MarkAllReadButton({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",
           params: (previousData) => ({
-            lastRequestId: previousData?.lastRequestId,
+            pageToken: previousData?.nextPageToken,
             type: requestType,
           }),
           hasMore: (previousData) => !previousData.noMore,
         });
         await Promise.all(
           data.map<void>((request) =>
-            request.latestMessage &&
-            request.lastSeenMessageId < request.latestMessage.messageId
+            hasUnreadMessages(request)
               ? service.requests.markLastRequestSeen(
                   request.hostRequestId,
                   request.latestMessage.messageId,

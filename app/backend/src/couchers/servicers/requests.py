@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.materialized_views import UserResponseRate
@@ -34,7 +35,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
@@ -61,6 +62,14 @@ hostrequeststatus2api = {
     HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
     HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+}
+
+api2hostrequeststatus = {
+    conversations_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
+    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
+    conversations_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
+    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
+    conversations_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
 }
 
 hostrequestquality2sql = {
@@ -266,6 +275,21 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # Offered dates must fall within the trip's window (host can shorten, not extend)
             if from_date < public_trip.from_date or to_date > public_trip.to_date:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
+            # Enforce same_gender_only restriction (community moderators bypass)
+            if (
+                public_trip.same_gender_only
+                and not can_moderate_node(session, context.user_id, public_trip.node_id)
+                and user.gender != recipient.gender
+            ):
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
+            # Prevent duplicate offers on the same trip
+            existing_offer = session.execute(
+                select(HostRequest)
+                .where(HostRequest.public_trip_id == public_trip_id)
+                .where(HostRequest.initiator_user_id == context.user_id)
+            ).scalar_one_or_none()
+            if existing_offer:
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
         conversation = Conversation()
         session.add(conversation)
@@ -413,8 +437,26 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             is_list_operation=True,
         ).where(message_2.id == None)
 
-        if request.last_request_id != 0:
-            statement = statement.where(Message.id < request.last_request_id)
+        sort_by_from_date = request.sort_by == requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
+
+        if sort_by_from_date:
+            if request.page_token:
+                token_date_str, token_conv_id_str = request.page_token.split(":")
+                token_date = parse_date(token_date_str)
+                token_conv_id = int(token_conv_id_str)
+                statement = statement.where(
+                    or_(
+                        HostRequest.from_date > token_date,
+                        and_(
+                            HostRequest.from_date == token_date,
+                            HostRequest.conversation_id > token_conv_id,
+                        ),
+                    )
+                )
+        else:
+            if request.page_token:
+                statement = statement.where(Message.id < int(request.page_token))
+
         if request.only_sent:
             statement = statement.where(HostRequest.initiator_user_id == context.user_id)
         elif request.only_received:
@@ -448,9 +490,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     HostRequest.status == HostRequestStatus.confirmed,
                 )
             )
-            statement = statement.where(HostRequest.end_time <= func.now())
+            statement = statement.where(HostRequest.end_time >= func.now())
 
-        statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
+        if request.status_in:
+            statement = statement.where(HostRequest.status.in_([api2hostrequeststatus[s] for s in request.status_in]))
+
+        if sort_by_from_date:
+            statement = statement.order_by(HostRequest.from_date.asc(), HostRequest.conversation_id.asc())
+        else:
+            statement = statement.order_by(Message.id.desc())
+        statement = statement.limit(pagination + 1)
         results = session.execute(statement).all()
 
         host_requests = []
@@ -478,11 +527,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
             )
 
-        last_request_id = min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0  # TODO
         no_more = len(results) <= pagination
 
+        if len(results) > pagination:
+            if sort_by_from_date:
+                last = results[pagination - 1]
+                next_page_token = f"{date_to_api(last.HostRequest.from_date)}:{last.HostRequest.conversation_id}"
+            else:
+                next_page_token = str(min(g.Message.id for g in results[:pagination]))
+        else:
+            next_page_token = None
+
         return requests_pb2.ListHostRequestsRes(
-            last_request_id=last_request_id, no_more=no_more, host_requests=host_requests
+            next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
         )
 
     def RespondHostRequest(
@@ -922,6 +979,22 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host_request.recipient_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
             host_request.recipient_last_seen_message_id = request.last_seen_message_id
+
+        mark_notifications_seen(
+            session,
+            user_id=context.user_id,
+            key=str(host_request.conversation_id),
+            topic_actions=[
+                NotificationTopicAction.host_request__create,
+                NotificationTopicAction.host_request__accept,
+                NotificationTopicAction.host_request__reject,
+                NotificationTopicAction.host_request__confirm,
+                NotificationTopicAction.host_request__cancel,
+                NotificationTopicAction.host_request__message,
+                NotificationTopicAction.host_request__missed_messages,
+                NotificationTopicAction.host_request__reminder,
+            ],
+        )
 
         session.commit()
         return empty_pb2.Empty()

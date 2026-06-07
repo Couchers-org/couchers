@@ -117,6 +117,9 @@ def add_dummy_users() -> None:
                 def headers(self) -> dict[str, str]:
                     return {}
 
+                def get_header(self, name: str) -> str | None:
+                    return None
+
             ctx = cast(CouchersContext, _MockCouchersContext())
             if user.get("make_api_key", False):
                 token, _ = create_session(
@@ -167,15 +170,34 @@ def add_dummy_users() -> None:
                 if reference["type"] == "hosted"
                 else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
             )
-            new_reference = Reference(
-                from_user_id=session.execute(select(User).where(User.username == reference["from"])).scalar_one().id,
-                to_user_id=session.execute(select(User).where(User.username == reference["to"])).scalar_one().id,
-                reference_type=reference_type,
-                text=reference["text"],
-                rating=reference["rating"],
-                was_appropriate=reference["was_appropriate"],
+            from_user_id = session.execute(select(User).where(User.username == reference["from"])).scalar_one().id
+            to_user_id = session.execute(select(User).where(User.username == reference["to"])).scalar_one().id
+
+            def create_reference(
+                moderation_state_id: int,
+                from_user_id: int = from_user_id,
+                to_user_id: int = to_user_id,
+                reference: dict[str, Any] = reference,
+                reference_type: ReferenceType = reference_type,
+            ) -> int:
+                new_reference = Reference(
+                    from_user_id=from_user_id,
+                    to_user_id=to_user_id,
+                    reference_type=reference_type,
+                    text=reference["text"],
+                    rating=reference["rating"],
+                    was_appropriate=reference["was_appropriate"],
+                    moderation_state_id=moderation_state_id,
+                )
+                session.add(new_reference)
+                session.flush()
+                return new_reference.id
+
+            moderation_state = create_moderation(
+                session, ModerationObjectType.reference, create_reference, from_user_id
             )
-            session.add(new_reference)
+            moderation_state.visibility = ModerationVisibility.visible
+            session.flush()
 
         session.commit()
 

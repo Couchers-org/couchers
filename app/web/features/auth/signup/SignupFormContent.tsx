@@ -41,7 +41,7 @@ export default function SignupFormContent({
         const data = await response.json();
         setSignupInfo(data);
       } catch (error) {
-        console.error("Error fetching signup info:", error);
+        console.warn("Error fetching signup info:", error);
       }
     };
 
@@ -86,7 +86,7 @@ export default function SignupFormContent({
             By continuing, you agree to our{" "}
             <StyledLink
               href={tosRoute}
-              target="_blank"
+              target={isNativeEmbed ? undefined : "_blank"}
               variant="caption"
               sx={{ fontWeight: 700 }}
             >

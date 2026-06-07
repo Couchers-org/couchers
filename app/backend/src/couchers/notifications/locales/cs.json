@@ -41,7 +41,8 @@
       "push": {
         "title": "Stále máš zájem o hostování?",
         "ios_title": "Stále máš zájem o hostování?"
-      }
+      },
+      "event_description": "Přijímáte hosty, ale nějakou dobu jste se nepřihlásili"
     }
   },
   "api_key": {
@@ -60,14 +61,16 @@
         "title": "Nový odznak profilu: {{badge_name}}",
         "ios_title": "Nový profilový odznak",
         "body": "Odznak {{badge_name}} byl přidán do tvého profilu."
-      }
+      },
+      "event_description": "Na tvůj účet byl přidán odznak"
     },
     "remove": {
       "push": {
         "title": "Odznak profilu odstraněn",
         "ios_title": "Odznak profilu odstraněn",
         "body": "Odznak {{badge_name}} byl odstraněn z tvého profilu."
-      }
+      },
+      "event_description": "Z tvého účtu byl odebrán odznak"
     }
   },
   "birthdate": {
@@ -110,25 +113,30 @@
   },
   "host_request": {
     "accept": {
-      "event_description": "Někdo přijme tvou žádost o ubytování"
+      "event_description": "Někdo přijal tvou žádost o ubytování"
     },
     "cancel": {
-      "event_description": "Někdo zruší žádost o ubytování"
+      "event_description": "Někdo zrušil svou žádost o ubytování"
     },
     "confirm": {
-      "event_description": "Někdo potvrdí žádost o ubytování"
+      "event_description": "Někdo potvrdil žádost o ubytování"
     },
     "create": {
-      "event_description": "Někdo ti zašle žádost o ubytování"
+      "event_description": "Někdo ti poslal žádost o ubytování",
+      "push": {
+        "body_one": "{{user}} chce zůstat od {{start_date}} po dobu {{count}} dne.",
+        "body_few": "{{user}} chce zůstat od {{start_date}} po dobu {{count}} dnů.",
+        "body_other": "{{user}} chce zůstat od {{start_date}} po dobu {{count}} dní."
+      }
     },
     "message": {
-      "event_description": "Někdo ti pošle zprávu v žádosti o ubytování"
+      "event_description": "Někdo poslal zprávu v žádosti o ubytování"
     },
     "missed_messages": {
       "event_description": "Utekla ti zpráva v žádosti o ubytování"
     },
     "reject": {
-      "event_description": "Někdo odmítne tvou žádost o ubytování"
+      "event_description": "Někdo odmítl tvou žádost o ubytování"
     }
   },
   "phone_number": {
@@ -139,6 +147,13 @@
   "reference": {
     "receive_friend": {
       "event_description": "Přišla ti reference od přítele"
+    },
+    "_reminder_any": {
+      "push": {
+        "body_one": "Stále máš {{count}} den na napsání reference pro {{user}}.",
+        "body_few": "Stále máš {{count}} dny na napsání reference pro {{user}}.",
+        "body_other": "Stále máš {{count}} dnů na napsání reference pro {{user}}."
+      }
     }
   }
 }

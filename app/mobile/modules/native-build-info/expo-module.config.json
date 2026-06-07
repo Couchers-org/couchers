@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["NativeBuildInfoModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.nativebuildinfo.NativeBuildInfoModule"]
+  }
+}

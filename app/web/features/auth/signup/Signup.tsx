@@ -5,7 +5,6 @@ import {
   Skeleton,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -14,7 +13,6 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -27,6 +25,7 @@ import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
+import { useIsClient } from "utils/hooks";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -45,13 +44,13 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
 
   const [loading, setLoading] = useState(false);
+  const isClient = useIsClient();
 
   const urlToken = stringOrFirstString(router.query.token);
   const inviteCode = stringOrFirstString(router.query.code);
@@ -182,7 +181,7 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {loading ? (
+          {!isClient || loading ? (
             <CenteredSpinner />
           ) : (
             <SignupFormContent inviteCode={inviteCode || undefined} />
@@ -194,17 +193,6 @@ export default function Signup() {
             </Trans>
           </Typography>
         </StyledFormWrapper>
-        {isMobile && (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: theme.spacing(2),
-            }}
-          >
-            <LanguagePickerSelect />
-          </Box>
-        )}
       </Container>
     </>
   );

@@ -50,18 +50,19 @@ export default function CancelEventDialog({
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={handleCancelEvent}
-          loading={cancelEventMutation.isPending}
-        >
-          {t("global:yes")}
-        </Button>
-        <Button
+          variant="outlined"
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
           loading={cancelEventMutation.isPending}
         >
           {t("global:no")}
+        </Button>
+        <Button
+          onClick={handleCancelEvent}
+          loading={cancelEventMutation.isPending}
+        >
+          {t("global:yes")}
         </Button>
       </DialogActions>
     </Dialog>

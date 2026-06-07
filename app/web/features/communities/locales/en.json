@@ -1,6 +1,4 @@
 {
-  "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees",
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
@@ -36,6 +34,8 @@
   "discussions_empty_state": "No discussions at the moment.",
   "discussions_label": "Discussions",
   "discussions_title": "Discussions",
+  "copy_link": "Copy link",
+  "copy_link_success": "Link copied to clipboard",
   "duplicate_event": "Duplicate event",
   "edit_event": "Edit event",
   "edit_info_page_title": "Edit local info",
@@ -149,5 +149,6 @@
   "search_communities": "Search and visit a community",
   "search_communities_placeholder": "Search by city or country name...",
   "search_communities_helper": "Select a community to go to its page",
-  "no_results_found_with_link": "No communities found. <0>Request this community!</0>"
+  "no_results_found_with_link": "No communities found. <0>Request this community!</0>",
+  "community_breadcrumb_a11y": "Current community"
 }

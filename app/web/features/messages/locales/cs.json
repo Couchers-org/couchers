@@ -25,7 +25,9 @@
     },
     "muted_icon": {
       "a11y_label": "Ztišeno"
-    }
+    },
+    "cannot_message_text": "V tomto chatu nemůžeš posílat zprávy",
+    "invalid_id_error": "Neplatné ID chatu."
   },
   "write_reference_button_text": "Napiš referenci",
   "close_request_button_text": "Zamítnout",
@@ -33,7 +35,11 @@
   "host_pending_request_help_text": "<0>Co je třeba zvážit</0> před odpovědí.",
   "surfer_declined_request_help_text": "<0>Přečti si našeho průvodce</0>, jak napsat žádost, která bude přijata.",
   "messages_page": {
-    "title": "Zprávy"
+    "title": "Zprávy",
+    "tabs": {
+      "unread": "Nepřečteno",
+      "chats": "Chaty"
+    }
   },
   "create_chat": {
     "back_button": "Zpět"
@@ -42,7 +48,17 @@
   "mark_all_read_button_text_chats": "Označit všechny chaty jako přečtené",
   "mark_all_read_button_text_hosting": "Označit všechny žádosti o ubytování jako přečtené",
   "mark_all_read_button_text_surfing": "Označit všechny žádosti jako přečtené",
-  "request_closed_message": "Tento požadavek na ubytování je již uzavřen. Chceš-li pokračovat v konverzaci, pošli druhé osobě normální zprávu.",
-  "close_request_dialog_title": "Je konverzace již ukončena?",
-  "close_request_dialog_host": "Než odmítneš danou žádost, ujisti se, že jste dokončili vaší konverzaci."
+  "host_request_view": {
+    "request_duration_one": "{{count}} noc",
+    "request_duration_few": "{{count}} noci",
+    "request_duration_other": "{{count}} nocí"
+  },
+  "past_request_help_text": "Tato žádost je v minulosti, můžeš dál psát zprávy, ale již ji nemůžeš nijak upravovat.",
+  "archive": {
+    "archived": "Archivováno",
+    "archive_button": "Archivovat",
+    "unarchive_button": "Vrátit z archivu",
+    "no_archived_requests": "Žádné archivované požadavky",
+    "no_archived_messages": "Žádné archivované zprávy"
+  }
 }

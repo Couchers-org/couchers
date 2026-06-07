@@ -7,7 +7,8 @@
       "problem_helper": "Stručný popis problému a jak ho reprodukovat",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
-      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb."
+      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
+      "success_message2": "Děkujeme za nahlášení této chyby a za zlepšení Couchers, hlášení bylo odesláno vývojářům! ID chyby je <id/>."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",
@@ -141,7 +142,8 @@
     "about": "O aplikaci",
     "merch_shop": "Obchod s merchem",
     "switch_to_light_mode": "Přepnout na světlý režim",
-    "switch_to_dark_mode": "Přepnout do tmavého režimu"
+    "switch_to_dark_mode": "Přepnout do tmavého režimu",
+    "home": "Domů"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -186,7 +188,11 @@
     "instructions": "Vytvoř odkaz na pozvánku, který můžeš sdílet s přáteli a komunitou. Deaktivuj kódy, které už nepoužíváš.",
     "error": {
       "fetch_invite_info": "Nepodařilo se získat podrobnosti o kódu pozvánky"
-    }
+    },
+    "number_of_uses_one": "Použití: {{count}} dokončená registrace",
+    "number_of_uses_few": "Použití: {{count}} dokončené registrace",
+    "number_of_uses_other": "Použití: {{count}} dokončených registrací",
+    "created_datetime": "Vytvořeno: {{datetime}}"
   },
   "community_standing": "Postavení v komunitě",
   "relative_time": {
@@ -286,7 +292,6 @@
     "uk": "Ukrajinština",
     "zh-Hans": "Čínština (zjednodušená)",
     "zh-Hant": "Čínština (tradiční)",
-    "en-CORP": "Americký (korporátní)",
     "es": "Španělština (Španělsko)",
     "es-419": "Španělština",
     "fr": "Francouzština (Francie)",
@@ -316,5 +321,19 @@
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",
   "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
-  "contribute_title": "Zaregistruj se a zapoj se"
+  "contribute_title": "Zaregistruj se a zapoj se",
+  "copy_button": {
+    "a11y": "Kopírovat",
+    "copied_tooltip": "Zkopírováno do schránky"
+  },
+  "google_play_badge_a11y": "Rozjeďte to Google Play",
+  "app_store_badge_a11y": "Stáhnout v App Store",
+  "image_input": {
+    "select_button_a11y": "Vyber obrázek",
+    "read_file_error_message": "Soubor nelze přečíst"
+  },
+  "blog": {
+    "byline_without_author": "Publikováno {{date}}.",
+    "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <1>Zaregistruj se</1> a dej nám vědět. Dobrovolníci a <3>dary</3> jsou to, co dělá Couchers.org možným!"
+  }
 }

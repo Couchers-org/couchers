@@ -15,7 +15,11 @@ COPY . .
 RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local && \
-    if [ "$environment" = "production" ]; then cp public/robots-prod.txt public/robots.txt; fi
+    if [ "$environment" = "production" ]; then \
+        cp public/robots-prod.txt public/robots.txt && \
+        cp public/.well-known/apple-app-site-association-prod public/.well-known/apple-app-site-association && \
+        cp public/.well-known/assetlinks-prod.json public/.well-known/assetlinks.json; \
+    fi
 
 # These are used during yarn build by Next.js
 ARG version
@@ -46,6 +50,7 @@ COPY --from=builder /app/package.json ./package.json
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/server-cluster.js ./
 
 COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/proto ./proto
@@ -57,4 +62,4 @@ ENV HOSTNAME="::"
 ARG pipeline_id
 ENV PIPELINE_ID=$pipeline_id
 
-CMD ["node", "server.js"]
+CMD ["node", "server-cluster.js"]

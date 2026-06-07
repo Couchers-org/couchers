@@ -1,3 +1,4 @@
+import { useGrowthBook } from "@growthbook/growthbook-react";
 import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -5,8 +6,9 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -61,12 +63,14 @@ const PageWrapper = styled(Box, {
     display: "flex",
     flexDirection: "column",
     flex: 1,
+    paddingBottom: "var(--cookie-banner-height, 0px)",
     ...(isNoOverflow && {
       overflow: "hidden",
       minHeight: 0,
     }),
     ...(hasBottomNav && {
-      paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
+      paddingBottom:
+        "calc(56px + env(safe-area-inset-bottom, 0px) + var(--cookie-banner-height, 0px))",
     }),
   }),
 );
@@ -105,6 +109,25 @@ function AppRoute({
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
   const isNativeEmbed = useIsNativeEmbed();
+  const featuresReady = useGrowthBook().ready;
+
+  const headerRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const updateNavHeight = () => {
+      if (headerRef.current) {
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${headerRef.current.offsetHeight}px`,
+        );
+      }
+    };
+    updateNavHeight();
+    const resizeObserver = new ResizeObserver(updateNavHeight);
+    if (headerRef.current) {
+      resizeObserver.observe(headerRef.current);
+    }
+    return () => resizeObserver.disconnect();
+  }, [isAuthenticated, isNativeEmbed]);
 
   //there must be the same loading state on auth'd pages on server and client
   //for hydration matching, so we will display a loader until mounted.
@@ -121,14 +144,21 @@ function AppRoute({
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
+  const isPrivateRouteNotReady =
+    isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
+
   return (
     <ErrorBoundary>
-      {isPrivate && (!isMounted || !isAuthenticated) ? (
+      {isPrivateRouteNotReady ? (
         <CenteredSpinner minHeight="50vh" />
       ) : (
         <>
           {variant === "no-overflow" ? globalStylesNoOverflow : globalStyles}
-          <Navigation />
+          <div ref={headerRef}>
+            <Navigation />
+            {!isNativeEmbed && isAuthenticated && <PushNotificationBanner />}
+          </div>
+          <CookieBanner />
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
@@ -159,7 +189,6 @@ function AppRoute({
           </PageWrapper>
         </>
       )}
-      {!isPrivate && <CookieBanner />}
     </ErrorBoundary>
   );
 }

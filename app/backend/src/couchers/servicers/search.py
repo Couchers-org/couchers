@@ -741,7 +741,7 @@ class Search(search_pb2_grpc.SearchServicer):
             ).all()
         }
 
-        ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
+        ref_counts_by_user_id = get_num_references(session, context, user_ids_to_return)
 
         def _user_to_search_user(user_id: int) -> search_pb2.SearchUser:
             lite_user = LiteUser_by_id[user_id]

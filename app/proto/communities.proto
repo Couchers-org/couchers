@@ -105,6 +105,10 @@ service Communities {
   rpc ListAllCommunities(ListAllCommunitiesReq) returns (ListAllCommunitiesRes) {
     // Gets a list of all communities, ordered hierarchically
   }
+
+  rpc ListRecentCommunities(ListRecentCommunitiesReq) returns (ListRecentCommunitiesRes) {
+    // Gets the most recently created communities across the whole tree, ordered newest-first
+  }
 }
 
 message Community {
@@ -317,5 +321,14 @@ message ListAllCommunitiesReq {
 }
 
 message ListAllCommunitiesRes {
+  repeated CommunitySummary communities = 1;
+}
+
+message ListRecentCommunitiesReq {
+  // number of communities to return; server caps this to a sensible maximum
+  uint32 page_size = 1;
+}
+
+message ListRecentCommunitiesRes {
   repeated CommunitySummary communities = 1;
 }

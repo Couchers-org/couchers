@@ -127,6 +127,96 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
+/// Localizes just the abbreviated month name of a date (e.g. "Jan", "Mai" in German).
+export function localizeMonthAbbreviation(
+  date: Date | Dayjs,
+  args: { locale: string; timezone?: string | typeof BROWSER_TIMEZONE },
+): string {
+  if (daysjs.isDayjs(date)) {
+    date = date.toDate();
+  }
+  const cacheKey = JSON.stringify(args, (_, v) =>
+    typeof v === "symbol" ? v.toString() : v,
+  );
+  let format = intlDateTimeFormatCache.get(cacheKey);
+  if (!format) {
+    const options: Intl.DateTimeFormatOptions = { month: "short" };
+    if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
+      options.timeZone = args.timezone;
+    }
+    format = Intl.DateTimeFormat(args.locale, options);
+    intlDateTimeFormatCache.set(cacheKey, format);
+  }
+  return format.format(date);
+}
+
+const isoMuiDateFormat = "YYYY-MM-DD";
+
+/// Gets the date format for a locale using Material UI placeholders.
+export function getMuiDateFormat(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return isoMuiDateFormat;
+  }
+
+  // Format dummy 3333-11-22 date to figure out how it gets laid out.
+  const referenceDate = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  }).format(new Date(3333, 10, 22));
+
+  const format = referenceDate
+    .replace("3333", "YYYY")
+    .replace("33", "YY")
+    .replace("11", "MM")
+    .replace("22", "DD");
+
+  // Sanity check: There should be no digits left
+  if (/[0-9]/.test(format)) return isoMuiDateFormat;
+  return format;
+}
+
+const defaultMuiTimeFormat = "HH:mm";
+
+/// Gets a localized time format string compatible with Material UI time pickers.
+export function getMuiTimeFormat(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return defaultMuiTimeFormat;
+  }
+
+  const intlFormat = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: undefined,
+  });
+
+  // Sniff the format using example dates.
+  // Assume formats only vary by hour-minute separator, 12h vs 24h, and leading zeroes.
+  const hourMinuteSeparatorMatch = /10(\W+)10/.exec(
+    intlFormat.format(new Date(1970, 0, 1, 10, 10)),
+  );
+  const hourMinuteSeparator = hourMinuteSeparatorMatch
+    ? hourMinuteSeparatorMatch[1]
+    : ":";
+  const uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
+  const usesLeadingZeroes = intlFormat
+    .format(new Date(1970, 0, 1, 3, 0))
+    .includes("03");
+
+  let format = "";
+  if (uses24h) {
+    format += usesLeadingZeroes ? "HH" : "H";
+  } else {
+    format += usesLeadingZeroes ? "hh" : "h";
+  }
+  format += hourMinuteSeparator;
+  format += "mm";
+  if (!uses24h) {
+    format += " a";
+  }
+  return format;
+}
+
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
@@ -142,6 +232,14 @@ function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
 /** Compares whether date1 is equal to or in the future of date2 */
 function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
+}
+
+/// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
+export function localizeRelativeDays(days: number, locale: string): string {
+  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
+    days,
+    "day",
+  );
 }
 
 export { isSameOrFutureDate, numNights, timestamp2Date };

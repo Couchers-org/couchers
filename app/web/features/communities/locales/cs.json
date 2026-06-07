@@ -5,9 +5,6 @@
     "open": "Pozvat komunitu"
   },
   "location": "Poloha",
-  "attendees_count_one": "{{count}} účastník",
-  "attendees_count_few": "{{count}} účastníci",
-  "attendees_count_other": "{{count}} účastníků",
   "by_creator": "Od {{name}}",
   "cancelled": "Zrušeno",
   "cancel_event": "Zrušit událost",
@@ -30,5 +27,11 @@
   "community_header": "Vítej v {{name}}",
   "upload_helper_text_replace": "Klikni pro změnu fotografie",
   "community_moderators": "Budovatelé komunity",
-  "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována."
+  "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována.",
+  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?",
+  "community_tabs_a11y_label": "Záložky pro podstránky komunity",
+  "discussion_creation_date": "Vytvořeno dne {{dateOnly}}",
+  "create_new_discussion_title": "Vytvořit nový příspěvek",
+  "discussions_empty_state": "Žádné diskuze v tuto chvíli.",
+  "discussions_label": "Diskuze"
 }

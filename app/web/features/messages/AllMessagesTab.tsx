@@ -1,5 +1,5 @@
 import { Chip, List, styled } from "@mui/material";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -8,6 +8,8 @@ import TextBody from "components/TextBody";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
+import useMessageListsAutoRefetch from "features/messages/useMessageListsAutoRefetch";
+import { hasUnreadMessages } from "features/messages/utils";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { RpcError } from "grpc-web";
@@ -17,7 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { GroupChat, ListGroupChatsRes } from "proto/conversations_pb";
 import { HostRequest, ListHostRequestsRes } from "proto/requests_pb";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -79,7 +81,13 @@ const StyledFilterContainer = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-type FilterType = "all" | "chats" | "hosting" | "surfing" | "archived";
+type FilterType =
+  | "all"
+  | "unread"
+  | "chats"
+  | "hosting"
+  | "surfing"
+  | "archived";
 
 interface MessageItem {
   type: "chat" | "host-request";
@@ -95,7 +103,11 @@ export default function AllMessagesTab() {
   const { data: notifications } = useNotifications();
   const { data: currentUser } = useCurrentUser();
   const unseenMessageCount = notifications?.unseenMessageCount;
-  const queryClient = useQueryClient();
+  const unseenReceivedHostRequestCount =
+    notifications?.unseenReceivedHostRequestCount;
+  const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
+
+  useMessageListsAutoRefetch();
 
   // Get filter from URL path, default to "all"
   const slugs =
@@ -106,24 +118,28 @@ export default function AllMessagesTab() {
         : router.query.slug;
 
   const filterFromPath = slugs[0] as FilterType;
-  const filter = ["all", "chats", "hosting", "surfing", "archived"].includes(
-    filterFromPath,
-  )
+  const filter = [
+    "all",
+    "unread",
+    "chats",
+    "hosting",
+    "surfing",
+    "archived",
+  ].includes(filterFromPath)
     ? filterFromPath
     : "all";
 
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: groupChatsListKey(),
-    });
-  }, [unseenMessageCount, queryClient]);
-
   const showArchived = filter === "archived";
+  const requestType =
+    filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
 
   // Navigate to the appropriate route when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
     router.push(`/messages/${newFilter}`);
   };
+
+  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
+  const shouldFetchRequests = filter !== "chats";
 
   // Fetch group chats
   const {
@@ -142,8 +158,11 @@ export default function AllMessagesTab() {
         showArchived,
       ),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+      lastPage.noMore || !lastPage.lastMessageId
+        ? undefined
+        : lastPage.lastMessageId,
     initialPageParam: undefined,
+    enabled: shouldFetchChats,
   });
 
   // Fetch host requests
@@ -157,17 +176,20 @@ export default function AllMessagesTab() {
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({
       onlyArchived: showArchived,
-      type: "all",
+      type: requestType,
     }),
-    queryFn: ({ pageParam: lastRequestId }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.requests.listHostRequests({
-        lastRequestId: lastRequestId as number | undefined,
+        pageToken: pageToken as string | undefined,
         onlyArchived: showArchived,
-        type: "all",
+        type: requestType,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastRequestId,
+      lastPage.noMore || !lastPage.nextPageToken
+        ? undefined
+        : lastPage.nextPageToken,
     initialPageParam: undefined,
+    enabled: shouldFetchRequests,
   });
 
   const isLoading = chatsLoading || requestsLoading;
@@ -216,6 +238,9 @@ export default function AllMessagesTab() {
     if (filter === "all" || filter === "archived") {
       return allMessages;
     }
+    if (filter === "unread") {
+      return allMessages.filter((msg) => hasUnreadMessages(msg.data));
+    }
     if (filter === "chats") {
       return allMessages.filter((msg) => msg.type === "chat");
     }
@@ -237,20 +262,26 @@ export default function AllMessagesTab() {
     return allMessages;
   }, [allMessages, filter, currentUser?.userId]);
 
-  const hasMoreMessages = chatsHasNextPage || requestsHasNextPage;
-  const isFetchingMore = chatsIsFetchingNextPage || requestsIsFetchingNextPage;
+  const hasMoreMessages =
+    (shouldFetchChats && chatsHasNextPage) ||
+    (shouldFetchRequests && requestsHasNextPage);
+  const isFetchingMore =
+    (shouldFetchChats && chatsIsFetchingNextPage) ||
+    (shouldFetchRequests && requestsIsFetchingNextPage);
 
   const loadMoreMessages = async () => {
     const promises = [];
-    if (chatsHasNextPage) promises.push(chatsFetchNextPage());
-    if (requestsHasNextPage) promises.push(requestsFetchNextPage());
+    if (shouldFetchChats && chatsHasNextPage)
+      promises.push(chatsFetchNextPage());
+    if (shouldFetchRequests && requestsHasNextPage)
+      promises.push(requestsFetchNextPage());
     await Promise.all(promises);
   };
 
   // Calculate unread counts for each filter
-  const unseenChatsCount = notifications?.unseenMessageCount ?? 0;
-  const unseenHostingCount = notifications?.unseenReceivedHostRequestCount ?? 0;
-  const unseenSurfingCount = notifications?.unseenSentHostRequestCount ?? 0;
+  const unseenChatsCount = unseenMessageCount ?? 0;
+  const unseenHostingCount = unseenReceivedHostRequestCount ?? 0;
+  const unseenSurfingCount = unseenSentHostRequestCount ?? 0;
   const unseenAllCount =
     unseenChatsCount + unseenHostingCount + unseenSurfingCount;
 
@@ -258,12 +289,20 @@ export default function AllMessagesTab() {
     <StyledWrapper>
       {!showArchived && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
-        <NotificationBadge count={unseenAllCount}>
+        <NotificationBadge>
           <Chip
             label={t("all_messages_tab.filter.all")}
             onClick={() => handleFilterChange("all")}
             color={filter === "all" ? "primary" : "default"}
             variant={filter === "all" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
+        <NotificationBadge count={unseenAllCount}>
+          <Chip
+            label={t("messages_page.tabs.unread")}
+            onClick={() => handleFilterChange("unread")}
+            color={filter === "unread" ? "primary" : "default"}
+            variant={filter === "unread" ? "filled" : "outlined"}
           />
         </NotificationBadge>
         <NotificationBadge count={unseenChatsCount}>

@@ -126,7 +126,11 @@ export default function NotificationSettingsSubListItem({
           <ListItemIcon>
             <NotificationNewIcon />
           </ListItemIcon>
-          <ListItemText primary="Push" />
+          <ListItemText
+            primary={t(
+              "notifications:notification_settings.edit_preferences.channels.push_label",
+            )}
+          />
           <CustomColorSwitch
             customColor={theme.palette.primary.main}
             checked={push}
@@ -139,7 +143,11 @@ export default function NotificationSettingsSubListItem({
           <ListItemIcon>
             <MailOutline fontSize="medium" />
           </ListItemIcon>
-          <ListItemText primary="Email" />
+          <ListItemText
+            primary={t(
+              "notifications:notification_settings.edit_preferences.channels.email_label",
+            )}
+          />
           <CustomColorSwitch
             customColor={theme.palette.primary.main}
             checked={email}

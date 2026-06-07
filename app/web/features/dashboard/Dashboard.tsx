@@ -1,18 +1,21 @@
-import { Alert, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
-import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
+import CommunityEvents from "./CommunityEvents";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
+import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
 import MyEvents from "./MyEvents";
+import ReminderCarousel from "./ReminderCarousel";
+import UpcomingStays from "./UpcomingStays";
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
@@ -40,22 +43,65 @@ export default function Dashboard() {
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
-            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
-              <Typography variant="body1">
+            <Alert
+              severity="info"
+              sx={{
+                marginBottom: theme.spacing(2),
+                [theme.breakpoints.down("sm")]: { py: 0.75 },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  [theme.breakpoints.down("sm")]: { fontSize: "0.8125rem" },
+                }}
+              >
                 New blog post:{" "}
-                <StyledLink href={dashboardNews["2026-02-05"].link}>
-                  {dashboardNews["2026-02-05"].title}
+                <StyledLink href={dashboardNews["2026-05-25"].link}>
+                  {dashboardNews["2026-05-25"].title}
                 </StyledLink>
               </Typography>
             </Alert>
 
-            <DashboardBanners />
+            <Alert
+              severity="info"
+              sx={{
+                marginBottom: theme.spacing(2),
+                [theme.breakpoints.down("sm")]: { py: 0.75 },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  [theme.breakpoints.down("sm")]: { fontSize: "0.8125rem" },
+                }}
+              >
+                New blog post:{" "}
+                <StyledLink href={dashboardNews["2026-05-15"].link}>
+                  {dashboardNews["2026-05-15"].title}
+                </StyledLink>
+              </Typography>
+            </Alert>
+
+            <ReminderCarousel />
 
             <Divider spacing={3} />
+
+            <UpcomingStays />
+
+            <Box sx={{ height: theme.spacing(3) }} />
 
             <MyEvents />
 
-            <Divider spacing={3} />
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <CommunityEvents />
+
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <MyCommunitiesDiscussions />
+
+            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunitiesSection />
           </Grid>

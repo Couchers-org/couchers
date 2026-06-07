@@ -233,6 +233,9 @@
     "request_chars_remaining_other": "Escreva pelo menos mais {{count}} caracteres a mais para enviar uma solicitação de hospedagem.",
     "success": "Solicitação enviada!"
   },
+  "message_form": {
+    "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso."
+  },
   "reference_filter_label": {
     "friend": "De amigos",
     "hosted": "De anfitriões",
@@ -268,7 +271,6 @@
   "response_time_text_almost_all": "Normalmente entre {{p33}} e {{p66}}",
   "unsaved_changes_warning": "Você não salvou suas alterações. Tem certeza de que quer sair da página?",
   "profile_tag_input": {
-    "header_text": "Pressione 'Enter' para adicionar\n<support_link>Envie um e-mail para nós</support_link> para adicionar uma entrada",
     "remove_button_a11y_text": "Remover {{tag}}"
   },
   "view_in_admin_console": "Ver usuário no console de administração",
@@ -326,5 +328,18 @@
     "next_photo": "Próxima foto",
     "close_viewer": "Fechar visualizador de fotos",
     "report_photo": "Reportar foto"
+  },
+  "complete_profile_dialog": {
+    "title": "Quase lá: conclua seu perfil para continuar!",
+    "description_1": "Antes de poder {{action_name}}, você precisa <4>escrever alguma coisa sobre si</4> em seu perfil e <7>carregar uma foto de perfil</7>.",
+    "description_2": "Isso ajuda a criar uma comunidade confiável e reduzir spam. Para mais informações, <2>consulte esta página de ajuda</2>. Agradecemos pela ajuda!",
+    "actions": {
+      "send_request": "enviar uma solicitação",
+      "send_message": "enviar uma mensagem",
+      "send_friend_request": "send a friend request",
+      "create_event": "criar um evento"
+    },
+    "edit_profile_button": "Edite seu perfil agora",
+    "cancel_button": "Outra hora"
   }
 }

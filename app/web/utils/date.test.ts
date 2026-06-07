@@ -1,4 +1,10 @@
-import { isSameOrFutureDate, localizeDateTime, UTC_TIMEZONE } from "utils/date";
+import {
+  getMuiDateFormat,
+  getMuiTimeFormat,
+  isSameOrFutureDate,
+  localizeDateTime,
+  UTC_TIMEZONE,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 
 const FUTURE = dayjs("2025-02-15");
@@ -121,6 +127,41 @@ describe("localizeDateTime", () => {
         locale: "de",
       }),
     ).toContain("Januar");
+  });
+});
+
+describe("getMuiDateFormat", () => {
+  it("works for common locales", () => {
+    expect(getMuiDateFormat("en")).toEqual("MM/DD/YYYY");
+    expect(getMuiDateFormat("de")).toEqual("DD.MM.YYYY");
+    expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
+    expect(getMuiDateFormat("fr-CA")).toEqual("YYYY-MM-DD");
+  });
+
+  it("works for generic and specific locales", () => {
+    expect(getMuiDateFormat("ja")).toEqual("YYYY/MM/DD");
+    expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
+  });
+
+  it("returns a default value for unsupported locales", () => {
+    expect(getMuiDateFormat("xx")).toEqual("YYYY-MM-DD");
+  });
+});
+
+describe("getMuiTimeFormat", () => {
+  it("works for common locales", () => {
+    expect(getMuiTimeFormat("en")).toEqual("h:mm a");
+    expect(getMuiTimeFormat("de")).toEqual("HH:mm");
+    expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
+  });
+
+  it("works for generic and specific locales", () => {
+    expect(getMuiTimeFormat("ja")).toEqual("H:mm");
+    expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
+  });
+
+  it("returns a default value for unsupported locales", () => {
+    expect(getMuiTimeFormat("xx")).toEqual("HH:mm");
   });
 });
 

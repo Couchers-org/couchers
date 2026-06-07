@@ -46,7 +46,7 @@ def test_GetGalleryEditInfo(db):
     with galleries_session(token1) as api:
         res = api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
         assert res.gallery_id == user1.profile_gallery_id
-        assert res.max_photos == 1
+        assert res.max_photos == 2
         assert res.current_photo_count == 0
 
 
@@ -56,7 +56,7 @@ def test_GetGalleryEditInfo_verified_user(db):
     with galleries_session(token1) as api:
         res = api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
         assert res.gallery_id == user1.profile_gallery_id
-        assert res.max_photos == 4
+        assert res.max_photos == 5
         assert res.current_photo_count == 0
 
 
@@ -94,7 +94,7 @@ def test_GetGalleryEditInfo_with_photos(db):
             )
 
         res = api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
-        assert res.max_photos == 4
+        assert res.max_photos == 5
         assert res.current_photo_count == 3
 
 
@@ -236,10 +236,10 @@ def test_AddPhotoToGallery_max_capacity(db):
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
-        keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(5)]
+        keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(6)]
 
     with galleries_session(token1) as api:
-        for i in range(4):
+        for i in range(5):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
@@ -251,7 +251,7 @@ def test_AddPhotoToGallery_max_capacity(db):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
-                    upload_key=keys[4],
+                    upload_key=keys[5],
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION

@@ -136,15 +136,17 @@ export default function SubmitReference({
   };
 
   const redirectToThankYouPage = () => {
+    const rating = referenceData.rating ?? 0;
+    const ratingParam = `?rating=${rating}`;
     if (
       referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
     ) {
       router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}`,
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}${ratingParam}`,
       );
     } else {
       router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}`,
+        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}${ratingParam}`,
       );
     }
   };

@@ -185,6 +185,7 @@ class User(Base, kw_only=True):
 
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -256,6 +257,8 @@ class User(Base, kw_only=True):
     new_email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     recommendation_score: Mapped[float] = mapped_column(Float, server_default="0", init=False)
+
+    mod_score: Mapped[float] = mapped_column(Float, server_default="1", init=False)
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -482,10 +485,20 @@ class User(Base, kw_only=True):
         # mod_notes come from a backref in ModNote
         return self.mod_notes.where(ModNote.is_pending).count() > 0
 
+    @jailed_pending_mod_notes.inplace.expression
+    @classmethod
+    def _jailed_pending_mod_notes_expression(cls) -> ColumnElement[bool]:
+        return select(ModNote.id).where(ModNote.user_id == cls.id, ModNote.is_pending).exists()
+
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
         # search for User.pending_activeness_probe
         return self.pending_activeness_probe != None
+
+    @jailed_pending_activeness_probe.inplace.expression
+    @classmethod
+    def _jailed_pending_activeness_probe_expression(cls) -> ColumnElement[bool]:
+        return select(ActivenessProbe.id).where(ActivenessProbe.user_id == cls.id, ActivenessProbe.is_pending).exists()
 
     @hybrid_property
     def is_jailed(self) -> Any:
@@ -495,6 +508,17 @@ class User(Base, kw_only=True):
             | self.is_missing_location
             | self.jailed_pending_mod_notes
             | self.jailed_pending_activeness_probe
+        )
+
+    @is_jailed.inplace.expression
+    @classmethod
+    def _is_jailed_expression(cls) -> ColumnElement[bool]:
+        return (
+            cls.jailed_missing_tos
+            | cls.jailed_missing_community_guidelines
+            | cls.is_missing_location
+            | cls.jailed_pending_mod_notes
+            | cls.jailed_pending_activeness_probe
         )
 
     @hybrid_property
@@ -509,6 +533,15 @@ class User(Base, kw_only=True):
     @classmethod
     def _is_visible_expression(cls) -> ColumnElement[bool]:
         return and_(cls.banned_at.is_(None), cls.deleted_at.is_(None))
+
+    @hybrid_property
+    def is_shadowed(self) -> bool:
+        return self.shadowed_at is not None
+
+    @is_shadowed.inplace.expression
+    @classmethod
+    def _is_shadowed_expression(cls) -> ColumnElement[bool]:
+        return cls.shadowed_at.is_not(None)
 
     @property
     def coordinates(self) -> tuple[float, float]:

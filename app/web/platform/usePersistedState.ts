@@ -6,7 +6,7 @@ import {
 
 type StorageType = "localStorage" | "sessionStorage";
 
-export function usePersistedState<T>(
+export function useClearablePersistedState<T>(
   key: string,
   defaultValue: T,
   storage: StorageType = "localStorage",
@@ -14,9 +14,15 @@ export function usePersistedState<T>(
   // in ssr, window doesn't exist, just use default
   const saved =
     typeof window !== "undefined" ? window[storage].getItem(key) : null;
-  const [_state, _setState] = useState<T | undefined>(
-    saved !== null ? JSON.parse(saved) : defaultValue,
-  );
+  const [_state, _setState] = useState<T | undefined>(() => {
+    let initialValue: T | undefined;
+    try {
+      initialValue = saved !== null ? JSON.parse(saved) : defaultValue;
+    } catch {
+      initialValue = defaultValue;
+    }
+    return initialValue;
+  });
   const setState = useCallback(
     (value: T) => {
       if (value === undefined) {
@@ -35,6 +41,23 @@ export function usePersistedState<T>(
     _setState(undefined);
   }, [key, storage]);
   return [_state, setState, clearState];
+}
+
+/**
+ * @todo Consolidate all usage to this hook eventually - the clearable version should be doable via this hook only so the
+ * state has stronger typing and doesn't need to be type casted.
+ */
+export function usePersistedState<T>(
+  key: string,
+  defaultValue: T,
+  storage: StorageType = "localStorage",
+) {
+  const [state, setState] = useClearablePersistedState(
+    key,
+    defaultValue,
+    storage,
+  );
+  return [state as T, setState] as const;
 }
 
 export function clearStorage() {

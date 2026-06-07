@@ -5,6 +5,7 @@ import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessage
 import MessageList from "features/messages/messagelist/MessageList";
 import { GetGroupChatMessagesRes } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
+import { ReactNode } from "react";
 
 const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
   ({ theme }) => ({
@@ -26,6 +27,8 @@ const ChatContent = ({
   hasNextPage,
   markLastSeen,
   isError,
+  footer,
+  isDm = false,
 }: {
   isHostRequest: boolean;
   isLoading: boolean;
@@ -36,6 +39,8 @@ const ChatContent = ({
   hasNextPage: boolean;
   markLastSeen: (messageId: number) => void;
   isError: boolean;
+  footer?: ReactNode;
+  isDm?: boolean;
 }) => {
   if (isLoading) {
     return <CenteredSpinner minHeight="100%" />;
@@ -59,7 +64,9 @@ const ChatContent = ({
       <MessageList
         markLastSeen={markLastSeen}
         messages={messages.pages.map((page) => page.messagesList).flat()}
+        isDm={isHostRequest || isDm}
       />
+      {footer}
     </StyledInfiniteMessageLoader>
   );
 };

@@ -36,7 +36,13 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";
+type MessageType =
+  | "sendState"
+  | "clearState"
+  | "REQUEST_IMAGE_PICK"
+  | "NATIVE_BACK"
+  | "LANGUAGE_CHANGE"
+  | "REQUEST_REVIEW";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -45,12 +51,24 @@ function sendToNative(type: MessageType, data: unknown) {
   );
 }
 
+export function sendNativeBack() {
+  sendToNative("NATIVE_BACK", {});
+}
+
 export function sendState<T>(key: string, value: T) {
   sendToNative("sendState", { key: key, value: value });
 }
 
 export function clearState(key: string) {
   sendToNative("clearState", { key: key });
+}
+
+export function sendLanguageChange(locale: string) {
+  sendToNative("LANGUAGE_CHANGE", { locale });
+}
+
+export function sendNativeRequestReview() {
+  sendToNative("REQUEST_REVIEW", {});
 }
 
 // Image picker bridge for native mobile app

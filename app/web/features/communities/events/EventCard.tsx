@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -123,15 +124,9 @@ export const EVENT_CARD_TEST_ID = "event-card";
 interface EventCardProps {
   event: Event.AsObject;
   className?: string;
-  // Optional formatter to override attendees count text (used by dashboard to avoid loading COMMUNITIES)
-  attendeesCountFormatter?: (count: number) => string;
 }
 
-export default function EventCard({
-  event,
-  className,
-  attendeesCountFormatter,
-}: EventCardProps) {
+export default function EventCard({ event, className }: EventCardProps) {
   const {
     t,
     i18n: { language: locale },
@@ -223,12 +218,13 @@ export default function EventCard({
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
-              <Typography variant="body2" color="textSecondary">
-                {attendeesCountFormatter
-                  ? attendeesCountFormatter(event.goingCount + event.maybeCount)
-                  : t("communities:attendees_count", {
-                      count: event.goingCount + event.maybeCount,
-                    })}
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
+                {event.goingCount}
               </Typography>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {

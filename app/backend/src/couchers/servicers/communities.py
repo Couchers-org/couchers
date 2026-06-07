@@ -192,6 +192,30 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
+    def ListRecentCommunities(
+        self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListRecentCommunitiesRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        rows = session.execute(
+            select(Node, Cluster)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.created.desc(), Node.id.desc())
+            .limit(page_size)
+        ).all()
+        return communities_pb2.ListRecentCommunitiesRes(
+            communities=[
+                communities_pb2.CommunitySummary(
+                    community_id=node.id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    created=Timestamp_from_datetime(node.created),
+                    node_type=nodetype2api[node.node_type],
+                )
+                for node, cluster in rows
+            ],
+        )
+
     def ListGroups(
         self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListGroupsRes:
@@ -447,14 +471,13 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
-        discussions = (
-            node.official_cluster.owned_discussions.where(
-                or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0))
-            )
-            .order_by(Discussion.id.desc())
-            .limit(page_size + 1)
-            .all()
+        query = (
+            select(Discussion)
+            .where(Discussion.owner_cluster_id == node.official_cluster.id)
+            .where(or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0)))
         )
+        query = where_moderated_content_visible(query, context, Discussion, is_list_operation=True)
+        discussions = session.execute(query.order_by(Discussion.id.desc()).limit(page_size + 1)).scalars().all()
         return communities_pb2.ListDiscussionsRes(
             discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,

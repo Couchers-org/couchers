@@ -5,6 +5,7 @@ from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
+import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
@@ -54,13 +55,13 @@ def send_signup_email(session: Session, flow: SignupFlow) -> None:
 
     flow.email_sent = True
 
-    queue_userless_email(
-        session,
-        flow.email,
-        "Finish signing up for Couchers.org",
-        "signup_verify" if not email_sent_before else "signup_continue",
-        template_args={"flow": flow, "signup_link": signup_link},
-    )
+    email: emails.EmailBase
+    if email_sent_before:
+        email = emails.SignupContinueEmail(user_name=flow.name, continue_url=signup_link)
+    else:
+        email = emails.SignupVerifyEmail(user_name=flow.name, verify_url=signup_link)
+
+    queue_userless_email(session, flow.email, email, source_data_header=f"signup; initial={not email_sent_before}")
 
 
 def send_email_changed_confirmation_to_new_email(session: Session, user: User) -> None:
@@ -77,14 +78,13 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
     elif not user.new_email:
         raise ValueError(f"No new email for {user.id}")
 
-    confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    queue_userless_email(
-        session,
-        user.new_email,
-        "Confirm your new email for Couchers.org",
-        "email_changed_confirmation_new_email",
-        template_args={"user": user, "confirmation_link": confirmation_link},
+    email = emails.EmailAddressChangeConfirmationEmail(
+        user_name=user.name,
+        old_email=user.email,
+        confirm_url=urls.change_email_link(confirmation_token=user.new_email_token),
     )
+
+    queue_userless_email(session, user.new_email, email, source_data_header="email_changed_confirmation")
 
 
 def send_content_report_email(session: Session, content_report: ContentReport) -> None:
@@ -169,7 +169,7 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
             "user_link": urls.user_link(username=request.user.username),
-            "view_link": urls.console_link(page="admin/community-invites"),
+            "view_link": urls.console_link(page="tools/community-invites"),
         },
     )
 

@@ -5,19 +5,6 @@
   "upload_photo": "2. Upload a photo (by clicking on the avatar on the edit page)",
   "edit_profile_button_text": "Edit your profile",
   "complete_profile_explanation": "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻",
-  "complete_profile_dialog": {
-    "title": "Almost there: please complete your profile to continue!",
-    "description_1": "Before you can {{action_name}}, you must <4>write a bit about yourself</4> in your profile and <7>upload a profile photo</7>.",
-    "description_2": "This helps build a trusted community and reduce spam. For more information, <2>please refer to this help page</2>. Thank you for your help!",
-    "actions": {
-      "send_request": "send a request",
-      "send_message": "send a message",
-      "create_event": "create an event",
-      "create_public_trip": "create a public trip"
-    },
-    "edit_profile_button": "Edit your profile now",
-    "cancel_button": "Never mind"
-  },
   "your_communities_heading": "Your communities",
   "all_communities_heading": "All communities",
   "no_community": "You are not currently in a community.",
@@ -32,7 +19,8 @@
   "communities_welcome_title": "Welcome to Communities",
   "communities_intro": "To help people around the world organize events, discussions, and meetups locally, we created community pages, which are listed below. <strong>You have automatically been added to some communities based on your location, but you can join any community!</strong> Your communities are listed on the dashboard.",
   "community_builder": "Want to be an ambassador for your community and help it grow? Become a <1>Community Builder!</1>",
-  "find_your_community": "Find your community",
+  "my_communities_heading": "My communities",
+  "find_your_community": "Find a community",
   "find_your_community_intro": "Below you can search or browse all community pages that exist so far. Is your country or city missing? <1>Use this form</1> to request it!",
   "find_your_community_intro_simplified": "Search for your community or browse below. <1>Don't see yours? Request it!</1>",
   "browse_communities": "Browse Communities",
@@ -43,7 +31,6 @@
   "all_communities_section": "All Communities",
   "all_communities_intro": "Below you can browse all community pages that exist so far. <strong>Click on a community name to see the other communities within it.</strong>",
   "community_missing": "Is your country or city missing? Use <1>this form </1> to request it!",
-  "upcoming_events": "Upcoming events",
   "member_count_one": "{{count}} member",
   "member_count_other": "{{count}} members",
   "profile_summary_edit": "Edit Profile",
@@ -56,7 +43,67 @@
   "show_map": "Show Map",
   "hero_image_alt": "Hot-air balloons in Capadocia",
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
-  "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
-  "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees"
+  "prev_page_button_a11y": "Previous page",
+  "next_page_button_a11y": "Next page",
+  "discussions": {
+    "community_header": "Discussions in your communities",
+    "community_empty_message": "No discussions yet in your communities.",
+    "replies_count_label_one": "{{count}} reply",
+    "replies_count_label_other": "{{count}} replies"
+  },
+  "events": {
+    "your_upcoming_header": "Your upcoming events",
+    "see_all_link": "See all →",
+    "your_upcoming_empty_message": "No events at the moment. Why don't you <0>create</0> one ✨?",
+    "community_header": "Events in your communities",
+    "location_online_label": "Online",
+    "today_label": "Today"
+  },
+  "stays": {
+    "upcoming_trips_header": "Your upcoming stays",
+    "upcoming_guests_header": "Your upcoming guests",
+    "night_count_one": "{{count}} night",
+    "night_count_other": "{{count}} nights",
+
+    "no_upcoming_trips": "No upcoming trips. Ready to explore?",
+    "no_upcoming_guests": "No upcoming guests yet."
+  },
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Respond to {{name}}",
+      "description": "Don't forget to respond to the host request by {{name}}.",
+      "button": "View request"
+    },
+    "write_reference": {
+      "title": "Write a reference",
+      "description_surfed": "Leave a reference for your stay at {{name}}'s",
+      "description_hosted": "Leave a reference for {{name}}'s stay",
+      "button": "Write reference"
+    },
+    "complete_my_home": {
+      "title": "Complete your profile \"My Home\" section",
+      "description": "Fill in your sleeping arrangements, house rules, and a description of your place",
+      "button": "Edit your home"
+    },
+    "complete_profile": {
+      "title": "Complete your profile",
+      "description": "Fill in your \"Who I Am\" section and upload a profile photo",
+      "button": "Edit your profile"
+    },
+    "strong_verification": {
+      "title": "Strong verification",
+      "description": "Verify your identity for a safer community",
+      "button": "Verify your account"
+    },
+    "confirm_host_request": {
+      "title": "Confirm your stay with {{name}}",
+      "description": "{{name}} has accepted your request. Confirm your stay to lock it in.",
+      "button": "Confirm stay"
+    },
+    "carousel_dismiss_button_a11y": "Dismiss reminder",
+    "carousel_scroller": {
+      "left_arrow_a11y": "Scroll left",
+      "right_arrow_a11y": "Scroll right"
+    }
+  }
 }

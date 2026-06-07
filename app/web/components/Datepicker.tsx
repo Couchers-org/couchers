@@ -2,15 +2,8 @@ import { InputProps } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
+import { getMuiDateFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
-
-import { dateFormats } from "./constants";
-
-const getLocaleFormat = () => {
-  return navigator.language in dateFormats
-    ? dateFormats[navigator.language as keyof typeof dateFormats]
-    : "DD/MM/YYYY";
-};
 
 interface DatepickerProps {
   className?: string;
@@ -50,7 +43,7 @@ const Datepicker = ({
   variant = "standard",
   inputProps = {},
 }: DatepickerProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <Controller
       control={control}
@@ -71,7 +64,7 @@ const Datepicker = ({
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
-          format={getLocaleFormat()}
+          format={getMuiDateFormat(i18n.language)}
           slotProps={{
             textField: {
               fullWidth: true,

@@ -82,7 +82,7 @@
       "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
       "no_data": "Keine Übersetzungsdaten verfügbar",
       "complete": "Vollständig",
-      "almost_there": "Fast da",
+      "almost_there": "Fast geschafft",
       "early_stage": "Frühes Stadium",
       "view_progress": "Übersetzungsfortschritt anzeigen",
       "midway": "Auf halbem Weg",
@@ -143,7 +143,7 @@
     }
   },
   "previous": "Vorherige",
-  "not_found_text_2": "Willst du einfach nur <1>zum Dashboard gehen?</1>",
+  "not_found_text_2": "Willst du einfach nur <1>zur Startseite gehen?</1>",
   "not_found_alt": "404 Fehler: Ressource nicht gefunden",
   "change_time": "Zeit ändern",
   "html_meta": {
@@ -238,7 +238,6 @@
     "nl": "Niederländisch",
     "ca": "Katalan",
     "tr": "Türkisch",
-    "en-CORP": "Amerikanisch (Unternehmenssprache)",
     "he": "Hebräisch",
     "hu": "Ungarisch"
   },
@@ -338,5 +337,7 @@
   "copy_button": {
     "a11y": "Kopieren",
     "copied_tooltip": "In die Zwischenablage kopiert"
-  }
+  },
+  "app_store_badge_a11y": "Laden im App Store",
+  "google_play_badge_a11y": "Jetzt bei Google Play"
 }

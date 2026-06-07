@@ -29,6 +29,13 @@ for LINE in $(cat /scripts/domains); do
         flags="$flags --challenge-alias $ALIAS_DOMAIN"
     fi
 
+    # skip if we already have a cert that's valid for more than 3 days; cron will handle renewals
+    CERT_FILE=/certs/live/$folder/fullchain.pem
+    if [[ -f $CERT_FILE ]] && openssl x509 -checkend $((3*86400)) -noout -in "$CERT_FILE" >/dev/null 2>&1; then
+        echo "Skipping $DOMAIN: existing cert valid for >3 days"
+        continue
+    fi
+
     mkdir -p /certs/live/$folder
 
     /scripts/acme.sh/acme.sh --home /certs --issue --dns dns_aws $flags \

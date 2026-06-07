@@ -46,40 +46,47 @@ def main() -> None:
     loc_context = LocalizationContext(locale=args.locale, timezone=UTC)
 
     footer = EmailFooter(
+        timezone_name="UTC",
         unsubscribe_info=UnsubscribeInfo(
             manage_notifications_url="https://example.com/manage-notifications",
             do_not_email_url="https://example.com/do-not-email",
             topic_action_link=UnsubscribeLink(text="topic-action", url="https://example.com/unsubscribe"),
-        )
+        ),
     )
 
     filter_regex = re.compile(re.escape(args.filter).replace(r"\*", ".*?"))
 
+    # Iterate over all email classes and dump their test instances if they match the filter
     for _, klass in inspect.getmembers(couchers.email.emails, lambda o: inspect.isclass(o) and o.__base__ == EmailBase):
         email_class: type[EmailBase] = klass
         if filter_regex.fullmatch(email_class.__name__):
-            dump_email(email_class.dummy_data(), footer, loc_context, args.outdir)
+            test_instances = email_class.test_instances()
+            for i in range(len(test_instances)):
+                filename_no_ext = email_class.__name__
+                if len(test_instances) > 1:
+                    filename_no_ext += f"_{i}"
+                dump_email(test_instances[i], footer, loc_context, args.outdir / filename_no_ext)
 
 
-def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, outdir: Path) -> None:
+def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, filepath_no_ext: Path) -> None:
     """Dumps an email's subject and plaintext+html body to a file."""
     subject_line = email.get_subject_line(loc_context)
     preview_line = email.get_preview_line(loc_context)
     blocks = email.get_body_blocks(loc_context)
 
-    outdir.mkdir(exist_ok=True)
+    filepath_no_ext.parent.mkdir(exist_ok=True)
 
     print(f"Dumping email class {email.__class__.__name__}")
     print(f"  Subject: {subject_line}")
 
-    html_path = outdir / f"{email.__class__.__name__}.html"
+    html_path = filepath_no_ext.with_suffix(".html")
     print(f"  Rendering html to {html_path}...")
     html = render_html_body(
         subject=subject_line, preview=preview_line, blocks=blocks, footer=footer, loc_context=loc_context
     )
     html_path.write_text(html)
 
-    plaintext_path = outdir / f"{email.__class__.__name__}.txt"
+    plaintext_path = filepath_no_ext.with_suffix(".txt")
     print(f"  Rendering plaintext to {plaintext_path}...")
     plaintext = render_plaintext_body(blocks=blocks, footer=footer, loc_context=loc_context)
     plaintext_path.write_text(plaintext)

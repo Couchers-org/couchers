@@ -1,17 +1,16 @@
-import { ContentCopyOutlined, EditOutlined } from "@mui/icons-material";
 import {
-  Card,
-  Chip,
-  IconButton,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+  CancelOutlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  LinkOutlined,
+} from "@mui/icons-material";
+import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
@@ -41,6 +40,7 @@ import {
   timestamp2Date,
 } from "utils/date";
 import dayjs from "utils/dayjs";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -109,13 +109,16 @@ const StyledCancelledChip = styled(Chip)(() => ({
   fontWeight: "bold",
 }));
 
-const StyledIconButton = styled(IconButton)(() => ({
-  flexShrink: 0,
-}));
-
 const StyledIconButtonGroup = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(0.5),
+}));
+
+const StyledInviteAndAttendanceRow = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  alignItems: "center",
+  flexWrap: "wrap",
 }));
 
 const StyledActionButtonsContainer = styled("div")(() => ({
@@ -187,6 +190,7 @@ export default function EventPage({
     i18n: { language: locale },
   } = useTranslation([COMMUNITIES]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
   const {
@@ -224,6 +228,20 @@ export default function EventPage({
     useState(false);
   const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
     useState(false);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
+    useState<Element | null>(null);
+  const [showCopyLinkSuccess, setShowCopyLinkSuccess] = useState(false);
+  const isEllipsisMenuOpen = Boolean(ellipsisMenuAnchorEl);
+
+  const handleEllipsisMenuOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    setEllipsisMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleEllipsisMenuClose = () => {
+    setEllipsisMenuAnchorEl(null);
+  };
 
   const isPastEvent = event?.endTime
     ? dayjs().isAfter(timestamp2Date(event.endTime))
@@ -232,6 +250,10 @@ export default function EventPage({
   const isCreator = currentUserId === event?.creatorUserId;
 
   const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendNativeBack();
+      return;
+    }
     if (window.history.length > 1) {
       router.back();
     } else {
@@ -244,6 +266,49 @@ export default function EventPage({
       router.replace(routeToEvent(event.eventId, event.slug));
     }
   }, [event, eventSlug, router]);
+
+  const ellipsisMenuItems: EllipsisMenuItem[] = [
+    {
+      icon: LinkOutlined,
+      label: t("communities:copy_link"),
+      onClick: () => {
+        void navigator.clipboard.writeText(window.location.href);
+        setShowCopyLinkSuccess(true);
+      },
+      id: "copy-link",
+    },
+    ...(event?.canEdit && !event.isCancelled && !isPastEvent
+      ? ([
+          {
+            icon: EditOutlined,
+            label: t("communities:edit_event"),
+            onClick: () =>
+              router.push(routeToEditEvent(event!.eventId, event!.slug)),
+            id: "edit-event",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
+    ...(isCreator && !event?.isCancelled
+      ? ([
+          {
+            icon: ContentCopyOutlined,
+            label: t("communities:duplicate_event"),
+            onClick: () => router.push(routeToDuplicateEvent(event!.eventId)),
+            id: "duplicate-event",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
+    ...(event?.canEdit && !event.isCancelled && !isPastEvent
+      ? ([
+          {
+            icon: CancelOutlined,
+            label: t("communities:cancel_event"),
+            onClick: () => setCancelDialogIsOpen(true),
+            id: "cancel-event",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
+  ];
 
   if (!isValidEventId) {
     return <NotFoundPage />;
@@ -260,6 +325,11 @@ export default function EventPage({
       {showInviteCommunitySuccess && (
         <Snackbar severity="success">
           {t("communities:invite_community_dialog.toast_success")}
+        </Snackbar>
+      )}
+      {showCopyLinkSuccess && (
+        <Snackbar severity="success">
+          {t("communities:copy_link_success")}
         </Snackbar>
       )}
       {isLoading ? (
@@ -304,58 +374,18 @@ export default function EventPage({
                 )}
               </StyledTitle>
               <StyledActionButtonsContainer>
-                {(event.canEdit || isCreator) && (
-                  <StyledIconButtonGroup>
-                    {event.canEdit && (
-                      <Tooltip
-                        title={
-                          event.isCancelled || isPastEvent
-                            ? ""
-                            : t("communities:edit_event")
-                        }
-                      >
-                        <span>
-                          <StyledIconButton
-                            onClick={() =>
-                              router.push(
-                                routeToEditEvent(event.eventId, event.slug),
-                              )
-                            }
-                            disabled={event.isCancelled || isPastEvent}
-                            aria-label={t("communities:edit_event")}
-                            tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
-                          >
-                            <EditOutlined />
-                          </StyledIconButton>
-                        </span>
-                      </Tooltip>
-                    )}
-                    {isCreator && (
-                      <Tooltip
-                        title={
-                          event.isCancelled
-                            ? ""
-                            : t("communities:duplicate_event")
-                        }
-                      >
-                        <span>
-                          <StyledIconButton
-                            onClick={() =>
-                              router.push(routeToDuplicateEvent(event.eventId))
-                            }
-                            disabled={event.isCancelled}
-                            aria-label={t("communities:duplicate_event")}
-                            tabIndex={event.isCancelled ? -1 : 0}
-                          >
-                            <ContentCopyOutlined />
-                          </StyledIconButton>
-                        </span>
-                      </Tooltip>
-                    )}
-                  </StyledIconButtonGroup>
-                )}
-                {event.canEdit && (
-                  <>
+                <StyledIconButtonGroup>
+                  <EllipsisMenu
+                    idName="event-page"
+                    isMenuOpen={isEllipsisMenuOpen}
+                    menuAnchorEl={ellipsisMenuAnchorEl}
+                    onMenuOpen={handleEllipsisMenuOpen}
+                    onMenuClose={handleEllipsisMenuClose}
+                    items={ellipsisMenuItems}
+                  />
+                </StyledIconButtonGroup>
+                <StyledInviteAndAttendanceRow>
+                  {event.canEdit && (
                     <Button
                       onClick={() => setInviteCommunityDialogIsOpen(true)}
                       variant="contained"
@@ -372,25 +402,25 @@ export default function EventPage({
                     >
                       {t("communities:invite_community_dialog_buttons.open")}
                     </Button>
+                  )}
+                  <AttendanceMenu
+                    loading={isSetEventAttendanceLoading}
+                    onChangeAttendanceState={(attendanceState) =>
+                      setEventAttendance(attendanceState)
+                    }
+                    attendanceState={event.attendanceState}
+                    id="event-page-attendance"
+                    disabled={event.isCancelled || isPastEvent}
+                  />
+                </StyledInviteAndAttendanceRow>
+                {event.canEdit && (
+                  <>
                     <InviteCommunityDialog
                       afterSuccess={() => setShowInviteCommunitySuccess(true)}
                       open={inviteCommunityDialogIsOpen}
                       onClose={() => setInviteCommunityDialogIsOpen(false)}
                       eventId={eventId}
                     />
-                    <Button
-                      onClick={() => setCancelDialogIsOpen(true)}
-                      variant="outlined"
-                      disabled={event.isCancelled || isPastEvent}
-                      aria-label={t("communities:cancel_event")}
-                      sx={{
-                        [theme.breakpoints.down("md")]: {
-                          ...ActionButtonSx,
-                        },
-                      }}
-                    >
-                      {t("communities:cancel_event")}
-                    </Button>
                     <CancelEventDialog
                       open={cancelDialogIsOpen}
                       onClose={() => setCancelDialogIsOpen(false)}
@@ -398,16 +428,6 @@ export default function EventPage({
                     />
                   </>
                 )}
-
-                <AttendanceMenu
-                  loading={isSetEventAttendanceLoading}
-                  onChangeAttendanceState={(attendanceState) =>
-                    setEventAttendance(attendanceState)
-                  }
-                  attendanceState={event.attendanceState}
-                  id="event-page-attendance"
-                  disabled={event.isCancelled || isPastEvent}
-                />
               </StyledActionButtonsContainer>
 
               <StyledEventTimeContainer>

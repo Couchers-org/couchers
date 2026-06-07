@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import mockRouter from "next-router-mock";
 import React from "react";
-import { routeToCreateMessage, routeToGroupChat } from "routes";
+import { routeToGroupChat } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -13,6 +13,7 @@ import { MockedService } from "test/utils";
 const { t } = i18n;
 
 const setErrorMock = jest.fn();
+const setIsMessagingMock = jest.fn();
 const getDirectMessageMock = service.conversations
   .getDirectMessage as MockedService<
   typeof service.conversations.getDirectMessage
@@ -47,6 +48,7 @@ const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
 describe("MessageUserButton", () => {
   beforeEach(() => {
     setErrorMock.mockClear();
+    setIsMessagingMock.mockClear();
   });
 
   it("redirects to thread if dm exists", async () => {
@@ -54,7 +56,11 @@ describe("MessageUserButton", () => {
     getDirectMessageMock.mockResolvedValueOnce(99);
     const mockUser = users[0];
     render(
-      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      <MessageUserButton
+        user={mockUser}
+        setMutationError={setErrorMock}
+        setIsMessaging={setIsMessagingMock}
+      />,
       {
         wrapper,
       },
@@ -73,12 +79,16 @@ describe("MessageUserButton", () => {
     await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
 
-  it("redirects to chat tab with state if dm doesn't exist", async () => {
+  it("opens the inline message form if dm doesn't exist", async () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
     const mockUser = users[0];
     render(
-      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      <MessageUserButton
+        user={mockUser}
+        setMutationError={setErrorMock}
+        setIsMessaging={setIsMessagingMock}
+      />,
       {
         wrapper,
       },
@@ -94,9 +104,7 @@ describe("MessageUserButton", () => {
 
     await user.click(button);
 
-    await waitFor(() =>
-      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username)),
-    );
+    await waitFor(() => expect(setIsMessagingMock).toHaveBeenCalledWith(true));
   });
 
   it("pops up incomplete profile note if profile is incomplete", async () => {
@@ -104,7 +112,11 @@ describe("MessageUserButton", () => {
     getDirectMessageMock.mockResolvedValueOnce(false);
     const mockUser = users[0];
     render(
-      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      <MessageUserButton
+        user={mockUser}
+        setMutationError={setErrorMock}
+        setIsMessaging={setIsMessagingMock}
+      />,
       {
         wrapper,
       },
@@ -123,7 +135,7 @@ describe("MessageUserButton", () => {
     await waitFor(async () =>
       expect(
         await screen.findByLabelText(
-          t("dashboard:complete_profile_dialog.title"),
+          t("profile:complete_profile_dialog.title"),
         ),
       ).toBeVisible(),
     );

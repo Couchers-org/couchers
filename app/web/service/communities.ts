@@ -11,9 +11,11 @@ import {
   ListMembersReq,
   ListNearbyUsersReq,
   ListPlacesReq,
+  ListRecentCommunitiesReq,
   ListUserCommunitiesReq,
   SearchCommunitiesReq,
 } from "proto/communities_pb";
+import { ListMyCommunitiesDiscussionsReq } from "proto/discussions_pb";
 
 import client from "./client";
 
@@ -123,6 +125,26 @@ export async function listDiscussions(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
+export async function listMyCommunitiesDiscussions({
+  pageSize,
+  pageToken,
+}: {
+  pageToken?: string;
+  pageSize?: number;
+}) {
+  const req = new ListMyCommunitiesDiscussionsReq();
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  const response = await client.discussions.listMyCommunitiesDiscussions(req);
+
+  return response.toObject();
+}
+
 export async function joinCommunity(communityId: number) {
   const req = new JoinCommunityReq();
   req.setCommunityId(communityId);
@@ -135,8 +157,12 @@ export async function leaveCommunity(communityId: number) {
   await client.communities.leaveCommunity(req);
 }
 
-export async function listUserCommunities(pageToken?: string) {
+export async function listUserCommunities(
+  pageToken?: string,
+  pageSize?: number,
+) {
   const req = new ListUserCommunitiesReq();
+  if (pageSize) req.setPageSize(pageSize);
   if (pageToken) req.setPageToken(pageToken);
   return (await client.communities.listUserCommunities(req)).toObject();
 }
@@ -154,5 +180,14 @@ export async function searchCommunities(query: string, pageSize?: number) {
 export async function listAllCommunities() {
   const req = new ListAllCommunitiesReq();
   const response = await client.communities.listAllCommunities(req);
+  return response.toObject();
+}
+
+export async function listRecentCommunities(pageSize?: number) {
+  const req = new ListRecentCommunitiesReq();
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  const response = await client.communities.listRecentCommunities(req);
   return response.toObject();
 }

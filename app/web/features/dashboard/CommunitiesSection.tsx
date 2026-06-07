@@ -1,3 +1,4 @@
+import { Groups } from "@mui/icons-material";
 import { Link as MuiLink, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -21,7 +22,14 @@ export default function CommunitiesSection() {
 
   return (
     <>
-      <Typography variant="h2" gutterBottom>
+      <Typography
+        variant="h2"
+        gutterBottom
+        sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+      >
+        <Groups
+          sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+        />
         {t("dashboard:your_communities_heading")}
       </Typography>
       <Typography

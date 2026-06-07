@@ -23,6 +23,7 @@ import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
+import { getClientPlatform } from "utils/clientPlatform";
 
 import isGrpcError from "./utils/isGrpcError";
 
@@ -72,11 +73,27 @@ class TimeoutInterceptor {
   }
 }
 
+// Tells the backend which client platform a request came from (web desktop/mobile, iOS, Android),
+// so it can attribute usage metrics.
+class PlatformInterceptor {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown,
+  ) {
+    const platform = getClientPlatform();
+    if (platform) {
+      request.getMetadata()["x-couchers-client-platform"] = platform;
+    }
+    return invoker(request);
+  }
+}
+
 const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
+const platformInterceptor = new PlatformInterceptor();
 
 const opts = {
-  unaryInterceptors: [authInterceptor, timeoutInterceptor],
+  unaryInterceptors: [authInterceptor, timeoutInterceptor, platformInterceptor],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/

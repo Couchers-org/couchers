@@ -6,7 +6,14 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
+# When updating this, also update the "activeness_probe" notification strings in
+# src/couchers/email/locales/en.json
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
+
+# Must match the frontend pattern in app/web/utils/validation.ts
+VALID_NAME_REGEX = r"^[\p{L}'-]+(\s+[\p{L}'-]+)*$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
@@ -57,9 +64,18 @@ SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 DATETIME_MINUS_INFINITY = datetime(1, 1, 1, tzinfo=UTC)
 DATETIME_INFINITY = datetime(9876, 12, 31, hour=23, minute=59, second=59, tzinfo=UTC)
 
-SERVER_THREADS = 128
+# the api workers listen on API_BASE_PORT .. API_BASE_PORT + API_WORKER_COUNT - 1; must stay in sync with
+# proxy/envoy.yaml and docker-compose.prod.yml
+API_WORKER_COUNT = 4
+API_BASE_PORT = 1761
+MEDIA_PORT = 1753
 
-WORKER_THREADS = 1
+# per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
+SERVER_THREADS = 8
+
+# on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
+# container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
+GRACEFUL_SHUTDOWN_TIMEOUT = 5
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
@@ -103,17 +119,9 @@ PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
 GHOST_USERNAME = "ghost"
 
-# Donation drive start date - set to None to disable donation drive banner
-# When set, users who haven't donated since this date will see a donation banner
-DONATION_DRIVE_START: datetime | None = None
-
-DONATION_GOAL_USD = 5000
-# exclude big donations from Aapeli + Itsi that we're hoping to do without :)
-DONATION_OFFSET_USD = 2000
-
 # Photo gallery limits
-GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
-GALLERY_MAX_PHOTOS_VERIFIED = 4
+GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
+GALLERY_MAX_PHOTOS_VERIFIED = 5
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 

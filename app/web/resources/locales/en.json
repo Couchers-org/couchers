@@ -1,11 +1,14 @@
 {
   "back": "Back",
   "close": "Close",
+  "close_button_a11y": "Close",
   "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
   "couchers": "Couchers.org",
   "learn_more": "Learn more",
+  "app_store_badge_a11y": "Download on the App Store",
+  "google_play_badge_a11y": "Get it on Google Play",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",
   "sign_up": "Sign up",
@@ -196,7 +199,10 @@
     "invite_members": "Invite members",
     "merch_shop": "Merch Shop",
     "switch_to_light_mode": "Switch to light mode",
-    "switch_to_dark_mode": "Switch to dark mode"
+    "switch_to_dark_mode": "Switch to dark mode",
+    "close_menu_a11y": "Close menu",
+    "open_drawer_a11y": "Open drawer",
+    "close_drawer_a11y": "Close drawer"
   },
   "invites": {
     "title": "Invite members",
@@ -317,7 +323,6 @@
     "cs": "Czech",
     "de": "German",
     "en": "English",
-    "en-CORP": "American (Corporate)",
     "es": "Spanish (Spain)",
     "es-419": "Spanish",
     "fr": "French (France)",
@@ -338,5 +343,8 @@
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)",
     "hu": "Hungarian"
+  },
+  "bar": {
+    "help_button_a11y": "Help"
   }
 }

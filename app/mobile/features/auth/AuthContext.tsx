@@ -1,13 +1,15 @@
+import * as Sentry from "@sentry/react-native";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
-  ReactNode,
   createContext,
+  ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import client from "@/service/client";
 
@@ -29,6 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [checkedAuthStatus, setCheckedAuthStatus] = useState(false);
   const [userId, setUserIdState] = useState<number | null>(null);
   const [jailed, setJailedState] = useState(false);
+  // Mirrors authenticated synchronously so markLoggedOut can deduplicate
+  // concurrent LOGOUT messages from multiple mounted WebEmbed instances.
+  // useState is async (batched renders), so a ref is needed here.
+  const isAuthenticatedRef = useRef(false);
 
   // Check auth status on mount - validates session cookie with backend
   useEffect(() => {
@@ -42,9 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Session is valid - authenticate directly
           setUserIdState(authState.authRes.userId);
           setJailedState(authState.authRes.jailed);
+          isAuthenticatedRef.current = true;
           setAuthenticated(true);
         } else {
           // Not logged in
+          isAuthenticatedRef.current = false;
           setAuthenticated(false);
           setUserIdState(null);
           setJailedState(false);
@@ -62,11 +70,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    Sentry.setUser(userId === null ? null : { id: String(userId) });
+  }, [userId]);
+
   const markAuthenticated = useCallback(() => {
+    isAuthenticatedRef.current = true;
     setAuthenticated(true);
   }, []);
 
   const markLoggedOut = useCallback(async () => {
+    // Guard against concurrent LOGOUT messages from multiple mounted WebEmbed
+    // instances (one per tab). Only the first call does anything; setState is
+    // async so subsequent calls would still see the old value without this ref.
+    if (!isAuthenticatedRef.current) return;
+    isAuthenticatedRef.current = false;
     setAuthenticated(false);
     setUserIdState(null);
     setJailedState(false);

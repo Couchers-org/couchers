@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, NodeType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
@@ -47,8 +47,23 @@ def _make_node(node_type: NodeType = NodeType.locality, small_community_features
         return node.id
 
 
+def _make_node_admin(user_id: int, node_id: int):
+    with session_scope() as session:
+        cluster_id = session.execute(
+            select(Cluster.id).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
+        ).scalar_one()
+        session.add(ClusterSubscription(cluster_id=cluster_id, user_id=user_id, role=ClusterRole.admin))
+
+
 def _create_trip_directly(
-    user_id: int, node_id: int, from_date, to_date, *, description: str = "Looking for a host!", status=None
+    user_id: int,
+    node_id: int,
+    from_date,
+    to_date,
+    *,
+    description: str = "Looking for a host!",
+    status=None,
+    same_gender_only: bool = False,
 ) -> int:
     with session_scope() as session:
         trip = PublicTrip(
@@ -58,6 +73,7 @@ def _create_trip_directly(
             to_date=to_date,
             description=description,
             status=status or PublicTripStatus.searching_for_host,
+            same_gender_only=same_gender_only,
         )
         session.add(trip)
         session.flush()
@@ -84,6 +100,7 @@ def test_create_public_trip(db):
         assert res.trip_id > 0
         assert res.user.user_id == user.id
         assert res.node_id == node_id
+        assert res.node_slug == "test-community"
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
         assert res.description == VALID_DESCRIPTION
@@ -320,6 +337,7 @@ def test_get_public_trip(db):
         res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
         assert res.trip_id == trip_id
         assert res.user.user_id == user.id
+        assert res.node_slug == "test-community"
 
 
 def test_get_public_trip_not_found(db):
@@ -342,6 +360,7 @@ def test_list_public_trips(db):
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         returned_ids = {t.trip_id for t in res.public_trips}
         assert returned_ids == {trip1, trip2}
+        assert all(t.node_slug == "test-community" for t in res.public_trips)
 
 
 def test_list_public_trips_filters_closed_and_past(db):
@@ -493,7 +512,7 @@ def test_update_public_trip_close(db):
         assert trip.status == PublicTripStatus.closed
 
 
-def test_update_public_trip_cant_reopen(db):
+def test_update_public_trip_reopen(db):
     user, token = generate_user()
     node_id = _make_node()
     trip_id = _create_trip_directly(
@@ -505,6 +524,31 @@ def test_update_public_trip_cant_reopen(db):
     )
 
     with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+            )
+        )
+        assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.status == PublicTripStatus.searching_for_host
+
+
+def test_update_public_trip_cant_reopen_past_trip(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(
+        user.id,
+        node_id,
+        today() - timedelta(days=10),
+        today() - timedelta(days=1),
+        status=PublicTripStatus.closed,
+    )
+
+    with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.UpdatePublicTrip(
                 public_trips_pb2.UpdatePublicTripReq(
@@ -512,7 +556,7 @@ def test_update_public_trip_cant_reopen(db):
                     status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_update_public_trip_close_past_trip_allowed(db):
@@ -675,3 +719,137 @@ def test_update_public_trip_description_too_short(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert "150" in (e.value.details() or "")
+
+
+def test_same_gender_only_create_and_retrieve(db):
+    user, token = generate_user(gender="Woman")
+    node_id = _make_node()
+
+    from_date = today() + timedelta(days=5)
+    to_date = today() + timedelta(days=10)
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                node_id=node_id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                description=VALID_DESCRIPTION,
+                same_gender_only=True,
+            )
+        )
+        assert res.same_gender_only is True
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == res.trip_id)).scalar_one()
+        assert trip.same_gender_only is True
+
+
+def test_same_gender_only_visibility_list_and_get(db):
+    traveler, _ = generate_user(gender="Woman")
+    _, same_gender_token = generate_user(gender="Woman")
+    _, diff_gender_token = generate_user(gender="Man")
+    node_id = _make_node()
+
+    filtered_trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        same_gender_only=True,
+    )
+    open_trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=20),
+        today() + timedelta(days=25),
+    )
+
+    with public_trips_session(same_gender_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert {t.trip_id for t in res.public_trips} == {filtered_trip_id, open_trip_id}
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=filtered_trip_id))
+        assert get_res.trip_id == filtered_trip_id
+        assert get_res.same_gender_only is True
+
+    with public_trips_session(diff_gender_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert [t.trip_id for t in res.public_trips] == [open_trip_id]
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=filtered_trip_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_same_gender_only_moderator_bypass(db):
+    traveler, _ = generate_user(gender="Woman")
+    mod, mod_token = generate_user(gender="Man")
+    node_id = _make_node()
+    _make_node_admin(mod.id, node_id)
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        same_gender_only=True,
+    )
+
+    with public_trips_session(mod_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert any(t.trip_id == trip_id for t in res.public_trips)
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert get_res.trip_id == trip_id
+
+
+def test_same_gender_only_owner_always_sees_own_trips(db):
+    traveler, traveler_token = generate_user(gender="Woman")
+    _, diff_gender_token = generate_user(gender="Man")
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        same_gender_only=True,
+    )
+
+    # Owner always sees their own trips (is_self path skips the gender filter)
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert any(t.trip_id == trip_id for t in res.public_trips)
+
+    # Different-gender viewer doesn't see it on the traveler's profile
+    with public_trips_session(diff_gender_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert not any(t.trip_id == trip_id for t in res.public_trips)
+
+
+def test_same_gender_only_update(db):
+    user, token = generate_user(gender="Woman")
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                same_gender_only=True,
+            )
+        )
+        assert res.same_gender_only is True
+
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                same_gender_only=False,
+            )
+        )
+        assert res.same_gender_only is False
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.same_gender_only is False
