@@ -28,7 +28,7 @@ function CancelFriendRequestAction({
 }: CancelFriendRequestActionProps) {
   const { cancelFriendRequest, isPending, isSuccess, reset } =
     useCancelFriendRequest();
-    const { t } = useTranslation(CONNECTIONS);
+  const { t } = useTranslation(CONNECTIONS);
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>

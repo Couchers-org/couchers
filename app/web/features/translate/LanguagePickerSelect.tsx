@@ -133,9 +133,7 @@ export default function LanguagePickerSelect({
 
     if (flagCode === "CAT") {
       return (
-        <CatalanFlagIcon
-          sx={{ width: 25, height: 18.75, ...commonStyles }}
-        />
+        <CatalanFlagIcon sx={{ width: 25, height: 18.75, ...commonStyles }} />
       );
     }
 

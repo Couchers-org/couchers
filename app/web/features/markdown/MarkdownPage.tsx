@@ -11,6 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import Head from "next/head";
 import { theme } from "theme";
+
 import { COMMUNITIES } from "../../i18n/namespaces";
 
 const mkd = new markdown();
