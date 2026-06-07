@@ -10,6 +10,7 @@ import { theme } from "theme";
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import CommunityEvents from "./CommunityEvents";
+import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
@@ -88,6 +89,10 @@ export default function Dashboard() {
             <Divider spacing={3} />
 
             <UpcomingStays />
+
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <DashboardMyPublicTrips />
 
             <Box sx={{ height: theme.spacing(3) }} />
 

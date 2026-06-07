@@ -1,0 +1,295 @@
+import {
+  EventOutlined,
+  PlaceOutlined,
+  VisibilityOutlined,
+} from "@mui/icons-material";
+import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
+import { useCommunity } from "features/communities/hooks";
+import { PublicTrip } from "features/publicTrips/useListPublicTrips";
+import { useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
+import Link from "next/link";
+import { myPublicTripsRoute } from "routes";
+import { localizeDateTimeRange, localizeRelativeDays } from "utils/date";
+import dayjs from "utils/dayjs";
+
+const StyledCard = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(1.5),
+  border: "1px solid var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-background-paper)",
+  cursor: "pointer",
+  transition: "border-color 0.2s, box-shadow 0.2s",
+  height: "100%",
+  minWidth: 0,
+  overflow: "hidden",
+  boxSizing: "border-box",
+  "&:hover": {
+    borderColor: "var(--mui-palette-primary-main)",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  },
+}));
+
+const PinTile = styled("div")(({ theme }) => ({
+  width: 40,
+  height: 40,
+  borderRadius: "10px",
+  background: alpha(theme.palette.primary.main, 0.1),
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+}));
+
+const IdentityRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1.25),
+}));
+
+const TextBlock = styled("div")({
+  minWidth: 0,
+  flex: 1,
+});
+
+const DescriptionText = styled(Typography)(({ theme }) => ({
+  fontSize: 12,
+  color: "var(--mui-palette-text-secondary)",
+  overflow: "hidden",
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  textOverflow: "ellipsis",
+  lineHeight: 1.4,
+  marginTop: theme.spacing(0.75),
+  [theme.breakpoints.down("sm")]: {
+    WebkitLineClamp: 1,
+  },
+}));
+
+const WhenChipStyled = styled("span")(({ theme }) => ({
+  fontSize: 11,
+  fontWeight: 700,
+  borderRadius: 999,
+  padding: "2px 8px",
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+  marginLeft: "auto",
+  background: alpha(theme.palette.secondary.main, 0.12),
+  color: "var(--mui-palette-secondary-dark)",
+}));
+
+const MetaRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(1.5),
+  paddingTop: theme.spacing(1.25),
+  borderTop: "1px dashed var(--mui-palette-divider)",
+}));
+
+function WhenChip({
+  fromDate,
+  toDate,
+  locale,
+}: {
+  fromDate: string;
+  toDate: string;
+  locale: string;
+}) {
+  const { t } = useTranslation([DASHBOARD]);
+  const todayStart = dayjs().startOf("day");
+  const fromStart = dayjs(fromDate).startOf("day");
+  const toStart = dayjs(toDate).startOf("day");
+
+  const isOngoing =
+    fromStart.isBefore(todayStart) && !toStart.isBefore(todayStart);
+  const daysUntil = fromStart.diff(todayStart, "day");
+
+  let label: string | null = null;
+  if (isOngoing) {
+    label = t("dashboard:public_trips.when_now");
+  } else if (daysUntil === 0 || daysUntil === 1) {
+    label = localizeRelativeDays(daysUntil, locale);
+  }
+
+  if (!label) return null;
+  return <WhenChipStyled>{label}</WhenChipStyled>;
+}
+
+function GenderChip() {
+  const { t } = useTranslation([DASHBOARD]);
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "3px",
+        fontSize: "11px",
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        color: "var(--mui-palette-text-secondary)",
+        background: "var(--mui-palette-grey-50)",
+        border: "1px solid var(--mui-palette-grey-200)",
+        borderRadius: "999px",
+        px: "8px",
+        py: "2px",
+        flexShrink: 0,
+        marginLeft: "auto",
+      }}
+    >
+      <VisibilityOutlined sx={{ fontSize: "13px" }} />
+      {t("dashboard:public_trips.same_gender_only_indicator")}
+    </Box>
+  );
+}
+
+function OffersChip({ count }: { count: number }) {
+  const { t } = useTranslation([DASHBOARD]);
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        fontSize: "11px",
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        color: "var(--mui-palette-text-secondary)",
+        background: "var(--mui-palette-grey-50)",
+        border: "1px solid var(--mui-palette-grey-200)",
+        borderRadius: "999px",
+        px: "8px",
+        py: "2px",
+        flexShrink: 0,
+      }}
+    >
+      {t("dashboard:public_trips.offers_count", { count })}
+    </Box>
+  );
+}
+
+export function DashboardPublicTripCard({
+  trip,
+  locale,
+  offersCount,
+}: {
+  trip: PublicTrip;
+  locale: string;
+  offersCount?: number;
+}) {
+  const { data: community, isLoading: communityLoading } = useCommunity(
+    trip.nodeId,
+  );
+
+  const dateRange = localizeDateTimeRange(
+    new Date(trip.fromDate + "T00:00:00"),
+    new Date(trip.toDate + "T00:00:00"),
+    { locale, includeTime: false, abbreviate: true },
+  );
+
+  const hasFooter = offersCount !== undefined || trip.sameGenderOnly;
+
+  return (
+    <Link
+      href={myPublicTripsRoute}
+      style={{
+        display: "flex",
+        textDecoration: "none",
+        color: "inherit",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <StyledCard sx={{ flex: 1 }}>
+        <IdentityRow>
+          <PinTile>
+            <PlaceOutlined
+              sx={{ fontSize: 22, color: "var(--mui-palette-primary-main)" }}
+            />
+          </PinTile>
+          <TextBlock>
+            <Typography
+              variant="h3"
+              noWrap
+              sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}
+            >
+              {communityLoading ? (
+                <Skeleton width={80} />
+              ) : (
+                (community?.name ?? "—")
+              )}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: 12,
+                color: "var(--mui-palette-text-secondary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "3px",
+                mt: "2px",
+                overflow: "hidden",
+              }}
+            >
+              <EventOutlined style={{ fontSize: 12, flexShrink: 0 }} />
+              <span
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {dateRange}
+              </span>
+            </Typography>
+          </TextBlock>
+          <WhenChip
+            fromDate={trip.fromDate}
+            toDate={trip.toDate}
+            locale={locale}
+          />
+        </IdentityRow>
+        <DescriptionText variant="body2">{trip.description}</DescriptionText>
+        {hasFooter && (
+          <MetaRow>
+            {offersCount !== undefined && <OffersChip count={offersCount} />}
+            {trip.sameGenderOnly && <GenderChip />}
+          </MetaRow>
+        )}
+      </StyledCard>
+    </Link>
+  );
+}
+
+export function DashboardPublicTripCardSkeleton() {
+  return (
+    <Box
+      sx={{
+        p: 1.5,
+        border: "1px solid var(--mui-palette-divider)",
+        borderRadius: "10px",
+        background: "var(--mui-palette-background-paper)",
+      }}
+    >
+      <Box sx={{ display: "flex", gap: 1.25, alignItems: "center" }}>
+        <Skeleton
+          variant="rectangular"
+          width={40}
+          height={40}
+          sx={{ borderRadius: "10px", flexShrink: 0 }}
+        />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Skeleton height={16} sx={{ mb: 0.5 }} />
+          <Skeleton height={12} width="70%" />
+        </Box>
+      </Box>
+      <Skeleton height={12} sx={{ mt: 1 }} />
+      <Skeleton height={12} width="80%" />
+    </Box>
+  );
+}

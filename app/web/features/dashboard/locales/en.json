@@ -59,6 +59,16 @@
     "location_online_label": "Online",
     "today_label": "Today"
   },
+  "public_trips": {
+    "my_trips_header": "Your public trips",
+    "manage_link": "Manage",
+    "post_a_trip_label": "Post a public trip",
+    "when_now": "Now",
+    "when_today": "Today",
+    "when_tomorrow": "Tomorrow",
+    "empty_description": "Heading somewhere? Post a public trip and let nearby hosts offer to host you.",
+    "same_gender_only_indicator": "Same gender"
+  },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",
     "upcoming_guests_header": "Your upcoming guests",
