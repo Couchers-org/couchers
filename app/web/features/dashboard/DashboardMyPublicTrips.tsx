@@ -10,6 +10,7 @@ import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useEffect, useRef, useState } from "react";
 import { communitiesRoute, myPublicTripsRoute } from "routes";
+import dayjs from "utils/dayjs";
 
 import {
   DashboardPublicTripCard,
@@ -62,7 +63,8 @@ export default function DashboardMyPublicTrips() {
 
   const activeTrips = (data?.publicTripsList ?? []).filter(
     (trip) =>
-      trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+      trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST &&
+      !dayjs(trip.toDate).isBefore(dayjs().startOf("day")),
   );
 
   useEffect(() => {
@@ -106,23 +108,20 @@ export default function DashboardMyPublicTrips() {
             </Box>
           )}
         </Typography>
-        <Link
-          href={myPublicTripsRoute}
-          style={{ textDecoration: "none" }}
-        >
-          <Typography
-            component="span"
-            variant="body2"
-            sx={{
-              fontWeight: 700,
-              color: "var(--mui-palette-primary-main)",
-              "&:hover": { textDecoration: "underline" },
-            }}
-          >
-            {t("dashboard:public_trips.manage_link")}
-          </Typography>
-        </Link>
-        <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <Link href={myPublicTripsRoute} style={{ textDecoration: "none" }}>
+            <Typography
+              component="span"
+              variant="body2"
+              sx={{
+                fontWeight: 700,
+                color: "var(--mui-palette-primary-main)",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              {t("dashboard:public_trips.manage_link")}
+            </Typography>
+          </Link>
           <IconButton
             size="small"
             onClick={() => scroll(-1)}

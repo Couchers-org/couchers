@@ -84,18 +84,19 @@ const UserSection = styled("div")(({ theme }) => ({
     width: "auto",
     minWidth: "auto",
     gap: theme.spacing(1.5),
+    paddingRight: theme.spacing(5),
   },
 }));
 
 const UserName = styled(Typography)({
   maxWidth: "100%",
-  textAlign: "center",
+  textAlign: "left",
   overflowWrap: "break-word",
 });
 
 const UserDetails = styled(Typography)({
   color: "var(--mui-palette-text-secondary)",
-  textAlign: "center",
+  textAlign: "left",
   maxWidth: "100%",
   overflowWrap: "break-word",
 });
@@ -131,13 +132,16 @@ const MetaItem = styled("div")(({ theme }) => ({
 
 const Description = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "expanded",
-})<{ expanded: boolean }>(({ expanded }) => ({
+})<{ expanded: boolean }>(({ expanded, theme }) => ({
   ...(!expanded && {
     display: "-webkit-box",
     WebkitLineClamp: 3,
     WebkitBoxOrient: "vertical" as const,
     overflow: "hidden",
     textOverflow: "ellipsis",
+    [theme.breakpoints.down("sm")]: {
+      WebkitLineClamp: 2,
+    },
   }),
 }));
 

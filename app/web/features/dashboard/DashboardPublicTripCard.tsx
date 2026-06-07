@@ -196,7 +196,7 @@ export function DashboardPublicTripCard({
 
   return (
     <Link
-      href={myPublicTripsRoute}
+      href={`${myPublicTripsRoute}#public-trip-${trip.tripId}`}
       style={{
         display: "flex",
         textDecoration: "none",

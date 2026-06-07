@@ -10,7 +10,7 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dayjs from "utils/dayjs";
 
 import BetaFlag from "../../components/BetaFlag";
@@ -27,6 +27,9 @@ const PageWrapper = styled("div")(({ theme }) => ({
   flex: 1,
   display: "flex",
   flexDirection: "column",
+  [theme.breakpoints.down("sm")]: {
+    paddingInline: theme.spacing(1.5),
+  },
 }));
 
 const EmptyState = styled("div")(({ theme }) => ({
@@ -62,10 +65,14 @@ const FilterRow = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const StyledBackButton = styled(HeaderButton)({
+const StyledBackButton = styled(HeaderButton)(({ theme }) => ({
   width: "3.125rem",
   height: "3.125rem",
-});
+  [theme.breakpoints.down("sm")]: {
+    width: "2.25rem",
+    height: "2.25rem",
+  },
+}));
 
 // @TODO(NA): Add tests for edit flow.
 // @TODO(NA): Add ability to reopen a closed trip if it's not in the past
@@ -122,6 +129,14 @@ export default function MyPublicTripsPage() {
 
   const trips = data?.publicTripsList ?? [];
   const hasResults = trips.length > 0;
+
+  useEffect(() => {
+    if (isLoading) return;
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [isLoading]);
 
   const filters: { value: TripFilter; label: string }[] = [
     { value: "all", label: t("publicTrips:filter_all") },
@@ -185,7 +200,12 @@ export default function MyPublicTripsPage() {
               </EmptyState>
             ) : (
               filteredTrips.map((trip) => (
-                <PublicTripCard key={trip.tripId} trip={trip} ownerView />
+                <PublicTripCard
+                  key={trip.tripId}
+                  id={`public-trip-${trip.tripId}`}
+                  trip={trip}
+                  ownerView
+                />
               ))
             )}
           </TripsList>
