@@ -140,6 +140,7 @@ export default function LanguagePickerSelect({
     return (
       <img
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        alt=""
         style={{ width: 25, ...commonStyles }}
       />
     );
