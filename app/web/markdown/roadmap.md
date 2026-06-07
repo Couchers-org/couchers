@@ -43,7 +43,7 @@ hide_title: true
     </tr>
 	<!-- NEW FEATURES -->
     <tr>
-      <td rowspan="14" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td rowspan="15" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Dark Mode</td>
     </tr>
     <tr>
@@ -75,8 +75,8 @@ hide_title: true
 	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Edit / Delete Discussions</td>
     </tr>
     <tr >
-	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> iCal Events</td>
+	  <td colspan="2"</td>
+	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> iCal Events</td>
     </tr>
     <tr >
 	  <td colspan="2"</td>
@@ -94,9 +94,13 @@ hide_title: true
 	  <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Friends In Common</td>
     </tr>
+    <tr >
+	  <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Feature Request Board</td>
+    </tr>
 	<!-- UPDATES -->
     <tr >
-      <td rowspan="5" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
+      <td rowspan="6" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
 	  <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Translations</td>
     </tr>
     <tr>
@@ -107,7 +111,11 @@ hide_title: true
     </tr>
     <tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Dashboard 2.0</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Dashboard 2.0</td>
+    </tr>
+    <tr >
+	  <td colspan="1"</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Public Donations Page</td>
     </tr>
     <tr>
 	  <td colspan="2"</td>
@@ -116,7 +124,7 @@ hide_title: true
 	<!-- OPERATIONS -->
     <tr >
       <td rowspan="6" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Grow Community to 100k Members</td>
+      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Grow Community To 100k Members</td>
     </tr>
     <tr>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Country / Region Level Communities</td>
