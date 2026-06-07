@@ -13,7 +13,7 @@ from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 from couchers import urls
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -798,7 +798,11 @@ class API(api_pb2_grpc.APIServicer):
             topic_action=NotificationTopicAction.friend_request__create,
             key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
-                other_user=user_model_to_pb(friend_relationship.from_user, session, context),
+                other_user=user_model_to_pb(
+                    friend_relationship.from_user,
+                    session,
+                    make_background_user_context(user_id=friend_relationship.to_user_id),
+                ),
             ),
             moderation_state_id=moderation_state.id,
         )
@@ -883,7 +887,11 @@ class API(api_pb2_grpc.APIServicer):
                 topic_action=NotificationTopicAction.friend_request__accept,
                 key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
-                    other_user=user_model_to_pb(friend_request.to_user, session, context),
+                    other_user=user_model_to_pb(
+                        friend_request.to_user,
+                        session,
+                        make_background_user_context(user_id=friend_request.from_user_id),
+                    ),
                 ),
             )
 
