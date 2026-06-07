@@ -141,18 +141,10 @@ function check(label, file, actual, advice) {
 }
 
 const RUNTIME_ADVICE =
-  "A native-affecting change moved the runtimeVersion. If intended, run\n" +
-  "  (cd app/mobile && npm run fingerprints:write)\n" +
-  "and commit the updated fingerprints. Merging it to develop will trigger a new\n" +
-  "store build. If you didn't intend to change native behavior, revisit your\n" +
-  "change — something in it moved the runtimeVersion.";
+  "DO NOT MERGE without full confirmation from the mobile dev leads. A native-affecting change moved the runtimeVersion. IF YOU MERGE THIS WE WILL LOSE OTA FORWARDS COMPATIBILITY.";
 
 const FULL_ADVICE =
-  "An OTA-safe but native-adjacent input changed (eas.json, the app version, a\n" +
-  "build script, or .gitignore). This needs no new store build, but should be\n" +
-  "reviewed. If the change is intended, run\n" +
-  "  (cd app/mobile && npm run fingerprints:write)\n" +
-  "and commit the updated fingerprints.full to acknowledge it.";
+  "The full fingerprints changed. Please consult the mobile dev leads to confirm this is a safe change to land.";
 
 async function main() {
   const mode = process.argv[2];

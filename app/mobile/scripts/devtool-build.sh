@@ -45,16 +45,17 @@ if [ -n "${CI_COMMIT_BEFORE_SHA:-}" ] && [ "${CI_COMMIT_BEFORE_SHA}" != "0000000
 fi
 echo "previous $PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 
-if [ "$PREV_FILE_PRESENT" = "false" ]; then
-  echo "fingerprints file wasn't present at the previous develop commit — treating as unchanged (migration)."
+if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ] || [ "${FORCE_NATIVE_DEVTOOL_BUILD_AND_SUBMIT:-}" = "true" ]; then
+  echo "Force flag set — building a new Dev Tool $PLATFORM client regardless of fingerprint."
+elif [ "$PREV_FILE_PRESENT" = "false" ]; then
+  echo "fingerprints file wasn't present at the previous develop commit — treating as unchanged (migration). Set FORCE_NATIVE_BUILD_AND_SUBMIT or FORCE_NATIVE_DEVTOOL_BUILD_AND_SUBMIT to override."
   exit 0
-fi
-if [ "$PREVIOUS" = "$CURRENT" ]; then
+elif [ "$PREVIOUS" = "$CURRENT" ]; then
   echo "Fingerprint unchanged for $PLATFORM — installed Dev Tool client still current, skipping build."
   exit 0
+else
+  echo "Fingerprint changed for $PLATFORM — building a new Dev Tool client."
 fi
-
-echo "Fingerprint changed for $PLATFORM — building a new Dev Tool client."
 
 if [ "$PLATFORM" = "ios" ]; then
   eas build --platform ios --profile devtool --auto-submit --non-interactive

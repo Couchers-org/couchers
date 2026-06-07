@@ -57,12 +57,14 @@ echo "previous $VARIANT/$PLATFORM fingerprint: ${PREVIOUS:-<none>}"
 
 echo "EAS_FINGERPRINT=$CURRENT" > "$DOTENV"
 
-# FORCE_NATIVE_BUILD_AND_SUBMIT cuts a fresh build even when nothing native
-# changed, so the store binary doesn't go stale behind OTA.
-if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ]; then
-  echo "FORCE_NATIVE_BUILD_AND_SUBMIT set — building a new $PLATFORM $VARIANT app regardless of fingerprint."
+case "$VARIANT" in
+  production) VARIANT_FORCE="${FORCE_NATIVE_PROD_BUILD_AND_SUBMIT:-}" ;;
+  staging) VARIANT_FORCE="${FORCE_NATIVE_STAGING_BUILD_AND_SUBMIT:-}" ;;
+esac
+if [ "${FORCE_NATIVE_BUILD_AND_SUBMIT:-}" = "true" ] || [ "$VARIANT_FORCE" = "true" ]; then
+  echo "Force flag set — building a new $PLATFORM $VARIANT app regardless of fingerprint."
 elif [ "$PREV_FILE_PRESENT" = "false" ]; then
-  echo "fingerprints file wasn't present at the previous develop commit — treating as unchanged (migration). Use FORCE_NATIVE_BUILD_AND_SUBMIT to override."
+  echo "fingerprints file wasn't present at the previous develop commit — treating as unchanged (migration). Set FORCE_NATIVE_BUILD_AND_SUBMIT or the per-variant force flag to override."
   echo "EAS_BUILD_ID=" >> "$DOTENV"
   exit 0
 elif [ "$PREVIOUS" = "$CURRENT" ]; then
