@@ -30,7 +30,7 @@ import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
-import { routeToUser } from "routes";
+import { routeToCommunity, routeToUser } from "routes";
 import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -340,7 +340,11 @@ export default function PublicTripCard({
               {user.city && (
                 <MetaItem>
                   <HomeIcon />
-                  {user.city}
+                  <StyledLink
+                    href={routeToCommunity(trip.nodeId, trip.nodeSlug)}
+                  >
+                    {user.city}
+                  </StyledLink>
                 </MetaItem>
               )}
               {trip.sameGenderOnly && (
