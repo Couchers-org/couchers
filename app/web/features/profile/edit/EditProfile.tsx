@@ -323,7 +323,7 @@ export default function EditProfileForm() {
     getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
-    mode: "onTouched",
+    mode: "onBlur",
     values: initialFormValues,
     resetOptions: { keepDirty: true },
   });
