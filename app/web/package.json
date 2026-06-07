@@ -55,7 +55,7 @@
     "lottie-react": "^2.4.1",
     "luhn": "^2.4.1",
     "maplibre-gl": "^5.24.0",
-    "markdown-it": "^14.1.1",
+    "markdown-it": "^14.2.0",
     "next": "^15.5.7",
     "next-i18next": "^15.4.3",
     "prop-types": "^15.7.2",
