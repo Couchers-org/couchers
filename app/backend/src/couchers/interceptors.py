@@ -209,9 +209,15 @@ def _descriptor_has_sensitive(descriptor: Descriptor) -> bool:
     return False
 
 
+@dataclass(frozen=True, slots=True)
+class _SanitizePlan:
+    fields_to_clear: tuple[str, ...]
+    fields_to_recurse: tuple[tuple[str, bool], ...]  # (field name, is_repeated)
+
+
 @cache
-def _sanitize_plan(descriptor: Descriptor) -> tuple[tuple[str, ...], tuple[tuple[str, bool], ...]]:
-    """For a message type, the fields to clear and the (name, is_repeated) subfields worth recursing into."""
+def _sanitize_plan(descriptor: Descriptor) -> _SanitizePlan:
+    """For a message type, the fields to clear and the subfields worth recursing into."""
     clear = []
     recurse = []
     for f in descriptor.fields:
@@ -219,14 +225,14 @@ def _sanitize_plan(descriptor: Descriptor) -> tuple[tuple[str, ...], tuple[tuple
             clear.append(f.name)
         elif f.message_type is not None and _descriptor_has_sensitive(f.message_type):
             recurse.append((f.name, f.is_repeated))
-    return tuple(clear), tuple(recurse)
+    return _SanitizePlan(fields_to_clear=tuple(clear), fields_to_recurse=tuple(recurse))
 
 
 def _sanitize_message(message: Message) -> None:
-    clear, recurse = _sanitize_plan(message.DESCRIPTOR)
-    for name in clear:
+    plan = _sanitize_plan(message.DESCRIPTOR)
+    for name in plan.fields_to_clear:
         message.ClearField(name)
-    for name, is_repeated in recurse:
+    for name, is_repeated in plan.fields_to_recurse:
         submessage = getattr(message, name)
         if not submessage:
             continue
