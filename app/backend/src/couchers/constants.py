@@ -8,7 +8,9 @@ GUIDELINES_VERSION = 1
 
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
-# Must match the frontend pattern in app/web/utils/validation.ts
+# Must match the frontend values in app/web/utils/validation.ts
+VALID_NAME_MIN_LENGTH = 2
+VALID_NAME_MAX_LENGTH = 100
 VALID_NAME_REGEX = r"^[\p{L}'-]+(\s+[\p{L}'-]+)*$"
 
 BANNED_USERNAME_PHRASES = [

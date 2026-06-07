@@ -19,7 +19,13 @@ from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY, VALID_NAME_REGEX
+from couchers.constants import (
+    EMAIL_REGEX,
+    PREFERRED_LANGUAGE_COOKIE_EXPIRY,
+    VALID_NAME_MAX_LENGTH,
+    VALID_NAME_MIN_LENGTH,
+    VALID_NAME_REGEX,
+)
 from couchers.crypto import (
     create_sofa_id,
     decode_sofa,
@@ -66,7 +72,7 @@ def is_valid_name(field: str) -> bool:
     * no leading or trailing whitespace
     * 2-100 characters
     """
-    if len(field) > 100 or len(field) < 2:
+    if len(field) > VALID_NAME_MAX_LENGTH or len(field) < VALID_NAME_MIN_LENGTH:
         return False
 
     return _VALID_NAME_PATTERN.fullmatch(field) is not None
