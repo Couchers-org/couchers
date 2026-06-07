@@ -149,5 +149,6 @@
   "search_communities": "Search and visit a community",
   "search_communities_placeholder": "Search by city or country name...",
   "search_communities_helper": "Select a community to go to its page",
-  "no_results_found_with_link": "No communities found. <0>Request this community!</0>"
+  "no_results_found_with_link": "No communities found. <0>Request this community!</0>",
+  "community_breadcrumb_a11y": "Current community"
 }

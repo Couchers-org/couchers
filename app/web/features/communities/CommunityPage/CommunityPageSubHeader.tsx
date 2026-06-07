@@ -46,7 +46,10 @@ export default function CommunityPageSubHeader({
   return (
     <>
       <StyledBreadcrumbsContainer>
-        <StyledBreadcrumbs aria-label="breadcrumb">
+        <StyledBreadcrumbs
+          aria-label={t("communities:community_breadcrumb_a11y")}
+        >
+
           {community.parentsList
             .map((parent) => parent.community)
             .filter(

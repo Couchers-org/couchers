@@ -11,6 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import Head from "next/head";
 import { theme } from "theme";
+import { COMMUNITIES } from "../../i18n/namespaces";
 
 const mkd = new markdown();
 
@@ -222,7 +223,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation([COMMUNITIES]);
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -231,7 +232,6 @@ export default function MarkdownPage({
     : null;
 
   const crumbs = createBreadcrumbs({ slug, frontmatter });
-
   return (
     <>
       <HtmlMeta
@@ -254,7 +254,9 @@ export default function MarkdownPage({
         maxWidth="md"
         sx={{ marginTop: theme.spacing(3) }}
       >
-        <StyledBreadcrumbs aria-label="breadcrumb">
+        <StyledBreadcrumbs
+          aria-label={t("communities:community_breadcrumb_a11y")}
+        >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (

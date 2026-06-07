@@ -135,14 +135,12 @@ export default function LanguagePickerSelect({
       return (
         <CatalanFlagIcon
           sx={{ width: 25, height: 18.75, ...commonStyles }}
-          aria-label="Catalan flag"
         />
       );
     }
 
     return (
       <img
-        alt={`${flagCode} flag`}
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
         style={{ width: 25, ...commonStyles }}
       />

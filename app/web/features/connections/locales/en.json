@@ -35,5 +35,6 @@
     "title": "Are you sure you want to unblock {{name}}?",
     "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list. They will not be notified.",
     "confirm": "Unblock"
-  }
+  },
+  "cancel_request_button_a11y": "Cancel request"
 }

@@ -23,7 +23,7 @@ const resources = {
   notifications,
   profile,
   search,
-  global,
+  global
 } as const;
 
 export default resources;

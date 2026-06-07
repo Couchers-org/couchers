@@ -366,7 +366,7 @@ export default function Navigation() {
           {isMobile && !isAuthenticated && (
             <>
               <IconButton
-                aria-label="open drawer"
+                aria-label={t("nav.open_drawer_a11y")}
                 onClick={handleDrawerOpen}
                 edge="start"
               >
@@ -390,7 +390,7 @@ export default function Navigation() {
                 <StyledDrawerHeader>
                   <StyledDrawerTitle>{t("couchers")}</StyledDrawerTitle>
                   <IconButton
-                    aria-label="close drawer"
+                    aria-label={t("nav.close_drawer_a11y")}
                     onClick={handleDrawerClose}
                     sx={{ marginLeft: theme.spacing(1) }}
                   >

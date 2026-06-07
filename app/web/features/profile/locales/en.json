@@ -159,6 +159,7 @@
     "add_a_reference": "Add a reference to {{name}}'s profile",
     "appropriate_explanation": "Your private feedback on this page, and your public reference on the next page, are vital to keeping the community safe, trustworthy, and welcoming. Thanks for doing your part to help the community!",
     "appropriate_question": "Did you feel safe with this person's behavior?",
+    "safety_rating_selector_a11y": "Safety rating",
     "by_writing_thoughtful": "Not sure what to write? Read our guide <1>here</1>. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
     "did_stay_confirmation": {
       "title_hosted": "Confirm {{name}} did not stay",

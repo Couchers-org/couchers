@@ -12,10 +12,12 @@ import { usePersistedState } from "platform/usePersistedState";
 import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
+import { useTranslation } from "next-i18next";
 
 import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
+import { DASHBOARD } from "../../i18n/namespaces";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;
@@ -104,6 +106,8 @@ const StyledArrow = styled(IconButton)({
 });
 
 export default function ReminderCarousel() {
+  const { t } = useTranslation(DASHBOARD);
+
   const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
     queryKey: [remindersKey],
     queryFn: () => service.account.getReminders(),
@@ -163,7 +167,7 @@ export default function ReminderCarousel() {
   return (
     <StyledContainer>
       <StyledArrow
-        aria-label="scroll left"
+        aria-label={t("dashboard:carousel_scroller.left_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
@@ -196,7 +200,7 @@ export default function ReminderCarousel() {
       </FadingScrollTrack>
 
       <StyledArrow
-        aria-label="scroll right"
+        aria-label={t("dashboard:carousel_scroller.right_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}
