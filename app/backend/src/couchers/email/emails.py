@@ -1068,6 +1068,43 @@ class EventDeletedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class FriendReferenceReceivedEmail(EmailBase):
+    """Sent to a user when they receive a friend reference."""
+
+    from_user: UserInfo
+    text: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "reference.received.friend"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"name": self.from_user.name})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".body", {"name": self.from_user.name})
+        builder.user(self.from_user)
+        builder.quote(self.text, markdown=False)
+        builder.action(urls.profile_references_link(), "reference.received.view_action")
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ReferenceReceiveFriend, *, user_name: str) -> Self:
+        return cls(user_name=user_name, from_user=UserInfo.from_protobuf(data.from_user), text=data.text)
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                from_user=UserInfo.dummy_bob(),
+                text="Alice is a wonderful person and a great travel companion!",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
 class FriendRequestReceivedEmail(EmailBase):
     """Sent to a user when they receive a friend request."""
 
@@ -1505,6 +1542,137 @@ class HostRequestStatusChangedEmail(EmailBase):
             replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
             replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
         ]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostReferenceReceivedEmail(EmailBase):
+    """Sent to a user when they receive a reference from a past host or surfer."""
+
+    from_user: UserInfo
+    text: str | None  # None if hidden because receiver hasn't written their reference yet.
+    surfed: bool  # True if I was the surfer, False if I was the host
+    leave_reference_url: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "reference.received"
+
+    @property
+    def string_role_subkey(self) -> str:
+        return "surfed" if self.surfed else "hosted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"name": self.from_user.name})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(f".{self.string_role_subkey}.body", {"name": self.from_user.name})
+        builder.user(self.from_user)
+        if self.text:
+            builder.para(".before_quote")
+            builder.quote(self.text, markdown=False)
+            builder.action(urls.profile_references_link(), ".view_action")
+        else:
+            builder.para(".reciprocate_encouragement", {"name": self.from_user.name})
+            builder.action(self.leave_reference_url, "reference.write_action", {"name": self.from_user.name})
+        return builder.build()
+
+    @classmethod
+    def from_notification(
+        cls, data: notification_data_pb2.ReferenceReceiveHostRequest, *, user_name: str, surfed: bool
+    ) -> Self:
+        return cls(
+            user_name=user_name,
+            from_user=UserInfo.from_protobuf(data.from_user),
+            text=data.text or None,
+            surfed=surfed,
+            leave_reference_url=urls.leave_reference_link(
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=str(data.from_user.user_id),
+                host_request_id=str(data.host_request_id),
+            ),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            from_user=UserInfo.dummy_bob(),
+            text="Alice was a fantastic guest!",
+            surfed=True,
+            leave_reference_url="https://couchers.org/leave-reference/123",
+        )
+        return [
+            replace(prototype, surfed=True, text="Alice was a fantastic guest!"),
+            replace(prototype, surfed=True, text=None),
+            replace(prototype, surfed=False, text="Bob was a wonderful host!"),
+            replace(prototype, surfed=False, text=None),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class HostReferenceReminderEmail(EmailBase):
+    """Sent as a reminder to write a reference after a stay."""
+
+    other_user: UserInfo
+    days_left: int
+    surfed: bool  # True if I was the surfer, False if I was the host
+    leave_reference_url: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "reference.reminder"
+
+    @property
+    def string_role_subkey(self) -> str:
+        return "surfed" if self.surfed else "hosted"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(
+            loc_context,
+            ".subject_days",
+            {"name": self.other_user.name, "count": self.days_left},
+        )
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(f".{self.string_role_subkey}.body_days", {"name": self.other_user.name, "count": self.days_left})
+        builder.para(".no_meeting_note", {"name": self.other_user.name})
+        builder.user(self.other_user)
+        builder.action(
+            self.leave_reference_url,
+            "reference.write_action",
+            {"name": self.other_user.name},
+        )
+        builder.para(".via_messaging_note")
+        builder.para(".importance_note")
+        builder.para(".visibility_note")
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.ReferenceReminder, *, user_name: str, surfed: bool) -> Self:
+        return cls(
+            user_name=user_name,
+            other_user=UserInfo.from_protobuf(data.other_user),
+            days_left=data.days_left,
+            surfed=surfed,
+            leave_reference_url=urls.leave_reference_link(
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=str(data.other_user.user_id),
+                host_request_id=str(data.host_request_id),
+            ),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            days_left=7,
+            surfed=True,
+            leave_reference_url="https://couchers.org/leave-reference/123",
+        )
+        return [replace(prototype, surfed=True), replace(prototype, surfed=False)]
 
 
 @dataclass(kw_only=True, slots=True)

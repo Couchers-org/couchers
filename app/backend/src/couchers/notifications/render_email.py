@@ -23,7 +23,6 @@ from couchers.notifications.quick_links import (
 )
 from couchers.proto import api_pb2
 from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
-from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -42,51 +41,16 @@ class RenderedEmailNotification:
 def render_email_notification(
     user: User, notification: Notification, loc_context: LocalizationContext, *, include_ics_attachments: bool
 ) -> RenderedEmailNotification:
+    email = _notification_to_email(notification, user_name=user.name)
+    subject = email.get_subject_line(loc_context)
+    preview = email.get_preview_line(loc_context)
+    body_blocks = email.get_body_blocks(loc_context)
     footer = get_email_footer(user, notification, loc_context)
-
-    subject: str
-    body_plaintext: str
-    body_html: str
-    source_data: str | None = None
-    # Progressively migrate to the new email templating system in couchers.email.emails,
-    # which supports localization and uses a single generic html template.
-    if email := _get_generic_templated_email(user.name, notification):
-        subject = email.get_subject_line(loc_context)
-        preview = email.get_preview_line(loc_context)
-        body_blocks = email.get_body_blocks(loc_context)
-        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
-        body_html = render_html_body(
-            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
-        )
-        source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
-    else:
-        # Email is still a custom-templated, nonlocalizable email.
-        custom_templated = _get_custom_templated_email(notification, loc_context)
-        subject = custom_templated.subject
-
-        template_args = {
-            **custom_templated.template_args,
-            "header_subject": custom_templated.subject,
-            "header_preview": custom_templated.preview,
-            "user": user,
-            "time": notification.created,
-            **footer.to_template_args(),
-        }
-
-        # Format plaintext template
-        plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
-        plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-        plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-        body_plaintext = plain_tmplt.render(template_args, loc_context)
-
-        # Format html template
-        html_tmplt = Jinja2Template(
-            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(),
-            html=True,
-        )
-        body_html = html_tmplt.render(template_args, loc_context)
-
-        source_data = config["VERSION"] + f"/{custom_templated.template_name}"
+    body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+    body_html = render_html_body(
+        subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
+    )
+    source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
     if include_ics_attachments:
@@ -104,7 +68,7 @@ def render_email_notification(
     )
 
 
-def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
+def _notification_to_email(notification: Notification, *, user_name: str) -> emails.EmailBase:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
         case NotificationTopicAction.account_deletion__start:
@@ -194,22 +158,24 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
             return emails.PostalVerificationPostcardSentEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name=user_name)
+        case NotificationTopicAction.reference__receive_friend:
+            return emails.FriendReferenceReceivedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.reference__receive_hosted:
+            # Reference received from the host, so I'm the surfer
+            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
+        case NotificationTopicAction.reference__receive_surfed:
+            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
+        case NotificationTopicAction.reference__reminder_hosted:
+            # Reminder to send a "hosted" reference, so I'm the host
+            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
+        case NotificationTopicAction.reference__reminder_surfed:
+            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.thread__reply:
             return emails.ThreadReplyEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_fail:
             return emails.StrongVerificationFailedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_success:
             return emails.StrongVerificationSucceededEmail(user_name=user_name)
-        case (
-            NotificationTopicAction.reference__receive_friend
-            | NotificationTopicAction.reference__receive_hosted
-            | NotificationTopicAction.reference__receive_surfed
-            | NotificationTopicAction.reference__reminder_hosted
-            | NotificationTopicAction.reference__reminder_surfed
-            | NotificationTopicAction.onboarding__reminder
-        ):
-            # Still implemented as a custom templated email
-            return None
         case _:
             # Enable mypy's exhaustiveness checking
             assert_never(notification.topic_action)
@@ -225,75 +191,6 @@ class CustomTemplatedEmail:
     template_name: str
     # other template args
     template_args: dict[str, Any]
-
-
-# Gets the data necessary to template an email for which we have a custom template,
-# e.g. not yet using couchers.email.emails.
-def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
-    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    if notification.topic == "reference":
-        if notification.action == "receive_friend":
-            title = f"You've received a friend reference from {data.from_user.name}!"
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=data.text,
-                template_name="friend_reference",
-                template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
-                    "profile_references_link": urls.profile_references_link(),
-                    "text": data.text,
-                },
-            )
-        elif notification.action in ["receive_hosted", "receive_surfed"]:
-            title = f"You've received a reference from {data.from_user.name}!"
-            # what was my type? i surfed with them if i received a "hosted" request
-            surfed = notification.action == "receive_hosted"
-            leave_reference_link = urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=data.from_user.user_id,
-                host_request_id=data.host_request_id,
-            )
-            profile_references_link = urls.profile_references_link()
-            if data.text:
-                preview = data.text
-            else:
-                preview = "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=preview,
-                template_name="host_reference",
-                template_args={
-                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
-                    "leave_reference_link": leave_reference_link,
-                    "profile_references_link": profile_references_link,
-                    "text": data.text,
-                    "both_written": True if data.text else False,
-                    "surfed": surfed,
-                },
-            )
-        elif notification.action in ["reminder_hosted", "reminder_surfed"]:
-            # what was my type? i surfed with them if i get a surfed reminder
-            surfed = notification.action == "reminder_surfed"
-            leave_reference_link = urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=data.other_user.user_id,
-                host_request_id=data.host_request_id,
-            )
-            title = f"You have {data.days_left} days to write a reference for {data.other_user.name}!"
-            preview = "It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first."
-            return CustomTemplatedEmail(
-                subject=title,
-                preview=preview,
-                template_name="reference_reminder",
-                template_args={
-                    "other_user": UserTemplateArgs.from_protobuf_user(data.other_user),
-                    "leave_reference_link": leave_reference_link,
-                    "days_left": str(data.days_left),
-                    "surfed": surfed,
-                },
-            )
-
-    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
 
 def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachmentV2 | None:
