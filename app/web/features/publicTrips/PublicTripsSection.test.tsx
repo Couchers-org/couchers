@@ -229,6 +229,7 @@ describe("PublicTripsSection", () => {
         fromDate: arrival.isoDate,
         toDate: departure.isoDate,
         description: VALID_DESCRIPTION,
+        sameGenderOnly: false,
       });
 
       // Dialog closes on success

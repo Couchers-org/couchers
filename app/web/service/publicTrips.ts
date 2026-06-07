@@ -55,17 +55,20 @@ export async function createPublicTrip({
   fromDate,
   toDate,
   description,
+  sameGenderOnly,
 }: {
   nodeId: number;
   fromDate: string;
   toDate: string;
   description: string;
+  sameGenderOnly: boolean;
 }) {
   const req = new CreatePublicTripReq();
   req.setNodeId(nodeId);
   req.setFromDate(fromDate);
   req.setToDate(toDate);
   req.setDescription(description);
+  req.setSameGenderOnly(sameGenderOnly);
   const res = await client.publicTrips.createPublicTrip(req);
   return res.toObject();
 }
@@ -76,12 +79,14 @@ export async function updatePublicTrip({
   toDate,
   description,
   status,
+  sameGenderOnly,
 }: {
   tripId: number;
   fromDate?: string;
   toDate?: string;
   description?: string;
   status?: PublicTripStatus;
+  sameGenderOnly?: boolean;
 }) {
   const req = new UpdatePublicTripReq();
   req.setTripId(tripId);
@@ -89,6 +94,7 @@ export async function updatePublicTrip({
   if (toDate !== undefined) req.setToDate(toDate);
   if (description !== undefined) req.setDescription(description);
   if (status !== undefined) req.setStatus(status);
+  if (sameGenderOnly !== undefined) req.setSameGenderOnly(sameGenderOnly);
   const res = await client.publicTrips.updatePublicTrip(req);
   return res.toObject();
 }

@@ -43,6 +43,7 @@ export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
 export { default as LocationIcon } from "@mui/icons-material/LocationOnOutlined";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as QuestionIcon } from "@mui/icons-material/MoreHorizOutlined";
+export { default as ReopenIcon } from "@mui/icons-material/AutorenewOutlined";
 export { default as MuteIcon } from "@mui/icons-material/VolumeOffOutlined";
 export { default as NotificationsActiveIcon } from "@mui/icons-material/NotificationsActive";
 export { default as OpenInNewIcon } from "@mui/icons-material/OpenInNew";
@@ -60,4 +61,5 @@ export { default as SlightlyDissatisfiedIcon } from "@mui/icons-material/Sentime
 export { default as SlightlySatisfiedIcon } from "@mui/icons-material/SentimentSatisfied";
 export { default as VeryDissatisfiedIcon } from "@mui/icons-material/MoodBadOutlined";
 export { default as VerySatisfiedIcon } from "@mui/icons-material/MoodOutlined";
+export { default as VisibilityIcon } from "@mui/icons-material/VisibilityOutlined";
 /* eslint-enable simple-import-sort/exports */

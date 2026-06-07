@@ -52,7 +52,13 @@ export function useCreatePublicTrip(
   return useMutation<
     PublicTripPb.AsObject,
     RpcError,
-    { nodeId: number; fromDate: string; toDate: string; description: string }
+    {
+      nodeId: number;
+      fromDate: string;
+      toDate: string;
+      description: string;
+      sameGenderOnly: boolean;
+    }
   >({
     mutationFn: (input) => service.publicTrips.createPublicTrip(input),
     onSuccess: () => {
@@ -75,6 +81,7 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
       toDate?: string;
       description?: string;
       status?: PublicTripStatus;
+      sameGenderOnly?: boolean;
     }
   >({
     mutationFn: (input) => service.publicTrips.updatePublicTrip(input),

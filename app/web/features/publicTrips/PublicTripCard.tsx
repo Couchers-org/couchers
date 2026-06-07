@@ -18,6 +18,8 @@ import {
   ExpandLessIcon,
   ExpandMoreIcon,
   HomeIcon,
+  ReopenIcon,
+  VisibilityIcon,
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
@@ -235,6 +237,20 @@ export default function PublicTripCard({
                       },
                     ]
                   : []),
+                ...(isClosed && !isPast
+                  ? [
+                      {
+                        icon: ReopenIcon,
+                        label: t("publicTrips:reopen"),
+                        onClick: () =>
+                          updateTrip({
+                            tripId: trip.tripId,
+                            status:
+                              PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+                          }),
+                      },
+                    ]
+                  : []),
               ];
               return (
                 <OwnerMenuContainer>
@@ -321,6 +337,12 @@ export default function PublicTripCard({
                 <MetaItem>
                   <HomeIcon />
                   {user.city}
+                </MetaItem>
+              )}
+              {trip.sameGenderOnly && (
+                <MetaItem>
+                  <VisibilityIcon />
+                  {t("publicTrips:same_gender_only_indicator")}
                 </MetaItem>
               )}
             </MetaRow>

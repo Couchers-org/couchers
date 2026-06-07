@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
@@ -13,7 +13,7 @@ import { useCommunity } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 import {
@@ -44,6 +44,7 @@ interface FormValues {
   fromDate: Dayjs | null;
   toDate: Dayjs | null;
   description: string;
+  sameGenderOnly: boolean;
 }
 
 type PublicTripDialogProps = {
@@ -65,8 +66,14 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
           fromDate: props.trip.fromDate ? dayjs(props.trip.fromDate) : null,
           toDate: props.trip.toDate ? dayjs(props.trip.toDate) : null,
           description: props.trip.description,
+          sameGenderOnly: props.trip.sameGenderOnly ?? false,
         }
-      : { fromDate: null, toDate: null, description: "" };
+      : {
+          fromDate: null,
+          toDate: null,
+          description: "",
+          sameGenderOnly: false,
+        };
 
   const {
     control,
@@ -83,13 +90,22 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
   const tripFromDate = props.mode === "edit" ? props.trip.fromDate : null;
   const tripToDate = props.mode === "edit" ? props.trip.toDate : null;
   const tripDescription = props.mode === "edit" ? props.trip.description : null;
+  const tripSameGenderOnly =
+    props.mode === "edit" ? props.trip.sameGenderOnly : null;
 
   useEffect(() => {
     if (open) {
       reset(getDefaults());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, tripKey, tripFromDate, tripToDate, tripDescription]);
+  }, [
+    open,
+    tripKey,
+    tripFromDate,
+    tripToDate,
+    tripDescription,
+    tripSameGenderOnly,
+  ]);
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
@@ -128,19 +144,22 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
     onClose();
   };
 
-  const onSubmit = handleSubmit(({ fromDate, toDate, description }) => {
-    if (!fromDate || !toDate) return;
-    const payload = {
-      fromDate: fromDate.format("YYYY-MM-DD"),
-      toDate: toDate.format("YYYY-MM-DD"),
-      description: description.trim(),
-    };
-    if (props.mode === "edit") {
-      updateMutation.mutate({ tripId: props.trip.tripId, ...payload });
-    } else {
-      createMutation.mutate({ nodeId: props.communityId, ...payload });
-    }
-  });
+  const onSubmit = handleSubmit(
+    ({ fromDate, toDate, description, sameGenderOnly }) => {
+      if (!fromDate || !toDate) return;
+      const payload = {
+        fromDate: fromDate.format("YYYY-MM-DD"),
+        toDate: toDate.format("YYYY-MM-DD"),
+        description: description.trim(),
+        sameGenderOnly,
+      };
+      if (props.mode === "edit") {
+        updateMutation.mutate({ tripId: props.trip.tripId, ...payload });
+      } else {
+        createMutation.mutate({ nodeId: props.communityId, ...payload });
+      }
+    },
+  );
 
   const formId = isEdit ? "edit-public-trip-form" : "create-public-trip-form";
   const titleId = isEdit
@@ -197,6 +216,25 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 {communityName}
               </Typography>
             )}
+            <Controller
+              control={control}
+              name="sameGenderOnly"
+              render={({ field: { value, onChange } }) => (
+                <div>
+                  <FormControlLabel
+                    control={<Checkbox checked={value} onChange={onChange} />}
+                    label={t("publicTrips:same_gender_only_label")}
+                  />
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ pl: 4 }}
+                  >
+                    {t("publicTrips:same_gender_only_helper")}
+                  </Typography>
+                </div>
+              )}
+            />
             <TextField
               id="public-trip-description"
               {...register("description", {
