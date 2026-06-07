@@ -30,6 +30,7 @@ def _complete_config(dev: bool) -> Config:
         cfg.BASE_URL = "https://example.com"
         cfg.ENABLE_EMAIL = True
         cfg.IN_TEST = False
+        cfg.FEATURE_FLAGS_FILE_OVERRIDE_PATH = ""
     return cfg
 
 

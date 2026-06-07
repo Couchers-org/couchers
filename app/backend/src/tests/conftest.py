@@ -148,9 +148,28 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     _truncate_non_static_tables(testdb_conn)
 
 
+# Production gates forced True so tests run as "everything enabled". Used by testconfig and the `flags`
+# fixture; tests flip individual values via `flags`.
+_TEST_FLAG_DEFAULTS: dict[str, Any] = {
+    "test_growthbook_integration": True,
+    "sms_enabled": True,
+    "strong_verification_enabled": True,
+    "log_native_ota_requests": True,
+    "donations_enabled": True,
+    "recaptcha_enabled": True,
+    "postal_verification_enabled": True,
+    "listmonk_enabled": True,
+    "remove_removed_users_from_mailing_list_enabled": True,
+    "notification_translations_enabled": True,
+    "email_ics_attachments_enabled": True,
+}
+
+
 @pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
+    prev_initialized = experimentation._initialized
+    prev_load_local_flags = experimentation._load_local_flags
 
     config["IN_TEST"] = True
 
@@ -222,11 +241,13 @@ def testconfig():
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
 
-    config["EXPERIMENTATION_ENABLED"] = False
-    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
+    # File-override mode; gates forced True via the stubbed loader below. Tests needing GrowthBook use `feature_flags`.
+    config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"] = "feature-flags.dev.json"
     config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
     config["GROWTHBOOK_CLIENT_KEY"] = ""
     config["GROWTHBOOK_CACHE_PATH"] = ""
+    experimentation._initialized = True
+    experimentation._load_local_flags = lambda _path: _TEST_FLAG_DEFAULTS  # type: ignore[assignment]
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
@@ -250,6 +271,46 @@ def testconfig():
     yield None
 
     config.copy_from(prevconfig)
+    experimentation._initialized = prev_initialized
+    experimentation._load_local_flags = prev_load_local_flags
+
+
+class Flags:
+    """Test handle for setting feature flag values in file-override mode; see the `flags` fixture."""
+
+    def __init__(self, values: dict[str, Any]) -> None:
+        self._values = values
+
+    def set_boolean(self, key: str, value: bool) -> None:
+        self._values[key] = value
+
+    def set_string(self, key: str, value: str) -> None:
+        self._values[key] = value
+
+    def set_integer(self, key: str, value: int) -> None:
+        self._values[key] = value
+
+    def set_float(self, key: str, value: float) -> None:
+        self._values[key] = value
+
+    def set_object(self, key: str, value: Any) -> None:
+        self._values[key] = value
+
+
+@pytest.fixture
+def flags(monkeypatch) -> Flags:
+    """
+    Override feature flag values for a test (file-override mode).
+
+    Starts from the test defaults (production gates on), so a test flips individual flags:
+
+        def test_x(flags):
+            flags.set_boolean("test_growthbook_integration", False)
+    """
+    values = dict(_TEST_FLAG_DEFAULTS)
+    monkeypatch.setattr(experimentation, "_load_local_flags", lambda _path: values)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "feature-flags.dev.json")
+    return Flags(values)
 
 
 class FeatureFlags:
@@ -270,7 +331,7 @@ class FeatureFlags:
 @pytest.fixture
 def feature_flags(monkeypatch) -> FeatureFlags:
     """
-    Enable experimentation with an in-memory snapshot and let tests set flag values by key.
+    Enable GrowthBook-mode flag evaluation against an in-memory snapshot; tests set values by key.
 
     Usage:
         def test_x(db, feature_flags):
@@ -280,8 +341,8 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    # Switch to GrowthBook mode (empty override path).
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
 
 
