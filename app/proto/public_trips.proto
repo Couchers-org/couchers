@@ -58,6 +58,9 @@ message PublicTrip {
   string node_slug = 9;
   // If true, only users with the same gender as the poster can see this trip
   bool same_gender_only = 10;
+  // Number of non-cancelled host offers linked to this trip.
+  // Only populated when the viewer is the trip owner.
+  optional int32 offers_count = 11;
 }
 
 message CreatePublicTripReq {
@@ -90,6 +93,14 @@ message ListPublicTripsByUserReq {
 
   uint32 page_size = 2;
   string page_token = 3;
+
+  // If non-empty, only trips with these statuses are returned.
+  // Ignored when viewing another user's trips (always filtered to active+upcoming).
+  repeated PublicTripStatus statuses_in = 4;
+
+  // If true, trips are sorted ascending by start date (soonest first).
+  // Default (false) sorts descending (latest start date first).
+  bool ascending = 5;
 }
 
 message ListPublicTripsByUserRes {
