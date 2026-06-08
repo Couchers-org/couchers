@@ -89,13 +89,13 @@ def log_unhandled_exception(
 def common_init() -> None:
     sys.excepthook = log_unhandled_exception
 
-    if config["SENTRY_ENABLED"]:
+    if config.SENTRY_ENABLED:
         # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
         sentry_sdk.init(
-            config["SENTRY_URL"],
+            config.SENTRY_URL,
             traces_sample_rate=0.0,
-            environment=config["COOKIE_DOMAIN"],
-            release=config["VERSION"],
+            environment=config.COOKIE_DOMAIN,
+            release=config.VERSION,
             # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
             disabled_integrations=[
                 excepthook.ExcepthookIntegration(),
@@ -116,20 +116,20 @@ def main() -> None:
 
     get_main_i18next()  # Force eager loading of translations
 
-    if config["ADD_DUMMY_DATA"]:
+    if config.ADD_DUMMY_DATA:
         add_dummy_data()
 
     logger.info("Starting")
 
     children: list[Process] = []
 
-    if config["ROLE"] in ["scheduler", "all"]:
+    if config.ROLE in ["scheduler", "all"]:
         scheduler = start_jobs_scheduler()
         scheduler.name = "scheduler"
         children.append(scheduler)
 
-    if config["ROLE"] in ["worker", "all"]:
-        for i in range(config["BACKGROUND_WORKER_COUNT"]):
+    if config.ROLE in ["worker", "all"]:
+        for i in range(config.BACKGROUND_WORKER_COUNT):
             worker = start_jobs_worker(i)
             worker.name = f"worker-{i}"
             children.append(worker)
@@ -137,7 +137,7 @@ def main() -> None:
     # The multiprocessing start method is forkserver/spawn (Python 3.14 default; never
     # fork), so each worker runs its own per-process init — don't pin set_start_method("fork") to "simplify"
     # this, that reintroduces fork-after-threads hazards.
-    if config["ROLE"] in ["api", "all"]:
+    if config.ROLE in ["api", "all"]:
         for port in range(API_BASE_PORT, API_BASE_PORT + API_WORKER_COUNT):
             api_worker = start_api_worker(port)
             api_worker.name = f"api-{port}"
@@ -151,7 +151,7 @@ def main() -> None:
     setup_tracing()
 
     media_server = None
-    if config["ROLE"] in ["api", "all"]:
+    if config.ROLE in ["api", "all"]:
         media_server = create_media_server(port=MEDIA_PORT)
         media_server.start()
         logger.info(f"Media server serving on {MEDIA_PORT}")

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.threads;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
@@ -33,6 +34,12 @@ service Threads {
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
   // Throws NOT_FOUND if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
   rpc PostReply(PostReplyReq) returns (PostReplyRes);
+
+  // Update a comment/reply; only the author can edit.
+  rpc UpdateReply(UpdateReplyReq) returns (Reply);
+
+  // Delete a comment/reply; only the author can delete.
+  rpc DeleteReply(DeleteReplyReq) returns (google.protobuf.Empty);
 }
 
 // object returned by pages, discussions etc to refer to top level threads.
@@ -74,6 +81,10 @@ message Reply {
 
   // number of replies to this comment
   uint32 num_replies = 5;
+
+  bool deleted = 6;
+  bool can_edit = 7;
+  google.protobuf.Timestamp last_edited = 8;
 }
 
 message PostReplyReq {
@@ -83,5 +94,14 @@ message PostReplyReq {
 
 message PostReplyRes {
   // The id of the just posted comment
+  int64 thread_id = 1;
+}
+
+message UpdateReplyReq {
+  int64 thread_id = 1;
+  string content = 2;
+}
+
+message DeleteReplyReq {
   int64 thread_id = 1;
 }

@@ -429,7 +429,7 @@ def test_job_retry(db):
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
-    new_config["IN_TEST"] = False
+    new_config.IN_TEST = False
 
     with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
@@ -1220,10 +1220,10 @@ def test_send_host_request_reminders(db, moderator):
 def test_add_users_to_email_list(db, feature_flags):
     feature_flags.set("listmonk_enabled", True)
     new_config = config.copy()
-    new_config["LISTMONK_BASE_URL"] = "https://example.com"
-    new_config["LISTMONK_API_USERNAME"] = "test_user"
-    new_config["LISTMONK_API_KEY"] = "dummy_api_key"
-    new_config["LISTMONK_LIST_ID"] = 6
+    new_config.LISTMONK_BASE_URL = "https://example.com"
+    new_config.LISTMONK_API_USERNAME = "test_user"
+    new_config.LISTMONK_API_KEY = "dummy_api_key"
+    new_config.LISTMONK_LIST_ID = 6
 
     with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
@@ -1369,8 +1369,7 @@ def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
         "_state",
         {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
     )
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
 
     superuser, _ = generate_user(is_superuser=True, last_donated=None)
 

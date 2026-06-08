@@ -341,9 +341,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email1.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
     new_config = config.copy()
-    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
-    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
-    new_config["NOTIFICATION_PREFIX"] = ""
+    new_config.NOTIFICATION_EMAIL_SENDER = "TestCo"
+    new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
+    new_config.NOTIFICATION_PREFIX = ""
 
     monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
@@ -369,7 +369,7 @@ def test_send_donation_email(db, monkeypatch):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
     new_config = config.copy()
-    new_config["ENABLE_EMAIL"] = True
+    new_config.ENABLE_EMAIL = True
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
@@ -426,7 +426,7 @@ This is a security email, you cannot unsubscribe from it.
         assert email.recipient == "testing@couchers.org.invalid"
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
-        assert "donation:received" in email.source_data
+        assert email.source_data and ("donation:received" in email.source_data)
 
 
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
