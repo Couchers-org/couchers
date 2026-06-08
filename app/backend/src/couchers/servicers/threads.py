@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
@@ -116,7 +116,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         continue
                     if user_id == comment.author_user_id:
                         continue
-                    context = make_background_user_context(user_id=user_id)
+                    context = make_notification_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -142,7 +142,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     if user_id == comment.author_user_id:
                         continue
 
-                    context = make_background_user_context(user_id=user_id)
+                    context = make_notification_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -200,7 +200,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
                 for user_id in user_ids_to_notify:
-                    context = make_background_user_context(user_id=user_id)
+                    context = make_notification_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,
@@ -216,7 +216,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             elif discussion:
                 # community discussion thread
                 for user_id in user_ids_to_notify:
-                    context = make_background_user_context(user_id=user_id)
+                    context = make_notification_user_context(user_id=user_id)
                     notify(
                         session,
                         user_id=user_id,

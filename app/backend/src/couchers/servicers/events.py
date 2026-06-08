@@ -9,7 +9,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -294,7 +294,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         for user in users:
             if is_not_visible(session, user.id, creator.id):
                 continue
-            context = make_background_user_context(user_id=user.id)
+            context = make_notification_user_context(user_id=user.id)
             topic_action = (
                 NotificationTopicAction.event__create_approved
                 if payload.approved
@@ -327,7 +327,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, updating_user.id):
                 continue
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -354,7 +354,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -378,7 +378,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -1289,7 +1289,7 @@ class Events(events_pb2_grpc.EventsServicer):
         )
         session.flush()
 
-        other_user_context = make_background_user_context(user_id=request.user_id)
+        other_user_context = make_notification_user_context(user_id=request.user_id)
 
         notify(
             session,
