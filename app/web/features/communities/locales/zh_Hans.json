@@ -21,14 +21,14 @@
   },
   "comment": "评论",
   "comments": "评论",
-  "comments_count": "评论数 | {{count}}",
+  "comments_count": "评论数| {{count}}",
   "community_header": "欢迎来到{{name}}",
   "community_image_input_alt": "社区图片输入",
   "upload_helper_text_replace": "单击更换照片",
   "community_moderators": "社区管理员",
   "edit_info_page_success_message": "社区页面已成功更新。",
   "community_tabs_a11y_label": "社区页面标签",
-  "discussion_creation_date": "创建于 {{dateOnly}}",
+  "discussion_creation_date": "创建于{{dateOnly}}",
   "create_new_discussion_title": "创建新帖子",
   "discussions_empty_state": "目前尚无讨论。",
   "discussions_label": "讨论",
@@ -55,7 +55,7 @@
   "more_tips": "更多提示和信息",
   "new_discussion_title": "讨论标题",
   "new_discussion_topic": "讨论主题",
-  "new_discussion_topic_placeholder": "创建一个新的讨论话题 - 例如：我在阿姆斯特丹最喜欢的时刻是...",
+  "new_discussion_topic_placeholder": "创建一个新的讨论话题-例如：我在阿姆斯特丹最喜欢的时刻是...",
   "new_post_label": "新帖子",
   "no_comments": "目前此讨论尚无评论。",
   "no_moderators": "目前尚无社区构建者。",
@@ -94,7 +94,7 @@
   "events_label": "活动",
   "events_title": "活动",
   "event_title_label": "标题",
-  "invalid_time": "时间必须是24小时格式 HH:MM。",
+  "invalid_time": "时间必须是24小时格式HH:MM。",
   "join_event": "参加活动",
   "leave_event": "离开活动",
   "going_to_event": "我将参加",
@@ -136,12 +136,12 @@
   "make_co_organizer": {
     "title": "设为联合组织者",
     "dialog_text": "您确定要将{{name}}设为{{event}}的联合组织者吗？",
-    "dialog_title": "将 {{name}} 设为联合组织者"
+    "dialog_title": "将{{name}}设为联合组织者"
   },
   "remove_as_co_organizer": {
     "title": "移除联合组织者",
     "dialog_text": "您确定要将{{name}}从{{event}}的联合组织者中移除吗？",
-    "dialog_title": "将 {{name}} 移除联合组织者"
+    "dialog_title": "将{{name}}移除联合组织者"
   },
   "search_communities": "搜索并访问一个社区",
   "search_communities_placeholder": "按城市或国家名称搜索…",

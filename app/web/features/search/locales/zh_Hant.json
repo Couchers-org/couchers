@@ -37,15 +37,15 @@
       "sleeping_arrangement_filters": {
         "shared_room": {
           "label": "共享房間",
-          "description": " 例如：共用臥室但有自己的睡眠空間"
+          "description": "例如：共用臥室但有自己的睡眠空間"
         },
         "private": {
           "label": "私人空間",
-          "description": " 例如：單獨房間或類似設施"
+          "description": "例如：單獨房間或類似設施"
         },
         "common": {
           "label": "公共休息區域",
-          "description": " 例如：客廳的沙發"
+          "description": "例如：客廳的沙發"
         }
       }
     },
@@ -73,9 +73,9 @@
   },
   "search_result": {
     "no_user_result_message": "找不到符合條件的使用者。請嘗試移除部分篩選條件以查看更多結果。",
-    "missing_about_description": "{{name}} 還沒有介紹自己",
-    "people_range_message_one": "{{currentRange}} / {{count}} 人",
-    "people_range_message_other": "{{currentRange}} / {{count}} 人",
+    "missing_about_description": "{{name}}還沒有介紹自己",
+    "people_range_message_one": "{{currentRange}} / {{count}}人",
+    "people_range_message_other": "{{currentRange}} / {{count}}人",
     "include_empty_profiles_button": "顯示所有使用者資料",
     "few_results_suggestion": "預設情況下，空白資料和「無法接待」的個人資料會被隱藏。"
   },

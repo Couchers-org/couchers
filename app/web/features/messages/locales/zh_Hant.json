@@ -123,17 +123,17 @@
     "title": "聊天成員"
   },
   "control_message": {
-    "created_chat_text": "{{user}} 建立了聊天",
-    "edited_chat_text": "{{user}} 修改了聊天",
-    "invite_user_text": "{{user}} 邀請了 {{target_user}}",
-    "user_left_chat_text": "{{user}} 離開了聊天",
-    "admin_assignment_text": "{{user}} 將 {{target_user}} 設為了管理員",
-    "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理員身份",
+    "created_chat_text": "{{user}}建立了聊天",
+    "edited_chat_text": "{{user}}修改了聊天",
+    "invite_user_text": "{{user}}邀請了{{target_user}}",
+    "user_left_chat_text": "{{user}}離開了聊天",
+    "admin_assignment_text": "{{user}}將{{target_user}}設為了管理員",
+    "admin_removal_text": "{{user}}移除了{{target_user}}的管理員身份",
     "host_request_status_changed": {
-      "accepted": "{{user}} 已接受該請求",
-      "cancelled": "{{user}} 已取消該請求",
-      "confirmed": "{{user}} 已確認該請求",
-      "rejected": "{{user}} 已拒絕該請求"
+      "accepted": "{{user}}已接受該請求",
+      "cancelled": "{{user}}已取消該請求",
+      "confirmed": "{{user}}已確認該請求",
+      "rejected": "{{user}}已拒絕該請求"
     },
     "unknown_message_text": "未知的控制訊息"
   },
@@ -164,10 +164,10 @@
   "host_request_view": {
     "error_message": "無效的接待請求ID",
     "back_button_a11y_label": "返回",
-    "title_for_host": "來自{{user}} 的請求 - {{status}}",
-    "title_for_surfer": "向 {{user}} 發出的請求 - {{status}}",
-    "request_duration_one": "{{count}} 晚",
-    "request_duration_other": "{{count}} 晚"
+    "title_for_host": "來自{{user}}的請求- {{status}}",
+    "title_for_surfer": "向{{user}}發出的請求- {{status}}",
+    "request_duration_one": "{{count}}晚",
+    "request_duration_other": "{{count}}晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",
   "unknown_user": "未知使用者"

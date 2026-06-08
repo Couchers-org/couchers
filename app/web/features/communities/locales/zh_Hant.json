@@ -1,7 +1,7 @@
 {
-  "attendees_count_one": "{{count}} 位參與者",
-  "attendees_count_other": "{{count}} 位參與者",
-  "by_creator": "由 {{name}} 發起",
+  "attendees_count_one": "{{count}}位參與者",
+  "attendees_count_other": "{{count}}位參與者",
+  "by_creator": "由{{name}}發起",
   "cancelled": "已取消",
   "cancel_event": "取消活動",
   "show_cancelled_events": "顯示已取消的活動",
@@ -23,14 +23,14 @@
   },
   "comment": "評論",
   "comments": "評論",
-  "comments_count": "評論數 | {{count}}",
+  "comments_count": "評論數| {{count}}",
   "community_header": "歡迎來到{{name}}",
   "community_image_input_alt": "社群圖片輸入",
   "upload_helper_text_replace": "點擊以更換照片",
   "community_moderators": "社群管理員",
   "edit_info_page_success_message": "社群頁面已成功更新。",
   "community_tabs_a11y_label": "社群頁面標籤",
-  "discussion_creation_date": "建立於 {{dateOnly}}",
+  "discussion_creation_date": "建立於{{dateOnly}}",
   "create_new_discussion_title": "建立新貼文",
   "discussions_empty_state": "目前尚無討論。",
   "discussions_label": "討論",
@@ -96,7 +96,7 @@
   "events_label": "活動",
   "events_title": "活動",
   "event_title_label": "標題",
-  "invalid_time": "時間必須是24小時格式 HH:MM。",
+  "invalid_time": "時間必須是24小時格式HH:MM。",
   "join_event": "參加活動",
   "leave_event": "離開活動",
   "going_to_event": "我將參加",
@@ -138,12 +138,12 @@
   "make_co_organizer": {
     "title": "設為聯合組織者",
     "dialog_text": "您確定要將{{name}}設為{{event}}的聯合組織者嗎？",
-    "dialog_title": "將 {{name}} 設為聯合組織者"
+    "dialog_title": "將{{name}}設為聯合組織者"
   },
   "remove_as_co_organizer": {
     "title": "移除聯合組織者",
     "dialog_text": "您確定要將{{name}}從{{event}}的聯合組織者中移除嗎？",
-    "dialog_title": "將 {{name}} 移除聯合組織者"
+    "dialog_title": "將{{name}}移除聯合組織者"
   },
   "search_communities": "搜尋並前往社群",
   "search_communities_placeholder": "依城市或國家名稱搜尋…",

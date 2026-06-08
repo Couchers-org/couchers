@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "更改電子郵件",
-    "current_email_message": "您目前的電子郵件地址是 <1>{{email}}</1>。",
+    "current_email_message": "您目前的電子郵件地址是<1>{{email}}</1>。",
     "success_message": "我們已收到您的電子郵件變更申請。請到新信箱完成確認。",
     "current_password": "當前密碼",
     "new_email": "新電子郵件",
@@ -63,7 +63,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "已經有帳號了嗎？<2>登入</2>",
-    "sign_up_agreement_explainer": "如果您繼續，即表示您同意我們的<2>服務條款</2>，包括我們對 Cookie、電子郵件與資料的處理方式。"
+    "sign_up_agreement_explainer": "如果您繼續，即表示您同意我們的<2>服務條款</2>，包括我們對Cookie、電子郵件與資料的處理方式。"
   },
   "account_form": {
     "header": "您的帳戶資料",
@@ -72,12 +72,12 @@
       "required_error": "請輸入您的使用者名稱",
       "username_taken_error": "這個使用者名稱已被使用。",
       "validation_error": "使用者名稱只能包含英文字母、數字或底線，並且必須以字母開頭。",
-      "helper_text": "這是您專屬的登入 ID，不是顯示名稱。"
+      "helper_text": "這是您專屬的登入ID，不是顯示名稱。"
     },
     "password": {
       "field_label": "密碼",
       "required_error": "輸入密碼",
-      "validation_error": "密碼長度必須介於 8 到 256 個字元之間，而且不能是過於常見的密碼。"
+      "validation_error": "密碼長度必須介於8到256個字元之間，而且不能是過於常見的密碼。"
     },
     "birthday": {
       "field_label": "生日",
@@ -108,8 +108,8 @@
       "field_label": "您的名字",
       "required_error": "此欄位不能留空。",
       "invalid_characters_error": "名稱只能包含字母、空格、連字號和撇號",
-      "min_length_error": "名稱至少要有 2 個字元",
-      "max_length_error": "名稱不能超過 100 個字元"
+      "min_length_error": "名稱至少要有2個字元",
+      "max_length_error": "名稱不能超過100個字元"
     },
     "email": {
       "field_label": "電子郵件",
@@ -146,7 +146,7 @@
     "mod_note_section": {
       "title": "您已收到來自管理員的通知",
       "description": "管理員已向您發送以下通知。請仔細閱讀，並在確認您已閱讀且理解後再繼續。",
-      "note_title": "收到管理員通知於 {{time}}：",
+      "note_title": "收到管理員通知於{{time}}：",
       "acknowledge": "確認已閱讀"
     },
     "activeness_probe": {
@@ -185,7 +185,7 @@
     },
     "username_section": {
       "title": "使用者名稱",
-      "description": "您的使用者名稱是 <1>{{username}}</1>。",
+      "description": "您的使用者名稱是<1>{{username}}</1>。",
       "explanation": "使用者名稱會在建立帳戶時設定。"
     },
     "appearance_section": {
@@ -214,10 +214,10 @@
     "settings_page_text": "查看您的登入位置並登出其他工作階段",
     "settings_page_link": "管理目前登入中的裝置",
     "description": "這個頁面會列出目前仍有效的登入工作階段。您可以點擊各筆登入旁的按鈕登出單一工作階段，或在頁面底部登出除目前工作階段外的所有裝置。",
-    "login_header": "登入於 {{login_datetime}}",
-    "location": "靠近 <2>{{approximate_location}}</2>",
-    "last_activity": "上次活動 <2>{{last_activity_ago}}</2>",
-    "expiry": "過期時間 <1>{{expiry_datetime}}</1>",
+    "login_header": "登入於{{login_datetime}}",
+    "location": "靠近<2>{{approximate_location}}</2>",
+    "last_activity": "上次活動<2>{{last_activity_ago}}</2>",
+    "expiry": "過期時間<1>{{expiry_datetime}}</1>",
     "current_session": "這是您當前的會話。",
     "log_out_of_session": "退出此會話",
     "log_out_of_all_session": "退出其他所有會話"
@@ -235,7 +235,7 @@
     "delete_information_text2": "如果您刪除了您的資料，您將無法再次使用同一本護照進行強身份驗證。",
     "delete_my_data_button": "刪除我的資料",
     "delete_button": "刪除我的強身份驗證資料",
-    "complete_message1": "您的護照正在驗證中, 結果將在幾分鐘內通過郵件發送給您。",
+    "complete_message1": "您的護照正在驗證中,結果將在幾分鐘內通過郵件發送給您。",
     "complete_message2": "強身份驗證將在您的護照到期時失效，您需要在獲得新護照後重新完成驗證。",
     "delete_success": "您的護照資訊已被刪除。",
     "donation_title": "感謝驗證！感謝您讓Couchers.org變得更安全。",
@@ -245,7 +245,7 @@
     "donation_message2": "如果您有能力，請考慮捐款以幫助Couchers.org持續運營和發展。",
     "donate_button": "捐款支持Couchers.org",
     "instructions": {
-      "step1": "下載 <strong>IRIS ID</strong> 應用",
+      "step1": "下載<strong>IRIS ID</strong>應用",
       "warning": "重要提示：護照芯片掃描步驟可能較為複雜，請務必先閱讀所有說明！",
       "title": "如何完成強身份驗證",
       "step1_apple_note": "<strong>蘋果使用者：</strong>您可以跳過下載，直接使用瀏覽器。出現提示時只需點擊“打開”即可。",
@@ -254,12 +254,12 @@
       "step5": "選擇<strong>護照</strong>（不支持身份證）",
       "step6": "請拍攝一張護照頁面的清晰照片，確保底部的號碼清晰可見",
       "step7": "將手機貼在帶有NFC芯片的護照頁面上（見下方提示）",
-      "download_app_store": "前往 App Store 下載",
-      "download_google_play": "前往 Google Play 下載",
+      "download_app_store": "前往App Store下載",
+      "download_google_play": "前往Google Play下載",
       "chip_location": {
-        "us_germany_mexico": "<strong>巴西、美國、德國（2016）、印度尼西亞、墨西哥：</strong> 封底",
-        "finland_germany_new": "<strong>芬蘭、德國（2017年及以後）、俄羅斯：</strong> 照片頁",
-        "australia": "<strong>澳大利亞：</strong> 中間頁面（標有符號+“芯片名稱”）",
+        "us_germany_mexico": "<strong>巴西、美國、德國（2016）、印度尼西亞、墨西哥：</strong>封底",
+        "finland_germany_new": "<strong>芬蘭、德國（2017年及以後）、俄羅斯：</strong>照片頁",
+        "australia": "<strong>澳大利亞：</strong>中間頁面（標有符號+“芯片名稱”）",
         "heading": "尋找護照NFC芯片位置",
         "description": "芯片的位置因國家而異。您可能需要嘗試不同的頁面。以下是一些位置示例："
       },
@@ -268,26 +268,26 @@
       "scanning_tips": {
         "heading": "成功進行NFC掃描的提示",
         "description": "NFC掃描是最棘手的部分。這些提示可顯著提高您的機會：",
-        "remove_case": "<strong>取下手機殼</strong> - 即使很薄的手機殼也會阻擋 NFC 信號",
-        "hold_still": "<strong>將手機完全靜止</strong>至少 5 秒 - 過早移動是失敗的最常見原因",
-        "flat_surface": "<strong>將護照放在平坦的表面上</strong> - 不要將其拿在手中",
-        "nfc_location": "<strong>找到手機的 NFC 天線</strong> - 它通常位於手機背面的頂部中心附近。如果無法連接，請嘗試不同的位置",
-        "no_metal": "<strong>避免金屬表面</strong> - 不要將護照放在金屬桌子或筆記本電腦上",
-        "retry": "如果掃描失敗，請重試 - 通常需要 2-3 次嘗試才能正確定位"
+        "remove_case": "<strong>取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號",
+        "hold_still": "<strong>將手機完全靜止</strong>至少5秒-過早移動是失敗的最常見原因",
+        "flat_surface": "<strong>將護照放在平坦的表面上</strong> -不要將其拿在手中",
+        "nfc_location": "<strong>找到手機的NFC天線</strong> -它通常位於手機背面的頂部中心附近。如果無法連接，請嘗試不同的位置",
+        "no_metal": "<strong>避免金屬表面</strong> -不要將護照放在金屬桌子或筆記本電腦上",
+        "retry": "如果掃描失敗，請重試-通常需要2-3次嘗試才能正確定位"
       },
       "before_you_start": {
         "heading": "開始之前",
-        "nfc_check": "您的手機必須具備 <strong>NFC 功能</strong>。大多數現代手機都支援，而且通常預設會開啟；某些較舊的手機則可能需要您到設定中手動開啟。",
-        "passport_check": "您的護照必須是<strong>生物識別護照</strong> - 查找封面上的金色芯片符號。沒有此符號的舊護照將無法使用。",
-        "remove_case": "<strong>開始前請取下手機殼</strong> - 即使很薄的手機殼也會阻擋 NFC 信號並導致掃描失敗。",
+        "nfc_check": "您的手機必須具備<strong>NFC功能</strong>。大多數現代手機都支援，而且通常預設會開啟；某些較舊的手機則可能需要您到設定中手動開啟。",
+        "passport_check": "您的護照必須是<strong>生物識別護照</strong> -查找封面上的金色芯片符號。沒有此符號的舊護照將無法使用。",
+        "remove_case": "<strong>開始前請取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號並導致掃描失敗。",
         "passport_symbol_alt": "生物識別護照符號"
       },
       "didnt_work": {
         "heading": "有問題嗎？",
-        "tip1": "如果您使用的是較舊的 Android 手機，請確認已在手機設定中開啟 NFC（大多數新款手機預設都已開啟）",
-        "tip2": "嘗試護照的不同頁面 — 芯片位置因國家/地區而異",
-        "tip3": "如果使用 Android，請確認已安裝 IRIS ID 應用程式（不是瀏覽器版本）",
-        "tip4": "一些較舊的護照或護照卡沒有 NFC 芯片，因此無法使用",
+        "tip1": "如果您使用的是較舊的Android手機，請確認已在手機設定中開啟NFC（大多數新款手機預設都已開啟）",
+        "tip2": "嘗試護照的不同頁面—芯片位置因國家/地區而異",
+        "tip3": "如果使用Android，請確認已安裝IRIS ID應用程式（不是瀏覽器版本）",
+        "tip4": "一些較舊的護照或護照卡沒有NFC芯片，因此無法使用",
         "contact": "如果如果您仍然遇到問題，請<1>告訴我們</1>，我們會提供幫助。"
       }
     }
@@ -299,12 +299,12 @@
     "phone_label": "您的電話號碼",
     "add_button_text": "添加電話號碼",
     "add_success": "電話號碼已添加。",
-    "phone_not_verified_description": "我們已向 <2>{{phone}}</2> 發送了一條驗證碼。請在下方輸入驗證碼以驗證您的號碼：",
+    "phone_not_verified_description": "我們已向<2>{{phone}}</2>發送了一條驗證碼。請在下方輸入驗證碼以驗證您的號碼：",
     "code_label": "驗證碼",
     "wrong_code": "驗證碼錯誤。",
     "verify_button_text": "驗證電話號碼",
     "verify_success": "電話號碼已驗證。",
-    "remove_phone_description": "您的當前電話號碼是 <2>{{phone}}</2>。您可以在下方移除電話號碼。",
+    "remove_phone_description": "您的當前電話號碼是<2>{{phone}}</2>。您可以在下方移除電話號碼。",
     "remove_button_text": "移除當前電話號碼",
     "remove_success": "電話號碼已移除。",
     "change_to_different_description": "如需更改為其他電話號碼，請在下方輸入。",
@@ -314,7 +314,7 @@
     "request": {
       "title": "刪除帳戶",
       "description": "如要刪除您的帳戶，請按以下步驟操作。我們將向您發出確認郵件。",
-      "confirm_username_explanation": "您的使用者名稱是 <1>{{username}}</1>，請在下方輸入以確認刪除帳戶。",
+      "confirm_username_explanation": "您的使用者名稱是<1>{{username}}</1>，請在下方輸入以確認刪除帳戶。",
       "confirm_username_label": "使用者名稱確認",
       "username_mismatch": "使用者名稱不匹配。",
       "reason_explanation": "請告訴我們刪除帳戶的原因，以幫助我們改進平台。",
@@ -370,10 +370,10 @@
     "description": "如果您的角色或日期不正確，請告知我們。",
     "card_preview_label": "您的團隊頁面列表",
     "not_a_volunteer_message": "根據我們的記錄，您不是當前或過去的志願者。如果不正確，請填寫<1>此表單</1>告知我們。",
-    "current_volunteer": "自 {{startDate}} 起志願服務。",
-    "past_volunteer": " 從 {{startDate}} 到 {{endDate}} 志願服務。",
-    "shown_on_team_page_current": " 在團隊頁面上顯示為當前團隊成員。",
-    "shown_on_team_page_past": " 在團隊頁面上顯示為過去的成員志願者.",
+    "current_volunteer": "自{{startDate}}起志願服務。",
+    "past_volunteer": "從{{startDate}}到{{endDate}}志願服務。",
+    "shown_on_team_page_current": "在團隊頁面上顯示為當前團隊成員。",
+    "shown_on_team_page_past": "在團隊頁面上顯示為過去的成員志願者.",
     "not_shown_on_team_page": "在團隊頁面中隱藏。",
     "update_success": "您的志願者資訊已更新。",
     "form": {
@@ -392,17 +392,17 @@
       "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
       "link_text_email_placeholder": "your@email.com",
       "link_text_website_placeholder": "https://your-website.com",
-      "link_text_linkedin_helper": "您的個人資料 URL 中的使用者名稱（例如 linkedin.com/in/jane-doe-a1b2c3）",
+      "link_text_linkedin_helper": "您的個人資料URL中的使用者名稱（例如linkedin.com/in/jane-doe-a1b2c3）",
       "link_text_email_helper": "您的電子郵件地址",
       "link_text_website_helper": "顯示用的連結文字",
       "link_text_required": "請輸入連結文字",
       "link_text_email_invalid": "請輸入有效的電子郵件地址",
-      "link_text_linkedin_invalid": "請輸入有效的 LinkedIn 使用者名稱（僅限字母、數字與連字號）",
-      "link_url_label": "連結 URL",
+      "link_text_linkedin_invalid": "請輸入有效的LinkedIn使用者名稱（僅限字母、數字與連字號）",
+      "link_url_label": "連結URL",
       "link_url_placeholder": "https://your-website.com",
-      "link_url_helper": "連結要指向的完整 URL",
-      "link_url_required": "請輸入網站的 URL",
-      "link_url_invalid": "請輸入以 http:// 或 https://",
+      "link_url_helper": "連結要指向的完整URL",
+      "link_url_required": "請輸入網站的URL",
+      "link_url_invalid": "請輸入以http://或https://",
       "save_button": "儲存變更"
     }
   }

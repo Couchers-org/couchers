@@ -63,7 +63,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "已经有账号了吗？<2>登录</2>",
-    "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的 <2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
+    "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的<2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
   },
   "account_form": {
     "header": "您的账号详情",
@@ -72,7 +72,7 @@
       "required_error": "输入您的用户名",
       "username_taken_error": "用户名已被占用。",
       "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。",
-      "helper_text": "这是您的唯一登录 ID，而不是您的显示名称。"
+      "helper_text": "这是您的唯一登录ID，而不是您的显示名称。"
     },
     "password": {
       "field_label": "密码",
@@ -108,8 +108,8 @@
       "field_label": "您的名字",
       "required_error": "此文本框不能为空。",
       "invalid_characters_error": "名称只能包含字母、空格、连字符和撇号",
-      "min_length_error": "名称必须至少包含 2 个字符",
-      "max_length_error": "名称必须不超过 100 个字符"
+      "min_length_error": "名称必须至少包含2个字符",
+      "max_length_error": "名称必须不超过100个字符"
     },
     "email": {
       "field_label": "邮箱",
@@ -146,7 +146,7 @@
     "mod_note_section": {
       "title": "您已收到来自管理员的通知",
       "description": "管理员向您发送了以下通知。请仔细阅读并确认您已阅读并理解该通知，然后再继续。",
-      "note_title": "收到管理员通知于 {{time}}：",
+      "note_title": "收到管理员通知于{{time}}：",
       "acknowledge": "确认已阅读"
     },
     "activeness_probe": {
@@ -214,10 +214,10 @@
     "settings_page_text": "查看您的登录位置并退出其他会话",
     "settings_page_link": "管理当前登录",
     "description": "此页面列出了活跃登录会话。您可以通过单击登录旁边的按钮退出某个会话，或者滚动到底部并单击按钮退出除当前会话以外的所有会话。",
-    "login_header": "登录于 {{login_datetime}}",
-    "location": "靠近 <2>{{approximate_location}}</2>",
-    "last_activity": "上次活动 <2>{{last_activity_ago}}</2>",
-    "expiry": "过期时间 <1>{{expiry_datetime}}</1>",
+    "login_header": "登录于{{login_datetime}}",
+    "location": "靠近<2>{{approximate_location}}</2>",
+    "last_activity": "上次活动<2>{{last_activity_ago}}</2>",
+    "expiry": "过期时间<1>{{expiry_datetime}}</1>",
     "current_session": "这是您当前的会话。",
     "log_out_of_session": "退出此会话",
     "log_out_of_all_session": "退出其他所有会话"
@@ -235,7 +235,7 @@
     "delete_information_text2": "如果您删除了您的数据，您将无法再次使用同一本护照进行强身份验证。",
     "delete_my_data_button": "删除我的数据",
     "delete_button": "删除我的强身份验证数据",
-    "complete_message1": "您的护照正在验证中, 结果将在几分钟内通过邮件发送给您。",
+    "complete_message1": "您的护照正在验证中,结果将在几分钟内通过邮件发送给您。",
     "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
     "delete_success": "您的护照信息已被删除。",
     "donation_title": "感谢验证！感谢您让Couchers.org变得更安全。",
@@ -245,7 +245,7 @@
     "donation_message2": "如果您有能力，请考虑捐款以帮助Couchers.org持续运营和发展。",
     "donate_button": "捐款支持Couchers.org",
     "instructions": {
-      "step1": "下载 <strong>IRIS ID</strong> 应用",
+      "step1": "下载<strong>IRIS ID</strong>应用",
       "warning": "重要提示：护照芯片扫描步骤可能较为复杂，请务必先阅读所有说明！",
       "title": "如何完成强身份验证",
       "step1_apple_note": "<strong>苹果用户：</strong>您可以跳过下载，直接使用浏览器。出现提示时只需点击“打开”即可。",
@@ -254,12 +254,12 @@
       "step5": "选择<strong>护照</strong>（不支持身份证）",
       "step6": "请拍摄一张护照页面的清晰照片，确保底部的号码清晰可见",
       "step7": "将手机贴在带有NFC芯片的护照页面上（见下方提示）",
-      "download_app_store": "前往 App Store 下载",
-      "download_google_play": "前往 Google Play 下载",
+      "download_app_store": "前往App Store下载",
+      "download_google_play": "前往Google Play下载",
       "chip_location": {
-        "us_germany_mexico": "<strong>巴西、美国、德国（2016）、印度尼西亚、墨西哥：</strong> 封底",
-        "finland_germany_new": "<strong>芬兰、德国（2017年及以后）、俄罗斯：</strong> 照片页",
-        "australia": "<strong>澳大利亚：</strong> 中间页面（标有符号+“芯片名称”）",
+        "us_germany_mexico": "<strong>巴西、美国、德国（2016）、印度尼西亚、墨西哥：</strong>封底",
+        "finland_germany_new": "<strong>芬兰、德国（2017年及以后）、俄罗斯：</strong>照片页",
+        "australia": "<strong>澳大利亚：</strong>中间页面（标有符号+“芯片名称”）",
         "heading": "寻找护照NFC芯片位置",
         "description": "芯片的位置因国家而异。您可能需要尝试不同的页面。以下是一些位置示例："
       },
@@ -268,26 +268,26 @@
       "scanning_tips": {
         "heading": "成功进行NFC扫描的提示",
         "description": "NFC扫描是最棘手的部分。这些提示可显着提高您的机会：",
-        "remove_case": "<strong>取下手机壳</strong> - 即使很薄的手机壳也会阻挡 NFC 信号",
-        "hold_still": "<strong>将手机完全静止</strong>至少 5 秒 - 过早移动是失败的最常见原因",
-        "flat_surface": "<strong>将护照放在平坦的表面上</strong> - 不要将其拿在手中",
-        "nfc_location": "<strong>找到手机的 NFC 天线</strong> - 它通常位于手机背面的顶部中心附近。如果无法连接，请尝试不同的位置",
-        "no_metal": "<strong>避免金属表面</strong> - 不要将护照放在金属桌子或笔记本电脑上",
-        "retry": "如果扫描失败，请重试 - 通常需要 2-3 次尝试才能正确定位"
+        "remove_case": "<strong>取下手机壳</strong> -即使很薄的手机壳也会阻挡NFC信号",
+        "hold_still": "<strong>将手机完全静止</strong>至少5秒-过早移动是失败的最常见原因",
+        "flat_surface": "<strong>将护照放在平坦的表面上</strong> -不要将其拿在手中",
+        "nfc_location": "<strong>找到手机的NFC天线</strong> -它通常位于手机背面的顶部中心附近。如果无法连接，请尝试不同的位置",
+        "no_metal": "<strong>避免金属表面</strong> -不要将护照放在金属桌子或笔记本电脑上",
+        "retry": "如果扫描失败，请重试-通常需要2-3次尝试才能正确定位"
       },
       "before_you_start": {
         "heading": "开始之前",
-        "nfc_check": "您的手机必须具有<strong>NFC 功能</strong> - 大多数现代手机都具备。 NFC 通常默认处于开启状态，但在某些较旧的手机上，您可能需要在手机设置中启用它。",
-        "passport_check": "您的护照必须是<strong>生物识别护照</strong> - 查找封面上的金色芯片符号。没有此符号的旧护照将无法使用。",
-        "remove_case": "<strong>开始前请取下手机壳</strong> - 即使很薄的手机壳也会阻挡 NFC 信号并导致扫描失败。",
+        "nfc_check": "您的手机必须具有<strong>NFC功能</strong> -大多数现代手机都具备。NFC通常默认处于开启状态，但在某些较旧的手机上，您可能需要在手机设置中启用它。",
+        "passport_check": "您的护照必须是<strong>生物识别护照</strong> -查找封面上的金色芯片符号。没有此符号的旧护照将无法使用。",
+        "remove_case": "<strong>开始前请取下手机壳</strong> -即使很薄的手机壳也会阻挡NFC信号并导致扫描失败。",
         "passport_symbol_alt": "生物识别护照符号"
       },
       "didnt_work": {
         "heading": "有问题吗？",
-        "tip1": "在较旧的 Android 手机上，确保在手机设置中启用 NFC（大多数现代手机默认情况下已启用）",
-        "tip2": "尝试护照的不同页面 — 芯片位置因国家/地区而异",
-        "tip3": "如果使用 Android，请确保安装了 IRIS ID 应用程序（不是浏览器版本）",
-        "tip4": "一些较旧的护照或护照卡没有 NFC 芯片，因此无法使用",
+        "tip1": "在较旧的Android手机上，确保在手机设置中启用NFC（大多数现代手机默认情况下已启用）",
+        "tip2": "尝试护照的不同页面—芯片位置因国家/地区而异",
+        "tip3": "如果使用Android，请确保安装了IRIS ID应用程序（不是浏览器版本）",
+        "tip4": "一些较旧的护照或护照卡没有NFC芯片，因此无法使用",
         "contact": "如果如果您仍然遇到问题，请<1>告诉我们</1>，我们会提供帮助。"
       }
     }
@@ -299,12 +299,12 @@
     "phone_label": "您的电话号码",
     "add_button_text": "添加电话号码",
     "add_success": "电话号码已添加。",
-    "phone_not_verified_description": "我们已向 <2>{{phone}}</2> 发送了一条验证码。请在下方输入验证码以验证您的号码：",
+    "phone_not_verified_description": "我们已向<2>{{phone}}</2>发送了一条验证码。请在下方输入验证码以验证您的号码：",
     "code_label": "验证码",
     "wrong_code": "验证码错误。",
     "verify_button_text": "验证电话号码",
     "verify_success": "电话号码已验证。",
-    "remove_phone_description": "您的当前电话号码是 <2>{{phone}}</2>。您可以在下方移除电话号码。",
+    "remove_phone_description": "您的当前电话号码是<2>{{phone}}</2>。您可以在下方移除电话号码。",
     "remove_button_text": "移除当前电话号码",
     "remove_success": "电话号码已移除。",
     "change_to_different_description": "如需更改为其他电话号码，请在下方输入。",
@@ -314,7 +314,7 @@
     "request": {
       "title": "删除账户",
       "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。",
-      "confirm_username_explanation": "您的用户名是 <1>{{username}}</1>，请在下方输入以确认删除账户。",
+      "confirm_username_explanation": "您的用户名是<1>{{username}}</1>，请在下方输入以确认删除账户。",
       "confirm_username_label": "用户名确认",
       "username_mismatch": "用户名不匹配。",
       "reason_explanation": "请告诉我们删除账户的原因，以帮助我们改进平台。",
@@ -370,10 +370,10 @@
     "description": "如果您的角色或日期不正确，请告知我们。",
     "card_preview_label": "您的团队页面列表",
     "not_a_volunteer_message": "根据我们的记录，您不是当前或过去的志愿者。如果不正确，请填写<1>此表单</1>告知我们。",
-    "current_volunteer": "自 {{startDate}} 起志愿服务。",
-    "past_volunteer": " 从 {{startDate}} 到 {{endDate}} 志愿服务。",
-    "shown_on_team_page_current": " 在团队页面上显示为当前团队成员。",
-    "shown_on_team_page_past": " 在团队页面上显示为过去的成员志愿者.",
+    "current_volunteer": "自{{startDate}}起志愿服务。",
+    "past_volunteer": "从{{startDate}}到{{endDate}}志愿服务。",
+    "shown_on_team_page_current": "在团队页面上显示为当前团队成员。",
+    "shown_on_team_page_past": "在团队页面上显示为过去的成员志愿者.",
     "not_shown_on_team_page": "在团队页面中隐藏。",
     "update_success": "您的志愿者信息已更新。",
     "form": {
@@ -392,7 +392,7 @@
       "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
       "link_text_email_placeholder": "your@email.com",
       "link_text_website_placeholder": "https://your-website.com",
-      "link_text_linkedin_helper": "您的个人资料 URL 中的用户名（例如 linkedin.com/in/jane-doe-a1b2c3）",
+      "link_text_linkedin_helper": "您的个人资料URL中的用户名（例如linkedin.com/in/jane-doe-a1b2c3）",
       "link_text_email_helper": "您的电子邮件地址",
       "link_text_website_helper": "的文本链接显示",
       "link_text_required": "请输入链接的值",
@@ -401,9 +401,9 @@
       "link_url_label": "链接URL",
       "link_url_placeholder": "https://your-website.com",
       "link_url_helper": "链接应指向的完整URL",
-      "link_url_required": "请输入网站的 URL",
-      "link_url_invalid": "请输入以 http:// 或 https://",
-      "save_button": " 开头的有效 URL 保存更改"
+      "link_url_required": "请输入网站的URL",
+      "link_url_invalid": "请输入以http://或https://",
+      "save_button": "开头的有效URL保存更改"
     }
   }
 }
