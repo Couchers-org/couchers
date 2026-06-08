@@ -1,5 +1,6 @@
 import {
   HourglassEmptyOutlined,
+  PlaceOutlined,
   WavingHandOutlined,
 } from "@mui/icons-material";
 import {
@@ -21,7 +22,6 @@ import {
   EditIcon,
   ExpandLessIcon,
   ExpandMoreIcon,
-  HomeIcon,
   ReopenIcon,
   VisibilityIcon,
 } from "components/Icons";
@@ -341,13 +341,13 @@ export default function PublicTripCard({
                   },
                 )}
               </MetaItem>
-              {user.city && (
+              {trip.nodeName && (
                 <MetaItem>
-                  <HomeIcon />
+                  <PlaceOutlined sx={{ fontSize: "1rem" }} />
                   <StyledLink
                     href={routeToCommunity(trip.nodeId, trip.nodeSlug)}
                   >
-                    {user.city}
+                    {trip.nodeName}
                   </StyledLink>
                 </MetaItem>
               )}
