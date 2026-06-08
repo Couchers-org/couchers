@@ -58,7 +58,7 @@ description
 results
 
 ## Diagnostics
-**Backend version**: `{config["VERSION"]}`
+**Backend version**: `{config.VERSION}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
 **Locale**: `en`
@@ -81,7 +81,7 @@ results
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -119,7 +119,7 @@ description
 results
 
 ## Diagnostics
-**Backend version**: `{config["VERSION"]}`
+**Backend version**: `{config.VERSION}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
 **Locale**: `en`
@@ -142,7 +142,7 @@ results
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -172,7 +172,7 @@ def test_bugs_fails_on_network_error(db):
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):

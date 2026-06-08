@@ -4,7 +4,7 @@ import time
 import uuid
 from datetime import UTC, datetime
 from functools import lru_cache
-from typing import Any, cast
+from typing import Any
 
 import grpc
 import requests
@@ -164,7 +164,7 @@ def _fetch_signed_manifest(url: str) -> tuple[str, bytes]:
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self) -> str:
-        return cast(str, config["VERSION"])
+        return config.VERSION
 
     def Version(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> bugs_pb2.VersionInfo:
         return bugs_pb2.VersionInfo(version=self._version())
@@ -172,11 +172,11 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def ReportBug(
         self, request: bugs_pb2.ReportBugReq, context: CouchersContext, session: Session
     ) -> bugs_pb2.ReportBugRes:
-        if not config["BUG_TOOL_ENABLED"]:
+        if not config.BUG_TOOL_ENABLED:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "bug_tool_disabled")
 
-        repo = config["BUG_TOOL_GITHUB_REPO"]
-        auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
+        repo = config.BUG_TOOL_GITHUB_REPO
+        auth = (config.BUG_TOOL_GITHUB_USERNAME, config.BUG_TOOL_GITHUB_TOKEN)
 
         if context.is_logged_in():
             username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()

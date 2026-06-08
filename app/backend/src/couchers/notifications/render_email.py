@@ -50,7 +50,7 @@ def render_email_notification(
     body_html = render_html_body(
         subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
     )
-    source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
+    source_data = f"notification; topic-action={notification.topic_action}; version={config.VERSION}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
     if include_ics_attachments:

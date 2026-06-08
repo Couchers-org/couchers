@@ -62,8 +62,8 @@ class GrowthBookUnavailableError(Exception):
 
 def _fetch_features() -> dict[str, Any] | None:
     """Fetch the GrowthBook feature payload over HTTP. Returns None on failure."""
-    api_host = config["GROWTHBOOK_API_HOST"].rstrip("/")
-    client_key = config["GROWTHBOOK_CLIENT_KEY"]
+    api_host = config.GROWTHBOOK_API_HOST.rstrip("/")
+    client_key = config.GROWTHBOOK_CLIENT_KEY
     url = f"{api_host}/api/features/{client_key}"
     try:
         http = urllib3.PoolManager(
@@ -100,7 +100,7 @@ def seconds_since_last_fetch() -> float | None:
 
 
 def _write_cache(response: dict[str, Any]) -> None:
-    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    path = Path(config.GROWTHBOOK_CACHE_PATH)
     data = json.dumps({"fetched_at": time.time(), "response": response})
     # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
     # never sees a half-written cache.
@@ -112,7 +112,7 @@ def _write_cache(response: dict[str, Any]) -> None:
 
 def _read_cache() -> tuple[dict[str, Any], float] | None:
     """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
-    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    path = Path(config.GROWTHBOOK_CACHE_PATH)
     if not path.exists():
         return None
     payload = json.loads(path.read_text())
@@ -156,8 +156,8 @@ def setup_experimentation() -> None:
     if _initialized:
         return
 
-    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
-        _load_local_flags(config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"])
+    if config.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+        _load_local_flags(config.FEATURE_FLAGS_FILE_OVERRIDE_PATH)
         _initialized = True
         return
 
@@ -276,8 +276,8 @@ def _global_evaluator() -> GrowthBook:
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which
 # passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    if config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]:
-        return _load_local_flags(config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"]).get(flag_key, default)  # type: ignore[no-any-return]
+    if config.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+        return _load_local_flags(config.FEATURE_FLAGS_FILE_OVERRIDE_PATH).get(flag_key, default)  # type: ignore[no-any-return]
     result = get_evaluator().eval_feature(flag_key)
     value = default if result.value is None else result.value
     metrics.observe_feature_flag_evaluation(flag_key, result.source, value)

@@ -30,7 +30,7 @@ def send_sms(number: str, message: str) -> str:
     assert len(message) <= 140, "Message too long"
 
     sns = boto3.client("sns")
-    sender_id = config["SMS_SENDER_ID"]
+    sender_id = config.SMS_SENDER_ID
 
     response = sns.publish(
         PhoneNumber=number,
