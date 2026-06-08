@@ -109,6 +109,7 @@ def test_create_public_trip(db):
         assert res.user.user_id == user.id
         assert res.node_id == node_id
         assert res.node_slug == "test-community"
+        assert res.node_name == "Test community"
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
         assert res.description == VALID_DESCRIPTION
@@ -346,6 +347,7 @@ def test_get_public_trip(db):
         assert res.trip_id == trip_id
         assert res.user.user_id == user.id
         assert res.node_slug == "test-community"
+        assert res.node_name == "Test community"
 
 
 def test_get_public_trip_not_found(db):
@@ -369,6 +371,7 @@ def test_list_public_trips(db):
         returned_ids = {t.trip_id for t in res.public_trips}
         assert returned_ids == {trip1, trip2}
         assert all(t.node_slug == "test-community" for t in res.public_trips)
+        assert all(t.node_name == "Test community" for t in res.public_trips)
 
 
 def test_list_public_trips_filters_closed_and_past(db):
