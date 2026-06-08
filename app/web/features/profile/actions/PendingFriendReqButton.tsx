@@ -80,7 +80,7 @@ function PendingFriendReqButton({
             </MenuItem>
             <MenuItem onClick={handleClick("declined")}>
               <CloseIcon />
-              {t("profile:actions.decline_friend_label")}
+              {t("profile:actions.dismiss_friend_request_menuitem")}
             </MenuItem>
           </Menu>
         </>
