@@ -45,12 +45,8 @@ def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
     """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
     if not page_token:
         return None, None
-    if ":" in page_token:
-        date_str, id_str = page_token.rsplit(":", 1)
-        return date.fromisoformat(date_str), int(id_str)
-    # Legacy format: id-only string
-    legacy_id = int(page_token)
-    return None, legacy_id if legacy_id else None
+    date_str, id_str = page_token.rsplit(":", 1)
+    return date.fromisoformat(date_str), int(id_str)
 
 
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
@@ -281,10 +277,6 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                         and_(PublicTrip.from_date == cursor_date, PublicTrip.id < cursor_id),
                     )
                 )
-        elif cursor_id is not None:
-            # Legacy id-only cursor
-            statement = statement.where(PublicTrip.id <= cursor_id)
-
         if ascending:
             statement = statement.order_by(PublicTrip.from_date.asc(), PublicTrip.id.asc())
         else:
