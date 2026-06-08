@@ -5,6 +5,7 @@ import yaml
 from sqlalchemy.orm.session import Session
 
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.email.emails import EmailBase
 from couchers.email.rendering import EmailFooter, render_html_body, render_plaintext_body
 from couchers.i18n import LocalizationContext
@@ -37,15 +38,18 @@ def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     _queue_email(session, payload)
 
 
-def queue_userless_email(session: Session, recipient: str, email: EmailBase, source_data_header: str) -> None:
+def queue_userless_email(
+    context: CouchersContext, session: Session, recipient: str, email: EmailBase, source_data_header: str
+) -> None:
     """
     This is a simplified version of couchers.notifications.background._send_email_notification
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
 
-    # Not yet localizable
-    loc_context = LocalizationContext.en_utc()
+    loc_context = context.localization
+    if not context.get_boolean_value("notification_translations_enabled", default=False):
+        loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
 
     subject = email.get_subject_line(loc_context)
     preview = email.get_preview_line(loc_context)
@@ -79,11 +83,10 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
     source = (_system_email_templates_dir / f"{template_name}.md").read_text(encoding="utf8")
     _, frontmatter_source, text_source = source.split("---", 2)
 
-    loc_context = LocalizationContext.en_utc()
-    rendered_frontmatter = Jinja2Template(source=frontmatter_source, html=False).render(template_args, loc_context)
+    rendered_frontmatter = Jinja2Template(source=frontmatter_source, html=False).render(template_args)
     frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
 
-    plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args, loc_context)
+    plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args)
 
     queue_email(
         session,

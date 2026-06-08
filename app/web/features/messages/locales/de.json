@@ -211,5 +211,6 @@
     "submit_button": "Absenden"
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
-  "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben."
+  "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",
+  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen"
 }
