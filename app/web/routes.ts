@@ -158,6 +158,8 @@ export const routeToGroup = (id: number, slug: string) =>
 export const discussionBaseRoute = "/discussion";
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
+export const routeToEditDiscussion = (id: number, slug: string) =>
+  `${routeToDiscussion(id, slug)}/edit`;
 
 export const eventBaseRoute = "/event";
 export const newEventRoute = `${eventBaseRoute}/new`;

@@ -19,7 +19,7 @@ def _complete_config(dev: bool) -> Config:
             setattr(cfg, var_name, 1)
         elif var_type is bytes:
             setattr(cfg, var_name, b"x")
-        elif typing.get_origin(var_type) is typing.Literal:
+        elif typing.get_origin(var_type) is typing.Literal:  # type: ignore[comparison-overlap]
             setattr(cfg, var_name, typing.get_args(var_type)[0])
         else:
             setattr(cfg, var_name, "x")
@@ -30,6 +30,7 @@ def _complete_config(dev: bool) -> Config:
         cfg.BASE_URL = "https://example.com"
         cfg.ENABLE_EMAIL = True
         cfg.IN_TEST = False
+        cfg.FEATURE_FLAGS_FILE_OVERRIDE_PATH = ""
     return cfg
 
 

@@ -238,9 +238,9 @@ def do_and_check_sv(
 
 def monkeypatch_sv_config(monkeypatch):
     new_config = config.copy()
-    new_config["IRIS_ID_PUBKEY"] = "dummy_pubkey"
-    new_config["IRIS_ID_SECRET"] = "dummy_secret"
-    new_config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+    new_config.IRIS_ID_PUBKEY = "dummy_pubkey"
+    new_config.IRIS_ID_SECRET = "dummy_secret"
+    new_config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 

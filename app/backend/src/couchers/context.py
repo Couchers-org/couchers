@@ -196,7 +196,7 @@ class CouchersContext:
     # context's user. The gating lives in experimentation; we just pass our cached per-request
     # evaluator. The in-code default is honored even for flags not yet set up in GrowthBook.
     def get_boolean_value(self, flag_key: str, default: bool) -> bool:
-        return experimentation._boolean_value(flag_key, default, self._get_growthbook)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_string_value(self, flag_key: str, default: str) -> str:
         return experimentation._feature_value(flag_key, default, self._get_growthbook)

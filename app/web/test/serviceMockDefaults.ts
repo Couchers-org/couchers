@@ -162,6 +162,8 @@ export async function getThread(threadId: number) {
             authorUserId: 3,
             createdTime: { seconds: 1577920000, nanos: 0 },
             numReplies: 0,
+            deleted: false,
+            canEdit: false,
           },
         ],
       };

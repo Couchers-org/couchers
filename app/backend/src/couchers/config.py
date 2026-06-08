@@ -114,15 +114,13 @@ class Config:
     RECAPTHCA_SITE_KEY: str
     # Whether we're in test
     IN_TEST: bool = False
-    # Experimentation (feature flags via GrowthBook)
-    EXPERIMENTATION_ENABLED: bool = False
-    # When enabled, all feature gates return True (useful for development/testing)
-    EXPERIMENTATION_PASS_ALL_GATES: bool = False
-    # GrowthBook SDK configuration
+    # Dev-only override file; when set, flags are read from it instead of GrowthBook.
+    FEATURE_FLAGS_FILE_OVERRIDE_PATH: str = ""
+    # GrowthBook (feature flags)
     GROWTHBOOK_API_HOST: str = "https://cdn.growthbook.io"
     GROWTHBOOK_CLIENT_KEY: str = ""
     # Disk path for the last-known-good feature payload, used as a cold-start fallback when GrowthBook
-    # is unreachable. Required when experimentation is enabled so we never start on in-code defaults.
+    # is unreachable, so we never start on in-code defaults.
     GROWTHBOOK_CACHE_PATH: str = ""
     # Continuous profiling (Pyroscope). Profiling is gated at runtime by the `profiling_enabled` feature
     # flag; PYROSCOPE_ENABLED is the per-deployment master switch.
@@ -213,11 +211,14 @@ class Config:
             if not self.RECAPTHCA_PROJECT_ID or not self.RECAPTHCA_API_KEY or not self.RECAPTHCA_SITE_KEY:
                 raise Exception("reCAPTCHA credentials must be configured in production")
 
-        if self.EXPERIMENTATION_ENABLED:
+            if self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+                raise Exception("FEATURE_FLAGS_FILE_OVERRIDE_PATH is dev-only and must not be set in production")
+
+        if not self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
             if not self.GROWTHBOOK_CLIENT_KEY:
-                raise Exception("No GrowthBook client key but experimentation enabled")
+                raise Exception("No GrowthBook client key configured")
             if not self.GROWTHBOOK_CACHE_PATH:
-                raise Exception("No GrowthBook cache path but experimentation enabled")
+                raise Exception("No GrowthBook cache path configured")
 
         if self.PYROSCOPE_ENABLED:
             if not self.PYROSCOPE_SERVER or not self.PYROSCOPE_AUTH_TOKEN:

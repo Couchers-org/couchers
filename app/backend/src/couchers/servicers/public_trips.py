@@ -1,8 +1,8 @@
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 
 import grpc
-from sqlalchemy import ColumnElement, or_, select
+from sqlalchemy import ColumnElement, and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
@@ -11,6 +11,7 @@ from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import Node, User
+from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
@@ -40,6 +41,14 @@ def _is_description_long_enough(text: str) -> bool:
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
+def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
+    """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
+    if not page_token:
+        return None, None
+    date_str, id_str = page_token.rsplit(":", 1)
+    return date.fromisoformat(date_str), int(id_str)
+
+
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
     # Show the trip if same_gender_only is off or the viewer's gender matches the poster's gender.
     # Moderator bypass is handled by callers via can_moderate_node before applying this filter.
@@ -53,7 +62,7 @@ def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
 def public_trip_to_pb(
     public_trip: PublicTrip, session: Session, context: CouchersContext
 ) -> public_trips_pb2.PublicTrip:
-    return public_trips_pb2.PublicTrip(
+    pb = public_trips_pb2.PublicTrip(
         trip_id=public_trip.id,
         user=user_model_to_pb(public_trip.user, session, context),
         node_id=public_trip.node_id,
@@ -65,6 +74,14 @@ def public_trip_to_pb(
         created=Timestamp_from_datetime(public_trip.created),
         same_gender_only=public_trip.same_gender_only,
     )
+    if public_trip.user_id == context.user_id:
+        pb.offers_count = session.execute(
+            select(func.count())
+            .select_from(HostRequest)
+            .where(HostRequest.public_trip_id == public_trip.id)
+            .where(HostRequest.status != HostRequestStatus.cancelled)
+        ).scalar_one()
+    return pb
 
 
 class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
@@ -210,13 +227,14 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         self, request: public_trips_pb2.ListPublicTripsByUserReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.ListPublicTripsByUserRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_page_id = int(request.page_token) if request.page_token else 0
-
+        cursor_date, cursor_id = _parse_page_token(request.page_token)
+        ascending = request.ascending
         is_self = request.user_id == context.user_id
 
         statement = where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id).where(
             PublicTrip.user_id == request.user_id
         )
+
         if not is_self:
             # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
             # Check moderation against each distinct node the user has active trips in.
@@ -238,17 +256,43 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
-        statement = (
-            statement.where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
-            .order_by(PublicTrip.id.desc())
-            .limit(page_size + 1)
-            .options(selectinload(PublicTrip.node, Node.official_cluster))
-        )
+        elif request.statuses_in:
+            statuses = [publictripstatus2sql[s] for s in request.statuses_in if s in publictripstatus2sql]
+            if statuses:
+                statement = statement.where(PublicTrip.status.in_(statuses))
+
+        # Cursor-based pagination using (from_date, id) composite key
+        if cursor_date is not None and cursor_id is not None:
+            if ascending:
+                statement = statement.where(
+                    or_(
+                        PublicTrip.from_date > cursor_date,
+                        and_(PublicTrip.from_date == cursor_date, PublicTrip.id > cursor_id),
+                    )
+                )
+            else:
+                statement = statement.where(
+                    or_(
+                        PublicTrip.from_date < cursor_date,
+                        and_(PublicTrip.from_date == cursor_date, PublicTrip.id < cursor_id),
+                    )
+                )
+        if ascending:
+            statement = statement.order_by(PublicTrip.from_date.asc(), PublicTrip.id.asc())
+        else:
+            statement = statement.order_by(PublicTrip.from_date.desc(), PublicTrip.id.desc())
+
+        statement = statement.limit(page_size + 1).options(selectinload(PublicTrip.node, Node.official_cluster))
         public_trips = session.execute(statement).scalars().all()
+
+        next_page_token = None
+        if len(public_trips) > page_size:
+            last = public_trips[page_size - 1]
+            next_page_token = f"{last.from_date.isoformat()}:{last.id}"
 
         return public_trips_pb2.ListPublicTripsByUserRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
-            next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
+            next_page_token=next_page_token,
         )
 
     def UpdatePublicTrip(

@@ -207,7 +207,7 @@ def test_phone_uniqueness(monkeypatch):
 
 def test_send_sms(db, monkeypatch):
     new_config = config.copy()
-    new_config["SMS_SENDER_ID"] = "CouchersOrg"
+    new_config.SMS_SENDER_ID = "CouchersOrg"
     monkeypatch.setattr(couchers.phone.sms, "config", new_config)
 
     msg_id = random_hex()
