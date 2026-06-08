@@ -2013,13 +2013,10 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, exclude_attending=True))
         assert [e.event_id for e in res.events] == [e_community_only]
 
-        # exclude_attending with attending=True: inclusion and exclusion cancel out → empty
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True, exclude_attending=True))
-        assert not res.events
-
-        # exclude_attending with organizing=True: inclusion and exclusion cancel out → empty
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True, exclude_attending=True))
-        assert not res.events
+        # exclude_attending with attending=True: invalid combination
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True, exclude_attending=True))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # user2 has no attendance/organizing relationship with e_community_only, so exclude_attending has no effect on it
     with events_session(token2) as api:

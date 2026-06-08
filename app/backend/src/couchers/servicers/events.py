@@ -1178,7 +1178,11 @@ class Events(events_pb2_grpc.EventsServicer):
                 EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
             )
             where_.append(EventOrganizer.user_id != None)
-        if include_attending:
+        if include_attending or request.exclude_attending:
+            if include_attending and request.exclude_attending:
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "cannot_combine_attending_and_exclude_attending"
+                )
             query = query.outerjoin(
                 EventOccurrenceAttendee,
                 and_(
@@ -1186,7 +1190,8 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurrenceAttendee.user_id == context.user_id,
                 ),
             )
-            where_.append(EventOccurrenceAttendee.user_id != None)
+            if include_attending:
+                where_.append(EventOccurrenceAttendee.user_id != None)
         if include_my_communities:
             my_communities = (
                 session.execute(
@@ -1206,14 +1211,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = query.where(or_(*where_))
 
         if request.exclude_attending:
-            attending_occurrence_ids = select(EventOccurrenceAttendee.occurrence_id).where(
-                EventOccurrenceAttendee.user_id == context.user_id
-            )
-            organizing_event_ids = select(EventOrganizer.event_id).where(EventOrganizer.user_id == context.user_id)
-            query = query.where(
-                EventOccurrence.id.not_in(attending_occurrence_ids),
-                EventOccurrence.event_id.not_in(organizing_event_ids),
-            )
+            query = query.where(EventOccurrenceAttendee.user_id == None)
 
         if request.my_communities_exclude_global:
             query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)
