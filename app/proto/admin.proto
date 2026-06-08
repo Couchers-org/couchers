@@ -80,6 +80,8 @@ service Admin {
 
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
+  rpc DeleteDiscussion(AdminDeleteDiscussionReq) returns (google.protobuf.Empty) {}
+
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
   rpc AddUsersToModerationUserList(AddUsersToModerationUserListReq) returns (AddUsersToModerationUserListRes) {}
@@ -468,6 +470,10 @@ message EditDiscussionReq {
   int64 discussion_id = 1;
   string new_title = 2;
   string new_content = 3;
+}
+
+message AdminDeleteDiscussionReq {
+  int64 discussion_id = 1;
 }
 
 message EditReplyReq {

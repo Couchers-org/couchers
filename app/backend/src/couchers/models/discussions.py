@@ -1,7 +1,8 @@
+import enum
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from couchers.models.base import Base, communities_seq
@@ -29,6 +30,8 @@ class Discussion(Base, kw_only=True):
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -96,6 +99,7 @@ class Comment(Base, kw_only=True):
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     thread: Mapped[Thread] = relationship(init=False, backref="comments")
 
@@ -117,8 +121,82 @@ class Reply(Base, kw_only=True):
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     comment: Mapped[Comment] = relationship(init=False, backref="replies")
+
+
+class ContentChangeType(enum.Enum):
+    edit = enum.auto()
+    delete = enum.auto()
+
+
+class DiscussionVersion(Base, kw_only=True):
+    """
+    audit log of edits and deletions to discussions
+    """
+
+    __tablename__ = "discussion_versions"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
+    editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    change_type: Mapped[ContentChangeType] = mapped_column(Enum(ContentChangeType))
+    old_title: Mapped[str | None] = mapped_column(String, default=None)
+    new_title: Mapped[str | None] = mapped_column(String, default=None)
+    old_content: Mapped[str | None] = mapped_column(String, default=None)
+    new_content: Mapped[str | None] = mapped_column(String, default=None)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    discussion: Mapped[Discussion] = relationship(init=False, backref="versions")
+    editor_user: Mapped[User] = relationship(
+        init=False, backref="edited_discussions", foreign_keys="DiscussionVersion.editor_user_id"
+    )
+
+
+class CommentVersion(Base, kw_only=True):
+    """
+    audit log of edits and deletions to comments
+    """
+
+    __tablename__ = "comment_versions"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
+    editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    change_type: Mapped[ContentChangeType] = mapped_column(Enum(ContentChangeType))
+    old_content: Mapped[str | None] = mapped_column(String, default=None)
+    new_content: Mapped[str | None] = mapped_column(String, default=None)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    comment: Mapped[Comment] = relationship(init=False, backref="versions")
+    editor_user: Mapped[User] = relationship(
+        init=False, backref="edited_comments", foreign_keys="CommentVersion.editor_user_id"
+    )
+
+
+class ReplyVersion(Base, kw_only=True):
+    """
+    audit log of edits and deletions to replies
+    """
+
+    __tablename__ = "reply_versions"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    reply_id: Mapped[int] = mapped_column(ForeignKey("replies.id"), index=True)
+    editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    change_type: Mapped[ContentChangeType] = mapped_column(Enum(ContentChangeType))
+    old_content: Mapped[str | None] = mapped_column(String, default=None)
+    new_content: Mapped[str | None] = mapped_column(String, default=None)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    reply: Mapped[Reply] = relationship(init=False, backref="versions")
+    editor_user: Mapped[User] = relationship(
+        init=False, backref="edited_replies", foreign_keys="ReplyVersion.editor_user_id"
+    )
 
 
 class ClusterDiscussionAssociation(Base, kw_only=True):

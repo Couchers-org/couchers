@@ -110,8 +110,8 @@ commit_timestamp_gauge: Gauge = Gauge(
     multiprocess_mode="max",
 )
 # left at its default of 0 when COMMIT_TIMESTAMP is empty (i.e. not a CI build)
-if config["COMMIT_TIMESTAMP"]:
-    commit_timestamp_gauge.set(datetime.fromisoformat(config["COMMIT_TIMESTAMP"]).timestamp())
+if config.COMMIT_TIMESTAMP:
+    commit_timestamp_gauge.set(datetime.fromisoformat(config.COMMIT_TIMESTAMP).timestamp())
 
 jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",

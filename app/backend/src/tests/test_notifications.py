@@ -1062,7 +1062,7 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Enable dev APIs for this test
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1090,7 +1090,7 @@ def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
     """Test SendDevPushNotification with minimal parameters."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1111,7 +1111,7 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Ensure dev APIs are disabled (default in tests)
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1131,8 +1131,8 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     """Test SendDevPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
-    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+    config.ENABLE_DEV_APIS = True
+    config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1236,7 +1236,7 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
     """Test DebugRedeliverPushNotification redelivers an existing notification."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     # Create a notification for the user
     with session_scope() as session:
@@ -1279,7 +1279,7 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
     """Test DebugRedeliverPushNotification fails when notification doesn't exist."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1297,7 +1297,7 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     # Create a notification for user1
     with session_scope() as session:
@@ -1336,7 +1336,7 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
     """Test DebugRedeliverPushNotification fails when ENABLE_DEV_APIS is disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1353,8 +1353,8 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     """Test DebugRedeliverPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
-    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+    config.ENABLE_DEV_APIS = True
+    config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:

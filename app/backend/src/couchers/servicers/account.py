@@ -461,9 +461,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         response = requests.post(
             "https://passportreader.app/api/v1/session.create",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.IRIS_ID_PUBKEY, config.IRIS_ID_SECRET),
             json={
-                "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
+                "callback_url": f"{config.BACKEND_BASE_URL}/iris/webhook",
                 "face_verification": False,
                 "passport_only": True,
                 "reference": reference,

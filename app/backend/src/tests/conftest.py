@@ -36,7 +36,7 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.DATABASE_CONNECTION_STRING
     if not dsn.endswith("/testdb"):
         raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
 
@@ -60,7 +60,7 @@ def testdb_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "testdb" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.DATABASE_CONNECTION_STRING
     with autocommit_engine(dsn) as engine:
         yield engine
 
@@ -171,102 +171,100 @@ def testconfig():
     prev_initialized = experimentation._initialized
     prev_load_local_flags = experimentation._load_local_flags
 
-    config["IN_TEST"] = True
+    config.IN_TEST = True
 
-    config["DEV"] = True
-    config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
-    config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:3000"
-    config["BACKEND_BASE_URL"] = "http://localhost:8888"
-    config["CONSOLE_BASE_URL"] = "http://localhost:8888"
-    config["COOKIE_DOMAIN"] = "localhost"
+    config.DEV = True
+    config.SECRET = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
+    config.VERSION = "testing_version"
+    config.BASE_URL = "http://localhost:3000"
+    config.BACKEND_BASE_URL = "http://localhost:8888"
+    config.CONSOLE_BASE_URL = "http://localhost:8888"
+    config.COOKIE_DOMAIN = "localhost"
 
-    config["SMS_SENDER_ID"] = "invalid"
+    config.SMS_SENDER_ID = "invalid"
 
-    config["ENABLE_EMAIL"] = False
-    config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
-    config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
-    config["NOTIFICATION_PREFIX"] = "[TEST] "
-    config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
-    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
-    config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
+    config.ENABLE_EMAIL = False
+    config.NOTIFICATION_EMAIL_SENDER = "Couchers.org"
+    config.NOTIFICATION_EMAIL_ADDRESS = "notify@couchers.org.invalid"
+    config.NOTIFICATION_PREFIX = "[TEST] "
+    config.REPORTS_EMAIL_RECIPIENT = "reports@couchers.org.invalid"
+    config.CONTRIBUTOR_FORM_EMAIL_RECIPIENT = "forms@couchers.org.invalid"
+    config.MODS_EMAIL_RECIPIENT = "mods@couchers.org.invalid"
 
-    config["STRIPE_API_KEY"] = ""
-    config["STRIPE_WEBHOOK_SECRET"] = ""
-    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
+    config.STRIPE_API_KEY = ""
+    config.STRIPE_WEBHOOK_SECRET = ""
+    config.STRIPE_RECURRING_PRODUCT_ID = ""
 
-    config["IRIS_ID_PUBKEY"] = ""
-    config["IRIS_ID_SECRET"] = ""
+    config.IRIS_ID_PUBKEY = ""
+    config.IRIS_ID_SECRET = ""
     # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272
-    config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+    config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    config["MYPOSTCARD_API_KEY"] = "test-api-key"
-    config["MYPOSTCARD_USERNAME"] = "test-username"
-    config["MYPOSTCARD_PASSWORD"] = "test-password"
-    config["MYPOSTCARD_PRODUCT_CODE"] = "J9GCU"
-    config["MYPOSTCARD_CAMPAIGN_ID"] = "295"
+    config.MYPOSTCARD_API_KEY = "test-api-key"
+    config.MYPOSTCARD_USERNAME = "test-username"
+    config.MYPOSTCARD_PASSWORD = "test-password"
+    config.MYPOSTCARD_PRODUCT_CODE = "J9GCU"
+    config.MYPOSTCARD_CAMPAIGN_ID = "295"
 
-    config["SMTP_HOST"] = "localhost"
-    config["SMTP_PORT"] = 587
-    config["SMTP_USERNAME"] = "username"
-    config["SMTP_PASSWORD"] = "password"
+    config.SMTP_HOST = "localhost"
+    config.SMTP_PORT = 587
+    config.SMTP_USERNAME = "username"
+    config.SMTP_PASSWORD = "password"
 
-    config["ENABLE_MEDIA"] = True
-    config["MEDIA_SERVER_SECRET_KEY"] = bytes.fromhex(
-        "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
-    )
-    config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
-    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
-    config["MEDIA_SERVER_UPLOAD_BASE_URL"] = "http://localhost:5001"
+    config.ENABLE_MEDIA = True
+    config.MEDIA_SERVER_SECRET_KEY = bytes.fromhex("91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc")
+    config.MEDIA_SERVER_BEARER_TOKEN = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
+    config.MEDIA_SERVER_BASE_URL = "http://localhost:5001"
+    config.MEDIA_SERVER_UPLOAD_BASE_URL = "http://localhost:5001"
 
-    config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
-    config["BUG_TOOL_GITHUB_USERNAME"] = "user"
-    config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+    config.BUG_TOOL_ENABLED = False
+    config.BUG_TOOL_GITHUB_REPO = "org/repo"
+    config.BUG_TOOL_GITHUB_USERNAME = "user"
+    config.BUG_TOOL_GITHUB_TOKEN = "token"
 
-    config["LISTMONK_BASE_URL"] = "https://localhost"
-    config["LISTMONK_API_USERNAME"] = "..."
-    config["LISTMONK_API_KEY"] = "..."
-    config["LISTMONK_LIST_ID"] = 3
+    config.LISTMONK_BASE_URL = "https://localhost"
+    config.LISTMONK_API_USERNAME = "..."
+    config.LISTMONK_API_KEY = "..."
+    config.LISTMONK_LIST_ID = 3
 
-    config["PUSH_NOTIFICATIONS_ENABLED"] = True
-    config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
-    config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
+    config.PUSH_NOTIFICATIONS_ENABLED = True
+    config.PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
+    config.PUSH_NOTIFICATIONS_VAPID_SUBJECT = "mailto:testing@couchers.org.invalid"
 
-    config["ACTIVENESS_PROBES_ENABLED"] = True
+    config.ACTIVENESS_PROBES_ENABLED = True
 
-    config["RECAPTHCA_PROJECT_ID"] = "..."
-    config["RECAPTHCA_API_KEY"] = "..."
-    config["RECAPTHCA_SITE_KEY"] = "..."
+    config.RECAPTHCA_PROJECT_ID = "..."
+    config.RECAPTHCA_API_KEY = "..."
+    config.RECAPTHCA_SITE_KEY = "..."
 
     # File-override mode; gates forced True via the stubbed loader below. Tests needing GrowthBook use `feature_flags`.
-    config["FEATURE_FLAGS_FILE_OVERRIDE_PATH"] = "feature-flags.dev.json"
-    config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
-    config["GROWTHBOOK_CLIENT_KEY"] = ""
-    config["GROWTHBOOK_CACHE_PATH"] = ""
+    config.FEATURE_FLAGS_FILE_OVERRIDE_PATH = "feature-flags.dev.json"
+    config.GROWTHBOOK_API_HOST = "https://cdn.growthbook.io"
+    config.GROWTHBOOK_CLIENT_KEY = ""
+    config.GROWTHBOOK_CACHE_PATH = ""
     experimentation._initialized = True
     experimentation._load_local_flags = lambda _path: _TEST_FLAG_DEFAULTS  # type: ignore[assignment]
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
     # Bot user ID for automated moderation - will be set to a real user in tests that need it
-    config["MODERATION_BOT_USER_ID"] = 1
+    config.MODERATION_BOT_USER_ID = 1
 
     # Dev APIs disabled by default in tests
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     # Slack notifications disabled by default in tests
-    config["SLACK_ENABLED"] = False
-    config["SLACK_BOT_TOKEN"] = ""
-    config["SLACK_DONATIONS_CHANNEL"] = ""
-    config["SLACK_MERCH_CHANNEL"] = ""
+    config.SLACK_ENABLED = False
+    config.SLACK_BOT_TOKEN = ""
+    config.SLACK_DONATIONS_CHANNEL = ""
+    config.SLACK_MERCH_CHANNEL = ""
 
     # Profiling disabled by default in tests
-    config["PYROSCOPE_ENABLED"] = False
-    config["PYROSCOPE_SERVER"] = "https://localhost"
-    config["PYROSCOPE_AUTH_TOKEN"] = "token"
+    config.PYROSCOPE_ENABLED = False
+    config.PYROSCOPE_SERVER = "https://localhost"
+    config.PYROSCOPE_AUTH_TOKEN = "token"
 
     yield None
 

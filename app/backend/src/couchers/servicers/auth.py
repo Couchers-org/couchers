@@ -717,11 +717,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user_id = context.user_id if context.is_logged_in() else None
 
         resp = requests.post(
-            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config['RECAPTHCA_PROJECT_ID']}/assessments?key={config['RECAPTHCA_API_KEY']}",
+            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config.RECAPTHCA_PROJECT_ID}/assessments?key={config.RECAPTHCA_API_KEY}",
             json={
                 "event": {
                     "token": request.token,
-                    "siteKey": config["RECAPTHCA_SITE_KEY"],
+                    "siteKey": config.RECAPTHCA_SITE_KEY,
                     "userAgent": user_agent,
                     "userIpAddress": ip_address,
                     "expectedAction": request.action,

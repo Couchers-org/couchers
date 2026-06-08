@@ -13,7 +13,9 @@
       "threadId": 2,
       "numResponses": 5
     },
-    "canModerate": true
+    "canModerate": true,
+    "canEdit": true,
+    "deleted": false
   },
   {
     "discussionId": 2,
@@ -29,6 +31,8 @@
       "threadId": 3,
       "numResponses": 0
     },
-    "canModerate": false
+    "canModerate": false,
+    "canEdit": false,
+    "deleted": false
   }
 ]

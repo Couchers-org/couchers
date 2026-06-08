@@ -138,7 +138,7 @@ logger = logging.getLogger(__name__)
 def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
-    sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
+    sender = send_smtp_email if config.ENABLE_EMAIL else print_dev_email
     # the sender must return a models.Email object that can be added to the database
     email = sender(payload)
     with session_scope() as session:
@@ -614,15 +614,15 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
         return
 
     sess = requests.Session()
-    sess.auth = (config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"])
+    sess.auth = (config.LISTMONK_API_USERNAME, config.LISTMONK_API_KEY)
 
     def sync_subscriber(user: User, status: str) -> None:
         r = sess.post(
-            config["LISTMONK_BASE_URL"] + "/api/subscribers",
+            config.LISTMONK_BASE_URL + "/api/subscribers",
             json={
                 "email": user.email,
                 "name": user.name,
-                "lists": [config["LISTMONK_LIST_ID"]],
+                "lists": [config.LISTMONK_LIST_ID],
                 "preconfirm_subscriptions": True,
                 "attribs": {"couchers_user_id": user.id},
                 "status": status,
@@ -917,7 +917,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         ).scalar_one()
         response = requests.post(
             "https://passportreader.app/api/v1/session.get",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.IRIS_ID_PUBKEY, config.IRIS_ID_SECRET),
             json={"id": verification_attempt.iris_session_id},
             timeout=10,
             verify="/etc/ssl/certs/ca-certificates.crt",
@@ -984,7 +984,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
 
         verification_attempt.has_full_data = True
         verification_attempt.passport_encrypted_data = asym_encrypt(
-            config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
+            config.VERIFICATION_DATA_PUBLIC_KEY, response.text.encode("utf8")
         )
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
@@ -1025,7 +1025,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
-        if config["ACTIVENESS_PROBES_ENABLED"]:
+        if config.ACTIVENESS_PROBES_ENABLED:
             # current activeness probes
             subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
 
@@ -1518,7 +1518,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # Ensure auto-approve deadline isn't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
-        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
         if deadline_seconds > 0:
             grace_period = timedelta(minutes=5)
             stale_initial_review_items = session.execute(
@@ -1545,12 +1545,12 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
     Items explicitly actioned by moderators are left alone.
     """
-    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
     if deadline_seconds <= 0:
         return
 
     with session_scope() as session:
-        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+        ctx = make_background_user_context(user_id=config.MODERATION_BOT_USER_ID)
 
         items = (
             Moderation()
