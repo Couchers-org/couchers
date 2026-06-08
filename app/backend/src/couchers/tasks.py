@@ -9,6 +9,7 @@ import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
+from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.queuing import queue_system_email, queue_userless_email
@@ -34,7 +35,7 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(session: Session, flow: SignupFlow) -> None:
+def send_signup_email(context: CouchersContext, session: Session, flow: SignupFlow) -> None:
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -61,10 +62,16 @@ def send_signup_email(session: Session, flow: SignupFlow) -> None:
     else:
         email = emails.SignupVerifyEmail(user_name=flow.name, verify_url=signup_link)
 
-    queue_userless_email(session, flow.email, email, source_data_header=f"signup; initial={not email_sent_before}")
+    queue_userless_email(
+        context,
+        session,
+        flow.email,
+        email,
+        source_data_header=f"signup; initial={not email_sent_before}",
+    )
 
 
-def send_email_changed_confirmation_to_new_email(session: Session, user: User) -> None:
+def send_email_changed_confirmation_to_new_email(context: CouchersContext, session: Session, user: User) -> None:
     """
     Send an email to the user's new email address requesting confirmation of email change
     """
@@ -84,7 +91,7 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
         confirm_url=urls.change_email_link(confirmation_token=user.new_email_token),
     )
 
-    queue_userless_email(session, user.new_email, email, source_data_header="email_changed_confirmation")
+    queue_userless_email(context, session, user.new_email, email, source_data_header="email_changed_confirmation")
 
 
 def send_content_report_email(session: Session, content_report: ContentReport) -> None:
