@@ -14,7 +14,7 @@ def send_slack_message(channel: str, markdown: str) -> None:
 
     response = requests.post(
         "https://slack.com/api/chat.postMessage",
-        headers={"Authorization": f"Bearer {config['SLACK_BOT_TOKEN']}"},
+        headers={"Authorization": f"Bearer {config.SLACK_BOT_TOKEN}"},
         json={"channel": channel, "markdown_text": markdown},
         timeout=10,
     )

@@ -67,7 +67,7 @@ def queue_userless_email(session: Session, recipient: str, email: EmailBase, sou
             subject=config.NOTIFICATION_PREFIX + subject,
             plain=body_plaintext,
             html=body_html,
-            source_data=f"{source_data_header}; version={config['VERSION']}",
+            source_data=f"{source_data_header}; version={config.VERSION}",
         ),
     )
 

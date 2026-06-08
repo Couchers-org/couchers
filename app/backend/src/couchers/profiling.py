@@ -66,7 +66,7 @@ def _reconcile() -> None:
         oncpu=oncpu,
         tags=_tags,
         # The agent has no bearer-token option; this is what our nginx ingest gate authenticates against.
-        http_headers={"Authorization": f"Bearer {config['PYROSCOPE_AUTH_TOKEN']}"},
+        http_headers={"Authorization": f"Bearer {config.PYROSCOPE_AUTH_TOKEN}"},
         enable_logging=False,
     )
     _running, _sample_rate, _oncpu = True, sample_rate, oncpu
