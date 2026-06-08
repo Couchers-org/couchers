@@ -1,7 +1,7 @@
 """Add edit/delete support to discussions, comments, and replies
 
-Revision ID: 0158
-Revises: 0157
+Revision ID: 0165
+Revises: 0164
 Create Date: 2026-05-13 00:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0158"
-down_revision = "0157"
+revision = "0165"
+down_revision = "0164"
 branch_labels = None
 depends_on = None
 
