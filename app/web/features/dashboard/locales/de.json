@@ -9,7 +9,7 @@
   "browse_communities": "Communitys durchsuchen",
   "search_input_label": "Wo gehst du hin?",
   "search_input_placeholder": "Suche einen Ort",
-  "become_a_host": "Ein Host werden",
+  "become_a_host": "Werde ein Host",
   "your_communities_heading": "Deine Communitys",
   "all_communities_heading": "Alle Communitys",
   "no_community": "Du befindest dich aktuell in keiner Community.",
@@ -33,7 +33,7 @@
   "all_communities_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher erstellt wurden. <strong>Klicke auf einen Community-Namen, um die anderen Communitys darin zu sehen.</strong>",
   "community_missing": "Fehlt dein Land oder deine Stadt? Nutze <1>dieses Formular</1>, um die Community anzufragen!",
   "communities_welcome_title": "Willkommen bei Communitys",
-  "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Events, Diskussionen und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communitys hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communitys sind auf deinem Dashboard aufgeführt.",
+  "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Events, Beiträge und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communitys hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communitys sind auf deinem Dashboard aufgeführt.",
   "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>",
   "find_your_community": "Finde eine Community",
   "browse_all_communities": "Alle Communitys durchsuchen",
@@ -75,6 +75,10 @@
       "title": "Bestätige deinen Aufenthalt bei {{name}}",
       "description": "{{name}} hat deine Anfrage angenommen. Bestätige deinen Aufenthalt, um ihn zu sichern.",
       "button": "Aufenthalt bestätigen"
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Nach links scrollen",
+      "right_arrow_a11y": "Nach rechts scrollen"
     }
   },
   "events": {
@@ -86,8 +90,8 @@
     "today_label": "Heute"
   },
   "discussions": {
-    "community_header": "Diskussionen in deinen Communitys",
-    "community_empty_message": "Bisher gibt es keine Diskussionen in deinen Communitys.",
+    "community_header": "Beiträge in deinen Communitys",
+    "community_empty_message": "Bisher gibt es keine Beiträge in deinen Communitys.",
     "replies_count_label_one": "{{count}} Antwort",
     "replies_count_label_other": "{{count}} Antworten"
   },
