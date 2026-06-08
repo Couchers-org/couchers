@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { PublicTrip } from "proto/public_trips_pb";
+import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import publicTripsFixture from "test/fixtures/publicTrips.json";
@@ -28,6 +28,10 @@ const listPublicTripsMock = service.publicTrips
 const createPublicTripMock = service.publicTrips
   .createPublicTrip as MockedService<
   typeof service.publicTrips.createPublicTrip
+>;
+const updatePublicTripMock = service.publicTrips
+  .updatePublicTrip as MockedService<
+  typeof service.publicTrips.updatePublicTrip
 >;
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
@@ -76,6 +80,17 @@ describe("PublicTripsSection", () => {
         pageToken: undefined,
         pageSize: 10,
       });
+    });
+
+    it("shows the same-gender-only indicator on trips that have sameGenderOnly set", async () => {
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      // Trips 1 and 4 in the fixture both have sameGenderOnly: true
+      const indicators = await screen.findAllByText(
+        t("publicTrips:same_gender_only_indicator"),
+      );
+      expect(indicators).toHaveLength(2);
+      indicators.forEach((el) => expect(el).toBeVisible());
     });
 
     it("shows an empty-state message when there are no trips", async () => {
@@ -243,16 +258,146 @@ describe("PublicTripsSection", () => {
   // The backend supports these via UpdatePublicTrip + CreateHostRequest(public_trip_id).
 
   describe("update", () => {
-    it.todo("shows an Edit action on the user's own upcoming trip");
-    it.todo(
-      "submits updated dates/description to updatePublicTrip and refetches the list",
-    );
+    it("shows an Edit action on the user's own upcoming trip", async () => {
+      render(<PublicTripsSection community={community} />, { wrapper });
+      const user = userEvent.setup();
+
+      const moreButton = await screen.findByTestId(
+        "public-trip-6-more-options",
+      );
+      await user.click(moreButton);
+
+      expect(
+        await screen.findByRole("menuitem", { name: t("publicTrips:edit") }),
+      ).toBeVisible();
+    });
+
+    it("submits updated dates/description to updatePublicTrip and refetches the list", async () => {
+      updatePublicTripMock.mockResolvedValue(publicTrips[5]);
+      render(<PublicTripsSection community={community} />, { wrapper });
+      const user = userEvent.setup();
+
+      const moreButton = await screen.findByTestId(
+        "public-trip-6-more-options",
+      );
+      await user.click(moreButton);
+      await user.click(
+        await screen.findByRole("menuitem", { name: t("publicTrips:edit") }),
+      );
+
+      const dialog = await screen.findByRole("dialog");
+      expect(dialog).toHaveTextContent(t("publicTrips:edit_dialog_title"));
+
+      const descriptionField = within(dialog).getByLabelText(
+        t("publicTrips:description_label"),
+      );
+      await user.clear(descriptionField);
+      await user.type(descriptionField, VALID_DESCRIPTION);
+
+      await user.click(
+        within(dialog).getByRole("button", {
+          name: t("publicTrips:edit_dialog_submit"),
+        }),
+      );
+
+      await waitFor(() => {
+        expect(updatePublicTripMock).toHaveBeenCalledTimes(1);
+      });
+      expect(updatePublicTripMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tripId: 6,
+          description: VALID_DESCRIPTION,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      });
+    });
   });
 
-  describe("close", () => {
-    it.todo(
-      "calls updatePublicTrip with status=CLOSED when the owner closes a trip",
-    );
+  describe("close / reopen", () => {
+    it("calls updatePublicTrip with status=CLOSED when the owner closes a trip", async () => {
+      updatePublicTripMock.mockResolvedValue(publicTrips[5]);
+      render(<PublicTripsSection community={community} />, { wrapper });
+      const user = userEvent.setup();
+
+      const moreButton = await screen.findByTestId(
+        "public-trip-6-more-options",
+      );
+      await user.click(moreButton);
+      await user.click(
+        await screen.findByRole("menuitem", { name: t("publicTrips:close") }),
+      );
+
+      const confirmDialog = await screen.findByRole("dialog");
+      expect(confirmDialog).toHaveTextContent(
+        t("publicTrips:close_dialog_title"),
+      );
+
+      await user.click(
+        within(confirmDialog).getByRole("button", {
+          name: t("publicTrips:close_dialog_confirm"),
+        }),
+      );
+
+      await waitFor(() => {
+        expect(updatePublicTripMock).toHaveBeenCalledWith({
+          tripId: 6,
+          status: PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED,
+        });
+      });
+    });
+
+    it("calls updatePublicTrip with status=SEARCHING_FOR_HOST when the owner reopens a closed trip, then shows close option", async () => {
+      const futureDates = {
+        fromDate: dateOffset(5).isoDate,
+        toDate: dateOffset(30).isoDate,
+      };
+      const closedFutureTrip = {
+        ...publicTrips[5],
+        ...futureDates,
+        status: PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED,
+      };
+      // First load shows the closed trip; after the mutation invalidates the
+      // query, the refetch returns it as active (no status override → fixture
+      // string value → isClosed=false).
+      const searchingTrip = { ...publicTrips[5], ...futureDates };
+      listPublicTripsMock.mockResolvedValueOnce({
+        publicTripsList: [...publicTrips.slice(0, 5), closedFutureTrip],
+        nextPageToken: "",
+      });
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: [...publicTrips.slice(0, 5), searchingTrip],
+        nextPageToken: "",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByTestId("public-trip-6-more-options"));
+      await user.click(
+        await screen.findByRole("menuitem", { name: t("publicTrips:reopen") }),
+      );
+
+      await waitFor(() => {
+        expect(updatePublicTripMock).toHaveBeenCalledWith({
+          tripId: 6,
+          status: PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+        });
+      });
+
+      // After the query refetches with the active trip, the menu switches from
+      // "Reopen" back to "Mark as closed".
+      await waitFor(() => expect(listPublicTripsMock).toHaveBeenCalledTimes(2));
+      await user.click(screen.getByTestId("public-trip-6-more-options"));
+      expect(
+        await screen.findByRole("menuitem", { name: t("publicTrips:close") }),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("menuitem", { name: t("publicTrips:reopen") }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("offer to host", () => {

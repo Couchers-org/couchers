@@ -133,6 +133,7 @@ export default function PublicTripsSection({
                 key={trip.tripId}
                 id={`trip-${trip.tripId}`}
                 trip={trip}
+                ownerView={trip.user?.userId === authState.userId}
               />
             ))}
           </TripsList>
