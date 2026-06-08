@@ -67,6 +67,7 @@ def public_trip_to_pb(
         user=user_model_to_pb(public_trip.user, session, context),
         node_id=public_trip.node_id,
         node_slug=public_trip.node.official_cluster.slug,
+        node_name=public_trip.node.official_cluster.name,
         from_date=date_to_api(public_trip.from_date),
         to_date=date_to_api(public_trip.to_date),
         description=public_trip.description,

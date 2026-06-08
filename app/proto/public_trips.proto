@@ -61,6 +61,8 @@ message PublicTrip {
   // Number of non-cancelled host offers linked to this trip.
   // Only populated when the viewer is the trip owner.
   optional int32 offers_count = 11;
+  // Display name of the community this trip belongs to
+  string node_name = 12;
 }
 
 message CreatePublicTripReq {
