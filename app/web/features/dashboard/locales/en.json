@@ -62,11 +62,10 @@
   "public_trips": {
     "my_trips_header": "Your public trips",
     "manage_link": "Manage",
-    "post_a_trip_label": "Post a public trip",
     "when_now": "Now",
     "when_today": "Today",
     "when_tomorrow": "Tomorrow",
-    "empty_description": "Heading somewhere? Post a public trip and let nearby hosts offer to host you.",
+    "empty_description": "Heading somewhere? Post a public trip in a community to receive offers from nearby hosts.",
     "same_gender_only_indicator": "Same gender",
     "offers_count_one": "{{count}} offer",
     "offers_count_other": "{{count}} offers",

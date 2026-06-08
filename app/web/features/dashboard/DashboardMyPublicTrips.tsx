@@ -9,7 +9,7 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useEffect, useRef, useState } from "react";
-import { communitiesRoute, myPublicTripsRoute } from "routes";
+import { myPublicTripsRoute } from "routes";
 import dayjs from "utils/dayjs";
 
 import {
@@ -198,20 +198,6 @@ export default function DashboardMyPublicTrips() {
             >
               {t("dashboard:public_trips.empty_description")}
             </Typography>
-            <Link href={communitiesRoute} style={{ textDecoration: "none" }}>
-              <Typography
-                component="span"
-                variant="body2"
-                sx={{
-                  color: "var(--mui-palette-primary-main)",
-                  fontWeight: 600,
-                  whiteSpace: "nowrap",
-                  "&:hover": { textDecoration: "underline" },
-                }}
-              >
-                {t("dashboard:public_trips.post_a_trip_label")} →
-              </Typography>
-            </Link>
           </EmptyStateRow>
         )
       )}
