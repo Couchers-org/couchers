@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.jobs.enqueue import queue_job
@@ -77,7 +77,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         for user in list(cluster.members.where(User.is_visible)):
             if is_not_visible(session, user.id, discussion.creator_user_id):
                 continue
-            context = make_background_user_context(user_id=user.id)
+            context = make_notification_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
