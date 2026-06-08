@@ -33,10 +33,12 @@ export async function listPublicTripsByUser({
   userId,
   pageToken,
   pageSize,
+  ascending,
 }: {
   userId: number;
   pageToken?: string;
   pageSize?: number;
+  ascending?: boolean;
 }) {
   const req = new ListPublicTripsByUserReq();
   req.setUserId(userId);
@@ -45,6 +47,9 @@ export async function listPublicTripsByUser({
   }
   if (pageSize) {
     req.setPageSize(pageSize);
+  }
+  if (ascending !== undefined) {
+    req.setAscending(ascending);
   }
   const res = await client.publicTrips.listPublicTripsByUser(req);
   return res.toObject();

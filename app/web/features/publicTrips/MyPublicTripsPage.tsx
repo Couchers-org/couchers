@@ -89,10 +89,11 @@ export default function MyPublicTripsPage() {
   const pageIndex = tokens.length - 1;
   const currentToken = tokens[pageIndex];
 
-  const { data, error, isLoading } = useListPublicTripsByUser(
-    userId ?? 0,
-    currentToken,
-  );
+  const { data, error, isLoading } = useListPublicTripsByUser({
+    userId: userId ?? 0,
+    pageToken: currentToken,
+    ascending: true,
+  });
 
   const filteredTrips = useMemo(() => {
     const trips = data?.publicTripsList ?? [];
@@ -110,7 +111,7 @@ export default function MyPublicTripsPage() {
           return isClosed;
         case "all":
         default:
-          return true;
+          return !isPast;
       }
     });
   }, [data?.publicTripsList, filter]);

@@ -1,7 +1,9 @@
 import {
   EventOutlined,
+  HourglassEmptyOutlined,
   PlaceOutlined,
   VisibilityOutlined,
+  WavingHandOutlined,
 } from "@mui/icons-material";
 import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import { useCommunity } from "features/communities/hooks";
@@ -131,18 +133,14 @@ function GenderChip() {
         gap: "3px",
         fontSize: "11px",
         fontWeight: 600,
+        lineHeight: 1,
         whiteSpace: "nowrap",
         color: "var(--mui-palette-text-secondary)",
-        background: "var(--mui-palette-grey-50)",
-        border: "1px solid var(--mui-palette-grey-200)",
-        borderRadius: "999px",
-        px: "8px",
-        py: "2px",
         flexShrink: 0,
         marginLeft: "auto",
       }}
     >
-      <VisibilityOutlined sx={{ fontSize: "13px" }} />
+      <VisibilityOutlined sx={{ fontSize: "13px", display: "block" }} />
       {t("dashboard:public_trips.same_gender_only_indicator")}
     </Box>
   );
@@ -150,25 +148,31 @@ function GenderChip() {
 
 function OffersChip({ count }: { count: number }) {
   const { t } = useTranslation([DASHBOARD]);
+  const hasOffers = count > 0;
   return (
     <Box
       component="span"
       sx={{
         display: "inline-flex",
         alignItems: "center",
-        fontSize: "11px",
-        fontWeight: 600,
+        gap: "3px",
+        fontSize: "12px",
+        fontWeight: 700,
         whiteSpace: "nowrap",
-        color: "var(--mui-palette-text-secondary)",
-        background: "var(--mui-palette-grey-50)",
-        border: "1px solid var(--mui-palette-grey-200)",
-        borderRadius: "999px",
-        px: "8px",
-        py: "2px",
+        color: hasOffers
+          ? "var(--mui-palette-primary-dark)"
+          : "var(--mui-palette-text-secondary)",
         flexShrink: 0,
       }}
     >
-      {t("dashboard:public_trips.offers_count", { count })}
+      {hasOffers ? (
+        <WavingHandOutlined sx={{ fontSize: "15px" }} />
+      ) : (
+        <HourglassEmptyOutlined sx={{ fontSize: "15px" }} />
+      )}
+      {hasOffers
+        ? t("dashboard:public_trips.offers_count", { count })
+        : t("dashboard:public_trips.no_offers")}
     </Box>
   );
 }

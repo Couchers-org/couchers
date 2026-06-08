@@ -46,7 +46,11 @@ export default function DashboardMyPublicTrips() {
   const { authState } = useAuthContext();
   const userId = authState.userId ?? 0;
 
-  const { data, isLoading, error } = useListPublicTripsByUser(userId, "");
+  const { data, isLoading, error } = useListPublicTripsByUser({
+    userId,
+    pageToken: "",
+    ascending: true,
+  });
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -170,7 +174,11 @@ export default function DashboardMyPublicTrips() {
               key={trip.tripId}
               sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}
             >
-              <DashboardPublicTripCard trip={trip} locale={locale} />
+              <DashboardPublicTripCard
+                trip={trip}
+                locale={locale}
+                offersCount={trip.offersCount}
+              />
             </Box>
           ))}
         </FadingScrollTrack>

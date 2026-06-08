@@ -1,6 +1,7 @@
+import { ChevronRight } from "@mui/icons-material";
 import { Box, Card, CardActionArea, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
-import { CalendarIcon, VisibilityIcon } from "components/Icons";
+import { CalendarIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
@@ -124,16 +125,17 @@ export default function CompactPublicTripCard({
                 { locale, includeTime: false, abbreviate: true },
               )}
             </DateRow>
-            {trip.sameGenderOnly && (
-              <DateRow>
-                <VisibilityIcon />
-                {t("publicTrips:same_gender_only_indicator")}
-              </DateRow>
-            )}
             <Description variant="body2" color="textSecondary">
               {trip.description}
             </Description>
           </Info>
+          <ChevronRight
+            sx={{
+              fontSize: 20,
+              color: "var(--mui-palette-text-secondary)",
+              flexShrink: 0,
+            }}
+          />
         </Content>
       </CardActionArea>
     </StyledCard>

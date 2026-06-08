@@ -67,7 +67,10 @@
     "when_today": "Today",
     "when_tomorrow": "Tomorrow",
     "empty_description": "Heading somewhere? Post a public trip and let nearby hosts offer to host you.",
-    "same_gender_only_indicator": "Same gender"
+    "same_gender_only_indicator": "Same gender",
+    "offers_count_one": "{{count}} offer",
+    "offers_count_other": "{{count}} offers",
+    "no_offers": "No offers yet"
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",

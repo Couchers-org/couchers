@@ -47,5 +47,8 @@
   "to_date_label": "Departure",
   "to_date_required": "Please pick a departure date.",
   "view_profile": "View profile",
-  "you_overlay": "YOU"
+  "you_overlay": "YOU",
+  "offers_count_one": "{{count}} offer",
+  "offers_count_other": "{{count}} offers",
+  "no_offers": "No offers yet"
 }

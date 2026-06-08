@@ -31,14 +31,23 @@ export function useListPublicTrips(communityId: number, pageToken: string) {
   });
 }
 
-export function useListPublicTripsByUser(userId: number, pageToken: string) {
+export function useListPublicTripsByUser({
+  userId,
+  pageToken,
+  ascending,
+}: {
+  userId: number;
+  pageToken: string;
+  ascending?: boolean;
+}) {
   return useQuery<ListPublicTripsByUserRes.AsObject, RpcError>({
-    queryKey: [...publicTripsByUserKey(userId), pageToken],
+    queryKey: [...publicTripsByUserKey(userId), pageToken, ascending],
     queryFn: () =>
       service.publicTrips.listPublicTripsByUser({
         userId,
         pageToken: pageToken || undefined,
         pageSize: PAGE_SIZE,
+        ascending,
       }),
     enabled: !!userId,
   });

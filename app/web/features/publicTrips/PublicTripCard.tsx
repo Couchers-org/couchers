@@ -1,4 +1,8 @@
 import {
+  HourglassEmptyOutlined,
+  WavingHandOutlined,
+} from "@mui/icons-material";
+import {
   Box,
   Card,
   CardContent,
@@ -397,18 +401,50 @@ export default function PublicTripCard({
                 }}
               >
                 {ownerView ? (
-                  isClosed ? (
-                    <Chip label={t("publicTrips:status_closed")} size="small" />
-                  ) : isPast ? (
-                    <Chip label={t("publicTrips:status_past")} size="small" />
-                  ) : (
-                    <Chip
-                      label={t("publicTrips:status_active")}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-                  )
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {isClosed ? (
+                      <Chip
+                        label={t("publicTrips:status_closed")}
+                        size="small"
+                      />
+                    ) : isPast ? (
+                      <Chip label={t("publicTrips:status_past")} size="small" />
+                    ) : (
+                      <Chip
+                        label={t("publicTrips:status_active")}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    )}
+                    {trip.offersCount !== undefined && (
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          color:
+                            trip.offersCount > 0
+                              ? "var(--mui-palette-primary-main)"
+                              : "var(--mui-palette-text-secondary)",
+                        }}
+                      >
+                        {trip.offersCount > 0 ? (
+                          <WavingHandOutlined sx={{ fontSize: "1rem" }} />
+                        ) : (
+                          <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
+                        )}
+                        {trip.offersCount > 0
+                          ? t("publicTrips:offers_count", {
+                              count: trip.offersCount,
+                            })
+                          : t("publicTrips:no_offers")}
+                      </Box>
+                    )}
+                  </Box>
                 ) : (
                   <>
                     <StyledLink
