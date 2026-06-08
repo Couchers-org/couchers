@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_slack_message(channel: str, markdown: str) -> None:
-    if not config["SLACK_ENABLED"]:
+    if not config.SLACK_ENABLED:
         logger.info(f"Slack disabled, would have sent to {channel}: {markdown}")
         return
 

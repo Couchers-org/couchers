@@ -61,7 +61,7 @@ def _reconcile() -> None:
     logger.info("Starting profiler at %d Hz (%s)", sample_rate, "cpu" if oncpu else "wall")
     pyroscope.configure(
         application_name="couchers-backend",
-        server_address=config["PYROSCOPE_SERVER"],
+        server_address=config.PYROSCOPE_SERVER,
         sample_rate=sample_rate,
         oncpu=oncpu,
         tags=_tags,
@@ -83,14 +83,14 @@ def setup_profiling(role: str, instance: str) -> None:
     setup_experimentation(). No-op unless profiling is enabled for this deployment."""
     global _initialized, _tags
 
-    if not config["PYROSCOPE_ENABLED"] or _initialized:
+    if not config.PYROSCOPE_ENABLED or _initialized:
         return
     _initialized = True
 
     _tags = {
         "role": role,
         "instance": instance,
-        "environment": config["COOKIE_DOMAIN"],
-        "version": config["VERSION"],
+        "environment": config.COOKIE_DOMAIN,
+        "version": config.VERSION,
     }
     threading.Thread(target=_reconcile_loop, name="profiling-reconcile", daemon=True).start()

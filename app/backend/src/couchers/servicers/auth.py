@@ -721,7 +721,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             json={
                 "event": {
                     "token": request.token,
-                    "siteKey": config["RECAPTHCA_SITE_KEY"],
+                    "siteKey": config.RECAPTHCA_SITE_KEY,
                     "userAgent": user_agent,
                     "userIpAddress": ip_address,
                     "expectedAction": request.action,

@@ -211,7 +211,7 @@ class ActivenessProbeEmail(EmailBase):
         builder.para(".encouragement")
 
         # Extract major.minor from the version string. "v1.3.18927" -> "1.3"
-        version = config["VERSION"]
+        version = config.VERSION
         if version_match := re.search(r"^v?(\d+\.\d+)\b", version):
             version = version_match[1]
 

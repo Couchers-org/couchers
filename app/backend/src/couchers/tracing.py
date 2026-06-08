@@ -45,7 +45,7 @@ class FeatureFlagRatioSampler(Sampler):
 
 
 def setup_tracing() -> None:
-    if config["OPENTELEMETRY_ENDPOINT"] != "":
+    if config.OPENTELEMETRY_ENDPOINT != "":
         ThreadingInstrumentor().instrument()
 
         grpc_server_instrumentor = GrpcInstrumentorServer()  # type: ignore[no-untyped-call]
@@ -57,7 +57,7 @@ def setup_tracing() -> None:
             sampler=ParentBased(root=FeatureFlagRatioSampler()),
         )
         tracer.add_span_processor(
-            BatchSpanProcessor(OTLPSpanExporter(endpoint=config["OPENTELEMETRY_ENDPOINT"], insecure=True))
+            BatchSpanProcessor(OTLPSpanExporter(endpoint=config.OPENTELEMETRY_ENDPOINT, insecure=True))
         )
 
         trace.set_tracer_provider(tracer)

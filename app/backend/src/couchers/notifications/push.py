@@ -115,7 +115,7 @@ def push_to_subscription(
     key: str | None = None,
     ttl: int = 0,
 ) -> None:
-    title = config["NOTIFICATION_PREFIX"] + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
+    title = config.NOTIFICATION_PREFIX + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
     body = content.body[: PushNotificationContent.MAX_BODY_LENGTH]
     icon_url = content.icon_url or urls.icon_url()
     action_url = content.action_url or ""
