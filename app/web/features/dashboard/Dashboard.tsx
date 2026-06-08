@@ -92,15 +92,15 @@ export default function Dashboard() {
 
             <Box sx={{ height: theme.spacing(3) }} />
 
-            <DashboardMyPublicTrips />
-
-            <Box sx={{ height: theme.spacing(3) }} />
-
             <MyEvents />
 
             <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunityEvents />
+
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <DashboardMyPublicTrips />
 
             <Box sx={{ height: theme.spacing(3) }} />
 
