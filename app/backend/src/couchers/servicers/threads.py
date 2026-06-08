@@ -260,9 +260,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             visible_reply_count = (
                 where_moderated_content_visible(
                     where_users_column_visible(
-                        select(func.count(Reply.id))
-                        .where(Reply.comment_id == Comment.id)
-                        .where(Reply.deleted == None),
+                        select(func.count(Reply.id)).where(Reply.comment_id == Comment.id).where(Reply.deleted == None),
                         context,
                         Reply.author_user_id,
                     ),
