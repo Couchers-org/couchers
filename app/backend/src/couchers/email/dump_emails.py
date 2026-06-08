@@ -18,9 +18,9 @@ from couchers.email.rendering import (
     UnsubscribeLink,
     render_html_body,
     render_plaintext_body,
+    template_folder,
 )
 from couchers.i18n import LocalizationContext
-from couchers.templating import template_folder
 
 
 @dataclass
