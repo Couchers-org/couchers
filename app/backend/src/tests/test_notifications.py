@@ -1812,6 +1812,29 @@ def test_handle_notification_delivered_when_content_visible(db, moderator):
         assert len(deliveries) > 0
 
 
+def test_notification_serializes_shadowed_actor(db, moderator):
+    recipient, _ = generate_user(complete_profile=True)
+    sender, sender_token = generate_user(complete_profile=True)
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == sender.id).values(shadowed_at=now()))
+
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient.id))
+
+    process_job()
+
+    with session_scope() as session:
+        notification = session.execute(
+            select(Notification)
+            .where(Notification.user_id == recipient.id)
+            .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
+        ).scalar_one()
+        data = notification_data_pb2.FriendRequestCreate.FromString(notification.data)
+        assert data.other_user.user_id == sender.id
+        assert not data.other_user.is_ghost
+
+
 def test_handle_notification_multiple_delivery_types(
     db, email_collector: EmailCollector, push_collector: PushCollector
 ):

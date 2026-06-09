@@ -39,7 +39,7 @@ from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
 )
-from couchers.context import make_background_user_context
+from couchers.context import make_background_user_context, make_notification_user_context
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -202,7 +202,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
         )
 
         for user in users:
-            context = make_background_user_context(user_id=user.id)
+            context = make_notification_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 where_users_column_visible(
@@ -307,7 +307,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
         candidate_user_ids = session.execute(union_all(surfer_ids, host_ids)).scalars().unique().all()
 
         for user_id in candidate_user_ids:
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
 
             # requests where this user is surfing
             surfing_reqs = session.execute(
@@ -537,7 +537,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
             for surfed, host_request, user, other_user in reference_reminders:
                 # visibility and blocking already checked in sql
                 assert user.is_visible
-                context = make_background_user_context(user_id=user.id)
+                context = make_notification_user_context(user_id=user.id)
                 topic_action = (
                     NotificationTopicAction.reference__reminder_surfed
                     if surfed
@@ -592,7 +592,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
             host_request.recipient_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
-            context = make_background_user_context(user_id=host_request.recipient_user_id)
+            context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
@@ -1076,7 +1076,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = make_background_user_context(user_id=probe.user.id)
+                context = make_notification_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -1174,7 +1174,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
             ).all()
 
             for user, attendee in results:
-                context = make_background_user_context(user_id=user.id)
+                context = make_notification_user_context(user_id=user.id)
 
                 notify(
                     session,

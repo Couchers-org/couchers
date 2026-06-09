@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -339,7 +339,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(host_request)
         session.flush()
 
-        recipient_context = make_background_user_context(user_id=host_request.recipient_user_id)
+        recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
         notify(
             session,
             user_id=host_request.recipient_user_id,
@@ -603,7 +603,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.accepted
             session.flush()
 
-            recipient_context = make_background_user_context(user_id=host_request.initiator_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,
@@ -645,7 +645,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.rejected
             session.flush()
 
-            recipient_context = make_background_user_context(user_id=host_request.initiator_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,
@@ -687,7 +687,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.confirmed
             session.flush()
 
-            recipient_context = make_background_user_context(user_id=host_request.recipient_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
@@ -728,7 +728,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.cancelled
             session.flush()
 
-            recipient_context = make_background_user_context(user_id=host_request.recipient_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
@@ -855,7 +855,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.initiator_user_id == context.user_id:
             host_request.initiator_last_seen_message_id = message.id
 
-            recipient_context = make_background_user_context(user_id=host_request.recipient_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
@@ -873,7 +873,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         else:
             host_request.recipient_last_seen_message_id = message.id
 
-            recipient_context = make_background_user_context(user_id=host_request.initiator_user_id)
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,

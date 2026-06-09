@@ -65,9 +65,9 @@ def public_trip_to_pb(
     pb = public_trips_pb2.PublicTrip(
         trip_id=public_trip.id,
         user=user_model_to_pb(public_trip.user, session, context),
-        node_id=public_trip.node_id,
-        node_slug=public_trip.node.official_cluster.slug,
-        node_name=public_trip.node.official_cluster.name,
+        community_id=public_trip.node_id,
+        community_slug=public_trip.node.official_cluster.slug,
+        community_name=public_trip.node.official_cluster.name,
         from_date=date_to_api(public_trip.from_date),
         to_date=date_to_api(public_trip.to_date),
         description=public_trip.description,
@@ -93,7 +93,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_public_trip")
 
-        node = session.execute(select(Node).where(Node.id == request.node_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
