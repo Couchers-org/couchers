@@ -341,13 +341,16 @@ export default function PublicTripCard({
                   },
                 )}
               </MetaItem>
-              {trip.nodeName && (
+              {trip.communityName && (
                 <MetaItem>
                   <PlaceOutlined sx={{ fontSize: "1rem" }} />
                   <StyledLink
-                    href={routeToCommunity(trip.nodeId, trip.nodeSlug)}
+                    href={routeToCommunity(
+                      trip.communityId,
+                      trip.communitySlug,
+                    )}
                   >
-                    {trip.nodeName}
+                    {trip.communityName}
                   </StyledLink>
                 </MetaItem>
               )}

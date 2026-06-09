@@ -62,7 +62,7 @@ export function useCreatePublicTrip(
     PublicTripPb.AsObject,
     RpcError,
     {
-      nodeId: number;
+      communityId: number;
       fromDate: string;
       toDate: string;
       description: string;

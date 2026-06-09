@@ -187,7 +187,7 @@ export function DashboardPublicTripCard({
   offersCount?: number;
 }) {
   const { data: community, isLoading: communityLoading } = useCommunity(
-    trip.nodeId,
+    trip.communityId,
   );
 
   const dateRange = localizeDateTimeRange(

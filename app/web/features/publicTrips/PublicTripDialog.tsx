@@ -112,10 +112,10 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
   const descriptionCharsRemaining =
     DESCRIPTION_MIN_LENGTH - watchDescription.length;
 
-  // PublicTrip proto only carries node_id, so fetch the community name in edit
-  // mode. Hook is no-op when id is 0 (create mode already has the name).
+  // PublicTrip proto only carries community_id, so fetch the community name in
+  // edit mode. Hook is no-op when id is 0 (create mode already has the name).
   const { data: editCommunity } = useCommunity(
-    props.mode === "edit" ? props.trip.nodeId : 0,
+    props.mode === "edit" ? props.trip.communityId : 0,
   );
   const communityName =
     props.mode === "create" ? props.communityName : editCommunity?.name;
@@ -156,7 +156,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
       if (props.mode === "edit") {
         updateMutation.mutate({ tripId: props.trip.tripId, ...payload });
       } else {
-        createMutation.mutate({ nodeId: props.communityId, ...payload });
+        createMutation.mutate({ communityId: props.communityId, ...payload });
       }
     },
   );

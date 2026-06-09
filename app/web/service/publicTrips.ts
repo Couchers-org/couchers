@@ -56,20 +56,20 @@ export async function listPublicTripsByUser({
 }
 
 export async function createPublicTrip({
-  nodeId,
+  communityId,
   fromDate,
   toDate,
   description,
   sameGenderOnly,
 }: {
-  nodeId: number;
+  communityId: number;
   fromDate: string;
   toDate: string;
   description: string;
   sameGenderOnly: boolean;
 }) {
   const req = new CreatePublicTripReq();
-  req.setNodeId(nodeId);
+  req.setCommunityId(communityId);
   req.setFromDate(fromDate);
   req.setToDate(toDate);
   req.setDescription(description);

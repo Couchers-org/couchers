@@ -240,7 +240,7 @@ describe("PublicTripsSection", () => {
         expect(createPublicTripMock).toHaveBeenCalledTimes(1);
       });
       expect(createPublicTripMock).toHaveBeenCalledWith({
-        nodeId: community.communityId,
+        communityId: community.communityId,
         fromDate: arrival.isoDate,
         toDate: departure.isoDate,
         description: VALID_DESCRIPTION,
