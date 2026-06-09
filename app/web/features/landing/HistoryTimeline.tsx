@@ -1,5 +1,6 @@
 import { ChevronRightRounded } from "@mui/icons-material";
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
+import PageContainer from "components/PageContainer";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -180,7 +181,7 @@ export default function HistoryTimeline() {
         minHeight: 450,
       }}
     >
-      <Container maxWidth="lg">
+      <PageContainer>
         <Typography
           variant="h2"
           sx={{
@@ -320,7 +321,7 @@ export default function HistoryTimeline() {
             {items[activeIndex].text}
           </Typography>
         </Box>
-      </Container>
+      </PageContainer>
     </Box>
   );
 }

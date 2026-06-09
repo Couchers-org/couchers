@@ -14,10 +14,6 @@ import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-const StyledMain = styled("main")(() => ({
-  padding: theme.spacing(0, 3),
-}));
-
 const StyledForm = styled("form")(() => ({
   "& > * + *": {
     marginBlockStart: theme.spacing(1),
@@ -49,7 +45,7 @@ export default function ResetPassword() {
   });
 
   return (
-    <StyledMain>
+    <main>
       <HtmlMeta title={t("auth:reset_password")} />
       <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -71,6 +67,6 @@ export default function ResetPassword() {
           </Typography>
         )}
       </StyledForm>
-    </StyledMain>
+    </main>
   );
 }

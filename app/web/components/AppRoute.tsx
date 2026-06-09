@@ -5,6 +5,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
+import { STANDARD_PAGE_MAX_WIDTH } from "components/PageContainer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import { useRouter } from "next/router";
@@ -174,7 +175,7 @@ function AppRoute({
                 variant === "full-width" ||
                 variant === "no-overflow"
                   ? false
-                  : "lg"
+                  : STANDARD_PAGE_MAX_WIDTH
               }
             >
               {children}
