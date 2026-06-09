@@ -19,6 +19,7 @@ import AuthProvider from "features/auth/AuthProvider";
 import ProfileSheet from "features/profile/ProfileSheet";
 import { ProfileSheetProvider } from "features/profile/ProfileSheetContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
+import { useTranslation } from "i18n";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
@@ -26,6 +27,7 @@ import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
+import { i18nToDayjsLocale, setDayjsLocale } from "utils/dayjs";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -36,7 +38,16 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
 function MyApp(props: AppWithLayoutProps) {
   const { Component, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
+  const {
+    i18n: { language },
+  } = useTranslation();
   useEffect(() => polyfill(), []);
+
+  // Keep dayjs's global locale in sync with the app language so localized dayjs
+  // output (long dates, relative time, durations) matches the selected language.
+  useEffect(() => {
+    setDayjsLocale(language);
+  }, [language]);
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
@@ -77,7 +88,10 @@ function MyApp(props: AppWithLayoutProps) {
   return (
     <AppCacheProvider {...props}>
       <StyledEngineProvider injectFirst>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale={i18nToDayjsLocale(language)}
+        >
           <ThemeProvider theme={theme}>
             <ErrorBoundary isFatal>
               <AnalyticsProvider>

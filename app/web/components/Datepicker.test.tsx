@@ -1,3 +1,5 @@
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
@@ -225,8 +227,8 @@ describe("DatePicker", () => {
     expect(group).toHaveTextContent("03/20/2021");
   });
 
-  it("uses the format prop to override the locale date format", async () => {
-    const FormatForm = () => {
+  it("pickerInputOnly shows a localized long date with the month name", async () => {
+    const LongDateForm = () => {
       const { control } = useForm();
       return (
         <Datepicker
@@ -238,16 +240,82 @@ describe("DatePicker", () => {
           label="Date field"
           name="datefield"
           defaultValue={dayjs("2021-03-20")}
-          format="LL"
+          pickerInputOnly
         />
       );
     };
 
-    render(<FormatForm />, { wrapper });
+    render(<LongDateForm />, { wrapper });
 
-    const group = await screen.findByRole("group", { name: /Date field/i });
+    // pickerInputOnly renders a single read-only input showing the long date.
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    expect(input).toHaveValue("March 20, 2021");
+  });
 
-    // LL is the localized long date format, e.g. "March 20, 2021"
-    expect(group).toHaveTextContent("March 20, 2021");
+  it("localizes the long date via the adapter locale", async () => {
+    const LocalizedForm = () => {
+      const { control } = useForm();
+      return (
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
+          <Datepicker
+            control={control}
+            error={false}
+            helperText=""
+            id="date-field"
+            testId="datepicker"
+            label="Date field"
+            name="datefield"
+            defaultValue={dayjs("1990-04-08")}
+            pickerInputOnly
+          />
+        </LocalizationProvider>
+      );
+    };
+
+    render(<LocalizedForm />, { wrapper });
+
+    // German long date: day-first with German month name (not the English
+    // "April 8, 1990"). MUI's adapter zero-pads the day in this single-input mode.
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    expect(input).toHaveValue("08. April 1990");
+  });
+
+  it("pickerInputOnly: read-only, no mask placeholder, opens on click", async () => {
+    const PickerOnlyForm = () => {
+      const { control } = useForm();
+      return (
+        <Datepicker
+          control={control}
+          error={false}
+          helperText=""
+          id="date-field"
+          testId="datepicker"
+          label="Date field"
+          name="datefield"
+          defaultValue={null}
+          format="LL"
+          pickerInputOnly
+        />
+      );
+    };
+
+    render(<PickerOnlyForm />, { wrapper });
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+
+    // no text input allowed
+    expect(input).toHaveAttribute("readonly");
+    // no prefilled mask (e.g. "MMMM DD, YYYY")
+    expect(input).toHaveValue("");
+    expect(input.getAttribute("placeholder") ?? "").not.toMatch(/[MDY]/);
+
+    // typing does nothing
+    await user.type(input, "03212021");
+    expect(input).toHaveValue("");
+
+    // clicking the field (not just the icon) opens the picker
+    await user.click(input);
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 });

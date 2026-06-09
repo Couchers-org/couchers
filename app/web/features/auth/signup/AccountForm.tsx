@@ -295,7 +295,7 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
-          format="LL"
+          pickerInputOnly
           inputProps={{
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
           }}
