@@ -67,7 +67,7 @@ class UserInfo:
             name="Bob",
             age=30,
             city="Berlin",
-            avatar_url="https://couchers.org/img/icon.png",
+            avatar_url="https://couchers.org/logo512.png",
             profile_url="https://couchers.org/user/bob",
         )
 

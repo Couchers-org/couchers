@@ -1,16 +1,19 @@
 """
-Dumps emails subjects and html/plaintext bodies with dummy data, plus a browsable
-HTML index linking to every rendered email and variation.
+Dumps emails subjects and html/plaintext bodies with dummy data in every supported
+locale, plus a browsable HTML index with a locale selector and expandable previews.
 """
 
 import inspect
+import json
 import re
+import shutil
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from datetime import UTC
-from html import escape
 from pathlib import Path
+
+from markupsafe import Markup
 
 import couchers.email.emails
 from couchers.email.emails import EmailBase
@@ -23,13 +26,15 @@ from couchers.email.rendering import (
     template_folder,
 )
 from couchers.i18n import LocalizationContext
+from couchers.i18n.locales import DEFAULT_LOCALE, get_supported_locales
+from couchers.templating import Jinja2Template
 
 
 @dataclass
 class CommandLineArgs:
     filter: str
     outdir: Path
-    locale: str
+    locales: str
 
     @staticmethod
     def parse(args: list[str]) -> CommandLineArgs:
@@ -38,7 +43,12 @@ class CommandLineArgs:
         parser.add_argument(
             "--outdir", type=Path, default=template_folder, help="The directory to write email bodies to."
         )
-        parser.add_argument("--locale", type=str, default="en", help="The locale to use.")
+        parser.add_argument(
+            "--locales",
+            type=str,
+            default="all",
+            help='Comma-separated locales to render, or "all" for every supported locale.',
+        )
         parsed_args = parser.parse_args(args)
         return CommandLineArgs(**parsed_args.__dict__)
 
@@ -48,18 +58,32 @@ class RenderedVariation:
     email_class: str
     variation: int
     variation_count: int
-    subject: str
-    html_filename: str
-    plaintext_filename: str
+    subjects: dict[str, str]  # locale -> subject line
+    name: str  # filename without extension, relative to the locale directory
+
+    @property
+    def html_filename(self) -> str:
+        return f"{self.name}.html"
+
+    @property
+    def plaintext_filename(self) -> str:
+        return f"{self.name}.txt"
 
 
-def dump_all(outdir: Path, *, filter_glob: str = "*", locale: str = "en") -> list[RenderedVariation]:
-    """Dumps all emails matching the filter to outdir and writes a browsable index.html.
+def _ordered_locales(locales: list[str] | None) -> list[str]:
+    if locales is None:
+        locales = get_supported_locales()
+    return sorted(locales, key=lambda locale: (locale != DEFAULT_LOCALE, locale))
+
+
+def dump_all(outdir: Path, *, filter_glob: str = "*", locales: list[str] | None = None) -> list[RenderedVariation]:
+    """Dumps all emails matching the filter to outdir (one subdirectory per locale) and
+    writes a browsable index.html with a locale selector and expandable previews.
 
     Requires the relevant config (e.g. BASE_URL) to be available, as when run inside the
     test harness or with the deployment environment loaded.
     """
-    loc_context = LocalizationContext(locale=locale, timezone=UTC)
+    locales = _ordered_locales(locales)
     footer = EmailFooter(
         timezone_name="UTC",
         unsubscribe_info=UnsubscribeInfo(
@@ -80,19 +104,27 @@ def dump_all(outdir: Path, *, filter_glob: str = "*", locale: str = "en") -> lis
                 filename_no_ext = email_class.__name__
                 if len(test_instances) > 1:
                     filename_no_ext += f"_{i}"
-                subject = dump_email(test_instances[i], footer, loc_context, outdir / filename_no_ext)
+                print(f"Dumping email class {email_class.__name__} ({len(locales)} locale(s))")
+                subjects = {}
+                for locale in locales:
+                    loc_context = LocalizationContext(locale=locale, timezone=UTC)
+                    subjects[locale] = dump_email(
+                        test_instances[i], footer, loc_context, outdir / locale / filename_no_ext
+                    )
                 rendered.append(
                     RenderedVariation(
                         email_class=email_class.__name__,
                         variation=i,
                         variation_count=len(test_instances),
-                        subject=subject,
-                        html_filename=f"{filename_no_ext}.html",
-                        plaintext_filename=f"{filename_no_ext}.txt",
+                        subjects=subjects,
+                        name=filename_no_ext,
                     )
                 )
 
-    write_index(outdir / "index.html", rendered, locale)
+    if rendered:
+        shutil.copytree(template_folder / "attachment_imgs", outdir / "attachment_imgs", dirs_exist_ok=True)
+
+    write_index(outdir / "index.html", rendered, locales)
     return rendered
 
 
@@ -104,85 +136,42 @@ def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationC
 
     filepath_no_ext.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Dumping email class {email.__class__.__name__}")
-    print(f"  Subject: {subject_line}")
-
-    html_path = filepath_no_ext.with_suffix(".html")
-    print(f"  Rendering html to {html_path}...")
     html = render_html_body(
         subject=subject_line, preview=preview_line, blocks=blocks, footer=footer, loc_context=loc_context
     )
-    html_path.write_text(html)
+    html = html.replace("attachment_imgs/", "../attachment_imgs/")
+    filepath_no_ext.with_suffix(".html").write_text(html)
 
-    plaintext_path = filepath_no_ext.with_suffix(".txt")
-    print(f"  Rendering plaintext to {plaintext_path}...")
     plaintext = render_plaintext_body(blocks=blocks, footer=footer, loc_context=loc_context)
-    plaintext_path.write_text(plaintext)
+    filepath_no_ext.with_suffix(".txt").write_text(plaintext)
 
     return subject_line
 
 
-def write_index(index_path: Path, rendered: list[RenderedVariation], locale: str) -> None:
-    """Writes a browsable HTML index linking to every rendered email and variation."""
-    rows: list[str] = []
-    for r in sorted(rendered, key=lambda r: (r.email_class, r.variation)):
-        variation_label = f"#{r.variation}" if r.variation_count > 1 else "—"
-        rows.append(
-            "<tr>"
-            f"<td class='cls'>{escape(r.email_class)}</td>"
-            f"<td class='var'>{variation_label}</td>"
-            f"<td class='subj'>{escape(r.subject)}</td>"
-            f"<td><a href='{escape(r.html_filename)}'>HTML</a></td>"
-            f"<td><a href='{escape(r.plaintext_filename)}'>plaintext</a></td>"
-            "</tr>"
-        )
-
-    class_count = len({r.email_class for r in rendered})
-    index_html = f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Couchers.org sample emails</title>
-<style>
-  :root {{ color-scheme: light dark; }}
-  body {{ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem;
-         line-height: 1.5; }}
-  h1 {{ margin: 0 0 .25rem; font-size: 1.5rem; }}
-  p.meta {{ margin: 0 0 1.5rem; opacity: .7; }}
-  table {{ border-collapse: collapse; width: 100%; }}
-  th, td {{ text-align: left; padding: .5rem .75rem; border-bottom: 1px solid rgba(128,128,128,.25);
-           vertical-align: top; }}
-  th {{ position: sticky; top: 0; background: Canvas; font-weight: 600; }}
-  td.cls {{ font-weight: 600; white-space: nowrap; }}
-  td.var {{ opacity: .7; white-space: nowrap; }}
-  td.subj {{ width: 100%; }}
-  a {{ white-space: nowrap; }}
-  tbody tr:hover {{ background: rgba(128,128,128,.08); }}
-</style>
-</head>
-<body>
-<h1>Couchers.org sample emails</h1>
-<p class="meta">{len(rendered)} rendered variation(s) across {class_count} email type(s), locale <code>{escape(locale)}</code>.</p>
-<table>
-<thead>
-<tr><th>Email</th><th>Variation</th><th>Subject</th><th></th><th></th></tr>
-</thead>
-<tbody>
-{chr(10).join(rows)}
-</tbody>
-</table>
-</body>
-</html>
-"""
+def write_index(index_path: Path, rendered: list[RenderedVariation], locales: list[str]) -> None:
+    """Writes a browsable HTML index with a locale selector and an accordion entry per
+    rendered email variation, expanding to side-by-side HTML and plaintext previews."""
+    rendered = sorted(rendered, key=lambda r: (r.email_class, r.variation))
+    # Guard against a literal "</script>" in subject lines breaking out of the script tag
+    subjects_json = json.dumps({r.name: r.subjects for r in rendered}, ensure_ascii=False).replace("</", "<\\/")
+    template = Jinja2Template(source=(Path(__file__).parent / "dump_emails_index.html").read_text(), html=True)
+    index_html = template.render(
+        {
+            "rendered": rendered,
+            "locales": locales,
+            "class_count": len({r.email_class for r in rendered}),
+            "subjects_json": Markup(subjects_json),
+        }
+    )
     index_path.parent.mkdir(parents=True, exist_ok=True)
     index_path.write_text(index_html)
-    print(f"Wrote index of {len(rendered)} variation(s) to {index_path}")
+    print(f"Wrote index of {len(rendered)} variation(s) in {len(locales)} locale(s) to {index_path}")
 
 
 def main() -> None:
     args = CommandLineArgs.parse(sys.argv[1:])
-    dump_all(args.outdir, filter_glob=args.filter, locale=args.locale)
+    locales = None if args.locales == "all" else args.locales.split(",")
+    dump_all(args.outdir, filter_glob=args.filter, locales=locales)
 
 
 if __name__ == "__main__":

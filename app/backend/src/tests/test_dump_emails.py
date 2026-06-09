@@ -17,6 +17,9 @@ def test_dump_email_samples(testconfig):
     assert rendered
     index = output_path / "index.html"
     assert index.exists()
+    assert (output_path / "attachment_imgs" / "logo-with-couchers.org-small.png").exists()
     for variation in rendered:
-        assert (output_path / variation.html_filename).exists()
-        assert (output_path / variation.plaintext_filename).exists()
+        assert variation.subjects
+        for locale in variation.subjects:
+            assert (output_path / locale / variation.html_filename).exists()
+            assert (output_path / locale / variation.plaintext_filename).exists()
