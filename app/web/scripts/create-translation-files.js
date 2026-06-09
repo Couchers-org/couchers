@@ -673,6 +673,9 @@ function addToConstants(languageCode, languageName, flagCode) {
     const newEntry = [
       `${indent}"${languageCode}": {`,
       `${indent}  name: "${languageName}",`,
+      // Placeholder autonym — a maintainer should replace this with the
+      // language's name in its own language (shown in the language picker).
+      `${indent}  nativeName: "${languageName}",`,
       `${indent}  flagIconCode: "${flagCode || "XX"}",`,
       `${indent}},`,
     ];
