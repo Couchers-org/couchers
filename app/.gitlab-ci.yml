@@ -340,7 +340,7 @@ test:backend:
     - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/test_artifacts
-    - cp /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
+    - cp -r /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
   artifacts:
     reports:
       junit: junit-$CI_NODE_INDEX.xml
@@ -762,6 +762,7 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
     - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
+    - echo "Sample emails index at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/emails/index.html and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/emails/index.html"
   artifacts:
     paths:
       - artifacts/schema_dumps
