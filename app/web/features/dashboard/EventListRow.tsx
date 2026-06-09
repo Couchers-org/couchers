@@ -178,6 +178,7 @@ export default function EventListRow({ event }: EventListRowProps) {
   const month = localizeMonthAbbreviation(startDate, {
     locale,
     timezone: BROWSER_TIMEZONE,
+    capitalize: true,
   });
   const day = startDate.getDate();
 
