@@ -274,10 +274,10 @@ describe("DatePicker", () => {
 
     render(<LocalizedForm />, { wrapper });
 
-    // German long date: day-first with German month name (not the English
-    // "April 8, 1990"). MUI's adapter zero-pads the day in this single-input mode.
+    // German long date via the adapter locale: day-first with the German month
+    // name (the localized "LL" format), not the English "April 8, 1990".
     const input = screen.getByRole("textbox") as HTMLInputElement;
-    expect(input).toHaveValue("08. April 1990");
+    expect(input).toHaveValue("8. April 1990");
   });
 
   it("pickerInputOnly: read-only, no mask placeholder, opens on click", async () => {
@@ -293,7 +293,6 @@ describe("DatePicker", () => {
           label="Date field"
           name="datefield"
           defaultValue={null}
-          format="LL"
           pickerInputOnly
         />
       );
