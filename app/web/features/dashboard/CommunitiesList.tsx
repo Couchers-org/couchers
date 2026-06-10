@@ -10,8 +10,6 @@ import { useState } from "react";
 import { routeToCommunity } from "routes";
 import { theme } from "theme";
 
-const PAGE_SIZE = 3;
-
 const SectionHeader = styled("div")({
   display: "flex",
   alignItems: "center",
@@ -59,15 +57,13 @@ export default function CommunitiesList() {
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
   const [history, setHistory] = useState<(string | undefined)[]>([]);
 
-  const currentPage = history.length;
-
   const { data, isPending, error } = useListUserCommunities({
     pageSize,
     pageToken,
   });
 
   const communities = data?.communitiesList ?? [];
-  const hasPrev = currentPage > 0;
+  const hasPrev = history.length > 0;
   const hasNext = Boolean(data?.nextPageToken);
 
   const goNext = () => {
@@ -128,7 +124,7 @@ export default function CommunitiesList() {
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
         <GridContainer>
-          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+          {Array.from({ length: pageSize }).map((_, i) => (
             <SkeletonCard key={i}></SkeletonCard>
           ))}
         </GridContainer>
