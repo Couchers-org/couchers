@@ -37,42 +37,6 @@ if (sentryEnabled) {
     // matching the values its source-map upload uses. The store-binary and OTA
     // identities below are surfaced as tags/contexts (which don't affect
     // symbolication) for searching and filtering.
-    initialScope: {
-      tags: {
-        appVariant,
-        // Embedded store-binary identity (fixed across OTAs)
-        embeddedDisplayVersion,
-        embeddedDebugVersion,
-        // Running bundle identity (varies per OTA)
-        runningDisplayVersion,
-        runningDebugVersion,
-        runningDebugVersionOTA,
-        runtimeVersion,
-        launchSource: isEmbeddedLaunch ? "embedded" : "ota",
-        // Backend/web wiring
-        apiBaseUrl,
-        webBaseUrl,
-      },
-      contexts: {
-        config: {
-          apiBaseUrl,
-          webBaseUrl,
-        },
-        store_build: {
-          displayVersion: embeddedDisplayVersion,
-          debugVersion: embeddedDebugVersion,
-        },
-        ota: {
-          displayVersion: runningDisplayVersion,
-          debugVersion: runningDebugVersion,
-          debugVersionOTA: runningDebugVersionOTA,
-          updateId,
-          runtimeVersion,
-          isEmbeddedLaunch,
-          createdAt,
-        },
-      },
-    },
 
     // Adds more context data to events (IP address, cookies, user, etc.)
     // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
@@ -88,5 +52,41 @@ if (sentryEnabled) {
       Sentry.mobileReplayIntegration(),
       Sentry.feedbackIntegration(),
     ],
+  });
+
+  // Set via the bridged setters rather than initialScope, which never reaches
+  // the native scope (getsentry/sentry-react-native#1661) and so would be
+  // missing from natively-captured events like app hangs and crashes.
+  Sentry.setTags({
+    appVariant,
+    // Embedded store-binary identity (fixed across OTAs)
+    embeddedDisplayVersion,
+    embeddedDebugVersion,
+    // Running bundle identity (varies per OTA)
+    runningDisplayVersion,
+    runningDebugVersion,
+    runningDebugVersionOTA,
+    runtimeVersion,
+    launchSource: isEmbeddedLaunch ? "embedded" : "ota",
+    // Backend/web wiring
+    apiBaseUrl,
+    webBaseUrl,
+  });
+  Sentry.setContext("config", {
+    apiBaseUrl,
+    webBaseUrl,
+  });
+  Sentry.setContext("store_build", {
+    displayVersion: embeddedDisplayVersion,
+    debugVersion: embeddedDebugVersion,
+  });
+  Sentry.setContext("ota", {
+    displayVersion: runningDisplayVersion,
+    debugVersion: runningDebugVersion,
+    debugVersionOTA: runningDebugVersionOTA,
+    updateId,
+    runtimeVersion,
+    isEmbeddedLaunch,
+    createdAt,
   });
 }
