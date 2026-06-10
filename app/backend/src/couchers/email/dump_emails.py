@@ -154,7 +154,7 @@ def write_index(index_path: Path, rendered: list[RenderedVariation], locales: li
     rendered = sorted(rendered, key=lambda r: (r.email_class, r.variation))
     # Guard against a literal "</script>" in subject lines breaking out of the script tag
     subjects_json = json.dumps({r.name: r.subjects for r in rendered}, ensure_ascii=False).replace("</", "<\\/")
-    template = Jinja2Template(source=(Path(__file__).parent / "dump_emails_index.html").read_text(), html=True)
+    template = Jinja2Template(source=(Path(__file__).parent / "dump_emails_index.html.jinja2").read_text(), html=True)
     index_html = template.render(
         {
             "rendered": rendered,
