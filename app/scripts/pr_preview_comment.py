@@ -193,8 +193,17 @@ def upsert_comment(repo, pr, body, token):
         timeout=30,
     )
     resp.raise_for_status()
-    existing = next((c for c in resp.json() if MARKER in (c.get("body") or "")), None)
-    if existing:
+    marked = [c for c in resp.json() if MARKER in (c.get("body") or "")]
+    if marked:
+        existing, *duplicates = marked
+        # concurrent pipelines for the same commit can race the existence check
+        # above and double-post; heal by keeping only the oldest comment
+        for duplicate in duplicates:
+            requests.delete(
+                f"{GITHUB_API}/repos/{repo}/issues/comments/{duplicate['id']}",
+                headers=gh_headers(token),
+                timeout=30,
+            ).raise_for_status()
         resp = requests.patch(
             f"{GITHUB_API}/repos/{repo}/issues/comments/{existing['id']}",
             headers=gh_headers(token),

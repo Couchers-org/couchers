@@ -1,3 +1,14 @@
+# the GitHub integration creates both a branch pipeline and an external PR
+# pipeline for the same commit once a PR exists; job rules here key on
+# CI_COMMIT_BRANCH (unset in external PR pipelines, so `!= $RELEASE_BRANCH`
+# still matches), which made every job run twice per PR push. Keep only the
+# branch pipelines.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: never
+    - when: always
+
 stages:
   - protos
   - build
@@ -954,6 +965,9 @@ preview:pr-comment-stub:
   image: python:3.14-slim
   inherit:
     default: false
+  # serialize comment writes across concurrent pipelines so the
+  # list-then-post upsert can't double-post
+  resource_group: pr-preview-comment
   script:
     - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py --stub
@@ -973,6 +987,7 @@ preview:pr-comment:
   image: python:3.14-slim
   inherit:
     default: false
+  resource_group: pr-preview-comment
   variables:
     OTA_PLATFORMS: "ios android"
   script:
