@@ -16,6 +16,12 @@
 //     --runtime-version <fingerprint> \
 //     --base-url https://updates.example.com \
 //     [--dist dist] [--out ota-out] [--expo-config expo-config.json] [--created-at <iso>]
+//     [--web-base-url <url>]
+//
+// --web-base-url injects the given URL into the manifest as
+// extra.expoClient.extra.otaWebBaseUrl; the app (config/urls.ts) uses it as the
+// default web frontend URL for this update. Used by branch previews to point
+// the loaded bundle at the branch's web deployment.
 //
 // Produces <out>/<platform>/{manifest, manifest.content-type, manifest.json,
 // bundle.hbc, assets/<key>}, ready to serve verbatim from any static host (set
@@ -139,6 +145,12 @@ function main() {
       "WARN: no --expo-config given; extra.expoClient will be empty {}",
     );
   }
+  if (args["web-base-url"]) {
+    expoClient = {
+      ...expoClient,
+      extra: { ...expoClient.extra, otaWebBaseUrl: args["web-base-url"] },
+    };
+  }
 
   const staged = new Set();
   const assets = pf.assets.map((a) =>
@@ -209,6 +221,9 @@ function main() {
   console.log(`bundled ${platform} -> ${outDir}`);
   console.log(`  id              ${manifest.id}`);
   console.log(`  runtimeVersion  ${runtimeVersion}`);
+  if (args["web-base-url"]) {
+    console.log(`  otaWebBaseUrl   ${args["web-base-url"]}`);
+  }
   console.log(
     `  launchAsset     ${launchAsset.key} (${launchAsset.contentType})`,
   );

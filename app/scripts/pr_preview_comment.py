@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs in GitLab CI after the upload jobs so every link it posts is already live.
-Each preview is a section, so web/coverage/etc. can be appended as the pipeline
-grows. The mobile QR PNG is generated and uploaded by the OTA build/upload jobs;
-this script only assembles markdown and talks to the GitHub API. Requires
+Runs in GitLab CI after the upload jobs so every link it posts is already live;
+each section is only included when its preview actually exists (the mobile OTA
+manifest responds on the CDN / the Vercel API knows a web deployment), so the
+job can run from both mobile and web-only pipelines. The mobile QR PNG is
+generated and uploaded by the OTA build/upload jobs; this script only assembles
+markdown and talks to the GitHub and Vercel APIs. Requires
 GITHUB_PREVIEW_TOKEN; no-ops (exit 0) when there is no open PR for the commit.
 """
 
 import os
 import sys
+import time
 import urllib.parse
 
 import requests
 
 MARKER = "<!-- couchers-preview-bot -->"
 GITHUB_API = "https://api.github.com"
+VERCEL_API = "https://api.vercel.com"
 
 
 def env(name, default=None, *, required=False):
@@ -75,6 +79,77 @@ def mobile_ota_section(short_sha, domain, platforms):
         lines += ["", f"**{display[platform]}**", "", "```", deep_link(f"{bases[platform]}/manifest"), "```"]
     lines.append("</details>")
     return "\n".join(lines)
+
+
+def ota_is_live(short_sha, domain, platform):
+    try:
+        return requests.head(f"https://{short_sha}--ota.{domain}/{platform}/manifest", timeout=10).ok
+    except requests.RequestException:
+        return False
+
+
+def web_preview_section(url, with_dev_tool_note):
+    host = url.removeprefix("https://")
+    lines = [
+        "## Web preview",
+        "",
+        f"This branch's web frontend is deployed at [{host}]({url}).",
+    ]
+    if with_dev_tool_note:
+        lines.append("A Dev Tool branch preview loaded from this comment points its web views there automatically.")
+    return "\n".join(lines)
+
+
+def vercel_get(path, params, token):
+    resp = requests.get(
+        f"{VERCEL_API}{path}",
+        params=params,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
+    """Resolve the Vercel preview URL for this branch.
+
+    Mirrors app/mobile/scripts/vercel-preview-url.mjs (used by the OTA build job
+    to bake the URL into the manifest): prefer the stable branch alias of the
+    newest READY deployment, fall back to a still-building deployment for the
+    exact commit. Returns None when unconfigured or nothing is found.
+    """
+    token = env("VERCEL_TOKEN")
+    project_id = env("VERCEL_PROJECT_ID")
+    team_id = env("VERCEL_TEAM_ID")
+    if not (token and project_id and team_id and branch):
+        print("Vercel API not configured - skipping the web preview section.")
+        return None
+
+    base = {"projectId": project_id, "teamId": team_id, "limit": "1"}
+    pending = None
+    for attempt in range(1, attempts + 1):
+        if attempt > 1:
+            time.sleep(delay_seconds)
+
+        ready = vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token)
+        if ready.get("deployments"):
+            deployment = ready["deployments"][0]
+            aliases = vercel_get(f"/v2/deployments/{deployment['uid']}/aliases", {"teamId": team_id}, token)
+            branch_alias = next((a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None)
+            return f"https://{branch_alias or deployment['url']}"
+
+        if sha:
+            by_sha = vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token)
+            deployments = by_sha.get("deployments") or []
+            if deployments and deployments[0].get("state") not in ("ERROR", "CANCELED", "DELETED"):
+                pending = deployments[0]
+        print(f"No READY Vercel deployment for {branch} yet (attempt {attempt}/{attempts}).")
+
+    if pending:
+        print(f"Falling back to in-progress Vercel deployment {pending['uid']} ({pending.get('state')}).")
+        return f"https://{pending['url']}"
+    return None
 
 
 def build_body(sections, sha, pipeline_url):
@@ -141,7 +216,23 @@ def main():
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
-    sections = [mobile_ota_section(short_sha, domain, platforms)]
+    live_platforms = [p for p in platforms if ota_is_live(short_sha, domain, p)]
+    try:
+        web_url = resolve_web_preview_url(env("CI_COMMIT_BRANCH"), sha)
+    except requests.RequestException as e:
+        # a Vercel API outage must not take the mobile section down with it
+        print(f"Vercel API error - skipping the web preview section: {e}")
+        web_url = None
+
+    sections = []
+    if live_platforms:
+        sections.append(mobile_ota_section(short_sha, domain, live_platforms))
+    if web_url:
+        sections.append(web_preview_section(web_url, with_dev_tool_note=bool(live_platforms)))
+    if not sections:
+        print("No live previews for this commit - skipping preview comment.")
+        return
+
     url = upsert_comment(repo, pr, build_body(sections, sha, pipeline_url), token)
     print(f"Posted preview comment to PR #{pr}: {url}")
 

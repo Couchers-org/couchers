@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 
 const STORAGE_KEY = "@couchers/devUrlOverrides";
 
@@ -60,11 +61,27 @@ function normalize(url: string | null | undefined): string | null {
   return trimmed.replace(/\/+$/, "");
 }
 
+// A branch-preview OTA manifest can carry the web frontend URL for its branch
+// (injected into extra.expoClient by `scripts/ota-bundle.mjs --web-base-url` in
+// CI). When the Dev Tool loads such an update, that URL becomes the effective
+// default, so the WebView points at the branch's web preview without any
+// manual override.
+function getManifestWebBaseUrl(): string | null {
+  const value = Constants.expoConfig?.extra?.otaWebBaseUrl;
+  return typeof value === "string" ? normalize(value) : null;
+}
+
 export function getDefaultApiBaseUrl(): string {
   return DEFAULT_API_BASE_URL;
 }
 
 export function getDefaultWebBaseUrl(): string {
+  if (isDevUrlOverrideEnabled()) {
+    const fromManifest = getManifestWebBaseUrl();
+    if (fromManifest) {
+      return fromManifest;
+    }
+  }
   return DEFAULT_WEB_BASE_URL;
 }
 
@@ -79,7 +96,7 @@ export function getWebBaseUrl(): string {
   if (isDevUrlOverrideEnabled() && cache.webBaseUrl) {
     return cache.webBaseUrl;
   }
-  return DEFAULT_WEB_BASE_URL;
+  return getDefaultWebBaseUrl();
 }
 
 export function getUrlOverrides(): UrlOverrides {
