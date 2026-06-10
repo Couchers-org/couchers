@@ -289,12 +289,17 @@ multipart content-type), `bundle.hbc`, `assets/`, `qr.png`, and `open.html` to
 `s3://couchers-dev-assets/ota/<sha>/<platform>/`. No CloudFront invalidation
 (immutable keys).
 
-**`preview:pr-comment`** (`python:3.12-slim`) — `needs:` the upload job (as
-`optional:`, since the job also triggers on web-only changes) so every link is
-already live, then runs `app/scripts/pr_preview_comment.py` to post/update the
-sticky PR comment (§9). Sections are included only when live; no-ops if
-`GITHUB_PREVIEW_TOKEN` is unset, there's no open PR, or no preview exists, so it
-never reds the pipeline.
+**`preview:pr-comment-stub`** (`python:3.14-slim`, `needs: []`) — runs at the
+very start of every non-`develop` branch pipeline and posts the sticky comment
+as a "previews are building" placeholder within seconds of the push.
+
+**`preview:pr-comment`** (`python:3.14-slim`) — `needs:` the stub job plus the
+upload job (the latter `optional:`, since the job runs for every branch
+pipeline, not just mobile ones), then runs `app/scripts/pr_preview_comment.py`
+to replace the placeholder with the real sections (§9). Sections are included
+only when live (waiting up to ~5 min for Vercel to finish); when nothing is,
+the comment says so. No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no
+open PR, so it never reds the pipeline.
 
 ---
 
@@ -372,8 +377,9 @@ wins over the manifest.
 The PR comment gains a **Web preview** section with the same link, resolved
 Python-side in `pr_preview_comment.py` (mirror of the `.mjs` resolver). Each
 section is included only when its preview is actually live (HEAD on the OTA
-manifest / Vercel API lookup), and the job also runs for web-only changes, since
-Vercel's own PR comments are silenced via `app/web/vercel.json`.
+manifest / Vercel API lookup), and the job runs for every branch pipeline —
+backend-only PRs get an honest "no previews" comment, and Vercel's own PR
+comments are silenced via `app/web/vercel.json`.
 
 ---
 

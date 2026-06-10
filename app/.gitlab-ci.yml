@@ -946,8 +946,26 @@ preview:mobile-ota-devtool:
         - app/mobile/**/*
         - app/scripts/**/*
 
+# posts the sticky comment as a "previews are building" placeholder within
+# seconds of the push; preview:pr-comment replaces it with the real links
+preview:pr-comment-stub:
+  needs: []
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  script:
+    - pip install --quiet --no-cache-dir requests
+    - python app/scripts/pr_preview_comment.py --stub
+  rules:
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+
 preview:pr-comment:
   needs:
+    # the stub need also serializes the two comment writes in pipelines where
+    # the OTA jobs don't run
+    - job: preview:pr-comment-stub
+      artifacts: false
     - job: preview:mobile-ota-devtool
       artifacts: false
       optional: true
@@ -961,17 +979,7 @@ preview:pr-comment:
     - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-        - app/proto/**/*
-        - app/mobile/**/*
-        - app/scripts/**/*
-    # web-only changes still get a preview comment (Vercel's own PR comments
-    # are silenced via app/web/vercel.json)
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-        - app/web/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
 build:mobile-native-devtool:
   needs: ["protos"]

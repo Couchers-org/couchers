@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs in GitLab CI after the upload jobs so every link it posts is already live;
-each section is only included when its preview actually exists (the mobile OTA
-manifest responds on the CDN / the Vercel API knows a web deployment), so the
-job can run from both mobile and web-only pipelines. The mobile QR PNG is
-generated and uploaded by the OTA build/upload jobs; this script only assembles
-markdown and talks to the GitHub and Vercel APIs. Requires
-GITHUB_PREVIEW_TOKEN; no-ops (exit 0) when there is no open PR for the commit.
+Runs twice per pipeline: once with --stub at the very start (no needs), which
+posts a "previews are building" placeholder within seconds of the push, and
+once after the upload jobs, which replaces the placeholder with the real
+sections. Each section is only included when its preview actually exists (the
+mobile OTA manifest responds on the CDN / the Vercel API knows a web
+deployment, waiting up to ~5 minutes for Vercel to finish), so the job can run
+from both mobile and web-only pipelines. The mobile QR PNG is generated and
+uploaded by the OTA build/upload jobs; this script only assembles markdown and
+talks to the GitHub and Vercel APIs. Requires GITHUB_PREVIEW_TOKEN; no-ops
+(exit 0) when there is no open PR for the commit.
 """
 
 import os
@@ -81,6 +84,14 @@ def mobile_ota_section(short_sha, domain, platforms):
     return "\n".join(lines)
 
 
+def stub_section():
+    return "## Previews\n\n⏳ Previews for this commit are building — QR codes and links will appear here once ready."
+
+
+def no_previews_section():
+    return "_No previews are available for this commit._"
+
+
 def ota_is_live(short_sha, domain, platform):
     try:
         return requests.head(f"https://{short_sha}--ota.{domain}/{platform}/manifest", timeout=10).ok
@@ -111,8 +122,8 @@ def vercel_get(path, params, token):
     return resp.json()
 
 
-def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
-    """Resolve the Vercel preview URL for this branch.
+def resolve_web_preview_url(branch, sha, attempts=30, delay_seconds=10):
+    """Resolve the Vercel preview URL for this branch, waiting up to ~5 minutes.
 
     Mirrors app/mobile/scripts/vercel-preview-url.mjs (used by the OTA build job
     to bake the URL into the manifest): prefer the stable branch alias of the
@@ -202,20 +213,7 @@ def upsert_comment(repo, pr, body, token):
     return resp.json().get("html_url")
 
 
-def main():
-    token = env("GITHUB_PREVIEW_TOKEN", required=True)
-    repo = env("GITHUB_REPO", "Couchers-org/couchers")
-    sha = env("CI_COMMIT_SHA", required=True)
-    short_sha = env("CI_COMMIT_SHORT_SHA", required=True)
-    domain = env("PREVIEW_DOMAIN", required=True)
-    pipeline_url = env("CI_PIPELINE_URL", "")
-    platforms = env("OTA_PLATFORMS", "ios").split()
-
-    pr = find_open_pr(repo, sha, token)
-    if not pr:
-        print(f"No open PR for {sha} - skipping preview comment.")
-        return
-
+def build_sections(sha, short_sha, domain, platforms):
     live_platforms = [p for p in platforms if ota_is_live(short_sha, domain, p)]
     try:
         web_url = resolve_web_preview_url(env("CI_COMMIT_BRANCH"), sha)
@@ -229,12 +227,29 @@ def main():
         sections.append(mobile_ota_section(short_sha, domain, live_platforms))
     if web_url:
         sections.append(web_preview_section(web_url, with_dev_tool_note=bool(live_platforms)))
-    if not sections:
-        print("No live previews for this commit - skipping preview comment.")
+    # the stub run already created the comment, so always replace it rather
+    # than leave "building…" up forever
+    return sections or [no_previews_section()]
+
+
+def main():
+    stub = "--stub" in sys.argv[1:]
+    token = env("GITHUB_PREVIEW_TOKEN", required=True)
+    repo = env("GITHUB_REPO", "Couchers-org/couchers")
+    sha = env("CI_COMMIT_SHA", required=True)
+    short_sha = env("CI_COMMIT_SHORT_SHA", required=True)
+    domain = env("PREVIEW_DOMAIN", required=True)
+    pipeline_url = env("CI_PIPELINE_URL", "")
+    platforms = env("OTA_PLATFORMS", "ios").split()
+
+    pr = find_open_pr(repo, sha, token)
+    if not pr:
+        print(f"No open PR for {sha} - skipping preview comment.")
         return
 
+    sections = [stub_section()] if stub else build_sections(sha, short_sha, domain, platforms)
     url = upsert_comment(repo, pr, build_body(sections, sha, pipeline_url), token)
-    print(f"Posted preview comment to PR #{pr}: {url}")
+    print(f"Posted {'stub ' if stub else ''}preview comment to PR #{pr}: {url}")
 
 
 if __name__ == "__main__":
