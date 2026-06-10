@@ -36,6 +36,8 @@ So basically, fingerprints tell you: "here's a unique value that captures all th
 
 Don't change/regenerate the fingerprints without consulting mobile dev leads. Even the pedantic full ones.
 
+When fingerprints change, we must publish a new version via app stores, and users have to download it. We cannot ship OTA updates to old clients.
+
 ## How OTA updates work
 
 ### On the client
@@ -52,8 +54,16 @@ In order to find out about a new update, Expo uses the "Expo Updates Protocol v1
 
 Our backend serves the update protocol in `Bugs.GetNativeUpdateManifest`, which the client loads from `https://api.couchers.org/native/ota/manifest`. This endpoint decides which update to serve, depending on various logic.
 
+The backend generally picks the newest non-banned OTA update for the combination of platform and fingerprint available from teh database, then serves pre-signed manifest bytes that are fetched from the CDN. (Banning is a mechanism to quickly stop us from distributing botched updates.)
+
 ### Publishing new updates
 
-The publishing flow involes basically taking a full Expo bundle, signing it, producing a manifest file, and telling the backend about it.
+The publishing flow involes basically taking a full Expo bundle (generated via `ota-bundle.mjs`), stamping it with a new publish timestamp, signing it, producing a manifest file, and telling the backend about it.
 
-You can see how this works by tracing the staging OTA update flow, where we build a new update on every push to `develop`. For prod the flow is the same, but we have a magic button in a magic place to control when we do it.
+You can see how this works by tracing the staging OTA update flow, where we build a new update on every push to `develop`. For prod the flow is the same, but we have a magic button in a magic place to trigger it.
+
+We can "rollback" by taking an old bundle, restamp & resign it, etc; and it is eaten up by the clients which are no wiser about the fact that it's actually older.
+
+## Update nagging
+
+Having clients run the latest code is superb. We can't support old client code too long, so we have built a force-update mechanism with some nagging screens to encourage or force users to update old clients. The client decides this based on pinging the backend at `Bugs.CheckNativeStatus` to figure out whether the client should show a warning nag screen or a compulsory update screen. It's at present based on just timing, with a certain support timeline for the OTA package, and another one for the store downloaded base version.
