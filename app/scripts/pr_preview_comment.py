@@ -186,7 +186,7 @@ def find_open_pr(repo, sha, token):
     return None
 
 
-def upsert_comment(repo, pr, body, token):
+def find_marker_comments(repo, pr, token):
     resp = requests.get(
         f"{GITHUB_API}/repos/{repo}/issues/{pr}/comments",
         headers=gh_headers(token),
@@ -194,7 +194,11 @@ def upsert_comment(repo, pr, body, token):
         timeout=30,
     )
     resp.raise_for_status()
-    marked = [c for c in resp.json() if MARKER in (c.get("body") or "")]
+    return [c for c in resp.json() if MARKER in (c.get("body") or "")]
+
+
+def upsert_comment(repo, pr, body, token):
+    marked = find_marker_comments(repo, pr, token)
     if marked:
         existing, *duplicates = marked
         # concurrent pipelines for the same commit can race the existence check
@@ -254,6 +258,13 @@ def main():
     pr = find_open_pr(repo, sha, token)
     if not pr:
         print(f"No open PR for {sha} - skipping preview comment.")
+        return
+
+    # the stub only exists to get the comment (and the dev's notification)
+    # posted quickly on the first pipeline; never downgrade an existing
+    # comment to a placeholder
+    if stub and find_marker_comments(repo, pr, token):
+        print(f"Preview comment already exists on PR #{pr} - leaving it for the full update.")
         return
 
     sections = [stub_section()] if stub else build_sections(sha, short_sha, domain, platforms)
