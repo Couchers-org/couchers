@@ -704,15 +704,15 @@ emails_counter: Counter = Counter(
 )
 
 
-recaptchas_assessed_counter: Counter = Counter(
-    "couchers_recaptchas_assessed_total",
-    "Number of times a recaptcha assessment is created",
+antibots_assessed_counter: Counter = Counter(
+    "couchers_antibots_assessed_total",
+    "Number of times an antibot assessment is created",
     labelnames=["action"],
 )
 
-recaptcha_score_histogram: Histogram = Histogram(
-    "couchers_recaptcha_score",
-    "Score of recaptcha assessments",
+antibot_score_histogram: Histogram = Histogram(
+    "couchers_antibot_score",
+    "Score of antibot assessments",
     labelnames=["action"],
     buckets=tuple(x / 20 for x in range(0, 21)),
 )

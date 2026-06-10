@@ -13,7 +13,6 @@ import {
 import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import ReportButton from "components/Navigation/ReportButton";
 import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -339,9 +338,6 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <StyledLink href={foundationRoute}>
               {t("footer.non_profit_note")}
             </StyledLink>
-          </Typography>
-          <Typography variant="body2" sx={{ fontSize: ".6em" }}>
-            <AntibotNote />
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
