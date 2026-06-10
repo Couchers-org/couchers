@@ -969,13 +969,12 @@ preview:pr-comment-stub:
   rules:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
-preview:pr-comment:
+preview:pr-comment-mobile:
   needs:
     - job: preview:pr-comment-stub
       artifacts: false
     - job: preview:mobile-ota-devtool
       artifacts: false
-      optional: true
   stage: preview
   image: python:3.14-slim
   inherit:
@@ -985,7 +984,28 @@ preview:pr-comment:
     OTA_PLATFORMS: "ios android"
   script:
     - pip install --quiet --no-cache-dir requests
-    - python app/scripts/pr_preview_comment.py
+    - python app/scripts/pr_preview_comment.py --section mobile
+  # mirror preview:mobile-ota-devtool so this runs exactly when the OTA upload does
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+        - app/scripts/**/*
+
+# Vercel owns the web deploy, so this resolves the preview URL from its API
+preview:pr-comment-web:
+  needs:
+    - job: preview:pr-comment-stub
+      artifacts: false
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  resource_group: pr-preview-comment
+  script:
+    - pip install --quiet --no-cache-dir requests
+    - python app/scripts/pr_preview_comment.py --section web
   rules:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 

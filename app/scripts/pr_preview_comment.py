@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs twice per pipeline: with --stub at the very start (posts a placeholder
-within seconds of the push, only if no comment exists yet) and after the
-upload jobs (replaces the comment with the real sections, each included only
-when its preview actually exists). Requires GITHUB_PREVIEW_TOKEN; no-ops
+One invocation per preview, each owning a marker-delimited section of the comment:
+
+  --stub           a "building" placeholder, posted within seconds of the push
+                   (only if no comment exists yet)
+  --section mobile the mobile OTA section, run right after the OTA upload job —
+                   so the manifest is known-live, no probing
+  --section web    the Vercel web preview section
+
+A section write merges over whatever sections are already posted, so each
+preview updates only its own and a web-only commit keeps the mobile section an
+earlier commit posted (and vice versa). Requires GITHUB_PREVIEW_TOKEN; no-ops
 (exit 0) when there is no open PR for the commit.
 """
 
+import argparse
 import os
 import sys
 import time
@@ -16,6 +24,7 @@ import urllib.parse
 import requests
 
 MARKER = "<!-- couchers-preview-bot -->"
+SECTION_ORDER = ("mobile", "web")
 GITHUB_API = "https://api.github.com"
 VERCEL_API = "https://api.vercel.com"
 
@@ -87,13 +96,6 @@ def no_previews_section():
     return "_No previews are available for this commit._"
 
 
-def ota_is_live(short_sha, domain, platform):
-    try:
-        return requests.head(f"https://{short_sha}--ota.{domain}/{platform}/manifest", timeout=10).ok
-    except requests.RequestException:
-        return False
-
-
 def web_preview_section(url):
     return f"## Web preview\n\nView the [Vercel web preview]({url}) for this branch."
 
@@ -131,14 +133,23 @@ def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
         if attempt > 1:
             time.sleep(delay_seconds)
 
-        ready = (vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token).get("deployments") or [None])[0]
+        ready = (
+            vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token).get(
+                "deployments"
+            )
+            or [None]
+        )[0]
         if ready:
             aliases = vercel_get(f"/v2/deployments/{ready['uid']}/aliases", {"teamId": team_id}, token)
-            branch_alias = next((a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None)
+            branch_alias = next(
+                (a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None
+            )
             if branch_alias:
                 return f"https://{branch_alias}"
 
-        by_sha = (vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token).get("deployments") or [None])[0]
+        by_sha = (
+            vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token).get("deployments") or [None]
+        )[0]
         if by_sha and by_sha.get("state") not in VERCEL_FAILED_STATES:
             return f"https://{by_sha['url']}"
         if ready:
@@ -147,13 +158,41 @@ def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
     return None
 
 
-def build_body(sections, sha, pipeline_url):
+def section_markers(key):
+    return f"<!-- couchers-preview:{key}:start -->", f"<!-- couchers-preview:{key}:end -->"
+
+
+def section_footer(sha, pipeline_url):
     footer = f"commit `{sha[:8]}`"
     if pipeline_url:
         footer += f" · [pipeline]({pipeline_url})"
-    # blank-line separators: a heading right after </details> renders literally
-    parts = [MARKER, *[section for section in sections if section], "---", f"<sub>{footer}</sub>"]
-    return "\n\n".join(parts)
+    return f"<sub>{footer}</sub>"
+
+
+def wrap_section(key, content):
+    start, end = section_markers(key)
+    # blank lines around the markers so a heading after them doesn't render literally
+    return f"{start}\n\n{content}\n\n{end}"
+
+
+def parse_sections(body):
+    sections = {}
+    for key in SECTION_ORDER:
+        start, end = section_markers(key)
+        i = body.find(start)
+        j = body.find(end, i + len(start)) if i != -1 else -1
+        if i != -1 and j != -1:
+            sections[key] = body[i + len(start) : j].strip()
+    return sections
+
+
+def build_body(existing_body, updates):
+    sections = parse_sections(existing_body)
+    sections.update(updates)
+    rendered = [wrap_section(key, sections[key]) for key in SECTION_ORDER if sections.get(key)]
+    if not rendered:
+        rendered = [no_previews_section()]
+    return "\n\n".join([MARKER, *rendered])
 
 
 def find_open_pr(repo, sha, token):
@@ -180,8 +219,7 @@ def find_marker_comments(repo, pr, token):
     return [c for c in resp.json() if MARKER in (c.get("body") or "")]
 
 
-def upsert_comment(repo, pr, body, token):
-    marked = find_marker_comments(repo, pr, token)
+def upsert_comment(repo, pr, body, marked, token):
     if marked:
         existing, *duplicates = marked
         # concurrent pipelines can race the check above and double-post
@@ -208,47 +246,59 @@ def upsert_comment(repo, pr, body, token):
     return resp.json().get("html_url")
 
 
-def build_sections(sha, short_sha, domain, platforms):
-    live_platforms = [p for p in platforms if ota_is_live(short_sha, domain, p)]
+def mobile_update(sha, pipeline_url):
+    short_sha = env("CI_COMMIT_SHORT_SHA", required=True)
+    domain = env("PREVIEW_DOMAIN", required=True)
+    platforms = env("OTA_PLATFORMS", "ios").split()
+    return f"{mobile_ota_section(short_sha, domain, platforms)}\n\n{section_footer(sha, pipeline_url)}"
+
+
+def web_update(sha, pipeline_url):
     try:
         web_url = resolve_web_preview_url(env("CI_COMMIT_BRANCH"), sha)
     except requests.RequestException as e:
-        # a Vercel API outage must not take the mobile section down with it
-        print(f"Vercel API error - skipping the web preview section: {e}")
-        web_url = None
-
-    sections = []
-    if live_platforms:
-        sections.append(mobile_ota_section(short_sha, domain, live_platforms))
-    if web_url:
-        sections.append(web_preview_section(web_url))
-    # always replace the stub rather than leave "building…" up forever
-    return sections or [no_previews_section()]
+        print(f"Vercel API error - leaving the web section unchanged: {e}")
+        return None
+    if not web_url:
+        return None
+    return f"{web_preview_section(web_url)}\n\n{section_footer(sha, pipeline_url)}"
 
 
 def main():
-    stub = "--stub" in sys.argv[1:]
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--stub", action="store_true", help="post the building placeholder if no comment exists yet")
+    mode.add_argument("--section", choices=SECTION_ORDER, help="build and upsert just this preview section")
+    args = parser.parse_args()
+
     token = env("GITHUB_PREVIEW_TOKEN", required=True)
     repo = env("GITHUB_REPO", "Couchers-org/couchers")
     sha = env("CI_COMMIT_SHA", required=True)
-    short_sha = env("CI_COMMIT_SHORT_SHA", required=True)
-    domain = env("PREVIEW_DOMAIN", required=True)
     pipeline_url = env("CI_PIPELINE_URL", "")
-    platforms = env("OTA_PLATFORMS", "ios").split()
 
     pr = find_open_pr(repo, sha, token)
     if not pr:
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
-    # never downgrade an existing comment to a placeholder
-    if stub and find_marker_comments(repo, pr, token):
-        print(f"Preview comment already exists on PR #{pr} - leaving it for the full update.")
-        return
+    # the resource_group serializes comment writes, so this read is race-free
+    marked = find_marker_comments(repo, pr, token)
 
-    sections = [stub_section()] if stub else build_sections(sha, short_sha, domain, platforms)
-    url = upsert_comment(repo, pr, build_body(sections, sha, pipeline_url), token)
-    print(f"Posted {'stub ' if stub else ''}preview comment to PR #{pr}: {url}")
+    if args.stub:
+        if marked:
+            print(f"Preview comment already exists on PR #{pr} - leaving it for the section updates.")
+            return
+        body = f"{MARKER}\n\n{stub_section()}"
+    else:
+        builder = {"mobile": mobile_update, "web": web_update}[args.section]
+        content = builder(sha, pipeline_url)
+        existing_body = marked[0]["body"] if marked else ""
+        # empty update => keep existing sections, so a failed web resolve can't wipe mobile
+        body = build_body(existing_body, {args.section: content} if content else {})
+
+    url = upsert_comment(repo, pr, body, marked, token)
+    label = "stub" if args.stub else f"{args.section} section"
+    print(f"Posted {label} to PR #{pr}: {url}")
 
 
 if __name__ == "__main__":

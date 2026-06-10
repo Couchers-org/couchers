@@ -293,14 +293,22 @@ multipart content-type), `bundle.hbc`, `assets/`, `qr.png`, and `open.html` to
 very start of every non-`develop` branch pipeline and posts the sticky comment
 as a "previews are building" placeholder within seconds of the push.
 
-**`preview:pr-comment`** (`python:3.14-slim`) — `needs:` the stub job plus the
-upload job (the latter `optional:`, since the job runs for every branch
-pipeline, not just mobile ones), then runs `app/scripts/pr_preview_comment.py`
-to replace the placeholder with the real sections (§9). Sections are included
-only when their preview exists (the web link is the commit's per-deployment
-URL and may still be building when posted); when nothing exists, the comment
-says so. No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no open PR, so
-it never reds the pipeline.
+**`preview:pr-comment-mobile`** (`python:3.14-slim`) — `needs:` the stub job and
+the OTA upload job (non-optional, and it mirrors the upload job's `changes:`
+rules), so it runs exactly when a commit rebuilds mobile. Because it's gated on
+the upload, the manifest it links to is already live — it just renders the
+mobile section (§9), no probing. `pr_preview_comment.py --section mobile`.
+
+**`preview:pr-comment-web`** (`python:3.14-slim`) — `needs:` only the stub, runs
+on every branch pipeline (Vercel deploys on every push), and resolves the
+preview URL from the Vercel API. `pr_preview_comment.py --section web`.
+
+Each writer owns its own marker-delimited section and merges over whatever's
+already posted, so a web-only commit updates just the web section and keeps the
+mobile section an earlier commit posted (and vice versa). All three comment jobs
+share `resource_group: pr-preview-comment` so the read-modify-write never races.
+They no-op if `GITHUB_PREVIEW_TOKEN` is unset or there's no open PR, so they
+never red the pipeline.
 
 ---
 
@@ -343,11 +351,12 @@ static pipeline (`build:mobile-ota-staging` / `build:mobile-ota-prod` in
 
 ## 9. PR comment + QR
 
-`preview:pr-comment` posts one **sticky** comment per PR (marked with the HTML
-comment `<!-- couchers-preview-bot -->`; `app/scripts/pr_preview_comment.py`
+The `preview:pr-comment-*` jobs post one **sticky** comment per PR (marked with the
+HTML comment `<!-- couchers-preview-bot -->`; `app/scripts/pr_preview_comment.py`
 resolves the PR from the commit SHA via the GitHub API, then upserts the comment).
-It's assembled from **sections**, so more previews (web, coverage, …) can be
-appended as the pipeline grows.
+It's assembled from marker-delimited **sections** (`<!-- couchers-preview:<name>:start -->`
+… `:end -->`), each written independently by its own job, so more previews
+(coverage, …) can be added as the pipeline grows.
 
 **Implemented today — the RN-shell OTA section**, one block per platform with:
 
@@ -378,10 +387,11 @@ repointing via `couchers-devtool://dev-settings?api=<url>&web=<url>`
 wins over the manifest.
 
 The PR comment gains a **Web preview** section with the same link, resolved
-Python-side in `pr_preview_comment.py` (mirror of the `.mjs` resolver). Each
-section is included only when its preview is actually live (HEAD on the OTA
-manifest / Vercel API lookup), and the job runs for every branch pipeline —
-backend-only PRs get an honest "no previews" comment. Vercel's own PR comments
+Python-side in `pr_preview_comment.py` (mirror of the `.mjs` resolver) by the
+`preview:pr-comment-web` job, which runs for every branch pipeline. The mobile
+section is gated on the OTA upload and so is only written when it's live; a
+backend-only PR (neither writer contributes) gets an honest "no previews"
+comment from the web job's empty update. Vercel's own PR comments
 are silenced in the Vercel dashboard (project → Settings → Git → Connected
 Git Repository toggles); the `github.silent` vercel.json property is
 deprecated and doesn't work, so the repo carries no vercel.json.
@@ -478,7 +488,7 @@ loadable.
 - App config / channels: `app/mobile/app.config.js`, `app/mobile/eas.json`
 - In-app web/API override: `app/mobile/config/urls.ts`, `app/mobile/app/dev-settings.tsx`
 - QR pattern precedent: `app/mobile/dev-url-qr.html`
-- CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-devtool`, `preview:mobile-ota-devtool`, `preview:pr-comment`)
+- CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-devtool`, `preview:mobile-ota-devtool`, `preview:pr-comment-stub`/`-mobile`/`-web`)
 - Manifest/bundle layout: `app/mobile/scripts/ota-bundle.mjs`; `open.html`
   redirect: `app/mobile/scripts/ota-open-page.mjs` (QR is rendered in CI)
 - PR comment generator: `app/scripts/pr_preview_comment.py`
