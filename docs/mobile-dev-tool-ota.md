@@ -382,10 +382,9 @@ Python-side in `pr_preview_comment.py` (mirror of the `.mjs` resolver). Each
 section is included only when its preview is actually live (HEAD on the OTA
 manifest / Vercel API lookup), and the job runs for every branch pipeline —
 backend-only PRs get an honest "no previews" comment. Vercel's own PR comments
-must be silenced in the Vercel dashboard (project → Settings → Git →
-Connected Git Repository toggles); the `github.silent` vercel.json property
-(`app/web/vercel.json`) is deprecated — Vercel only reads it to migrate it
-into that dashboard setting.
+are silenced in the Vercel dashboard (project → Settings → Git → Connected
+Git Repository toggles); the `github.silent` vercel.json property is
+deprecated and doesn't work, so the repo carries no vercel.json.
 
 ---
 
