@@ -27,7 +27,7 @@ import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
-import { i18nToDayjsLocale, setDayjsLocale } from "utils/dayjs";
+import { i18nToDayjsLocale } from "utils/dayjs";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -42,12 +42,6 @@ function MyApp(props: AppWithLayoutProps) {
     i18n: { language },
   } = useTranslation();
   useEffect(() => polyfill(), []);
-
-  // Keep dayjs's global locale in sync with the app language so localized dayjs
-  // output (long dates, relative time, durations) matches the selected language.
-  useEffect(() => {
-    setDayjsLocale(language);
-  }, [language]);
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {

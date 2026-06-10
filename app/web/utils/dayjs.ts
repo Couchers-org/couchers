@@ -1,7 +1,8 @@
 // Locale data for every app language so dayjs can render month/day names and
 // relative/duration strings in the user's language (en is built in). Importing
-// a locale only registers it; the active locale is still switched explicitly
-// via setDayjsLocale().
+// a locale only registers it; the locale is always specified at the formatting
+// site (via MUI's adapterLocale, or `dayjs(x).locale(i18nToDayjsLocale(ln))`) —
+// we never mutate dayjs's global locale.
 import "dayjs/locale/ca";
 import "dayjs/locale/cs";
 import "dayjs/locale/de";
@@ -71,19 +72,14 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
 
 /// Maps an i18n language code to a registered dayjs locale name, falling back to
 /// the base language, then English, for unmapped codes. Use this for MUI's
-/// LocalizationProvider `adapterLocale` as well as setDayjsLocale().
+/// LocalizationProvider `adapterLocale` and for call-site formatting, e.g.
+/// `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
 export function i18nToDayjsLocale(language: string): string {
   return (
     I18N_TO_DAYJS_LOCALE[language] ??
     I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ??
     "en"
   );
-}
-
-/// Sets dayjs's global locale from an i18n language code, so localized dayjs
-/// output (relative time, durations) matches the app language.
-export function setDayjsLocale(language: string): void {
-  dayjs.locale(i18nToDayjsLocale(language));
 }
 
 export { Dayjs };
