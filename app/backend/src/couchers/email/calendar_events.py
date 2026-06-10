@@ -5,7 +5,7 @@ from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
 from couchers.config import config
-from couchers.email.rendering import get_emails_i18next
+from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
 from couchers.proto.requests_pb2 import HostRequest

@@ -3,7 +3,6 @@ Defines data models for each email we sent out to users.
 """
 
 import re
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from typing import Self, assert_never
@@ -13,86 +12,20 @@ from markupsafe import Markup, escape
 from couchers import urls
 from couchers.config import config
 from couchers.constants import LATEST_RELEASE_BLOG_URL
-from couchers.email.rendering import (
+from couchers.email.blocks import (
     ActionBlock,
+    EmailBase,
     EmailBlock,
-    EmailBlocksBuilder,
     ParaBlock,
     QuoteBlock,
     UserInfo,
-    get_emails_i18next,
 )
+from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.i18n.localize import format_phone_number
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
-
-
-@dataclass
-class EmailBase(ABC):
-    """
-    Base class for email data models, which capture all the data required to render
-    an email's subject line and body as HTML or plaintext, in any locale.
-    """
-
-    user_name: str
-
-    @property
-    @abstractmethod
-    def string_key_base(self) -> str: ...
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        """Gets the subject line header of the email."""
-        return self._localize(loc_context, ".subject")
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
-        """Gets the line that gets shown as a preview next to the title in users' inboxes."""
-        return None
-
-    @abstractmethod
-    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
-        """Gets the blocks that form the body of the email."""
-        ...
-
-    def _body_builder(
-        self,
-        loc_context: LocalizationContext,
-        *,
-        standard_greeting: bool = True,
-        standard_closing: bool = True,
-        security_warning: bool = False,
-    ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
-        if standard_greeting:
-            builder.para("generic.greeting_line", {"name": self.user_name})
-        if standard_closing:
-            builder.para("generic.closing_line", epilogue=True)
-        if security_warning:
-            builder.para("generic.security_warning_contact_support", epilogue=True)
-        return builder
-
-    @classmethod
-    @abstractmethod
-    def test_instances(cls) -> list[Self]:
-        """
-        Returns dummy instances covering every distinct rendering variant of this email.
-
-        Emails whose subject or body depends on internal state (e.g. a status enum or a
-        boolean) build their localization keys dynamically, so a single dummy instance only
-        exercises one branch. Such emails override this to return one instance per branch,
-        ensuring the rendering tests resolve every localization key the class can produce.
-        """
-        ...
-
-    # Helpers for localizing email-specific strings
-    def _localize(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> str:
-        key = full_string_key(key, relative_base=self.string_key_base)
-        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
-
 
 # Common string keys
 _do_not_reply_request_string_key = "generic.do_not_reply_request"

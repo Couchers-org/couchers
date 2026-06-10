@@ -16,15 +16,13 @@ from pathlib import Path
 from markupsafe import Markup
 
 import couchers.email.emails
-from couchers.email.emails import EmailBase
-from couchers.email.rendering import (
+from couchers.email.blocks import (
+    EmailBase,
     EmailFooter,
     UnsubscribeInfo,
     UnsubscribeLink,
-    render_html_body,
-    render_plaintext_body,
-    template_folder,
 )
+from couchers.email.rendering import render_email, template_folder
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE, get_supported_locales
 from couchers.templating import Jinja2Template
@@ -130,22 +128,14 @@ def dump_all(outdir: Path, *, filter_glob: str = "*", locales: list[str] | None 
 
 def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, filepath_no_ext: Path) -> str:
     """Dumps an email's subject and plaintext+html body to a file, returning the subject line."""
-    subject_line = email.get_subject_line(loc_context)
-    preview_line = email.get_preview_line(loc_context)
-    blocks = email.get_body_blocks(loc_context)
+    rendered = render_email(email, footer, loc_context)
+    html = rendered.body_html.replace("attachment_imgs/", "../attachment_imgs/")
 
     filepath_no_ext.parent.mkdir(parents=True, exist_ok=True)
-
-    html = render_html_body(
-        subject=subject_line, preview=preview_line, blocks=blocks, footer=footer, loc_context=loc_context
-    )
-    html = html.replace("attachment_imgs/", "../attachment_imgs/")
     filepath_no_ext.with_suffix(".html").write_text(html)
+    filepath_no_ext.with_suffix(".txt").write_text(rendered.body_plaintext)
 
-    plaintext = render_plaintext_body(blocks=blocks, footer=footer, loc_context=loc_context)
-    filepath_no_ext.with_suffix(".txt").write_text(plaintext)
-
-    return subject_line
+    return rendered.subject
 
 
 def write_index(index_path: Path, rendered: list[RenderedVariation], locales: list[str]) -> None:
