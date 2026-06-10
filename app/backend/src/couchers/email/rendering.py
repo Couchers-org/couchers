@@ -242,7 +242,7 @@ class HTMLRenderer:
     @cache
     @staticmethod
     def default() -> HTMLRenderer:
-        template = (template_folder / "generated_html" / "html").read_text(encoding="utf8")
+        template = (template_folder / "generated_html" / "blocks.html").read_text(encoding="utf8")
         return HTMLRenderer.from_template(template)
 
     @staticmethod
