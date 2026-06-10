@@ -164,13 +164,13 @@ def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
 
 
 def build_body(sections, sha, pipeline_url):
-    parts = [MARKER]
-    parts += [section for section in sections if section]
     footer = f"commit `{sha[:8]}`"
     if pipeline_url:
         footer += f" · [pipeline]({pipeline_url})"
-    parts += ["", "---", f"<sub>{footer}</sub>"]
-    return "\n".join(parts)
+    # blank lines between parts: a heading (or ---) directly after a line like
+    # </details> would be swallowed into the HTML block and rendered literally
+    parts = [MARKER, *[section for section in sections if section], "---", f"<sub>{footer}</sub>"]
+    return "\n\n".join(parts)
 
 
 def find_open_pr(repo, sha, token):
