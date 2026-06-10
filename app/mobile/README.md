@@ -101,6 +101,8 @@ When done, restore with:
 npm run setup:local:restore
 ```
 
+See [`docs/run-local-app-on-mobile.md`](../../docs/run-local-app-on-mobile.md) for the full details, including what the script changes.
+
 ### Quick Development (Mobile Code Only)
 
 For JavaScript/TypeScript changes to the mobile app, just run Metro:
@@ -234,7 +236,7 @@ Open the **Couchers Dev Tool** app and connect to the Metro server (same network
 
 ### Releasing a new Dev Tool build
 
-**Automatic (CI).** Every push to the configured build branch (`DEVTOOL_BUILD_BRANCH` in `app/.gitlab-ci.yml` — `mobile/v1.1.20` while validating, then `develop`) runs `build:mobile-native-devtool`, which recomputes the Expo fingerprint and, **only if it changed since the last-built client**, builds a fresh client on EAS. JS/TS-only changes don't change the fingerprint, so they're skipped — those load over the air (see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md)). The last-built fingerprint is recorded per platform under `s3://<dev-assets>/devtool-builds/` and only updated after a successful build, so a failed build is retried next pipeline.
+**Automatic (CI).** Every push to the configured build branch (`DEVTOOL_BUILD_BRANCH` in `app/.gitlab-ci.yml` — `mobile/v1.1.20` while validating, then `develop`) runs `build:mobile-native-devtool`, which recomputes the Expo fingerprint and, **only if it changed since the last-built client**, builds a fresh client on EAS. JS/TS-only changes don't change the fingerprint, so they're skipped — those load over the air (see [`docs/native-dev-tool.md`](../../docs/native-dev-tool.md)). The last-built fingerprint is recorded per platform under `s3://<dev-assets>/devtool-builds/` and only updated after a successful build, so a failed build is retried next pipeline.
 
 All three install options live on **one Dev Tool page**: **`https://develop--devtool-builds.preview.couchershq.org/`**. Bookmark it; re-download to update.
 
@@ -268,7 +270,7 @@ For the **automatic CI rebuild** (`build:mobile-native-devtool`), additionally:
 
 4. Add an Expo robot token (build + submit scope) as the masked, protected GitLab CI/CD variable **`EXPO_TOKEN`**. The Android APK is signed with the keystore EAS already holds for the `devtool` builds, so no extra Android credentials are required.
 
-Per-PR JavaScript previews (the OTA QR posted on PRs) are already wired up; see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md).
+Per-PR JavaScript previews (the OTA QR posted on PRs) are already wired up; see [`docs/native-dev-tool.md`](../../docs/native-dev-tool.md).
 
 ## Updating Dependencies
 

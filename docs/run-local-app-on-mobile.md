@@ -1,16 +1,18 @@
 # How to run the local dev environment on your phone
 
-Run the setup script from the repo root — it auto-detects your local IP and updates all the config files at once:
+Run the setup script — it auto-detects your local IP and updates all the config files at once. From `app/mobile`:
 
 ```bash
-python3 app/scripts/dev-mobile-setup.py
+npm run setup:local
 ```
 
 Or pass your IP explicitly if auto-detection picks the wrong interface:
 
 ```bash
-python3 app/scripts/dev-mobile-setup.py 192.168.x.x
+npm run setup:local -- 192.168.x.x
 ```
+
+(The npm script just runs `app/scripts/dev-mobile-setup.py`, which you can also invoke directly from the repo root.)
 
 Then restart everything (each in a separate terminal, from the **repo root** unless noted):
 
@@ -32,7 +34,7 @@ You can now access `http://<your-ip>:3000/` on your phone and log in to see loca
 When you're done, restore all files to their defaults:
 
 ```bash
-python3 app/scripts/dev-mobile-setup.py --restore
+npm run setup:local:restore
 ```
 
 ## What the script changes
