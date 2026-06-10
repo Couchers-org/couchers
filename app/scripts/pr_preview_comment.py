@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs in GitLab CI after the upload jobs so every link it posts is already live.
-Each preview is a section, so web/coverage/etc. can be appended as the pipeline
-grows. The mobile QR PNG is generated and uploaded by the OTA build/upload jobs;
-this script only assembles markdown and talks to the GitHub API. Requires
-GITHUB_PREVIEW_TOKEN; no-ops (exit 0) when there is no open PR for the commit.
+Runs twice per pipeline: with --stub at the very start (posts a placeholder
+within seconds of the push, only if no comment exists yet) and after the
+upload jobs (replaces the comment with the real sections, each included only
+when its preview actually exists). Requires GITHUB_PREVIEW_TOKEN; no-ops
+(exit 0) when there is no open PR for the commit.
 """
 
 import os
 import sys
+import time
 import urllib.parse
 
 import requests
 
 MARKER = "<!-- couchers-preview-bot -->"
 GITHUB_API = "https://api.github.com"
+VERCEL_API = "https://api.vercel.com"
 
 
 def env(name, default=None, *, required=False):
@@ -77,14 +79,81 @@ def mobile_ota_section(short_sha, domain, platforms):
     return "\n".join(lines)
 
 
+def stub_section():
+    return "## Previews\n\n⏳ Previews for this commit are building — QR codes and links will appear here once ready."
+
+
+def no_previews_section():
+    return "_No previews are available for this commit._"
+
+
+def ota_is_live(short_sha, domain, platform):
+    try:
+        return requests.head(f"https://{short_sha}--ota.{domain}/{platform}/manifest", timeout=10).ok
+    except requests.RequestException:
+        return False
+
+
+def web_preview_section(url):
+    return f"## Web preview\n\nView the [Vercel web preview]({url}) for this branch."
+
+
+def vercel_get(path, params, token):
+    resp = requests.get(
+        f"{VERCEL_API}{path}",
+        params=params,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+VERCEL_FAILED_STATES = ("ERROR", "CANCELED", "DELETED")
+
+
+def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
+    """Resolve the Vercel preview URL for this commit.
+
+    Mirrors app/mobile/scripts/vercel-preview-url.mjs: the stable branch alias
+    once the branch has built successfully, else the in-flight deployment's own
+    URL. Returns None when unconfigured or nothing is found.
+    """
+    token = env("VERCEL_TOKEN")
+    project_id = env("VERCEL_PROJECT_ID")
+    team_id = env("VERCEL_TEAM_ID")
+    if not (token and project_id and team_id and branch):
+        print("Vercel API not configured - skipping the web preview section.")
+        return None
+
+    base = {"projectId": project_id, "teamId": team_id, "limit": "1"}
+    for attempt in range(1, attempts + 1):
+        if attempt > 1:
+            time.sleep(delay_seconds)
+
+        ready = (vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token).get("deployments") or [None])[0]
+        if ready:
+            aliases = vercel_get(f"/v2/deployments/{ready['uid']}/aliases", {"teamId": team_id}, token)
+            branch_alias = next((a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None)
+            if branch_alias:
+                return f"https://{branch_alias}"
+
+        by_sha = (vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token).get("deployments") or [None])[0]
+        if by_sha and by_sha.get("state") not in VERCEL_FAILED_STATES:
+            return f"https://{by_sha['url']}"
+        if ready:
+            return f"https://{ready['url']}"
+        print(f"No Vercel deployment for {branch} ({sha}) yet (attempt {attempt}/{attempts}).")
+    return None
+
+
 def build_body(sections, sha, pipeline_url):
-    parts = [MARKER]
-    parts += [section for section in sections if section]
     footer = f"commit `{sha[:8]}`"
     if pipeline_url:
         footer += f" · [pipeline]({pipeline_url})"
-    parts += ["", "---", f"<sub>{footer}</sub>"]
-    return "\n".join(parts)
+    # blank-line separators: a heading right after </details> renders literally
+    parts = [MARKER, *[section for section in sections if section], "---", f"<sub>{footer}</sub>"]
+    return "\n\n".join(parts)
 
 
 def find_open_pr(repo, sha, token):
@@ -100,7 +169,7 @@ def find_open_pr(repo, sha, token):
     return None
 
 
-def upsert_comment(repo, pr, body, token):
+def find_marker_comments(repo, pr, token):
     resp = requests.get(
         f"{GITHUB_API}/repos/{repo}/issues/{pr}/comments",
         headers=gh_headers(token),
@@ -108,8 +177,20 @@ def upsert_comment(repo, pr, body, token):
         timeout=30,
     )
     resp.raise_for_status()
-    existing = next((c for c in resp.json() if MARKER in (c.get("body") or "")), None)
-    if existing:
+    return [c for c in resp.json() if MARKER in (c.get("body") or "")]
+
+
+def upsert_comment(repo, pr, body, token):
+    marked = find_marker_comments(repo, pr, token)
+    if marked:
+        existing, *duplicates = marked
+        # concurrent pipelines can race the check above and double-post
+        for duplicate in duplicates:
+            requests.delete(
+                f"{GITHUB_API}/repos/{repo}/issues/comments/{duplicate['id']}",
+                headers=gh_headers(token),
+                timeout=30,
+            ).raise_for_status()
         resp = requests.patch(
             f"{GITHUB_API}/repos/{repo}/issues/comments/{existing['id']}",
             headers=gh_headers(token),
@@ -127,7 +208,26 @@ def upsert_comment(repo, pr, body, token):
     return resp.json().get("html_url")
 
 
+def build_sections(sha, short_sha, domain, platforms):
+    live_platforms = [p for p in platforms if ota_is_live(short_sha, domain, p)]
+    try:
+        web_url = resolve_web_preview_url(env("CI_COMMIT_BRANCH"), sha)
+    except requests.RequestException as e:
+        # a Vercel API outage must not take the mobile section down with it
+        print(f"Vercel API error - skipping the web preview section: {e}")
+        web_url = None
+
+    sections = []
+    if live_platforms:
+        sections.append(mobile_ota_section(short_sha, domain, live_platforms))
+    if web_url:
+        sections.append(web_preview_section(web_url))
+    # always replace the stub rather than leave "building…" up forever
+    return sections or [no_previews_section()]
+
+
 def main():
+    stub = "--stub" in sys.argv[1:]
     token = env("GITHUB_PREVIEW_TOKEN", required=True)
     repo = env("GITHUB_REPO", "Couchers-org/couchers")
     sha = env("CI_COMMIT_SHA", required=True)
@@ -141,9 +241,14 @@ def main():
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
-    sections = [mobile_ota_section(short_sha, domain, platforms)]
+    # never downgrade an existing comment to a placeholder
+    if stub and find_marker_comments(repo, pr, token):
+        print(f"Preview comment already exists on PR #{pr} - leaving it for the full update.")
+        return
+
+    sections = [stub_section()] if stub else build_sections(sha, short_sha, domain, platforms)
     url = upsert_comment(repo, pr, build_body(sections, sha, pipeline_url), token)
-    print(f"Posted preview comment to PR #{pr}: {url}")
+    print(f"Posted {'stub ' if stub else ''}preview comment to PR #{pr}: {url}")
 
 
 if __name__ == "__main__":
