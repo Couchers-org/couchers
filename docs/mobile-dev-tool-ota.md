@@ -297,9 +297,10 @@ as a "previews are building" placeholder within seconds of the push.
 upload job (the latter `optional:`, since the job runs for every branch
 pipeline, not just mobile ones), then runs `app/scripts/pr_preview_comment.py`
 to replace the placeholder with the real sections (§9). Sections are included
-only when live (waiting up to ~5 min for Vercel to finish); when nothing is,
-the comment says so. No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no
-open PR, so it never reds the pipeline.
+only when their preview exists (the web link is the commit's per-deployment
+URL and may still be building when posted); when nothing exists, the comment
+says so. No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no open PR, so
+it never reds the pipeline.
 
 ---
 
@@ -360,10 +361,12 @@ appended as the pipeline grows.
 - the raw deep link in a `<details>` block for copy/paste.
 
 **The web axis — wired through the manifest.** The OTA build job resolves the
-branch's Vercel preview URL via the Vercel API
-(`app/mobile/scripts/vercel-preview-url.mjs`, preferring the stable
-`<project>-git-<branch>-<scope>.vercel.app` alias; needs `VERCEL_TOKEN` /
-`VERCEL_PROJECT_ID` / `VERCEL_TEAM_ID` in CI, and skips cleanly without them)
+commit's Vercel preview URL via the Vercel API
+(`app/mobile/scripts/vercel-preview-url.mjs`: the commit's own immutable
+per-deployment URL, assigned within seconds of the push while the build still
+runs, falling back to the branch's latest READY deployment; needs
+`VERCEL_TOKEN` / `VERCEL_PROJECT_ID` / `VERCEL_TEAM_ID` in CI, and skips
+cleanly without them)
 and injects it into the manifest as `extra.expoClient.extra.otaWebBaseUrl`
 (`ota-bundle.mjs --web-base-url`; only the devtool branch-preview job passes the
 flag, never staging/prod/develop). When the Dev Tool loads such a bundle,

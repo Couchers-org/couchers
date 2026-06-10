@@ -5,9 +5,9 @@ Runs twice per pipeline: once with --stub at the very start (no needs), which
 posts a "previews are building" placeholder within seconds of the push, and
 once after the upload jobs, which replaces the placeholder with the real
 sections. Each section is only included when its preview actually exists (the
-mobile OTA manifest responds on the CDN / the Vercel API knows a web
-deployment, waiting up to ~5 minutes for Vercel to finish), so the job can run
-from both mobile and web-only pipelines. The mobile QR PNG is generated and
+mobile OTA manifest responds on the CDN / the Vercel API knows a deployment
+for the commit — the link may still be building when posted), so the job can
+run from any branch pipeline. The mobile QR PNG is generated and
 uploaded by the OTA build/upload jobs; this script only assembles markdown and
 talks to the GitHub and Vercel APIs. Requires GITHUB_PREVIEW_TOKEN; no-ops
 (exit 0) when there is no open PR for the commit.
@@ -122,13 +122,17 @@ def vercel_get(path, params, token):
     return resp.json()
 
 
-def resolve_web_preview_url(branch, sha, attempts=30, delay_seconds=10):
-    """Resolve the Vercel preview URL for this branch, waiting up to ~5 minutes.
+VERCEL_FAILED_STATES = ("ERROR", "CANCELED", "DELETED")
+
+
+def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
+    """Resolve the Vercel preview URL for this commit.
 
     Mirrors app/mobile/scripts/vercel-preview-url.mjs (used by the OTA build job
-    to bake the URL into the manifest): prefer the stable branch alias of the
-    newest READY deployment, fall back to a still-building deployment for the
-    exact commit. Returns None when unconfigured or nothing is found.
+    to bake the URL into the manifest): the commit's own immutable
+    per-deployment URL, assigned within seconds of the push while the build
+    still runs; if the commit's deployment failed or was skipped, the branch's
+    latest READY deployment. Returns None when unconfigured or nothing is found.
     """
     token = env("VERCEL_TOKEN")
     project_id = env("VERCEL_PROJECT_ID")
@@ -138,28 +142,23 @@ def resolve_web_preview_url(branch, sha, attempts=30, delay_seconds=10):
         return None
 
     base = {"projectId": project_id, "teamId": team_id, "limit": "1"}
-    pending = None
     for attempt in range(1, attempts + 1):
         if attempt > 1:
             time.sleep(delay_seconds)
 
-        ready = vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token)
-        if ready.get("deployments"):
-            deployment = ready["deployments"][0]
-            aliases = vercel_get(f"/v2/deployments/{deployment['uid']}/aliases", {"teamId": team_id}, token)
-            branch_alias = next((a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None)
-            return f"https://{branch_alias or deployment['url']}"
+        by_sha = vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token)
+        deployments = by_sha.get("deployments") or []
+        if deployments:
+            deployment = deployments[0]
+            if deployment.get("state") not in VERCEL_FAILED_STATES:
+                return f"https://{deployment['url']}"
+            print(f"Vercel deployment for {sha} is {deployment.get('state')}; falling back to the branch's latest.")
+            break
+        print(f"No Vercel deployment for {sha} yet (attempt {attempt}/{attempts}).")
 
-        if sha:
-            by_sha = vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token)
-            deployments = by_sha.get("deployments") or []
-            if deployments and deployments[0].get("state") not in ("ERROR", "CANCELED", "DELETED"):
-                pending = deployments[0]
-        print(f"No READY Vercel deployment for {branch} yet (attempt {attempt}/{attempts}).")
-
-    if pending:
-        print(f"Falling back to in-progress Vercel deployment {pending['uid']} ({pending.get('state')}).")
-        return f"https://{pending['url']}"
+    ready = vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token)
+    if ready.get("deployments"):
+        return f"https://{ready['deployments'][0]['url']}"
     return None
 
 
