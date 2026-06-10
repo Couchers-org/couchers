@@ -1,6 +1,7 @@
 {
   "back": "Back",
   "close": "Close",
+  "close_button_a11y": "Close",
   "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
@@ -198,7 +199,10 @@
     "invite_members": "Invite members",
     "merch_shop": "Merch Shop",
     "switch_to_light_mode": "Switch to light mode",
-    "switch_to_dark_mode": "Switch to dark mode"
+    "switch_to_dark_mode": "Switch to dark mode",
+    "close_menu_a11y": "Close menu",
+    "open_drawer_a11y": "Open drawer",
+    "close_drawer_a11y": "Close drawer"
   },
   "invites": {
     "title": "Invite members",
@@ -339,5 +343,8 @@
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)",
     "hu": "Hungarian"
+  },
+  "bar": {
+    "help_button_a11y": "Help"
   }
 }

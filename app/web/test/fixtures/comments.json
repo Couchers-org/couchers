@@ -4,34 +4,44 @@
     "content": "Very interesting!",
     "authorUserId": 2,
     "createdTime": { "seconds": 1577900000, "nanos": 0 },
-    "numReplies": 1
+    "numReplies": 1,
+    "deleted": false,
+    "canEdit": false
   },
   {
     "threadId": 4,
     "content": "Thanks so much (:",
     "authorUserId": 1,
     "createdTime": { "seconds": 1578005000, "nanos": 0 },
-    "numReplies": 1
+    "numReplies": 1,
+    "deleted": false,
+    "canEdit": false
   },
   {
     "threadId": 5,
     "content": "You're welcome, by the way, check out my other favourite place.",
     "authorUserId": 1,
     "createdTime": { "seconds": 1578001000, "nanos": 0 },
-    "numReplies": 1
+    "numReplies": 1,
+    "deleted": false,
+    "canEdit": false
   },
   {
     "threadId": 6,
     "content": "Sure, I will do that.",
     "authorUserId": 1,
     "createdTime": { "seconds": 1578000000, "nanos": 0 },
-    "numReplies": 1
+    "numReplies": 1,
+    "deleted": false,
+    "canEdit": false
   },
   {
     "threadId": 71,
     "content": "+1",
     "authorUserId": 3,
     "createdTime": { "seconds": 1578200000, "nanos": 0 },
-    "numReplies": 0
+    "numReplies": 0,
+    "deleted": false,
+    "canEdit": false
   }
 ]

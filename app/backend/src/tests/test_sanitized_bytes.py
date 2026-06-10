@@ -36,7 +36,10 @@ class TestSanitizedBytes:
         """Test that sensitive fields are cleared from messages."""
         # AuthReq has a sensitive password field
         proto = auth_pb2.AuthReq(user="testuser", password="supersecret123", remember_device=True)
+        # the plaintext is present in the wire bytes unsanitized, but must not survive sanitization
+        assert b"supersecret123" in proto.SerializeToString()
         result = _sanitized_bytes(proto)
+        assert b"supersecret123" not in result
 
         deserialized = auth_pb2.AuthReq.FromString(result)
 
@@ -54,7 +57,9 @@ class TestSanitizedBytes:
             flow_token="token123",
             account=auth_pb2.SignupAccount(username="nesteduser", password="nestedsecret", city="Boston"),
         )
+        assert b"nestedsecret" in proto.SerializeToString()
         result = _sanitized_bytes(proto)
+        assert b"nestedsecret" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 
@@ -169,7 +174,9 @@ class TestSanitizedBytes:
             basic=auth_pb2.SignupBasic(name="Test User", email="test@example.com"),
             account=auth_pb2.SignupAccount(username="testuser", password="shouldberemoved"),
         )
+        assert b"shouldberemoved" in proto.SerializeToString()
         result = _sanitized_bytes(proto)
+        assert b"shouldberemoved" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 
@@ -189,8 +196,10 @@ class TestSanitizedBytes:
         original_user = original.user
         original_password = original.password
 
+        assert b"original_password" in original.SerializeToString()
         # Call _sanitized_bytes
         result = _sanitized_bytes(original)
+        assert b"original_password" not in result
 
         # Original should not be modified
         assert original.user == original_user
@@ -232,7 +241,9 @@ class TestSanitizedBytes:
             email_token="email_verification_token",
         )
 
+        assert b"complexsecret" in proto.SerializeToString()
         result = _sanitized_bytes(proto)
+        assert b"complexsecret" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 

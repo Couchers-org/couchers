@@ -5,9 +5,11 @@ from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
+import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
+from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.queuing import queue_system_email, queue_userless_email
@@ -33,7 +35,7 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(session: Session, flow: SignupFlow) -> None:
+def send_signup_email(context: CouchersContext, session: Session, flow: SignupFlow) -> None:
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -54,16 +56,22 @@ def send_signup_email(session: Session, flow: SignupFlow) -> None:
 
     flow.email_sent = True
 
+    email: emails.EmailBase
+    if email_sent_before:
+        email = emails.SignupContinueEmail(user_name=flow.name, continue_url=signup_link)
+    else:
+        email = emails.SignupVerifyEmail(user_name=flow.name, verify_url=signup_link)
+
     queue_userless_email(
+        context,
         session,
         flow.email,
-        "Finish signing up for Couchers.org",
-        "signup_verify" if not email_sent_before else "signup_continue",
-        template_args={"flow": flow, "signup_link": signup_link},
+        email,
+        source_data_header=f"signup; initial={not email_sent_before}",
     )
 
 
-def send_email_changed_confirmation_to_new_email(session: Session, user: User) -> None:
+def send_email_changed_confirmation_to_new_email(context: CouchersContext, session: Session, user: User) -> None:
     """
     Send an email to the user's new email address requesting confirmation of email change
     """
@@ -77,21 +85,20 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
     elif not user.new_email:
         raise ValueError(f"No new email for {user.id}")
 
-    confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    queue_userless_email(
-        session,
-        user.new_email,
-        "Confirm your new email for Couchers.org",
-        "email_changed_confirmation_new_email",
-        template_args={"user": user, "confirmation_link": confirmation_link},
+    email = emails.EmailAddressChangeConfirmationEmail(
+        user_name=user.name,
+        old_email=user.email,
+        confirm_url=urls.change_email_link(confirmation_token=user.new_email_token),
     )
+
+    queue_userless_email(context, session, user.new_email, email, source_data_header="email_changed_confirmation")
 
 
 def send_content_report_email(session: Session, content_report: ContentReport) -> None:
     logger.info("Sending content report email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.REPORTS_EMAIL_RECIPIENT,
         "content_report",
         template_args={"report": content_report},
     )
@@ -102,7 +109,7 @@ def maybe_send_reference_report_email(session: Session, reference: Reference) ->
         logger.info("Sending reference report email")
         queue_system_email(
             session,
-            config["REPORTS_EMAIL_RECIPIENT"],
+            config.REPORTS_EMAIL_RECIPIENT,
             "reference_report",
             template_args={"reference": reference},
         )
@@ -121,7 +128,7 @@ def send_rate_limit_violation_report_email(
     user = session.get_one(User, rate_limit_violation.user_id)
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.REPORTS_EMAIL_RECIPIENT,
         "rate_limit_violation_report",
         template_args={
             "user": user,
@@ -140,7 +147,7 @@ def send_duplicate_strong_verification_email(
     logger.info("Sending duplicate SV email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.REPORTS_EMAIL_RECIPIENT,
         "duplicate_strong_verification_report",
         template_args={
             "new_user": new_attempt.user,
@@ -155,7 +162,7 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
     if form.should_notify:
         queue_system_email(
             session,
-            config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
+            config.CONTRIBUTOR_FORM_EMAIL_RECIPIENT,
             "contributor_form",
             template_args={"form": form},
         )
@@ -164,7 +171,7 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
 def send_event_community_invite_request_email(session: Session, request: EventCommunityInviteRequest) -> None:
     queue_system_email(
         session,
-        config["MODS_EMAIL_RECIPIENT"],
+        config.MODS_EMAIL_RECIPIENT,
         "event_community_invite_request",
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
@@ -178,7 +185,7 @@ def send_account_deletion_report_email(session: Session, reason: AccountDeletion
     logger.info("Sending account deletion report email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.REPORTS_EMAIL_RECIPIENT,
         "account_deletion_report",
         template_args={
             "reason": reason,

@@ -141,6 +141,7 @@ export default function EventCard({ event, className }: EventCardProps) {
       locale,
       includeDayOfWeek: true,
       abbreviate: true,
+      capitalize: true,
     },
   );
 

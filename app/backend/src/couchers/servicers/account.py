@@ -259,7 +259,7 @@ class Account(account_pb2_grpc.AccountServicer):
         user.new_email_token_created = now()
         user.new_email_token_expiry = now() + timedelta(hours=2)
 
-        send_email_changed_confirmation_to_new_email(session, user)
+        send_email_changed_confirmation_to_new_email(context, session, user)
 
         # will still go into old email
         notify(
@@ -461,9 +461,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         response = requests.post(
             "https://passportreader.app/api/v1/session.create",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.IRIS_ID_PUBKEY, config.IRIS_ID_SECRET),
             json={
-                "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
+                "callback_url": f"{config.BACKEND_BASE_URL}/iris/webhook",
                 "face_verification": False,
                 "passport_only": True,
                 "reference": reference,

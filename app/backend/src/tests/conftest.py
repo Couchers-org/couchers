@@ -36,7 +36,7 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.DATABASE_CONNECTION_STRING
     if not dsn.endswith("/testdb"):
         raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
 
@@ -60,7 +60,7 @@ def testdb_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "testdb" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.DATABASE_CONNECTION_STRING
     with autocommit_engine(dsn) as engine:
         yield engine
 
@@ -148,111 +148,167 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     _truncate_non_static_tables(testdb_conn)
 
 
+# Production gates forced True so tests run as "everything enabled". Used by testconfig and the `flags`
+# fixture; tests flip individual values via `flags`.
+_TEST_FLAG_DEFAULTS: dict[str, Any] = {
+    "test_growthbook_integration": True,
+    "sms_enabled": True,
+    "strong_verification_enabled": True,
+    "log_native_ota_requests": True,
+    "donations_enabled": True,
+    "recaptcha_enabled": True,
+    "postal_verification_enabled": True,
+    "listmonk_enabled": True,
+    "remove_removed_users_from_mailing_list_enabled": True,
+    "notification_translations_enabled": True,
+    "email_ics_attachments_enabled": True,
+}
+
+
 @pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
-    config.clear()
-    config.update(prevconfig)
+    prev_initialized = experimentation._initialized
+    prev_load_local_flags = experimentation._load_local_flags
 
-    config["IN_TEST"] = True
+    config.IN_TEST = True
 
-    config["DEV"] = True
-    config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
-    config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:3000"
-    config["BACKEND_BASE_URL"] = "http://localhost:8888"
-    config["CONSOLE_BASE_URL"] = "http://localhost:8888"
-    config["COOKIE_DOMAIN"] = "localhost"
+    config.DEV = True
+    config.SECRET = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
+    config.VERSION = "testing_version"
+    config.BASE_URL = "http://localhost:3000"
+    config.BACKEND_BASE_URL = "http://localhost:8888"
+    config.CONSOLE_BASE_URL = "http://localhost:8888"
+    config.COOKIE_DOMAIN = "localhost"
 
-    config["SMS_SENDER_ID"] = "invalid"
+    config.SMS_SENDER_ID = "invalid"
 
-    config["ENABLE_EMAIL"] = False
-    config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
-    config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
-    config["NOTIFICATION_PREFIX"] = "[TEST] "
-    config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
-    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
-    config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
+    config.ENABLE_EMAIL = False
+    config.NOTIFICATION_EMAIL_SENDER = "Couchers.org"
+    config.NOTIFICATION_EMAIL_ADDRESS = "notify@couchers.org.invalid"
+    config.NOTIFICATION_PREFIX = "[TEST] "
+    config.REPORTS_EMAIL_RECIPIENT = "reports@couchers.org.invalid"
+    config.CONTRIBUTOR_FORM_EMAIL_RECIPIENT = "forms@couchers.org.invalid"
+    config.MODS_EMAIL_RECIPIENT = "mods@couchers.org.invalid"
 
-    config["STRIPE_API_KEY"] = ""
-    config["STRIPE_WEBHOOK_SECRET"] = ""
-    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
+    config.STRIPE_API_KEY = ""
+    config.STRIPE_WEBHOOK_SECRET = ""
+    config.STRIPE_RECURRING_PRODUCT_ID = ""
 
-    config["IRIS_ID_PUBKEY"] = ""
-    config["IRIS_ID_SECRET"] = ""
+    config.IRIS_ID_PUBKEY = ""
+    config.IRIS_ID_SECRET = ""
     # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272
-    config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+    config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    config["MYPOSTCARD_API_KEY"] = "test-api-key"
-    config["MYPOSTCARD_USERNAME"] = "test-username"
-    config["MYPOSTCARD_PASSWORD"] = "test-password"
-    config["MYPOSTCARD_PRODUCT_CODE"] = "J9GCU"
-    config["MYPOSTCARD_CAMPAIGN_ID"] = "295"
+    config.MYPOSTCARD_API_KEY = "test-api-key"
+    config.MYPOSTCARD_USERNAME = "test-username"
+    config.MYPOSTCARD_PASSWORD = "test-password"
+    config.MYPOSTCARD_PRODUCT_CODE = "J9GCU"
+    config.MYPOSTCARD_CAMPAIGN_ID = "295"
 
-    config["SMTP_HOST"] = "localhost"
-    config["SMTP_PORT"] = 587
-    config["SMTP_USERNAME"] = "username"
-    config["SMTP_PASSWORD"] = "password"
+    config.SMTP_HOST = "localhost"
+    config.SMTP_PORT = 587
+    config.SMTP_USERNAME = "username"
+    config.SMTP_PASSWORD = "password"
 
-    config["ENABLE_MEDIA"] = True
-    config["MEDIA_SERVER_SECRET_KEY"] = bytes.fromhex(
-        "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
-    )
-    config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
-    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
-    config["MEDIA_SERVER_UPLOAD_BASE_URL"] = "http://localhost:5001"
+    config.ENABLE_MEDIA = True
+    config.MEDIA_SERVER_SECRET_KEY = bytes.fromhex("91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc")
+    config.MEDIA_SERVER_BEARER_TOKEN = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
+    config.MEDIA_SERVER_BASE_URL = "http://localhost:5001"
+    config.MEDIA_SERVER_UPLOAD_BASE_URL = "http://localhost:5001"
 
-    config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
-    config["BUG_TOOL_GITHUB_USERNAME"] = "user"
-    config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+    config.BUG_TOOL_ENABLED = False
+    config.BUG_TOOL_GITHUB_REPO = "org/repo"
+    config.BUG_TOOL_GITHUB_USERNAME = "user"
+    config.BUG_TOOL_GITHUB_TOKEN = "token"
 
-    config["LISTMONK_BASE_URL"] = "https://localhost"
-    config["LISTMONK_API_USERNAME"] = "..."
-    config["LISTMONK_API_KEY"] = "..."
-    config["LISTMONK_LIST_ID"] = 3
+    config.LISTMONK_BASE_URL = "https://localhost"
+    config.LISTMONK_API_USERNAME = "..."
+    config.LISTMONK_API_KEY = "..."
+    config.LISTMONK_LIST_ID = 3
 
-    config["PUSH_NOTIFICATIONS_ENABLED"] = True
-    config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
-    config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
+    config.PUSH_NOTIFICATIONS_ENABLED = True
+    config.PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
+    config.PUSH_NOTIFICATIONS_VAPID_SUBJECT = "mailto:testing@couchers.org.invalid"
 
-    config["ACTIVENESS_PROBES_ENABLED"] = True
+    config.ACTIVENESS_PROBES_ENABLED = True
 
-    config["RECAPTHCA_PROJECT_ID"] = "..."
-    config["RECAPTHCA_API_KEY"] = "..."
-    config["RECAPTHCA_SITE_KEY"] = "..."
+    config.RECAPTHCA_PROJECT_ID = "..."
+    config.RECAPTHCA_API_KEY = "..."
+    config.RECAPTHCA_SITE_KEY = "..."
 
-    config["EXPERIMENTATION_ENABLED"] = False
-    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
-    config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
-    config["GROWTHBOOK_CLIENT_KEY"] = ""
-    config["GROWTHBOOK_CACHE_PATH"] = ""
+    # File-override mode; gates forced True via the stubbed loader below. Tests needing GrowthBook use `feature_flags`.
+    config.FEATURE_FLAGS_FILE_OVERRIDE_PATH = "feature-flags.dev.json"
+    config.GROWTHBOOK_API_HOST = "https://cdn.growthbook.io"
+    config.GROWTHBOOK_CLIENT_KEY = ""
+    config.GROWTHBOOK_CACHE_PATH = ""
+    experimentation._initialized = True
+    experimentation._load_local_flags = lambda _path: _TEST_FLAG_DEFAULTS  # type: ignore[assignment]
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
     # Bot user ID for automated moderation - will be set to a real user in tests that need it
-    config["MODERATION_BOT_USER_ID"] = 1
+    config.MODERATION_BOT_USER_ID = 1
 
     # Dev APIs disabled by default in tests
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     # Slack notifications disabled by default in tests
-    config["SLACK_ENABLED"] = False
-    config["SLACK_BOT_TOKEN"] = ""
-    config["SLACK_DONATIONS_CHANNEL"] = ""
-    config["SLACK_MERCH_CHANNEL"] = ""
+    config.SLACK_ENABLED = False
+    config.SLACK_BOT_TOKEN = ""
+    config.SLACK_DONATIONS_CHANNEL = ""
+    config.SLACK_MERCH_CHANNEL = ""
 
     # Profiling disabled by default in tests
-    config["PYROSCOPE_ENABLED"] = False
-    config["PYROSCOPE_SERVER"] = "https://localhost"
-    config["PYROSCOPE_AUTH_TOKEN"] = "token"
+    config.PYROSCOPE_ENABLED = False
+    config.PYROSCOPE_SERVER = "https://localhost"
+    config.PYROSCOPE_AUTH_TOKEN = "token"
 
     yield None
 
-    config.clear()
-    config.update(prevconfig)
+    config.copy_from(prevconfig)
+    experimentation._initialized = prev_initialized
+    experimentation._load_local_flags = prev_load_local_flags
+
+
+class Flags:
+    """Test handle for setting feature flag values in file-override mode; see the `flags` fixture."""
+
+    def __init__(self, values: dict[str, Any]) -> None:
+        self._values = values
+
+    def set_boolean(self, key: str, value: bool) -> None:
+        self._values[key] = value
+
+    def set_string(self, key: str, value: str) -> None:
+        self._values[key] = value
+
+    def set_integer(self, key: str, value: int) -> None:
+        self._values[key] = value
+
+    def set_float(self, key: str, value: float) -> None:
+        self._values[key] = value
+
+    def set_object(self, key: str, value: Any) -> None:
+        self._values[key] = value
+
+
+@pytest.fixture
+def flags(monkeypatch) -> Flags:
+    """
+    Override feature flag values for a test (file-override mode).
+
+    Starts from the test defaults (production gates on), so a test flips individual flags:
+
+        def test_x(flags):
+            flags.set_boolean("test_growthbook_integration", False)
+    """
+    values = dict(_TEST_FLAG_DEFAULTS)
+    monkeypatch.setattr(experimentation, "_load_local_flags", lambda _path: values)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "feature-flags.dev.json")
+    return Flags(values)
 
 
 class FeatureFlags:
@@ -273,7 +329,7 @@ class FeatureFlags:
 @pytest.fixture
 def feature_flags(monkeypatch) -> FeatureFlags:
     """
-    Enable experimentation with an in-memory snapshot and let tests set flag values by key.
+    Enable GrowthBook-mode flag evaluation against an in-memory snapshot; tests set values by key.
 
     Usage:
         def test_x(db, feature_flags):
@@ -283,8 +339,8 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
     monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_PASS_ALL_GATES", False)
+    # Switch to GrowthBook mode (empty override path).
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
 
 

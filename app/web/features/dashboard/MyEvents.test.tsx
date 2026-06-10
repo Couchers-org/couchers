@@ -35,13 +35,11 @@ describe("My events", () => {
         name: t("dashboard:events.your_upcoming_header"),
       }),
     ).toBeVisible();
-    // 3 event rows + "See all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(4);
-    // community filters are handled by CommunityEvents, not this component
-    expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageToken: undefined,
-      pageSize: 3,
-    });
+    // 3 event row links (no "See all" link — navigation uses arrow buttons)
+    expect(screen.getAllByRole("link")).toHaveLength(3);
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ pageSize: 3 }),
+    );
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -53,12 +51,15 @@ describe("My events", () => {
     render(<MyEvents />, { wrapper });
 
     expect(
-      await screen.findByText((_content, element) => {
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
-      }),
+      await screen.findByText(
+        (_content, element) => {
+          return (
+            element?.textContent ===
+            "No events at the moment. Why don't you create one ✨?"
+          );
+        },
+        { selector: "p" },
+      ),
     ).toBeVisible();
     expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });

@@ -1,3 +1,11 @@
+# suppress external PR pipelines: they duplicate the branch pipeline per PR
+# push (job rules key on CI_COMMIT_BRANCH, which is unset there yet matches)
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: never
+    - when: always
+
 stages:
   - protos
   - build
@@ -340,7 +348,7 @@ test:backend:
     - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/test_artifacts
-    - cp /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
+    - cp -r /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
   artifacts:
     reports:
       junit: junit-$CI_NODE_INDEX.xml
@@ -612,13 +620,8 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
-# Verifies that app/mobile/fingerprints matches what
-# `npx expo-updates fingerprint:generate` produces for each release variant on
-# each platform. The fingerprint is the runtimeVersion Expo stamps into a native
-# binary; a change to it means a fresh store build is needed. Pinning the value
-# in the repo turns "did the fingerprint move?" into a file diff, so every
-# branch sees the answer before merge and develop's native-build job uses the
-# diff against the previous develop commit to decide whether to rebuild.
+# Checks app/mobile/fingerprints (the runtimeVersion) and fingerprints.full (the
+# review tripwire) against the computed fingerprints.
 test:mobile-fingerprints:
   needs: ["protos"]
   stage: test
@@ -767,6 +770,7 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
     - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
+    - echo "Sample emails index at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/emails/index.html and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/emails/index.html"
   artifacts:
     paths:
       - artifacts/schema_dumps
@@ -893,12 +897,19 @@ build:mobile-ota-devtool:
     - npm ci
     - npx expo config --type public --json > ota-expo-config.json
     - |
+      # develop's preview keeps the build default (staging web)
+      WEB_BASE_URL=""
+      if [ "$CI_COMMIT_BRANCH" != "$RELEASE_BRANCH" ]; then
+        WEB_BASE_URL=$(node scripts/vercel-preview-url.mjs --branch "$CI_COMMIT_BRANCH" --sha "$CI_COMMIT_SHA")
+      fi
+      echo "web base url: ${WEB_BASE_URL:-(build default)}"
       for P in $OTA_PLATFORMS; do
         rm -rf dist
         npx expo export --platform "$P"
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json ${WEB_BASE_URL:+--web-base-url "$WEB_BASE_URL"}
+        node scripts/ota-open-page.mjs --manifest-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest" --out "ota-out/$P/open.html"
         npx --yes qrcode -o "ota-out/$P/qr.png" "couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest" < /dev/null
       done
   artifacts:
@@ -943,26 +954,40 @@ preview:mobile-ota-devtool:
         - app/mobile/**/*
         - app/scripts/**/*
 
-preview:pr-comment:
-  needs:
-    - job: preview:mobile-ota-devtool
-      artifacts: false
+# posts the comment placeholder within seconds of the push
+preview:pr-comment-stub:
+  needs: []
   stage: preview
   image: python:3.14-slim
   inherit:
     default: false
+  # serialize comment writes across concurrent pipelines
+  resource_group: pr-preview-comment
+  script:
+    - pip install --quiet --no-cache-dir requests
+    - python app/scripts/pr_preview_comment.py --stub
+  rules:
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+
+preview:pr-comment:
+  needs:
+    - job: preview:pr-comment-stub
+      artifacts: false
+    - job: preview:mobile-ota-devtool
+      artifacts: false
+      optional: true
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  resource_group: pr-preview-comment
   variables:
     OTA_PLATFORMS: "ios android"
   script:
     - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-        - app/proto/**/*
-        - app/mobile/**/*
-        - app/scripts/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
 build:mobile-native-devtool:
   needs: ["protos"]
@@ -1014,7 +1039,7 @@ build:mobile-ota-staging:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
         node scripts/ota-sign.mjs --dir "ota-staging-out/$P" --key-file ota-staging-private-key.pem --key-id staging
       done
     - rm -f ota-staging-private-key.pem
@@ -1221,7 +1246,7 @@ build:mobile-ota-prod:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
         tar -C ota-prod-out/"$P" -czf "native-ota-dist/native-ota-$P-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz" .
       done
   artifacts:

@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql import func, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -206,7 +206,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        make_background_user_context(user_id=user_id),
+                        make_notification_user_context(user_id=user_id),
                     ),
                     text=message.text,
                     group_chat_id=message.conversation_id,

@@ -16,6 +16,7 @@ from couchers.models import (
     Thread,
     User,
 )
+from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
 from couchers.proto import moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
@@ -450,3 +451,113 @@ def test_total_num_responses_includes_own_shadowed(db):
 
     with session_scope() as session:
         assert total_num_responses(session, author_context, parent_db_id) == 1
+
+
+def test_edit_comment_creates_version_record(db):
+    user, token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(token, content="original comment")
+    comment_db_id = comment_thread_id // 10
+
+    with threads_session(token) as api:
+        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="edited comment"))
+
+    with session_scope() as session:
+        versions = (
+            session.execute(select(CommentVersion).where(CommentVersion.comment_id == comment_db_id)).scalars().all()
+        )
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.edit
+        assert v.old_content == "original comment"
+        assert v.new_content == "edited comment"
+        assert v.editor_user_id == user.id
+
+
+def test_delete_comment_creates_version_record(db):
+    user, token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(token, content="comment to delete")
+    comment_db_id = comment_thread_id // 10
+
+    with threads_session(token) as api:
+        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=comment_thread_id))
+
+    with session_scope() as session:
+        versions = (
+            session.execute(select(CommentVersion).where(CommentVersion.comment_id == comment_db_id)).scalars().all()
+        )
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.delete
+        assert v.old_content == "comment to delete"
+        assert v.new_content is None
+        assert v.editor_user_id == user.id
+
+
+def test_edit_reply_creates_version_record(db):
+    user, token = generate_user()
+    _, comment_thread_id = _make_thread_and_comment(token, content="a comment")
+
+    with threads_session(token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="original reply")
+        ).thread_id
+    reply_db_id = reply_thread_id // 10
+
+    with threads_session(token) as api:
+        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=reply_thread_id, content="edited reply"))
+
+    with session_scope() as session:
+        versions = session.execute(select(ReplyVersion).where(ReplyVersion.reply_id == reply_db_id)).scalars().all()
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.edit
+        assert v.old_content == "original reply"
+        assert v.new_content == "edited reply"
+        assert v.editor_user_id == user.id
+
+
+def test_delete_reply_creates_version_record(db):
+    user, token = generate_user()
+    _, comment_thread_id = _make_thread_and_comment(token, content="a comment")
+
+    with threads_session(token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to delete")
+        ).thread_id
+    reply_db_id = reply_thread_id // 10
+
+    with threads_session(token) as api:
+        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=reply_thread_id))
+
+    with session_scope() as session:
+        versions = session.execute(select(ReplyVersion).where(ReplyVersion.reply_id == reply_db_id)).scalars().all()
+        assert len(versions) == 1
+        v = versions[0]
+        assert v.change_type == ContentChangeType.delete
+        assert v.old_content == "reply to delete"
+        assert v.new_content is None
+        assert v.editor_user_id == user.id
+
+
+def test_edit_comment_multiple_edits_creates_multiple_version_records(db):
+    user, token = generate_user()
+    _, comment_thread_id = _make_thread_and_comment(token, content="v1")
+    comment_db_id = comment_thread_id // 10
+
+    with threads_session(token) as api:
+        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="v2"))
+        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="v3"))
+
+    with session_scope() as session:
+        versions = (
+            session.execute(
+                select(CommentVersion).where(CommentVersion.comment_id == comment_db_id).order_by(CommentVersion.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert len(versions) == 2
+        assert versions[0].old_content == "v1"
+        assert versions[0].new_content == "v2"
+        assert versions[1].old_content == "v2"
+        assert versions[1].new_content == "v3"

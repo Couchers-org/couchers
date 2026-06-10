@@ -13,7 +13,7 @@ from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 from couchers import urls
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -798,7 +798,11 @@ class API(api_pb2_grpc.APIServicer):
             topic_action=NotificationTopicAction.friend_request__create,
             key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
-                other_user=user_model_to_pb(friend_relationship.from_user, session, context),
+                other_user=user_model_to_pb(
+                    friend_relationship.from_user,
+                    session,
+                    make_notification_user_context(user_id=friend_relationship.to_user_id),
+                ),
             ),
             moderation_state_id=moderation_state.id,
         )
@@ -883,7 +887,11 @@ class API(api_pb2_grpc.APIServicer):
                 topic_action=NotificationTopicAction.friend_request__accept,
                 key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
-                    other_user=user_model_to_pb(friend_request.to_user, session, context),
+                    other_user=user_model_to_pb(
+                        friend_request.to_user,
+                        session,
+                        make_notification_user_context(user_id=friend_request.from_user_id),
+                    ),
                 ),
             )
 
@@ -944,7 +952,7 @@ class API(api_pb2_grpc.APIServicer):
         ).SerializeToString()
 
         data = b64encode(req)
-        sig = b64encode(generate_hash_signature(req, config["MEDIA_SERVER_SECRET_KEY"]))
+        sig = b64encode(generate_hash_signature(req, config.MEDIA_SERVER_SECRET_KEY))
 
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
@@ -1036,7 +1044,9 @@ def user_model_to_pb(
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
     viewer_user_id = context.user_id if context.is_logged_in() else None
-    if not is_admin_see_ghosts and is_not_visible(session, viewer_user_id, db_user.id):
+    if not is_admin_see_ghosts and is_not_visible(
+        session, viewer_user_id, db_user.id, ignore_shadow=context.serialize_shadowed
+    ):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile
@@ -1237,7 +1247,9 @@ def lite_user_to_pb(
     is_admin_see_ghosts: bool = False,
     is_get_user_return_ghosts: bool = False,
 ) -> api_pb2.LiteUser:
-    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
+    if not is_admin_see_ghosts and is_not_visible(
+        session, context.user_id, lite_user.id, ignore_shadow=context.serialize_shadowed
+    ):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile

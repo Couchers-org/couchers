@@ -383,7 +383,7 @@ describe("Create event page", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("dashboard:complete_profile_dialog.title")),
+        screen.getByText(t("profile:complete_profile_dialog.title")),
       ).toBeInTheDocument();
     });
   });

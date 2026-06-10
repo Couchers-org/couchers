@@ -272,6 +272,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             ? localizeYearMonth(timestamp2Date(user.joined), {
                 locale,
                 abbreviate: true,
+                capitalize: true,
               })
             : ""
         }

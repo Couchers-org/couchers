@@ -38,14 +38,14 @@
     "cant_invite_to_dm": "Du kannst keine anderen Nutzer zu einer Direktnachricht einladen.",
     "cant_make_self_admin": "Du kannst dich nicht selbst zum Administrator machen.",
     "already_left_host_request_feedback": "Du hast für diese Host-Anfrage bereits ein Feedback hinterlassen!",
-    "cannot_create_discussion": "Du kannst in dieser Gruppe oder Community keine Diskussion erstellen.",
+    "cannot_create_discussion": "Du kannst in dieser Gruppe oder Community keinen Beitrag erstellen.",
     "cant_remove_self": "Du kannst dich nicht selbst entfernen.",
     "date_from_after_one_year": "Das Startdatum muss innerhalb eines Jahres ab heute liegen.",
     "date_from_after_to": "Das Startdatum darf nicht nach dem Enddatum liegen.",
     "date_from_before_today": "Das Startdatum muss heute oder später sein.",
     "date_to_after_one_year": "Du kannst nicht darum bitten, länger als ein Jahr bei jemandem zu bleiben.",
-    "discussion_not_found": "Diskussion nicht gefunden.",
-    "discussions_not_enabled": "Diskussionen sind in dieser Gruppe oder Community nicht aktiviert.",
+    "discussion_not_found": "Beitrag nicht gefunden.",
+    "discussions_not_enabled": "Beiträge sind in dieser Gruppe oder Community nicht aktiviert.",
     "do_not_email_cannot_host": "Du kannst das Hosting nicht aktivieren, solange E-Mails in deinen Einstellungen deaktiviert sind.",
     "do_not_email_cannot_meet": "Du kannst Treffen nicht aktivieren, solange du E-Mails in deinen Einstellungen deaktiviert hast.",
     "donation_too_small": "Wir können leider keine Spenden unter 2$ annehmen!",
@@ -104,8 +104,8 @@
     "invite_code_not_found": "Einladungscode nicht gefunden.",
     "invite_permission_denied": "Du darfst keine Nutzer einladen.",
     "last_admin_cant_leave": "Der letzte Administrator kann den Gruppenchat nicht verlassen.",
-    "missing_discussion_content": "Fehlende Diskussionsinhalte.",
-    "missing_discussion_title": "Fehlender Diskussionstitel.",
+    "missing_discussion_content": "Fehlende Beitragsinhalte.",
+    "missing_discussion_title": "Fehlender Beitragstitel.",
     "events_not_enabled": "Events sind in dieser Gruppe oder Community nicht aktiviert.",
     "online_event_missing_parent_community": "Dem Online-Event fehlt eine Eltern-Community.",
     "password_too_long": "Das Passwort muss weniger als 256 Zeichen enthalten.",
@@ -169,7 +169,7 @@
     "strong_verification_already_verified": "Du hast bereits eine starke Verifizierung.",
     "strong_verification_attempt_not_found": "Starker Verifizierungsversuch nicht gefunden.",
     "strong_verification_disabled": "Starke Verifizierung ist derzeit deaktiviert.",
-    "thread_not_found": "Diskussionsthread nicht gefunden.",
+    "thread_not_found": "Beitragsthread nicht gefunden.",
     "too_many_sms_code_attempts": "Zu viele SMS-Code-Versuche durchgeführt.",
     "unknown_error": "Ein unbekannter Backend-Fehler ist aufgetreten. Bitte erwäge, einen Fehlerbericht einzureichen!",
     "unrecognized_phone_number": "Deine Mobiltelefonnummer wird nicht erkannt. Bitte überprüfe sie und wende dich an den Support, falls dieses Problem weiterhin besteht.",
@@ -247,7 +247,7 @@
     "public_trips_not_enabled": "Öffentliche Trips sind in dieser Community nicht aktiviert.",
     "duplicate_host_request_for_trip": "Du hast bereits angeboten, diesen Trip zu hosten.",
     "public_trip_same_gender_only": "Dieser Trip akzeptiert nur Angebote von Personen des gleichen Geschlechts.",
-    "incomplete_profile_send_friend_request": "Du musst dein Profil vervollständigen, bevor du eine Freundschafts-Anfrage senden kannst.",
+    "incomplete_profile_send_friend_request": "Du musst dein Profil vervollständigen, bevor du eine Freundschaftsanfrage senden kannst.",
     "admin_note_data_must_be_valid_json": "Die Admin-Notiz-Daten müssen gültiges JSON sein.",
     "admin_note_requires_exactly_one_of_note_or_data": "Gib genau eines an, admin_note oder data.",
     "invalid_password_login": "Benutzername/E-Mail oder Passwort ist falsch.",
@@ -258,7 +258,13 @@
     "invalid_ota_version": "Eine OTA-Paketversion (CDN-Pfad) ist erforderlich.",
     "ota_ban_reason_required": "Beim Sperren eines OTA-Pakets ist eine Begründung erforderlich.",
     "ota_package_already_exists": "Ein OTA-Paket mit dieser Manifest-ID existiert bereits für diese Plattform.",
-    "ota_package_not_found": "OTA-Paket nicht gefunden."
+    "ota_package_not_found": "OTA-Paket nicht gefunden.",
+    "discussion_delete_permission_denied": "Du darfst diesen Beitrag nicht löschen.",
+    "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
+    "discussion_edit_permission_denied": "Du darfst diesen Beitrag nicht bearbeiten.",
+    "reply_delete_permission_denied": "Du darfst diesen Kommentar nicht löschen.",
+    "reply_deleted": "Dieser Kommentar wurde gelöscht.",
+    "reply_edit_permission_denied": "Du darfst diesen Kommentar nicht bearbeiten."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
@@ -301,20 +307,5 @@
     "be_kind_title": "Seid freundlich zueinander",
     "be_kind_guideline": "Couchers.org ist eine inklusive Community, in der Menschen aller Kulturen und Hintergründe zusammenkommen. Behandle alle mit gegenseitigem Respekt und Würde.",
     "no_money_guideline": "Halte es unkommerziell. Tausche kein Geld während des Surfens oder beim Hosten. Couchers.org dreht sich um Lernen, Erfahrungen und das Kennenlernen von Menschen."
-  },
-  "notifications": {
-    "dear_name": "Hallo {{name}},",
-    "thank_you": "Danke!",
-    "founders_signature": "Aapeli und Itsi,\nGründer von Couchers.org",
-    "donation_received": {
-      "title": "Vielen Dank für deine Spende an Couchers.org!",
-      "thanks_amount": "vielen Dank für deine Spende in höhe von ${{amount}} an Couchers.org.",
-      "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
-      "download_invoice": "Rechnung herunterladen",
-      "questions_contact": "Wenn du Fragen zu deiner Spende hast, schreib uns bitte eine E-Mail an <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-      "generosity_helps": "Deine Großzügigkeit wird dazu beitragen, die Plattform für alle bereitzustellen.",
-      "purpose": "Dein Beitrag wird für den Aufbau und Erhalt der Couchers.org-Plattform und Community verwendet und ist entscheidend für unser Ziel einer völlig kostenlosen und gemeinnützigen Generation des Couchsurfings.",
-      "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht."
-    }
   }
 }

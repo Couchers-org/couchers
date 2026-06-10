@@ -276,19 +276,5 @@
     "be_safe_guideline": "Llegeix els perfils, les referències i els recursos. Reporta qualsevol contingut o comportament inapropiat.",
     "no_money_title": "Deixa els diners fora de joc",
     "no_money_guideline": "Mantén les coses no transaccionals. No intercanviïs diners durant les estades o l'allotjament. Couchers.org tracta d'aprendre, d'experiències i de conèixer persones."
-  },
-  "notifications": {
-    "dear_name": "Hola {{name}},",
-    "thank_you": "Gràcies!",
-    "founders_signature": "Aapeli i Itsi,\nFundadors de Couchers.org",
-    "donation_received": {
-      "title": "Gràcies per la teva donació a Couchers.org!",
-      "thanks_amount": "Moltes gràcies per la teva donació de ${{amount}} a Couchers.org.",
-      "purpose": "La teva contribució anirà destinada a construir i sostenir la plataforma i la comunitat de Couchers.org, i és vital per al nostre objectiu d'una generació de couch surfing completament gratuïta i sense ànim de lucre.",
-      "invoice_receipt_info": "Pots descarregar una factura i un rebut de la donació aquí:",
-      "download_invoice": "Descarrega la factura",
-      "questions_contact": "Si tens alguna pregunta sobre la teva donació, envia'ns un correu electrònic a <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-      "generosity_helps": "La teva generositat ajudarà a oferir la plataforma per a tothom."
-    }
   }
 }

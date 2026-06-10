@@ -1,0 +1,12 @@
+{
+  "test_growthbook_integration": true,
+  "sms_enabled": false,
+  "strong_verification_enabled": false,
+  "log_native_ota_requests": true,
+  "donations_enabled": false,
+  "recaptcha_enabled": false,
+  "postal_verification_enabled": false,
+  "listmonk_enabled": false,
+  "notification_translations_enabled": true,
+  "email_ics_attachments_enabled": true
+}

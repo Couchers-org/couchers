@@ -56,14 +56,17 @@ describe("MarkAllReadButton", () => {
       },
     );
     listHostRequestsMock.mockImplementation(
-      async ({ lastRequestId = 0, count = 1 }) => {
+      async ({ pageToken = "", count = 1 }) => {
+        const offset = pageToken ? parseInt(pageToken) : 0;
         const requests = [
-          ...mutableStore.requests.slice(lastRequestId, lastRequestId + count),
+          ...mutableStore.requests.slice(offset, offset + count),
         ];
         return {
           hostRequestsList: requests,
-          lastRequestId: requests[requests.length - 1].latestMessage!.messageId,
-          noMore: lastRequestId + 1 === mutableStore.requests.length,
+          nextPageToken: String(
+            requests[requests.length - 1].latestMessage!.messageId,
+          ),
+          noMore: offset + 1 === mutableStore.requests.length,
         };
       },
     );

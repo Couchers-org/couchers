@@ -1,22 +1,10 @@
-﻿{
+{
   "dashboard": "個人主頁",
   "please_complete_profile": "請完善您的個人資料，並確保它會顯示在搜尋結果中：",
   "fill_in_who_i_am": "1. 填寫您的 \"我是誰\" 部分，介紹一下自己",
   "upload_photo": "2. 上傳照片（點擊編輯頁面上的頭像）",
   "edit_profile_button_text": "編輯個人資料",
   "complete_profile_explanation": "您是不是也討厭其他平台上那些空白、沒有內容的「幽靈」資料？請別讓自己也變成其中之一！👻👻👻",
-  "complete_profile_dialog": {
-    "title": "只差一步：請填寫您的個人資料以繼續！",
-    "description_1": "在您能 {{action_name}} 之前，您必須 <4>寫一些關於自己的內容</4> 並 <7>上傳一張頭像</7>。",
-    "description_2": "這有助於建立信任的社群並減少垃圾資訊。更多資訊，<2>請參閱此幫助頁面</2>。感謝您的幫助！",
-    "actions": {
-      "send_request": "發送請求",
-      "send_message": "發送訊息",
-      "create_event": "建立活動"
-    },
-    "edit_profile_button": "現在編輯您的個人資料",
-    "cancel_button": "算了"
-  },
   "your_communities_heading": "您的社群",
   "all_communities_heading": "所有社群",
   "no_community": "您當前不在任何社群中。",
@@ -59,7 +47,6 @@
     "see_all_link": "查看全部 →",
     "your_upcoming_empty_message": "目前沒有活動。何不<0>建立</0>一個✨？",
     "community_header": "您所在社群的活動",
-    "community_empty_message": "您所在的社群目前沒有即將開始的活動。",
     "location_online_label": "線上"
   },
   "reminder": {

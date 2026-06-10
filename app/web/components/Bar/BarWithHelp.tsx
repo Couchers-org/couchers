@@ -1,8 +1,10 @@
 import { IconButton, styled, Tooltip } from "@mui/material";
 import { HelpIcon } from "components/Icons";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 
+import { GLOBAL } from "../../i18n/namespaces";
 import ScoreBar from "./ScoreBar";
 
 interface BarWithHelpProps {
@@ -24,12 +26,14 @@ export default function BarWithHelp({
   description,
   className,
 }: BarWithHelpProps) {
+  const { t } = useTranslation(GLOBAL);
+
   return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
     <StyledWrapper className={className}>
       <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
         <IconButton
-          aria-label="help icon"
+          aria-label={t("global:bar.help_button_a11y")}
           size="large"
           sx={{ padding: 0, paddingLeft: theme.spacing(1) }}
         >

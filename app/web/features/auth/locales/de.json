@@ -34,7 +34,8 @@
       "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
       "man": "Mann",
       "non_binary": "Nicht-binär",
-      "woman": "Frau"
+      "woman": "Frau",
+      "selector_a11y": "Geschlecht"
     },
     "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>.",
     "password": {

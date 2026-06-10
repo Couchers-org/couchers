@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
 from couchers.event_log import log_event
 from couchers.materialized_views import LiteUser
@@ -306,7 +306,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             topic_action=NotificationTopicAction.reference__receive_friend,
             key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
-                from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
+                from_user=user_model_to_pb(user, session, make_notification_user_context(user_id=request.to_user_id)),
                 text=reference_text,
             ),
             moderation_state_id=reference.moderation_state_id,
@@ -397,7 +397,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
-                from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
+                from_user=user_model_to_pb(user, session, make_notification_user_context(user_id=reference.to_user_id)),
                 text=reference_text if other_reference is not None else None,
             ),
             moderation_state_id=reference.moderation_state_id,

@@ -276,19 +276,5 @@
     "be_kind_guideline": "O Couchers.org é uma comunidade inclusiva onde pessoas de todas as culturas e experiências se reúnem. Trate todos com respeito mútuo e dignidade.",
     "no_dating_title": "Isto não é um aplicativo de namoro",
     "no_money_guideline": "Mantenha as coisas não comerciais. Não pague para ser hospedado ou hospedar. O Couchers.org tem a ver com aprendizado, experiências e conhecer pessoas."
-  },
-  "notifications": {
-    "donation_received": {
-      "questions_contact": "Se tiver alguma dúvida sobre sua doação, envie um e-mail para nós: <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-      "purpose": "Sua contribuição será destinada a construção e manutenção da plataforma e da comunidade do Couchers.org, e é vital para nosso objetivo de fomentar uma geração completamente gratuita e sem fins lucrativos de couch surfing.",
-      "thanks_amount": "Muito obrigado por sua doação de ${{amount}} ao Couchers.org.",
-      "invoice_receipt_info": "Você pode baixar uma nota fiscal e um recibo para sua doação aqui:",
-      "download_invoice": "Baixar nota fiscal",
-      "generosity_helps": "Sua generosidade ajudará a disponibilizar a plataforma para todos.",
-      "title": "Obrigado por sua doação para o Couchers.org!"
-    },
-    "founders_signature": "Aapeli e Itsi,\nFundadores do Couchers.org",
-    "dear_name": "Caro {{name}},",
-    "thank_you": "Obrigado!"
   }
 }
