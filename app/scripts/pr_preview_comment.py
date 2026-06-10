@@ -99,16 +99,8 @@ def ota_is_live(short_sha, domain, platform):
         return False
 
 
-def web_preview_section(url, with_dev_tool_note):
-    host = url.removeprefix("https://")
-    lines = [
-        "## Web preview",
-        "",
-        f"This branch's web frontend is deployed at [{host}]({url}).",
-    ]
-    if with_dev_tool_note:
-        lines.append("A Dev Tool branch preview loaded from this comment points its web views there automatically.")
-    return "\n".join(lines)
+def web_preview_section(url):
+    return f"## Web preview\n\nView the [Vercel web preview]({url}) for this branch."
 
 
 def vercel_get(path, params, token):
@@ -239,7 +231,7 @@ def build_sections(sha, short_sha, domain, platforms):
     if live_platforms:
         sections.append(mobile_ota_section(short_sha, domain, live_platforms))
     if web_url:
-        sections.append(web_preview_section(web_url, with_dev_tool_note=bool(live_platforms)))
+        sections.append(web_preview_section(web_url))
     # the stub run already created the comment, so always replace it rather
     # than leave "building…" up forever
     return sections or [no_previews_section()]
