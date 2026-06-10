@@ -19,7 +19,7 @@ export default function LanguagePickerSettings({
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const { locale } = router;
-  const languageName = LANGUAGE_MAP[locale || "en"]?.name;
+  const languageName = LANGUAGE_MAP[locale || "en"]?.nativeName;
   const { isAvailable, showAllLanguages, setShowAllLanguages } =
     useShowAllLanguages();
 
