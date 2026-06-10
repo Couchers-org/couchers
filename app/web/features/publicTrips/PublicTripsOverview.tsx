@@ -1,19 +1,25 @@
-import { styled } from "@mui/material";
+import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { Box, IconButton, styled } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CouchIcon, PersonIcon } from "components/Icons";
+import FadingScrollTrack from "components/FadingScrollTrack";
+import { CouchIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { SectionTitle } from "features/communities/CommunityPage";
+import {
+  CARD_GAP,
+  CARD_WIDTH,
+  DashboardPublicTripCard,
+} from "features/dashboard/DashboardPublicTripCard";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
-import Link from "next/link";
 import { Community } from "proto/communities_pb";
-import { myPublicTripsRoute, routeToCommunity } from "routes";
+import { useEffect, useRef, useState } from "react";
+import { routeToCommunity } from "routes";
 import { theme } from "theme";
 
-import CompactPublicTripCard from "./CompactPublicTripCard";
 import { useListPublicTrips } from "./useListPublicTrips";
 
 const PREVIEW_COUNT = 3;
@@ -23,11 +29,11 @@ const StyledSection = styled("div")(() => ({
   rowGap: theme.spacing(2),
 }));
 
-const CardList = styled("div")(() => ({
+const SectionHeader = styled("div")({
   display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(1.5),
-}));
+  alignItems: "center",
+  justifyContent: "space-between",
+});
 
 const FooterRow = styled("div")(() => ({
   display: "flex",
@@ -37,53 +43,108 @@ const FooterRow = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-const EditButton = styled(Button)(() => ({
-  justifySelf: "start",
-}));
-
 export default function PublicTripsOverview({
   community,
 }: {
   community: Community.AsObject;
 }) {
-  const { t } = useTranslation([PUBLIC_TRIPS]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([PUBLIC_TRIPS]);
+  const { authState } = useAuthContext();
 
   const { data, error, isLoading } = useListPublicTrips(
     community.communityId,
     "",
   );
 
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(
+      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
+    );
+  };
+
   const allTrips = data?.publicTripsList ?? [];
   const trips = allTrips.slice(0, PREVIEW_COUNT);
 
+  useEffect(() => {
+    updateScrollState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trips.length, isLoading]);
+
+  const scroll = (dir: 1 | -1) => {
+    scrollerRef.current?.scrollBy({
+      left: dir * (CARD_WIDTH + CARD_GAP),
+      behavior: "smooth",
+    });
+  };
+
   return (
     <StyledSection>
-      <SectionTitle icon={<CouchIcon />} variant="h2">
-        {t("publicTrips:label")}
-      </SectionTitle>
-
-      <EditButton
-        component={Link}
-        href={myPublicTripsRoute}
-        startIcon={<PersonIcon />}
-      >
-        {t("publicTrips:edit_my_trips")}
-      </EditButton>
+      <SectionHeader>
+        <SectionTitle icon={<CouchIcon />} variant="h2">
+          {t("publicTrips:label")}
+        </SectionTitle>
+        {trips.length > 0 && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <IconButton
+              size="small"
+              onClick={() => scroll(-1)}
+              disabled={!canScrollLeft}
+              color={canScrollLeft ? "primary" : "default"}
+              aria-label={t("publicTrips:prev_page_button_a11y")}
+            >
+              <ArrowBack fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => scroll(1)}
+              disabled={!canScrollRight}
+              color={canScrollRight ? "primary" : "default"}
+              aria-label={t("publicTrips:next_page_button_a11y")}
+            >
+              <ArrowForward fontSize="small" />
+            </IconButton>
+          </Box>
+        )}
+      </SectionHeader>
 
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : trips.length > 0 ? (
-        <CardList>
+        <FadingScrollTrack
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          $gap={CARD_GAP}
+          $snapType="x proximity"
+          $canScrollLeft={canScrollLeft}
+          $canScrollRight={canScrollRight}
+        >
           {trips.map((trip) => (
-            <CompactPublicTripCard
+            <div
               key={trip.tripId}
-              trip={trip}
-              communityId={community.communityId}
-              communitySlug={community.slug}
-            />
+              style={{
+                flex: `0 0 ${CARD_WIDTH}px`,
+                scrollSnapAlign: "start",
+              }}
+            >
+              <DashboardPublicTripCard
+                trip={trip}
+                locale={locale}
+                isOwnTrip={trip.user?.userId === authState.userId}
+              />
+            </div>
           ))}
-        </CardList>
+        </FadingScrollTrack>
       ) : (
         <TextBody>{t("publicTrips:empty_state")}</TextBody>
       )}

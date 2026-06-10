@@ -13,12 +13,11 @@ import { myPublicTripsRoute } from "routes";
 import dayjs from "utils/dayjs";
 
 import {
+  CARD_GAP,
+  CARD_WIDTH,
   DashboardPublicTripCard,
   DashboardPublicTripCardSkeleton,
 } from "./DashboardPublicTripCard";
-
-export const CARD_WIDTH = 220;
-export const CARD_GAP = 12;
 
 const SectionHeader = styled("div")({
   display: "flex",

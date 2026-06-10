@@ -6,14 +6,18 @@ import {
   WavingHandOutlined,
 } from "@mui/icons-material";
 import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
+import Avatar from "components/Avatar";
 import { useCommunity } from "features/communities/hooks";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
+import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
-import { myPublicTripsRoute } from "routes";
+import { myPublicTripsRoute, routeToCommunity } from "routes";
 import { localizeDateTimeRange, localizeRelativeDays } from "utils/date";
 import dayjs from "utils/dayjs";
+
+export const CARD_WIDTH = 220;
+export const CARD_GAP = 12;
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -181,13 +185,20 @@ export function DashboardPublicTripCard({
   trip,
   locale,
   offersCount,
+  isOwnTrip,
 }: {
   trip: PublicTrip;
   locale: string;
   offersCount?: number;
+  isOwnTrip?: boolean;
 }) {
+  const { t } = useTranslation([DASHBOARD, PUBLIC_TRIPS]);
+  // When isOwnTrip is provided (even false), render in community-overview mode:
+  // avatar instead of pin tile, user name instead of community name, no MetaRow.
+  const communityMode = isOwnTrip !== undefined;
+
   const { data: community, isLoading: communityLoading } = useCommunity(
-    trip.communityId,
+    communityMode ? 0 : trip.communityId,
   );
 
   const dateRange = localizeDateTimeRange(
@@ -196,11 +207,19 @@ export function DashboardPublicTripCard({
     { locale, includeTime: false, abbreviate: true },
   );
 
-  const hasFooter = offersCount !== undefined || trip.sameGenderOnly;
+  const hasFooter =
+    !communityMode && (offersCount !== undefined || trip.sameGenderOnly);
+
+  const href = communityMode
+    ? `${routeToCommunity(trip.communityId, trip.communitySlug, "public-trips")}#trip-${trip.tripId}`
+    : `${myPublicTripsRoute}#public-trip-${trip.tripId}`;
+
+  const { user } = trip;
+  if (communityMode && !user) return null;
 
   return (
     <Link
-      href={`${myPublicTripsRoute}#public-trip-${trip.tripId}`}
+      href={href}
       style={{
         display: "flex",
         textDecoration: "none",
@@ -211,18 +230,59 @@ export function DashboardPublicTripCard({
     >
       <StyledCard sx={{ flex: 1 }}>
         <IdentityRow>
-          <PinTile>
-            <PlaceOutlined
-              sx={{ fontSize: 22, color: "var(--mui-palette-primary-main)" }}
-            />
-          </PinTile>
+          {communityMode ? (
+            <Box
+              sx={{
+                position: "relative",
+                width: "3rem",
+                height: "3rem",
+                flexShrink: 0,
+              }}
+            >
+              <Avatar user={user!} isProfileLink={false} />
+              {isOwnTrip && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(0,0,0,0.55)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                    zIndex: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "white",
+                      fontWeight: 700,
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    {t("publicTrips:you_overlay")}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <PinTile>
+              <PlaceOutlined
+                sx={{ fontSize: 22, color: "var(--mui-palette-primary-main)" }}
+              />
+            </PinTile>
+          )}
           <TextBlock>
             <Typography
               variant="h3"
               noWrap
               sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}
             >
-              {communityLoading ? (
+              {communityMode ? (
+                user!.name
+              ) : communityLoading ? (
                 <Skeleton width={80} />
               ) : (
                 (community?.name ?? "—")
