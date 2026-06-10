@@ -45,7 +45,7 @@ export default function ResetPassword() {
   });
 
   return (
-    <main>
+    <>
       <HtmlMeta title={t("auth:reset_password")} />
       <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -67,6 +67,6 @@ export default function ResetPassword() {
           </Typography>
         )}
       </StyledForm>
-    </main>
+    </>
   );
 }

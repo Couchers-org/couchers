@@ -19,7 +19,7 @@ import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const StyledContainer = styled("main")(() => ({
+const StyledContainer = styled("div")(() => ({
   marginTop: theme.spacing(2),
 }));
 

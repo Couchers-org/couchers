@@ -29,10 +29,10 @@ export default function TOS() {
   return isLoading ? (
     <CenteredSpinner />
   ) : data ? (
-    <main>
+    <>
       <HtmlMeta title={t("terms_of_service")} />
       <PageTitle>{t("terms_of_service")}</PageTitle>
       <Markdown source={data?.termsOfService} />
-    </main>
+    </>
   ) : null;
 }
