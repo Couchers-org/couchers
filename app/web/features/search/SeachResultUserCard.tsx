@@ -184,10 +184,6 @@ const generateAboutText = (
       <LinesEllipsis
         maxLine={isMobile ? 3 : 7}
         text={stripMarkdown(aboutText(user, t))}
-        // basedOn="letters" so long, space-less words (e.g. "asdfasdf…", a pasted
-        // URL) are truncated per character. The default auto-detects "words" for
-        // ASCII text, which can't split a space-less string and so fails to
-        // truncate at maxLine, letting the text overflow the card.
         basedOn="letters"
         style={{ wordBreak: "break-all", overflow: "hidden" }}
       />
