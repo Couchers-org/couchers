@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Restamp + sign a staged ota-stage.mjs multipart manifest in place. The id is
+// Restamp + sign an ota-bundle.mjs multipart manifest in place. The id is
 // restamped because expo-updates skips updates whose id matches the installed
 // one; createdAt is restamped because it's the client's newest-wins key.
 // Usage: node scripts/ota-sign.mjs --dir <dir> --key-file <pem> --key-id staging

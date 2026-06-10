@@ -893,7 +893,8 @@ build:mobile-ota-devtool:
         npx expo export --platform "$P"
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+        node scripts/ota-open-page.mjs --manifest-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest" --out "ota-out/$P/open.html"
         npx --yes qrcode -o "ota-out/$P/qr.png" "couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest" < /dev/null
       done
   artifacts:
@@ -1009,7 +1010,7 @@ build:mobile-ota-staging:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
         node scripts/ota-sign.mjs --dir "ota-staging-out/$P" --key-file ota-staging-private-key.pem --key-id staging
       done
     - rm -f ota-staging-private-key.pem
@@ -1216,7 +1217,7 @@ build:mobile-ota-prod:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
         tar -C ota-prod-out/"$P" -czf "native-ota-dist/native-ota-$P-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz" .
       done
   artifacts:

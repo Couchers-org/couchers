@@ -1,22 +1,25 @@
 #!/usr/bin/env node
-// Stage an `expo export` output into the layout we serve for per-branch Dev Tool
-// OTA previews, and generate the Expo Updates manifest for it.
+// Bundle an `expo export` output into a static Expo Updates layout: the manifest
+// (as both a plain JSON object and a protocol-v1 multipart/mixed body) plus the
+// launch bundle and content-addressed assets, with every URL rewritten onto
+// --base-url. Shared by the Dev Tool branch previews and the staging/prod OTA
+// pipelines; use-case-specific concerns (signing, QR codes, deep-link pages)
+// live in separate scripts or CI.
 //
 // The manifest content (asset key/hash/contentType, launchAsset, id derivation)
 // mirrors Expo's reference `custom-expo-updates-server` exactly, so it loads on a
-// stock expo-updates client. The wire framing (plain JSON vs multipart/mixed) is
-// the one thing still confirmed on-device in Phase 2 — this script emits the
-// manifest object as JSON; packaging is applied at serve/upload time.
+// stock expo-updates client.
 //
 // Usage:
-//   node scripts/ota-stage.mjs \
+//   node scripts/ota-bundle.mjs \
 //     --platform ios \
 //     --runtime-version <fingerprint> \
-//     --base-url https://<sha>--ota.preview.couchershq.org \
+//     --base-url https://updates.example.com \
 //     [--dist dist] [--out ota-out] [--expo-config expo-config.json] [--created-at <iso>]
 //
-// Produces <out>/<platform>/{manifest.json, bundle.hbc, assets/<key>}, ready to
-// `aws s3 cp --recursive` to s3://couchers-dev-assets/ota/<sha>/<platform>/.
+// Produces <out>/<platform>/{manifest, manifest.content-type, manifest.json,
+// bundle.hbc, assets/<key>}, ready to serve verbatim from any static host (set
+// the manifest's content-type from manifest.content-type).
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -176,10 +179,9 @@ function main() {
     JSON.stringify(manifest, null, 2),
   );
 
-  // Emit the protocol-v1 multipart/mixed framing that the dev client requires, as
-  // a static file S3 can serve verbatim, plus the content-type (with the matching
-  // boundary) for the uploader to set. Framing matches the on-device-verified
-  // local server (a `manifest` part + an `extensions` part).
+  // Emit the protocol-v1 multipart/mixed framing (a `manifest` part + an
+  // `extensions` part) as a static file servable verbatim, plus the content-type
+  // (with the matching boundary) for the uploader to set.
   const boundary = "COUCHERS_OTA_BOUNDARY";
   const part = (name, body, ct) =>
     `--${boundary}\r\n` +
@@ -204,29 +206,7 @@ function main() {
     `multipart/mixed; boundary=${boundary}`,
   );
 
-  // GitHub strips custom-scheme (couchers-devtool://) links from comments, so the PR
-  // comment links to this https page, which redirects to the dev-launcher deep link
-  // once opened on the device.
-  const manifestUrl = `${baseUrl}/${platform}/manifest`;
-  const deepLink =
-    "couchers-devtool://expo-development-client/?url=" +
-    encodeURIComponent(manifestUrl);
-  const openHtml = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Open in Dev Tool</title>
-<script>location.replace(${JSON.stringify(deepLink)})</script>
-</head>
-<body style="font-family: sans-serif; text-align: center; margin-top: 3em">
-<p>Opening this branch in the Dev Tool… <a href="${deepLink}">tap here if nothing happens</a>.</p>
-</body>
-</html>
-`;
-  fs.writeFileSync(path.join(outDir, "open.html"), openHtml);
-
-  console.log(`staged ${platform} -> ${outDir}`);
+  console.log(`bundled ${platform} -> ${outDir}`);
   console.log(`  id              ${manifest.id}`);
   console.log(`  runtimeVersion  ${runtimeVersion}`);
   console.log(
@@ -236,13 +216,10 @@ function main() {
     `  assets          ${assets.length} entries, ${staged.size - 1} unique files`,
   );
   console.log(
-    `  manifest.json   ${path.join(outDir, "manifest.json")} (object, for local server)`,
+    `  manifest.json   ${path.join(outDir, "manifest.json")} (manifest object, plain JSON)`,
   );
   console.log(
-    `  manifest        ${path.join(outDir, "manifest")} (multipart body, for S3)`,
-  );
-  console.log(
-    `  open.html       ${path.join(outDir, "open.html")} (https -> deep link redirect)`,
+    `  manifest        ${path.join(outDir, "manifest")} (protocol-v1 multipart body)`,
   );
 }
 

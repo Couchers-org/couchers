@@ -272,13 +272,14 @@ the upload job and only post once the links are live.
 2. `npx expo-updates fingerprint:generate --platform <p>` → `.hash` for
    `runtimeVersion`. Must equal the installed Dev Tool build's fingerprint — see §8
    on `.fingerprintignore`.
-3. `node scripts/ota-stage.mjs` builds the manifest from `metadata.json` +
+3. `node scripts/ota-bundle.mjs` builds the manifest from `metadata.json` +
    `ota-expo-config.json`: content-addressed asset keys (base64url SHA-256),
    rewrites every URL to `<sha>--ota.preview.couchershq.org/<platform>/…`, and
    writes both the `manifest.json` object and the protocol-v1 `multipart/mixed`
-   `manifest` body (+ its `manifest.content-type`). It also writes `open.html`, an
-   https redirect to the dev-launcher deep link (see §9).
-4. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
+   `manifest` body (+ its `manifest.content-type`).
+4. `node scripts/ota-open-page.mjs` writes `open.html`, an https redirect to the
+   dev-launcher deep link (see §9).
+5. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
    `package.json` dep) keeps `qrcode` out of the fingerprint sources.
 
 **`preview:mobile-ota-devtool`** (`aws-base`) — `aws s3 cp` the `manifest` (with its
@@ -324,7 +325,9 @@ In `app/mobile/app.config.js`, **devtool variant only**:
 `eas.json`'s `channel: "development"` on the devtool profile is vestigial for the
 static approach (channels only matter for EAS Update) but harmless.
 
-Production and staging stay on EAS Update (`u.expo.dev`) untouched.
+Staging and production have since moved off EAS Update onto the same self-hosted
+static pipeline (`build:mobile-ota-staging` / `build:mobile-ota-prod` in
+`app/.gitlab-ci.yml`; see `docs/native-prod-ota.md`).
 
 ---
 
@@ -442,7 +445,8 @@ loadable.
 - In-app web/API override: `app/mobile/config/urls.ts`, `app/mobile/app/dev-settings.tsx`
 - QR pattern precedent: `app/mobile/dev-url-qr.html`
 - CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-devtool`, `preview:mobile-ota-devtool`, `preview:pr-comment`)
-- Manifest/QR/open.html staging: `app/mobile/scripts/ota-stage.mjs`
+- Manifest/bundle layout: `app/mobile/scripts/ota-bundle.mjs`; `open.html`
+  redirect: `app/mobile/scripts/ota-open-page.mjs` (QR is rendered in CI)
 - PR comment generator: `app/scripts/pr_preview_comment.py`
 - Fingerprint exclusion: `app/mobile/.fingerprintignore`
 - Dev-launcher load path (source): `app/mobile/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m`, `.../EXDevLauncherUpdatesHelper.m`, `.../Manifest/EXDevLauncherManifestParser.m`, `.../android/.../helpers/DevLauncherUpdatesHelper.kt`
