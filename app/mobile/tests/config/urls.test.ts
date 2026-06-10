@@ -5,8 +5,7 @@ jest.mock("expo-constants", () => ({
 }));
 
 function loadUrls() {
-  // require (not import) so jest.resetModules() re-evaluates the module-level
-  // defaults under each test's env/manifest setup
+  // require so jest.resetModules() re-evaluates the module-level defaults
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require("@/config/urls") as typeof import("@/config/urls");
 }

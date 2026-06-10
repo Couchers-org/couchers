@@ -61,11 +61,8 @@ function normalize(url: string | null | undefined): string | null {
   return trimmed.replace(/\/+$/, "");
 }
 
-// A branch-preview OTA manifest can carry the web frontend URL for its branch
-// (injected into extra.expoClient by `scripts/ota-bundle.mjs --web-base-url` in
-// CI). When the Dev Tool loads such an update, that URL becomes the effective
-// default, so the WebView points at the branch's web preview without any
-// manual override.
+// Branch-preview OTA manifests carry their branch's web preview URL (injected
+// by scripts/ota-bundle.mjs --web-base-url); it acts as the update's default.
 function getManifestWebBaseUrl(): string | null {
   const value = Constants.expoConfig?.extra?.otaWebBaseUrl;
   return typeof value === "string" ? normalize(value) : null;

@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 """Post (or update) a sticky preview comment on the GitHub PR for this pipeline.
 
-Runs twice per pipeline: once with --stub at the very start (no needs), which
-posts a "previews are building" placeholder within seconds of the push, and
-once after the upload jobs, which replaces the placeholder with the real
-sections. Each section is only included when its preview actually exists (the
-mobile OTA manifest responds on the CDN / the Vercel API knows a deployment
-for the commit — the link may still be building when posted), so the job can
-run from any branch pipeline. The mobile QR PNG is generated and
-uploaded by the OTA build/upload jobs; this script only assembles markdown and
-talks to the GitHub and Vercel APIs. Requires GITHUB_PREVIEW_TOKEN; no-ops
+Runs twice per pipeline: with --stub at the very start (posts a placeholder
+within seconds of the push, only if no comment exists yet) and after the
+upload jobs (replaces the comment with the real sections, each included only
+when its preview actually exists). Requires GITHUB_PREVIEW_TOKEN; no-ops
 (exit 0) when there is no open PR for the commit.
 """
 
@@ -120,12 +115,9 @@ VERCEL_FAILED_STATES = ("ERROR", "CANCELED", "DELETED")
 def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
     """Resolve the Vercel preview URL for this commit.
 
-    Mirrors app/mobile/scripts/vercel-preview-url.mjs (used by the OTA build job
-    to bake the URL into the manifest): the stable branch alias once the branch
-    has built successfully (it always serves the branch's latest READY
-    deployment), else the in-flight deployment's own immutable URL — assigned
-    within seconds of the push, serving once the build finishes. Neither path
-    waits on the build. Returns None when unconfigured or nothing is found.
+    Mirrors app/mobile/scripts/vercel-preview-url.mjs: the stable branch alias
+    once the branch has built successfully, else the in-flight deployment's own
+    URL. Returns None when unconfigured or nothing is found.
     """
     token = env("VERCEL_TOKEN")
     project_id = env("VERCEL_PROJECT_ID")
@@ -159,8 +151,7 @@ def build_body(sections, sha, pipeline_url):
     footer = f"commit `{sha[:8]}`"
     if pipeline_url:
         footer += f" · [pipeline]({pipeline_url})"
-    # blank lines between parts: a heading (or ---) directly after a line like
-    # </details> would be swallowed into the HTML block and rendered literally
+    # blank-line separators: a heading right after </details> renders literally
     parts = [MARKER, *[section for section in sections if section], "---", f"<sub>{footer}</sub>"]
     return "\n\n".join(parts)
 
@@ -193,8 +184,7 @@ def upsert_comment(repo, pr, body, token):
     marked = find_marker_comments(repo, pr, token)
     if marked:
         existing, *duplicates = marked
-        # concurrent pipelines for the same commit can race the existence check
-        # above and double-post; heal by keeping only the oldest comment
+        # concurrent pipelines can race the check above and double-post
         for duplicate in duplicates:
             requests.delete(
                 f"{GITHUB_API}/repos/{repo}/issues/comments/{duplicate['id']}",
@@ -232,8 +222,7 @@ def build_sections(sha, short_sha, domain, platforms):
         sections.append(mobile_ota_section(short_sha, domain, live_platforms))
     if web_url:
         sections.append(web_preview_section(web_url))
-    # the stub run already created the comment, so always replace it rather
-    # than leave "building…" up forever
+    # always replace the stub rather than leave "building…" up forever
     return sections or [no_previews_section()]
 
 
@@ -252,9 +241,7 @@ def main():
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
-    # the stub only exists to get the comment (and the dev's notification)
-    # posted quickly on the first pipeline; never downgrade an existing
-    # comment to a placeholder
+    # never downgrade an existing comment to a placeholder
     if stub and find_marker_comments(repo, pr, token):
         print(f"Preview comment already exists on PR #{pr} - leaving it for the full update.")
         return

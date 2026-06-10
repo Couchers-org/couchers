@@ -16,12 +16,8 @@
 //     --runtime-version <fingerprint> \
 //     --base-url https://updates.example.com \
 //     [--dist dist] [--out ota-out] [--expo-config expo-config.json] [--created-at <iso>]
-//     [--web-base-url <url>]
-//
-// --web-base-url injects the given URL into the manifest as
-// extra.expoClient.extra.otaWebBaseUrl; the app (config/urls.ts) uses it as the
-// default web frontend URL for this update. Used by branch previews to point
-// the loaded bundle at the branch's web deployment.
+//     [--web-base-url <url>]  (injected as extra.expoClient.extra.otaWebBaseUrl,
+//                              read by config/urls.ts as the update's web default)
 //
 // Produces <out>/<platform>/{manifest, manifest.content-type, manifest.json,
 // bundle.hbc, assets/<key>}, ready to serve verbatim from any static host (set

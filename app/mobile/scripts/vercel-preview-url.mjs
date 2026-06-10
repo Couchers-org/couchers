@@ -1,22 +1,15 @@
 #!/usr/bin/env node
-// Resolve the Vercel preview URL for a commit via the Vercel API, for pointing
-// a Dev Tool branch preview's web views at the matching web deployment.
+// Resolve the Vercel preview URL for a commit, for pointing a Dev Tool branch
+// preview's web views at the branch's web deployment.
 //
-// Returns the stable branch alias (<project>-git-<branch>-<scope>.vercel.app)
-// when it exists — Vercel assigns it on the branch's first successful build,
-// and from then on it always serves the branch's latest READY deployment. In
-// the window before that first success, falls back to the in-flight
-// deployment's own immutable URL (<project>-<hash>-<scope>.vercel.app), which
-// is assigned within seconds of the push and starts serving once the build
-// finishes. Neither path waits on the build; the short retry loop only covers
-// the race between the push and Vercel registering the deployment. The alias
-// is taken from the API rather than computed: Vercel's slugification is not
-// reproducible (e.g. it compresses separators to fit DNS's 63-char labels).
+// Prefers the stable branch alias (assigned on the branch's first successful
+// build; taken from the API since Vercel's slugification isn't reproducible),
+// else the in-flight deployment's own URL — known within seconds of the push.
+// Neither path waits on the build.
 //
-// Prints the https URL to stdout, or nothing if it can't be resolved; always
-// exits 0 so callers can treat the output as optional. Diagnostics go to
-// stderr. Requires VERCEL_TOKEN, VERCEL_PROJECT_ID and VERCEL_TEAM_ID in the
-// environment; missing config is reported and treated as "not resolved".
+// Prints the https URL to stdout, or nothing if unresolved; always exits 0 so
+// callers can treat the output as optional. Requires VERCEL_TOKEN,
+// VERCEL_PROJECT_ID and VERCEL_TEAM_ID.
 //
 // Usage:
 //   node scripts/vercel-preview-url.mjs --branch <git branch> --sha <commit sha>
@@ -121,8 +114,7 @@ async function main() {
       env: process.env,
     });
   } catch (e) {
-    // a Vercel API outage must not fail the OTA build; the bundle just keeps
-    // its build-default web URL
+    // a Vercel outage must not fail the OTA build
     console.error(`vercel-preview-url: ${e}`);
   }
   if (url) {
