@@ -129,10 +129,11 @@ def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
     """Resolve the Vercel preview URL for this commit.
 
     Mirrors app/mobile/scripts/vercel-preview-url.mjs (used by the OTA build job
-    to bake the URL into the manifest): the commit's own immutable
-    per-deployment URL, assigned within seconds of the push while the build
-    still runs; if the commit's deployment failed or was skipped, the branch's
-    latest READY deployment. Returns None when unconfigured or nothing is found.
+    to bake the URL into the manifest): the stable branch alias once the branch
+    has built successfully (it always serves the branch's latest READY
+    deployment), else the in-flight deployment's own immutable URL — assigned
+    within seconds of the push, serving once the build finishes. Neither path
+    waits on the build. Returns None when unconfigured or nothing is found.
     """
     token = env("VERCEL_TOKEN")
     project_id = env("VERCEL_PROJECT_ID")
@@ -146,19 +147,19 @@ def resolve_web_preview_url(branch, sha, attempts=6, delay_seconds=10):
         if attempt > 1:
             time.sleep(delay_seconds)
 
-        by_sha = vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token)
-        deployments = by_sha.get("deployments") or []
-        if deployments:
-            deployment = deployments[0]
-            if deployment.get("state") not in VERCEL_FAILED_STATES:
-                return f"https://{deployment['url']}"
-            print(f"Vercel deployment for {sha} is {deployment.get('state')}; falling back to the branch's latest.")
-            break
-        print(f"No Vercel deployment for {sha} yet (attempt {attempt}/{attempts}).")
+        ready = (vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token).get("deployments") or [None])[0]
+        if ready:
+            aliases = vercel_get(f"/v2/deployments/{ready['uid']}/aliases", {"teamId": team_id}, token)
+            branch_alias = next((a["alias"] for a in aliases.get("aliases", []) if "-git-" in (a.get("alias") or "")), None)
+            if branch_alias:
+                return f"https://{branch_alias}"
 
-    ready = vercel_get("/v6/deployments", {**base, "state": "READY", "meta-githubCommitRef": branch}, token)
-    if ready.get("deployments"):
-        return f"https://{ready['deployments'][0]['url']}"
+        by_sha = (vercel_get("/v6/deployments", {**base, "meta-githubCommitSha": sha}, token).get("deployments") or [None])[0]
+        if by_sha and by_sha.get("state") not in VERCEL_FAILED_STATES:
+            return f"https://{by_sha['url']}"
+        if ready:
+            return f"https://{ready['url']}"
+        print(f"No Vercel deployment for {branch} ({sha}) yet (attempt {attempt}/{attempts}).")
     return None
 
 

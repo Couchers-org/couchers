@@ -2,12 +2,16 @@
 // Resolve the Vercel preview URL for a commit via the Vercel API, for pointing
 // a Dev Tool branch preview's web views at the matching web deployment.
 //
-// Returns the commit's own immutable per-deployment URL
-// (<project>-<hash>-<scope>.vercel.app): it's assigned when the deployment
-// record is created — within seconds of the push, while the build still runs —
-// and starts serving once the build finishes. The record-creation race with CI
-// is covered by a short retry loop. If the commit's deployment failed or was
-// skipped, falls back to the branch's latest READY deployment.
+// Returns the stable branch alias (<project>-git-<branch>-<scope>.vercel.app)
+// when it exists — Vercel assigns it on the branch's first successful build,
+// and from then on it always serves the branch's latest READY deployment. In
+// the window before that first success, falls back to the in-flight
+// deployment's own immutable URL (<project>-<hash>-<scope>.vercel.app), which
+// is assigned within seconds of the push and starts serving once the build
+// finishes. Neither path waits on the build; the short retry loop only covers
+// the race between the push and Vercel registering the deployment. The alias
+// is taken from the API rather than computed: Vercel's slugification is not
+// reproducible (e.g. it compresses separators to fit DNS's 63-char labels).
 //
 // Prints the https URL to stdout, or nothing if it can't be resolved; always
 // exits 0 so callers can treat the output as optional. Diagnostics go to
@@ -65,31 +69,39 @@ async function resolve({ branch, sha, attempts, delaySeconds, env }) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     if (attempt > 1) await sleep(delaySeconds * 1000);
 
-    const bySha = await vercelGet(
-      "/v6/deployments",
-      { ...base, "meta-githubCommitSha": sha },
-      token,
-    );
-    const d = bySha.deployments?.[0];
-    if (d) {
-      if (!FAILED_STATES.includes(d.state)) return `https://${d.url}`;
-      console.error(
-        `vercel-preview-url: deployment for ${sha} is ${d.state}; falling back to the branch's latest READY deployment`,
+    const ready = (
+      await vercelGet(
+        "/v6/deployments",
+        { ...base, state: "READY", "meta-githubCommitRef": branch },
+        token,
+      )
+    ).deployments?.[0];
+    if (ready) {
+      const aliases = await vercelGet(
+        `/v2/deployments/${ready.uid}/aliases`,
+        { teamId },
+        token,
       );
-      break;
+      const branchAlias = (aliases.aliases ?? []).find((a) =>
+        a.alias?.includes("-git-"),
+      );
+      if (branchAlias) return `https://${branchAlias.alias}`;
     }
-    console.error(
-      `vercel-preview-url: no deployment for ${sha} yet (attempt ${attempt}/${attempts})`,
-    );
-  }
 
-  const ready = await vercelGet(
-    "/v6/deployments",
-    { ...base, state: "READY", "meta-githubCommitRef": branch },
-    token,
-  );
-  if (ready.deployments?.length) {
-    return `https://${ready.deployments[0].url}`;
+    const bySha = (
+      await vercelGet(
+        "/v6/deployments",
+        { ...base, "meta-githubCommitSha": sha },
+        token,
+      )
+    ).deployments?.[0];
+    if (bySha && !FAILED_STATES.includes(bySha.state)) {
+      return `https://${bySha.url}`;
+    }
+    if (ready) return `https://${ready.url}`;
+    console.error(
+      `vercel-preview-url: no deployment for ${branch} (${sha}) yet (attempt ${attempt}/${attempts})`,
+    );
   }
   return null;
 }
