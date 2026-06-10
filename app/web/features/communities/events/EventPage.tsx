@@ -441,6 +441,7 @@ export default function EventPage({
                       timezone: BROWSER_TIMEZONE,
                       locale,
                       includeDayOfWeek: true,
+                      capitalize: true,
                     },
                   )}
                 </Typography>

@@ -13,6 +13,8 @@ web Couchers-org/web:
 mobile Couchers-org/mobile:
   - 'app/mobile/**'
   - '!app/mobile/**/locales/*.json'
+fingerprints aapeliv:
+  - 'app/mobile/fingerprint*'
 locales tristanlabelle:
   - 'app/**/locales/*.json'
 i18n tristanlabelle:

@@ -89,10 +89,6 @@ interface UpcomingStayCardProps {
   hostRequest: HostRequest.AsObject;
 }
 
-function daysUntilLabel(days: number, locale: string): string {
-  return localizeRelativeDays(days, locale);
-}
-
 export function UpcomingStayCardSkeleton() {
   return (
     <Box
@@ -150,8 +146,15 @@ export default function UpcomingStayCard({
   const fromDate = dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE);
   const toDate = dayjs.tz(hostRequest.toDate, UTC_TIMEZONE);
   const nights = toDate.diff(fromDate, "day");
-  const daysUntil = fromDate.diff(dayjs().tz(timezone).startOf("day"), "day");
+  const today = dayjs().tz(timezone).startOf("day");
+  const daysUntil = fromDate.diff(today, "day");
+  const daysUntilEnd = toDate.diff(today, "day");
+  const isOngoing = daysUntil <= 0 && daysUntilEnd >= 0;
   const isImminent = daysUntil <= 3;
+  const relativeDaysLabel = (() => {
+    const label = localizeRelativeDays(daysUntil, locale);
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  })();
 
   const dateRange = localizeDateTimeRange(fromDate, toDate, {
     timezone: UTC_TIMEZONE,
@@ -218,7 +221,9 @@ export default function UpcomingStayCard({
             </Typography>
           </TextBlock>
           {isImminent && (
-            <DaysChip imminent>{daysUntilLabel(daysUntil, locale)}</DaysChip>
+            <DaysChip imminent>
+              {isOngoing ? t("dashboard:now_label") : relativeDaysLabel}
+            </DaysChip>
           )}
         </IdentityRow>
         <MetaRow>

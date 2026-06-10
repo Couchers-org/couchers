@@ -145,6 +145,7 @@ const LongEventCard = ({
       locale,
       includeDayOfWeek: true,
       includeTime: true,
+      capitalize: true,
     },
   );
 

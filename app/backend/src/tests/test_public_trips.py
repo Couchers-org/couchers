@@ -98,7 +98,7 @@ def test_create_public_trip(db):
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
             public_trips_pb2.CreatePublicTripReq(
-                node_id=node_id,
+                community_id=node_id,
                 from_date=from_date.isoformat(),
                 to_date=to_date.isoformat(),
                 description=VALID_DESCRIPTION,
@@ -107,8 +107,9 @@ def test_create_public_trip(db):
 
         assert res.trip_id > 0
         assert res.user.user_id == user.id
-        assert res.node_id == node_id
-        assert res.node_slug == "test-community"
+        assert res.community_id == node_id
+        assert res.community_slug == "test-community"
+        assert res.community_name == "Test community"
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
         assert res.description == VALID_DESCRIPTION
@@ -129,7 +130,7 @@ def test_create_public_trip_incomplete_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="Visiting town!",
@@ -146,7 +147,7 @@ def test_create_public_trip_community_not_found(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=999999,
+                    community_id=999999,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="Visiting town!",
@@ -164,7 +165,7 @@ def test_create_public_trip_not_enabled(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="Visiting town!",
@@ -185,7 +186,7 @@ def test_create_public_trip_allows_region_and_narrower(db, node_type):
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
             public_trips_pb2.CreatePublicTripReq(
-                node_id=node_id,
+                community_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
                 description=VALID_DESCRIPTION,
@@ -212,7 +213,7 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
             with pytest.raises(grpc.RpcError) as e:
                 api.CreatePublicTrip(
                     public_trips_pb2.CreatePublicTripReq(
-                        node_id=node_id,
+                        community_id=node_id,
                         from_date="2026-01-15",
                         to_date="2026-01-20",
                         description=VALID_DESCRIPTION,
@@ -230,7 +231,7 @@ def test_create_public_trip_date_errors(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() - timedelta(days=2)).isoformat(),
                     to_date=(today() + timedelta(days=1)).isoformat(),
                     description="Visiting town!",
@@ -242,7 +243,7 @@ def test_create_public_trip_date_errors(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=10)).isoformat(),
                     to_date=(today() + timedelta(days=5)).isoformat(),
                     description="Visiting town!",
@@ -254,7 +255,7 @@ def test_create_public_trip_date_errors(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="   ",
@@ -266,7 +267,7 @@ def test_create_public_trip_date_errors(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date="not-a-date",
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="Visiting town!",
@@ -291,7 +292,7 @@ def test_create_public_trip_overlap(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=8)).isoformat(),
                     to_date=(today() + timedelta(days=12)).isoformat(),
                     description=VALID_DESCRIPTION,
@@ -302,7 +303,7 @@ def test_create_public_trip_overlap(db):
         # non-overlapping dates should succeed
         res = api.CreatePublicTrip(
             public_trips_pb2.CreatePublicTripReq(
-                node_id=node_id,
+                community_id=node_id,
                 from_date=(today() + timedelta(days=20)).isoformat(),
                 to_date=(today() + timedelta(days=25)).isoformat(),
                 description=VALID_DESCRIPTION,
@@ -327,7 +328,7 @@ def test_create_public_trip_closed_trip_allows_new_overlap(db):
         # closed trips shouldn't block new overlapping ones
         res = api.CreatePublicTrip(
             public_trips_pb2.CreatePublicTripReq(
-                node_id=node_id,
+                community_id=node_id,
                 from_date=(today() + timedelta(days=7)).isoformat(),
                 to_date=(today() + timedelta(days=12)).isoformat(),
                 description=VALID_DESCRIPTION,
@@ -345,7 +346,8 @@ def test_get_public_trip(db):
         res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
         assert res.trip_id == trip_id
         assert res.user.user_id == user.id
-        assert res.node_slug == "test-community"
+        assert res.community_slug == "test-community"
+        assert res.community_name == "Test community"
 
 
 def test_get_public_trip_not_found(db):
@@ -368,7 +370,8 @@ def test_list_public_trips(db):
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         returned_ids = {t.trip_id for t in res.public_trips}
         assert returned_ids == {trip1, trip2}
-        assert all(t.node_slug == "test-community" for t in res.public_trips)
+        assert all(t.community_slug == "test-community" for t in res.public_trips)
+        assert all(t.community_name == "Test community" for t in res.public_trips)
 
 
 def test_list_public_trips_filters_closed_and_past(db):
@@ -702,7 +705,7 @@ def test_create_public_trip_description_too_short(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
-                    node_id=node_id,
+                    community_id=node_id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     description="Too short.",
@@ -739,7 +742,7 @@ def test_same_gender_only_create_and_retrieve(db):
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
             public_trips_pb2.CreatePublicTripReq(
-                node_id=node_id,
+                community_id=node_id,
                 from_date=from_date.isoformat(),
                 to_date=to_date.isoformat(),
                 description=VALID_DESCRIPTION,

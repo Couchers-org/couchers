@@ -201,7 +201,8 @@
     "rating_neutral": "Neutral",
     "rating_positive": "Positiv",
     "rating_amazing": "Toll!",
-    "ratings_slider_label": "Bewertungsregler"
+    "ratings_slider_label": "Bewertungsregler",
+    "safety_rating_selector_a11y": "Sicherheitsbewertung"
   },
   "request_form": {
     "send_request": "Sende {{name}} eine Anfrage",

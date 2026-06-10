@@ -6,6 +6,7 @@ import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 
+import { ABOUT_ME_MIN_LENGTH } from "./constants";
 import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
@@ -215,6 +216,38 @@ describe("Edit profile", () => {
       ).not.toBeInTheDocument();
     });
   }, 10000);
+
+  it("should reject names with invalid characters like !@#$", async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      aboutMe: "a".repeat(ABOUT_ME_MIN_LENGTH),
+    }));
+
+    await renderPage();
+
+    const user = userEvent.setup();
+
+    const nameInput = await screen.findByLabelText(
+      t("profile:edit_profile_headings.name"),
+    );
+
+    await user.clear(nameInput);
+    await user.type(nameInput, "John!@#$");
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save_changes") }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t("auth:basic_form.name.invalid_characters_error")),
+      ).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(updateProfileMock).not.toHaveBeenCalled();
+    });
+  });
 
   it("should only show save bar when form is dirty", async () => {
     jest.spyOn(window, "confirm").mockImplementation(() => true);

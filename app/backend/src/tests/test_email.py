@@ -5,11 +5,12 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.email
 import couchers.jobs.handlers
 from couchers.config import config
+from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContentReport,
     Email,
@@ -55,7 +56,8 @@ def test_signup_verification_email(db, email_collector: EmailCollector):
     flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
 
     with session_scope() as session:
-        send_signup_email(session, flow)
+        context = make_logged_out_context(LocalizationContext.en_utc())
+        send_signup_email(context, session, flow)
 
     email = email_collector.pop_for_recipient(request_email, last=True)
     assert email.recipient == request_email
@@ -224,8 +226,10 @@ def test_email_changed_confirmation_sent_to_new_email(db, email_collector: Email
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.new_email_token = confirmation_token
+
     with session_scope() as session:
-        send_email_changed_confirmation_to_new_email(session, user)
+        user_context = make_background_user_context(user.id)
+        send_email_changed_confirmation_to_new_email(user_context, session, user)
 
     email = email_collector.pop_for_recipient(user.new_email, last=True)
     assert "new email" in email.subject
