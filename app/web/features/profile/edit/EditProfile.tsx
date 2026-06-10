@@ -45,6 +45,11 @@ import {
   useUnsavedChangesWarning,
 } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import {
+  nameMaxLength,
+  nameMinLength,
+  nameValidationPattern,
+} from "utils/validation";
 
 import {
   ABOUT_ME_MIN_LENGTH,
@@ -273,29 +278,12 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
-
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors, isDirty, isSubmitted },
-    watch,
-    getValues,
-  } = useForm<EditProfileFormValues>({
-    shouldFocusError: true,
-  });
-
   const { regions, regionsLookup } = useRegions();
   const { languages, languagesLookup } = useLanguages();
 
-  // Reset form with user data when user and data are loaded
-  // This allows only showing save bar once something changes
-  useEffect(() => {
-    if (user && languages && regions) {
-      reset(
-        {
+  const initialFormValues =
+    user && languages && regions
+      ? {
           name: user.name,
           pronouns: user.pronouns,
           hometown: user.hometown,
@@ -321,37 +309,24 @@ export default function EditProfileForm() {
             lng: user.lng,
             radius: user.radius,
           },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    } else {
-      // Initialize with empty arrays to prevent undefined errors
-      reset(
-        {
-          name: "",
-          pronouns: "",
-          hometown: "",
-          occupation: "",
-          education: "",
-          hostingStatus: user?.hostingStatus,
-          meetupStatus: user?.meetupStatus,
-          fluentLanguages: [],
-          regionsVisited: [],
-          regionsLived: [],
-          aboutMe: "",
-          thingsILike: DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: "",
-          location: {
-            city: user?.city || "",
-            lat: user?.lat || 0,
-            lng: user?.lng || 0,
-            radius: user?.radius || 0,
-          },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    }
-  }, [user, reset, languages, regions]);
+        }
+      : undefined;
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors, isDirty, isSubmitted },
+    watch,
+    getValues,
+  } = useForm<EditProfileFormValues>({
+    shouldFocusError: true,
+    mode: "onBlur",
+    values: initialFormValues,
+    resetOptions: { keepDirty: true },
+  });
 
   // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
   useEffect(() => {
@@ -568,13 +543,27 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <StyledProfileTextInput
                   id="name"
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: t("auth:basic_form.name.required_error"),
+                    minLength: {
+                      value: nameMinLength,
+                      message: t("auth:basic_form.name.min_length_error"),
+                    },
+                    maxLength: {
+                      value: nameMaxLength,
+                      message: t("auth:basic_form.name.max_length_error"),
+                    },
+                    pattern: {
+                      value: nameValidationPattern,
+                      message: t(
+                        "auth:basic_form.name.invalid_characters_error",
+                      ),
+                    },
+                  })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
-                  error={!!errors.name}
-                  helperText={
-                    errors.name ? t("profile:edit_profile_name_required") : ""
-                  }
+                  error={!!errors?.name?.message}
+                  helperText={errors?.name?.message ?? " "}
                 />
               </FieldGroup>
 
