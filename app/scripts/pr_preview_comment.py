@@ -230,11 +230,6 @@ def item_markers(key):
     return f"<!-- cp:item:{key}:start -->", f"<!-- cp:item:{key}:end -->"
 
 
-def wrap_item(key, payload):
-    start, end = item_markers(key)
-    return f"{start}{payload}{end}"
-
-
 def parse_items(body):
     items = {}
     for key in ITEM_KEYS:
@@ -242,8 +237,21 @@ def parse_items(body):
         i = body.find(start)
         j = body.find(end, i + len(start)) if i != -1 else -1
         if i != -1 and j != -1:
-            items[key] = body[i + len(start) : j]
+            items[key] = body[i + len(start) : j].strip()
     return items
+
+
+def wrap_block(key, payload):
+    # markers on their own lines: a marker glued to the payload makes GitHub treat
+    # the whole line as an HTML block and skip the markdown (links) on it
+    start, end = item_markers(key)
+    return f"{start}\n\n{payload}\n\n{end}"
+
+
+def wrap_cell(key, payload):
+    # inside a table row the cell is inline context, so an inline comment is fine
+    start, end = item_markers(key)
+    return f"{start}{payload}{end}"
 
 
 def render(items):
@@ -253,9 +261,9 @@ def render(items):
         if not present:
             continue
         if style == "rich":
-            body = "\n\n".join(wrap_item(key, payload) for key, payload in present)
+            body = "\n\n".join(wrap_block(key, payload) for key, payload in present)
         else:
-            cells = " | ".join(wrap_item(key, payload) for key, payload in present)
+            cells = " | ".join(wrap_cell(key, payload) for key, payload in present)
             separators = " | ".join("---" for _ in present)
             body = f"| {cells} |\n| {separators} |"
         blocks.append(f"## {heading}\n\n{body}")
