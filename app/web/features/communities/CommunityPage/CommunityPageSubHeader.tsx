@@ -13,7 +13,7 @@ import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 
-const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
+const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
 const StyledBreadcrumbsContainer = styled("div")(() => ({
   display: "flex",

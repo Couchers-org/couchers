@@ -18,7 +18,7 @@ import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
-const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
+const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
 const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(3),
