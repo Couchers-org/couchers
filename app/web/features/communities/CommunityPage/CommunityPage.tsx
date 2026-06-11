@@ -60,7 +60,7 @@ export default function CommunityPage({
                   </>
                 )}
               </>
-            ) : tab === "public-trips" ? (
+            ) : tab === "public-trips" && isPublicTripsEnabled ? (
               <PublicTripsSection community={community} />
             ) : tab === "info" ? (
               edit ? (

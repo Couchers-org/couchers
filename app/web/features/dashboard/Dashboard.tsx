@@ -18,6 +18,8 @@ import MyEvents from "./MyEvents";
 import ReminderCarousel from "./ReminderCarousel";
 import UpcomingStays from "./UpcomingStays";
 
+const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
+
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
 
@@ -98,9 +100,12 @@ export default function Dashboard() {
 
             <CommunityEvents />
 
-            <Box sx={{ height: theme.spacing(3) }} />
-
-            <DashboardMyPublicTrips />
+            {isPublicTripsEnabled && (
+              <>
+                <Box sx={{ height: theme.spacing(3) }} />
+                <DashboardMyPublicTrips />
+              </>
+            )}
 
             <Box sx={{ height: theme.spacing(3) }} />
 
