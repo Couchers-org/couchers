@@ -60,5 +60,6 @@ def test_email_renders_in_english(email: EmailBase):
     # Render all email strings, since each resolve their own keys.
     rendered = render_email(email, _FOOTER, loc_context)
     assert rendered.subject
+    assert "<" not in rendered.subject, "Subject line shoudn't contain HTML"
     assert rendered.body_plaintext
     assert rendered.body_html
