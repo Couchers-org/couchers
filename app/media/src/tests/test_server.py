@@ -16,8 +16,8 @@ from nacl.utils import random as random_bytes
 from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
 
-from media.server import create_app
 from media.proto import media_pb2, media_pb2_grpc
+from media.server import create_app
 
 DATADIR = Path(__file__).parent / "data"
 
@@ -510,6 +510,46 @@ def test_fails_expired(client_with_secrets):
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
+
+
+def test_cors_header_set_on_all_responses(client_with_secrets):
+    # a cross-origin response without ACAO is treated as a network error by
+    # browsers, so the header must be present on error responses too
+    client, secret_key, bearer_token = client_with_secrets
+
+    # success
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open(DATADIR / "1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
+
+    assert rv.status_code == 200
+    assert rv.headers["Access-Control-Allow-Origin"] == "*"
+
+    # broken signature
+    rv = client.post("upload?data=krz&sig=foo", data={"file": (io.BytesIO(b"bar"), "1x1.jpg")})
+    assert rv.status_code == 400
+    assert rv.headers["Access-Control-Allow-Origin"] == "*"
+
+    # invalid image
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with open(DATADIR / "badfile.txt", "rb") as f:
+        rv = client.post(upload_path, data={"file": (f, "badfile.txt")})
+
+    assert rv.status_code == 400
+    assert rv.headers["Access-Control-Allow-Origin"] == "*"
+
+    # missing file
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    rv = client.post(upload_path)
+    assert rv.status_code == 400
+    assert rv.headers["Access-Control-Allow-Origin"] == "*"
 
 
 def one_pixel_bytes():

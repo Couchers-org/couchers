@@ -28,7 +28,7 @@ GoogleService-Info.plist
 # Metro
 .metro-health-check*
 
-# Per-branch OTA preview pipeline (scripts/ota-stage.mjs, expo export)
+# Per-branch OTA preview pipeline (scripts/ota-bundle.mjs, expo export)
 /ota-out/
 /ota-expo-config.json
 
