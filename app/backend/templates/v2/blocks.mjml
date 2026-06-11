@@ -89,10 +89,10 @@
             {{ timezone_note }}
           </mj-text>
           <mj-text align="center" font-size="10px">
-            <a href="https://couchers.org/donate">{{ footer_donate_link }}</a>
+            <a href="https://couchers.org/donate">{{ donate_link }}</a>
             | <a href="https://github.com/Couchers-org/couchers">GitHub</a>
-            | <a href="https://couchers.org/volunteer">{{ footer_volunteer_link }}</a>
-            | <a href="https://couchers.org/blog">{{ footer_blog_link }}</a>
+            | <a href="https://couchers.org/volunteer">{{ volunteer_link }}</a>
+            | <a href="https://couchers.org/blog">{{ blog_link }}</a>
           </mj-text>
           <mj-text align="center" font-size="8px" line-height="10px">
             &copy; {{ copyright_year }} Couchers, Inc.<br />
