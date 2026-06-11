@@ -5,13 +5,14 @@ from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.email.blocks import EmailBase
+from couchers.email.emails import EmailAddressChangeConfirmationEmail, SignupContinueEmail, SignupVerifyEmail
 from couchers.email.queuing import queue_system_email, queue_userless_email
 from couchers.models import (
     AccountDeletionReason,
@@ -56,11 +57,11 @@ def send_signup_email(context: CouchersContext, session: Session, flow: SignupFl
 
     flow.email_sent = True
 
-    email: emails.EmailBase
+    email: EmailBase
     if email_sent_before:
-        email = emails.SignupContinueEmail(user_name=flow.name, continue_url=signup_link)
+        email = SignupContinueEmail(user_name=flow.name, continue_url=signup_link)
     else:
-        email = emails.SignupVerifyEmail(user_name=flow.name, verify_url=signup_link)
+        email = SignupVerifyEmail(user_name=flow.name, verify_url=signup_link)
 
     queue_userless_email(
         context,
@@ -85,7 +86,7 @@ def send_email_changed_confirmation_to_new_email(context: CouchersContext, sessi
     elif not user.new_email:
         raise ValueError(f"No new email for {user.id}")
 
-    email = emails.EmailAddressChangeConfirmationEmail(
+    email = EmailAddressChangeConfirmationEmail(
         user_name=user.name,
         old_email=user.email,
         confirm_url=urls.change_email_link(confirmation_token=user.new_email_token),

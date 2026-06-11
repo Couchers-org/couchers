@@ -349,7 +349,7 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
     new_config.NOTIFICATION_PREFIX = ""
 
-    monkeypatch.setattr(couchers.notifications.background, "config", new_config)
+    monkeypatch.setattr(couchers.notifications.render_email, "config", new_config)
 
     with session_scope() as session:
         notify(
