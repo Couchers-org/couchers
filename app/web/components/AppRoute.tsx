@@ -19,7 +19,7 @@ import Navigation from "./Navigation";
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width" | "no-overflow";
+  variant?: "standard" | "full-width" | "no-overflow";
   bottomMargin?: string;
   children: ReactNode;
 }
@@ -171,9 +171,7 @@ function AppRoute({
               disableGutters
               variant={variant}
               maxWidth={
-                variant === "full-screen" ||
-                variant === "full-width" ||
-                variant === "no-overflow"
+                variant === "full-width" || variant === "no-overflow"
                   ? false
                   : STANDARD_PAGE_MAX_WIDTH
               }
