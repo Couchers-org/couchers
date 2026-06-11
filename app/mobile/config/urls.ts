@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 
 const STORAGE_KEY = "@couchers/devUrlOverrides";
 
@@ -60,11 +61,24 @@ function normalize(url: string | null | undefined): string | null {
   return trimmed.replace(/\/+$/, "");
 }
 
+// Branch-preview OTA manifests carry their branch's web preview URL (injected
+// by scripts/ota-bundle.mjs --web-base-url); it acts as the update's default.
+function getManifestWebBaseUrl(): string | null {
+  const value = Constants.expoConfig?.extra?.otaWebBaseUrl;
+  return typeof value === "string" ? normalize(value) : null;
+}
+
 export function getDefaultApiBaseUrl(): string {
   return DEFAULT_API_BASE_URL;
 }
 
 export function getDefaultWebBaseUrl(): string {
+  if (isDevUrlOverrideEnabled()) {
+    const fromManifest = getManifestWebBaseUrl();
+    if (fromManifest) {
+      return fromManifest;
+    }
+  }
   return DEFAULT_WEB_BASE_URL;
 }
 
@@ -79,7 +93,7 @@ export function getWebBaseUrl(): string {
   if (isDevUrlOverrideEnabled() && cache.webBaseUrl) {
     return cache.webBaseUrl;
   }
-  return DEFAULT_WEB_BASE_URL;
+  return getDefaultWebBaseUrl();
 }
 
 export function getUrlOverrides(): UrlOverrides {

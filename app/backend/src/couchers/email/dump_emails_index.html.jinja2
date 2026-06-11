@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Couchers.org sample emails</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem;
+         line-height: 1.5; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1.5rem; margin-bottom: 1.5rem; }
+  h1 { margin: 0; font-size: 1.5rem; }
+  p.meta { margin: 0; opacity: .7; flex: 1; }
+  label { font-weight: 600; white-space: nowrap; }
+  select { font: inherit; margin-left: .5rem; }
+  details { border-bottom: 1px solid rgba(128,128,128,.25); }
+  summary { display: flex; align-items: baseline; gap: .75rem; padding: .5rem .25rem; cursor: pointer; }
+  summary:hover { background: rgba(128,128,128,.08); }
+  summary::before { content: "▸"; opacity: .5; }
+  details[open] > summary::before { content: "▾"; }
+  .cls { font-weight: 600; white-space: nowrap; }
+  .var { opacity: .7; }
+  .subj { opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: .5rem .25rem 1rem; }
+  @media (max-width: 1000px) { .panes { grid-template-columns: 1fr; } }
+  .panes h2 { margin: 0 0 .5rem; font-size: .9rem; opacity: .7; }
+  .panes h2 a { font-weight: 400; }
+  iframe { width: 100%; height: 70vh; border: 1px solid rgba(128,128,128,.25); border-radius: 4px;
+           background: #fff; }
+</style>
+</head>
+<body>
+<header>
+<h1>Couchers.org sample emails</h1>
+<p class="meta">{{ rendered|length }} rendered variation(s) across {{ class_count }} email type(s), {{ locales|length }} locale(s).</p>
+<label>Locale<select id="locale">
+{% for locale in locales %}
+<option value="{{ locale }}">{{ locale }}</option>
+{% endfor %}
+</select></label>
+</header>
+<main>
+{% for r in rendered %}
+<details data-key="{{ r.name }}">
+<summary>
+  <span class="cls">{{ r.email_class }}</span>
+{% if r.variation_count > 1 %}
+  <span class="var">#{{ r.variation }}</span>
+{% endif %}
+  <span class="subj">{{ r.subjects[locales[0]] }}</span>
+</summary>
+<div class="panes">
+  <section>
+    <h2>HTML <a data-href="{{ r.html_filename }}" target="_blank">open</a></h2>
+    <iframe data-file="{{ r.html_filename }}" loading="lazy"></iframe>
+  </section>
+  <section>
+    <h2>Plaintext <a data-href="{{ r.plaintext_filename }}" target="_blank">open</a></h2>
+    <iframe data-file="{{ r.plaintext_filename }}" loading="lazy"></iframe>
+  </section>
+</div>
+</details>
+{% endfor %}
+</main>
+<script>
+const SUBJECTS = {{ subjects_json }};
+const select = document.getElementById("locale");
+
+const requested = new URLSearchParams(location.search).get("locale");
+if (requested && SUBJECTS[Object.keys(SUBJECTS)[0]][requested] !== undefined) select.value = requested;
+
+function refresh() {
+  const locale = select.value;
+  for (const details of document.querySelectorAll("details[data-key]")) {
+    details.querySelector(".subj").textContent = SUBJECTS[details.dataset.key][locale];
+    // Only (re)load iframes of expanded entries; collapsed ones load on toggle
+    if (details.open) load(details, locale);
+  }
+}
+
+function load(details, locale) {
+  for (const iframe of details.querySelectorAll("iframe")) {
+    const src = locale + "/" + iframe.dataset.file;
+    if (iframe.getAttribute("src") !== src) iframe.src = src;
+  }
+  for (const link of details.querySelectorAll("a[data-href]")) {
+    link.href = locale + "/" + link.dataset.href;
+  }
+}
+
+for (const details of document.querySelectorAll("details[data-key]")) {
+  details.addEventListener("toggle", () => { if (details.open) load(details, select.value); });
+}
+
+select.addEventListener("change", () => {
+  history.replaceState(null, "", "?locale=" + encodeURIComponent(select.value));
+  refresh();
+});
+
+refresh();
+</script>
+</body>
+</html>
