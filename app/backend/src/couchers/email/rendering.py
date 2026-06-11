@@ -156,6 +156,7 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
     }
 
     if unsubscribe_info := footer.unsubscribe_info:
+        # TODO(#7420): Localize "Turn off emails for: " text, avoiding string concatenations.
         args.update(
             {
                 "notification_settings_link": localize(".notification_settings_link"),
