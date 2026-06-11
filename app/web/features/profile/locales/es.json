@@ -199,7 +199,8 @@
     "success": "¡Solicitud enviada!",
     "request_chars_remaining_one": "Por favor, escribe al menos {{count}} carácter más para enviar una solicitud de hospedaje.",
     "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
-    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
+    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje.",
+    "arrival_date_before_host_today": "Esta fecha ya ha pasado para {{name}}."
   },
   "message_form": {
     "hosting_request_hint": "¿Estas enviando una solicitud de alojamiento? Usa el botón <request>Solicitar</request> en su lugar.",
@@ -256,7 +257,7 @@
   "edit_home_questions": {
     "accept_drinking": "No me molesta que la gente beba",
     "accept_pets": "Aloja personas con mascotas",
-    "accept_smoking": "No me molesta que la gente fume",
+    "accept_smoking": "Acepta que se fume en casa",
     "accept_kids": "Aloja gente con niños",
     "accept_camping": "Tienda de campaña disponible"
   },
@@ -335,5 +336,18 @@
   },
   "click_to_add_photo": "Haz clic para añadir una foto",
   "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos.",
-  "do_not_email_error_link": "Actualiza la configuración de correo electrónico para volver a habilitarlo."
+  "do_not_email_error_link": "Actualiza la configuración de correo electrónico para volver a habilitarlo.",
+  "complete_profile_dialog": {
+    "description_1": "Antes de que puedas {{action_name}}, debes <4>escribir algo sobre ti</4> en tu perfil y <7>subir una foto de perfil</7>.",
+    "actions": {
+      "create_event": "crear un evento",
+      "send_message": "enviar un mensaje",
+      "send_request": "enviar una solicitud",
+      "send_friend_request": "enviar una solicitud de amistad"
+    },
+    "edit_profile_button": "Edita tu perfil ahora",
+    "cancel_button": "Ahora no",
+    "title": "Ya casi estás, ¡completa tu perfil para continuar!",
+    "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
+  }
 }

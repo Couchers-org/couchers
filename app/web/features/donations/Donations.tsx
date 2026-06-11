@@ -1,15 +1,18 @@
 import { Link, styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
+import { useAuthContext } from "features/auth/AuthProvider";
 import Landscape from "features/donations/resources/landscape.jpeg";
 import { DONATIONS, GLOBAL } from "i18n/namespaces";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { foundationRoute, latestFinancialsURL } from "routes";
 import { theme } from "theme";
+import { useIsClient } from "utils/hooks";
 
 import { BENEFACTOR_EMAIL } from "./constants";
 import DonationsBox from "./DonationsBox";
+import DonationsLoginPanel from "./DonationsLoginPanel";
 
 const LATEST_FINANCIALS_YEAR = latestFinancialsURL.slice(-4);
 
@@ -103,6 +106,10 @@ const StyledBenefactorText = styled("div")(() => ({
 
 export default function Donations() {
   const { t } = useTranslation([GLOBAL, DONATIONS]);
+  const { authState } = useAuthContext();
+  const isClient = useIsClient();
+
+  const isAuthenticated = isClient && authState.authenticated;
 
   return (
     <>
@@ -124,7 +131,7 @@ export default function Donations() {
           {/* COMMENTED OUT TIL NEXT DONATION DRIVE
            * <DonationDriveBlock alwaysShow />
            */}
-          <DonationsBox />
+          {isAuthenticated ? <DonationsBox /> : <DonationsLoginPanel />}
           <StyledBenefactorText>
             <Typography variant="body2">
               <Trans

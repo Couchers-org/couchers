@@ -87,6 +87,9 @@ class _MockCouchersContext:
     def headers(self):
         return {}
 
+    def get_header(self, name):
+        return None
+
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
     """
@@ -164,7 +167,12 @@ class FakeChannel:
 
         def fake_handler(request):
             auth_info = _try_get_and_update_user_details(
-                self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                self._token,
+                is_api_key=False,
+                ip_address="127.0.0.1",
+                user_agent="Testing User-Agent",
+                sofa=None,
+                client_platform=None,
             )
             auth_level = find_auth_level(self._pool, method)
             check_permissions(auth_info, auth_level)
@@ -183,6 +191,7 @@ class FakeChannel:
                         locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
                         timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
                     ),
+                    sofa="test_sofa_cookie_value",
                 )
 
                 response = handler.unary_unary(request, context, session)

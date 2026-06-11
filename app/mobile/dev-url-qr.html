@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Couchers dev URL QR generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+      body {
+        font-family: -apple-system, system-ui, sans-serif;
+        max-width: 520px;
+        margin: 40px auto;
+        padding: 0 16px;
+        color: #313539;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 16px 0 4px;
+      }
+      input,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        font-size: 15px;
+      }
+      .presets {
+        margin-top: 12px;
+      }
+      button {
+        padding: 6px 12px;
+        margin: 4px 4px 0 0;
+        cursor: pointer;
+      }
+      #qr {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+      }
+      code {
+        display: block;
+        word-break: break-all;
+        background: #f3f3f3;
+        padding: 8px;
+        margin-top: 12px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Couchers dev URL QR</h1>
+    <p>
+      Generate a QR for the in-app developer settings. Scan it with a phone
+      camera to open the app with these URLs pre-filled.
+    </p>
+
+    <div class="presets">
+      <button
+        data-api="https://dev-api.couchershq.org"
+        data-web="https://next.couchershq.org"
+      >
+        Staging
+      </button>
+      <button
+        data-api="https://api.couchers.org"
+        data-web="https://couchers.org"
+      >
+        Production
+      </button>
+    </div>
+
+    <label for="scheme">App</label>
+    <select id="scheme">
+      <option value="couchers-devtool">Dev Tool (couchers-devtool)</option>
+      <option value="couchers-staging">Staging (couchers-staging)</option>
+    </select>
+
+    <label for="api">API base URL</label>
+    <input id="api" placeholder="https://dev-api.couchershq.org" />
+
+    <label for="web">Web base URL</label>
+    <input id="web" placeholder="https://next.couchershq.org" />
+
+    <code id="link"></code>
+    <div id="qr"></div>
+
+    <script>
+      const qrEl = document.getElementById("qr");
+      const linkEl = document.getElementById("link");
+      const apiEl = document.getElementById("api");
+      const webEl = document.getElementById("web");
+      const schemeEl = document.getElementById("scheme");
+      let qr = null;
+
+      function render() {
+        const scheme = schemeEl.value;
+        const api = encodeURIComponent(apiEl.value.trim());
+        const web = encodeURIComponent(webEl.value.trim());
+        const link = `${scheme}://dev-settings?api=${api}&web=${web}`;
+        linkEl.textContent = link;
+        qrEl.innerHTML = "";
+        qr = new QRCode(qrEl, { text: link, width: 240, height: 240 });
+      }
+
+      document.querySelectorAll(".presets button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          apiEl.value = btn.dataset.api;
+          webEl.value = btn.dataset.web;
+          render();
+        });
+      });
+
+      [apiEl, webEl, schemeEl].forEach((el) =>
+        el.addEventListener("input", render),
+      );
+      render();
+    </script>
+  </body>
+</html>

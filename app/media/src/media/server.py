@@ -8,7 +8,7 @@ import backoff
 import grpc
 import pyvips
 import sentry_sdk
-from flask import Flask, Response, abort, make_response, request, send_file
+from flask import Flask, Response, abort, request, send_file
 from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
@@ -56,6 +56,14 @@ def create_app(
     (media_upload_location / "thumbnail").mkdir(exist_ok=True, parents=True)
 
     app = Flask(__name__)
+
+    @app.after_request
+    def add_cors_header(response: Response) -> Response:
+        # this must be set on error responses too: a cross-origin response without
+        # ACAO is treated as a network error by browsers, so the client would never
+        # see the status code
+        response.access_control_allow_origin = media_cors_origin
+        return response
 
     def get_path(filename: str, size: str = "full") -> str:
         return str(media_upload_location / size / filename)
@@ -143,17 +151,13 @@ def create_app(
         # let the main server know the upload succeeded, or delete the file
         try:
             send_confirmation_to_main_server(req.key, filename)
-            res = make_response(
-                {
-                    "ok": True,
-                    "key": req.key,
-                    "filename": filename,
-                    "full_url": f"{media_server_base_url}/img/full/{filename}",
-                    "thumbnail_url": f"{media_server_base_url}/img/thumbnail/{filename}",
-                }
-            )
-            res.access_control_allow_origin = media_cors_origin
-            return res
+            return {
+                "ok": True,
+                "key": req.key,
+                "filename": filename,
+                "full_url": f"{media_server_base_url}/img/full/{filename}",
+                "thumbnail_url": f"{media_server_base_url}/img/thumbnail/{filename}",
+            }
         except Exception as e:
             os.remove(path)
             raise e

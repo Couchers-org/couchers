@@ -2,11 +2,12 @@ import http.cookies
 import re
 import typing
 from collections.abc import Mapping, Sequence
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
 from zoneinfo import ZoneInfo
 
+import regex
 from geoalchemy2 import WKBElement, WKTElement
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.duration_pb2 import Duration
@@ -18,7 +19,13 @@ from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
+from couchers.constants import (
+    EMAIL_REGEX,
+    PREFERRED_LANGUAGE_COOKIE_EXPIRY,
+    VALID_NAME_MAX_LENGTH,
+    VALID_NAME_MIN_LENGTH,
+    VALID_NAME_REGEX,
+)
 from couchers.crypto import (
     create_sofa_id,
     decode_sofa,
@@ -27,6 +34,8 @@ from couchers.crypto import (
     encrypt_page_token,
 )
 from couchers.proto.internal import internal_pb2
+
+_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -57,9 +66,16 @@ def is_valid_username(field: str) -> bool:
 
 def is_valid_name(field: str) -> bool:
     """
-    Checks if it has at least one non-whitespace character
+    Checks that the name satisfies the same rules as the web frontend:
+
+    * only letters (any Unicode letter), whitespace, apostrophes, and hyphens
+    * no leading or trailing whitespace
+    * 2-100 characters
     """
-    return re.match(r"\S+", field) is not None
+    if len(field) > VALID_NAME_MAX_LENGTH or len(field) < VALID_NAME_MIN_LENGTH:
+        return False
+
+    return _VALID_NAME_PATTERN.fullmatch(field) is not None
 
 
 def is_valid_email(field: str) -> bool:
@@ -100,6 +116,18 @@ def to_aware_datetime(ts: Timestamp) -> datetime:
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
     return ts.ToDatetime(tzinfo=UTC)
+
+
+def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
+    """Returns an instant in time as a datetime in a given timezone."""
+    if isinstance(value, Timestamp):
+        return value.ToDatetime(timezone)
+
+    if value.tzinfo is None:
+        # A naive datetime does not represent a point in time.
+        raise ValueError("Cannot convert a naive datetime to a timezone.")
+
+    return value.astimezone(timezone)
 
 
 def now() -> datetime:
@@ -247,10 +275,10 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
     # restrict to our domain, note if there's no domain, it won't include subdomains
-    cookie["domain"] = config["COOKIE_DOMAIN"]
+    cookie["domain"] = config.COOKIE_DOMAIN
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    if config["DEV"]:
+    if config.DEV:
         # send only on requests from first-party domains
         cookie["samesite"] = "Strict"
     else:

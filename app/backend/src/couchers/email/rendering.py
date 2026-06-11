@@ -9,14 +9,15 @@ from html import unescape
 from pathlib import Path
 from typing import Any, Self
 
+from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from couchers import urls
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import I18Next, SubstitutionDict
+from couchers.i18n.i18next import I18Next, SubstitutionDict, full_string_key
 from couchers.i18n.locales import load_locales
 from couchers.proto import api_pb2
-from couchers.templating import Jinja2Template, _markdown, template_folder
+from couchers.templating import Jinja2Template
 from couchers.utils import now
 
 
@@ -66,7 +67,7 @@ class UserInfo:
             name="Bob",
             age=30,
             city="Berlin",
-            avatar_url="https://couchers.org/img/icon.png",
+            avatar_url="https://couchers.org/logo512.png",
             profile_url="https://couchers.org/user/bob",
         )
 
@@ -99,20 +100,25 @@ class TwoButtonHTMLBlock(EmailBlock):
 
 class EmailBlocksBuilder:
     """
-    Builder object for constructing a list of EmailBlock's to form the body of an email.
+    Builder object for constructing a list of localized EmailBlock's to form the body of an email.
     """
 
     _locale: str
-    _string_key_prefix: str
-    blocks: list[EmailBlock]
+    _string_key_base: str
+    _blocks: list[EmailBlock]
+    _epilogue: list[EmailBlock]
 
-    def __init__(self, locale: str, string_key_prefix: str):
-        self.blocks = []
+    def __init__(self, locale: str, string_key_base: str):
         self._locale = locale
-        self._string_key_prefix = string_key_prefix
+        self._string_key_base = string_key_base
+        self._blocks = []
+        self._epilogue = []
 
-    def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
-        return self.block(ParaBlock(text=self._markup(key, substitutions)))
+    def build(self) -> list[EmailBlock]:
+        return self._blocks + self._epilogue
+
+    def para(self, key: str, substitutions: SubstitutionDict | None = None, epilogue: bool = False) -> Self:
+        return self.block(ParaBlock(text=self._markup(key, substitutions)), epilogue=epilogue)
 
     def quote(self, text: str, *, markdown: bool) -> Self:
         return self.block(QuoteBlock(text=text, markdown=markdown))
@@ -129,25 +135,20 @@ class EmailBlocksBuilder:
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
 
-    def do_not_reply_request_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.do_not_reply_request", self._locale)
-        return self.block(ParaBlock(text=line))
-
-    def security_warning_para(self) -> Self:
-        line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)
-        return self.block(ParaBlock(text=line))
-
-    def block(self, block: EmailBlock) -> Self:
-        self.blocks.append(block)
+    def block(self, block: EmailBlock, epilogue: bool = False) -> Self:
+        if epilogue:
+            self._epilogue.append(block)
+        else:
+            self._blocks.append(block)
         return self
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:
-        full_key = f"{self._string_key_prefix}.{key}"
-        return get_emails_i18next().localize(full_key, self._locale, substitutions)
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize(key, self._locale, substitutions)
 
     def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
-        full_key = f"{self._string_key_prefix}.{key}"
-        return get_emails_i18next().localize_with_markup(full_key, self._locale, substitutions)
+        key = full_string_key(key, relative_base=self._string_key_base)
+        return get_emails_i18next().localize_with_markup(key, self._locale, substitutions)
 
 
 @dataclass(kw_only=True)
@@ -200,6 +201,13 @@ class UnsubscribeLink:
 @lru_cache(maxsize=1)
 def get_emails_i18next() -> I18Next:
     return load_locales(Path(__file__).parent / "locales")
+
+
+template_folder = Path(__file__).parent.parent.parent.parent / "templates" / "v2"
+
+_markdown = MarkdownIt("zero", {"typographer": True}).enable(
+    ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
+)
 
 
 def render_html_body(
@@ -260,7 +268,7 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
         source=(template_folder / "_footer.txt").read_text(encoding="utf8").strip(), html=False
     )
     footer_template_args = footer.to_template_args()
-    return "".join(concat) + footer_template.render(footer_template_args, loc_context)
+    return "".join(concat) + footer_template.render(footer_template_args)
 
 
 def _to_plaintext(text: str | Markup) -> str:
@@ -318,7 +326,6 @@ class HTMLRenderer:
                     "header_subject": subject,
                     "header_preview": preview or "",
                 },
-                loc_context,
             )
         )
 
@@ -326,7 +333,7 @@ class HTMLRenderer:
         for block in type(self)._merge_action_blocks(blocks):
             match block:
                 case ParaBlock():
-                    concats.append(self.para_block_template.render(asdict(block), loc_context))
+                    concats.append(self.para_block_template.render(asdict(block)))
                 case UserBlock():
                     concats.append(
                         self.user_block_template.render(
@@ -337,22 +344,21 @@ class HTMLRenderer:
                                 "avatar_url": block.info.avatar_url,
                                 "comment": block.comment,
                             },
-                            loc_context,
                         )
                     )
                 case QuoteBlock():
                     args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
-                    concats.append(self.quote_block_template.render(args, loc_context))
+                    concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(asdict(block), loc_context))
+                    concats.append(self.action_block_template.render(asdict(block)))
                 case TwoButtonHTMLBlock():
-                    concats.append(self.two_buttons_block_template.render(asdict(block), loc_context))
+                    concats.append(self.two_buttons_block_template.render(asdict(block)))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
         footer_template_args = footer.to_template_args()
-        concats.append(self.footer_template.render(footer_template_args, loc_context))
+        concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)
 

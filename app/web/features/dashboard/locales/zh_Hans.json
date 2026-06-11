@@ -5,18 +5,6 @@
   "upload_photo": "2. 上传照片（点击编辑页面上的头像）",
   "edit_profile_button_text": "编辑个人资料",
   "complete_profile_explanation": "您是否讨厌其他平台上那些没有信息的空白\"幽灵\"资料？请不要忽视我们！👻👻👻",
-  "complete_profile_dialog": {
-    "title": "只差一步：请填写您的个人资料以继续！",
-    "description_1": "在您能 {{action_name}} 之前，您必须 <4>写一些关于自己的内容</4> 并 <7>上传一张头像</7>。",
-    "description_2": "这有助于建立信任的社区并减少垃圾信息。更多信息，<2>请参阅此帮助页面</2>。感谢您的帮助！",
-    "actions": {
-      "send_request": "发送请求",
-      "send_message": "发送消息",
-      "create_event": "创建活动"
-    },
-    "edit_profile_button": "现在编辑您的个人资料",
-    "cancel_button": "算了"
-  },
   "your_communities_heading": "您的社区",
   "all_communities_heading": "所有社区",
   "no_community": "您当前不在任何社区中。",
@@ -59,7 +47,6 @@
     "see_all_link": "查看全部 →",
     "your_upcoming_empty_message": "目前没有活动。何不<0>创建</0>一个✨？",
     "community_header": "您所在社区的活动",
-    "community_empty_message": "您所在的社区目前没有即将开始的活动。",
     "location_online_label": "线上"
   },
   "reminder": {
@@ -70,7 +57,6 @@
     },
     "write_reference": {
       "title": "写评语",
-      "description": "为 {{name}} 的住宿经历留下评语",
       "button": "写评语"
     },
     "complete_profile": {

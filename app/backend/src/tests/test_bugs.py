@@ -1,21 +1,25 @@
 import json
-from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
+import uuid
+from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models.logging import EventLog, EventSource
+from couchers.models import NativeClientUser, OTAPackage, OTAPlatform
+from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.bugs import _fetch_signed_manifest
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import bugs_session, real_bugs_session
+
+EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
 @pytest.fixture(autouse=True)
@@ -54,13 +58,13 @@ description
 results
 
 ## Diagnostics
-**Backend version**: `{config["VERSION"]}`
+**Backend version**: `{config.VERSION}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
 **Locale**: `en`
 **Screen resolution**: 1920x1080
 **Page**: page
-**User**: <not logged in>""".strip()
+**User**: <not logged in> / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
@@ -77,7 +81,7 @@ results
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -115,13 +119,13 @@ description
 results
 
 ## Diagnostics
-**Backend version**: `{config["VERSION"]}`
+**Backend version**: `{config.VERSION}`
 **Frontend version**: `frontend_version`
 **User Agent**: `user_agent`
 **Locale**: `en`
 **Screen resolution**: 390x844
 **Page**: page
-**User**: [@testing_user](http://localhost:3000/user/testing_user) (1)""".strip()
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1) / `test_sofa_co`""".strip()
 
             assert json == {
                 "title": "subject",
@@ -138,7 +142,7 @@ results
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -168,7 +172,7 @@ def test_bugs_fails_on_network_error(db):
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -396,6 +400,98 @@ def test_report_diagnostics_frontend_version(db):
         assert events[0].version == "abc-def-123"
 
 
+def test_check_native_status_anonymous(db):
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), app_version="1.1.20", platform="ios", user_state="logged_out"
+            )
+        )
+
+    # No build timestamps reported -> no clock runs -> no update asked for.
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
+    assert res.update_info.required is False
+
+
+def test_check_native_status_authenticated(db):
+    _, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), platform="android", user_state="authenticated"
+            )
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_NONE
+    assert res.update_info.required is False
+
+
+def test_check_native_status_authenticated_records_mapping(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="authenticated")
+        )
+
+    with session_scope() as session:
+        row = session.execute(
+            select(NativeClientUser).where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+        ).scalar_one()
+        assert row.user_id == user.id
+
+
+def test_check_native_status_anonymous_does_not_record_mapping(db):
+    with bugs_session() as bugs:
+        bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios", user_state="logged_out")
+        )
+
+    with session_scope() as session:
+        count = session.execute(select(func.count()).select_from(NativeClientUser)).scalar_one()
+        assert count == 0
+
+
+def test_check_native_status_append_only_log_of_sightings(db):
+    # A shared install — same eas-client-id, two users — produces two rows; newest is user_b.
+    user_a, token_a = generate_user()
+    user_b, token_b = generate_user()
+
+    with bugs_session(token_a) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+    with bugs_session(token_b) as bugs:
+        bugs.CheckNativeStatus(bugs_pb2.CheckNativeStatusReq(eas_client_id=str(EAS_CLIENT_ID), platform="ios"))
+
+    with session_scope() as session:
+        rows = (
+            session.execute(
+                select(NativeClientUser)
+                .where(NativeClientUser.eas_client_id == EAS_CLIENT_ID)
+                .order_by(NativeClientUser.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert [r.user_id for r in rows] == [user_a.id, user_b.id]
+
+
+def test_check_native_status_blocks_expired_binary(db):
+    # A native binary older than the (default 91-day) store window -> required store update, blocking.
+    embedded_created_at = timestamp_pb2.Timestamp()
+    embedded_created_at.FromDatetime(datetime.now(UTC) - timedelta(days=120))
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            bugs_pb2.CheckNativeStatusReq(
+                eas_client_id=str(EAS_CLIENT_ID), platform="ios", embedded_created_at=embedded_created_at
+            )
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_STORE
+    assert res.update_info.required is True
+    assert res.update_info.act_by.ToDatetime(tzinfo=UTC) <= datetime.now(UTC)
+
+
 def _multipart_part_json(body, name):
     """Extract and parse the JSON body of a named part from a multipart/mixed body."""
     marker = f'name="{name}"'
@@ -404,84 +500,219 @@ def _multipart_part_json(body, name):
     return json.loads(body[start:end])
 
 
-_OTA_RELEASES = {
-    "ios": {"version": "v1.2.18355.fc38c23d", "runtime_version": "ios-fingerprint"},
-    "android": {"version": "v1.2.18356.ab12cd34", "runtime_version": "android-fingerprint"},
-}
-
-# A stand-in for the pre-signed multipart body the CDN serves; the servicer must hand it back
-# byte-for-byte, signature and all, so the test asserts on identity rather than on its contents.
-_SIGNED_MANIFEST = b'--COUCHERS_OTA_BOUNDARY\r\ncontent-disposition: form-data; name="manifest"\r\nexpo-signature: sig="abc", keyid="main", alg="rsa-v1_5-sha256"\r\n\r\n{}\r\n--COUCHERS_OTA_BOUNDARY--\r\n'
+_OTA_CDN_ROOT = "https://cdn.testing.invalid/native/ota"
 _CDN_CONTENT_TYPE = "multipart/mixed; boundary=COUCHERS_OTA_BOUNDARY"
 
 
-def _fake_cdn_response():
-    response = MagicMock()
-    response.headers = {"content-type": _CDN_CONTENT_TYPE}
-    response.content = _SIGNED_MANIFEST
-    response.raise_for_status = MagicMock()
-    return response
+class _FakeCDNResponse:
+    # Echoes the requested URL back as the body so tests can assert which version was fetched and that
+    # the bytes are served verbatim — standing in for the pre-signed manifest the CDN holds.
+    def __init__(self, url):
+        self.headers = {"content-type": _CDN_CONTENT_TYPE}
+        self.content = url.encode()
+
+    def raise_for_status(self):
+        pass
 
 
-def test_native_update_manifest_serves_cdn_manifest_verbatim(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
-    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+def _patch_cdn():
+    return patch("couchers.servicers.bugs.requests.get", side_effect=lambda url, timeout=None: _FakeCDNResponse(url))
+
+
+def _add_ota_package(*, platform, fingerprint, version, created_at, banned=False):
+    with session_scope() as session:
+        creator, _ = generate_user()
+        package = OTAPackage(
+            creator_user_id=creator.id,
+            platform=platform,
+            fingerprint=fingerprint,
+            version=version,
+            manifest_created_at=created_at,
+            manifest_id=f"id-{version}",
+            banned_at=created_at if banned else None,
+            banned_by_user_id=creator.id if banned else None,
+            banned_reason="test ban" if banned else None,
+        )
+        session.add(package)
+        session.flush()
+
+
+def test_native_update_manifest_serves_matching_package(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
-    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn():
         with real_bugs_session() as (bugs, metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
             )
 
-    # the signed manifest is forwarded untouched, content type and bytes
+    # the signed bytes are fetched from the CDN under the package's version and served verbatim
     assert res.content_type == _CDN_CONTENT_TYPE
-    assert res.data == _SIGNED_MANIFEST
-    # fetched from the live release's immutable per-platform CDN path
-    mock_get.assert_called_once()
-    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18355.fc38c23d/ios/manifest"
-
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.aaaa/ios/manifest"
     # the client requires these response headers or it rejects the manifest
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_native_update_manifest_android(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
-    feature_flags.set("native_ota_cdn_root", "https://cdn.testing.invalid/native/ota")
+def test_native_update_manifest_resolves_per_platform(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
-    with patch("couchers.servicers.bugs.requests.get", return_value=_fake_cdn_response()) as mock_get:
-        with real_bugs_session() as (bugs, _metadata_interceptor):
-            bugs.GetNativeUpdateManifest(
-                httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "android"), ("expo-runtime-version", "android-fingerprint")),
-            )
-
-    assert mock_get.call_args.args[0] == "https://cdn.testing.invalid/native/ota/v1.2.18356.ab12cd34/android/manifest"
-
-
-def test_native_update_manifest_runtime_mismatch_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
-    _fetch_signed_manifest.cache_clear()
-    # the live release targets a different build fingerprint than this client is running
-    with patch("couchers.servicers.bugs.requests.get") as mock_get:
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="shared-fingerprint",
+        version="v1.3.1.ios",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.android,
+        fingerprint="shared-fingerprint",
+        version="v1.3.1.android",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn():
         with real_bugs_session() as (bugs, _metadata_interceptor):
             res = bugs.GetNativeUpdateManifest(
                 httpbody_pb2.HttpBody(),
-                metadata=(("expo-platform", "ios"), ("expo-runtime-version", "some-other-fingerprint")),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "android"),
+                    ("expo-runtime-version", "shared-fingerprint"),
+                ),
+            )
+
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.android/android/manifest"
+
+
+def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
+    _fetch_signed_manifest.cache_clear()
+    # the newer createdAt wins regardless of insertion order
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.2.newer",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.older",
+        created_at=datetime(2026, 5, 30, tzinfo=UTC),
+    )
+    with _patch_cdn():
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
+            )
+
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.2.newer/ios/manifest"
+
+
+def test_native_update_manifest_banned_package_excluded(db, feature_flags):
+    feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
+    _fetch_signed_manifest.cache_clear()
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.good",
+        created_at=datetime(2026, 5, 30, tzinfo=UTC),
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.2.bad",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        banned=True,
+    )
+    with _patch_cdn():
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "ios-fingerprint"),
+                ),
+            )
+
+    # the newest is banned, so new check-ins get the previous one (a re-stamp would supersede it)
+    assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.good/ios/manifest"
+
+
+def test_native_update_manifest_runtime_mismatch_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
+    with _patch_cdn() as cdn_get:
+        with real_bugs_session() as (bugs, _metadata_interceptor):
+            res = bugs.GetNativeUpdateManifest(
+                httpbody_pb2.HttpBody(),
+                metadata=(
+                    ("eas-client-id", str(EAS_CLIENT_ID)),
+                    ("expo-platform", "ios"),
+                    ("expo-runtime-version", "some-other-fingerprint"),
+                ),
             )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
     # a mismatch must not even fetch — the manifest would be rejected on this build
-    mock_get.assert_not_called()
+    cdn_get.assert_not_called()
 
 
-def test_native_update_manifest_without_runtime_version_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", _OTA_RELEASES)
+def test_native_update_manifest_only_banned_package_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        banned=True,
+    )
+    with real_bugs_session() as (bugs, _metadata_interceptor):
+        res = bugs.GetNativeUpdateManifest(
+            httpbody_pb2.HttpBody(),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+                ("expo-runtime-version", "ios-fingerprint"),
+            ),
+        )
+
+    assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+
+
+def test_native_update_manifest_without_runtime_version_returns_directive(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.aaaa",
+        created_at=datetime(2026, 5, 31, tzinfo=UTC),
+    )
     with real_bugs_session() as (bugs, metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"),),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+            ),
         )
 
     body = res.data.decode()
@@ -489,12 +720,176 @@ def test_native_update_manifest_without_runtime_version_returns_directive(db, fe
     assert metadata_interceptor.latest_headers["expo-protocol-version"] == "1"
 
 
-def test_native_update_manifest_unconfigured_platform_returns_directive(db, feature_flags):
-    feature_flags.set("native_ota_bundles", {})
+def test_native_update_manifest_no_package_returns_directive(db):
     with real_bugs_session() as (bugs, _metadata_interceptor):
         res = bugs.GetNativeUpdateManifest(
             httpbody_pb2.HttpBody(),
-            metadata=(("expo-platform", "ios"), ("expo-runtime-version", "ios-fingerprint")),
+            metadata=(
+                ("eas-client-id", str(EAS_CLIENT_ID)),
+                ("expo-platform", "ios"),
+                ("expo-runtime-version", "ios-fingerprint"),
+            ),
         )
 
     assert _multipart_part_json(res.data.decode(), "directive") == {"type": "noUpdateAvailable"}
+
+
+def _ota_check_req(*, created_at, update_id=""):
+    ts = timestamp_pb2.Timestamp()
+    ts.FromDatetime(created_at)
+    return bugs_pb2.CheckNativeStatusReq(
+        eas_client_id=str(EAS_CLIENT_ID),
+        platform="ios",
+        runtime_version="ios-fingerprint",
+        launch_source="ota",
+        update_id=update_id,
+        created_at=ts,
+    )
+
+
+def test_check_native_status_ota_block_with_newer_bundle(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.2.newer",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_AGE
+
+
+def test_check_native_status_ota_block_without_target_raises(db):
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_ota_block_only_older_target_raises(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.3.1.older",
+        created_at=datetime.now(UTC) - timedelta(days=50),
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=40)))
+
+
+def test_check_native_status_banned_ota_block_with_successor(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.good",
+        created_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    with bugs_session() as bugs:
+        res = bugs.CheckNativeStatus(
+            _ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad")
+        )
+
+    assert res.update_info.action == bugs_pb2.NATIVE_UPDATE_ACTION_OTA
+    assert res.update_info.required is True
+    assert res.update_info.cause == bugs_pb2.NATIVE_UPDATE_CAUSE_BANNED
+
+
+def test_check_native_status_banned_ota_block_no_successor_raises(db):
+    _add_ota_package(
+        platform=OTAPlatform.ios,
+        fingerprint="ios-fingerprint",
+        version="v1.bad",
+        created_at=datetime.now(UTC) - timedelta(days=5),
+        banned=True,
+    )
+    with bugs_session() as bugs, pytest.raises(Exception, match="no newer bundle to move to"):
+        bugs.CheckNativeStatus(_ota_check_req(created_at=datetime.now(UTC) - timedelta(days=5), update_id="id-v1.bad"))
+
+
+def test_log_experiment_exposure(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.LogExperimentExposure(
+            bugs_pb2.LogExperimentExposureReq(
+                experiment_key="my_experiment",
+                experiment_name="My Experiment",
+                variation_id=1,
+                variation_key="treatment",
+                variation_name="Treatment",
+                hash_attribute="id",
+                hash_value=str(user.id),
+                feature_id="my_feature",
+                in_experiment=True,
+                bucket=0.5,
+                hash_used=True,
+                sticky_bucket_used=False,
+            )
+        )
+
+    with session_scope() as session:
+        exposure = session.execute(select(ExperimentExposure)).scalar_one()
+        assert exposure.user_id == user.id
+        assert exposure.experiment_key == "my_experiment"
+        assert exposure.variation_id == 1
+        assert exposure.source == ExposureSource.client
+        assert exposure.data == {
+            "experiment_name": "My Experiment",
+            "variation_key": "treatment",
+            "variation_name": "Treatment",
+            "hash_attribute": "id",
+            "hash_value": str(user.id),
+            "bucket": 0.5,
+            "in_experiment": True,
+            "hash_used": True,
+            "sticky_bucket_used": False,
+            "feature_id": "my_feature",
+        }
+
+
+def test_log_experiment_exposure_deduped(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        for _ in range(3):
+            bugs.LogExperimentExposure(
+                bugs_pb2.LogExperimentExposureReq(
+                    experiment_key="my_experiment",
+                    variation_id=1,
+                    variation_key="treatment",
+                    hash_attribute="id",
+                    hash_value=str(user.id),
+                )
+            )
+
+    with session_scope() as session:
+        exposure = session.execute(select(ExperimentExposure)).scalar_one()
+        # unset optional fields are stored as null, not a misleading 0/false
+        assert exposure.data["bucket"] is None
+        assert exposure.data["hash_used"] is None
+        assert exposure.data["sticky_bucket_used"] is None
+
+
+def test_log_experiment_exposure_anonymous_ignored(db):
+    with bugs_session() as bugs:
+        bugs.LogExperimentExposure(
+            bugs_pb2.LogExperimentExposureReq(
+                experiment_key="my_experiment",
+                variation_id=1,
+                variation_key="treatment",
+                hash_attribute="id",
+                hash_value="123",
+            )
+        )
+
+    with session_scope() as session:
+        count = session.execute(select(func.count()).select_from(ExperimentExposure)).scalar_one()
+        assert count == 0

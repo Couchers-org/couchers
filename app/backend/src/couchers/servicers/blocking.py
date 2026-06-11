@@ -1,6 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists, select
+from sqlalchemy import exists, false, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import not_, or_, union
 
@@ -11,14 +11,18 @@ from couchers.models.uploads import get_avatar_photo_subquery
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
 
 
-def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None) -> bool:
+def is_not_visible(
+    session: Session, user1_id: int | None, user2_id: int | None, *, ignore_shadow: bool = False
+) -> bool:
     """
     Check if users are not visible to each other (due to block or because either account is deleted/banned/shadowed).
     """
     hidden_users = select(User.id).where(or_(User.id == user1_id, User.id == user2_id)).where(not_(User.is_visible))
-    shadowed_target = select(User.id).where(User.id == user2_id).where(User.shadowed_at.is_not(None))
-    if user1_id is not None:
-        shadowed_target = shadowed_target.where(User.id != user1_id)
+    shadowed_target = select(User.id).where(false())
+    if not ignore_shadow:
+        shadowed_target = select(User.id).where(User.id == user2_id).where(User.shadowed_at.is_not(None))
+        if user1_id is not None:
+            shadowed_target = shadowed_target.where(User.id != user1_id)
     # if either user_id is empty, just check if either user is hidden (as they can't block each other)
     if not user1_id or not user2_id:
         return (

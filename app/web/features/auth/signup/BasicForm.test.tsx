@@ -334,7 +334,7 @@ describe("basic signup form", () => {
       });
     });
 
-    it("rejects names with only leading/trailing spaces that result in less than 2 characters", async () => {
+    it("rejects names with leading or trailing whitespace", async () => {
       render(<BasicForm />, { wrapper });
 
       const user = userEvent.setup();
@@ -342,12 +342,12 @@ describe("basic signup form", () => {
         t("auth:basic_form.name.field_label"),
       );
 
-      await user.type(nameInput, " A ");
+      await user.type(nameInput, " Anne ");
       await user.tab(); // Trigger blur to validate
 
       await waitFor(() => {
         expect(
-          screen.getByText(t("auth:basic_form.name.min_length_error")),
+          screen.getByText(t("auth:basic_form.name.invalid_characters_error")),
         ).toBeInTheDocument();
       });
 

@@ -31,7 +31,7 @@
     "accept_friend_label": "Annehmen",
     "decline_friend_label": "Ablehnen",
     "request": "Anfragen",
-    "back_to_dashboard": "Zurück zur Übersicht",
+    "back_to_dashboard": "Zurück zur Startseite",
     "add_friend": "Freund hinzufügen"
   },
   "my_connections": "Meine Kontakte",
@@ -196,12 +196,13 @@
     "friend_reference_requires_friendship": "Du kannst nur eine Freund-Referenz für jemanden schreiben, mit dem du befreundet bist.",
     "already_wrote_reference_for_stay": "Du hast bereits eine Referenz für dieses Mitglied und diesen Aufenthalt geschrieben. Deine Referenz wird sichtbar, nachdem eine Referenz für dich geschrieben wurde oder nach 14 Tagen.",
     "cant_write_reference_didnt_stay": "Du kannst keine Referenz schreiben, da du angegeben hast, dass du nicht bei diesem Mitglied übernachtet hast.",
-    "already_wrote_friend_reference": "Du hast bereits eine Freundschafts-referenz für diesen Nutzer geschrieben.",
+    "already_wrote_friend_reference": "Du hast bereits eine Freundschaftsreferenz für diesen Nutzer geschrieben.",
     "rating_negative": "Negativ",
     "rating_neutral": "Neutral",
     "rating_positive": "Positiv",
     "rating_amazing": "Toll!",
-    "ratings_slider_label": "Bewertungsregler"
+    "ratings_slider_label": "Bewertungsregler",
+    "safety_rating_selector_a11y": "Sicherheitsbewertung"
   },
   "request_form": {
     "send_request": "Sende {{name}} eine Anfrage",
@@ -215,7 +216,8 @@
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst.",
     "request_description_empty": "Bitte schreib eine Anfragenachricht.",
     "request_chars_remaining_one": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden.",
-    "request_chars_remaining_other": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden."
+    "request_chars_remaining_other": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden.",
+    "arrival_date_before_host_today": "Dieses Datum liegt für {{name}} bereits in der Vergangenheit."
   },
   "message_form": {
     "hosting_request_hint": "Sendest du eine Host-Anfrage? Verwende stattdessen den <request>Anfragen</request>-Button.",
@@ -306,7 +308,7 @@
   "hosting_preferences_success_message": "Host-einstellungen gespeichert!",
   "edit": "Profil bearbeiten",
   "write_friend_reference": "Freund-Referenz schreiben",
-  "have_pending_reference_text": "Du hast eine Referenz für dieses Mitglied zu verfassen ausstehend",
+  "have_pending_reference_text": "Für dieses Mitglied steht noch eine Referenz von dir aus",
   "gallery": {
     "profile_photo": "Profilfoto",
     "photo_viewer_aria": "Fotoanzeige",
@@ -332,5 +334,19 @@
   },
   "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
   "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen.",
-  "do_not_email_error_link": "Aktualisiere deine E-Mail-Einstellungen, um dies wieder zu aktivieren."
+  "do_not_email_error_link": "Aktualisiere deine E-Mail-Einstellungen, um dies wieder zu aktivieren.",
+  "open_full_profile": "Vollständiges Profil öffnen",
+  "complete_profile_dialog": {
+    "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
+    "description_2": "Dies hilft, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
+    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über dich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
+    "actions": {
+      "send_request": "Anfrage senden",
+      "send_message": "Nachricht senden",
+      "create_event": "Event erstellen",
+      "send_friend_request": "Freundschaftsanfrage senden"
+    },
+    "edit_profile_button": "Profil jetzt bearbeiten",
+    "cancel_button": "Doch nicht"
+  }
 }

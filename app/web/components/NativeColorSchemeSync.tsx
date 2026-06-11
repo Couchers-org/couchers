@@ -1,5 +1,5 @@
 import { useColorScheme } from "@mui/material/styles";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 /**
@@ -9,12 +9,16 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 export default function NativeColorSchemeSync() {
   const { mode } = useColorScheme();
   const isNativeEmbed = useIsNativeEmbed();
+  const lastSentModeRef = useRef<typeof mode | undefined>(undefined);
 
   useEffect(() => {
     if (!isNativeEmbed || !window.ReactNativeWebView) return;
+    // Skip if we already sent this mode — prevents a feedback loop on some
+    // Android builds where Appearance.setColorScheme() fires a system event
+    // that propagates back into the WebView and re-triggers this effect.
+    if (lastSentModeRef.current === mode) return;
+    lastSentModeRef.current = mode;
 
-    // Send the current color scheme to native app
-    // "system" mode sends null so native follows system preference
     const nativeMode = mode === "system" ? null : mode;
     window.ReactNativeWebView.postMessage(
       JSON.stringify({

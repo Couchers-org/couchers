@@ -5,11 +5,12 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.email
 import couchers.jobs.handlers
 from couchers.config import config
+from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContentReport,
     Email,
@@ -33,7 +34,7 @@ from couchers.tasks import (
 )
 from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
-from tests.fixtures.misc import Moderator, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
@@ -49,24 +50,23 @@ def _(testconfig):
     pass
 
 
-def test_signup_verification_email(db):
+def test_signup_verification_email(db, email_collector: EmailCollector):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
 
     with session_scope() as session:
-        with mock_notification_email() as mock:
-            send_signup_email(session, flow)
+        context = make_logged_out_context(LocalizationContext.en_utc())
+        send_signup_email(context, session, flow)
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == request_email
+    email = email_collector.pop_for_recipient(request_email, last=True)
+    assert email.recipient == request_email
     assert flow.email_token
-    assert flow.email_token in e.html
-    assert flow.email_token in e.html
+    assert flow.email_token in email.html
+    assert flow.email_token in email.html
 
 
-def test_report_email(db):
+def test_report_email(db, email_collector: EmailCollector):
     user_reporter, api_token_author = generate_user()
     user_author, api_token_reported = generate_user()
 
@@ -83,8 +83,7 @@ def test_report_email(db):
         session.add(report)
         session.flush()
 
-        with mock_notification_email() as mock:
-            send_content_report_email(session, report)
+        send_content_report_email(session, report)
 
         # Load all data before session closes
         author_username = report.author_user.username
@@ -96,22 +95,20 @@ def test_report_email(db):
         reason = report.reason
         description = report.description
 
-    assert mock.call_count == 1
-
-    e = email_fields(mock)
-    assert e.recipient == "reports@couchers.org.invalid"
-    assert author_username in e.plain
-    assert str(author_id) in e.plain
-    assert author_email in e.plain
-    assert reporting_username in e.plain
-    assert str(reporting_id) in e.plain
-    assert reporting_email in e.plain
-    assert reason in e.plain
-    assert description in e.plain
-    assert "report" in e.subject.lower()
+    email = email_collector.pop_for_recipient("reports@couchers.org.invalid", last=True)
+    assert email.recipient == "reports@couchers.org.invalid"
+    assert author_username in email.plain
+    assert str(author_id) in email.plain
+    assert author_email in email.plain
+    assert reporting_username in email.plain
+    assert str(reporting_id) in email.plain
+    assert reporting_email in email.plain
+    assert reason in email.plain
+    assert description in email.plain
+    assert "report" in email.subject.lower()
 
 
-def test_reference_report_email_not_sent(db):
+def test_reference_report_email_not_sent(db, email_collector: EmailCollector):
     from_user, api_token_author = generate_user()
     to_user, api_token_reported = generate_user()
 
@@ -139,14 +136,12 @@ def test_reference_report_email_not_sent(db):
         moderation_state.object_id = reference.id
 
         # no email sent for a positive ref
+        maybe_send_reference_report_email(session, reference)
 
-        with mock_notification_email() as mock:
-            maybe_send_reference_report_email(session, reference)
-
-        assert mock.call_count == 0
+    assert email_collector.count_for_recipient("reports@couchers.org.invalid") == 0
 
 
-def test_reference_report_email(db):
+def test_reference_report_email(db, email_collector: EmailCollector):
     from_user, api_token_author = generate_user()
     to_user, api_token_reported = generate_user()
 
@@ -174,24 +169,25 @@ def test_reference_report_email(db):
         session.flush()
         moderation_state.object_id = reference.id
 
-        with mock_notification_email() as mock:
-            maybe_send_reference_report_email(session, reference)
+        maybe_send_reference_report_email(session, reference)
 
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == "reports@couchers.org.invalid"
-        assert "report" in e.subject.lower()
-        assert "reference" in e.subject.lower()
-        assert from_user.username in e.plain
-        assert str(from_user.id) in e.plain
-        assert from_user.email in e.plain
-        assert to_user.username in e.plain
-        assert str(to_user.id) in e.plain
-        assert to_user.email in e.plain
-        assert reference.text in e.plain
-        assert "friend" in e.plain.lower()
-        assert reference.private_text
-        assert reference.private_text in e.plain
+        reference_text = reference.text
+        reference_private_text = reference.private_text
+
+    email = email_collector.pop_for_recipient("reports@couchers.org.invalid", last=True)
+    assert email.recipient == "reports@couchers.org.invalid"
+    assert "report" in email.subject.lower()
+    assert "reference" in email.subject.lower()
+    assert from_user.username in email.plain
+    assert str(from_user.id) in email.plain
+    assert from_user.email in email.plain
+    assert to_user.username in email.plain
+    assert str(to_user.id) in email.plain
+    assert to_user.email in email.plain
+    assert reference_text in email.plain
+    assert "friend" in email.plain.lower()
+    assert reference_private_text
+    assert reference_private_text in email.plain
 
 
 def test_email_patching_fails(db):
@@ -225,32 +221,32 @@ def test_email_patching_fails(db):
     assert str(e.value) == patched_msg
 
 
-def test_email_changed_confirmation_sent_to_new_email(db):
+def test_email_changed_confirmation_sent_to_new_email(db, email_collector: EmailCollector):
     confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.new_email_token = confirmation_token
+
     with session_scope() as session:
-        with mock_notification_email() as mock:
-            send_email_changed_confirmation_to_new_email(session, user)
+        user_context = make_background_user_context(user.id)
+        send_email_changed_confirmation_to_new_email(user_context, session, user)
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert "new email" in e.subject
-    assert e.recipient == user.new_email
-    assert user.name in e.plain
-    assert user.name in e.html
-    assert user.email in e.plain
-    assert user.email in e.html
-    assert "Your old email address is" in e.plain
-    assert "Your old email address is" in e.html
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in e.plain
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    email = email_collector.pop_for_recipient(user.new_email, last=True)
+    assert "new email" in email.subject
+    assert email.recipient == user.new_email
+    assert user.name in email.plain
+    assert user.name in email.html
+    assert user.email in email.plain
+    assert user.email in email.html
+    assert "Your old email address is" in email.plain
+    assert "Your old email address is" in email.html
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.plain
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
 
-def test_do_not_email_security(db):
+def test_do_not_email_security(db, email_collector: EmailCollector):
     user, token = generate_user()
 
     password_reset_token = urlsafe_secure_token()
@@ -260,37 +256,35 @@ def test_do_not_email_security(db):
 
     # make sure we still get security emails
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.password_reset__start,
-                key="",
-                data=notification_data_pb2.PasswordResetStart(
-                    password_reset_token=password_reset_token,
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.password_reset__start,
+            key="",
+            data=notification_data_pb2.PasswordResetStart(
+                password_reset_token=password_reset_token,
+            ),
+        )
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == user.email
-    assert "reset" in e.subject.lower()
-    assert password_reset_token in e.plain
-    assert password_reset_token in e.html
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "reset" in email.subject.lower()
+    assert password_reset_token in email.plain
+    assert password_reset_token in email.html
     unique_string = "You asked for your password to be reset on Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
-    assert "/quick-link?payload=" not in e.plain
-    assert "/quick-link?payload=" not in e.html
+    assert "/quick-link?payload=" not in email.plain
+    assert "/quick-link?payload=" not in email.html
 
 
-def test_do_not_email_non_security(db):
+def test_do_not_email_non_security(db, email_collector: EmailCollector):
     user, token1 = generate_user(complete_profile=True)
     from_user, token2 = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
@@ -307,13 +301,10 @@ def test_do_not_email_non_security(db):
     assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
-    with mock_notification_email() as mock:
-        process_jobs()
-
-    assert mock.call_count == 0
+    assert email_collector.count_for_recipient(user.email) == 0
 
 
-def test_do_not_email_non_security_unsublink(db):
+def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector):
     user, _ = generate_user(complete_profile=True)
     from_user, token2 = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
@@ -327,70 +318,62 @@ def test_do_not_email_non_security_unsublink(db):
     assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
-    with mock_notification_email() as mock:
-        process_jobs()
+    email = email_collector.pop_for_recipient(user.email, last=True)
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-
-    assert "/quick-link?payload=" in e.plain
-    assert "/quick-link?payload=" in e.html
+    assert "/quick-link?payload=" in email.plain
+    assert "/quick-link?payload=" in email.html
 
 
-def test_email_prefix_config(db, monkeypatch):
+def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     user, _ = generate_user()
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.donation__received,
-                key="",
-                data=notification_data_pb2.DonationReceived(
-                    amount=20,
-                    receipt_url="https://example.com/receipt/12345",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.donation__received,
+            key="",
+            data=notification_data_pb2.DonationReceived(
+                amount=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
+        )
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.sender_name == "Couchers.org"
-    assert e.sender_email == "notify@couchers.org.invalid"
-    assert e.subject == "[TEST] Thank you for your donation to Couchers.org!"
+    email1 = email_collector.pop_for_recipient(user.email, last=True)
+    assert email1.sender_name == "Couchers.org"
+    assert email1.sender_email == "notify@couchers.org.invalid"
+    assert email1.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
     new_config = config.copy()
-    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
-    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
-    new_config["NOTIFICATION_PREFIX"] = ""
+    new_config.NOTIFICATION_EMAIL_SENDER = "TestCo"
+    new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
+    new_config.NOTIFICATION_PREFIX = ""
 
     monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.donation__received,
-                key="",
-                data=notification_data_pb2.DonationReceived(
-                    amount=20,
-                    receipt_url="https://example.com/receipt/12345",
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.donation__received,
+            key="",
+            data=notification_data_pb2.DonationReceived(
+                amount=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
+        )
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.sender_name == "TestCo"
-    assert e.sender_email == "testco@testing.co.invalid"
-    assert e.subject == "Thank you for your donation to Couchers.org!"
+    email2 = email_collector.pop_for_recipient(user.email, last=True)
+    assert email2.sender_name == "TestCo"
+    assert email2.sender_email == "testco@testing.co.invalid"
+    assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
 def test_send_donation_email(db, monkeypatch):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
     new_config = config.copy()
-    new_config["ENABLE_EMAIL"] = True
+    new_config.ENABLE_EMAIL = True
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
@@ -414,29 +397,26 @@ def test_send_donation_email(db, monkeypatch):
         assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
         assert (
             email.plain
-            == """Dear Testy von Test,
+            == """Hi Testy von Test,
 
 Thank you so much for your donation of $20 to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
-
 You can download an invoice and receipt for the donation here:
 
-<https://example.com/receipt/12345>
+Download invoice: https://example.com/receipt/12345
 
 Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.
 
-If you have any questions about your donation, please email us at <donations@couchers.org>.
+If you have any questions about your donation, please email us at donations@couchers.org.
 
 Your generosity will help deliver the platform for everyone.
-
 
 Thank you!
 
 Aapeli and Itsi,
 Couchers.org Founders
-
 
 ---
 
@@ -450,42 +430,40 @@ This is a security email, you cannot unsubscribe from it.
         assert email.recipient == "testing@couchers.org.invalid"
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
-        assert email.source_data == "testing_version/donation_received"
+        assert email.source_data and ("donation:received" in email.source_data)
 
 
-def test_chat_missed_messages_list_unsubscribe_header(db):
+def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
     """
     Regression test: chat__missed_messages has key="" (it's a summary, not tied to a single chat).
     The List-Unsubscribe header must use a topic_action unsubscribe link, not a topic_key link.
     """
     user, _ = generate_user()
 
-    with mock_notification_email() as mock:
-        with session_scope() as session:
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.chat__missed_messages,
-                key="",
-                data=notification_data_pb2.ChatMissedMessages(
-                    messages=[
-                        notification_data_pb2.ChatMessage(
-                            author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
-                            message="You missed 1 message(s) from Test User",
-                            text="Hello!",
-                            group_chat_id=99,
-                        ),
-                    ],
-                ),
-            )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.chat__missed_messages,
+            key="",
+            data=notification_data_pb2.ChatMissedMessages(
+                messages=[
+                    notification_data_pb2.ChatMessage(
+                        author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
+                        message="You missed 1 message(s) from Test User",
+                        text="Hello!",
+                        group_chat_id=99,
+                    ),
+                ],
+            ),
+        )
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
+    email = email_collector.pop_for_recipient(user.email, last=True)
 
-    assert e.list_unsubscribe_header
+    assert email.list_unsubscribe_header
 
     # Extract the List-Unsubscribe URL and call the Unsubscribe endpoint
-    url = e.list_unsubscribe_header.strip("<>")
+    url = email.list_unsubscribe_header.strip("<>")
     url_parts = urlparse(url)
     params = parse_qs(url_parts.query)
 
@@ -499,7 +477,7 @@ def test_chat_missed_messages_list_unsubscribe_header(db):
         assert res.response
 
 
-def test_email_deleted_users_regression(db, moderator: Moderator):
+def test_email_deleted_users_regression(db, email_collector: EmailCollector, moderator: Moderator):
     """
     We introduced a bug in notify v2 where we would email deleted/banned users.
     """
@@ -551,9 +529,9 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
     moderator.approve_event_occurrence(event_id)
 
     with events_session(creating_token) as api:
-        with mock_notification_email() as mock:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert mock.call_count == 1
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+
+    email_collector.pop_for_mods(last=True)
 
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -571,12 +549,11 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
         # should only notify creating_user, super_user and normal_user
         assert res.requests[0].approx_users_to_notify == 3
 
-        with mock_notification_email() as mock:
-            editor.DecideEventCommunityInviteRequest(
-                editor_pb2.DecideEventCommunityInviteRequestReq(
-                    event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
-                    approve=True,
-                )
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                approve=True,
             )
+        )
 
-        assert mock.call_count == 3
+    assert email_collector.count() == 3

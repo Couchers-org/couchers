@@ -54,7 +54,13 @@
     "date_from_before_today": "From date must be today or later.",
     "date_to_after_one_year": "You cannot request to stay with someone for longer than one year.",
     "dev_apis_disabled": "Development APIs are not enabled on this server.",
+    "discussion_delete_permission_denied": "You are not allowed to delete this discussion.",
+    "discussion_deleted": "This discussion has been deleted.",
+    "discussion_edit_permission_denied": "You are not allowed to edit this discussion.",
     "discussion_not_found": "Discussion not found.",
+    "reply_delete_permission_denied": "You are not allowed to delete this comment.",
+    "reply_deleted": "This comment has been deleted.",
+    "reply_edit_permission_denied": "You are not allowed to edit this comment.",
     "discussions_not_enabled": "Discussions are not enabled in this group or community.",
     "do_not_email_cannot_host": "You cannot enable hosting while you have emails turned off in your settings.",
     "do_not_email_cannot_meet": "You cannot enable meeting up while you have emails turned off in your settings.",
@@ -122,6 +128,9 @@
     "invalid_message": "Invalid message.",
     "invalid_name": "Name not supported.",
     "invalid_notification_preference": "Invalid notification preference.",
+    "invalid_ota_manifest": "Could not read a valid manifest (runtimeVersion, id, createdAt) from the CDN for this version.",
+    "invalid_ota_platform": "Invalid OTA platform.",
+    "invalid_ota_version": "An OTA package version (CDN path) is required.",
     "invalid_password": "Wrong password.",
     "invalid_password_login": "Wrong username/email or password.",
     "invalid_phone": "Phone number must be in international format without punctuation.",
@@ -169,6 +178,9 @@
     "notification_not_found": "Notification not found.",
     "object_not_found": "Object not found.",
     "online_event_missing_parent_community": "The online event is missing a parent community.",
+    "ota_ban_reason_required": "A reason is required when banning an OTA package.",
+    "ota_package_already_exists": "An OTA package with this manifest id already exists for this platform.",
+    "ota_package_not_found": "OTA package not found.",
     "online_event_requires_link": "An online-only event requires a link.",
     "only_admin_can_edit": "Only admins can edit the chat.",
     "only_admin_can_make_admin": "Only admins can make other users admins.",
@@ -295,20 +307,5 @@
     "be_safe_guideline": "Read profiles, references, and resources. Report any inappropriate content or behavior.",
     "no_money_title": "Keep money out of it",
     "no_money_guideline": "Keep things non-transactional. Don't exchange money while staying or hosting. Couchers.org is about learning, experiences, and getting to know people."
-  },
-  "notifications": {
-    "dear_name": "Dear {{name}},",
-    "thank_you": "Thank you!",
-    "founders_signature": "Aapeli and Itsi,\nCouchers.org Founders",
-    "donation_received": {
-      "title": "Thank you for your donation to Couchers.org!",
-      "thanks_amount": "Thank you so much for your donation of ${{amount}} to Couchers.org.",
-      "purpose": "Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.",
-      "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
-      "download_invoice": "Download invoice",
-      "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
-      "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-      "generosity_helps": "Your generosity will help deliver the platform for everyone."
-    }
   }
 }

@@ -147,6 +147,7 @@
   "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
   "info_unanswered": "Ask me",
   "my_connections": "My connections",
+  "open_full_profile": "Open full profile",
   "connection_pending": "Pending",
   "cancel": "Cancel",
   "more_profile_actions": "...",
@@ -158,6 +159,7 @@
     "add_a_reference": "Add a reference to {{name}}'s profile",
     "appropriate_explanation": "Your private feedback on this page, and your public reference on the next page, are vital to keeping the community safe, trustworthy, and welcoming. Thanks for doing your part to help the community!",
     "appropriate_question": "Did you feel safe with this person's behavior?",
+    "safety_rating_selector_a11y": "Safety rating",
     "by_writing_thoughtful": "Not sure what to write? Read our guide <1>here</1>. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
     "did_stay_confirmation": {
       "title_hosted": "Confirm {{name}} did not stay",
@@ -333,5 +335,18 @@
     "next_photo": "Next photo",
     "close_viewer": "Close photo viewer",
     "report_photo": "Report Photo"
+  },
+  "complete_profile_dialog": {
+    "title": "Almost there: please complete your profile to continue!",
+    "description_1": "Before you can {{action_name}}, you must <4>write a bit about yourself</4> in your profile and <7>upload a profile photo</7>.",
+    "description_2": "This helps build a trusted community and reduce spam. For more information, <2>please refer to this help page</2>. Thank you for your help!",
+    "actions": {
+      "send_request": "send a request",
+      "send_message": "send a message",
+      "send_friend_request": "send a friend request",
+      "create_event": "create an event"
+    },
+    "edit_profile_button": "Edit your profile now",
+    "cancel_button": "Never mind"
   }
 }

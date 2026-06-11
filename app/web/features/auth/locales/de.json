@@ -34,7 +34,8 @@
       "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
       "man": "Mann",
       "non_binary": "Nicht-binär",
-      "woman": "Frau"
+      "woman": "Frau",
+      "selector_a11y": "Geschlecht"
     },
     "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>.",
     "password": {
@@ -241,7 +242,7 @@
       "account_deleted": "Dein Account wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
       "button_text": "Accountlöschung bestätigen"
     },
-    "missing_token": "Fehler: missing token",
+    "missing_token": "Fehler: Token fehlt",
     "recover": {
       "title": "Stelle deinen Couchers.org-Account wieder her",
       "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",

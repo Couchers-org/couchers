@@ -70,6 +70,43 @@ describe("AddFriendButton", () => {
     ).toBeVisible();
   });
 
+  it("shows confirmation dialog when add friend button is clicked", async () => {
+    render(<TestComponent />, { wrapper });
+
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
+
+    const user = userEvent.setup();
+    await user.click(button);
+
+    expect(
+      await screen.findByText(
+        t("connections:add_friend_confirmation_dialog.title"),
+      ),
+    ).toBeVisible();
+    expect(sendFriendRequestMock).not.toHaveBeenCalled();
+  });
+
+  it("does not send request if confirmation is cancelled", async () => {
+    render(<TestComponent />, { wrapper });
+
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
+
+    const user = userEvent.setup();
+    await user.click(button);
+    await screen.findByText(
+      t("connections:add_friend_confirmation_dialog.title"),
+    );
+
+    await user.click(screen.getByRole("button", { name: t("global:cancel") }));
+    expect(sendFriendRequestMock).not.toHaveBeenCalled();
+  });
+
   it("shows loading state correctly if the add friend action is still running", async () => {
     // A never resolving promise will always be pending...
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
@@ -82,7 +119,20 @@ describe("AddFriendButton", () => {
 
     const user = userEvent.setup();
     await user.click(button);
-    expect(await screen.findByRole("progressbar")).toBeVisible();
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("connections:add_friend_confirmation_dialog.confirm"),
+      }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText(
+          t("connections:add_friend_confirmation_dialog.title"),
+        ),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("progressbar")).toBeVisible();
   });
 
   it("sets no error if the add friend action succeeded", async () => {
@@ -96,6 +146,11 @@ describe("AddFriendButton", () => {
 
     const user = userEvent.setup();
     await user.click(button);
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("connections:add_friend_confirmation_dialog.confirm"),
+      }),
+    );
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
   });
@@ -114,6 +169,11 @@ describe("AddFriendButton", () => {
 
     const user = userEvent.setup();
     await user.click(button);
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("connections:add_friend_confirmation_dialog.confirm"),
+      }),
+    );
 
     expect(
       await screen.findByText("Failed to add funny dog"),
@@ -133,9 +193,7 @@ describe("AddFriendButton", () => {
     await user.click(button);
 
     expect(
-      await screen.findByLabelText(
-        t("dashboard:complete_profile_dialog.title"),
-      ),
+      await screen.findByLabelText(t("profile:complete_profile_dialog.title")),
     ).toBeVisible();
     expect(sendFriendRequestMock).not.toHaveBeenCalled();
   });

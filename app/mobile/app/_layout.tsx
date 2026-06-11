@@ -1,5 +1,7 @@
 import "react-native-reanimated";
 import "@/i18n";
+import "@/service/sentry";
+import "@/service/updateExtraParams";
 
 import {
   Ubuntu_300Light,
@@ -12,54 +14,72 @@ import {
   Ubuntu_700Bold_Italic,
   useFonts,
 } from "@expo-google-fonts/ubuntu";
+import { useGrowthBook } from "@growthbook/growthbook-react";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import * as Sentry from "@sentry/react-native";
 import * as Notifications from "expo-notifications";
 import { Href, router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import DevSettingsButton from "@/components/DevSettingsButton";
+import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
+import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
+import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { appVariant } from "@/service/buildInfo";
+import { reconfigureApiClient } from "@/service/client";
+import { currentActiveWebPathRef } from "@/state/webViewState";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
 // Module-level Set to track handled notification IDs (persists across component remounts)
 const handledNotificationIds = new Set<string>();
 
-const IS_PROD =
-  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+// Suppress foreground notification banners when the user is already viewing
+// the relevant content. Badge and notification list always update regardless.
+Notifications.setNotificationHandler({
+  handleNotification: async (notification) => {
+    const url = notification.request.content.data?.url as string | undefined;
+    const notificationPath = url ? getNotificationPath(url) : null;
+    const currentPath = currentActiveWebPathRef.current;
 
-if (!IS_PROD) {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-      shouldShowBanner: true,
+    const isViewingTarget =
+      notificationPath !== null &&
+      currentPath !== null &&
+      currentPath.split("?")[0].startsWith(notificationPath.split("?")[0]);
+
+    return {
+      shouldShowBanner: !isViewingTarget,
       shouldShowList: true,
-    }),
-  });
-}
+      shouldPlaySound: !isViewingTarget,
+      shouldSetBadge: true,
+    };
+  },
+});
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
+  const featuresReady = useGrowthBook().ready;
 
   useEffect(() => {
-    if (fontsLoaded && checkedAuthStatus) {
+    if (fontsLoaded && checkedAuthStatus && featuresReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, checkedAuthStatus]);
+  }, [fontsLoaded, checkedAuthStatus, featuresReady]);
 
-  if (!fontsLoaded || !checkedAuthStatus) {
+  if (!fontsLoaded || !checkedAuthStatus || !featuresReady) {
     return null;
   }
 
@@ -80,11 +100,14 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
       </Stack.Protected>
       {/* Accessible regardless of auth state */}
       <Stack.Screen name="confirm-email" />
+      <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
     </Stack>
   );
 }
 
-export default function RootLayout() {
+const sentryEnabled = appVariant === "production" || appVariant === "staging";
+
+function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Ubuntu_300Light,
@@ -97,7 +120,17 @@ export default function RootLayout() {
     Ubuntu_700Bold_Italic,
   });
 
-  if (!fontsLoaded) {
+  // Load any persisted backend URL override and re-point the gRPC client before
+  // rendering, so the first auth check and webview loads hit the chosen backend.
+  const [configLoaded, setConfigLoaded] = useState(false);
+  useEffect(() => {
+    hydrateUrlOverrides().then(() => {
+      reconfigureApiClient();
+      setConfigLoaded(true);
+    });
+  }, []);
+
+  if (!fontsLoaded || !configLoaded) {
     return null;
   }
 
@@ -107,13 +140,18 @@ export default function RootLayout() {
         {/* Set status bar style based on theme: dark icons for light mode, light icons for dark mode */}
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthProvider>
-          <PushNotificationsRegistrar />
-          <RootNavigator fontsLoaded={fontsLoaded} />
+          <FeatureFlagProvider>
+            <PushNotificationsRegistrar />
+            <RootNavigator fontsLoaded={fontsLoaded} />
+            <DevSettingsButton />
+          </FeatureFlagProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
+
+export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;
 
 /**
  * Generates a unique ID for a notification response to prevent duplicate handling.
@@ -188,5 +226,6 @@ function useNotificationObserver() {
 function PushNotificationsRegistrar() {
   useRegisterPushNotifications();
   useNotificationObserver();
-  return null;
+  const { prompt, dismiss } = useNativeDiagnostics();
+  return <NativeUpdatePrompt prompt={prompt} onDismiss={dismiss} />;
 }

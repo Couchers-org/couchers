@@ -133,17 +133,14 @@ export default function LanguagePickerSelect({
 
     if (flagCode === "CAT") {
       return (
-        <CatalanFlagIcon
-          sx={{ width: 25, height: 18.75, ...commonStyles }}
-          aria-label="Catalan flag"
-        />
+        <CatalanFlagIcon sx={{ width: 25, height: 18.75, ...commonStyles }} />
       );
     }
 
     return (
       <img
-        alt={`${flagCode} flag`}
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        alt=""
         style={{ width: 25, ...commonStyles }}
       />
     );

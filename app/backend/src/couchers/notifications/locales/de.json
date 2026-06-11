@@ -108,10 +108,10 @@
     "create": {
       "event_description": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist",
       "push": {
-        "title": "Neue Diskussion: {{title}}",
-        "ios_title": "Neue Diskussion",
+        "title": "Neuer Beitrag: {{title}}",
+        "ios_title": "Neuer Beitrag",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} hat die Diskussion in {{group_or_community}} gestartet."
+        "body": "{{user}} hat den Beitrag in {{group_or_community}} gestartet."
       }
     }
   },

@@ -8,18 +8,6 @@
   "upload_photo": "2. Puja una foto (fent clic a l'avatar de la pàgina d'edició)",
   "edit_profile_button_text": "Edita el teu perfil",
   "complete_profile_explanation": "No t'agrada com altres plataformes tenen perfils fantasma buits sense informació? No ens deixis en blanc! 👻👻👻",
-  "complete_profile_dialog": {
-    "title": "Gairebé, completa el teu perfil per continuar!",
-    "description_1": "Abans de poder {{action_name}}, has de <4>escriure una mica sobre tu</4> al teu perfil i <7>pujar una foto de perfil</7>.",
-    "actions": {
-      "send_request": "enviar una sol·licitud",
-      "send_message": "enviar un missatge",
-      "create_event": "crear un esdeveniment"
-    },
-    "edit_profile_button": "Edita el teu perfil ara",
-    "cancel_button": "Ara no",
-    "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <2>consulta aquesta pàgina d'ajuda</2>. Gràcies per la teva ajuda!"
-  },
   "your_communities_heading": "Les teves comunitats",
   "all_communities_heading": "Totes les comunitats",
   "no_community": "Ara mateix no estàs en cap comunitat.",

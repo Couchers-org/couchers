@@ -1,7 +1,4 @@
 {
-  "attendees_count_one": "{{count}} assistent",
-  "attendees_count_many": "{{count}} d'assistants",
-  "attendees_count_other": "{{count}} assistents",
   "make_co_organizer": {
     "title": "Fes coorganitzador",
     "dialog_title": "Fes {{name}} coorganitzador",

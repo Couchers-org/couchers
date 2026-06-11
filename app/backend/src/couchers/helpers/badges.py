@@ -2,7 +2,7 @@ from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete
 
-from couchers.context import make_background_user_context
+from couchers.context import make_notification_user_context
 from couchers.models import UserBadge
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
@@ -20,7 +20,7 @@ def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: boo
     session.add(UserBadge(user_id=user_id, badge_id=badge_id))
     session.flush()
     if do_notify:
-        context = make_background_user_context(user_id=user_id)
+        context = make_notification_user_context(user_id=user_id)
         notify(
             session,
             user_id=user_id,
@@ -39,7 +39,7 @@ def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
     badge = get_badge_dict()[badge_id]
     session.execute(delete(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == badge.id))
     session.flush()
-    context = make_background_user_context(user_id=user_id)
+    context = make_notification_user_context(user_id=user_id)
     notify(
         session,
         user_id=user_id,

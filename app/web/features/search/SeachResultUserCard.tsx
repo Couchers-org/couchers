@@ -184,6 +184,8 @@ const generateAboutText = (
       <LinesEllipsis
         maxLine={isMobile ? 3 : 7}
         text={stripMarkdown(aboutText(user, t))}
+        basedOn="letters"
+        style={{ wordBreak: "break-all", overflow: "hidden" }}
       />
     );
   }
@@ -292,7 +294,7 @@ const SearchResultUserCard = ({
                 </Typography>
               </ProfileLink>
             </FlexRow>
-            {!isNativeEmbed && (
+            {!isNativeEmbed && !isMobile && (
               <StyledLink
                 aria-label={t("profile:open_profile_new_tab")}
                 href={routeToUser(user.username)}

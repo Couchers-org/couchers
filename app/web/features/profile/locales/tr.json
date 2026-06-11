@@ -110,5 +110,18 @@
   "request_form": {
     "request_chars_remaining_one": "Konaklanma isteği göndermek için lütfen en az {{count}} karakter daha yazın.",
     "request_chars_remaining_other": "konaklanma isteği göndermek için lütfen en az {{count}} karakter daha yazın."
+  },
+  "complete_profile_dialog": {
+    "title": "Neredeyse vardın: devam etmek için lütfen profilini tamamla!",
+    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli.",
+    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
+    "actions": {
+      "send_request": "Bir istek gönder",
+      "send_message": "Bir mesaj gönder",
+      "send_friend_request": "send a friend request",
+      "create_event": "bir etkinlik oluştur"
+    },
+    "edit_profile_button": "Profilini şimdi düzenle",
+    "cancel_button": "Boş ver"
   }
 }

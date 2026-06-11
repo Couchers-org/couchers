@@ -308,7 +308,8 @@
   "quick_links": {
     "button_text": "Bevestig actie",
     "error_message": "Fout: {{message}}",
-    "missing_payload_or_sig": "Ongeldige URL"
+    "missing_payload_or_sig": "Ongeldige URL",
+    "title": "E-mailsnelactie"
   },
   "change_phone": {
     "title": "Telefoonnummer",
@@ -350,14 +351,59 @@
       "error_message": "Account herstellen mislukt: {{message}}",
       "button_text": "Herstel je account",
       "success": "Je account is hersteld, je kunt weer inloggen. Geweldig dat je er weer bent!"
-    }
+    },
+    "missing_token": "Fout: token ontbreekt"
   },
   "profile_visibility": {
     "title": "Profiel zichtbaarheid",
-    "choose": "Kies welke informatie zichtbaar mag zijn voor mensen die niet zijn ingelogd.",
+    "choose": "Kies welke informatie zichtbaar mag zijn voor mensen die niet zijn ingelogd",
     "visiblility_options": {
       "nothing": "<1>Niks</1>: verberg me volledig",
-      "map_only": "<1>Alleen op de kaart</1>: laat een anonieme pin zien, zonder meer informatie"
+      "map_only": "<1>Alleen op de kaart</1>: laat een anonieme pin zien, zonder meer informatie",
+      "limited": "<1>Beperkt</1>: toon mijn naam, locatie, hosting-/meetup-status, badges, aantal referenties en hoelang ik al lid ben van Couchers",
+      "most": "<1>Meest</1>: toon volledige \"Over mij\"-deel, behalve de aanvullende informatie",
+      "full_profile": "<1>Volledig profiel</1>: toon mijn volledige profiel (behalve referenties)"
+    }
+  },
+  "volunteer_management": {
+    "title": "Vrijwilligersmanagement",
+    "description": "Als je rol of de data niet kloppen, laat het ons dan weten.",
+    "card_preview_label": "Hoe je op de teampagina wordt weergegeven",
+    "not_a_volunteer_message": "Volgens onze gegevens ben je geen huidige of voormalige vrijwilliger. Als dit niet klopt, laat het ons dan weten door <1>dit formulier</1> in te vullen.",
+    "current_volunteer": "Vrijwilliger sinds {{startDate}}.",
+    "past_volunteer": "Vrijwilliger van {{startDate}} tot {{endDate}}.",
+    "shown_on_team_page_current": "Je wordt op de teampagina weergegeven als een huidig teamlid.",
+    "shown_on_team_page_past": "Je wordt op de teampagina weergegeven als voormalig vrijwilliger.",
+    "not_shown_on_team_page": "Verborgen op teampagina.",
+    "update_success": "Je vrijwilligersinformatie is bijgewerkt.",
+    "form": {
+      "title": "Update je vrijwilligersinformatie",
+      "override_name_label": "Gebruik een andere naam op de teampagina (in plaats van \"{{profileName}}\")",
+      "display_name_label": "Weergavenaam",
+      "override_location_label": "Gebruik een andere locatie op de teampagina (in plaats van \"{{profileLocation}}\")",
+      "display_location_label": "Locatie weergeven",
+      "show_on_team_page_label": "Toon mij op de teampagina",
+      "link_type_label": "Linktype",
+      "link_type_couchers": "Couchers-profiel",
+      "link_type_email": "E-mail",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Website",
+      "link_text_label": "Link invullen",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "jouw@email.com",
+      "link_text_website_placeholder": "https://jouw-website.com",
+      "link_text_linkedin_helper": "Je gebruikersnaam van je profiel-URL (bijvoorbeeld linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_helper": "Je e-mailadres",
+      "link_text_website_helper": "De tekst die voor de link wordt weergegeven",
+      "link_text_required": "Voer een waarde in voor de link",
+      "link_text_email_invalid": "Vul een geldig e-mailadres in",
+      "link_text_linkedin_invalid": "Voer een geldige LinkedIn-gebruikersnaam in (alleen letters, cijfers en koppeltekens)",
+      "link_url_label": "Link-URL",
+      "link_url_placeholder": "https://jouw-website.com",
+      "link_url_helper": "De hele URL waar de link naartoe moet verwijzen",
+      "link_url_required": "Voer een URL in voor de website",
+      "link_url_invalid": "Voer een geldige URL in die begint met http:// of https://",
+      "save_button": "Wijzigingen opslaan"
     }
   }
 }

@@ -6,8 +6,6 @@
     "message": "Verwende dieses Formular, um die Moderatoren aufzufordern, eine Benachrichtigung über dieses Event an alle Benutzer in der Nähe zu senden."
   },
   "show_cancelled_events": "Abgesagte Events anzeigen",
-  "attendees_count_one": "{{count}} Teilnehmende Person",
-  "attendees_count_other": "{{count}} Teilnehmende",
   "cancelled": "Abgesagt",
   "cancel_event": "Event absagen",
   "cancel_event_success_message": "Das Event wurde erfolgreich abgesagt.",
@@ -151,5 +149,20 @@
   "discussion_creation_date": "Erstellt am {{dateOnly}}",
   "duplicate_event": "Event duplizieren",
   "copy_link": "Link kopieren",
-  "copy_link_success": "Link in die Zwischenablage kopiert"
+  "copy_link_success": "Link in die Zwischenablage kopiert",
+  "community_breadcrumb_a11y": "Aktuelle Community",
+  "comment_deleted": "Dieser Kommentar wurde gelöscht.",
+  "edit_comment": "Kommentar bearbeiten",
+  "delete_comment": "Kommentar löschen",
+  "comment_edited_date": "Bearbeitet {{timeAgo}}",
+  "discussion_edited_date": "Bearbeitet {{timeAgo}}",
+  "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
+  "delete_discussion": "Beitrag löschen",
+  "delete_discussion_dialog": {
+    "title": "Beitrag löschen",
+    "message": "Möchtest du diesen Beitrag wirklich löschen? Die Kommentare bleiben sichtbar.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen"
+  },
+  "edit_discussion": "Beitrag bearbeiten"
 }

@@ -4,6 +4,25 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
+// Creating Intl.Segmenter every time is slow, so cache one per locale.
+const segmenterCache = new Map<string, Intl.Segmenter>();
+
+/// Uppercases the first grapheme cluster of a string, leaving the rest untouched.
+/// Non-capitalizable first clusters (digits, CJK, etc.) are returned unchanged.
+/// Only for dates that stand alone (their own "sentence") — never for dates
+/// interpolated into a larger translated string.
+function capitalizeFirstLetter(value: string, locale: string): string {
+  let segmenter = segmenterCache.get(locale);
+  if (!segmenter) {
+    segmenter = new Intl.Segmenter(locale, { granularity: "grapheme" });
+    segmenterCache.set(locale, segmenter);
+  }
+  const first = segmenter.segment(value)[Symbol.iterator]().next()
+    .value?.segment;
+  if (!first) return value;
+  return first.toLocaleUpperCase(locale) + value.slice(first.length);
+}
+
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
@@ -31,6 +50,10 @@ interface LocalizeDateTimeParams {
   includeSeconds?: boolean;
   /// Whether to abbreviate days of the week and month names (defaults to false).
   abbreviate?: boolean;
+  /// Whether to uppercase the first letter (defaults to false). Set this only when
+  /// the date stands alone (not interpolated into a larger sentence) so it reads
+  /// like the start of a sentence. Day/month names are never otherwise capitalized.
+  capitalize?: boolean;
 }
 
 /// Localizes a date and time, optionally with the day of the week.
@@ -42,7 +65,10 @@ export function localizeDateTime(
     date = date.toDate();
   }
   const format = getIntlDateTimeFormat(args);
-  return format.format(date);
+  const formatted = format.format(date);
+  return args.capitalize
+    ? capitalizeFirstLetter(formatted, args.locale)
+    : formatted;
 }
 
 /// Localizes only the year and month of a date.
@@ -52,12 +78,14 @@ export function localizeYearMonth(
     timezone?: string | typeof BROWSER_TIMEZONE;
     locale: string;
     abbreviate?: boolean;
+    capitalize?: boolean;
   },
 ): string {
   return localizeDateTime(date, {
     timezone: args.timezone,
     locale: args.locale,
     abbreviate: args.abbreviate,
+    capitalize: args.capitalize,
     includeDay: false,
     includeTime: false,
   });
@@ -76,7 +104,10 @@ export function localizeDateTimeRange(
     end = end.toDate();
   }
   const format = getIntlDateTimeFormat(args);
-  return format.formatRange(start, end);
+  const formatted = format.formatRange(start, end);
+  return args.capitalize
+    ? capitalizeFirstLetter(formatted, args.locale)
+    : formatted;
 }
 
 // Creating Intl.DateTimeFormat every time is 40x slower.
@@ -130,7 +161,11 @@ function createIntlDateTimeFormat(
 /// Localizes just the abbreviated month name of a date (e.g. "Jan", "Mai" in German).
 export function localizeMonthAbbreviation(
   date: Date | Dayjs,
-  args: { locale: string; timezone?: string | typeof BROWSER_TIMEZONE },
+  args: {
+    locale: string;
+    timezone?: string | typeof BROWSER_TIMEZONE;
+    capitalize?: boolean;
+  },
 ): string {
   if (daysjs.isDayjs(date)) {
     date = date.toDate();
@@ -147,7 +182,10 @@ export function localizeMonthAbbreviation(
     format = Intl.DateTimeFormat(args.locale, options);
     intlDateTimeFormatCache.set(cacheKey, format);
   }
-  return format.format(date);
+  const formatted = format.format(date);
+  return args.capitalize
+    ? capitalizeFirstLetter(formatted, args.locale)
+    : formatted;
 }
 
 const isoMuiDateFormat = "YYYY-MM-DD";
@@ -232,6 +270,14 @@ function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
 /** Compares whether date1 is equal to or in the future of date2 */
 function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
+}
+
+/// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
+export function localizeRelativeDays(days: number, locale: string): string {
+  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
+    days,
+    "day",
+  );
 }
 
 export { isSameOrFutureDate, numNights, timestamp2Date };

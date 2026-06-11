@@ -94,9 +94,6 @@
     "title_for_surfer": "Sol·licitud a {{user}} - {{status}}"
   },
   "write_reference_button_text": "Escriu una referència",
-  "close_request_dialog_title": "Has acabat de comunicar-te?",
-  "close_request_dialog_host": "Assegura't d'haver acabat de xatejar abans de declinar la sol·licitud.",
-  "close_request_dialog_surfer": "Assegura't d'haver acabat de xatejar abans de cancel·lar la sol·licitud.",
   "close_request_button_text": "Declina",
   "confirm_request_button_text": "Confirma",
   "host_pending_request_help_text": "<0>Coses a tenir en compte</0> abans de respondre.",
@@ -156,7 +153,6 @@
     }
   },
   "mark_all_read_button_text": "Marca tot com a llegit",
-  "request_closed_message": "Aquesta sol·licitud d'allotjament està tancada. Per continuar xatejant, envia un missatge normal a l'altra persona.",
   "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
   "mark_all_read_button_text_chats": "Marca tots els xats com a llegits",
   "mark_all_read_button_text_hosting": "Marca totes les sol·licituds d'allotjament com a llegides",

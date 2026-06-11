@@ -9,6 +9,10 @@ import { ListBadgeUsersRes } from "proto/api_pb";
 import { Badge } from "proto/resources_pb";
 import { service } from "service";
 
+// Badge definitions are platform-wide static metadata that change only when
+// devs add new badges — cache them for the session lifetime.
+const BADGES_STALE_TIME = Infinity;
+
 export const useBadges = () => {
   const { data, ...rest } = useQuery({
     queryKey: [badgesKey],
@@ -24,6 +28,7 @@ export const useBadges = () => {
         },
       );
     },
+    staleTime: BADGES_STALE_TIME,
   });
 
   return {

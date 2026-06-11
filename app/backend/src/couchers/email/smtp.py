@@ -19,18 +19,12 @@ def make_cid(sender_email: str) -> tuple[str, str]:
     return cid, without_tag
 
 
-def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
-    """
-    Sends out the email through SMTP, settings from config.
-
-    Returns a models.Email object that can be straight away added to the database.
-    """
-    message_id = random_hex()
+def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str) -> tuple[EmailMessage, str | None]:
     msg = EmailMessage()
     msg["Subject"] = payload.subject
     msg["From"] = Address(payload.sender_name, addr_spec=payload.sender_email)
     msg["To"] = Address(addr_spec=payload.recipient)
-    msg["X-Couchers-ID"] = message_id
+    msg["X-Couchers-ID"] = couchers_id
 
     if payload.list_unsubscribe_header:
         msg["List-Unsubscribe"] = payload.list_unsubscribe_header
@@ -41,7 +35,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
 
     msg.set_content(payload.plain)
 
-    updated_html = payload.html
+    updated_html: str | None = payload.html
     if updated_html:
         # for any png files in attachment_imgs/, goes through and replaces instances of the filename with attachment
         used_attachments = []
@@ -58,23 +52,39 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         msg.add_alternative(updated_html, subtype="html")
 
         for cid, mime_type, mime_subtype, data in used_attachments:
-            payloads = cast(list[MIMEPart], msg.get_payload())
-            payloads[1].add_related(data, mime_type, mime_subtype, cid=cid)
+            html_part = cast(list[MIMEPart], msg.get_payload())[-1]
+            html_part.add_related(data, mime_type, mime_subtype, cid=cid)
 
     if payload.attachments:
         for attachment in payload.attachments:
-            mime_maintype, mime_subtype = attachment.mime_type.split("/")
+            # Create with generic Content-Type/Content-Disposition headers,
+            # then overwrite them with the headers specified by the caller.
             msg.add_attachment(
-                attachment.data, maintype=mime_maintype, subtype=mime_subtype, filename=attachment.filename
+                attachment.data, maintype="application", subtype="octet-stream", disposition="attachment"
             )
+            attachment_part = cast(list[MIMEPart], msg.get_payload())[-1]
+            _replace_header_verbatim(attachment_part, "Content-Type", attachment.content_type)
+            _replace_header_verbatim(attachment_part, "Content-Disposition", attachment.content_disposition)
 
-    with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
+    return msg, updated_html
+
+
+def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
+    """
+    Sends out the email through SMTP, settings from config.
+
+    Returns a models.Email object that can be straight away added to the database.
+    """
+    message_id = random_hex()
+    msg, updated_html = email_proto_to_message(payload, message_id)
+
+    with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as server:
         server.ehlo()
-        if not config["DEV"]:
+        if not config.DEV:
             server.starttls()
             # stmplib docs recommend calling ehlo() before and after starttls()
             server.ehlo()
-            server.login(config["SMTP_USERNAME"], config["SMTP_PASSWORD"])
+            server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
         server.sendmail(payload.sender_email, payload.recipient, msg.as_string())
 
     return Email(
@@ -84,7 +94,24 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         recipient=payload.recipient,
         subject=payload.subject,
         plain=payload.plain,
-        html=updated_html,
+        html=updated_html or "",
         list_unsubscribe_header=payload.list_unsubscribe_header,
         source_data=payload.source_data,
     )
+
+
+def _replace_header_verbatim(part: MIMEPart, name: str, value: str) -> None:
+    # MIMEPart.replace_header will parse the value and reformat it,
+    # resulting in additional quoting for an .ics "method=PUBLISH" parameter,
+    # which are not as backwards compatible with older email clients.
+
+    if hasattr(part, "_headers"):
+        # Replace the header in the internal data structure to avoid reformatting.
+        header_index = next((i for i, val in enumerate(part._headers) if val[0] == name), None)
+        if isinstance(header_index, int):
+            part._headers[header_index] = (name, value)
+        else:
+            part._headers.append((name, value))
+    else:
+        # Non-verbatim fallback, in case the internals change
+        part.replace_header(name, value)

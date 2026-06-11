@@ -72,6 +72,7 @@ class CouchersContext:
         token: str | None,
         localization: LocalizationContext,
         sofa: str | None = None,
+        serialize_shadowed: bool,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self._grpc_context = grpc_context
@@ -80,6 +81,7 @@ class CouchersContext:
         self.__token = token
         self.__localization = localization
         self._sofa = sofa
+        self.__serialize_shadowed = serialize_shadowed
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
@@ -159,6 +161,10 @@ class CouchersContext:
         self.__verify_interactive()
         return self.__headers
 
+    def get_header(self, name: str) -> str | None:
+        self.__verify_interactive()
+        return cast(str | None, self.__headers.get(name))
+
     @property
     def user_id(self) -> int:
         """
@@ -188,11 +194,15 @@ class CouchersContext:
     def localization(self) -> LocalizationContext:
         return self.__localization
 
+    @property
+    def serialize_shadowed(self) -> bool:
+        return self.__serialize_shadowed
+
     # Feature-flag evaluation methods mirror the OpenFeature evaluation API, evaluating for this
     # context's user. The gating lives in experimentation; we just pass our cached per-request
     # evaluator. The in-code default is honored even for flags not yet set up in GrowthBook.
     def get_boolean_value(self, flag_key: str, default: bool) -> bool:
-        return experimentation._boolean_value(flag_key, default, self._get_growthbook)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_string_value(self, flag_key: str, default: str) -> str:
         return experimentation._feature_value(flag_key, default, self._get_growthbook)
@@ -229,6 +239,7 @@ def make_interactive_context(
         token=token,
         localization=localization,
         sofa=sofa,
+        serialize_shadowed=False,
     )
 
 
@@ -240,6 +251,7 @@ def make_one_off_interactive_user_context(couchers_context: CouchersContext, use
         is_api_key=None,
         token=None,
         localization=couchers_context.localization,
+        serialize_shadowed=False,
     )
 
 
@@ -251,6 +263,7 @@ def make_media_context(grpc_context: grpc.ServicerContext) -> CouchersContext:
         grpc_context=grpc_context,
         token=None,
         localization=LocalizationContext.en_utc(),
+        serialize_shadowed=False,
     )
 
 
@@ -262,6 +275,19 @@ def make_background_user_context(user_id: int, localization: LocalizationContext
         grpc_context=None,
         token=None,
         localization=localization or LocalizationContext.en_utc(),
+        serialize_shadowed=False,
+    )
+
+
+def make_notification_user_context(user_id: int, localization: LocalizationContext | None = None) -> CouchersContext:
+    return CouchersContext(
+        is_interactive=False,
+        user_id=user_id,
+        is_api_key=None,
+        grpc_context=None,
+        token=None,
+        localization=localization or LocalizationContext.en_utc(),
+        serialize_shadowed=True,
     )
 
 
@@ -273,4 +299,5 @@ def make_logged_out_context(localization: LocalizationContext) -> CouchersContex
         grpc_context=None,
         token=None,
         localization=localization,
+        serialize_shadowed=False,
     )

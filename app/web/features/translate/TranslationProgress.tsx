@@ -143,12 +143,12 @@ export default function TranslationProgress() {
 
   const renderFlag = (flagCode: string, percent: number) => {
     if (flagCode === "CAT") {
-      return <CatalanFlag percent={percent} aria-label="Catalan flag" />;
+      return <CatalanFlag percent={percent} />;
     }
+
     return (
       <FlagImage
         src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-        alt={`${flagCode} flag`}
         percent={percent}
       />
     );
