@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   Grid,
+  Link,
   styled,
   Typography,
 } from "@mui/material";
@@ -17,8 +18,9 @@ import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
 import { GLOBAL } from "i18n/namespaces";
 import { Volunteer } from "proto/public_pb";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { teamRoute } from "routes";
 import { theme } from "theme";
 
 const TeamMemberCard = styled(Card, {
@@ -63,6 +65,21 @@ const StyleBoardMemberBadgeText = styled("h3")(() => ({
   backgroundColor: theme.palette.primary.main,
 }));
 
+const ExtraCard = styled(Card)(({ theme }) => ({
+  height: "100%",
+  border: `1px solid ${theme.palette.grey[400]}`,
+  padding: "1rem",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  alignItems: "center",
+  justifyContent: "center",
+
+  [theme.breakpoints.up("md")]: {
+    gap: "2rem",
+  },
+}));
+
 function BoardMemberBadge() {
   const { t } = useTranslation([GLOBAL]);
 
@@ -79,11 +96,12 @@ function BoardMemberBadge() {
 
 interface MemberListProps {
   variant: "current" | "past";
-  volunteers: Volunteer.AsObject[] | undefined;
+  members: Volunteer.AsObject[] | undefined;
+  hasExtraCard?: boolean;
 }
 
-function MemberList({ variant, volunteers }: MemberListProps) {
-  if (!volunteers?.length) {
+function MemberList({ variant, members, hasExtraCard }: MemberListProps) {
+  if (!members?.length) {
     return <></>;
   }
 
@@ -95,7 +113,7 @@ function MemberList({ variant, volunteers }: MemberListProps) {
       justifyContent="center"
       alignItems="stretch"
     >
-      {volunteers?.map(
+      {members?.map(
         ({
           name,
           isBoardMember,
@@ -107,51 +125,73 @@ function MemberList({ variant, volunteers }: MemberListProps) {
           linkUrl,
         }) => {
           return (
-            <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
-              <TeamMemberCard
-                key={name}
-                memberType={
-                  variant === "past"
-                    ? "pastMember"
-                    : isBoardMember
-                      ? "boardMember"
-                      : undefined
-                }
-                variant="outlined"
-              >
-                <TeamMemberCardContent>
-                  <StyledAvatar alt={`Headshot of ${name}`} src={img} />
-                  <DetailDiv>
-                    <Typography variant={"h3"} component="h2">
-                      {name}
+            <Fragment key={name}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+                <TeamMemberCard
+                  key={name}
+                  memberType={
+                    variant === "past"
+                      ? "pastMember"
+                      : isBoardMember
+                        ? "boardMember"
+                        : undefined
+                  }
+                  variant="outlined"
+                >
+                  <TeamMemberCardContent>
+                    <StyledAvatar alt={`Headshot of ${name}`} src={img} />
+                    <DetailDiv>
+                      <Typography variant={"h3"} component="h2">
+                        {name}
+                      </Typography>
+                      {isBoardMember && <BoardMemberBadge />}
+                      <Typography variant="body1">{role}</Typography>
+                      <div>
+                        <IconText icon={PinIcon} text={location} />
+                        {linkUrl && (
+                          <IconText
+                            icon={
+                              linkType === "linkedin"
+                                ? LinkedInIcon
+                                : linkType === "email"
+                                  ? EmailIcon
+                                  : linkType === "couchers"
+                                    ? CouchersIcon
+                                    : GlobeIcon
+                            }
+                            text={
+                              <Typography variant="body1">
+                                <StyledLink href={linkUrl}>
+                                  {linkText}
+                                </StyledLink>
+                              </Typography>
+                            }
+                          />
+                        )}
+                      </div>
+                    </DetailDiv>
+                  </TeamMemberCardContent>
+                </TeamMemberCard>
+              </Grid>
+              {hasExtraCard ? (
+                <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
+                  <ExtraCard variant="outlined">
+                    <Typography textAlign="center">
+                      We are passionate couch surfers and skilled professionals
+                      committed to creating an improved, safer, and more
+                      inclusive platform.
                     </Typography>
-                    {isBoardMember && <BoardMemberBadge />}
-                    <Typography variant="body1">{role}</Typography>
-                    <div>
-                      <IconText icon={PinIcon} text={location} />
-                      {linkUrl && (
-                        <IconText
-                          icon={
-                            linkType === "linkedin"
-                              ? LinkedInIcon
-                              : linkType === "email"
-                                ? EmailIcon
-                                : linkType === "couchers"
-                                  ? CouchersIcon
-                                  : GlobeIcon
-                          }
-                          text={
-                            <Typography variant="body1">
-                              <StyledLink href={linkUrl}>{linkText}</StyledLink>
-                            </Typography>
-                          }
-                        />
-                      )}
-                    </div>
-                  </DetailDiv>
-                </TeamMemberCardContent>
-              </TeamMemberCard>
-            </Grid>
+                    <Link
+                      href={teamRoute}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      More about the team
+                    </Link>
+                  </ExtraCard>
+                </Grid>
+              ) : null}
+            </Fragment>
           );
         },
       )}
@@ -162,33 +202,45 @@ function MemberList({ variant, volunteers }: MemberListProps) {
 interface TeamSectionProps {
   variant: "current" | "past";
   volunteers: Volunteer.AsObject[] | undefined;
+  boardMembersOnly?: boolean;
+  hasExtraCard?: boolean;
 }
-function TeamSection({ variant, volunteers }: TeamSectionProps) {
-  const sections = useMemo(() => {
+function TeamSection({
+  variant,
+  volunteers,
+  boardMembersOnly,
+  hasExtraCard,
+}: TeamSectionProps) {
+  const volunteersList = useMemo(() => {
+    if (!volunteers) {
+      return;
+    }
     if (variant === "past") {
-      return [volunteers];
+      return volunteers;
     }
 
-    return (volunteers ?? []).reduce<Volunteer.AsObject[][]>(
-      (acc, curr) => {
-        if (variant)
-          if (curr.isBoardMember) {
-            acc[0].push(curr);
-          } else {
-            acc[1].push(curr);
-          }
-
-        return acc;
-      },
-      [[], []],
-    );
+    return volunteers.filter((volunteer) => !volunteer.isBoardMember);
   }, [variant, volunteers]);
+
+  const boardMembers = useMemo(() => {
+    if (!volunteers) {
+      return false;
+    }
+    return volunteers.filter((volunteer) => volunteer.isBoardMember);
+  }, [volunteers]);
 
   return (
     <StyledSection>
-      {sections.map((section, index) => (
-        <MemberList key={index} volunteers={section} variant={variant} />
-      ))}
+      {boardMembers ? (
+        <MemberList
+          members={boardMembers}
+          variant={variant}
+          hasExtraCard={hasExtraCard}
+        />
+      ) : null}
+      {!boardMembersOnly ? (
+        <MemberList members={volunteersList} variant={variant} />
+      ) : null}
     </StyledSection>
   );
 }
