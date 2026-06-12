@@ -16,7 +16,7 @@ import {
   timestamp2Date,
   UTC_TIMEZONE,
 } from "utils/date";
-import dayjs from "utils/dayjs";
+import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 interface Props {
@@ -79,7 +79,12 @@ export const ResponseRateText = ({
 };
 
 export const ResponseRateLabel = ({ user }: Props) => {
-  const { t } = useTranslation("profile");
+  const {
+    t,
+    i18n: { language },
+  } = useTranslation("profile");
+  // Localize the humanized durations at the call site (no global dayjs locale).
+  const dayjsLocale = i18nToDayjsLocale(language);
 
   let rateText = undefined;
   let timeText = undefined;
@@ -93,6 +98,7 @@ export const ResponseRateLabel = ({ user }: Props) => {
     timeText = t("response_time_text_some", {
       p33: dayjs
         .duration(user.some.responseTimeP33!.seconds, "second")
+        .locale(dayjsLocale)
         .humanize(),
     });
   } else if (user.most) {
@@ -100,9 +106,11 @@ export const ResponseRateLabel = ({ user }: Props) => {
     timeText = t("response_time_text_most", {
       p33: dayjs
         .duration(user.most.responseTimeP33!.seconds, "second")
+        .locale(dayjsLocale)
         .humanize(),
       p66: dayjs
         .duration(user.most.responseTimeP66!.seconds, "second")
+        .locale(dayjsLocale)
         .humanize(),
     });
   } else if (user.almostAll) {
@@ -110,9 +118,11 @@ export const ResponseRateLabel = ({ user }: Props) => {
     timeText = t("response_time_text_almost_all", {
       p33: dayjs
         .duration(user.almostAll.responseTimeP33!.seconds, "second")
+        .locale(dayjsLocale)
         .humanize(),
       p66: dayjs
         .duration(user.almostAll.responseTimeP66!.seconds, "second")
+        .locale(dayjsLocale)
         .humanize(),
     });
   }
