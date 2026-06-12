@@ -57,9 +57,11 @@ async function selectBirthdate(
   });
   await user.click(field);
   const dialog = await screen.findByRole("dialog");
-  await user.click(within(dialog).getByRole("radio", { name: year }));
-  await user.click(within(dialog).getByRole("radio", { name: month }));
-  await user.click(within(dialog).getByRole("gridcell", { name: day }));
+  // Use findByRole (async) so the year/month/day views have time to render
+  // under load — getByRole would miss them right after the dialog opens.
+  await user.click(await within(dialog).findByRole("radio", { name: year }));
+  await user.click(await within(dialog).findByRole("radio", { name: month }));
+  await user.click(await within(dialog).findByRole("gridcell", { name: day }));
 }
 
 describe("AccountForm", () => {
