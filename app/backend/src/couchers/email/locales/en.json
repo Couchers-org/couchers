@@ -74,7 +74,7 @@
       "view_action": "View this message"
     },
     "group": {
-      "subject": "{{ author }} sent a message in {{ group }}",
+      "subject": "{{ author }} sent a message in \"{{ group }}\"",
       "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
       "view_action": "View this message"
     }
