@@ -108,10 +108,6 @@ class Config:
     LISTMONK_API_USERNAME: str
     LISTMONK_API_KEY: str
     LISTMONK_LIST_ID: int
-    # Google recaptcha antibot (gated at runtime by the `recaptcha_enabled` feature flag)
-    RECAPTHCA_PROJECT_ID: str
-    RECAPTHCA_API_KEY: str
-    RECAPTHCA_SITE_KEY: str
     # Whether we're in test
     IN_TEST: bool = False
     # Dev-only override file; when set, flags are read from it instead of GrowthBook.
@@ -196,8 +192,8 @@ class Config:
                 raise Exception("Listmonk credentials must be configured in production")
 
             # The following features are gated at runtime by feature flags (`strong_verification_enabled`,
-            # `postal_verification_enabled`, `recaptcha_enabled`), which can be flipped on remotely at any
-            # time, so prod must always have their credentials present.
+            # `postal_verification_enabled`), which can be flipped on remotely at any time, so prod must
+            # always have their credentials present.
             if not self.IRIS_ID_PUBKEY or not self.IRIS_ID_SECRET or not self.VERIFICATION_DATA_PUBLIC_KEY:
                 raise Exception("Iris ID credentials must be configured in production")
             if (
@@ -208,8 +204,6 @@ class Config:
                 or not self.MYPOSTCARD_CAMPAIGN_ID
             ):
                 raise Exception("MyPostcard API credentials must be configured in production")
-            if not self.RECAPTHCA_PROJECT_ID or not self.RECAPTHCA_API_KEY or not self.RECAPTHCA_SITE_KEY:
-                raise Exception("reCAPTCHA credentials must be configured in production")
 
             if self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
                 raise Exception("FEATURE_FLAGS_FILE_OVERRIDE_PATH is dev-only and must not be set in production")

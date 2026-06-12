@@ -2,14 +2,12 @@ import logging
 from datetime import datetime, timedelta
 
 import grpc
-import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
-from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
@@ -17,11 +15,11 @@ from couchers.event_log import log_event
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
+    antibot_score_histogram,
+    antibots_assessed_counter,
     logins_counter,
     password_reset_completions_counter,
     password_reset_initiations_counter,
-    recaptcha_score_histogram,
-    recaptchas_assessed_counter,
     signup_completions_counter,
     signup_initiations_counter,
     signup_time_histogram,
@@ -709,28 +707,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.UnsubscribeRes(response=handle_unsubscribe(payload, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not context.get_boolean_value("recaptcha_enabled", default=False):
+        if not context.get_boolean_value("antibot_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
         ip_address = context.get_header("x-couchers-real-ip")
         user_agent = context.get_header("user-agent")
         user_id = context.user_id if context.is_logged_in() else None
-
-        resp = requests.post(
-            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config.RECAPTHCA_PROJECT_ID}/assessments?key={config.RECAPTHCA_API_KEY}",
-            json={
-                "event": {
-                    "token": request.token,
-                    "siteKey": config.RECAPTHCA_SITE_KEY,
-                    "userAgent": user_agent,
-                    "userIpAddress": ip_address,
-                    "expectedAction": request.action,
-                    "userInfo": {"accountId": str(user_id) if user_id else None},
-                }
-            },
-        )
-
-        resp.raise_for_status()
 
         log = AntiBotLog(
             token=request.token,
@@ -738,15 +720,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ip_address=ip_address,
             action=request.action,
             user_id=user_id,
-            score=resp.json()["riskAnalysis"]["score"],
-            provider_data=resp.json(),
+            # placeholders: there is currently no provider assessing requests
+            score=0.0,
+            provider_data={},
         )
 
         session.add(log)
         session.flush()
 
-        recaptchas_assessed_counter.labels(log.action).inc()
-        recaptcha_score_histogram.labels(log.action).observe(log.score)
+        antibots_assessed_counter.labels(log.action).inc()
+        antibot_score_histogram.labels(log.action).observe(log.score)
 
         if context.is_logged_in():
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -757,7 +740,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if context.get_boolean_value("recaptcha_enabled", default=False):
+        if context.get_boolean_value("antibot_enabled", default=False):
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:
