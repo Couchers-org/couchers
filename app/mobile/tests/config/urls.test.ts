@@ -1,7 +1,14 @@
 const mockExtra: Record<string, unknown> = {};
+let mockUpdateId: string | null = null;
 
 jest.mock("expo-constants", () => ({
   expoConfig: { extra: mockExtra },
+}));
+
+jest.mock("expo-updates", () => ({
+  get updateId() {
+    return mockUpdateId;
+  },
 }));
 
 function loadUrls() {
@@ -18,6 +25,7 @@ describe("web base URL resolution", () => {
     for (const key of Object.keys(mockExtra)) {
       delete mockExtra[key];
     }
+    mockUpdateId = null;
     delete process.env.EXPO_PUBLIC_COUCHERS_ENV;
   });
 
@@ -50,6 +58,34 @@ describe("web base URL resolution", () => {
     expect(urls.getWebBaseUrl()).toBe("https://override.example.com");
     await urls.clearUrlOverrides();
     expect(urls.getWebBaseUrl()).toBe("https://branch.vercel.app");
+  });
+
+  it("drops an override when a different bundle is loaded", async () => {
+    mockUpdateId = "bundle-A";
+    mockExtra.otaWebBaseUrl = "https://branch.vercel.app";
+    const urls = loadUrls();
+    await urls.setUrlOverrides({
+      apiBaseUrl: null,
+      webBaseUrl: "https://override.example.com",
+    });
+    expect(urls.getWebBaseUrl()).toBe("https://override.example.com");
+
+    // A new OTA branch preview is now running; its own web URL should win.
+    mockUpdateId = "bundle-B";
+    await urls.hydrateUrlOverrides();
+    expect(urls.getWebBaseUrl()).toBe("https://branch.vercel.app");
+  });
+
+  it("keeps an override across reloads of the same bundle", async () => {
+    mockUpdateId = "bundle-A";
+    const urls = loadUrls();
+    await urls.setUrlOverrides({
+      apiBaseUrl: null,
+      webBaseUrl: "https://override.example.com",
+    });
+
+    await urls.hydrateUrlOverrides();
+    expect(urls.getWebBaseUrl()).toBe("https://override.example.com");
   });
 
   it("ignores a non-string manifest value", () => {
