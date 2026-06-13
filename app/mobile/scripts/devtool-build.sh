@@ -7,6 +7,7 @@
 # Env:   EXPO_TOKEN             EAS auth (build + submit scope)
 #        AWS_PREVIEW_BUCKET     the couchers-dev-assets bucket (hosts the APK/sim build)
 #        PREVIEW_DOMAIN         the dev-assets CDN domain (preview.couchershq.org)
+#        CI_COMMIT_REF_SLUG     the branch slug (develop); the preview-subdomain ref
 #        CI_COMMIT_SHORT_SHA    tags the immutable APK/sim filename
 #        CI_COMMIT_BEFORE_SHA   GitLab-provided previous HEAD; reads prior file
 #        plus the AWS creds the aws CLI reads from the environment
@@ -30,6 +31,13 @@ case "$TARGET" in
   ios-sim) FP_PLATFORM=ios ;;
   *) FP_PLATFORM="$TARGET" ;;
 esac
+
+# Self-hosted client downloads (APK, simulator build) follow the preview-subdomain
+# rewriter's {ref}--{artifact-type} convention: {ref}--devtool-builds maps to the
+# bucket prefix devtool-builds/{ref}/, and each platform is a sub-path beneath it
+# (mirrors the {sha}--ota/{platform} OTA layout). The ref is the branch slug
+# (develop), so the URL is stable and bookmarkable across builds.
+BUILDS_HOST="${CI_COMMIT_REF_SLUG}--devtool-builds.${PREVIEW_DOMAIN}"
 
 # node, not jq — the node:22 image has no jq.
 json_field() { node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(String(eval("j"+process.argv[1])??""))})' "$1"; }
@@ -83,9 +91,9 @@ elif [ "$TARGET" = "ios-sim" ]; then
   echo "simulator app artifact: $APP_URL"
   curl -fSL "$APP_URL" -o couchers-devtool-sim.tar.gz
 
-  PREFIX="devtool-builds/ios-simulator"
+  SUBPATH="ios-simulator"
+  PREFIX="devtool-builds/${CI_COMMIT_REF_SLUG}/${SUBPATH}"
   APP_NAME="couchers-devtool-${CI_COMMIT_SHORT_SHA}.tar.gz"
-  HOST="ios-simulator--devtool-builds.${PREVIEW_DOMAIN}"
   aws s3 cp couchers-devtool-sim.tar.gz "s3://${AWS_PREVIEW_BUCKET}/${PREFIX}/${APP_NAME}" \
     --content-type application/gzip
 
@@ -113,8 +121,8 @@ HTML
   # Stable pointer — overwritten each build, so revalidate rather than cache.
   aws s3 cp index.html "s3://${AWS_PREVIEW_BUCKET}/${PREFIX}/index.html" \
     --content-type "text/html; charset=utf-8" --cache-control "no-cache"
-  echo "Simulator build published: https://${HOST}/${APP_NAME}"
-  echo "Stable page:               https://${HOST}/index.html"
+  echo "Simulator build published: https://${BUILDS_HOST}/${SUBPATH}/${APP_NAME}"
+  echo "Stable page:               https://${BUILDS_HOST}/${SUBPATH}/"
 else
   # No Play TestFlight-equivalent for a dev-client APK, so we host it ourselves.
   BUILD_JSON="$(eas build --platform android --profile devtool-apk --non-interactive --json)"
@@ -126,9 +134,9 @@ else
   echo "APK artifact: $APK_URL"
   curl -fSL "$APK_URL" -o couchers-devtool.apk
 
-  PREFIX="devtool-builds/android"
+  SUBPATH="android"
+  PREFIX="devtool-builds/${CI_COMMIT_REF_SLUG}/${SUBPATH}"
   APK_NAME="couchers-devtool-${CI_COMMIT_SHORT_SHA}.apk"
-  HOST="android--devtool-builds.${PREVIEW_DOMAIN}"
   aws s3 cp couchers-devtool.apk "s3://${AWS_PREVIEW_BUCKET}/${PREFIX}/${APK_NAME}" \
     --content-type application/vnd.android.package-archive
 
@@ -152,8 +160,8 @@ HTML
   # Stable pointer — overwritten each build, so revalidate rather than cache.
   aws s3 cp index.html "s3://${AWS_PREVIEW_BUCKET}/${PREFIX}/index.html" \
     --content-type "text/html; charset=utf-8" --cache-control "no-cache"
-  echo "APK published: https://${HOST}/${APK_NAME}"
-  echo "Stable page:   https://${HOST}/index.html"
+  echo "APK published: https://${BUILDS_HOST}/${SUBPATH}/${APK_NAME}"
+  echo "Stable page:   https://${BUILDS_HOST}/${SUBPATH}/"
 fi
 
 echo "Built Dev Tool $TARGET client at fingerprint $CURRENT."
