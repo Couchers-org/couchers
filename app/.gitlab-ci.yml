@@ -1040,7 +1040,9 @@ build:mobile-native-devtool:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/devtool-build.sh ios
+    - bash scripts/devtool-build.sh ios-sim
     - bash scripts/devtool-build.sh android
+    - bash scripts/devtool-build.sh index
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
