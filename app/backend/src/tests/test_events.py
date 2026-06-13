@@ -21,6 +21,7 @@ from couchers.models import (
     NotificationTopicAction,
     Reply,
     Upload,
+    User,
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
@@ -3002,6 +3003,56 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
     process_jobs()
 
     # Verify that no reminder notification was sent for user2
+    with session_scope() as session:
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
+        assert len(reminder_notifs) == 0
+
+
+@pytest.mark.parametrize("invisible_field", ["deleted_at", "banned_at", "shadowed_at"])
+def test_event_reminder_not_sent_for_invisible_attendee(
+    db, push_collector: PushCollector, moderator: Moderator, invisible_field
+):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user2], [], None)
+
+    start_time = now() + timedelta(hours=23)
+    end_time = start_time + timedelta(hours=1)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Invisible Attendee Reminder Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+    process_jobs()
+
+    with events_session(token2) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values({invisible_field: now()}))
+
+    send_event_reminders(empty_pb2.Empty())
+    process_jobs()
+
     with session_scope() as session:
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
