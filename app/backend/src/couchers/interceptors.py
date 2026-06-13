@@ -29,6 +29,7 @@ from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
     PERMISSION_DENIED_ERROR_MESSAGE,
+    RATE_LIMIT_ERROR_MESSAGE,
     UNAUTHORIZED_ERROR_MESSAGE,
     UNKNOWN_ERROR_MESSAGE,
 )
@@ -44,11 +45,14 @@ from couchers.metrics import (
     observe_in_servicer_serde_histogram,
     observe_in_servicer_setup_errors_counter,
     observe_in_servicer_setup_histogram,
+    observe_rate_limit_check,
+    observe_rate_limit_trip,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
+from couchers.ratelimit import check_rate_limits, rate_limiting_enabled, rate_limiting_fail_closed
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -453,6 +457,29 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         )
 
         check_permissions(auth_info, auth_level)
+
+        method = handler_call_details.method
+        rl_result = check_rate_limits(pool, method, headers.ip_address, auth_info.user_id if auth_info else None)
+        if rl_result is not None:
+            if rl_result.store_error:
+                # the store was unreachable: fail closed only when enforcing and configured to, else fail open
+                if rate_limiting_enabled() and rate_limiting_fail_closed():
+                    observe_rate_limit_check("failed_closed")
+                    raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
+                observe_rate_limit_check("failed_open")
+            elif rl_result.tripped:
+                enforced = rate_limiting_enabled()
+                for t in rl_result.tripped:
+                    observe_rate_limit_trip(method, t.scope, t.dimension, enforced)
+                if enforced:
+                    observe_rate_limit_check("blocked")
+                    raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
+                observe_rate_limit_check("shadowed")
+                # shadow (the default): allow the request but log what would have been blocked
+                labels = ", ".join(t.label for t in rl_result.tripped)
+                logger.warning("rate limit (shadow) would block %s on %s", method, labels)
+            else:
+                observe_rate_limit_check("allowed")
 
         if headers.sofa:
             sofa = headers.sofa

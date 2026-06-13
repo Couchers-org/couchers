@@ -131,6 +131,8 @@ CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
 UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
 PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
+RATE_LIMIT_ERROR_MESSAGE = "Too many requests. Please slow down and try again shortly."
+
 GHOST_USERNAME = "ghost"
 
 # Photo gallery limits

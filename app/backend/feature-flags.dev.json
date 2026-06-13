@@ -7,6 +7,8 @@
   "notification_translations_enabled": true,
   "postal_verification_enabled": false,
   "public_trips_enabled": true,
+  "rate_limiting_enabled": false,
+  "rate_limiting_fail_closed": false,
   "sms_enabled": false,
   "strong_verification_enabled": false,
   "test_growthbook_integration": true
