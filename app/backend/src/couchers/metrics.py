@@ -622,6 +622,25 @@ signup_completions_counter: Counter = Counter(
     "Number of completed signups",
     labelnames=["gender"],
 )
+# Per-step signup funnel counters. Each fires once, the first time a signup flow satisfies the given gate, so
+# that step_total/initiations_total gives the fraction of signups that reached that step. Unlabeled to match
+# signup_initiations_counter for clean ratios.
+signup_account_filled_counter: Counter = Counter(
+    "couchers_signup_account_filled_total",
+    "Number of signup flows that filled in their account details",
+)
+signup_email_verified_counter: Counter = Counter(
+    "couchers_signup_email_verified_total",
+    "Number of signup flows that verified their email address",
+)
+signup_guidelines_accepted_counter: Counter = Counter(
+    "couchers_signup_guidelines_accepted_total",
+    "Number of signup flows that accepted the community guidelines",
+)
+signup_motivations_filled_counter: Counter = Counter(
+    "couchers_signup_motivations_filled_total",
+    "Number of signup flows that filled in their motivations",
+)
 signup_time_histogram: Histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",

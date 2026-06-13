@@ -1,5 +1,6 @@
 import http.cookies
 from typing import cast
+from unittest.mock import DEFAULT, patch
 
 import grpc
 import pytest
@@ -224,6 +225,85 @@ def test_signup_incremental(db):
         assert form.contribute == ContributeOption.yes
         assert form.contribute_ways == ["serving", "backend"]
         assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
+
+
+def test_signup_funnel_counters(db):
+    """Each per-step signup funnel counter should fire exactly once across an incremental signup."""
+    with patch.multiple(
+        "couchers.servicers.auth",
+        signup_initiations_counter=DEFAULT,
+        signup_account_filled_counter=DEFAULT,
+        signup_email_verified_counter=DEFAULT,
+        signup_guidelines_accepted_counter=DEFAULT,
+        signup_motivations_filled_counter=DEFAULT,
+        signup_completions_counter=DEFAULT,
+    ) as counters:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                )
+            )
+        flow_token = res.flow_token
+        counters["signup_initiations_counter"].inc.assert_called_once()
+
+        with session_scope() as session:
+            email_token = (
+                session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+            )
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        counters["signup_account_filled_counter"].inc.assert_called_once()
+
+        # accept the guidelines twice; the counter must still only fire once
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        counters["signup_guidelines_accepted_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+                )
+            )
+        counters["signup_motivations_filled_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token, email_token=email_token))
+        counters["signup_email_verified_counter"].inc.assert_called_once()
+
+        assert res.HasField("auth_res")
+        counters["signup_completions_counter"].labels.assert_called_once_with("Bot")
 
 
 def _quick_signup() -> int:
