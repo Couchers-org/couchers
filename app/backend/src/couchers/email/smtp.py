@@ -10,11 +10,12 @@ from typing import cast
 import couchers
 from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
-from couchers.email.rendering import template_folder
 from couchers.models import Email
 from couchers.proto.internal import jobs_pb2
 
-# Base directory for EmailPart.data_file_path
+template_base = Path(Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2")
+
+# Base directory for relative EmailPart.data_file_path
 email_related_part_data_path_base = Path(couchers.__file__).parents[3]  # /app/backend
 
 
@@ -75,7 +76,7 @@ def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str)
             # that didn't do their own embedding.
             content_id_domain = Address(addr_spec=payload.sender_email).domain
             html_body, related_parts = embed_html_relative_images(
-                html_body, base_dir=template_folder, content_id_domain=content_id_domain
+                html_body, base_dir=template_base, content_id_domain=content_id_domain
             )
 
         msg.add_alternative(html_body, subtype="html")
