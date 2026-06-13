@@ -767,7 +767,7 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
-            items_str = ','.join(item.value for item in notify_updated)
+            items_str = ",".join(item.value for item in notify_updated)
             if request.should_notify:
                 logger.info(f"Items {items_str} updated in event {event.id=}, notifying")
 
@@ -781,9 +781,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     ),
                 )
             else:
-                logger.info(
-                    f"Items {items_str} updated in event {event.id=}, but skipping notifications"
-                )
+                logger.info(f"Items {items_str} updated in event {event.id=}, but skipping notifications")
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)
