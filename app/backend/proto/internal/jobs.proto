@@ -76,6 +76,7 @@ message GenerateEventCreateNotificationsPayload {
 message GenerateEventUpdateNotificationsPayload {
   int64 updating_user_id = 1;
   int64 occurrence_id = 2;
+  // Values from models/events.py's EventUpdatedItem enum
   repeated string updated_items = 3;
 }
 

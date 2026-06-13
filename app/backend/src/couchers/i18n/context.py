@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import FrozenInstanceError
 from datetime import UTC, date, datetime, time, tzinfo
 from typing import Any
@@ -17,6 +18,7 @@ from couchers.i18n.locales import (
 from couchers.i18n.localize import (
     localize_date,
     localize_datetime,
+    localize_list,
     localize_time,
     localize_timezone,
 )
@@ -68,6 +70,9 @@ class LocalizationContext:
     ) -> str:
         i18next = i18next or get_main_i18next()
         return i18next.localize(key, self.locale, substitutions=substitutions)
+
+    def localize_list(self, items: Sequence[str]) -> str:
+        return localize_list(items, self.babel_locale)
 
     def localize_date(
         self, value: date | datetime, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False

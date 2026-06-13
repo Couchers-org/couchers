@@ -24,6 +24,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     EventOrganizer,
     EventSubscription,
+    EventUpdatedItem,
     ModerationObjectType,
     Node,
     NodeType,
@@ -666,7 +667,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         # the things that were updated and need to be notified about
-        notify_updated = []
+        notify_updated: list[EventUpdatedItem] = []
 
         if occurrence.is_cancelled:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
@@ -674,25 +675,25 @@ class Events(events_pb2_grpc.EventsServicer):
         occurrence_update: dict[str, Any] = {"last_edited": now()}
 
         if request.HasField("title"):
-            notify_updated.append("title")
+            notify_updated.append(EventUpdatedItem.title)
             event.title = request.title.value
 
         if request.HasField("content"):
-            notify_updated.append("content")
+            notify_updated.append(EventUpdatedItem.content)
             occurrence_update["content"] = request.content.value
 
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
         if request.HasField("online_information"):
-            notify_updated.append("location")
+            notify_updated.append(EventUpdatedItem.location)
             if not request.online_information.link:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
             occurrence_update["link"] = request.online_information.link
             occurrence_update["geom"] = None
             occurrence_update["address"] = None
         elif request.HasField("offline_information"):
-            notify_updated.append("location")
+            notify_updated.append(EventUpdatedItem.location)
             occurrence_update["link"] = None
             if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
@@ -705,12 +706,12 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.update_all_future:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
             if request.HasField("start_time"):
-                notify_updated.append("start time")
+                notify_updated.append(EventUpdatedItem.start_time)
                 start_time = to_aware_datetime(request.start_time)
             else:
                 start_time = occurrence.start_time
             if request.HasField("end_time"):
-                notify_updated.append("end time")
+                notify_updated.append(EventUpdatedItem.end_time)
                 end_time = to_aware_datetime(request.end_time)
             else:
                 end_time = occurrence.end_time
@@ -766,8 +767,9 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
+            items_str = ','.join(item.value for item in notify_updated)
             if request.should_notify:
-                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+                logger.info(f"Items {items_str} updated in event {event.id=}, notifying")
 
                 queue_job(
                     session,
@@ -775,12 +777,12 @@ class Events(events_pb2_grpc.EventsServicer):
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
                         occurrence_id=occurrence.id,
-                        updated_items=notify_updated,
+                        updated_items=(e.value for e in notify_updated),
                     ),
                 )
             else:
                 logger.info(
-                    f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications"
+                    f"Items {items_str} updated in event {event.id=}, but skipping notifications"
                 )
 
         # since we have synchronize_session=False, we have to refresh the object

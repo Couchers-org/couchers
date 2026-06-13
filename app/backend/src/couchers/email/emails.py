@@ -23,6 +23,7 @@ from couchers.email.blocks import (
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
+from couchers.models.events import EventUpdatedItem
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -759,7 +760,7 @@ class EventUpdatedEmail(EmailBase):
 
     updating_user: UserInfo
     event_info: EventInfo
-    updated_items: list[str]
+    updated_items: list[EventUpdatedItem]
 
     @property
     def string_key_base(self) -> str:
@@ -774,9 +775,11 @@ class EventUpdatedEmail(EmailBase):
         builder = self._body_builder(loc_context)
         builder.para(".body")
 
-        # TODO(#8875): Localize the updated items
-        updated_items_text = ", ".join(self.updated_items)
-        builder.para(".updated_items", {"items_list": updated_items_text})
+        updated_items_text = loc_context.localize_list(
+            [self._localize(loc_context, f".item_names.{updated_item.name}") for updated_item in self.updated_items]
+        )
+
+        builder.para(".updated_info", {"items_list": updated_items_text})
         builder.block(self.event_info.get_details_block(loc_context))
         builder.user(self.updating_user)
         builder.block(self.event_info.get_description_block())
@@ -789,7 +792,7 @@ class EventUpdatedEmail(EmailBase):
             user_name=user_name,
             updating_user=UserInfo.from_protobuf(data.updating_user),
             event_info=EventInfo.from_proto(data.event),
-            updated_items=list(data.updated_items),
+            updated_items=[EventUpdatedItem(item) for item in data.updated_items],
         )
 
     @classmethod
@@ -799,7 +802,7 @@ class EventUpdatedEmail(EmailBase):
                 user_name="Alice",
                 updating_user=UserInfo.dummy_bob(),
                 event_info=EventInfo.dummy(),
-                updated_items=["time", "location"],
+                updated_items=list(EventUpdatedItem),
             )
         ]
 

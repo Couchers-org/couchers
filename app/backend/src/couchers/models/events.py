@@ -304,3 +304,12 @@ class EventCommunityInviteRequest(Base, kw_only=True):
             name="decided_approved",
         ),
     )
+
+
+class EventUpdatedItem(enum.Enum):
+    title = "title"
+    content = "content"
+    location = "location"
+    # Spaces are for backcompat with when we didn't use an enum for localization
+    start_time = "start time"
+    end_time = "end time"

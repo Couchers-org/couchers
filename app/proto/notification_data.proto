@@ -136,6 +136,7 @@ message EventCreate {
 message EventUpdate {
   org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
+  // Values from models/events.py's EventUpdatedItem enum
   repeated string updated_items = 3;
 }
 
