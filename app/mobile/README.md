@@ -236,11 +236,13 @@ Open the **Couchers Dev Tool** app and connect to the Metro server (same network
 
 **Automatic (CI).** Every push to the configured build branch (`DEVTOOL_BUILD_BRANCH` in `app/.gitlab-ci.yml` — `mobile/v1.1.20` while validating, then `develop`) runs `build:mobile-native-devtool`, which recomputes the Expo fingerprint and, **only if it changed since the last-built client**, builds a fresh client on EAS. JS/TS-only changes don't change the fingerprint, so they're skipped — those load over the air (see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md)). The last-built fingerprint is recorded per platform under `s3://<dev-assets>/devtool-builds/` and only updated after a successful build, so a failed build is retried next pipeline.
 
-- **iOS (device)** → EAS build + auto-submit to **TestFlight**; invited devs update from the TestFlight app.
-- **iOS (simulator)** → EAS builds a simulator `.app` (the `devtool-simulator` profile), which CI downloads and publishes to the dev-assets bucket at a stable URL: **`https://develop--devtool-builds.preview.couchershq.org/ios-simulator/`**. For Mac devs who want to run the Dev Tool in the iOS Simulator without a local Xcode build. The page lists the `tar`/`xcrun simctl install` steps; re-download to update.
-- **Android** → EAS builds a sideloadable **APK** (the `devtool-apk` profile), which CI downloads and publishes to the dev-assets bucket at a stable URL: **`https://develop--devtool-builds.preview.couchershq.org/android/`**. Devs bookmark that page and re-download to update. Google Play has no TestFlight-style channel for a dev-client APK (Play distributes AABs through release tracks, not installers), so we host it ourselves.
+All three install options live on **one Dev Tool page**: **`https://develop--devtool-builds.preview.couchershq.org/`**. Bookmark it; re-download to update.
 
-Both self-hosted builds live under the preview subdomain rewriter's `{ref}--{artifact-type}` convention (`develop--devtool-builds` → `devtool-builds/develop/`), with the platform as a sub-path — the same layout as the per-commit OTA artifacts (`{sha}--ota/{platform}`).
+- **iOS (device)** → EAS build + auto-submit to **TestFlight**; the page points invited devs there (a signed device build can't be sideloaded outside TestFlight).
+- **iOS (simulator)** → EAS builds a simulator `.app` (the `devtool-simulator` profile), which CI downloads and publishes; the page lists the `tar`/`xcrun simctl install` steps. For Mac devs who want to run the Dev Tool in the iOS Simulator without a local Xcode build.
+- **Android** → EAS builds a sideloadable **APK** (the `devtool-apk` profile), which CI downloads and publishes for sideloading. Google Play has no TestFlight-style channel for a dev-client APK (Play distributes AABs through release tracks, not installers), so we host it ourselves.
+
+The page and artifacts live under the preview subdomain rewriter's `{ref}--{artifact-type}` convention (`develop--devtool-builds` → `devtool-builds/develop/`, with each platform's download in a sub-path) — the same layout as the per-commit OTA artifacts (`{sha}--ota/{platform}`).
 
 The iOS simulator and Android builds share the iOS/Android device fingerprints respectively, so they rebuild on exactly the same native changes (the simulator flag and APK build type live in `eas.json`, which is excluded from the runtime fingerprint).
 

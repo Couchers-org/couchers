@@ -150,9 +150,9 @@ def deep_link(manifest_url):
 
 
 def mobile_block(short_sha, domain, platforms):
-    apk_url = f"https://develop--devtool-builds.{domain}/android/"
+    devtool_url = f"https://develop--devtool-builds.{domain}/"
     lines = [
-        f"Download the Dev Tool for iOS from TestFlight, for Android, you can get the latest .apk [here]({apk_url}).",
+        f"Install the **Dev Tool** (iOS via TestFlight, iOS Simulator, or Android .apk) [here]({devtool_url}).",
         "",
         "Scan the QR with your phone camera, or tap **Open in Dev Tool** on the device, "
         "to open this branch in the installed **Dev Tool** dev client.",
