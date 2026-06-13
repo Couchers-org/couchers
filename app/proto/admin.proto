@@ -78,6 +78,8 @@ service Admin {
 
   rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
 
+  rpc GetNonvisibleUserAccessLog(GetNonvisibleUserAccessLogReq) returns (GetNonvisibleUserAccessLogRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc DeleteDiscussion(AdminDeleteDiscussionReq) returns (google.protobuf.Empty) {}
@@ -464,6 +466,40 @@ message GetFriendRequestsRes {
   repeated AdminFriendRequest sent = 1;
   // Friend requests received by the user
   repeated AdminFriendRequest received = 2;
+}
+
+enum NonvisibleUserAccessType {
+  NONVISIBLE_USER_ACCESS_TYPE_UNSPECIFIED = 0;
+  NONVISIBLE_USER_ACCESS_TYPE_LOGIN_ATTEMPT = 1;
+  NONVISIBLE_USER_ACCESS_TYPE_PROFILE_VIEW = 2;
+  NONVISIBLE_USER_ACCESS_TYPE_GHOST_SERVED = 3;
+}
+
+enum NonvisibleUserState {
+  NONVISIBLE_USER_STATE_UNSPECIFIED = 0;
+  NONVISIBLE_USER_STATE_BANNED = 1;
+  NONVISIBLE_USER_STATE_SHADOWED = 2;
+  NONVISIBLE_USER_STATE_DELETED = 3;
+}
+
+message GetNonvisibleUserAccessLogReq {
+  string user = 1;
+}
+
+message NonvisibleUserAccessLogEntry {
+  google.protobuf.Timestamp time = 1;
+  NonvisibleUserAccessType access_type = 2;
+  NonvisibleUserState target_state = 3;
+  int64 target_user_id = 4;
+  google.protobuf.Int64Value actor_user_id = 5;
+  string actor_username = 6;
+  string ip_address = 7;
+  string user_agent = 8;
+  string sofa = 9;
+}
+
+message GetNonvisibleUserAccessLogRes {
+  repeated NonvisibleUserAccessLogEntry entries = 1;
 }
 
 message EditDiscussionReq {

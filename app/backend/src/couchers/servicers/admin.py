@@ -5,6 +5,7 @@ from typing import Any
 
 import grpc
 from google.protobuf import empty_pb2
+from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
@@ -36,6 +37,9 @@ from couchers.models import (
     ModerationUserList,
     ModerationVisibility,
     ModNote,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     OTAPackage,
     OTAPlatform,
     Reference,
@@ -93,6 +97,20 @@ api2otaplatform = {
     admin_pb2.OTA_PLATFORM_UNSPECIFIED: None,
     admin_pb2.OTA_PLATFORM_IOS: OTAPlatform.ios,
     admin_pb2.OTA_PLATFORM_ANDROID: OTAPlatform.android,
+}
+
+nonvisibleuseraccesstype2api = {
+    None: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_UNSPECIFIED,
+    NonvisibleUserAccessType.login_attempt: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_LOGIN_ATTEMPT,
+    NonvisibleUserAccessType.profile_view: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_PROFILE_VIEW,
+    NonvisibleUserAccessType.ghost_served: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_GHOST_SERVED,
+}
+
+nonvisibleuserstate2api = {
+    None: admin_pb2.NONVISIBLE_USER_STATE_UNSPECIFIED,
+    NonvisibleUserState.banned: admin_pb2.NONVISIBLE_USER_STATE_BANNED,
+    NonvisibleUserState.shadowed: admin_pb2.NONVISIBLE_USER_STATE_SHADOWED,
+    NonvisibleUserState.deleted: admin_pb2.NONVISIBLE_USER_STATE_DELETED,
 }
 
 
@@ -977,6 +995,39 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.GetFriendRequestsRes(
             sent=[friend_request_to_pb(rel) for rel in sent],
             received=[friend_request_to_pb(rel) for rel in received],
+        )
+
+    def GetNonvisibleUserAccessLog(
+        self, request: admin_pb2.GetNonvisibleUserAccessLogReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetNonvisibleUserAccessLogRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        actor = aliased(User)
+        rows = session.execute(
+            select(NonvisibleUserAccess, actor.username)
+            .outerjoin(actor, NonvisibleUserAccess.actor_user_id == actor.id)
+            .where(NonvisibleUserAccess.target_user_id == user.id)
+            .order_by(NonvisibleUserAccess.time.desc())
+            .limit(MAX_PAGINATION_LENGTH)
+        ).all()
+
+        return admin_pb2.GetNonvisibleUserAccessLogRes(
+            entries=[
+                admin_pb2.NonvisibleUserAccessLogEntry(
+                    time=Timestamp_from_datetime(access.time),
+                    access_type=nonvisibleuseraccesstype2api[access.access_type],
+                    target_state=nonvisibleuserstate2api[access.target_state],
+                    target_user_id=access.target_user_id,
+                    actor_user_id=Int64Value(value=access.actor_user_id) if access.actor_user_id is not None else None,
+                    actor_username=actor_username or "",
+                    ip_address=access.ip_address or "",
+                    user_agent=access.user_agent or "",
+                    sofa=access.sofa or "",
+                )
+                for access, actor_username in rows
+            ]
         )
 
     def EditDiscussion(

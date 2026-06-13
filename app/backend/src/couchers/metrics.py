@@ -37,6 +37,8 @@ from couchers.models import (
     Message,
     Node,
     NodeType,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     Reference,
     User,
     UserActivity,
@@ -944,6 +946,17 @@ def observe_moderation_queue_resolution_time(
     trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType, duration_s: float
 ) -> None:
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
+
+
+nonvisible_user_access_counter: Counter = Counter(
+    "couchers_nonvisible_user_access_total",
+    "Number of access events involving nonvisible (banned/shadowed/deleted) users",
+    labelnames=["access_type", "target_state"],
+)
+
+
+def observe_nonvisible_user_access(access_type: NonvisibleUserAccessType, target_state: NonvisibleUserState) -> None:
+    nonvisible_user_access_counter.labels(access_type.name, target_state.name).inc()
 
 
 postcards_sent_counter: Counter = Counter(
