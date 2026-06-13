@@ -20,8 +20,12 @@ from couchers.metrics import (
     logins_counter,
     password_reset_completions_counter,
     password_reset_initiations_counter,
+    signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_verified_counter,
+    signup_guidelines_accepted_counter,
     signup_initiations_counter,
+    signup_motivations_filled_counter,
     signup_time_histogram,
 )
 from couchers.models import (
@@ -187,6 +191,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.email_token_expiry = None
 
                 session.flush()
+                signup_email_verified_counter.inc()
             else:
                 # just try to find the flow by flow token, no verification is done
                 flow = session.execute(
@@ -296,6 +301,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.accepted_tos = TOS_VERSION
                 flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
                 session.flush()
+                signup_account_filled_counter.inc()
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
@@ -319,10 +325,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.heard_about_couchers = request.motivations.heard_about_couchers or None
                 flow.signup_motivations = list(request.motivations.motivations)
                 session.flush()
+                signup_motivations_filled_counter.inc()
 
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
+                if flow.accepted_community_guidelines < GUIDELINES_VERSION:
+                    signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
 
