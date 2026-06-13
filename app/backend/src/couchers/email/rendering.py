@@ -4,6 +4,7 @@ Renders blocks-based emails to HTML or plaintext emails for a locale.
 
 import re
 from dataclasses import asdict, dataclass
+from email.headerregistry import Address
 from functools import cache
 from html import unescape
 from pathlib import Path
@@ -11,9 +12,12 @@ from pathlib import Path
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
+from couchers.config import config
 from couchers.email.blocks import ActionBlock, EmailBase, EmailBlock, EmailFooter, ParaBlock, QuoteBlock, UserBlock
 from couchers.email.locales import get_emails_i18next
+from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
+from couchers.proto.internal import jobs_pb2
 from couchers.templating import Jinja2Template
 
 template_folder = Path(__file__).parent.parent.parent.parent / "templates" / "v2"
@@ -28,9 +32,12 @@ class RenderedEmail:
     subject: str
     body_plaintext: str
     body_html: str
+    html_image_parts: list[jobs_pb2.EmailPart]
 
 
-def render_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext) -> RenderedEmail:
+def render_email(
+    email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, *, embed_images: bool = True
+) -> RenderedEmail:
     """Renders an EmailBase object to subject and body strings."""
     subject = email.get_subject_line(loc_context)
     preview = email.get_preview_line(loc_context)
@@ -41,7 +48,16 @@ def render_email(email: EmailBase, footer: EmailFooter, loc_context: Localizatio
         subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
     )
 
-    return RenderedEmail(subject=subject, body_plaintext=body_plaintext, body_html=body_html)
+    related_parts: list[jobs_pb2.EmailPart] = []
+    if embed_images:
+        content_id_domain = Address(addr_spec=config.NOTIFICATION_EMAIL_ADDRESS).domain
+        body_html, related_parts = embed_html_relative_images(
+            body_html, base_dir=template_folder, content_id_domain=content_id_domain
+        )
+
+    return RenderedEmail(
+        subject=subject, body_plaintext=body_plaintext, body_html=body_html, html_image_parts=related_parts
+    )
 
 
 def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_context: LocalizationContext) -> str:
