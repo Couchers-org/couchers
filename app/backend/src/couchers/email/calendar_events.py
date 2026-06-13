@@ -1,6 +1,6 @@
 from email.headerregistry import Address
 
-from ics import Calendar, Event  # type: ignore[import-untyped]
+from ics import Calendar, Event
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
