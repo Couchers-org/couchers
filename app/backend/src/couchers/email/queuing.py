@@ -63,6 +63,7 @@ def queue_userless_email(
             subject=config.NOTIFICATION_PREFIX + rendered.subject,
             plain=rendered.body_plaintext,
             html=rendered.body_html,
+            html_related_parts=rendered.html_image_parts,
             source_data=f"{source_data_header}; version={config.VERSION}",
         ),
     )

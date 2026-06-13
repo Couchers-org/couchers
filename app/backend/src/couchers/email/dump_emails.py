@@ -128,7 +128,7 @@ def dump_all(outdir: Path, *, filter_glob: str = "*", locales: list[str] | None 
 
 def dump_email(email: EmailBase, footer: EmailFooter, loc_context: LocalizationContext, filepath_no_ext: Path) -> str:
     """Dumps an email's subject and plaintext+html body to a file, returning the subject line."""
-    rendered = render_email(email, footer, loc_context)
+    rendered = render_email(email, footer, loc_context, embed_images=False)
     html = rendered.body_html.replace("attachment_imgs/", "../attachment_imgs/")
 
     filepath_no_ext.parent.mkdir(parents=True, exist_ok=True)

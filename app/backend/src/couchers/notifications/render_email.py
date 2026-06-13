@@ -17,7 +17,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_key,
 )
 from couchers.proto import api_pb2
-from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2, SendEmailPayload
+from couchers.proto.internal.jobs_pb2 import EmailPart, SendEmailPayload
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ def get_send_email_payload(
         subject=config.NOTIFICATION_PREFIX + rendered_email.subject,
         plain=rendered_email.body_plaintext,
         html=rendered_email.body_html,
+        html_related_parts=rendered_email.html_image_parts,
         source_data=source_data_header,
         list_unsubscribe_header=list_unsubscribe_header,
         attachments=[attachment] if attachment else [],
@@ -168,7 +169,7 @@ def get_source_data_header(notification: Notification) -> str:
     return f"notification; topic-action={notification.topic_action}; version={config.VERSION}"
 
 
-def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachmentV2 | None:
+def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailPart | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,

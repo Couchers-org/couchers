@@ -63,3 +63,4 @@ def test_email_renders_in_english(email: EmailBase):
     assert "<" not in rendered.subject, "Subject line shoudn't contain HTML"
     assert rendered.body_plaintext
     assert rendered.body_html
+    assert len(rendered.html_image_parts) > 0, "Images should have been embedded"
