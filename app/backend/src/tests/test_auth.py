@@ -15,6 +15,9 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     LoginToken,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     PasswordResetToken,
     SignupFlow,
     User,
@@ -471,7 +474,7 @@ def test_login_part_signed_up_not_verified_email(db):
 
 
 def test_banned_user(db):
-    _quick_signup()
+    user_id = _quick_signup()
 
     with session_scope() as session:
         session.execute(select(User)).scalar_one().banned_at = now()
@@ -481,6 +484,30 @@ def test_banned_user(db):
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "Your account is suspended."
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.banned
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
+
+
+def test_shadowed_user_login_logged(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().shadowed_at = now()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.shadowed
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
 
 
 def test_deleted_user(db):

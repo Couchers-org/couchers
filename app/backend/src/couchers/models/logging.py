@@ -203,3 +203,44 @@ class FeatureUsage(Base, kw_only=True):
         Index("ix_logging_feature_usage_user_id_time", "user_id", "time"),
         {"schema": "logging"},
     )
+
+
+class NonvisibleUserAccessType(enum.Enum):
+    login_attempt = enum.auto()
+    profile_view = enum.auto()
+    ghost_served = enum.auto()
+
+
+class NonvisibleUserState(enum.Enum):
+    banned = enum.auto()
+    shadowed = enum.auto()
+    deleted = enum.auto()
+
+
+class NonvisibleUserAccess(Base, kw_only=True):
+    __tablename__ = "nonvisible_user_access"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    version: Mapped[str] = mapped_column(String, default=config.VERSION)
+
+    access_type: Mapped[NonvisibleUserAccessType] = mapped_column(Enum(NonvisibleUserAccessType))
+
+    target_user_id: Mapped[int] = mapped_column(BigInteger)
+    target_state: Mapped[NonvisibleUserState] = mapped_column(Enum(NonvisibleUserState))
+
+    actor_user_id: Mapped[int | None] = mapped_column(BigInteger, default=None)
+
+    ip_address: Mapped[str | None] = mapped_column(String, default=None)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
+
+    __table_args__ = (
+        Index("ix_logging_nonvisible_user_access_target_user_id_time", "target_user_id", "time"),
+        Index("ix_logging_nonvisible_user_access_actor_user_id_time", "actor_user_id", "time"),
+        Index("ix_logging_nonvisible_user_access_sofa", "sofa"),
+        Index("ix_logging_nonvisible_user_access_ip_address", "ip_address"),
+        {"schema": "logging"},
+    )

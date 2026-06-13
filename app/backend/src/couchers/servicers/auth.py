@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
+from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
@@ -33,6 +34,7 @@ from couchers.models import (
     AntiBotLog,
     ContributorForm,
     InviteCode,
+    NonvisibleUserAccessType,
     PasswordResetToken,
     PhotoGallery,
     SignupFlow,
@@ -97,6 +99,13 @@ def create_session(
     token, expiry = create_session(...)
     ```
     """
+    maybe_log_nonvisible_user_access(
+        context,
+        user,
+        access_type=NonvisibleUserAccessType.login_attempt,
+        actor_user_id=user.id,
+    )
+
     if user.banned_at is not None:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
