@@ -450,9 +450,9 @@ def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: Email
                 messages=[
                     notification_data_pb2.ChatMessage(
                         author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
-                        message="You missed 1 message(s) from Test User",
                         text="Hello!",
                         group_chat_id=99,
+                        unseen_count=1
                     ),
                 ],
             ),
