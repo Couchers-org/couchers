@@ -150,7 +150,7 @@ message EventDelete {
 
 message ChatMessage {
   org.couchers.api.core.User author = 1;
-  reserved 2; # Formerly "message", non-localized.
+  reserved 2; // Formerly "message", non-localized.
   string text = 3;
   uint64 group_chat_id = 4;
   string group_chat_title = 5;  // Empty for direct messages
