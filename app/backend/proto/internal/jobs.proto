@@ -76,8 +76,11 @@ message GenerateEventCreateNotificationsPayload {
 message GenerateEventUpdateNotificationsPayload {
   int64 updating_user_id = 1;
   int64 occurrence_id = 2;
-  // Values from models/events.py's EventUpdatedItem enum
-  repeated string updated_items = 3;
+  // TODO(#9117): Remove once unused. Was not i18n-friendly. Use updated_enum_items.
+  repeated string updated_str_items = 3 [deprecated = true];
+  // EventUpdateItem is from the shared protos and cannot be referenced here.
+  // int32 has the same on-wire encoding.
+  repeated int32 updated_enum_items = 4;
 }
 
 message GenerateEventCancelNotificationsPayload {

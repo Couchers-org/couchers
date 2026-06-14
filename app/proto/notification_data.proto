@@ -133,11 +133,20 @@ message EventCreate {
   }
 }
 
+enum EventUpdateItem {
+  EVENT_UPDATE_ITEM_TITLE = 0;
+  EVENT_UPDATE_ITEM_CONTENT = 1;
+  EVENT_UPDATE_ITEM_LOCATION = 2;
+  EVENT_UPDATE_ITEM_START_TIME = 3;
+  EVENT_UPDATE_ITEM_END_TIME = 4;
+}
+
 message EventUpdate {
   org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
-  // Values from models/events.py's EventUpdatedItem enum
-  repeated string updated_items = 3;
+  // TODO(#9117): Remove once unused. Was not i18n-friendly. Use updated_enum_items.
+  repeated string updated_str_items = 3 [deprecated = true];
+  repeated EventUpdateItem updated_enum_items = 4;
 }
 
 message EventCancel {

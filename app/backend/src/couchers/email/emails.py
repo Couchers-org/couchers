@@ -23,7 +23,6 @@ from couchers.email.blocks import (
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
-from couchers.models.events import EventUpdatedItem
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -760,7 +759,7 @@ class EventUpdatedEmail(EmailBase):
 
     updating_user: UserInfo
     event_info: EventInfo
-    updated_items: list[EventUpdatedItem]
+    updated_items: list[notification_data_pb2.EventUpdateItem.ValueType]
 
     @property
     def string_key_base(self) -> str:
@@ -775,11 +774,17 @@ class EventUpdatedEmail(EmailBase):
         builder = self._body_builder(loc_context)
         builder.para(".body")
 
-        updated_items_text = loc_context.localize_list(
-            [self._localize(loc_context, f".item_names.{updated_item.name}") for updated_item in self.updated_items]
+        updated_items_string_keys = list(
+            filter(None, (type(self)._updated_item_to_string_key(i) for i in self.updated_items))
         )
+        if updated_items_string_keys:
+            updated_items_text = loc_context.localize_list(
+                [self._localize(loc_context, key) for key in updated_items_string_keys]
+            )
+            builder.para(".updated_items", {"items_list": updated_items_text})
+        else:
+            builder.para(".updated_generic")
 
-        builder.para(".updated_info", {"items_list": updated_items_text})
         builder.block(self.event_info.get_details_block(loc_context))
         builder.user(self.updating_user)
         builder.block(self.event_info.get_description_block())
@@ -788,22 +793,62 @@ class EventUpdatedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.EventUpdate, *, user_name: str) -> Self:
+        updated_items: list[notification_data_pb2.EventUpdateItem.ValueType] = []
+        if data.updated_enum_items:
+            updated_items.extend(data.updated_enum_items)
+        elif data.updated_str_items:
+            for updated_str_item in data.updated_str_items:
+                if updated_enum_item := cls._updated_item_str_to_enum(updated_str_item):
+                    updated_items.append(updated_enum_item)
+
         return cls(
             user_name=user_name,
             updating_user=UserInfo.from_protobuf(data.updating_user),
             event_info=EventInfo.from_proto(data.event),
-            updated_items=[EventUpdatedItem(item) for item in data.updated_items],
+            updated_items=updated_items,
         )
+
+    # TODO(#9117): Backcompat. Remove update_str_items fallback once known unused.
+    @staticmethod
+    def _updated_item_str_to_enum(value: str) -> notification_data_pb2.EventUpdateItem.ValueType | None:
+        match value:
+            case "title":
+                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE
+            case "content":
+                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT
+            case "location":
+                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION
+            case "start time":
+                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME
+            case "end time":
+                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME
+            case _:
+                return None
+
+    @staticmethod
+    def _updated_item_to_string_key(value: notification_data_pb2.EventUpdateItem.ValueType) -> str | None:
+        match value:
+            case notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE:
+                return ".item_names.title"
+            case notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT:
+                return ".item_names.content"
+            case notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION:
+                return ".item_names.location"
+            case notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME:
+                return ".item_names.start_time"
+            case notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME:
+                return ".item_names.end_time"
+            case _:
+                return None
 
     @classmethod
     def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice", updating_user=UserInfo.dummy_bob(), event_info=EventInfo.dummy(), updated_items=[]
+        )
         return [
-            cls(
-                user_name="Alice",
-                updating_user=UserInfo.dummy_bob(),
-                event_info=EventInfo.dummy(),
-                updated_items=list(EventUpdatedItem),
-            )
+            replace(prototype, updated_items=[]),
+            replace(prototype, updated_items=notification_data_pb2.EventUpdateItem.values()),
         ]
 
 
