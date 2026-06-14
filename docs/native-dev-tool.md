@@ -12,7 +12,7 @@ The point is that you only need to do full builds if you're changing native modu
 ## Getting the Dev Tool
 
 * **iOS**: via TestFlight, ask a native dev lead to be added.
-* **Android**: download the APK from [the dev tool builds page](https://android--devtool-builds.preview.couchershq.org/).
+* **Android**: download the APK from [the dev tool builds page](https://develop--devtool-builds.preview.couchershq.org/).
 
 It's a dev build, so we can't distribute it through the app stores proper. The Dev Tool coexists with the staging and production apps on the same device (it has its own bundle ID), and points at the staging backend by default.
 

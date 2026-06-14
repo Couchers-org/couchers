@@ -24,7 +24,7 @@ docker compose up --build
 cd app/web && yarn start
 
 # 3. Start Expo
-cd app/mobile && npx expo start
+cd app/mobile && npm run start:devtool
 ```
 
 You can now access `http://<your-ip>:3000/` on your phone and log in to see local changes.

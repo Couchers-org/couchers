@@ -11,13 +11,11 @@ _Readme last updated: 2026/06/13._
 
 1. [Quick Start](#1-quick-start)
 2. [Full local development setup](#2-full-local-development-setup)
-3. [Testing on Emulators](#3-testing-on-emulators)
-4. [Releasing Staging Build](#4-releasing-staging-build)
-5. [Releasing Production Build](#5-releasing-production-build)
-6. [App Variants](#app-variants)
-7. [Dev Tool (TestFlight)](#dev-tool-testflight)
-8. [Updating Dependencies](#updating-dependencies)
-9. [Learn More](#learn-more)
+3. [Local native builds](#3-local-native-builds)
+4. [Releases](#4-releases)
+5. [App variants](#5-app-variants)
+6. [Updating dependencies](#6-updating-dependencies)
+7. [Learn more](#7-learn-more)
 
 ## 1. Quick Start
 
@@ -77,7 +75,7 @@ docker compose up --build
 cd app/web && yarn start
 
 # Terminal 3: Expo
-cd app/mobile && npx run start:devtool
+cd app/mobile && npm run start:devtool
 ```
 
 You can now point your phone's camera at the QR code and the Dev Tool should be running against your local dev machine.
@@ -100,7 +98,7 @@ npm test          # run tests
 
 To review a PR: every PR gets a bot comment with QR codes that open that branch directly in the Dev Tool, with the branch's web preview wired in. See [docs/native-dev-tool.md](../../docs/native-dev-tool.md) for how it all works.
 
-## Local native builds
+## 3. Local native builds
 
 Only needed when developing native changes (when Expo fingerprints would change).
 
@@ -137,7 +135,7 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
-**After the initial build is installed, use this for daily development:**
+**After the initial build is installed:**
 ```bash
 npx expo start
 ```
@@ -154,14 +152,14 @@ If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing
 
 ### Testing on Emulators
 
-### iOS Simulator (macOS only)
+#### iOS Simulator (macOS only)
 ```bash
 npx expo run:ios
 ```
 
 The iOS Simulator will launch automatically. See [Expo iOS Simulator docs](https://docs.expo.dev/workflow/ios-simulator/) for more.
 
-### Android Emulator
+#### Android Emulator
 
 1. Launch an emulator from Android Studio (AVD Manager)
 2. Run:
@@ -171,7 +169,7 @@ npx expo run:android
 
 See [Expo Android emulator docs](https://docs.expo.dev/workflow/android-studio-emulator/) for troubleshooting.
 
-## Releases
+## 4. Releases
 
 All release builds (Dev Tool, Stage, Prod) are done in CI ([`app/.gitlab-ci.yml`](../.gitlab-ci.yml)) on every push to `develop`, for both staging and production:
 
@@ -190,7 +188,7 @@ Releasing to users is then a manual process:
 
 As a last-resort fallback, the `npm run release:*` scripts in `package.json` run the same EAS builds locally (requires `eas-cli` and EAS access).
 
-## App variants
+## 5. App variants
 
 We maintain **three separate apps** that can coexist on the same device:
 
@@ -202,7 +200,7 @@ We maintain **three separate apps** that can coexist on the same device:
 
 Build profiles in `eas.json` set an `APP_VARIANT` environment variable, which `app.config.js` reads to configure bundle IDs, app names, and API endpoints. The Dev Tool is a [development build](https://docs.expo.dev/develop/development-builds/introduction/) — a developer utility, not a release flavor — see [docs/native-dev-tool.md](../../docs/native-dev-tool.md).
 
-## Updating dependencies
+## 6. Updating dependencies
 
 Mobile dependencies are **not** managed by Dependabot. Expo requires specific compatible versions of packages tied to each SDK version, so update through Expo's tooling:
 
@@ -216,7 +214,7 @@ npx expo install --fix
 
 When upgrading the Expo SDK itself, follow the [Expo upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/). Note that an Expo upgrade breaks OTA forwards compatibility and requires everyone to re-download a new app version from the app stores.
 
-## Learn more
+## 7. Learn more
 
 - **[Mobile App Architecture Guide](./ARCHITECTURE.md)**: Understand how the mobile app wraps the web app, routing synchronization, authentication, and common pitfalls
 - [Dev Tool documentation](../../docs/native-dev-tool.md): explains how it works, PR branch previews, etc
