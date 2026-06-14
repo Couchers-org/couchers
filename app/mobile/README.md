@@ -1,19 +1,37 @@
 # Couchers Mobile App
 
-React Native mobile app built with [Expo](https://expo.dev). We maintain three separate apps (staging, production, and a development tool) that can coexist on the same device with different bundle IDs and API endpoints.
+React Native mobile app built with [Expo](https://expo.dev). We maintain three separate app variants (staging, production, and a development tool) that can coexist on the same device with different bundle IDs and API endpoints.
 
-You don't need to build the app locally: the prebuilt **Couchers Dev Tool** app covers almost all mobile dev work.
+You don't need to build the app locally: the prebuilt **Couchers Dev Tool** variant covers almost all mobile dev work.
 
-_Readme last updated: 2026/06/10._
+_Readme last updated: 2026/06/13._
 
-## Quick Start
 
-First, get the Dev Tool on your phone:
+## Table of Contents
 
-- **iOS**: via TestFlight — ask a mobile dev lead to invite you.
-- **Android**: download the APK from the [dev tool builds page](https://android--devtool-builds.preview.couchershq.org/).
+1. [Quick Start](#1-quick-start)
+2. [Full local development setup](#2-full-local-development-setup)
+3. [Testing on Emulators](#3-testing-on-emulators)
+4. [Releasing Staging Build](#4-releasing-staging-build)
+5. [Releasing Production Build](#5-releasing-production-build)
+6. [App Variants](#app-variants)
+7. [Dev Tool (TestFlight)](#dev-tool-testflight)
+8. [Updating Dependencies](#updating-dependencies)
+9. [Learn More](#learn-more)
 
-You need `nodejs` v22. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) — see the [web frontend readme](../web/README.md) for installing it.
+## 1. Quick Start
+
+You can do local development without having to build the mobile app from scratch using the Couchers Dev Tool. Download it for Android or the iOS simulator from the [dev tool builds page](https://develop--devtool-builds.preview.couchershq.org/). To get it on your physical iPhone, ask a mobile dev lead to invite you via TestFlight.
+
+On your dev machine, you need `nodejs` v22. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
+
+```sh
+curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
+
+**You will need to restart your terminal before `nvm` becomes available.** (See the [web frontend readme](../web/readme.md) for a deeper discussion on `nvm` and deps).
+
+Now run the following commands to get up and running:
 
 ```sh
 ## Check out the repo and navigate to app/mobile
@@ -27,15 +45,48 @@ npm install
 # generate the proto stubs
 npm run build:protos
 
-# start the dev server
+# start the dev server through the dev tool
 npm run start:devtool
 ```
 
-Open the Dev Tool app and scan the QR code (your phone and computer must be on the same network). JavaScript/TypeScript changes hot-reload automatically. That's it — this covers ~95% of mobile development.
+**Open the Dev Tool app and scan the QR code** (your phone and computer must be on the same network). TypeScript changes hot-reload automatically.
 
-To review a PR you don't even need the above: every PR gets a bot comment with QR codes that open that branch directly in your Dev Tool, with the branch's web preview wired in. See [docs/native-dev-tool.md](../../docs/native-dev-tool.md) for how it all works.
+You should now see the mobile app on your phone.
 
-## Developing
+This setup will point at your local version of the React Native app, but it will point at the staging web app and backend. You probably want to follow the instructions on local dev below to run the full stack locally.
+
+## 2. Full local development setup
+
+To actually do full local development, you will want to run the entire stack on your dev machine, and point the dev tool at that instead of the staging environment.
+
+First, run the following script which patches environment variables to point the app at your local running versions of the frontend and backend. It auto-detects your IP and updates all config files at once:
+
+```bash
+npm run setup:local
+```
+
+On a first run: run each of the quick starts in the `backend/` and `web/` folders to get your machine set up.
+
+Now run everything from the repo root, each in a separate terminal:
+
+```bash
+# Terminal 1: backend (requires Docker)
+docker compose up --build
+
+# Terminal 2: web frontend
+cd app/web && yarn start
+
+# Terminal 3: Expo
+cd app/mobile && npx run start:devtool
+```
+
+You can now point your phone's camera at the QR code and the Dev Tool should be running against your local dev machine.
+
+When done, restore environment config with:
+
+```bash
+npm run setup:local:restore
+```
 
 ### Checks
 
@@ -47,51 +98,82 @@ npm run lint      # check for remaining lint errors
 npm test          # run tests
 ```
 
-### Testing against a local backend/web frontend
-
-To point the app at a local backend and web frontend on your machine, run the setup script — it auto-detects your IP and updates all config files at once:
-
-```sh
-npm run setup:local
-```
-
-Then start the backend (`docker compose up --build` from the repo root), the web frontend (`yarn start` in `app/web`), and the dev server (`npm run start:devtool` here), each in its own terminal. Restore with `npm run setup:local:restore`. See [docs/run-local-app-on-mobile.md](../../docs/run-local-app-on-mobile.md) for details.
-
-### When you need a native build
-
-The Dev Tool only loads JavaScript compatible with the native code it was built with (enforced by the [Expo fingerprint](../../docs/native-ota-updates.md)). You only need a native build when changing **native dependencies**, **`app.config.js`**, or the **Expo SDK** — pure JS/TS changes never do.
-
-When such a change lands on `develop`, CI automatically builds a fresh Dev Tool and ships it to TestFlight / the APK page — so even then, you usually just update your installed Dev Tool. You only need a *local* native build (below) while actively working on native code.
+To review a PR: every PR gets a bot comment with QR codes that open that branch directly in the Dev Tool, with the branch's web preview wired in. See [docs/native-dev-tool.md](../../docs/native-dev-tool.md) for how it all works.
 
 ## Local native builds
 
-Only needed when developing native changes. Prerequisites:
+Only needed when developing native changes (when Expo fingerprints would change).
 
-**iOS (macOS only):**
-
-- Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835) and CocoaPods (`brew install cocoapods`)
-- For a physical device: follow [Expo's Xcode signing guide](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md)
-
-**Android:**
-
-- Follow [Expo's Android Studio guide](https://docs.expo.dev/workflow/android-studio-emulator/) to install Android Studio, Java, and environment variables
-- Get `google-services.json` from the [Firebase Console](https://console.firebase.google.com/) (ask a team member for access) and place it at `app/mobile/google-services.json`
-
-Then build and run:
-
-```sh
-# iOS simulator, or --device for a USB-connected iPhone (enable Developer Mode in Settings)
-npx expo run:ios [--device]
-
-# Android emulator (launch one from Android Studio first), or --device for a USB-connected phone
-npx expo run:android [--device]
+**All developers:**
+```bash
+npm install -g eas-cli
+eas login  # log in with your Expo account (or use npx eas-cli)
 ```
 
-Local builds default to the `devtool` variant, so they stay isolated from the production and staging apps on your device. If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there.
+**iOS developers (macOS only):**
+- Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835) from Mac App Store
+- Install CocoaPods: `brew install cocoapods`
+- For physical device: Follow [Expo's Xcode signing guide](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md)
+
+**Android developers:**
+- Follow [Expo's Android Studio emulator guide](https://docs.expo.dev/workflow/android-studio-emulator/) to install Android Studio, Java, and configure environment variables
+- Get `google-services.json` from [Firebase Console](https://console.firebase.google.com/) → Project Settings → Android app → Download, and place it in `app/mobile/google-services.json` (ask a team member for Firebase access)
+
+### Initial Build
+
+Install dependencies and generate protocol buffers:
+```bash
+npm install
+npm run build:protos
+```
+
+**You must create a development build first** to install on your device:
+
+```bash
+# iOS (connect iPhone via USB, enable Developer Mode in Settings)
+npx expo run:ios --device
+
+# Android (connect Android device via USB or launch emulator first)
+npx expo run:android --device
+```
+
+**After the initial build is installed, use this for daily development:**
+```bash
+npx expo start
+```
+
+Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes will hot-reload automatically.
+
+**When to rebuild vs when to use `npx expo start`:**
+- **Rebuild** (`npx expo run:ios` or `npx expo run:android`): When adding/removing native dependencies, changing `app.config.js`, or updating Expo SDK
+- **Just start Metro** (`npx expo start`): For all JavaScript/TypeScript code changes (most development)
+
+Local builds default to the `devtool` variant, so set it explicitly if you want staging/prod versions.
+
+If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there.
+
+### Testing on Emulators
+
+### iOS Simulator (macOS only)
+```bash
+npx expo run:ios
+```
+
+The iOS Simulator will launch automatically. See [Expo iOS Simulator docs](https://docs.expo.dev/workflow/ios-simulator/) for more.
+
+### Android Emulator
+
+1. Launch an emulator from Android Studio (AVD Manager)
+2. Run:
+```bash
+npx expo run:android
+```
+
+See [Expo Android emulator docs](https://docs.expo.dev/workflow/android-studio-emulator/) for troubleshooting.
 
 ## Releases
 
-All builds are made by CI ([`app/.gitlab-ci.yml`](../.gitlab-ci.yml)) on every push to `develop`, for both staging and production:
+All release builds (Dev Tool, Stage, Prod) are done in CI ([`app/.gitlab-ci.yml`](../.gitlab-ci.yml)) on every push to `develop`, for both staging and production:
 
 - **Native fingerprint changed** → CI builds a fresh store build on EAS and submits it: iOS to TestFlight, Android to the Play internal testing track. (Set `FORCE_NATIVE_BUILD_AND_SUBMIT=true` on a pipeline to force a build when the fingerprint is unchanged.)
 - **Fingerprint unchanged** (JS/TS-only changes) → CI ships the changes as a signed [over-the-air update](../../docs/native-ota-updates.md) instead — no store build needed.
@@ -125,16 +207,19 @@ Build profiles in `eas.json` set an `APP_VARIANT` environment variable, which `a
 Mobile dependencies are **not** managed by Dependabot. Expo requires specific compatible versions of packages tied to each SDK version, so update through Expo's tooling:
 
 ```sh
-npx expo install --check   # check for outdated or incompatible packages
-npx expo install --fix     # auto-fix to Expo-compatible versions
+# Check for outdated or incompatible packages
+npx expo install --check
+
+# Auto-fix to Expo-compatible versions
+npx expo install --fix
 ```
 
-When upgrading the Expo SDK itself, follow the [Expo upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
+When upgrading the Expo SDK itself, follow the [Expo upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/). Note that an Expo upgrade breaks OTA forwards compatibility and requires everyone to re-download a new app version from the app stores.
 
 ## Learn more
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md): how the app wraps the web app, routing synchronization, authentication, and common pitfalls
-- [docs/native-dev-tool.md](../../docs/native-dev-tool.md): the Dev Tool, PR branch previews, and how they work
-- [docs/native-ota-updates.md](../../docs/native-ota-updates.md): over-the-air updates, fingerprints, and the release pipeline
-- [docs/run-local-app-on-mobile.md](../../docs/run-local-app-on-mobile.md): running the full local dev environment on your phone
-- [Expo documentation](https://docs.expo.dev/)
+- **[Mobile App Architecture Guide](./ARCHITECTURE.md)**: Understand how the mobile app wraps the web app, routing synchronization, authentication, and common pitfalls
+- [Dev Tool documentation](../../docs/native-dev-tool.md): explains how it works, PR branch previews, etc
+- [OTA update docs](../../docs/native-ota-updates.md): over-the-air updates, fingerprints, and the release pipeline
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals and advanced topics
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Step-by-step tutorial for creating cross-platform apps
