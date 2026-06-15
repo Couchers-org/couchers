@@ -1,4 +1,3 @@
-import { styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -10,12 +9,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { service } from "service";
-
-const StyledWrapper = styled("div")(({ theme }) => ({
-  maxWidth: theme.breakpoints.values.lg,
-  margin: "0 auto",
-  padding: theme.spacing(2),
-}));
 
 export default function TOS() {
   const { t } = useTranslation(GLOBAL);
@@ -36,10 +29,10 @@ export default function TOS() {
   return isLoading ? (
     <CenteredSpinner />
   ) : data ? (
-    <StyledWrapper>
+    <>
       <HtmlMeta title={t("terms_of_service")} />
       <PageTitle>{t("terms_of_service")}</PageTitle>
       <Markdown source={data?.termsOfService} />
-    </StyledWrapper>
+    </>
   ) : null;
 }

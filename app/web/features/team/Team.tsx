@@ -1,6 +1,7 @@
-import { Container, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import PageTitle from "components/PageTitle";
 import { useListVolunteers } from "features/communities/hooks";
 import { useTranslation } from "i18n";
@@ -18,7 +19,7 @@ export default function Team() {
   return (
     <>
       <HtmlMeta title="The Team" />
-      <Container maxWidth="lg">
+      <PageContainer>
         <PageTitle>{t("team.title")}</PageTitle>
         <Typography
           sx={{
@@ -44,13 +45,13 @@ export default function Team() {
             {t("team.join_the_team")}
           </Button>
         </Typography>
-      </Container>
+      </PageContainer>
       <TeamSection
         volunteers={volunteers.data?.currentVolunteersList}
         variant={"current"}
       />
 
-      <Container maxWidth="lg">
+      <PageContainer>
         <Typography
           variant="h2"
           sx={{
@@ -60,12 +61,12 @@ export default function Team() {
         >
           {t("team.past_members")}
         </Typography>
-      </Container>
+      </PageContainer>
       <TeamSection
         volunteers={volunteers.data?.pastVolunteersList}
         variant={"past"}
       />
-      <Container maxWidth="lg">
+      <PageContainer>
         <Typography variant="h2" component="h2">
           {t("team.have_skills_contribute")}
         </Typography>
@@ -93,7 +94,7 @@ export default function Team() {
             {t("team.join_our_team")}
           </Button>
         </Typography>
-      </Container>
+      </PageContainer>
     </>
   );
 }
