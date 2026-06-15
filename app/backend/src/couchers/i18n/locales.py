@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
@@ -112,3 +113,22 @@ def load_locales(directory: Path) -> I18Next:
 def get_main_i18next() -> I18Next:
     """Gets the I18Next instance for the main locales files."""
     return load_locales(Path(__file__).parent / "locales")
+
+
+@lru_cache(maxsize=1)
+def get_admin_i18next() -> I18Next:
+    """Gets the I18Next instance for the admin/editor locales files (English only)."""
+    return load_locales(Path(__file__).parent / "admin_locales")
+
+
+# Maps a translation component name to the I18Next instance that holds its strings. Servicers select
+# the component when localizing (e.g. admin/editor errors live in their own English-only component).
+_TRANSLATION_COMPONENTS: dict[str, Callable[[], I18Next]] = {
+    "main": get_main_i18next,
+    "admin": get_admin_i18next,
+}
+
+
+def get_translation_component(component: str) -> I18Next:
+    """Gets the I18Next instance for a named translation component."""
+    return _TRANSLATION_COMPONENTS[component]()
