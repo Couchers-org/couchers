@@ -19,7 +19,8 @@
       "field_label": "Me identifico como…",
       "man": "Hombre",
       "non_binary": "No-binario",
-      "woman": "Mujer"
+      "woman": "Mujer",
+      "selector_a11y": "Género"
     },
     "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
     "header": "Detalles de tu cuenta",

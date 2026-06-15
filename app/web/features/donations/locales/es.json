@@ -30,5 +30,12 @@
     "title": "Gestionar tus donaciones",
     "description": "Haz clic en el botón de abajo para actualizar o cancelar tu donación periódica, o para ver recibos pasados.",
     "button_text": "Ir al portal de gestión de donaciones"
+  },
+  "logged_out": {
+    "title": "Cantidad a donar",
+    "body": "Inicia sesión para donar y que podamos asignar una insignia de donante a tu perfil.",
+    "login_button": "Iniciar sesión para donar",
+    "signup_prompt": "¿No tienes una cuenta? <1>Regístrate</1>",
+    "anonymous_donation": "Para hacer una donación única de {{ amount }}$ o más sin vincularla a una cuenta, contáctanos en <1>{{ email }}</1>."
   }
 }
