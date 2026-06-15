@@ -101,6 +101,12 @@
     "unrecognized_phone_number": "Tvé telefonní číslo nebylo rozpoznáno. Zkontroluj ho prosím a pokud problém přetrvá, kontaktuj podporu.",
     "visibility_must_be_specified": "Viditelnost musí být specifikována.",
     "user_already_admin": "Tento uživatel je již adminem.",
-    "user_already_blocked": "Cílový uživatel je již zablokován."
+    "user_already_blocked": "Cílový uživatel je již zablokován.",
+    "reply_edit_permission_denied": "Nemáš oprávnění upravit tento komentář.",
+    "discussion_delete_permission_denied": "Nemáš oprávnění smazat tuto diskuzi.",
+    "discussion_deleted": "Tato diskuse byla smazána.",
+    "discussion_edit_permission_denied": "Nemáš oprávnění upravit tuto diskuzi.",
+    "cant_refer_self": "Nelze doporučit sám sebe.",
+    "incomplete_profile_send_message": "Než bude možné poslat zprávu, je třeba vyplnit svůj profil."
   }
 }

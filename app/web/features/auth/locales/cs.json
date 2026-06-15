@@ -25,7 +25,12 @@
     "reset_password_error": "Chyba při resetování hesla: {{message}}",
     "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu.",
     "user_logged_error": "Když jsi přihlášený, nemůžeš si resetovat heslo. Můžeš si ho změnit v nastavení, nebo se odhlásit a pak ho resetovat.",
-    "hide_old_password": "Skrýt staré heslo"
+    "hide_old_password": "Skrýt staré heslo",
+    "show_old_password": "Zobrazit staré heslo",
+    "hide_new_password": "Skrýt nové heslo",
+    "show_new_password": "Zobrazit nové heslo",
+    "hide_confirm_password": "Skrýt potvrzení hesla",
+    "show_confirm_password": "Zobrazit potvrzení hesla"
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
@@ -75,7 +80,8 @@
       "man": "Muž",
       "non_binary": "Nebinární",
       "woman": "Žena",
-      "required_error": "Prosím vyber svou pohlavní identitu"
+      "required_error": "Prosím vyber svou pohlavní identitu",
+      "selector_a11y": "Pohlaví"
     },
     "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <1></1>.",
     "tos_accept_label": "Souhlasím s Podmínkami služby.",
@@ -219,10 +225,40 @@
   },
   "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
-  "unhandled_sign_up_state": "Chyba: unhandled signup flow state.",
+  "unhandled_sign_up_state": "Chyba: neošetřený stav registračního procesu.",
   "sign_up_need_verification_title": "Ještě poslední věc: potvrď svůj e-mail.",
   "feature_preview": {
-    "title": "Náhled funkcionality"
+    "title": "Náhled funkcionality",
+    "explanation": "Na této stránce si můžeš vyzkoušet funkce, které jsou stále ve vývoji a ještě nejsou připravené pro všechny.",
+    "disclaimer": "Měj prosím na paměti, že tyto funkce jsou experimentální. Nemusí fungovat podle očekávání a během vývoje se mohou rychle měnit. Pokud narazíš na chybu, neváhej nám poslat zpětnou vazbu pomocí tlačítka „Nahlásit problém“!",
+    "no_previews": {
+      "title": "Momentálně nejsou k dispozici žádné funkce v předběžném přístupu",
+      "explanation": "Momentálně nejsou k dispozici žádné aktivní funkce v předběžném přístupu. Zkus to prosím později."
+    }
   },
-  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail."
+  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail.",
+  "motivations_form": {
+    "header": "Co tě přivádí na Couchers?",
+    "surfing_description": "Plánuji výlet a hledám hostitele",
+    "events": "Události",
+    "events_description": "Chci se účastnit událostí a poznávat komunitu",
+    "community_organizing": "Organizování komunity",
+    "community_organizing_description": "Chci organizovat akce a aktivity na platformě",
+    "something_else": "Něco jiného",
+    "something_else_description": "Jen se rozhlížím nebo ještě nemám jasno"
+  },
+  "sign_up_resend_verification_email_help": "Nepřišel ti e-mail? Klikni <2>sem pro opětovné odeslání ověřovacího odkazu</2>.",
+  "active_logins": {
+    "heading": "Aktuální přihlášení",
+    "settings_page_text": "Zobraz, kde jste přihlášeni a odhlaste se z ostatních relací",
+    "settings_page_link": "Správa aktuálních přihlášení",
+    "description": "Na této stránce najdeš seznam aktivních přihlášení. Z kteréhokoli se můžeš odhlásit kliknutím na tlačítko vedle daného přihlášení, nebo sjeď dolů a odhlas se ze všech ostatních relací najednou.",
+    "login_header": "Přihlášení {{login_datetime}}",
+    "location": "Poblíž <2>{{approximate_location}}</2>",
+    "last_activity": "Poslední aktivita <2>{{last_activity_ago}}</2>",
+    "expiry": "Vyprší dne <1>{{expiry_datetime}}</1>",
+    "current_session": "Toto je tvoje aktuální relace.",
+    "log_out_of_session": "Odhlásit se z této relace",
+    "log_out_of_all_session": "Odhlásit ze všech ostatních relací"
+  }
 }
