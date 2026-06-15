@@ -107,6 +107,7 @@
     "discussion_deleted": "Tato diskuse byla smazána.",
     "discussion_edit_permission_denied": "Nemáš oprávnění upravit tuto diskuzi.",
     "cant_refer_self": "Nelze doporučit sám sebe.",
-    "incomplete_profile_send_message": "Než bude možné poslat zprávu, je třeba vyplnit svůj profil."
+    "incomplete_profile_send_message": "Než bude možné poslat zprávu, je třeba vyplnit svůj profil.",
+    "insecure_password": "Toto heslo není dostatečně bezpečné. Použijte prosím heslo, které nelze snadno uhodnout."
   }
 }
