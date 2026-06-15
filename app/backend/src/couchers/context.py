@@ -128,22 +128,23 @@ class CouchersContext:
         error_message_id: str,
         *,
         substitutions: dict[str, str | int] | None = None,
-        translation_component: str = "main",
     ) -> NoReturn:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
 
-        translation_component selects which translation component holds the error string (e.g. admin/editor errors
-        live in the "admin" component).
+        error_message_id may be namespaced with a translation component, like i18next, e.g. "admin:object_not_found"
+        looks up "object_not_found" in the "admin" component (where admin/editor errors live). Without a prefix the
+        "main" component is used.
         """
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message_id)
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
+            component, _, error_name = error_message_id.rpartition(":")
             # Get the translated error message using the user's language preference
             error_message = self.localization.localize_string(
-                f"errors.{error_message_id}",
-                i18next=get_translation_component(translation_component),
+                f"errors.{error_name}",
+                i18next=get_translation_component(component or "main"),
                 substitutions=substitutions,
             )
             context.abort(status_code, error_message)

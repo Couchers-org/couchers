@@ -39,9 +39,7 @@ def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
     geom = shape(json.loads(geojson))
 
     if geom.geom_type != "MultiPolygon":
-        context.abort_with_error_code(
-            grpc.StatusCode.INVALID_ARGUMENT, "no_multipolygon", translation_component="admin"
-        )
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:no_multipolygon")
 
     return geom
 
@@ -94,9 +92,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if parent_node_id is not None:
             parent_node = session.execute(select(Node).where(Node.id == parent_node_id)).scalar_one_or_none()
             if not parent_node:
-                context.abort_with_error_code(
-                    grpc.StatusCode.NOT_FOUND, "parent_node_not_found", translation_component="admin"
-                )
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:parent_node_not_found")
             parent_type = parent_node.node_type
         else:
             parent_type = None
@@ -174,15 +170,11 @@ class Editor(editor_pb2_grpc.EditorServicer):
         ).scalar_one_or_none()
 
         if not req:
-            context.abort_with_error_code(
-                grpc.StatusCode.NOT_FOUND, "event_community_invite_not_found", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:event_community_invite_not_found")
 
         if req.decided:
             context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION,
-                "event_community_invite_already_decided",
-                translation_component="admin",
+                grpc.StatusCode.FAILED_PRECONDITION, "admin:event_community_invite_already_decided"
             )
 
         decided = now()
@@ -218,13 +210,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
         self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         if len(request.title) > 50:
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_title_too_long", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:blog_title_too_long")
         if len(request.blurb) > 100:
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_blurb_too_long", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:blog_blurb_too_long")
         queue_job(
             session,
             job=generate_new_blog_post_notifications,
@@ -245,9 +233,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         # Check if user is already a volunteer
         if session.execute(select(exists().where(Volunteer.user_id == request.user_id))).scalar():
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_already_volunteer")
 
         # Parse started_volunteering date
         started_volunteering = None
@@ -255,7 +241,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             started_volunteering = parse_date(request.started_volunteering)
             if not started_volunteering:
                 context.abort_with_error_code(
-                    grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date", translation_component="admin"
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_started_volunteering_date"
                 )
 
         # Create a volunteer record
@@ -277,9 +263,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         # Check if volunteer exists
         volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == request.user_id)).scalar_one_or_none()
         if not volunteer:
-            context.abort_with_error_code(
-                grpc.StatusCode.NOT_FOUND, "volunteer_not_found", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:volunteer_not_found")
 
         # Update role if provided
         if request.HasField("role"):
@@ -294,14 +278,14 @@ class Editor(editor_pb2_grpc.EditorServicer):
             started_volunteering = parse_date(request.started_volunteering.value)
             if not started_volunteering:
                 context.abort_with_error_code(
-                    grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date", translation_component="admin"
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_started_volunteering_date"
                 )
             volunteer.started_volunteering = started_volunteering
 
         # Reinstate (clear stopped_volunteering) or update stopped_volunteering
         if request.reinstate_volunteer and request.HasField("stopped_volunteering"):
             context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT, "cannot_reinstate_and_set_stopped_date", translation_component="admin"
+                grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_reinstate_and_set_stopped_date"
             )
         if request.reinstate_volunteer:
             volunteer.stopped_volunteering = None
@@ -309,7 +293,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             stopped_volunteering = parse_date(request.stopped_volunteering.value)
             if not stopped_volunteering:
                 context.abort_with_error_code(
-                    grpc.StatusCode.INVALID_ARGUMENT, "invalid_stopped_volunteering_date", translation_component="admin"
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_stopped_volunteering_date"
                 )
             volunteer.stopped_volunteering = stopped_volunteering
 
@@ -403,9 +387,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
         if not attempt.mypostcard_job_id:
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION, "postcard_not_sent", translation_component="admin"
-            )
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:postcard_not_sent")
 
         pdf_data = download_pdf(attempt.mypostcard_job_id)
         return editor_pb2.DownloadPostcardPdfRes(pdf=pdf_data)
