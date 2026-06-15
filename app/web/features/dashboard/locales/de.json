@@ -104,5 +104,6 @@
     "night_count_other": "{{count}} Nächte",
     "no_upcoming_trips": "Keine anstehenden Trips. Bereit zum Entdecken?",
     "no_upcoming_guests": "Noch keine anstehenden Gäste."
-  }
+  },
+  "now_label": "Jetzt"
 }
