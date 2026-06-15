@@ -109,7 +109,7 @@
     "cant_refer_self": "Nelze doporučit sám sebe.",
     "incomplete_profile_send_message": "Než bude možné poslat zprávu, je třeba vyplnit svůj profil.",
     "insecure_password": "Toto heslo není dostatečně bezpečné. Použij prosím heslo, které nelze snadno uhodnout.",
-    "invalid_birthdate": "K registraci vám musí být alespoň 18 let.",
+    "invalid_birthdate": "Pro registraci musíš mít alespoň 18 let.",
     "invalid_comment": "Není možné odeslat prázdný komentář.",
     "invalid_coordinate": "Neplatné souřadnice.",
     "invalid_date": "Neplatné datum.",
@@ -122,9 +122,9 @@
     "invalid_region": "Neplatný region.",
     "invalid_token": "Neplatný token.",
     "invalid_username": "Neplatné uživatelské jméno.",
-    "invite_code_not_found": "Kód pozvánky nebyl nalezen.",
+    "invite_code_not_found": "Kód pozvánky nenalezen.",
     "invite_permission_denied": "Nemáš oprávnění zvát ostatní uživatele.",
     "last_admin_cant_leave": "Poslední admin nesmí opustit skupinový chat.",
-    "missing_event_address_location_or_link": "Chybějící adresa události, lokace, nebo odkaz."
+    "missing_event_address_location_or_link": "Chybějící adresa události, lokace nebo odkaz."
   }
 }
