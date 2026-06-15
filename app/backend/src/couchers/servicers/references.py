@@ -11,7 +11,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import and_, func, literal, or_, union_all
+from sqlalchemy.sql import and_, literal, or_, union_all
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
@@ -23,7 +23,12 @@ from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    reference_publicly_visible,
+    users_visible,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -208,33 +213,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         if next_reference_id:
             statement = statement.where(Reference.id <= next_reference_id)
 
-        # Reference visibility logic:
-        # A reference is visible if any of the following apply:
+        # Reference visibility logic (a reference is visible if any of the following apply):
         # 1. It is a friend reference
         # 2. Both references have been written
         # 3. It has been over 2 weeks since the host request ended
-
-        # we get the matching other references through this subquery
-        sub = select(Reference.id.label("sub_id"), Reference.host_request_id).where(
-            Reference.reference_type != ReferenceType.friend
-        )
-        if request.from_user_id:
-            sub = sub.where(Reference.to_user_id == request.from_user_id)
-        if request.to_user_id:
-            sub = sub.where(Reference.from_user_id == request.to_user_id)
-
-        query = sub.subquery()
-        statement = (
-            statement.outerjoin(query, query.c.host_request_id == Reference.host_request_id)
-            .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
-            .where(
-                or_(
-                    Reference.reference_type == ReferenceType.friend,
-                    query.c.sub_id != None,
-                    HostRequest.end_time_to_write_reference < func.now(),
-                )
-            )
-        )
+        # This must stay in sync with the reference count (get_num_references); both use the
+        # shared reference_publicly_visible() helper.
+        statement = statement.where(reference_publicly_visible())
 
         statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
         references = session.execute(statement).scalars().all()

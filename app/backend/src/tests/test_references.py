@@ -24,11 +24,17 @@ from couchers.models import (
     User,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, moderation_pb2, references_pb2, requests_pb2
+from couchers.proto import api_pb2, conversations_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
-from tests.fixtures.sessions import account_session, real_moderation_session, references_session, requests_session
+from tests.fixtures.sessions import (
+    account_session,
+    api_session,
+    real_moderation_session,
+    references_session,
+    requests_session,
+)
 from tests.test_requests import valid_request_text
 
 
@@ -409,6 +415,41 @@ def test_ListPagination(db):
         res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user5.id, to_user_id=user1.id))
         assert [ref.reference_id for ref in res.references] == [ref5]
         assert not res.next_page_token
+
+
+def test_num_references_matches_visible_list(db):
+    # Regression test: the reference count (User.num_references) must not include references that
+    # are still hidden by the reciprocal-reference rule, otherwise the count leaks the existence
+    # of a hidden reference and disagrees with what ListReferences shows.
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        # user2 wrote user1 a reference for a recent stay; the 2-week window is still open and
+        # user1 has not written their reciprocal reference yet, so this reference is hidden.
+        create_host_reference(session, user2.id, user1.id, timedelta(days=3), surfing=False)
+
+    with references_session(token2) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id))
+        assert len(res.references) == 0
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        # count must agree with the (empty) list, not leak the hidden reference
+        assert res.num_references == 0
+
+    with session_scope() as session:
+        host_request_id = session.execute(select(HostRequest.conversation_id)).scalar_one()
+        # user1 writes the reciprocal reference: now both references become visible
+        create_host_reference(session, user1.id, user2.id, timedelta(days=2), host_request_id=host_request_id)
+
+    with references_session(token2) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id))
+        assert len(res.references) == 1
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.num_references == 1
 
 
 def test_ListReference_banned_deleted_users(db):
