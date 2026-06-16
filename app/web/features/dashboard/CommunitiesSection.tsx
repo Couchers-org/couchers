@@ -11,7 +11,7 @@ const StyledCreateCommunityText = styled(Typography)(() => ({
 }));
 
 export default function CommunitiesSection() {
-  const { t } = useTranslation([GLOBAL, DASHBOARD]);
+  useTranslation([GLOBAL, DASHBOARD]);
   const { data: accountInfo } = useAccountInfo();
 
   return (
