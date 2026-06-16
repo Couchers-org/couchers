@@ -210,7 +210,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     ),
                     text=message.text,
                     group_chat_id=message.conversation_id,
-                    group_chat_title=group_chat.title,
+                    group_chat_title=group_chat.title or None,
                     # unseen_count irrelevant for this notification
                 ),
                 moderation_state_id=group_chat.moderation_state_id,
