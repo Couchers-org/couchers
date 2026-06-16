@@ -264,7 +264,7 @@ class ChatMessageReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"chat_message_received.{'direct' if self.group_chat_title is None else 'group'}"
+        return f"chat_message_received.{'group' if self.group_chat_title else 'direct'}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
