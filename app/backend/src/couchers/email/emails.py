@@ -264,7 +264,7 @@ class ChatMessageReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"chat_message_received.{'group' if self.group_chat_title else 'direct'}"
+        return f"chat_message_received.{'direct' if self.group_chat_title is None else 'group'}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -330,10 +330,10 @@ class ChatMessagesMissedEmail(EmailBase):
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         for entry in self.entries:
-            if entry.group_chat_title:
-                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
-            else:
+            if entry.group_chat_title is None:
                 builder.para(".in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            else:
+                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
             builder.user(entry.latest_message_author)
             builder.quote(entry.latest_message_text, markdown=False)
             builder.action(entry.view_url, ".view_action")
