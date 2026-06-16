@@ -1,4 +1,4 @@
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { IconButton, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
@@ -83,7 +83,13 @@ export default function CommunitiesList() {
   return (
     <div>
       <SectionHeader>
-        <Typography variant="h2">
+        <Typography
+          variant="h2"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          <Groups
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
           {t("dashboard:your_communities_heading")}
         </Typography>
         <div>
@@ -92,7 +98,7 @@ export default function CommunitiesList() {
             onClick={goPrev}
             disabled={!hasPrev}
             color={hasPrev ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.prev_page_label")}
+            aria-label={t("dashboard:prev_page_button_a11y")}
           >
             <ArrowBack fontSize="small" />
           </IconButton>
@@ -101,7 +107,7 @@ export default function CommunitiesList() {
             onClick={goNext}
             disabled={!hasNext}
             color={hasNext ? "primary" : "default"}
-            aria-label={t("dashboard:discussions.next_page_label")}
+            aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
           </IconButton>
