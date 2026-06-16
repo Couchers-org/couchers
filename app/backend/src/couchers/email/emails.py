@@ -285,7 +285,7 @@ class ChatMessageReceivedEmail(EmailBase):
             user_name,
             author=UserInfo.from_protobuf(data.author),
             text=data.text,
-            group_chat_title=data.group_chat_title,
+            group_chat_title=data.group_chat_title or None,
             view_url=urls.chat_link(chat_id=data.group_chat_id),
         )
 
@@ -343,7 +343,7 @@ class ChatMessagesMissedEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
         missed_entries = [
             cls.Entry(
-                group_chat_title=message.group_chat_title,
+                group_chat_title=message.group_chat_title or None,
                 missed_count=message.unseen_count,
                 latest_message_author=UserInfo.from_protobuf(message.author),
                 latest_message_text=message.text,
