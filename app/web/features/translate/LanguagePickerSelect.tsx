@@ -3,6 +3,7 @@ import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import {
   Box,
   FormControl,
+  ListItemIcon,
   ListItemText,
   MenuItem,
   Select,
@@ -13,6 +14,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import { CatalanFlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
@@ -122,6 +124,27 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
+  const renderFlag = (flagCode: string, percent?: number) => {
+    const shouldGreyOut = percent !== undefined && percent < ALMOST_DONE_CUTOFF;
+    const commonStyles = {
+      filter: shouldGreyOut ? "grayscale(100%)" : "none",
+      opacity: shouldGreyOut ? 0.4 : 1,
+    } as const;
+
+    if (flagCode === "CAT") {
+      return (
+        <CatalanFlagIcon sx={{ width: 25, height: 18.75, ...commonStyles }} />
+      );
+    }
+
+    return (
+      <img
+        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
+        alt=""
+        style={{ width: 25, ...commonStyles }}
+      />
+    );
+  };
   // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
   // Languages with < 80% translated are greyed out
   const availableLanguages = getAvailableLanguages(languages, showAllLanguages);
@@ -155,6 +178,12 @@ export default function LanguagePickerSelect({
               justifyContent="space-between"
             >
               <Stack direction="row">
+                <ListItemIcon>
+                  {renderFlag(
+                    LANGUAGE_MAP[languageCode].flagIconCode,
+                    language.translated_percent,
+                  )}
+                </ListItemIcon>
                 <ListItemText
                   sx={{
                     opacity:
@@ -165,7 +194,7 @@ export default function LanguagePickerSelect({
                     display: "inline",
                   }}
                 >
-                  {LANGUAGE_MAP[languageCode].nativeName}
+                  {languageCode.toUpperCase()}
                 </ListItemText>
               </Stack>
               <div>
@@ -195,7 +224,8 @@ export default function LanguagePickerSelect({
           fontWeight: "bold",
         }}
       >
-        {LANGUAGE_MAP[selected].nativeName}
+        {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
+        {selected.toUpperCase()}
       </Box>
     );
     return selectedDisplay;

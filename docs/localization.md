@@ -72,7 +72,7 @@ yarn create-translation-files uk  # Adds Ukrainian
 This script will:
 - Create empty translation files for all features (except mod)
 - Add the language to `allLanguages.js` and `constants.ts`
-- Seed the language name. The entry added to `constants.ts` gets a placeholder `nativeName` (the language's autonym, shown in the picker) for a maintainer to replace with the correct value, and the English name is added to `language_names` in `resources/locales/en.json`. Language codes might need to be added to the `LANGUAGE_NAMES` map in `scripts/create-translation-files.js` once if not already there.
+- Provide the correct language name and flag code. Language codes might need to be added to the variables in `scripts/create-translation-files.ts` with name and flag code once if not already there.
 
 ### Removing a language
 
@@ -90,7 +90,6 @@ yarn delete-translation-files sv  # Removes Swedish
 This script will:
 - Delete all translation files for the language
 - Remove the language from `allLanguages.js` and `constants.ts`
-- Remove the English name from `language_names` in `resources/locales/en.json`
 - Also remove from the native app's language list
 
 Both scripts validate language codes and provide helpful feedback about the process.
