@@ -1,4 +1,3 @@
-import { Groups } from "@mui/icons-material";
 import { Link as MuiLink, styled, Typography } from "@mui/material";
 import useAccountInfo from "features/auth/useAccountInfo";
 import CommunitiesList from "features/dashboard/CommunitiesList";
