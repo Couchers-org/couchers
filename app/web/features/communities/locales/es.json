@@ -149,5 +149,20 @@
   "duplicate_event": "Evento duplicado",
   "event_title_label": "Título",
   "copy_link": "Copiar enlace",
-  "copy_link_success": "Enlace copiado al portapapeles"
+  "copy_link_success": "Enlace copiado al portapapeles",
+  "comment_deleted": "Este comentario ha sido eliminado.",
+  "edit_comment": "Editar comentario",
+  "delete_comment": "Eliminar comentario",
+  "comment_edited_date": "Editado {{timeAgo}}",
+  "discussion_edited_date": "Editado {{timeAgo}}",
+  "discussion_deleted": "Esta discusión ha sido eliminada.",
+  "delete_discussion": "Eliminar discusión",
+  "delete_discussion_dialog": {
+    "title": "Eliminar discusión",
+    "message": "¿Estás seguro de que quieres eliminar esta discusión? Los comentarios seguirán siendo visibles.",
+    "confirm": "Eliminar",
+    "cancel": "Cancelar"
+  },
+  "edit_discussion": "Editar discusión",
+  "community_breadcrumb_a11y": "Comunidad actual"
 }

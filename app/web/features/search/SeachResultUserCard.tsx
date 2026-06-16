@@ -184,6 +184,8 @@ const generateAboutText = (
       <LinesEllipsis
         maxLine={isMobile ? 3 : 7}
         text={stripMarkdown(aboutText(user, t))}
+        basedOn="letters"
+        style={{ wordBreak: "break-all", overflow: "hidden" }}
       />
     );
   }

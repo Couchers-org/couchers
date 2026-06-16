@@ -22,6 +22,7 @@
   "no_blocked_users": "No blocked users",
   "no_friends": "No friends available",
   "no_friend_requests": "No pending friend requests",
+  "friend_request_no_longer_available": "This friend request is no longer available.",
   "no_friend_requests_sent": "No pending friend requests",
   "pending": "Pending",
   "remove_friend": "Remove friend",
@@ -35,5 +36,6 @@
     "title": "Are you sure you want to unblock {{name}}?",
     "message": "Unblocking will allow them to see your profile and send you requests. If you were previously friends, they will go back into your friends list. They will not be notified.",
     "confirm": "Unblock"
-  }
+  },
+  "cancel_request_button_a11y": "Cancel request"
 }

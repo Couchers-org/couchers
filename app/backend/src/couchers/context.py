@@ -4,6 +4,7 @@ import grpc
 
 from couchers import experimentation
 from couchers.i18n import LocalizationContext
+from couchers.i18n.locales import get_translation_component
 
 if TYPE_CHECKING:
     from growthbook import GrowthBook
@@ -72,6 +73,7 @@ class CouchersContext:
         token: str | None,
         localization: LocalizationContext,
         sofa: str | None = None,
+        serialize_shadowed: bool,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self._grpc_context = grpc_context
@@ -80,6 +82,7 @@ class CouchersContext:
         self.__token = token
         self.__localization = localization
         self._sofa = sofa
+        self.__serialize_shadowed = serialize_shadowed
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
@@ -120,17 +123,30 @@ class CouchersContext:
             context.abort(status_code, error_message)
 
     def abort_with_error_code(
-        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict[str, str | int] | None = None
+        self,
+        status_code: grpc.StatusCode,
+        error_message_id: str,
+        *,
+        substitutions: dict[str, str | int] | None = None,
     ) -> NoReturn:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
+
+        error_message_id may be namespaced with a translation component, like i18next, e.g. "admin:object_not_found"
+        looks up "object_not_found" in the "admin" component (where admin/editor errors live). Without a prefix the
+        "main" component is used.
         """
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message_id)
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
+            component, _, error_name = error_message_id.rpartition(":")
             # Get the translated error message using the user's language preference
-            error_message = self.localization.localize_string(f"errors.{error_message_id}", substitutions=substitutions)
+            error_message = self.localization.localize_string(
+                f"errors.{error_name}",
+                i18next=get_translation_component(component or "main"),
+                substitutions=substitutions,
+            )
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
@@ -192,11 +208,15 @@ class CouchersContext:
     def localization(self) -> LocalizationContext:
         return self.__localization
 
+    @property
+    def serialize_shadowed(self) -> bool:
+        return self.__serialize_shadowed
+
     # Feature-flag evaluation methods mirror the OpenFeature evaluation API, evaluating for this
     # context's user. The gating lives in experimentation; we just pass our cached per-request
     # evaluator. The in-code default is honored even for flags not yet set up in GrowthBook.
     def get_boolean_value(self, flag_key: str, default: bool) -> bool:
-        return experimentation._boolean_value(flag_key, default, self._get_growthbook)
+        return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
     def get_string_value(self, flag_key: str, default: str) -> str:
         return experimentation._feature_value(flag_key, default, self._get_growthbook)
@@ -233,6 +253,7 @@ def make_interactive_context(
         token=token,
         localization=localization,
         sofa=sofa,
+        serialize_shadowed=False,
     )
 
 
@@ -244,6 +265,7 @@ def make_one_off_interactive_user_context(couchers_context: CouchersContext, use
         is_api_key=None,
         token=None,
         localization=couchers_context.localization,
+        serialize_shadowed=False,
     )
 
 
@@ -255,6 +277,7 @@ def make_media_context(grpc_context: grpc.ServicerContext) -> CouchersContext:
         grpc_context=grpc_context,
         token=None,
         localization=LocalizationContext.en_utc(),
+        serialize_shadowed=False,
     )
 
 
@@ -266,6 +289,19 @@ def make_background_user_context(user_id: int, localization: LocalizationContext
         grpc_context=None,
         token=None,
         localization=localization or LocalizationContext.en_utc(),
+        serialize_shadowed=False,
+    )
+
+
+def make_notification_user_context(user_id: int, localization: LocalizationContext | None = None) -> CouchersContext:
+    return CouchersContext(
+        is_interactive=False,
+        user_id=user_id,
+        is_api_key=None,
+        grpc_context=None,
+        token=None,
+        localization=localization or LocalizationContext.en_utc(),
+        serialize_shadowed=True,
     )
 
 
@@ -277,4 +313,5 @@ def make_logged_out_context(localization: LocalizationContext) -> CouchersContex
         grpc_context=None,
         token=None,
         localization=localization,
+        serialize_shadowed=False,
     )

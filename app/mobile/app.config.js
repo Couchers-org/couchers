@@ -59,6 +59,11 @@ const ICON_SETS = {
     ios: "./assets/images/icon_ios_staging.png",
     adaptiveForeground: "./assets/images/adaptive_icon_foreground_staging.png",
   },
+  devtool: {
+    icon: "./assets/images/icon_devtool.png",
+    ios: "./assets/images/icon_ios_devtool.png",
+    adaptiveForeground: "./assets/images/adaptive_icon_foreground_devtool.png",
+  },
 };
 
 const VARIANTS = {
@@ -85,7 +90,7 @@ const VARIANTS = {
     bundleIdentifier: "org.couchers.devtool.ios",
     androidPackage: "org.couchers.devtool.android",
     scheme: "couchers-devtool",
-    iconSet: "staging",
+    iconSet: "devtool",
     linkHost: null,
     webcredHost: null,
   },
@@ -150,7 +155,7 @@ const updates =
 export default {
   name: variant.name,
   slug: "mobile",
-  version: "1.1.20",
+  version: "1.3.0",
   orientation: "portrait",
   icon: icons.icon,
   scheme: variant.scheme,

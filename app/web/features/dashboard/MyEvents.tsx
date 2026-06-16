@@ -1,16 +1,16 @@
-import { styled, Typography } from "@mui/material";
+import { ArrowBack, ArrowForward, Event } from "@mui/icons-material";
+import { IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
-import { eventsRoute, routeToNewEvent } from "routes";
-import { service } from "service";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import { useState } from "react";
+import { routeToNewEvent } from "routes";
 
+import { service } from "../../service";
 import { myEventsKey } from "../queryKeys";
 import EventListRow, {
   EventListContainer,
@@ -19,67 +19,127 @@ import EventListRow, {
 
 const SectionHeader = styled("div")({
   display: "flex",
-  alignItems: "baseline",
+  alignItems: "center",
   justifyContent: "space-between",
   marginBottom: "8px",
 });
 
-const PAGE_SIZE = 3;
+const EmptyStateRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  padding: theme.spacing(2),
+  border: "1px dashed var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-grey-50)",
+}));
 
 export default function MyUpcomingEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
-  const { data, error, isLoading } = useInfiniteQuery<
-    ListMyEventsRes.AsObject,
-    RpcError
-  >({
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
+  const {
+    data,
+    error,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
     queryKey: myEventsKey("upcoming"),
-    queryFn: ({ pageParam }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.events.listMyEvents({
-        pageToken: pageParam as string | undefined,
-        pageSize: PAGE_SIZE,
+        pageToken: pageToken as string | undefined,
+        pageSize: 3,
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    initialPageParam: undefined as string | undefined,
   });
+
+  const pages = data?.pages ?? [];
+  const isLastLoadedPage =
+    pages.length === 0 || currentPageIndex === pages.length - 1;
+  const currentItems = pages[currentPageIndex]?.eventsList;
+
+  const hasPrev = currentPageIndex > 0;
+  const hasForward = !isLastLoadedPage || !!hasNextPage;
+
+  const handleNext = () => {
+    if (!isLastLoadedPage) {
+      setCurrentPageIndex((i) => i + 1);
+    } else if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+      setCurrentPageIndex((i) => i + 1);
+    }
+  };
+
+  const showingSkeleton =
+    isLoading || (isFetchingNextPage && currentItems === undefined);
 
   return (
     <div>
       <SectionHeader>
-        <Typography variant="h2">
+        <Typography
+          variant="h2"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          <Event
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
           {t("dashboard:events.your_upcoming_header")}
         </Typography>
-        <StyledLink href={`${eventsRoute}#my-events`}>
-          {t("dashboard:events.see_all_link")}
-        </StyledLink>
+        <div>
+          <IconButton
+            size="small"
+            onClick={() => setCurrentPageIndex((i) => i - 1)}
+            disabled={!hasPrev}
+            color={hasPrev ? "primary" : "default"}
+            aria-label={t("dashboard:prev_page_button_a11y")}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={handleNext}
+            disabled={!hasForward || isFetchingNextPage}
+            color={hasForward ? "primary" : "default"}
+            aria-label={t("dashboard:next_page_button_a11y")}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
       </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
+      {showingSkeleton ? (
         <EventListContainer>
           {[0, 1, 2].map((i) => (
             <EventListRowSkeleton key={i} />
           ))}
         </EventListContainer>
-      ) : hasAtLeastOnePage(data, "eventsList") ? (
+      ) : currentItems?.length ? (
         <EventListContainer>
-          {data.pages
-            .flatMap((page) => page.eventsList)
-            .slice(0, PAGE_SIZE)
-            .map((event) => (
-              <EventListRow key={event.eventId} event={event} />
-            ))}
+          {currentItems.map((event) => (
+            <EventListRow key={event.eventId} event={event} />
+          ))}
         </EventListContainer>
       ) : (
         !error && (
-          <TextBody>
-            <Trans
-              t={t}
-              i18nKey="dashboard:events.your_upcoming_empty_message"
-              components={[
-                <StyledLink key="create-link" href={routeToNewEvent()} />,
-              ]}
-            />
-          </TextBody>
+          <EmptyStateRow>
+            <Typography
+              variant="body2"
+              sx={{ color: "var(--mui-palette-text-secondary)" }}
+            >
+              <Trans
+                t={t}
+                i18nKey="dashboard:events.your_upcoming_empty_message"
+                components={[
+                  <StyledLink key="create-link" href={routeToNewEvent()} />,
+                ]}
+              />
+            </Typography>
+          </EmptyStateRow>
         )
       )}
     </div>

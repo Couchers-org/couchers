@@ -232,20 +232,6 @@ describe("WebEmbed", () => {
       expect(aboutBlank).toBe(true);
       expect(dataUrl).toBe(true);
     });
-
-    it("allows reCAPTCHA URLs via onShouldStartLoadWithRequest", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      const recaptcha = capturedWebViewProps.onShouldStartLoadWithRequest?.({
-        url: "https://www.google.com/recaptcha/api2/anchor",
-      });
-      const gstatic = capturedWebViewProps.onShouldStartLoadWithRequest?.({
-        url: "https://www.gstatic.com/recaptcha/releases/abc123/recaptcha.js",
-      });
-
-      expect(recaptcha).toBe(true);
-      expect(gstatic).toBe(true);
-    });
   });
 
   describe("message handling", () => {

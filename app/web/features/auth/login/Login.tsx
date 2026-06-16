@@ -1,16 +1,13 @@
-import { alpha, Box, styled, Typography, useMediaQuery } from "@mui/material";
+import { alpha, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
-import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
-import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -43,7 +40,6 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 
@@ -89,22 +85,7 @@ export default function Login() {
               <StyledLink href={signupRoute}>Sign up</StyledLink>
             </Trans>
           </Typography>
-          <Typography variant="caption">
-            {" "}
-            <AntibotNote />
-          </Typography>
         </StyledFormWrapper>
-        {isMobile && (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: theme.spacing(2),
-            }}
-          >
-            <LanguagePickerSelect />
-          </Box>
-        )}
       </StyledContent>
     </>
   );

@@ -107,8 +107,15 @@ message SetHostRequestArchiveStatusRes {
   bool is_archived = 2;
 }
 
+enum HostRequestSortBy {
+  HOST_REQUEST_SORT_BY_LAST_ACTIVE = 0;
+  HOST_REQUEST_SORT_BY_FROM_DATE = 1;
+}
+
 message ListHostRequestsReq {
-  int64 last_request_id = 1;
+  reserved 1;
+  reserved "last_request_id";
+
   uint32 number = 2;
 
   // Whether to only show pending, accepted and
@@ -119,12 +126,21 @@ message ListHostRequestsReq {
   bool only_sent = 4;
   bool only_received = 5;
   optional bool only_archived = 6;
+
+  // If non-empty, only return requests with one of these statuses.
+  repeated org.couchers.api.conversations.HostRequestStatus status_in = 7;
+
+  HostRequestSortBy sort_by = 8;
+  string page_token = 9;
 }
 
 message ListHostRequestsRes {
+  reserved 2;
+  reserved "last_request_id";
+
   repeated HostRequest host_requests = 1;
-  int64 last_request_id = 2;
   bool no_more = 3;
+  string next_page_token = 4;
 }
 
 message GetHostRequestMessagesReq {

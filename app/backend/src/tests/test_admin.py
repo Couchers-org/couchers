@@ -18,6 +18,9 @@ from couchers.models import (
     ModerationState,
     ModerationUserList,
     ModerationVisibility,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     Reference,
     Upload,
     User,
@@ -66,6 +69,65 @@ def test_access_by_normal_user(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+
+def test_GetNonvisibleUserAccessLog(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    target, _ = generate_user(username="target")
+    viewer, _ = generate_user(username="viewer")
+
+    with session_scope() as session:
+        session.add(
+            NonvisibleUserAccess(
+                access_type=NonvisibleUserAccessType.login_attempt,
+                target_user_id=target.id,
+                target_state=NonvisibleUserState.banned,
+                actor_user_id=target.id,
+                ip_address="1.2.3.4",
+                sofa="device-cookie",
+            )
+        )
+        session.add(
+            NonvisibleUserAccess(
+                access_type=NonvisibleUserAccessType.ghost_served,
+                target_user_id=target.id,
+                target_state=NonvisibleUserState.banned,
+                actor_user_id=viewer.id,
+            )
+        )
+        session.add(
+            NonvisibleUserAccess(
+                access_type=NonvisibleUserAccessType.ghost_served,
+                target_user_id=target.id,
+                target_state=NonvisibleUserState.banned,
+                actor_user_id=None,
+            )
+        )
+
+    with real_admin_session(super_token) as api:
+        res = api.GetNonvisibleUserAccessLog(admin_pb2.GetNonvisibleUserAccessLogReq(user="target"))
+
+    assert len(res.entries) == 3
+    for entry in res.entries:
+        assert entry.target_user_id == target.id
+        assert entry.target_state == admin_pb2.NONVISIBLE_USER_STATE_BANNED
+
+    login = [e for e in res.entries if e.access_type == admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_LOGIN_ATTEMPT]
+    views = [e for e in res.entries if e.access_type == admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_GHOST_SERVED]
+    assert len(login) == 1
+    assert len(views) == 2
+
+    assert login[0].actor_user_id.value == target.id
+    assert login[0].actor_username == "target"
+    assert login[0].ip_address == "1.2.3.4"
+    assert login[0].sofa == "device-cookie"
+
+    logged_in_view = [e for e in views if e.actor_username == "viewer"]
+    logged_out_view = [e for e in views if not e.actor_username]
+    assert len(logged_in_view) == 1
+    assert logged_in_view[0].actor_user_id.value == viewer.id
+    assert len(logged_out_view) == 1
+    assert not logged_out_view[0].HasField("actor_user_id")
 
 
 def test_GetUser(db):

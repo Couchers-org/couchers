@@ -272,13 +272,16 @@ the upload job and only post once the links are live.
 2. `npx expo-updates fingerprint:generate --platform <p>` → `.hash` for
    `runtimeVersion`. Must equal the installed Dev Tool build's fingerprint — see §8
    on `.fingerprintignore`.
-3. `node scripts/ota-stage.mjs` builds the manifest from `metadata.json` +
+3. `node scripts/ota-bundle.mjs` builds the manifest from `metadata.json` +
    `ota-expo-config.json`: content-addressed asset keys (base64url SHA-256),
    rewrites every URL to `<sha>--ota.preview.couchershq.org/<platform>/…`, and
    writes both the `manifest.json` object and the protocol-v1 `multipart/mixed`
-   `manifest` body (+ its `manifest.content-type`). It also writes `open.html`, an
-   https redirect to the dev-launcher deep link (see §9).
-4. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
+   `manifest` body (+ its `manifest.content-type`). On non-`develop` branches the
+   branch's Vercel preview URL (resolved by `scripts/vercel-preview-url.mjs`) is
+   injected as `extra.expoClient.extra.otaWebBaseUrl` (§9).
+4. `node scripts/ota-open-page.mjs` writes `open.html`, an https redirect to the
+   dev-launcher deep link (see §9).
+5. `npx --yes qrcode` renders `qr.png` encoding the deep link. Using `npx` (not a
    `package.json` dep) keeps `qrcode` out of the fingerprint sources.
 
 **`preview:mobile-ota-devtool`** (`aws-base`) — `aws s3 cp` the `manifest` (with its
@@ -286,10 +289,18 @@ multipart content-type), `bundle.hbc`, `assets/`, `qr.png`, and `open.html` to
 `s3://couchers-dev-assets/ota/<sha>/<platform>/`. No CloudFront invalidation
 (immutable keys).
 
-**`preview:pr-comment`** (`python:3.12-slim`) — `needs:` the upload job so every
-link is already live, then runs `app/scripts/pr_preview_comment.py` to post/update
-the sticky PR comment (§9). No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no
-open PR, so it never reds the pipeline.
+**`preview:pr-comment-stub`** (`python:3.14-slim`, `needs: []`) — runs at the
+very start of every non-`develop` branch pipeline and posts the sticky comment
+as a "previews are building" placeholder within seconds of the push.
+
+**`preview:pr-comment`** (`python:3.14-slim`) — `needs:` the stub job plus the
+upload job (the latter `optional:`, since the job runs for every branch
+pipeline, not just mobile ones), then runs `app/scripts/pr_preview_comment.py`
+to replace the placeholder with the real sections (§9). Sections are included
+only when their preview exists (the web link is the commit's per-deployment
+URL and may still be building when posted); when nothing exists, the comment
+says so. No-ops if `GITHUB_PREVIEW_TOKEN` is unset or there's no open PR, so
+it never reds the pipeline.
 
 ---
 
@@ -324,7 +335,9 @@ In `app/mobile/app.config.js`, **devtool variant only**:
 `eas.json`'s `channel: "development"` on the devtool profile is vestigial for the
 static approach (channels only matter for EAS Update) but harmless.
 
-Production and staging stay on EAS Update (`u.expo.dev`) untouched.
+Staging and production have since moved off EAS Update onto the same self-hosted
+static pipeline (`build:mobile-ota-staging` / `build:mobile-ota-prod` in
+`app/.gitlab-ci.yml`; see `docs/native-prod-ota.md`).
 
 ---
 
@@ -347,14 +360,31 @@ appended as the pipeline grows.
   `open.html` (https), which `location.replace`s to the deep link on the device;
 - the raw deep link in a `<details>` block for copy/paste.
 
-**Designed, not yet wired in — the web/API axis.** The Dev Tool also supports
-repointing its WebView via
-`couchers-devtool://dev-settings?api=<dev-api>&web=<vercel preview url>`
-(`app/mobile/app/dev-settings.tsx` → `config/urls.ts`, persisted in AsyncStorage;
-the `app/mobile/dev-url-qr.html` precedent proves the pattern). It's orthogonal to
-the OTA shell and can be added as another section. The two axes compose: load the
-RN-shell bundle, and the WebView inside uses whatever web/API override is persisted
-(or the devtool's configured `EXPO_PUBLIC_WEB_BASE_URL`).
+**The web axis — wired through the manifest.** The OTA build job resolves the
+commit's Vercel preview URL via the Vercel API
+(`app/mobile/scripts/vercel-preview-url.mjs`: the commit's own immutable
+per-deployment URL, assigned within seconds of the push while the build still
+runs, falling back to the branch's latest READY deployment; needs
+`VERCEL_TOKEN` / `VERCEL_PROJECT_ID` / `VERCEL_TEAM_ID` in CI, and skips
+cleanly without them)
+and injects it into the manifest as `extra.expoClient.extra.otaWebBaseUrl`
+(`ota-bundle.mjs --web-base-url`; only the devtool branch-preview job passes the
+flag, never staging/prod/develop). When the Dev Tool loads such a bundle,
+`config/urls.ts` treats it as the effective default web URL, so the WebView
+points at the branch's web preview with no extra taps. Precedence: explicit
+dev-settings override → manifest `otaWebBaseUrl` → build env default; manual
+repointing via `couchers-devtool://dev-settings?api=<url>&web=<url>`
+(`app/mobile/app/dev-settings.tsx`, persisted in AsyncStorage) still works and
+wins over the manifest.
+
+The PR comment gains a **Web preview** section with the same link, resolved
+Python-side in `pr_preview_comment.py` (mirror of the `.mjs` resolver). Each
+section is included only when its preview is actually live (HEAD on the OTA
+manifest / Vercel API lookup), and the job runs for every branch pipeline —
+backend-only PRs get an honest "no previews" comment. Vercel's own PR comments
+are silenced in the Vercel dashboard (project → Settings → Git → Connected
+Git Repository toggles); the `github.silent` vercel.json property is
+deprecated and doesn't work, so the repo carries no vercel.json.
 
 ---
 
@@ -384,6 +414,13 @@ RN-shell bundle, and the WebView inside uses whatever web/API override is persis
   by the deployed `preview-origin-response.js`, also succeeded (2026-05-24).
   **Remaining:** the same on-device validation for **Android** — the publish
   pipeline is live, but no Android Dev Tool client has loaded a branch OTA yet.
+- **Open: `otaWebBaseUrl` end-to-end on device.** `config/urls.ts` reads the
+  loaded update's `extra.expoClient.extra.otaWebBaseUrl` via
+  `Constants.expoConfig`. That assumes expo-constants reflects the
+  dev-client-loaded manifest's `extra.expoClient` (the path EAS Update uses to
+  deliver config changes) rather than the embedded build config. Verify once on
+  a real device: load a branch bundle whose PR has a Vercel deployment and check
+  the dev settings screen shows the Vercel URL as the web default.
 - **Going to production (out of scope now):** would add code signing (private key
   signs manifests, build embeds the public cert), staged rollouts, and instant
   rollback (protocol v1 directives). At that point reconsider `expo-open-ota`
@@ -442,7 +479,8 @@ loadable.
 - In-app web/API override: `app/mobile/config/urls.ts`, `app/mobile/app/dev-settings.tsx`
 - QR pattern precedent: `app/mobile/dev-url-qr.html`
 - CI publish jobs: `app/.gitlab-ci.yml` (`build:mobile-ota-devtool`, `preview:mobile-ota-devtool`, `preview:pr-comment`)
-- Manifest/QR/open.html staging: `app/mobile/scripts/ota-stage.mjs`
+- Manifest/bundle layout: `app/mobile/scripts/ota-bundle.mjs`; `open.html`
+  redirect: `app/mobile/scripts/ota-open-page.mjs` (QR is rendered in CI)
 - PR comment generator: `app/scripts/pr_preview_comment.py`
 - Fingerprint exclusion: `app/mobile/.fingerprintignore`
 - Dev-launcher load path (source): `app/mobile/node_modules/expo-dev-launcher/ios/EXDevLauncherController.m`, `.../EXDevLauncherUpdatesHelper.m`, `.../Manifest/EXDevLauncherManifestParser.m`, `.../android/.../helpers/DevLauncherUpdatesHelper.kt`

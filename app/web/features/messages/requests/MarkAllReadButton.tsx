@@ -52,7 +52,7 @@ export default function MarkAllReadButton({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",
           params: (previousData) => ({
-            lastRequestId: previousData?.lastRequestId,
+            pageToken: previousData?.nextPageToken,
             type: requestType,
           }),
           hasMore: (previousData) => !previousData.noMore,

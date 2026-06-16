@@ -153,7 +153,10 @@
     "merch_shop": "Tienda de merchandising",
     "switch_to_light_mode": "Cambiar a modo claro",
     "switch_to_dark_mode": "Cambiar a modo oscuro",
-    "home": "Inicio"
+    "home": "Inicio",
+    "close_menu_a11y": "Cerrar menú",
+    "open_drawer_a11y": "Abrir cajón",
+    "close_drawer_a11y": "Cerrar cajón"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -341,5 +344,9 @@
     "copied_tooltip": "Copiado al portapapeles"
   },
   "app_store_badge_a11y": "Descárgalo en el App Store",
-  "google_play_badge_a11y": "Descargar en Google Play"
+  "google_play_badge_a11y": "Descargar en Google Play",
+  "close_button_a11y": "Cerrar",
+  "bar": {
+    "help_button_a11y": "Ayuda"
+  }
 }

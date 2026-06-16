@@ -39,10 +39,10 @@ def test_one_time_donation_flow(db, monkeypatch):
     user_id = user.id
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.STRIPE_RECURRING_PRODUCT_ID = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -143,10 +143,10 @@ def test_recurring_donation_flow(db, monkeypatch):
     user_id = user.id
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.STRIPE_RECURRING_PRODUCT_ID = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -267,7 +267,7 @@ def test_customer_portal_url(db, monkeypatch):
     user_id = user.id
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -295,9 +295,9 @@ def test_merch_invoice_flow(db, monkeypatch):
     user, token = generate_user(email="test@couchers.org.invalid", last_donated=None)
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -320,9 +320,9 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
     user, _ = generate_user(last_donated=None)
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -343,9 +343,9 @@ def test_slack_notification_on_merch_purchase(db, monkeypatch):
     user, _ = generate_user(email="test@couchers.org.invalid", last_donated=None)
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -364,9 +364,9 @@ def test_slack_notification_on_merch_purchase_unknown_user(db, monkeypatch):
     generate_user(last_donated=None)
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -385,10 +385,10 @@ def test_slack_notification_on_one_time_donation(db, monkeypatch):
     user, token = generate_user()
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.STRIPE_RECURRING_PRODUCT_ID = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -415,10 +415,10 @@ def test_slack_notification_on_recurring_donation(db, monkeypatch):
     user, token = generate_user()
 
     new_config = config.copy()
-    new_config["STRIPE_API_KEY"] = "dummy_api_key"
-    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
-    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
-    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+    new_config.STRIPE_API_KEY = "dummy_api_key"
+    new_config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
+    new_config.STRIPE_RECURRING_PRODUCT_ID = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    new_config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 

@@ -52,17 +52,19 @@ const DateChip = styled("div")({
   },
 });
 
-const DateMonth = styled("div")({
-  fontSize: "9px",
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-  color: "var(--mui-palette-secondary-main)",
-  fontWeight: 700,
-  lineHeight: 1.2,
-  "[data-today] &": {
-    color: "var(--mui-palette-primary-main)",
-  },
-});
+const DateMonth = styled("div")<{ $labelFontSize?: number }>(
+  ({ $labelFontSize }) => ({
+    fontSize: $labelFontSize ? `${$labelFontSize}px` : "9px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    color: "var(--mui-palette-secondary-main)",
+    fontWeight: 700,
+    lineHeight: 1.2,
+    "[data-today] &": {
+      color: "var(--mui-palette-primary-main)",
+    },
+  }),
+);
 
 const DateDay = styled("div")({
   fontSize: "16px",
@@ -170,14 +172,20 @@ export default function EventListRow({ event }: EventListRowProps) {
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
 
+  const now = new Date();
   const startDate = timestamp2Date(event.startTime!);
-  const isToday = startDate.toDateString() === new Date().toDateString();
+  const endDate = event.endTime ? timestamp2Date(event.endTime) : null;
+  const isOngoing = endDate !== null && startDate <= now && endDate >= now;
+  const isToday = !isOngoing && startDate.toDateString() === now.toDateString();
   const todayLabel = t("dashboard:events.today_label");
-  const todayFontSize =
-    todayLabel.length <= 5 ? 9 : todayLabel.length <= 7 ? 8 : 7;
+  const nowLabel = t("dashboard:now_label");
+  const chipLabel = isOngoing ? nowLabel : todayLabel;
+  const chipFontSize =
+    chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
   const month = localizeMonthAbbreviation(startDate, {
     locale,
     timezone: BROWSER_TIMEZONE,
+    capitalize: true,
   });
   const day = startDate.getDate();
 
@@ -194,11 +202,13 @@ export default function EventListRow({ event }: EventListRowProps) {
 
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
-      <DateChip data-today={isToday || undefined}>
-        <DateMonth style={isToday ? { fontSize: todayFontSize } : undefined}>
-          {isToday ? todayLabel : month}
+      <DateChip data-today={isToday || isOngoing || undefined}>
+        <DateMonth
+          $labelFontSize={isToday || isOngoing ? chipFontSize : undefined}
+        >
+          {isOngoing ? nowLabel : isToday ? todayLabel : month}
         </DateMonth>
-        {!isToday && <DateDay>{day}</DateDay>}
+        {!isToday && !isOngoing && <DateDay>{day}</DateDay>}
       </DateChip>
       <ContentWrapper>
         <TitleRow>

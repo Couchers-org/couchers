@@ -361,7 +361,7 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert n.title == f"Friend request from {user2.name}"
     assert n.body == f"{user2.name} wants to be your friend."
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
-    assert n.url == "http://localhost:3000/connections/friends/"
+    assert n.url == f"http://localhost:3000/connections/friends/?from={user2.id}"
 
     with conversations_session(token2) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
@@ -663,7 +663,8 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
 
-    expected_time_str = LocalizationContext.from_user(user).localize_datetime(start_event_time)
+    loc_context = LocalizationContext.from_user(user)
+    expected_time_str = loc_context.localize_datetime(start_event_time, with_year=False, with_day_of_week=True)
 
     with session_scope() as session:
         user_in_session = session.get_one(User, user.id)
@@ -1061,7 +1062,7 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Enable dev APIs for this test
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1089,7 +1090,7 @@ def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
     """Test SendDevPushNotification with minimal parameters."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1110,7 +1111,7 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Ensure dev APIs are disabled (default in tests)
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1130,8 +1131,8 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     """Test SendDevPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
-    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+    config.ENABLE_DEV_APIS = True
+    config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1235,7 +1236,7 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
     """Test DebugRedeliverPushNotification redelivers an existing notification."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     # Create a notification for the user
     with session_scope() as session:
@@ -1278,7 +1279,7 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
     """Test DebugRedeliverPushNotification fails when notification doesn't exist."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1296,7 +1297,7 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
+    config.ENABLE_DEV_APIS = True
 
     # Create a notification for user1
     with session_scope() as session:
@@ -1335,7 +1336,7 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
     """Test DebugRedeliverPushNotification fails when ENABLE_DEV_APIS is disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = False
+    config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1352,8 +1353,8 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     """Test DebugRedeliverPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config["ENABLE_DEV_APIS"] = True
-    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+    config.ENABLE_DEV_APIS = True
+    config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1809,6 +1810,29 @@ def test_handle_notification_delivered_when_content_visible(db, moderator):
         )
         # At least one delivery should exist
         assert len(deliveries) > 0
+
+
+def test_notification_serializes_shadowed_actor(db, moderator):
+    recipient, _ = generate_user(complete_profile=True)
+    sender, sender_token = generate_user(complete_profile=True)
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == sender.id).values(shadowed_at=now()))
+
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient.id))
+
+    process_job()
+
+    with session_scope() as session:
+        notification = session.execute(
+            select(Notification)
+            .where(Notification.user_id == recipient.id)
+            .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
+        ).scalar_one()
+        data = notification_data_pb2.FriendRequestCreate.FromString(notification.data)
+        assert data.other_user.user_id == sender.id
+        assert not data.other_user.is_ghost
 
 
 def test_handle_notification_multiple_delivery_types(

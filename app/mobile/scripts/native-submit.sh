@@ -1,29 +1,14 @@
 #!/usr/bin/env bash
-# Submit a release variant's store app build (staging or production) to the stores
-# (deploy phase). Reads the EAS build id and fingerprint that native-build.sh
-# emitted into the dotenv artifact; an empty build id means the build was skipped
-# (fingerprint unchanged) and there is nothing to submit. The fingerprint marker is
-# recorded only after a successful submit, so a failed submit is retried (rebuilt)
-# on the next pipeline.
-#
-#   iOS:     eas submit -> App Store Connect. The build lands in TestFlight and as
-#            an available build; it is NOT submitted for App Store review and no
-#            release notes change — do that by hand in App Store Connect.
-#   Android: eas submit -> the Play *internal* testing track (the submit profile
-#            sets track: internal). Promote to the public production track by hand
-#            in the Play Console.
-#
-# Neither platform makes anything public on its own.
-#
-# Usage: native-submit.sh <ios|android>
-# Env:   APP_VARIANT         staging | production — selects the eas.json submit
-#                            profile and the marker the matching build job wrote
-#        EXPO_TOKEN          EAS auth (submit scope)
-#        EAS_BUILD_ID        from the build job's dotenv (empty => nothing to submit)
-#        EAS_FINGERPRINT     from the build job's dotenv (recorded on success)
-#        AWS_PREVIEW_BUCKET  the couchers-dev-assets bucket (holds the markers)
-#        plus the AWS creds the aws CLI reads from the environment
-# Run from app/mobile (eas.json must be present).
+# Submit a staging/production build to the stores, reading the EAS build id from
+# native-build.sh's dotenv (empty id => build skipped, nothing to submit).
+# Neither platform makes anything public on its own (iOS → TestFlight, Android →
+# Play internal track); promote to public by hand.
+# Usage: native-submit.sh <ios|android>  (run from app/mobile)
+# Env:   APP_VARIANT      staging | production — selects the eas.json submit
+#                         profile and the matching build's binary
+#        EXPO_TOKEN       EAS auth (submit scope)
+#        EAS_BUILD_ID     from the build job's dotenv (empty => nothing to submit)
+#        EAS_FINGERPRINT  from the build job's dotenv (logged for traceability)
 set -euo pipefail
 
 PLATFORM="${1:?usage: native-submit.sh <ios|android>}"
@@ -49,11 +34,6 @@ if [ -z "${EAS_BUILD_ID:-}" ]; then
   exit 0
 fi
 
-echo "Submitting $PLATFORM $VARIANT build $EAS_BUILD_ID."
+echo "Submitting $PLATFORM $VARIANT build $EAS_BUILD_ID (fingerprint ${EAS_FINGERPRINT:-unknown})."
 eas submit --platform "$PLATFORM" --profile "$VARIANT" --id "$EAS_BUILD_ID" --non-interactive
-
-# Record the fingerprint only after a successful submit, so a failure is retried on
-# the next pipeline instead of being marked done. Must match native-build.sh's path.
-MARKER="s3://${AWS_PREVIEW_BUCKET}/${VARIANT}-builds/${PLATFORM}.fingerprint"
-printf '%s' "$EAS_FINGERPRINT" | aws s3 cp - "$MARKER"
-echo "Recorded $PLATFORM fingerprint $EAS_FINGERPRINT — $VARIANT build is up to date."
+echo "Submitted $PLATFORM $VARIANT build $EAS_BUILD_ID."

@@ -37,6 +37,8 @@ from couchers.models import (
     Message,
     Node,
     NodeType,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     Reference,
     User,
     UserActivity,
@@ -110,8 +112,8 @@ commit_timestamp_gauge: Gauge = Gauge(
     multiprocess_mode="max",
 )
 # left at its default of 0 when COMMIT_TIMESTAMP is empty (i.e. not a CI build)
-if config["COMMIT_TIMESTAMP"]:
-    commit_timestamp_gauge.set(datetime.fromisoformat(config["COMMIT_TIMESTAMP"]).timestamp())
+if config.COMMIT_TIMESTAMP:
+    commit_timestamp_gauge.set(datetime.fromisoformat(config.COMMIT_TIMESTAMP).timestamp())
 
 jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
@@ -622,6 +624,25 @@ signup_completions_counter: Counter = Counter(
     "Number of completed signups",
     labelnames=["gender"],
 )
+# Per-step signup funnel counters. Each fires once, the first time a signup flow satisfies the given gate, so
+# that step_total/initiations_total gives the fraction of signups that reached that step. Unlabeled to match
+# signup_initiations_counter for clean ratios.
+signup_account_filled_counter: Counter = Counter(
+    "couchers_signup_account_filled_total",
+    "Number of signup flows that filled in their account details",
+)
+signup_email_verified_counter: Counter = Counter(
+    "couchers_signup_email_verified_total",
+    "Number of signup flows that verified their email address",
+)
+signup_guidelines_accepted_counter: Counter = Counter(
+    "couchers_signup_guidelines_accepted_total",
+    "Number of signup flows that accepted the community guidelines",
+)
+signup_motivations_filled_counter: Counter = Counter(
+    "couchers_signup_motivations_filled_total",
+    "Number of signup flows that filled in their motivations",
+)
 signup_time_histogram: Histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",
@@ -704,15 +725,15 @@ emails_counter: Counter = Counter(
 )
 
 
-recaptchas_assessed_counter: Counter = Counter(
-    "couchers_recaptchas_assessed_total",
-    "Number of times a recaptcha assessment is created",
+antibots_assessed_counter: Counter = Counter(
+    "couchers_antibots_assessed_total",
+    "Number of times an antibot assessment is created",
     labelnames=["action"],
 )
 
-recaptcha_score_histogram: Histogram = Histogram(
-    "couchers_recaptcha_score",
-    "Score of recaptcha assessments",
+antibot_score_histogram: Histogram = Histogram(
+    "couchers_antibot_score",
+    "Score of antibot assessments",
     labelnames=["action"],
     buckets=tuple(x / 20 for x in range(0, 21)),
 )
@@ -927,6 +948,17 @@ def observe_moderation_queue_resolution_time(
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
 
 
+nonvisible_user_access_counter: Counter = Counter(
+    "couchers_nonvisible_user_access_total",
+    "Number of access events involving nonvisible (banned/shadowed/deleted) users",
+    labelnames=["access_type", "target_state"],
+)
+
+
+def observe_nonvisible_user_access(access_type: NonvisibleUserAccessType, target_state: NonvisibleUserState) -> None:
+    nonvisible_user_access_counter.labels(access_type.name, target_state.name).inc()
+
+
 postcards_sent_counter: Counter = Counter(
     "couchers_postcards_sent_total",
     "Number of postcards sent via MyPostcard",
@@ -934,25 +966,37 @@ postcards_sent_counter: Counter = Counter(
 )
 
 
-# Native app / OTA update metrics. The histograms are observed once per CheckNativeStatus call from each
-# client; the bucket layout is dense around the OTA window (~28d) and store window (~91d) so the warn/block
-# thresholds are visible on the percentile curves.
+# Native app / OTA update metrics. Bucket layout is minute-resolution at the low end (watch an OTA
+# rolling out), dense around the OTA (~28d) and store (~91d) windows, and sparse past it for stragglers.
 _NATIVE_AGE_BUCKETS: tuple[float, ...] = (
+    60,
+    5 * 60,
+    15 * 60,
+    30 * 60,
     3_600,
+    2 * 3_600,
     6 * 3_600,
+    12 * 3_600,
     86_400,
+    2 * 86_400,
     3 * 86_400,
+    5 * 86_400,
     7 * 86_400,
+    10 * 86_400,
     14 * 86_400,
     21 * 86_400,
     28 * 86_400,
     35 * 86_400,
     45 * 86_400,
     60 * 86_400,
+    75 * 86_400,
     91 * 86_400,
     120 * 86_400,
+    150 * 86_400,
     180 * 86_400,
+    270 * 86_400,
     365 * 86_400,
+    730 * 86_400,
     _INF,
 )
 
@@ -1011,6 +1055,40 @@ native_ota_manifest_requests_counter: Counter = Counter(
 
 def observe_native_ota_manifest_request(platform: str, result: str) -> None:
     native_ota_manifest_requests_counter.labels(platform or "unknown", result).inc()
+
+
+# One increment per CheckNativeStatus, labeled by build/bundle identity, to see the live mix of
+# versions and bundles running in the fleet.
+native_client_checkins_counter: Counter = Counter(
+    "couchers_native_client_checkins_total",
+    "CheckNativeStatus calls, labeled by build/bundle identity",
+    labelnames=[
+        "platform",
+        "is_ota_launch",
+        "embedded_display_version",
+        "embedded_runtime_version",
+        "ota_display_version",
+        "ota_update_id",
+    ],
+)
+
+
+def observe_native_client_checkin(
+    platform: str,
+    is_ota_launch: bool,
+    embedded_display_version: str,
+    embedded_runtime_version: str,
+    ota_display_version: str,
+    ota_update_id: str,
+) -> None:
+    native_client_checkins_counter.labels(
+        platform or "unknown",
+        "true" if is_ota_launch else "false",
+        embedded_display_version or "unknown",
+        embedded_runtime_version or "unknown",
+        ota_display_version or "none",
+        ota_update_id or "none",
+    ).inc()
 
 
 # Recomputed at scrape time via the hacky-gauge mechanism, so it reflects live age. 0 when disabled

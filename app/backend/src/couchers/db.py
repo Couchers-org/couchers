@@ -62,7 +62,7 @@ def apply_migrations() -> None:
 @functools.cache
 def _get_base_engine() -> Engine:
     engine = create_engine(
-        config["DATABASE_CONNECTION_STRING"],
+        config.DATABASE_CONNECTION_STRING,
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
         pool_pre_ping=True,

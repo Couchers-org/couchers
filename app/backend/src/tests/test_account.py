@@ -1127,6 +1127,55 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
 
+def test_confirm_host_request_reminder(db, moderator):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_10 = (today() + timedelta(days=10)).isoformat()
+    today_plus_12 = (today() + timedelta(days=12)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_10,
+                to_date=today_plus_12,
+                text=valid_request_text("Please host me"),
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["confirm_host_request_reminder"]
+        assert reminders[0].confirm_host_request_reminder.host_request_id == host_request_id
+        assert reminders[0].confirm_host_request_reminder.host_user.user_id == host.id
+
+    # after surfer confirms, reminder should clear
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+
 def test_my_home_reminder(db):
     # can_host with incomplete my home (max_guests not set) → reminder shown
     can_host_incomplete, token1 = generate_user(hosting_status=HostingStatus.can_host)

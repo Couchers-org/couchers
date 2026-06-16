@@ -1,10 +1,13 @@
+import re
 import smtplib
+from collections.abc import Sequence
 from email.headerregistry import Address
 from email.message import EmailMessage, MIMEPart
 from email.utils import make_msgid
 from pathlib import Path
 from typing import cast
 
+import couchers
 from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
 from couchers.models import Email
@@ -12,11 +15,40 @@ from couchers.proto.internal import jobs_pb2
 
 template_base = Path(Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2")
 
+# Base directory for relative EmailPart.data_file_path
+email_related_part_data_path_base = Path(couchers.__file__).parents[3]  # /app/backend
 
-def make_cid(sender_email: str) -> tuple[str, str]:
-    cid = make_msgid(domain=Address(addr_spec=sender_email).domain)
-    without_tag = cid[1:-1]
-    return cid, without_tag
+
+def embed_html_relative_images(
+    html: str, *, base_dir: Path, content_id_domain: str
+) -> tuple[str, list[jobs_pb2.EmailPart]]:
+    """Modifies HTML markup's image references such that they can be embedded in multipart/related MIME parts."""
+    related_parts: list[jobs_pb2.EmailPart] = []
+
+    def process_relative_src_match(match: re.Match[str]) -> str:
+        """Replaces a src="" attribute with a content id reference."""
+        image_path = base_dir / str(match.group(1))
+        if not image_path.exists():
+            raise FileExistsError(f"HTML references missing relative image: {image_path}")
+
+        root_relative_path = image_path.relative_to(email_related_part_data_path_base)
+        mime_type = f"image/{image_path.suffix.removeprefix('.')}"
+        filename = image_path.name
+        bracketed_content_id = make_msgid(domain=content_id_domain)
+        content_id = bracketed_content_id[1:-1]
+        related_parts.append(
+            jobs_pb2.EmailPart(
+                data_file_path=str(root_relative_path),
+                content_type=f'{mime_type}; name="{filename}"',
+                content_disposition=f'inline; filename="{filename}"',
+                content_id=bracketed_content_id,
+            )
+        )
+
+        return f'src="cid:{content_id}"'
+
+    html = re.sub(r'src="([^":]+)"', repl=process_relative_src_match, string=html)
+    return html, related_parts
 
 
 def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str) -> tuple[EmailMessage, str | None]:
@@ -35,38 +67,55 @@ def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str)
 
     msg.set_content(payload.plain)
 
-    updated_html: str | None = payload.html
-    if updated_html:
-        # for any png files in attachment_imgs/, goes through and replaces instances of the filename with attachment
-        used_attachments = []
-        for attachment_full_path in (template_base / "attachment_imgs").glob("*.png"):
-            attachment_html_path = str(attachment_full_path.relative_to(template_base))
-            if attachment_html_path not in updated_html:
-                continue
-            # it's used in this template, so attach and replace it
-            data = attachment_full_path.read_bytes()
-            cid, wcid = make_cid(payload.sender_email)
-            updated_html = updated_html.replace(attachment_html_path, f"cid:{wcid}")
-            used_attachments.append((cid, "image", "png", data))
+    html_body: str | None = payload.html
+    if html_body:
+        related_parts: Sequence[jobs_pb2.EmailPart] = payload.html_related_parts
+        if not related_parts:
+            # Backcompat (2026-06): Embedding relative images used to be this function's responsibility,
+            # and was moved to the payload builder. Keep this fallback in case we have queued payloads
+            # that didn't do their own embedding.
+            content_id_domain = Address(addr_spec=payload.sender_email).domain
+            html_body, related_parts = embed_html_relative_images(
+                html_body, base_dir=template_base, content_id_domain=content_id_domain
+            )
 
-        msg.add_alternative(updated_html, subtype="html")
+        msg.add_alternative(html_body, subtype="html")
+        html_part = cast(list[MIMEPart], msg.get_payload())[-1]
 
-        for cid, mime_type, mime_subtype, data in used_attachments:
-            html_part = cast(list[MIMEPart], msg.get_payload())[-1]
-            html_part.add_related(data, mime_type, mime_subtype, cid=cid)
+        for related_part in related_parts:
+            _add_email_part(html_part, related_part, related=True)
 
     if payload.attachments:
         for attachment in payload.attachments:
-            # Create with generic Content-Type/Content-Disposition headers,
-            # then overwrite them with the headers specified by the caller.
-            msg.add_attachment(
-                attachment.data, maintype="application", subtype="octet-stream", disposition="attachment"
-            )
-            attachment_part = cast(list[MIMEPart], msg.get_payload())[-1]
-            _replace_header_verbatim(attachment_part, "Content-Type", attachment.content_type)
-            _replace_header_verbatim(attachment_part, "Content-Disposition", attachment.content_disposition)
+            _add_email_part(msg, attachment, related=False)
 
-    return msg, updated_html
+    return msg, html_body
+
+
+def _add_email_part(msg: MIMEPart, part: jobs_pb2.EmailPart, *, related: bool) -> MIMEPart:
+    # The data is either part of the payload or must be loaded from a file
+    data = part.data
+    if not data and part.data_file_path:
+        data_path = Path(part.data_file_path)
+        if not data_path.is_absolute():
+            data_path = email_related_part_data_path_base / data_path
+        data = data_path.read_bytes()
+
+    # Create with generic Content-Type/Content-Disposition headers,
+    # then overwrite them with the headers specified by the caller.
+    if related:
+        msg.add_related(data, maintype="application", subtype="octet-stream", disposition="inline")
+    else:
+        msg.add_attachment(data, maintype="application", subtype="octet-stream", disposition="attachment")
+
+    mime_part = cast(list[MIMEPart], msg.get_payload())[-1]
+    _replace_header_verbatim(mime_part, "Content-Type", part.content_type)
+    if part.content_disposition:
+        _replace_header_verbatim(mime_part, "Content-Disposition", part.content_disposition)
+    if part.content_id:
+        _replace_header_verbatim(mime_part, "Content-ID", part.content_id)
+
+    return mime_part
 
 
 def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
@@ -78,13 +127,13 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     message_id = random_hex()
     msg, updated_html = email_proto_to_message(payload, message_id)
 
-    with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
+    with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as server:
         server.ehlo()
-        if not config["DEV"]:
+        if not config.DEV:
             server.starttls()
             # stmplib docs recommend calling ehlo() before and after starttls()
             server.ehlo()
-            server.login(config["SMTP_USERNAME"], config["SMTP_PASSWORD"])
+            server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
         server.sendmail(payload.sender_email, payload.recipient, msg.as_string())
 
     return Email(

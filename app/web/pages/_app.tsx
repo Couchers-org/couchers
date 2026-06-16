@@ -1,5 +1,4 @@
 import "intersection-observer";
-import "./main.css";
 
 import {
   CssBaseline,
@@ -16,9 +15,11 @@ import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
 import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
+import FeatureFlagProvider from "features/experimentation/FeatureFlagProvider";
 import ProfileSheet from "features/profile/ProfileSheet";
 import { ProfileSheetProvider } from "features/profile/ProfileSheetContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
+import { useTranslation } from "i18n";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
@@ -26,6 +27,7 @@ import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
+import { i18nToDayjsLocale } from "utils/dayjs";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -36,6 +38,9 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
 function MyApp(props: AppWithLayoutProps) {
   const { Component, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
+  const {
+    i18n: { language },
+  } = useTranslation();
   useEffect(() => polyfill(), []);
 
   useEffect(() => {
@@ -77,21 +82,26 @@ function MyApp(props: AppWithLayoutProps) {
   return (
     <AppCacheProvider {...props}>
       <StyledEngineProvider injectFirst>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale={i18nToDayjsLocale(language)}
+        >
           <ThemeProvider theme={theme}>
             <ErrorBoundary isFatal>
               <AnalyticsProvider>
                 <ReactQueryClientProvider>
                   <AuthProvider>
-                    <CssBaseline />
-                    <NativeColorSchemeSync />
-                    <NativeMobileNavigationHandler />
-                    <EnvironmentBanner />
-                    <HtmlMeta />
-                    <ProfileSheetProvider>
-                      {getLayout(<Component {...pageProps} />)}
-                      <ProfileSheet />
-                    </ProfileSheetProvider>
+                    <FeatureFlagProvider>
+                      <CssBaseline />
+                      <NativeColorSchemeSync />
+                      <NativeMobileNavigationHandler />
+                      <EnvironmentBanner />
+                      <HtmlMeta />
+                      <ProfileSheetProvider>
+                        {getLayout(<Component {...pageProps} />)}
+                        <ProfileSheet />
+                      </ProfileSheetProvider>
+                    </FeatureFlagProvider>
                   </AuthProvider>
                 </ReactQueryClientProvider>
               </AnalyticsProvider>

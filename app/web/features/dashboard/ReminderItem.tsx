@@ -57,6 +57,13 @@ export default function ReminderItem({
       otherUser.userId,
       hostRequestId,
     );
+  } else if (reminder.confirmHostRequestReminder) {
+    const { hostRequestId, hostUser } = reminder.confirmHostRequestReminder;
+    const name = hostUser?.name ?? "";
+    title = t("reminder.confirm_host_request.title", { name });
+    description = t("reminder.confirm_host_request.description", { name });
+    buttonText = t("reminder.confirm_host_request.button");
+    href = routeToHostRequest(hostRequestId);
   } else if (reminder.completeMyHomeReminder) {
     title = t("reminder.complete_my_home.title");
     description = t("reminder.complete_my_home.description");
