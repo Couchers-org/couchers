@@ -193,19 +193,6 @@ export interface CreateDiscussionInput {
   ownerCommunityId: number;
 }
 
-export const useListMyCommunitiesDiscussions = ({
-  pageSize,
-  pageToken,
-}: {
-  pageSize: number;
-  pageToken?: string;
-}) =>
-  useQuery<ListDiscussionsRes.AsObject, RpcError>({
-    queryKey: [listMyCommunitiesDiscussionsKey],
-    queryFn: () =>
-      service.communities.listMyCommunitiesDiscussions({ pageSize, pageToken }),
-  });
-
 export const useListUserCommunities = ({
   pageSize,
   pageToken,
