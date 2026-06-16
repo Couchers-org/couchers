@@ -12,6 +12,7 @@ export { default as AddIcon } from "@mui/icons-material/AddOutlined";
 export { default as BackIcon } from "@mui/icons-material/ArrowBackOutlined";
 export { default as BugIcon } from "@mui/icons-material/BugReportOutlined";
 export { default as CalendarIcon } from "@mui/icons-material/EventOutlined";
+export { default as CatalanFlagIcon } from "./CatalanFlagIcon";
 export { default as ChatBubbleIcon } from "@mui/icons-material/ChatBubble";
 export { default as CheckCircleIcon } from "@mui/icons-material/CheckCircle";
 export { default as CheckIcon } from "@mui/icons-material/CheckOutlined";

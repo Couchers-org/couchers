@@ -1,7 +1,6 @@
 interface Language {
-  // Autonym: the language's name in its own language. Shown in the language
-  // picker so each option is recognizable regardless of the current UI language.
-  nativeName: string;
+  name: string;
+  flagIconCode: string;
 }
 
 interface LanguageMap {
@@ -10,75 +9,99 @@ interface LanguageMap {
 
 export const LANGUAGE_MAP: LanguageMap = {
   ca: {
-    nativeName: "Català",
+    name: "Catalan",
+    flagIconCode: "CAT",
   },
   cs: {
-    nativeName: "Čeština",
+    name: "Czech",
+    flagIconCode: "CZ",
   },
   de: {
-    nativeName: "Deutsch",
+    name: "German",
+    flagIconCode: "DE",
   },
   en: {
-    nativeName: "English",
+    name: "English",
+    flagIconCode: "GB",
   },
   es: {
-    nativeName: "Español (España)",
+    name: "Spanish (Spain)",
+    flagIconCode: "ES",
   },
   "es-419": {
-    nativeName: "Español (Latinoamérica)",
+    name: "Spanish",
+    flagIconCode: "MX",
   },
   fr: {
-    nativeName: "Français (France)",
+    name: "French (France)",
+    flagIconCode: "FR",
   },
   "fr-CA": {
-    nativeName: "Français (Canada)",
+    name: "French (Canada)",
+    flagIconCode: "CA",
   },
   he: {
-    nativeName: "עברית",
+    name: "Hebrew",
+    flagIconCode: "IL",
   },
   hi: {
-    nativeName: "हिन्दी",
+    name: "Hindi",
+    flagIconCode: "IN",
   },
   hu: {
-    nativeName: "Magyar",
+    name: "Hungarian",
+    flagIconCode: "HU",
   },
   it: {
-    nativeName: "Italiano",
+    name: "Italian",
+    flagIconCode: "IT",
   },
   ja: {
-    nativeName: "日本語",
+    name: "Japanese",
+    flagIconCode: "JP",
   },
   "nb-NO": {
-    nativeName: "Norsk (bokmål)",
+    name: "Norwegian (Bokmål)",
+    flagIconCode: "NO",
   },
   nl: {
-    nativeName: "Nederlands",
+    name: "Dutch",
+    flagIconCode: "NL",
   },
   pl: {
-    nativeName: "Polski",
+    name: "Polish",
+    flagIconCode: "PL",
   },
   pt: {
-    nativeName: "Português (Portugal)",
+    name: "Portuguese (Portugal)",
+    flagIconCode: "PT",
   },
   "pt-BR": {
-    nativeName: "Português (Brasil)",
+    name: "Portuguese (Brazil)",
+    flagIconCode: "BR",
   },
   ru: {
-    nativeName: "Русский",
+    name: "Russian",
+    flagIconCode: "RU",
   },
   sv: {
-    nativeName: "Svenska",
+    name: "Swedish",
+    flagIconCode: "SE",
   },
   tr: {
-    nativeName: "Türkçe",
+    name: "Turkish",
+    flagIconCode: "TR",
   },
   uk: {
-    nativeName: "Українська",
+    name: "Ukrainian",
+    flagIconCode: "UA",
   },
   "zh-Hans": {
-    nativeName: "中文（简体）",
+    name: "Chinese (Simplified)",
+    flagIconCode: "CN",
   },
   "zh-Hant": {
-    nativeName: "中文（繁體）",
+    name: "Chinese (Traditional)",
+    flagIconCode: "CN",
   },
 };
