@@ -148,7 +148,7 @@ export default function ProfileTagInput({
   className,
   inputFieldProps,
 }: ProfileTagInputProps) {
-  const { t } = useTranslation(PROFILE);
+  const { t, i18n } = useTranslation(PROFILE);
 
   const [open, setOpen] = useState<boolean>(false);
   const anchorEl = useRef<null | HTMLButtonElement>(null);
@@ -255,7 +255,7 @@ export default function ProfileTagInput({
             disablePortal
             options={options
               .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
-              .sort((a, b) => -b.localeCompare(a))}
+              .sort((a, b) => -b.localeCompare(a, i18n.language))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 

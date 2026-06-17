@@ -12,7 +12,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
 import { CommunitySummary } from "proto/communities_pb";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
 import { listAllCommunities } from "service/communities";
 
@@ -31,7 +31,7 @@ const StyledAutocomplete = styled(
 }));
 
 export default function CommunitySearch() {
-  const { t } = useTranslation(COMMUNITIES);
+  const { t, i18n } = useTranslation(COMMUNITIES);
   const router = useRouter();
   const { data: accountInfo } = useAccountInfo();
   const [inputValue, setInputValue] = useState("");
@@ -60,28 +60,7 @@ export default function CommunitySearch() {
                 : "",
           }));
 
-        // Sort hierarchically: first by depth (number of parents), then by full parent path, then by name
-        const sortedCommunities = communitiesWithRegion.sort((a, b) => {
-          // First, sort by depth in hierarchy (fewer parents = higher in tree)
-          const depthCompare = a.parentsList.length - b.parentsList.length;
-          if (depthCompare !== 0) return depthCompare;
-
-          // Then sort by the full path through the hierarchy
-          const aPath = a.parentsList
-            .map((p) => p.community?.name || "")
-            .join("/");
-          const bPath = b.parentsList
-            .map((p) => p.community?.name || "")
-            .join("/");
-          const pathCompare = aPath.localeCompare(bPath);
-          if (pathCompare !== 0) return pathCompare;
-
-          // Finally sort by community name
-          return a.name.localeCompare(b.name);
-        });
-
-        setAllCommunities(sortedCommunities);
-        setFilteredOptions(sortedCommunities);
+        setAllCommunities(communitiesWithRegion);
       } catch (error) {
         Sentry.captureException(error, {
           tags: {
@@ -90,7 +69,6 @@ export default function CommunitySearch() {
           },
         });
         setAllCommunities([]);
-        setFilteredOptions([]);
       } finally {
         setLoading(false);
       }
@@ -99,22 +77,48 @@ export default function CommunitySearch() {
     fetchAllCommunities();
   }, []);
 
+  // Sort hierarchically: first by depth (number of parents), then by full
+  // parent path, then by name. Honors the user's locale and re-sorts on
+  // language change without re-fetching.
+  const sortedCommunities = useMemo(
+    () =>
+      [...allCommunities].sort((a, b) => {
+        // First, sort by depth in hierarchy (fewer parents = higher in tree)
+        const depthCompare = a.parentsList.length - b.parentsList.length;
+        if (depthCompare !== 0) return depthCompare;
+
+        // Then sort by the full path through the hierarchy
+        const aPath = a.parentsList
+          .map((p) => p.community?.name || "")
+          .join("/");
+        const bPath = b.parentsList
+          .map((p) => p.community?.name || "")
+          .join("/");
+        const pathCompare = aPath.localeCompare(bPath, i18n.language);
+        if (pathCompare !== 0) return pathCompare;
+
+        // Finally sort by community name
+        return a.name.localeCompare(b.name, i18n.language);
+      }),
+    [allCommunities, i18n.language],
+  );
+
   // Filter communities based on input
   useEffect(() => {
     if (!inputValue) {
-      setFilteredOptions(allCommunities);
+      setFilteredOptions(sortedCommunities);
       return;
     }
 
     const lowercaseInput = inputValue.toLowerCase();
-    const filtered = allCommunities.filter(
+    const filtered = sortedCommunities.filter(
       (community) =>
         community.name.toLowerCase().includes(lowercaseInput) ||
         (community.regionName &&
           community.regionName.toLowerCase().includes(lowercaseInput)),
     );
     setFilteredOptions(filtered);
-  }, [inputValue, allCommunities]);
+  }, [inputValue, sortedCommunities]);
 
   const handleInputChange = (_event: React.SyntheticEvent, value: string) => {
     setInputValue(value);
