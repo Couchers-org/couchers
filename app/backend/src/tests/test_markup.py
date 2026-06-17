@@ -14,7 +14,7 @@ def test_markdown_to_html() -> None:
     assert markdown_to_html("[link](url)") == to_para('<a href="url">link</a>')
     assert markdown_to_html('"quoted"') == to_para("“quoted”")
 
-    assert markdown_to_html("<script/>") == to_para('&lt;script/&gt;')
+    assert markdown_to_html("<script/>") == to_para("&lt;script/&gt;")
 
     assert markdown_to_html("# title") == "<h1>title</h1>\n"
     assert markdown_to_html("- a\n- b") == "<ul>\n<li>a</li>\n<li>b</li>\n</ul>\n"
