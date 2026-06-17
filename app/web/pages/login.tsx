@@ -17,5 +17,5 @@ export default function LoginPage() {
 LoginPage.getLayout = appGetLayout({
   isPrivate: false,
   noFooter: true,
-  variant: "full-screen",
+  variant: "full-width",
 });

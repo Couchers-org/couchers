@@ -1,16 +1,10 @@
-import {
-  alpha,
-  Box,
-  Container,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import { RpcError } from "grpc-web";
@@ -118,9 +112,8 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <Container
+      <PageContainer
         component="section"
-        maxWidth="lg"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -193,7 +186,7 @@ export default function Signup() {
             </Trans>
           </Typography>
         </StyledFormWrapper>
-      </Container>
+      </PageContainer>
     </>
   );
 }

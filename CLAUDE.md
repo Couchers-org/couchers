@@ -44,7 +44,8 @@ make mypy
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
-- Always run `make format` and `make mypy` after modifying backend code
+- Always run `make format` and `make mypy` after modifying backend code. mypy MUST pass — a failing mypy is never acceptable, so fix it before moving on (don't dismiss errors as "pre-existing")
+- If mypy or tests fail with import errors or missing symbols from generated proto modules (`couchers.proto.*` — e.g. a message type that exists in a `.proto` source but not in the generated `*_pb2.py`), your locally generated protos are stale: run `make protos` to regenerate them, then re-check
 - NEVER try-catch an exception and silently throw it away or just log it. By and large you don't need to wrap code in try-catch blocks, we already handle exceptions
 - Use `enum.auto()` for all enums (except in the rare case that they are inherently ordinal and we use that order in business logic)
 - Put relationships and constraints at the end of models

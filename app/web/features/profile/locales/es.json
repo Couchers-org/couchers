@@ -175,7 +175,8 @@
     "yes_safe": "Sí, me sentí seguro.",
     "no_not_safe": "No, no me sentí seguro en una o más ocasiones.",
     "friend_reference_requires_friendship": "Solo puedes escribir una referencia de amigo para alguien con quien seas amigo.",
-    "what_happened": "¿Qué ocurrió?"
+    "what_happened": "¿Qué ocurrió?",
+    "safety_rating_selector_a11y": "Calificación de seguridad"
   },
   "reference_badge_label": {
     "friend": "Amigo",
@@ -346,8 +347,9 @@
       "send_friend_request": "enviar una solicitud de amistad"
     },
     "edit_profile_button": "Edita tu perfil ahora",
-    "cancel_button": "Ahora no",
-    "title": "Ya casi estás, ¡completa tu perfil para continuar!",
+    "cancel_button": "Da igual",
+    "title": "Ya casi estás: ¡por favor completa tu perfil para continuar!",
     "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
-  }
+  },
+  "open_full_profile": "Abrir perfil completo"
 }
