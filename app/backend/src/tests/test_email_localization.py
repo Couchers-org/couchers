@@ -14,14 +14,13 @@ from datetime import UTC
 import pytest
 
 import couchers.email.emails
-from couchers.email.emails import EmailBase
-from couchers.email.rendering import (
+from couchers.email.blocks import (
+    EmailBase,
     EmailFooter,
     UnsubscribeInfo,
     UnsubscribeLink,
-    render_html_body,
-    render_plaintext_body,
 )
+from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 
 
@@ -58,12 +57,10 @@ def _(testconfig):
 def test_email_renders_in_english(email: EmailBase):
     loc_context = LocalizationContext(locale="en", timezone=UTC)
 
-    subject = email.get_subject_line(loc_context)
-    assert subject
-
-    preview = email.get_preview_line(loc_context)
-    blocks = email.get_body_blocks(loc_context)
-
-    # Render both the html and plaintext bodies end-to-end, since each resolves its own keys.
-    render_html_body(subject=subject, preview=preview, blocks=blocks, footer=_FOOTER, loc_context=loc_context)
-    render_plaintext_body(blocks=blocks, footer=_FOOTER, loc_context=loc_context)
+    # Render all email strings, since each resolve their own keys.
+    rendered = render_email(email, _FOOTER, loc_context)
+    assert rendered.subject
+    assert "<" not in rendered.subject, "Subject line shoudn't contain HTML"
+    assert rendered.body_plaintext
+    assert rendered.body_html
+    assert len(rendered.html_image_parts) > 0, "Images should have been embedded"

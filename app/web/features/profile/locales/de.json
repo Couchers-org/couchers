@@ -141,7 +141,7 @@
   "leave_reference": {
     "appropriate_question": "Hast du dich durch das Verhalten dieser Person sicher gefühlt?",
     "rating_label": "Deine Erfahrung gab dir das Gefühl ",
-    "reference_form_heading_surfed": "Du hast mit {{name}} gesurft",
+    "reference_form_heading_surfed": "Du hast bei {{name}} gecouchsurft",
     "writing_for_text": "Du verfasst eine Referenz für die folgende Person:",
     "reference_submit_heading": "Bitte überprüfe deine Referenz",
     "required": "Dieser Schritt ist erforderlich.",

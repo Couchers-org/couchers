@@ -3,7 +3,6 @@ Defines data models for each email we sent out to users.
 """
 
 import re
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from typing import Self, assert_never
@@ -13,86 +12,20 @@ from markupsafe import Markup, escape
 from couchers import urls
 from couchers.config import config
 from couchers.constants import LATEST_RELEASE_BLOG_URL
-from couchers.email.rendering import (
+from couchers.email.blocks import (
     ActionBlock,
+    EmailBase,
     EmailBlock,
-    EmailBlocksBuilder,
     ParaBlock,
     QuoteBlock,
     UserInfo,
-    get_emails_i18next,
 )
+from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.i18n.localize import format_phone_number
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
-
-
-@dataclass
-class EmailBase(ABC):
-    """
-    Base class for email data models, which capture all the data required to render
-    an email's subject line and body as HTML or plaintext, in any locale.
-    """
-
-    user_name: str
-
-    @property
-    @abstractmethod
-    def string_key_base(self) -> str: ...
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        """Gets the subject line header of the email."""
-        return self._localize(loc_context, ".subject")
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
-        """Gets the line that gets shown as a preview next to the title in users' inboxes."""
-        return None
-
-    @abstractmethod
-    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
-        """Gets the blocks that form the body of the email."""
-        ...
-
-    def _body_builder(
-        self,
-        loc_context: LocalizationContext,
-        *,
-        standard_greeting: bool = True,
-        standard_closing: bool = True,
-        security_warning: bool = False,
-    ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
-        if standard_greeting:
-            builder.para("generic.greeting_line", {"name": self.user_name})
-        if standard_closing:
-            builder.para("generic.closing_line", epilogue=True)
-        if security_warning:
-            builder.para("generic.security_warning_contact_support", epilogue=True)
-        return builder
-
-    @classmethod
-    @abstractmethod
-    def test_instances(cls) -> list[Self]:
-        """
-        Returns dummy instances covering every distinct rendering variant of this email.
-
-        Emails whose subject or body depends on internal state (e.g. a status enum or a
-        boolean) build their localization keys dynamically, so a single dummy instance only
-        exercises one branch. Such emails override this to return one instance per branch,
-        ensuring the rendering tests resolve every localization key the class can produce.
-        """
-        ...
-
-    # Helpers for localizing email-specific strings
-    def _localize(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> str:
-        key = full_string_key(key, relative_base=self.string_key_base)
-        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
-
 
 # Common string keys
 _do_not_reply_request_string_key = "generic.do_not_reply_request"
@@ -348,20 +281,11 @@ class ChatMessageReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ChatMessage, *, user_name: str) -> Self:
-        group_chat_title: str | None = data.group_chat_title
-        if not group_chat_title:
-            # Backcompat (2026-05): The group name previously was formatted in the message string
-            # msg = f"{message.author.name} sent a message in {group_chat.title}"
-            if match := re.search(" sent a message in (.+)$", data.message or ""):
-                group_chat_title = match[1]
-            else:
-                group_chat_title = None
-
         return cls(
             user_name,
             author=UserInfo.from_protobuf(data.author),
             text=data.text,
-            group_chat_title=group_chat_title,
+            group_chat_title=data.group_chat_title or None,
             view_url=urls.chat_link(chat_id=data.group_chat_id),
         )
 
@@ -406,10 +330,10 @@ class ChatMessagesMissedEmail(EmailBase):
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         for entry in self.entries:
-            if entry.group_chat_title:
-                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
-            else:
+            if entry.group_chat_title is None:
                 builder.para(".in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            else:
+                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
             builder.user(entry.latest_message_author)
             builder.quote(entry.latest_message_text, markdown=False)
             builder.action(entry.view_url, ".view_action")
@@ -417,33 +341,16 @@ class ChatMessagesMissedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
-        missed_entries = []
-        for message in data.messages:
-            group_chat_title: str | None = message.group_chat_title
-            missed_count: int = message.unseen_count
-
-            # Backcompat (2026-05): The group name and unseen count were previously was formatted in the message string
-            # msg = f"You missed {unseen_count} message(s) in {group_chat.title}"
-            if not group_chat_title or not missed_count:
-                if match := re.search(" message(s) in (.+)$", message.message or ""):
-                    group_chat_title = match[1]
-                else:
-                    group_chat_title = None
-
-                if match := re.search(r"^You missed (\d+) message(s)", message.message or ""):
-                    missed_count = int(match[1])
-                else:
-                    missed_count = 1
-
-            missed_entries.append(
-                cls.Entry(
-                    group_chat_title=group_chat_title,
-                    missed_count=missed_count,
-                    latest_message_author=UserInfo.from_protobuf(message.author),
-                    latest_message_text=message.text,
-                    view_url=urls.chat_link(chat_id=message.group_chat_id),
-                )
+        missed_entries = [
+            cls.Entry(
+                group_chat_title=message.group_chat_title or None,
+                missed_count=message.unseen_count,
+                latest_message_author=UserInfo.from_protobuf(message.author),
+                latest_message_text=message.text,
+                view_url=urls.chat_link(chat_id=message.group_chat_id),
             )
+            for message in data.messages
+        ]
 
         return cls(user_name, entries=missed_entries)
 

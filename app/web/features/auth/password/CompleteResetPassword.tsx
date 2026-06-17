@@ -1,11 +1,5 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  Container,
-  IconButton,
-  InputAdornment,
-  styled,
-  Typography,
-} from "@mui/material";
+import { IconButton, InputAdornment, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -25,12 +19,8 @@ import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-const StyledContainer = styled(Container)(() => ({
+const StyledContainer = styled("div")(() => ({
   marginTop: theme.spacing(2),
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  paddingBottom: theme.spacing(2),
-  flex: 1,
 }));
 
 const StyledForm = styled("form")(() => ({

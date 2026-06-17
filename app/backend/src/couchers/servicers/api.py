@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
+from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext, make_notification_user_context
@@ -32,6 +33,7 @@ from couchers.models import (
     MeetupStatus,
     Message,
     ModerationObjectType,
+    NonvisibleUserAccessType,
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
@@ -1049,6 +1051,12 @@ def user_model_to_pb(
     ):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
+            maybe_log_nonvisible_user_access(
+                context,
+                db_user,
+                access_type=NonvisibleUserAccessType.ghost_served,
+                actor_user_id=viewer_user_id,
+            )
             # Return an anonymized "ghost" user profile
             return api_pb2.User(
                 user_id=db_user.id,

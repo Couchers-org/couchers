@@ -265,7 +265,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             ),
                             text=message.text,
                             group_chat_id=message.conversation_id,
-                            group_chat_title=group_chat.title,
+                            group_chat_title=group_chat.title or None,
                             unseen_count=unseen_count,
                         )
                         for group_chat, message, unseen_count in unseen_messages
@@ -1171,6 +1171,8 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                 .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
                 .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
                 .where(EventOccurrenceAttendee.reminder_sent == False)
+                .where(User.is_visible)
+                .where(~User.is_shadowed)
             ).all()
 
             for user, attendee in results:

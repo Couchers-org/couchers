@@ -21,5 +21,5 @@ export default function SignupPage() {
 SignupPage.getLayout = appGetLayout({
   isPrivate: false,
   noFooter: true,
-  variant: "full-screen",
+  variant: "full-width",
 });

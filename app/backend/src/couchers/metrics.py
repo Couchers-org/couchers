@@ -37,6 +37,8 @@ from couchers.models import (
     Message,
     Node,
     NodeType,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     Reference,
     User,
     UserActivity,
@@ -622,6 +624,25 @@ signup_completions_counter: Counter = Counter(
     "Number of completed signups",
     labelnames=["gender"],
 )
+# Per-step signup funnel counters. Each fires once, the first time a signup flow satisfies the given gate, so
+# that step_total/initiations_total gives the fraction of signups that reached that step. Unlabeled to match
+# signup_initiations_counter for clean ratios.
+signup_account_filled_counter: Counter = Counter(
+    "couchers_signup_account_filled_total",
+    "Number of signup flows that filled in their account details",
+)
+signup_email_verified_counter: Counter = Counter(
+    "couchers_signup_email_verified_total",
+    "Number of signup flows that verified their email address",
+)
+signup_guidelines_accepted_counter: Counter = Counter(
+    "couchers_signup_guidelines_accepted_total",
+    "Number of signup flows that accepted the community guidelines",
+)
+signup_motivations_filled_counter: Counter = Counter(
+    "couchers_signup_motivations_filled_total",
+    "Number of signup flows that filled in their motivations",
+)
 signup_time_histogram: Histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",
@@ -704,15 +725,15 @@ emails_counter: Counter = Counter(
 )
 
 
-recaptchas_assessed_counter: Counter = Counter(
-    "couchers_recaptchas_assessed_total",
-    "Number of times a recaptcha assessment is created",
+antibots_assessed_counter: Counter = Counter(
+    "couchers_antibots_assessed_total",
+    "Number of times an antibot assessment is created",
     labelnames=["action"],
 )
 
-recaptcha_score_histogram: Histogram = Histogram(
-    "couchers_recaptcha_score",
-    "Score of recaptcha assessments",
+antibot_score_histogram: Histogram = Histogram(
+    "couchers_antibot_score",
+    "Score of antibot assessments",
     labelnames=["action"],
     buckets=tuple(x / 20 for x in range(0, 21)),
 )
@@ -925,6 +946,17 @@ def observe_moderation_queue_resolution_time(
     trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType, duration_s: float
 ) -> None:
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
+
+
+nonvisible_user_access_counter: Counter = Counter(
+    "couchers_nonvisible_user_access_total",
+    "Number of access events involving nonvisible (banned/shadowed/deleted) users",
+    labelnames=["access_type", "target_state"],
+)
+
+
+def observe_nonvisible_user_access(access_type: NonvisibleUserAccessType, target_state: NonvisibleUserState) -> None:
+    nonvisible_user_access_counter.labels(access_type.name, target_state.name).inc()
 
 
 postcards_sent_counter: Counter = Counter(

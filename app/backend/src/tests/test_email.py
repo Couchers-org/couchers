@@ -349,7 +349,7 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
     new_config.NOTIFICATION_PREFIX = ""
 
-    monkeypatch.setattr(couchers.notifications.background, "config", new_config)
+    monkeypatch.setattr(couchers.notifications.render_email, "config", new_config)
 
     with session_scope() as session:
         notify(
@@ -450,9 +450,9 @@ def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: Email
                 messages=[
                     notification_data_pb2.ChatMessage(
                         author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
-                        message="You missed 1 message(s) from Test User",
                         text="Hello!",
                         group_chat_id=99,
+                        unseen_count=1,
                     ),
                 ],
             ),

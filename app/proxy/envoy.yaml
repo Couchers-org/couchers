@@ -153,6 +153,8 @@ static_resources:
   - name: couchers_service
     connect_timeout: 0.25s
     type: strict_dns
+    # faster than the 5s default so envoy picks up the backend's new IP quickly when it's recreated on deploy
+    dns_refresh_rate: 1s
     # round-robins across the backend's API worker processes; keep these endpoints in sync with API_WORKER_COUNT
     lb_policy: round_robin
     load_assignment:

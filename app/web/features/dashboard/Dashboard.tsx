@@ -1,6 +1,7 @@
-import { Alert, Box, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import { useTranslation } from "i18n";
@@ -28,7 +29,7 @@ export default function Dashboard() {
       <Hero />
       {/* this view uses a container, instead of it coming from the route layout,
         because the hero section is full viewport width */}
-      <Container maxWidth="lg">
+      <PageContainer>
         <Grid container direction="row">
           <Grid size={{ sm: 4, xs: 12 }} sx={{ marginTop: theme.spacing(3) }}>
             <DashboardUserProfileSummary />
@@ -116,7 +117,7 @@ export default function Dashboard() {
             <CommunitiesSection />
           </Grid>
         </Grid>
-      </Container>
+      </PageContainer>
     </>
   );
 }

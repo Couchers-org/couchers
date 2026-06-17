@@ -14,5 +14,4 @@ export default function PasswordResetPage() {
 
 PasswordResetPage.getLayout = appGetLayout({
   isPrivate: false,
-  variant: "full-screen",
 });

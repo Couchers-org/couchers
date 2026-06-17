@@ -1,4 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
+import PageContainer from "components/PageContainer";
 import AllMessagesTab from "features/messages/AllMessagesTab";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import MessagesHeader from "features/messages/MessagesHeader";
@@ -21,7 +22,7 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   NOTIFICATIONS,
   PROFILE,
 ]);
-export default function LeaveReferencePage() {
+function MessagesPageContent() {
   const router = useRouter();
   const slugs =
     typeof router.query.slug === "undefined"
@@ -64,7 +65,15 @@ export default function LeaveReferencePage() {
   return <NotFoundPage />;
 }
 
-LeaveReferencePage.getLayout = appGetLayout({
+export default function MessagesPage() {
+  return (
+    <PageContainer disableGutters>
+      <MessagesPageContent />
+    </PageContainer>
+  );
+}
+
+MessagesPage.getLayout = appGetLayout({
   variant: "full-width",
   noFooter: true,
 });

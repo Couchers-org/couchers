@@ -156,7 +156,7 @@ _TEST_FLAG_DEFAULTS: dict[str, Any] = {
     "strong_verification_enabled": True,
     "log_native_ota_requests": True,
     "donations_enabled": True,
-    "recaptcha_enabled": True,
+    "antibot_enabled": True,
     "postal_verification_enabled": True,
     "listmonk_enabled": True,
     "remove_removed_users_from_mailing_list_enabled": True,
@@ -234,10 +234,6 @@ def testconfig():
     config.PUSH_NOTIFICATIONS_VAPID_SUBJECT = "mailto:testing@couchers.org.invalid"
 
     config.ACTIVENESS_PROBES_ENABLED = True
-
-    config.RECAPTHCA_PROJECT_ID = "..."
-    config.RECAPTHCA_API_KEY = "..."
-    config.RECAPTHCA_SITE_KEY = "..."
 
     # File-override mode; gates forced True via the stubbed loader below. Tests needing GrowthBook use `feature_flags`.
     config.FEATURE_FLAGS_FILE_OVERRIDE_PATH = "feature-flags.dev.json"
