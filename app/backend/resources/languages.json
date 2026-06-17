@@ -608,6 +608,10 @@
     "name": "Kpelle"
   },
   {
+    "code": "kri",
+    "name": "Krio"
+  },
+  {
     "code": "kru",
     "name": "Kurukh"
   },
@@ -750,6 +754,10 @@
   {
     "code": "mos",
     "name": "Mossi"
+  },
+  {
+    "code": "mri",
+    "name": "Māori"
   },
   {
     "code": "msa",

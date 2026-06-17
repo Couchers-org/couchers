@@ -822,6 +822,21 @@ def test_language_abilities(db):
         assert len(res.language_abilities) == 0
 
 
+def test_maori_and_krio_language_abilities(db):
+    # Māori (mri) and Krio (kri) were added to the language list (issue #8493);
+    # ensure they are valid, settable language abilities end-to-end.
+    user, token = generate_user(
+        language_abilities=[
+            ("mri", LanguageFluency.fluent),
+            ("kri", LanguageFluency.fluent),
+        ],
+    )
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert {language_ability.code for language_ability in res.language_abilities} == {"mri", "kri"}
+
+
 def test_pending_friend_request_count(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

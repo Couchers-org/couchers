@@ -260,4 +260,21 @@ describe("Edit profile", () => {
       screen.queryByRole("button", { name: t("global:save_changes") }),
     ).not.toBeInTheDocument();
   });
+
+  it("offers Māori and Krio in the languages I speak dropdown", async () => {
+    getUserMock.mockImplementation(getUser);
+
+    await renderPage();
+
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("profile:edit_profile_headings.languages_spoken"),
+      }),
+    );
+
+    expect(await screen.findByText(/Māori/)).toBeVisible();
+    expect(screen.getByText(/Krio/)).toBeVisible();
+  });
 });
