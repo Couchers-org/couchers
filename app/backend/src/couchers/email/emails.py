@@ -285,7 +285,7 @@ class ChatMessageReceivedEmail(EmailBase):
             user_name,
             author=UserInfo.from_protobuf(data.author),
             text=data.text,
-            group_chat_title=data.group_chat_title,
+            group_chat_title=data.group_chat_title or None,
             view_url=urls.chat_link(chat_id=data.group_chat_id),
         )
 
@@ -330,10 +330,10 @@ class ChatMessagesMissedEmail(EmailBase):
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         for entry in self.entries:
-            if entry.group_chat_title:
-                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
-            else:
+            if entry.group_chat_title is None:
                 builder.para(".in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            else:
+                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
             builder.user(entry.latest_message_author)
             builder.quote(entry.latest_message_text, markdown=False)
             builder.action(entry.view_url, ".view_action")
@@ -343,7 +343,7 @@ class ChatMessagesMissedEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
         missed_entries = [
             cls.Entry(
-                group_chat_title=message.group_chat_title,
+                group_chat_title=message.group_chat_title or None,
                 missed_count=message.unseen_count,
                 latest_message_author=UserInfo.from_protobuf(message.author),
                 latest_message_text=message.text,

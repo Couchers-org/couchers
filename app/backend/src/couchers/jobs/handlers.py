@@ -265,7 +265,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             ),
                             text=message.text,
                             group_chat_id=message.conversation_id,
-                            group_chat_title=group_chat.title,
+                            group_chat_title=group_chat.title or None,
                             unseen_count=unseen_count,
                         )
                         for group_chat, message, unseen_count in unseen_messages
