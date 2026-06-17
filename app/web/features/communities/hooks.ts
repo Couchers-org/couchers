@@ -193,16 +193,10 @@ export interface CreateDiscussionInput {
   ownerCommunityId: number;
 }
 
-export const useListUserCommunities = ({
-  pageSize,
-  pageToken,
-}: {
-  pageSize?: number;
-  pageToken?: string;
-}) =>
+export const useListUserCommunities = () =>
   useQuery<ListUserCommunitiesRes.AsObject, RpcError>({
-    queryKey: [userCommunitiesListKey, pageToken],
-    queryFn: () => service.communities.listUserCommunities(pageToken, pageSize),
+    queryKey: [userCommunitiesListKey],
+    queryFn: () => service.communities.listUserCommunities(),
   });
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {
