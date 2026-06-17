@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
@@ -18,8 +19,6 @@ import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
-const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
-
 const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(3),
 }));
@@ -34,6 +33,7 @@ export default function CommunityPage({
   edit: boolean | undefined;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   return (
     <CommunityBase communityId={communityId}>

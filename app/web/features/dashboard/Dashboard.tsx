@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Alert, Box, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
@@ -19,10 +20,9 @@ import MyEvents from "./MyEvents";
 import ReminderCarousel from "./ReminderCarousel";
 import UpcomingStays from "./UpcomingStays";
 
-const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
-
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   return (
     <>

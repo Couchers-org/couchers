@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { appGetLayout } from "components/AppRoute";
 import MyPublicTripsPage from "features/publicTrips/MyPublicTripsPage";
 import {
@@ -10,10 +11,8 @@ import { GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
-
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-  if (!isPublicTripsEnabled) {
+  if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
     return { notFound: true };
   }
   return {
@@ -28,6 +27,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 };
 
 export default function MyPublicTrips() {
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
+
+  if (!isPublicTripsEnabled) {
+    return null;
+  }
+
   return <MyPublicTripsPage />;
 }
 
