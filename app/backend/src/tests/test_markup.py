@@ -11,12 +11,12 @@ def test_markdown_to_html() -> None:
     assert markdown_to_html("**bold**") == to_para("<strong>bold</strong>")
     assert markdown_to_html("*italic*") == to_para("<em>italic</em>")
     assert markdown_to_html("_italic_") == to_para("<em>italic</em>")
-    assert markdown_to_html('[link](url)') == to_para('<a href="url">link</a>')
-    assert markdown_to_html('"quoted"') == to_para('“quoted”')
+    assert markdown_to_html("[link](url)") == to_para('<a href="url">link</a>')
+    assert markdown_to_html('"quoted"') == to_para("“quoted”")
 
-    assert markdown_to_html('# title') == "<h1>title</h1>\n"
-    assert markdown_to_html('- a\n- b') == "<ul>\n<li>a</li>\n<li>b</li>\n</ul>\n"
-    assert markdown_to_html('---') == "<hr>\n"
+    assert markdown_to_html("# title") == "<h1>title</h1>\n"
+    assert markdown_to_html("- a\n- b") == "<ul>\n<li>a</li>\n<li>b</li>\n</ul>\n"
+    assert markdown_to_html("---") == "<hr>\n"
 
 
 def test_markdown_to_plaintext() -> None:

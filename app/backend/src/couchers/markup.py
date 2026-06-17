@@ -5,19 +5,20 @@ from markupsafe import Markup
 
 # Markdown config should match frontend's MarkdownNoSSR component.
 _markdown = MarkdownIt(
-    "zero", # Base configuration disables all features
+    "zero",  # Base configuration disables all features
     options_update={
-        "typographer": True, # Enable some language-neutral replacement + quotes beautification
-        "breaks": True # Convert '\n' in paragraphs into <br>
-    }).enable(
+        "typographer": True,  # Enable some language-neutral replacement + quotes beautification
+        "breaks": True,  # Convert '\n' in paragraphs into <br>
+    },
+).enable(
     [
-        "emphasis", # Process *this* and _that_
-        "heading", # Headings (#, ##, ...)
-        "hr", # Horizontal rule
-        "link", # Process [link](<to> "stuff")
-        "list", # Lists
-        "newline", # Process '\n'
-        "smartquotes" # Convert straight quotation marks to typographic ones
+        "emphasis",  # Process *this* and _that_
+        "heading",  # Headings (#, ##, ...)
+        "hr",  # Horizontal rule
+        "link",  # Process [link](<to> "stuff")
+        "list",  # Lists
+        "newline",  # Process '\n'
+        "smartquotes",  # Convert straight quotation marks to typographic ones
     ]
 )
 
@@ -59,4 +60,4 @@ class _HTMLToPlaintext(HTMLParser):
         # Escapes have already been unescaped
         if data is Markup:
             print("lol")
-        self.plaintext += data.replace("\n", "") # Newlines in html are meaningless
+        self.plaintext += data.replace("\n", "")  # Newlines in html are meaningless
