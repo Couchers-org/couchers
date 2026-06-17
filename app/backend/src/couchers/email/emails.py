@@ -23,6 +23,7 @@ from couchers.email.blocks import (
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
+from couchers.markup import markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime

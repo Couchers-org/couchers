@@ -6,11 +6,9 @@ import re
 from dataclasses import asdict, dataclass
 from email.headerregistry import Address
 from functools import cache
-from html import unescape
 from pathlib import Path
 from typing import Any
 
-from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from couchers.config import config
@@ -19,14 +17,11 @@ from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
+from couchers.markup import html_to_plaintext, markdown_to_html
 from couchers.proto.internal import jobs_pb2
 from couchers.templating import Jinja2Template
 
 template_folder = Path(__file__).parent.parent.parent.parent / "templates" / "v2"
-
-_markdown = MarkdownIt("zero", {"typographer": True}).enable(
-    ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
-)
 
 
 @dataclass(kw_only=True, slots=True)
@@ -116,24 +111,10 @@ def _to_plaintext(text: str | Markup) -> str:
     Converts any markup in its plaintext equivalent, allowing reuse of translations that have span-level markup
     like <b> when formatting as plaintext email bodies.
     """
-    if not isinstance(text, Markup):  # Markup derives from str so can't test for isinstance(, str)
+    if isinstance(text, Markup):
+        return html_to_plaintext(text)
+    else:
         return text
-
-    # Convert markup to its plaintext equivalent.
-    # This code is not security-sensitive since we're producing a plaintext string where markup will not be evaluated.
-
-    # Strip/convert any markup since we can't render it in plaintext.
-    text = text.replace("\n", "")  # Newlines are irrelevant in markup
-    text = re.sub(r"<br\s*/?>", "\n", text)  # But <br>'s should be newlines in plaintext
-
-    # Keep the content of span-level markup (assume no nesting)
-    text = re.sub(
-        r"<(?P<name>\w+)(?P<attrs>[^>]*)>(?P<inner>.*?)</(?P=name)>", lambda match: match.group("inner"), text
-    )
-    text = re.sub(r"<\w+[^/>]*/>", "", text)  # Remove any other self-closing tag
-
-    # We've handled tags but still have escapes like "&gt;", convert those to plaintext.
-    return unescape(text)
 
 
 def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationContext) -> dict[str, Any]:
@@ -264,7 +245,7 @@ class HTMLRenderer:
                         )
                     )
                 case QuoteBlock():
-                    args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
+                    args = {"text": Markup(markdown_to_html(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(asdict(block)))
