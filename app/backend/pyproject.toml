@@ -139,7 +139,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope", "ics"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

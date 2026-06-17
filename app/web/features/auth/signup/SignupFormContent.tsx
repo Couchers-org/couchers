@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetSignupPageInfoRes } from "proto/public_pb";
@@ -93,8 +92,7 @@ export default function SignupFormContent({
               Terms of Service
             </StyledLink>
             , including our cookie, email, and data handling policies.
-          </Trans>{" "}
-          <AntibotNote />
+          </Trans>
         </Typography>
       </>
     );

@@ -16,6 +16,9 @@ from couchers.models import (
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     RateLimitAction,
     User,
     UserBadge,
@@ -312,6 +315,55 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert lite_user_pb.lng == 0
     assert lite_user_pb.radius == 0
     assert not lite_user_pb.has_strong_verification
+
+
+@pytest.mark.parametrize(
+    "flag,state",
+    [
+        ("banned_at", NonvisibleUserState.banned),
+        ("shadowed_at", NonvisibleUserState.shadowed),
+        ("deleted_at", NonvisibleUserState.deleted),
+    ],
+)
+def test_viewing_nonvisible_user_profile_is_logged(db, flag, state):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    assert user_pb.is_ghost
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.ghost_served
+        assert access.target_state == state
+        assert access.target_user_id == user2.id
+        assert access.actor_user_id == user1.id
+        assert access.ip_address is None
+        assert access.user_agent is None
+        assert access.sofa is None
+
+
+def test_viewing_blocked_user_profile_is_not_logged(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with blocking_session(token1) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    assert user_pb.is_ghost
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(NonvisibleUserAccess)).scalar_one() == 0
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])

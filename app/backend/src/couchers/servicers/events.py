@@ -1192,6 +1192,8 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             if include_attending:
                 where_.append(EventOccurrenceAttendee.user_id != None)
+            elif request.exclude_attending:
+                query = query.where(EventOccurrenceAttendee.user_id == None)
         if include_my_communities:
             my_communities = (
                 session.execute(
@@ -1209,9 +1211,6 @@ class Events(events_pb2_grpc.EventsServicer):
             where_.append(Event.parent_node_id.in_(my_communities))
 
         query = query.where(or_(*where_))
-
-        if request.exclude_attending:
-            query = query.where(EventOccurrenceAttendee.user_id == None)
 
         if request.my_communities_exclude_global:
             query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)

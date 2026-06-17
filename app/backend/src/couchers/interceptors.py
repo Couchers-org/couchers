@@ -21,6 +21,7 @@ from sqlalchemy import Function, literal_column, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.sql import func
 
+from couchers.config import config
 from couchers.constants import (
     CALL_CANCELLED_ERROR_MESSAGE,
     COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
@@ -357,6 +358,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 headers = parse_headers(dict(handler_call_details.invocation_metadata))
             except BadHeaders:
                 return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
+
+            # if this is not present in prod, it's a Big Bug in config
+            assert config.DEV or headers.ip_address is not None
 
             auth_info = _try_get_and_update_user_details(
                 headers.token,

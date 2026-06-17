@@ -1,7 +1,6 @@
 {
   "errors": {
     "account_suspended": "Il tuo account è stato sospeso.",
-    "admin_blog_title_too_long": "Il titolo del post è troppo lungo.",
     "already_admin": "Questo utente é già amministratore.",
     "already_have_dm": "Hai già uno scambio di messaggi con questo utente.",
     "already_in_community": "Sei già iscritto a quella comunità.",

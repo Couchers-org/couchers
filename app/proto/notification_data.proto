@@ -150,8 +150,7 @@ message EventDelete {
 
 message ChatMessage {
   org.couchers.api.core.User author = 1;
-  // Obsolete (2026-05): Was not i18n-friendly. Use group_chat_title. Kept for handling fallback.
-  string message = 2 [deprecated = true];
+  reserved 2; // Formerly "message", non-localized.
   string text = 3;
   uint64 group_chat_id = 4;
   string group_chat_title = 5;  // Empty for direct messages

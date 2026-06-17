@@ -34,12 +34,6 @@ export default function MyDocument(
           rel="stylesheet"
           href="https://cdn.couchers.org/fonts/wordmark/wordmark.css"
         />
-        {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
-          <script
-            async
-            src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
-          ></script>
-        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,

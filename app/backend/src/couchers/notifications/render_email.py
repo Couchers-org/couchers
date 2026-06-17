@@ -1,18 +1,13 @@
 import logging
-from dataclasses import dataclass, field
-from typing import Any, assert_never
+from dataclasses import dataclass
+from typing import assert_never
 
 import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
+from couchers.email.blocks import EmailBase, EmailFooter, UnsubscribeInfo, UnsubscribeLink
 from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
-from couchers.email.rendering import (
-    EmailFooter,
-    UnsubscribeInfo,
-    UnsubscribeLink,
-    render_html_body,
-    render_plaintext_body,
-)
+from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
@@ -22,53 +17,42 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_key,
 )
 from couchers.proto import api_pb2
-from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
+from couchers.proto.internal.jobs_pb2 import EmailPart, SendEmailPayload
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass(kw_only=True, slots=True)
-class RenderedEmailNotification:
-    subject: str
-    body_plaintext: str
-    body_html: str | None
-    source_data: str | None
-    list_unsubscribe_header: str | None
-    attachments: list[EmailAttachmentV2] = field(default_factory=list)
-
-
-def render_email_notification(
+def get_send_email_payload(
     user: User, notification: Notification, loc_context: LocalizationContext, *, include_ics_attachments: bool
-) -> RenderedEmailNotification:
-    email = _notification_to_email(notification, user_name=user.name)
-    subject = email.get_subject_line(loc_context)
-    preview = email.get_preview_line(loc_context)
-    body_blocks = email.get_body_blocks(loc_context)
-    footer = get_email_footer(user, notification, loc_context)
-    body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
-    body_html = render_html_body(
-        subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
-    )
-    source_data = f"notification; topic-action={notification.topic_action}; version={config.VERSION}"
+) -> SendEmailPayload:
+    email = get_notification_email(notification, user_name=user.name)
+    email_footer = get_email_footer(user, notification, loc_context)
+    rendered_email = render_email(email, email_footer, loc_context)
 
+    source_data_header = get_source_data_header(notification)
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
+
     if include_ics_attachments:
         attachment = get_ics_attachment(notification, loc_context)
     else:
         attachment = None
 
-    return RenderedEmailNotification(
-        subject=subject,
-        body_plaintext=body_plaintext,
-        body_html=body_html,
-        source_data=source_data,
+    return SendEmailPayload(
+        sender_name=config.NOTIFICATION_EMAIL_SENDER,
+        sender_email=config.NOTIFICATION_EMAIL_ADDRESS,
+        recipient=user.email,
+        subject=config.NOTIFICATION_PREFIX + rendered_email.subject,
+        plain=rendered_email.body_plaintext,
+        html=rendered_email.body_html,
+        html_related_parts=rendered_email.html_image_parts,
+        source_data=source_data_header,
         list_unsubscribe_header=list_unsubscribe_header,
         attachments=[attachment] if attachment else [],
     )
 
 
-def _notification_to_email(notification: Notification, *, user_name: str) -> emails.EmailBase:
+def get_notification_email(notification: Notification, *, user_name: str) -> EmailBase:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
         case NotificationTopicAction.account_deletion__start:
@@ -181,19 +165,11 @@ def _notification_to_email(notification: Notification, *, user_name: str) -> ema
             assert_never(notification.topic_action)
 
 
-@dataclass(kw_only=True)
-class CustomTemplatedEmail:
-    # email subject
-    subject: str
-    # shows up when listing emails in many clients
-    preview: str
-    # corresponds to .mjml + .txt file in templates/v2
-    template_name: str
-    # other template args
-    template_args: dict[str, Any]
+def get_source_data_header(notification: Notification) -> str:
+    return f"notification; topic-action={notification.topic_action}; version={config.VERSION}"
 
 
-def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachmentV2 | None:
+def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailPart | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,

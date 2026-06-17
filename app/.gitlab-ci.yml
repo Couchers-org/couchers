@@ -737,6 +737,11 @@ preview:backend:
   inherit:
     # no docker login
     default: false
+  # serialize comment writes within a PR (see preview:pr-comment-stub)
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    # aws-base has no python; needed for the schema diff and the PR comment
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     # Create cleaned schema.sql with git hash header (only if schema file exists)
     - |
@@ -751,6 +756,12 @@ preview:backend:
             | grep -v 'ALTER .* OWNER TO postgres;' \
             | cat -s
         } > artifacts/schema_dumps/schema.sql
+      fi
+    # Render a highlighted HTML diff of this branch's schema against develop's
+    - |
+      if [ -f "artifacts/schema_dumps/schema.sql" ]; then
+        curl -fsSL "https://develop--schema.$PREVIEW_DOMAIN/schema.sql" -o develop-schema.sql || true
+        python3 app/scripts/schema_diff_html.py develop-schema.sql artifacts/schema_dumps/schema.sql artifacts/schema_dumps/diff.html
       fi
     # Upload coverage report to S3
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
@@ -771,6 +782,8 @@ preview:backend:
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
     - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
     - echo "Sample emails index at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/emails/index.html and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/emails/index.html"
+    # write the backend items into the sticky PR comment (no-op off a PR)
+    - python3 app/scripts/pr_preview_comment.py --items schema,schema-diff,emails,bcov
   artifacts:
     paths:
       - artifacts/schema_dumps
@@ -830,12 +843,16 @@ preview:wcov:
   inherit:
     # no docker login
     default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
+    - python3 app/scripts/pr_preview_comment.py --items wcov
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -961,31 +978,48 @@ preview:pr-comment-stub:
   image: python:3.14-slim
   inherit:
     default: false
-  # serialize comment writes across concurrent pipelines
-  resource_group: pr-preview-comment
+  # serialize all writes to one PR's comment; different PRs don't contend
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
   script:
-    - pip install --quiet --no-cache-dir requests
     - python app/scripts/pr_preview_comment.py --stub
   rules:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
-preview:pr-comment:
+preview:pr-comment-mobile:
   needs:
     - job: preview:pr-comment-stub
       artifacts: false
     - job: preview:mobile-ota-devtool
       artifacts: false
-      optional: true
   stage: preview
   image: python:3.14-slim
   inherit:
     default: false
-  resource_group: pr-preview-comment
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
   variables:
     OTA_PLATFORMS: "ios android"
   script:
-    - pip install --quiet --no-cache-dir requests
-    - python app/scripts/pr_preview_comment.py
+    - python app/scripts/pr_preview_comment.py --items mobile
+  # mirror preview:mobile-ota-devtool so this runs exactly when the OTA upload does
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+        - app/scripts/**/*
+
+# Vercel owns the web deploy, so this resolves the preview URL from its API
+preview:pr-comment-web:
+  needs:
+    - job: preview:pr-comment-stub
+      artifacts: false
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  script:
+    - python app/scripts/pr_preview_comment.py --items web
   rules:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
@@ -1006,7 +1040,9 @@ build:mobile-native-devtool:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/devtool-build.sh ios
+    - bash scripts/devtool-build.sh ios-sim
     - bash scripts/devtool-build.sh android
+    - bash scripts/devtool-build.sh index
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
@@ -1304,6 +1340,9 @@ preview:protos:
   inherit:
     # no docker login
     default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     - python_sum=$(sha256sum app/proto/gen/python.tar.gz | head -c 64)
     - ts_sum=$(sha256sum app/proto/gen/ts.tar.gz | head -c 64)
@@ -1333,6 +1372,7 @@ preview:protos:
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
+    - python3 app/scripts/pr_preview_comment.py --items protos
 
 # Having this here frees us from having to list out all the needs in each release below.
 # List out all that need to be waited for until releasing a new version
