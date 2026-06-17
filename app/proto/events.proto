@@ -168,7 +168,8 @@ message CreateEventReq {
   // from media server
   string photo_key = 3;
   oneof mode {
-    OnlineEventInformation online_information = 4;
+    // Server will now reject virtual events
+    OnlineEventInformation online_information = 4 [deprecated = true];
     OfflineEventInformation offline_information = 5;
   }
   // must give this if online, otherwise optional as it can be auto-filled from the location
@@ -186,7 +187,8 @@ message ScheduleEventReq {
   // from media server
   string photo_key = 3;
   oneof mode {
-    OnlineEventInformation online_information = 4;
+    // Server will now reject virtual events
+    OnlineEventInformation online_information = 4 [deprecated = true];
     OfflineEventInformation offline_information = 5;
   }
   // timestamps are in UTC

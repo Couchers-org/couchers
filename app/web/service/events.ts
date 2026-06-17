@@ -137,7 +137,8 @@ interface OfflineEventInput extends EventInput {
   parentCommunityId?: number;
 }
 
-export type CreateEventInput = OnlineEventInput | OfflineEventInput;
+// Creating new online events is deprecated
+export type CreateEventInput = OfflineEventInput;
 
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
@@ -150,21 +151,14 @@ export async function createEvent(input: CreateEventInput) {
     req.setPhotoKey(input.photoKey);
   }
 
-  if (input.isOnline) {
-    const onlineEventInfo = new OnlineEventInformation();
-    onlineEventInfo.setLink(input.link);
-    req.setParentCommunityId(input.parentCommunityId);
-    req.setOnlineInformation(onlineEventInfo);
-  } else {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  const offlineEventInfo = new OfflineEventInformation();
+  offlineEventInfo.setAddress(input.address);
+  offlineEventInfo.setLat(input.lat);
+  offlineEventInfo.setLng(input.lng);
+  req.setOfflineInformation(offlineEventInfo);
 
-    if (input.parentCommunityId) {
-      req.setParentCommunityId(input.parentCommunityId);
-    }
+  if (input.parentCommunityId) {
+    req.setParentCommunityId(input.parentCommunityId);
   }
 
   const res = await client.events.createEvent(req);

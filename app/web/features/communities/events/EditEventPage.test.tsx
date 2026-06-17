@@ -29,11 +29,11 @@ const updateEventMock = service.events.updateEvent as jest.MockedFunction<
   typeof service.events.updateEvent
 >;
 
-function renderPage() {
-  mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
+function renderPage(eventId: number = 1, slug: string = "weekly-meetup") {
+  mockRouter.setCurrentUrl(routeToEditEvent(eventId, slug));
   const { wrapper } = getHookWrapperWithClient();
 
-  render(<EditEventPage eventId={1} />, { wrapper });
+  render(<EditEventPage eventId={eventId} />, { wrapper });
 }
 
 describe("Edit event page", () => {
@@ -49,7 +49,7 @@ describe("Edit event page", () => {
     await act(() => i18n.changeLanguage("en"));
   });
 
-  it("renders with the existing event and updates it successfully", async () => {
+  it("renders an existing offline event and updates it successfully", async () => {
     renderPage();
 
     // Brief sanity check that the form has existing data
@@ -64,29 +64,29 @@ describe("Edit event page", () => {
 
     expect(titleField).toHaveValue("Weekly Meetup in the dam");
 
-    const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event"),
+    expect(
+      screen.getByText(t("communities:virtual_event_deprecated_warning")),
+    ).not.toBeVisible();
+
+    const locationInput = screen.getByLabelText(
+      t("communities:location"),
     ) as HTMLInputElement;
 
-    await user.click(virtualEventCheckBox);
+    await user.type(locationInput, "tes{enter}");
 
-    expect(virtualEventCheckBox.checked).toBe(true);
+    expect(locationInput).toHaveValue("tes");
 
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
-    )) as HTMLInputElement;
-
-    await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
-
-    expect(eventLinkInput).toHaveValue("https://couchers.org/amsterdam-social");
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
     await user.clear(eventDetails);
 
-    await user.type(eventDetails, "We are going virtual this week!");
+    await user.type(eventDetails, "Here are some more details!");
 
-    expect(eventDetails).toHaveValue("We are going virtual this week!");
+    expect(eventDetails).toHaveValue("Here are some more details!");
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),
@@ -106,15 +106,54 @@ describe("Edit event page", () => {
     // Check it only sends the updated field to the backend
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: true,
+      isOnline: false,
       title: "Weekly Meetup in the dam",
-      content: "We are going virtual this week!",
-      link: "https://couchers.org/amsterdam-social",
+      content: "Here are some more details!",
+      locationInput: "test city, test county, test country",
       endTime: new Date("2021-07-01 03:37"),
     });
 
     // Verifies that success re-directs user
     expect(mockRouter.pathname).toBe(routeToEvent(1, "weekly-meetup"));
+  });
+
+  it("renders an existing online event and updates it successfully", async () => {
+    renderPage(2, "planting-season-meetup");
+
+    // Brief sanity check that the form has existing data
+    const titleField = await screen.findByLabelText(
+      t("communities:event_title_label"),
+    );
+    expect(titleField).toHaveValue("Planting Season Meetup");
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    expect(
+      screen.getByText(t("communities:virtual_event_deprecated_warning")),
+    ).toBeVisible();
+
+    const eventLinkInput = (await screen.findByLabelText(
+      t("communities:event_link"),
+    )) as HTMLInputElement;
+
+    await user.type(eventLinkInput, "https://couchers.org/planting-season");
+
+    expect(eventLinkInput).toHaveValue("https://couchers.org/planting-season");
+
+    await user.click(screen.getByRole("button", { name: t("global:update") }));
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+    // Check it only sends the updated field to the backend
+    expect(updateEventMock).toHaveBeenCalledWith({
+      eventId: 2,
+      isOnline: true,
+      link: "https://couchers.org/planting-season",
+    });
+
+    // Verifies that success re-directs user
+    expect(mockRouter.pathname).toBe(routeToEvent(2, "planting-season-meetup"));
   });
 
   it("should submit only the start date if the start date field is touched", async () => {

@@ -45,19 +45,13 @@ const StyledLocationContainer = styled("div")(() => ({
   minHeight: theme.typography.pxToRem(66),
 }));
 
-const StyledIsOnlineCheckboxWrapper = styled("div")(() => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-}));
-
 const StyledEventDetailsContainer = styled("div")(() => ({
   display: "grid",
   gridTemplateColumns: "minmax(0, 1fr)",
   rowGap: theme.spacing(1),
 }));
 
-interface BaseEventData {
+interface OfflineEventData {
   content: string;
   title: string;
   startDate: Dayjs;
@@ -69,20 +63,11 @@ interface BaseEventData {
   eventImage?: string;
   parentCommunityId?: number;
   link?: string;
-  location?: GeocodeResult;
-}
-interface OfflineEventData extends BaseEventData {
-  isOnline: false;
   location: GeocodeResult;
 }
 
-interface OnlineEventData extends BaseEventData {
-  isOnline: true;
-  link: string;
-  parentCommunityId: number;
-}
-
-export type CreateEventData = OfflineEventData | OnlineEventData;
+// Creating new online events is deprecated
+export type CreateEventData = OfflineEventData;
 
 export type CreateEventVariables = CreateEventData & {
   dirtyFields: DeepMap<CreateEventData, true>;
@@ -101,6 +86,8 @@ interface EventFormProps {
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
+  // If true, and no event is passed, will default to editing an online event.
+  defaultOnline: boolean;
 }
 
 export default function EventForm({
@@ -111,8 +98,13 @@ export default function EventForm({
   isMutationLoading,
   title,
   isEdit,
+  defaultOnline = false,
 }: EventFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
+
+  // Online events are deprecated. They cannot be created anymore,
+  // can the type of an existing event be changed between online and offline.
+  const isOnline = !!event?.onlineInformation || defaultOnline;
 
   const {
     control,
@@ -120,11 +112,14 @@ export default function EventForm({
     getValues,
     register,
     setValue,
-    watch,
     formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>({ mode: "onBlur" });
+  } = useForm<CreateEventData>({
+    mode: "onBlur",
+    defaultValues: {
+      isOnline: isOnline,
+    },
+  });
 
-  const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
     event?.offlineInformation
       ? {
@@ -198,18 +193,23 @@ export default function EventForm({
         />
         <StyledLocationContainer>
           {isOnline ? (
-            <TextField
-              id="link"
-              {...register("link", {
-                required: t("communities:link_required"),
-              })}
-              defaultValue={event?.onlineInformation?.link}
-              error={!!errors.link?.message}
-              helperText={errors.link?.message || ""}
-              fullWidth
-              label={t("communities:virtual_event_link")}
-              variant="standard"
-            />
+            <>
+              <TextField
+                id="link"
+                {...register("link", {
+                  required: t("communities:link_required"),
+                })}
+                defaultValue={event?.onlineInformation?.link}
+                error={!!errors.link?.message}
+                helperText={errors.link?.message || ""}
+                fullWidth
+                label={t("communities:virtual_event_link")}
+                variant="standard"
+              />
+              <Alert severity="warning">
+                {t("communities.virtual_event_deprecated_warning")}
+              </Alert>
+            </>
           ) : (
             <LocationAutocomplete
               control={control}
@@ -223,21 +223,6 @@ export default function EventForm({
               autocompleteContext="create-event-form"
             />
           )}
-          <StyledIsOnlineCheckboxWrapper>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  {...register("isOnline")}
-                  defaultChecked={!!event?.onlineInformation}
-                  name="isOnline"
-                />
-              }
-              label={t("communities:virtual_event")}
-            />
-            <Typography variant="body2">
-              {t("communities:virtual_events_subtext")}
-            </Typography>
-          </StyledIsOnlineCheckboxWrapper>
 
           {isEdit && (
             <FormControlLabel

@@ -407,28 +407,19 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if request.HasField("online_information"):
-            online = True
-            geom = None
-            address = None
-            if not request.online_information.link:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            online = False
-            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_create_online")
+        if not request.HasField("offline_information"):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
+
+        # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
+        if not (
+            request.offline_information.address and request.offline_information.lat and request.offline_information.lng
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+        if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+        geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
+        address = request.offline_information.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -443,8 +434,6 @@ class Events(events_pb2_grpc.EventsServicer):
             if not parent_node or not parent_node.official_cluster.small_community_features_enabled:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
-            if online:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_missing_parent_community")
             # parent community computed from geom
             parent_node = get_parent_node_at_location(session, not_none(geom))
 
@@ -480,7 +469,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=TimestamptzRange(start_time, end_time),
@@ -533,7 +522,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 "occurrence_id": occurrence.id,
                 "parent_community_id": parent_node.id,
                 "parent_community_name": parent_node.official_cluster.name,
-                "online": online,
+                "online": False,
             },
         )
 
@@ -556,23 +545,17 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if request.HasField("online_information"):
-            geom = None
-            address = None
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_create_online")
+        if not request.HasField("offline_information"):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
+        if not (
+            request.offline_information.address and request.offline_information.lat and request.offline_information.lng
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+        if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+        geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
+        address = request.offline_information.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -622,7 +605,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=during,

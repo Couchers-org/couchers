@@ -142,7 +142,9 @@ describe("Event page", () => {
 
     // Should be identical in structure as first test, so only assert on things that are different
     expect(
-      await screen.findByText(t("communities:virtual_event")),
+      await screen.findByText(
+        t("communities:virtual_event_deprecated_warning"),
+      ),
     ).toBeVisible();
     expect(
       screen.getByRole("link", { name: t("communities:event_link") }),

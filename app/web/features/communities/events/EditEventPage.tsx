@@ -154,6 +154,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           mutate={updateEvent}
           title={t("communities:edit_event")}
           isEdit
+          defaultOnline={false}
         >
           {({ isMutationLoading }) => (
             <Button
