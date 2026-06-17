@@ -1,4 +1,5 @@
 from html.parser import HTMLParser
+from typing import Any
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -48,16 +49,14 @@ def html_to_plaintext(html: str | Markup) -> str:
 class _HTMLToPlaintext(HTMLParser):
     plaintext: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.plaintext = ""
 
-    def handle_starttag(self, tag: str, attrs) -> None:
+    def handle_starttag(self, tag: str, attrs: Any) -> None:
         if tag == "br":
             self.plaintext += "\n"
 
     def handle_data(self, data: str) -> None:
         # Escapes have already been unescaped
-        if data is Markup:
-            print("lol")
         self.plaintext += data.replace("\n", "")  # Newlines in html are meaningless
