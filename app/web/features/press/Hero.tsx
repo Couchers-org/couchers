@@ -1,5 +1,7 @@
 import { styled, Typography } from "@mui/material";
 
+import HeroImageAttribution from "../dashboard/Hero/HeroImageAttribution";
+
 const StyledContainer = styled("div")({
   display: "flex",
   alignItems: "center",
@@ -44,6 +46,7 @@ const StyledContentContainer = styled("div")(({ theme }) => ({
 export default function Hero() {
   return (
     <StyledContainer>
+      <HeroImageAttribution />
       <StyledContentContainer>
         <StyledHeading>Press & Media</StyledHeading>
         <Typography color="#fff" fontSize="1.25rem">
