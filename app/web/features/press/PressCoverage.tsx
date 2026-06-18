@@ -1,5 +1,6 @@
 import { Box, Card, Link, styled, Typography } from "@mui/material";
 
+import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
 
 const articlesData = [
@@ -63,16 +64,20 @@ const StyledContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledCard = styled(Card)({
+const StyledCard = styled(Card)(({ theme }) => ({
   display: "grid",
   gridRow: "span 4",
   gridTemplateRows: "subgrid",
-  padding: "1.5rem",
-});
+  padding: "1rem",
+
+  [theme.breakpoints.up("md")]: {
+    padding: "1.5rem",
+  },
+}));
 
 export default function PressCoverage() {
   return (
-    <Box display="flex" flexDirection="column" width="100%" gap={4}>
+    <StyledBox>
       <StyledSubheading>Featured Coverage</StyledSubheading>
       <StyledContainer>
         {articlesData.map(
@@ -108,6 +113,6 @@ export default function PressCoverage() {
           ),
         )}
       </StyledContainer>
-    </Box>
+    </StyledBox>
   );
 }

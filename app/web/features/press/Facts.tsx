@@ -1,5 +1,5 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
-import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
+import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, PRESS } from "i18n/namespaces";
 import { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import { theme } from "theme";
 import { timeAgo } from "utils/timeAgo";
 
 import { useListVolunteers } from "../communities/hooks";
+import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
 
 interface SignupInfo {
@@ -14,6 +15,26 @@ interface SignupInfo {
   lastSignup: string | Date;
   lastLocation: string;
 }
+
+const StyledWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  flexWrap: "wrap",
+  gap: "1rem",
+  alignItems: "center",
+  justifyContent: "center",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+  width: "100%",
+
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row",
+  },
+
+  [theme.breakpoints.up("md")]: {
+    gap: "1.5rem",
+  },
+}));
 
 const iconStyle = {
   marginRight: 1,
@@ -40,7 +61,6 @@ export default function Facts() {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, PRESS]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -76,17 +96,9 @@ export default function Facts() {
   }, []);
 
   return (
-    <Box display="flex" flexDirection="column" gap={2}>
+    <StyledBox>
       <StyledSubheading>At a glance</StyledSubheading>
-      <Box
-        display="flex"
-        flexDirection={isMobile ? "column" : "row"}
-        alignItems="center"
-        justifyContent="center"
-        padding={2}
-        width="100%"
-        gap={3}
-      >
+      <StyledWrapper>
         <Box display="flex" alignItems="center">
           <Favorite sx={iconStyle} />
           {isLoading ? (
@@ -133,7 +145,7 @@ export default function Facts() {
             </Typography>
           </Box>
         ) : null}
-      </Box>
-    </Box>
+      </StyledWrapper>
+    </StyledBox>
   );
 }

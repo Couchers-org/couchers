@@ -1,4 +1,4 @@
-import { styled } from "@mui/system";
+import { styled } from "@mui/material";
 import { PropsWithChildren } from "react";
 
 const StyledHeading = styled("h2")(({ theme }) => ({

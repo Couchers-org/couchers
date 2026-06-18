@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { CouchersIcon } from "components/Icons";
 
+import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
 
 const StyledContainer = styled("div")(({ theme }) => ({
@@ -100,7 +101,7 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
 
 export default function DownloadableFiles() {
   return (
-    <Box display="flex" flexDirection="column" gap={4}>
+    <StyledBox>
       <StyledSubheading>Download media assets</StyledSubheading>
       <StyledContainer>
         <StyledSection>
@@ -128,6 +129,6 @@ export default function DownloadableFiles() {
           </StyledCard>
         </StyledSection>
       </StyledContainer>
-    </Box>
+    </StyledBox>
   );
 }

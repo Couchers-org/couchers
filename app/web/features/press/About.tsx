@@ -1,6 +1,7 @@
-import { Box, Link, styled, Typography } from "@mui/material";
+import { Link, styled, Typography } from "@mui/material";
 import { blogRoute, foundationRoute, missionRoute } from "routes";
 
+import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
 
 const aboutUsItems = [
@@ -35,29 +36,41 @@ const StyledContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledCard = styled("div")({
+const StyledCard = styled("div")(({ theme }) => ({
   display: "grid",
   gridRow: "span 3",
   gridTemplateRows: "subgrid",
   gap: "1rem",
-  padding: "1.5rem",
+  padding: "1rem",
   backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: "4px",
-});
+
+  [theme.breakpoints.up("md")]: {
+    padding: "1.5rem",
+  },
+}));
+
+const StyledHeading = styled(Typography)(({ theme }) => ({
+  fontSize: "1.25rem",
+
+  [theme.breakpoints.up("md")]: {
+    fontSize: "1.5rem",
+  },
+}));
 
 export default function About() {
   return (
-    <Box display="flex" flexDirection="column" sx={{ width: "100%" }} gap={4}>
+    <StyledBox>
       <StyledSubheading>Get to know more about us</StyledSubheading>
       <StyledContainer>
         {aboutUsItems.map(({ heading, text, href }) => (
           <StyledCard key={heading}>
-            <Typography fontSize="1.5rem">{heading}</Typography>
+            <StyledHeading fontSize="1.5rem">{heading}</StyledHeading>
             <Typography>{text}</Typography>
             <Link href={href}>Read more</Link>
           </StyledCard>
         ))}
       </StyledContainer>
-    </Box>
+    </StyledBox>
   );
 }
