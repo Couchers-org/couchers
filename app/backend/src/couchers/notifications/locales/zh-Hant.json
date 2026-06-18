@@ -14,7 +14,7 @@
       "push": {
         "title": "帳戶已刪除",
         "ios_title": "帳戶已刪除",
-        "body_other": "您可以在 {{count}} 天內透過我們寄給您的連結恢復帳戶。"
+        "body_other": "您可以在{{count}}天內透過我們寄給您的連結恢復帳戶。"
       }
     },
     "recovered": {
@@ -46,10 +46,10 @@
   },
   "api_key": {
     "create": {
-      "event_description": "您的帳戶已建立 API 金鑰",
+      "event_description": "您的帳戶已建立API金鑰",
       "push": {
-        "title": "API 金鑰已建立",
-        "ios_title": "API 金鑰已建立",
+        "title": "API金鑰已建立",
+        "ios_title": "API金鑰已建立",
         "body": "詳細資訊已透過電子郵件寄給您。"
       }
     }
@@ -60,7 +60,7 @@
       "push": {
         "title": "新的個人檔案徽章：{{badge_name}}",
         "ios_title": "新的個人檔案徽章",
-        "body": "{{badge_name}} 徽章已新增到您的個人檔案中。"
+        "body": "{{badge_name}}徽章已新增到您的個人檔案中。"
       }
     },
     "remove": {
@@ -68,7 +68,7 @@
       "push": {
         "title": "個人檔案徽章已移除",
         "ios_title": "個人檔案徽章已移除",
-        "body": "{{badge_name}} 徽章已從您的個人檔案中移除。"
+        "body": "{{badge_name}}徽章已從您的個人檔案中移除。"
       }
     }
   },
@@ -78,7 +78,7 @@
       "push": {
         "title": "出生日期已變更",
         "ios_title": "出生日期已變更",
-        "body": "管理員已將您的出生日期更改為 {{birthdate}}。"
+        "body": "管理員已將您的出生日期更改為{{birthdate}}。"
       }
     }
   },
@@ -89,8 +89,8 @@
     "missed_messages": {
       "event_description": "您錯過了聊天中的訊息",
       "push": {
-        "title_other": "{{count}} 則未讀訊息",
-        "ios_title_other": "{{count}} 則未讀訊息",
+        "title_other": "{{count}}則未讀訊息",
+        "ios_title_other": "{{count}}則未讀訊息",
         "body": "您有新的未讀訊息。"
       }
     }
@@ -108,7 +108,7 @@
         "title": "新討論：{{title}}",
         "ios_title": "新討論",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 在 {{group_or_community}} 中發起了討論。"
+        "body": "{{user}}在{{group_or_community}}中發起了討論。"
       }
     }
   },
@@ -118,7 +118,7 @@
       "push": {
         "title": "已收到捐款",
         "ios_title": "已收到捐款",
-        "body": "非常感謝您捐款 {{amount_with_currency}}！"
+        "body": "非常感謝您捐款{{amount_with_currency}}！"
       }
     }
   },
@@ -128,7 +128,7 @@
       "push": {
         "title": "已請求變更電子郵件",
         "ios_title": "已請求變更電子郵件",
-        "body": "請使用我們寄到 {{email}} 的連結確認您的新電子郵件地址。"
+        "body": "請使用我們寄到{{email}}的連結確認您的新電子郵件地址。"
       }
     },
     "verify": {
@@ -147,7 +147,7 @@
         "title": "活動已取消：{{title}}",
         "ios_title": "活動已取消",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 取消了該活動。"
+        "body": "{{user}}取消了該活動。"
       }
     },
     "comment": {
@@ -155,7 +155,7 @@
       "push": {
         "title": "{{user}} - {{title}}",
         "ios_title": "{{user}}",
-        "ios_subtitle": "評論了 {{title}}"
+        "ios_subtitle": "評論了{{title}}"
       }
     },
     "create_any": {
@@ -164,7 +164,7 @@
         "title": "新活動：{{title}}",
         "ios_title": "新活動",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 於 {{date_and_time}} 建立了該活動。"
+        "body": "{{user}}於{{date_and_time}}建立了該活動。"
       }
     },
     "create_approved": {
@@ -173,7 +173,7 @@
         "title": "新活動：{{title}}",
         "ios_title": "新活動",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 邀請您參加 {{date_and_time}} 的活動。"
+        "body": "{{user}}邀請您參加{{date_and_time}}的活動。"
       }
     },
     "delete": {
@@ -191,7 +191,7 @@
         "title": "活動已更新：{{title}}",
         "ios_title": "活動已更新",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 已將您新增為活動聯合組織者。"
+        "body": "{{user}}已將您新增為活動聯合組織者。"
       }
     },
     "reminder": {
@@ -200,7 +200,7 @@
         "title": "即將開始的活動：{{title}}",
         "ios_title": "即將開始的活動",
         "ios_subtitle": "{{title}}",
-        "body": "活動將於 {{date_and_time}} 開始。"
+        "body": "活動將於{{date_and_time}}開始。"
       }
     },
     "update": {
@@ -209,7 +209,7 @@
         "title": "活動已更新：{{title}}",
         "ios_title": "活動已更新",
         "ios_subtitle": "{{title}}",
-        "body": "{{user}} 更新了該活動。"
+        "body": "{{user}}更新了該活動。"
       }
     }
   },
@@ -217,19 +217,19 @@
     "accept": {
       "event_description": "有人接受了您的好友請求",
       "push": {
-        "title": "{{friend}} 接受了您的好友請求",
+        "title": "{{friend}}接受了您的好友請求",
         "ios_title": "{{friend}}",
         "ios_subtitle": "已接受您的好友請求",
-        "body": "您現在已與 {{friend}} 成為好友。"
+        "body": "您現在已與{{friend}}成為好友。"
       }
     },
     "create": {
       "event_description": "有人向您送出了好友請求",
       "push": {
-        "title": "來自 {{from_user}} 的好友請求",
+        "title": "來自{{from_user}}的好友請求",
         "ios_title": "{{from_user}}",
         "ios_subtitle": "好友請求",
-        "body": "{{from_user}} 想與您成為好友。"
+        "body": "{{from_user}}想與您成為好友。"
       }
     }
   },
@@ -239,7 +239,7 @@
       "push": {
         "title": "性別已變更",
         "ios_title": "性別已變更",
-        "body": "管理員已將您的性別更改為 {{gender}}。"
+        "body": "管理員已將您的性別更改為{{gender}}。"
       }
     }
   },
@@ -257,37 +257,37 @@
     "accept": {
       "event_description": "有人接受了您的接待請求",
       "push": {
-        "title": "{{user}} 接受了您的接待請求",
+        "title": "{{user}}接受了您的接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "接待請求已接受",
-        "body": "{{user}} 接受了您 {{date}} 的接待請求。"
+        "body": "{{user}}接受了您{{date}}的接待請求。"
       }
     },
     "cancel": {
       "event_description": "有人取消了其接待請求",
       "push": {
-        "title": "{{user}} 取消了其接待請求",
+        "title": "{{user}}取消了其接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "接待請求已取消",
-        "body": "{{user}} 取消了您 {{date}} 的接待請求。"
+        "body": "{{user}}取消了您{{date}}的接待請求。"
       }
     },
     "confirm": {
       "event_description": "有人確認了其接待請求",
       "push": {
-        "title": "{{user}} 確認了其接待請求",
+        "title": "{{user}}確認了其接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "接待請求已確認",
-        "body": "{{user}} 確認了您 {{date}} 的接待請求。"
+        "body": "{{user}}確認了您{{date}}的接待請求。"
       }
     },
     "create": {
       "event_description": "有人向您送出了接待請求",
       "push": {
-        "title": "來自 {{user}} 的新接待請求",
+        "title": "來自{{user}}的新接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "新接待請求",
-        "body_other": "{{user}} 想從 {{start_date}} 起住宿 {{count}} 天。"
+        "body_other": "{{user}}想從{{start_date}}起住宿{{count}}天。"
       }
     },
     "message": {
@@ -296,28 +296,28 @@
     "missed_messages": {
       "event_description": "您錯過了接待請求中的訊息",
       "push": {
-        "title": "來自 {{user}} 的新訊息",
+        "title": "來自{{user}}的新訊息",
         "ios_title": "{{user}}",
         "ios_subtitle": "未讀訊息",
-        "body": "您收到了來自 {{user}} 的新未讀訊息。"
+        "body": "您收到了來自{{user}}的新未讀訊息。"
       }
     },
     "reject": {
       "event_description": "有人拒絕了您的接待請求",
       "push": {
-        "title": "{{user}} 拒絕了您的接待請求",
+        "title": "{{user}}拒絕了您的接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "接待請求已拒絕",
-        "body": "{{user}} 拒絕了您 {{date}} 的接待請求。"
+        "body": "{{user}}拒絕了您{{date}}的接待請求。"
       }
     },
     "reminder": {
       "event_description": "您尚未回覆待處理的接待請求",
       "push": {
-        "title": "來自 {{user}} 的待處理請求",
+        "title": "來自{{user}}的待處理請求",
         "ios_title": "接待請求待處理",
         "ios_subtitle": "{{user}}",
-        "body": "{{user}} 正在等待您的回覆，請接受或拒絕該請求。"
+        "body": "{{user}}正在等待您的回覆，請接受或拒絕該請求。"
       }
     }
   },
@@ -336,8 +336,8 @@
       "event_description": "提醒您在註冊後完善個人檔案",
       "push": {
         "first": {
-          "title": "歡迎來到 Couchers！",
-          "ios_title": "歡迎來到 Couchers！",
+          "title": "歡迎來到Couchers！",
+          "ios_title": "歡迎來到Couchers！",
           "body": "請上傳一張照片，並填寫一些關於自己的簡介來完善個人檔案。"
         },
         "subsequent": {
@@ -382,7 +382,7 @@
       "push": {
         "title": "已開始手機號碼驗證",
         "ios_title": "已開始手機號碼驗證",
-        "body": "您已使用號碼 {{phone_number}} 開始手機號碼驗證。"
+        "body": "您已使用號碼{{phone_number}}開始手機號碼驗證。"
       }
     },
     "verify": {
@@ -390,7 +390,7 @@
       "push": {
         "title": "已完成手機號碼驗證",
         "ios_title": "已完成手機號碼驗證",
-        "body": "您的手機號碼 {{phone_number}} 已成功驗證。"
+        "body": "您的手機號碼{{phone_number}}已成功驗證。"
       }
     }
   },
@@ -400,7 +400,7 @@
       "push": {
         "title": "郵寄驗證失敗",
         "ios_title": "郵寄驗證失敗",
-        "body_code_expired": "您的驗證碼已過期。驗證碼在明信片寄出後 90 天內有效。您可以申請新的明信片。",
+        "body_code_expired": "您的驗證碼已過期。驗證碼在明信片寄出後90天內有效。您可以申請新的明信片。",
         "body_too_many_attempts": "輸入錯誤驗證碼的次數過多。您可以申請新的明信片。",
         "body_generic": "您的郵寄驗證嘗試失敗了。您可以申請新的明信片。"
       }
@@ -410,7 +410,7 @@
       "push": {
         "title": "已開始郵寄驗證",
         "ios_title": "已開始郵寄驗證",
-        "body": "您的明信片正在寄往 {{country}} {{city}}。預計 1 到 3 周內送達。"
+        "body": "您的明信片正在寄往{{country}} {{city}}。預計1到3周內送達。"
       }
     },
     "success": {
@@ -425,24 +425,24 @@
   "reference": {
     "_receive_any": {
       "push": {
-        "title": "來自 {{user}} 的新評語",
+        "title": "來自{{user}}的新評語",
         "ios_title": "{{user}}",
         "ios_subtitle": "新評語",
-        "body_must_write_yours": "{{user}} 給您留下了一則評語，現在輪到您為對方寫評語了！"
+        "body_must_write_yours": "{{user}}給您留下了一則評語，現在輪到您為對方寫評語了！"
       }
     },
     "_reminder_any": {
       "push": {
-        "title": "為 {{user}} 撰寫您的評語",
+        "title": "為{{user}}撰寫您的評語",
         "ios_title": "撰寫您的評語",
         "ios_subtitle": "{{user}}",
-        "body_other": "您還有 {{count}} 天時間為 {{user}} 撰寫評語。"
+        "body_other": "您還有{{count}}天時間為{{user}}撰寫評語。"
       }
     },
     "receive_friend": {
       "event_description": "您收到了來自好友的評語",
       "push": {
-        "title": "來自 {{user}} 的新好友評語",
+        "title": "來自{{user}}的新好友評語",
         "ios_title": "{{user}}",
         "ios_subtitle": "新好友評語"
       }

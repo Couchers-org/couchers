@@ -6,7 +6,7 @@
   "close": "关闭",
   "create_account": "创建账户",
   "expand": "扩展",
-  "login": "登陆",
+  "login": "登录",
   "sign_up": "注册",
   "join_us": "加入我们",
   "terms_of_service": "服务条款",
@@ -24,7 +24,7 @@
   },
   "thanks": "谢谢！",
   "donation_banner": {
-    "message": "Couchers.org 靠善意运行——就像沙发冲浪本身一样。这个假期，请帮助我们保持这种状态。我们正在筹集 {{goal}} 以支付运行 Couchers.org 的费用。",
+    "message": "Couchers.org靠善意运行——就像沙发冲浪本身一样。这个假期，请帮助我们保持这种状态。我们正在筹集{{goal}}以支付运行Couchers.org的费用。",
     "button": "立即捐赠",
     "progress_label": "捐赠进度"
   },
@@ -48,9 +48,9 @@
   "mod": "审核",
   "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<1>服务条款</1>。",
   "hosting_status": {
-    "can_host": "可以托管",
-    "maybe": "可以托管",
-    "cant_host": "不能托管",
+    "can_host": "可以接待",
+    "maybe": "可能可以接待",
+    "cant_host": "无法接待",
     "unspecified_info": "没有说"
   },
   "language_preference": {
@@ -60,8 +60,8 @@
     "error_loading_languages": "无法加载语言选项。请稍后重试。",
     "translation_progress": {
       "title": "翻译进度",
-      "description": "查看我们的翻译在不同语言中的完整性。帮助我们让世界各地更多的人使用 Couchers！",
-      "help_translate": "帮助将 Couchers 翻译成您的语言",
+      "description": "查看我们的翻译在不同语言中的完整性。帮助我们让世界各地更多的人使用Couchers！",
+      "help_translate": "帮助将Couchers翻译成您的语言",
       "loading": "正在加载翻译进度...",
       "error_loading": "无法加载翻译进度",
       "no_data": "没有可用的翻译数据",
@@ -70,7 +70,7 @@
       "midway": "Midway",
       "early_stage": "早期阶段",
       "just_started": "刚刚开始",
-      "info_text": "💡完成度为50-80%的语言在语言选择器中显示为灰色。完成率低于 50% 的语言对语言选择器隐藏。为了鼓励贡献者，本网站上显示低于 20% 的语言。",
+      "info_text": "💡完成度为50-80%的语言在语言选择器中显示为灰色。完成率低于50%的语言对语言选择器隐藏。为了鼓励贡献者，本网站上显示低于20%的语言。",
       "view_progress": "查看翻译进度"
     },
     "show_all_languages": "在语言选择器中显示所有语言",
@@ -92,15 +92,15 @@
       "problem_helper": "问题的简要描述以及如何重现",
       "expect_label": "发生了什么？应该发生什么？",
       "expect_helper": "您期望发生的情况的简要描述",
-      "success_message2": "感谢您报告该错误并使Couchers变得更好，已向开发人员发送了一份报告！ Bug ID 为 <id/>。"
+      "success_message2": "感谢您报告该错误并使Couchers变得更好，已向开发人员发送了一份报告！Bug ID为<id/>。"
     },
     "content": {
       "button_label": "报告不当内容或行为",
-      "success_message": "感谢您的报告，并使 Couchers 成为每个人更好的平台！"
+      "success_message": "感谢您的报告，并使Couchers成为每个人更好的平台！"
     },
     "flag": {
       "block_user": "Block {{username}}",
-      "block_user_explainer": " 来自此人的消息和请求将被阻止，并且此人将看不到您的个人资料、活动和评论。他们不会被告知您阻止了他们。",
+      "block_user_explainer": "来自此人的消息和请求将被阻止，并且此人将看不到您的个人资料、活动和评论。他们不会被告知您阻止了他们。",
       "button_aria_label": "报告内容或用户",
       "profile_button_aria_label": "报告内容或阻止用户",
       "explainer": "机密地向安全与信任团队发送报告。",
@@ -111,7 +111,7 @@
       "description_required": "描述为必填项。",
       "description_label": "描述问题",
       "description_helper": "请告诉我们您报告此问题的原因。",
-      "success": "感谢您的报告，并使 Couchers 成为每个人更好的平台！",
+      "success": "感谢您的报告，并使Couchers成为每个人更好的平台！",
       "reason": {
         "dating": "调情/约会应用程序行为或类似行为",
         "external": "平台外事件",
@@ -125,9 +125,9 @@
       }
     }
   },
-  "not_found_text_1": "我们找不到您请求的 URL 或资源",
+  "not_found_text_1": "我们找不到您请求的URL或资源",
   "not_found_text_2": "您只想<1>回家吗？</1>",
-  "not_found_alt": "404 错误：找不到资源",
+  "not_found_alt": "404错误：找不到资源",
   "change_time": "更改时间",
   "html_meta": {
     "title_suffix": " | Couchers.org",
@@ -160,7 +160,7 @@
       "radius_text2_one": "{{count}}米",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "没有结果。尝试仅搜索城市。",
-      "press_enter_to_search": "按 Enter 键搜索"
+      "press_enter_to_search": "按Enter键搜索"
     }
   },
   "nav": {
@@ -192,7 +192,7 @@
     "legal_more": "法律及更多",
     "contact_us": "联系我们",
     "built_with": "开源",
-    "landing_page": "登陆页面",
+    "landing_page": "登录页面",
     "invite_members": "邀请会员",
     "merch_shop": "商品商店",
     "switch_to_light_mode": "切换到浅色模式",
@@ -221,54 +221,54 @@
   "ok": "OK",
   "beta": "Beta",
   "relative_time": {
-    "less_than_a_minute_ago": "< 1 分钟前",
+    "less_than_a_minute_ago": "< 1分钟前",
     "less_than_one_hour_ago": "不到一小时前"
   },
   "location_autocomplete": {
     "more_specific": "请选择更具体的地点",
-    "search_location_hint": "按 Enter 或单击搜索图标选择位置",
+    "search_location_hint": "按Enter或单击搜索图标选择位置",
     "search_location_button": "搜索位置",
-    "select_location_hint": "按 Enter 或单击搜索图标，然后从列表中选择一个位置"
+    "select_location_hint": "按Enter或单击搜索图标，然后从列表中选择一个位置"
   },
   "strong_verification": {
     "helper_text": "该用户已使用生物识别护照验证其身份"
   },
   "footer": {
-    "non_profit_note": "Couchers.org 是美国 501(c)(3) 非营利免税组织 Couchers, Inc. 的一个项目。",
-    "version_info": " 版本 <2>{{version}}</2>，最后更新 <5>{{updated_ago}}</5>。"
+    "non_profit_note": "Couchers.org是美国501(c)(3)非营利免税组织Couchers, Inc.的一个项目。",
+    "version_info": "版本<2>{{version}}</2>，最后更新<5>{{updated_ago}}</5>。"
   },
   "what_is_cs": {
-    "title": " 什么是沙发冲浪？",
-    "description_1": " 沙发冲浪是一些会员提出的概念（称为主机）在平台上发帖，表示他们愿意接待其他正在访问其城市的会员（称为冲浪者）。",
+    "title": "什么是沙发冲浪？",
+    "description_1": "沙发冲浪是指一些会员（称为接待者）在平台上发帖，表示他们愿意接待到访其城市的其他会员（称为沙发客）。",
     "description_2": "这就像在另一个城市有朋友要去拜访他们，但到达那里后你是第一次见到朋友！",
-    "get_involved_title": "我在 Couchers.org 上可以做什么？",
+    "get_involved_title": "我在Couchers.org上可以做什么？",
     "timeline_title": "沙发冲浪的快速历史",
     "timeline": {
-      "early_2000s_year": "Early 2000s",
+      "early_2000s_year": "2000年代初",
       "early_2000s_text": "在线沙发冲浪运动诞生：与当地人在一起，分享文化。",
-      "2010s_year": "2010s",
+      "2010s_year": "2010年代",
       "2010s_text": "社区和活动蓬勃发展；参考建立信任——世界开始感觉像一个友好的邻居。",
-      "2020_year": "2020",
-      "2020_text": "一个主要平台以营利为目的； Couchers.org 作为非盈利、社区运营的替代方案推出。",
-      "today_year": "Today",
-      "today_text": "Couchers.org 开创了新的篇章：现代、更安全、非盈利的沙发冲浪 — 由社区打造并为社区服务。"
+      "2020_year": "2020年",
+      "2020_text": "一个主要平台以营利为目的；Couchers.org作为非盈利、社区运营的替代方案推出。",
+      "today_year": "今天",
+      "today_text": "Couchers.org开创了新的篇章：现代、更安全、非盈利的沙发冲浪—由社区打造并为社区服务。"
     },
     "actions": {
-      "host": " 接待一位来访您城市的旅行者",
-      "surf": "旅行时与当地人一起冲浪",
+      "host": "接待一位来访您城市的旅行者",
+      "surf": "旅行时与当地人一起沙发冲浪",
       "attend_events": "与当地人和旅行者一起参加活动",
       "find_people": "在您的城市中寻找志同道合的人并见面",
       "join_discussions": "加入当地社区或开始讨论"
     },
     "why_people_title": "为什么人们喜欢沙发冲浪",
     "why_people_points": {
-      "travelers": "<bold>对于旅行者</bold>：超越游客的更深入、更人性化的体验Trails",
-      "hosts": "<bold>对于房东</bold>：结识来自世界各地的人们并分享您的城市",
-      "everyone": "<bold>对于所有人</bold>：社区、文化和联系 - 而不是交易"
+      "travelers": "<bold>对于旅行者</bold>：超越游客路线的更深入、更有人情味的体验",
+      "hosts": "<bold>对于接待者</bold>：结识来自世界各地的人们并分享您的城市",
+      "everyone": "<bold>对于所有人</bold>：社区、文化和联系-而不是交易"
     },
     "tip_label": "TIP",
-    "tip_text": "新来的吗？参加当地活动，感受社区 - 低承诺，高联系。",
-    "compare_title": "Couchers.org 相比如何？",
+    "tip_text": "新来的吗？参加当地活动，感受社区-低承诺，高联系。",
+    "compare_title": "Couchers.org相比如何？",
     "table": {
       "header_couchers": "Couchers.org",
       "header_hostel": "Hostel",
@@ -284,32 +284,32 @@
       "cultural_exchange": "文化交流焦点",
       "non_transactional": "非交易社区模式",
       "no_investor_pressure": "无投资者压力",
-      "social_expectation": "鼓励与主人共度时光"
+      "social_expectation": "鼓励与接待者共度时光"
     },
     "bottom_cta_title": "准备好尝试沙发冲浪了吗？",
-    "bottom_cta_subtitle": "加入 Couchers.org，成为建立在热情好客和联系之上的全球社区的一部分。",
-    "join_couchers": "加入 Couchers.org",
+    "bottom_cta_subtitle": "加入Couchers.org，成为建立在热情好客和联系之上的全球社区的一部分。",
+    "join_couchers": "加入Couchers.org",
     "is_it_safe": {
-      "title": " 沙发冲浪有多安全？",
+      "title": "沙发冲浪有多安全？",
       "description_1": "虽然所有旅行和与陌生人的互动都存在一定风险，但沙发冲浪比许多人最初想象的要安全得多。",
       "description_2": "我们的社区建立在成员之间的信任之上，通过入住后的参考建立。我们的积极审核团队认真对待每一份报告，并努力反击那些不遵守我们的<指南>社区准则</指南>的不良行为者。",
-      "description_3": "此外，Couchers 平台还包括各种形式的验证（例如使用生物识别护照的强验证）等工具，这些工具增加了额外的安全级别。重要的是要始终准备好替代计划，以防事情没有按预期进行，并相信你的直觉！"
+      "description_3": "此外，Couchers平台还包括各种形式的验证（例如使用生物识别护照的强验证）等工具，这些工具增加了额外的安全级别。重要的是要始终准备好替代计划，以防事情没有按预期进行，并相信你的直觉！"
     }
   },
   "team": {
     "title": "团队",
-    "description": "我们是热情的沙发冲浪者和技术精湛的专业人士，致力于创建一个改进的、更安全的、更具包容性的平台。我们正在构建这个平台来支持和可持续发展沙发冲浪社区，同时与世界分享其价值观。如果您分享我们的观点并希望做出贡献，我们很乐意听取您的意见。",
+    "description": "我们是热情的沙发客和技术精湛的专业人士，致力于创建一个改进的、更安全的、更具包容性的平台。我们正在构建这个平台来支持和可持续发展沙发冲浪社区，同时与世界分享其价值观。如果您分享我们的观点并希望做出贡献，我们很乐意听取您的意见。",
     "join_the_team": "加入团队",
     "join_our_team": "加入我们的团队",
     "have_skills_contribute": "有您想要贡献的技能吗？",
-    "fill_form_description": "Couchers.org 是一个社区驱动的项目，由像您这样的人为了全球沙发冲浪社区的利益而开发。如果您有兴趣加入这一激动人心的计划，请单击下面的按钮并填写简短的表格。",
-    "past_members": "P过去的成员",
+    "fill_form_description": "Couchers.org是一个社区驱动的项目，由像您这样的人为了全球沙发冲浪社区的利益而开发。如果您有兴趣加入这一激动人心的计划，请单击下面的按钮并填写简短的表格。",
+    "past_members": "过去的成员",
     "board_member": "董事会成员"
   },
   "blog": {
-    "byline_with_author": "由<1/>撰写。发布于 {{date}}.",
-    "byline_without_author": " 发布于 {{date}}.",
-    "cta_message": " 想帮助撰写我们的博客或做志愿者吗？ <1>注册</1>并告诉我们。志愿者和<3>捐款</3>使 Couchers.org 成为可能！"
+    "byline_with_author": "由<1/>撰写。发布于{{date}}.",
+    "byline_without_author": "发布于{{date}}.",
+    "cta_message": "想帮助撰写我们的博客或做志愿者吗？<1>注册</1>并告诉我们。志愿者和<3>捐款</3>使Couchers.org成为可能！"
   },
   "error_loading_languages": "无法加载语言选项",
   "language_names": {

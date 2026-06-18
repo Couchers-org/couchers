@@ -14,7 +14,7 @@
   "panel": {
     "heading": "Mod東西",
     "username": "使用者名稱",
-    "user_id": "使用者 ID",
+    "user_id": "使用者ID",
     "email": "電子郵件",
     "birthdate": "出生日期",
     "has_strong_verification": "具有強大的驗證",
@@ -22,6 +22,6 @@
     "gender_verification_status": "性別驗證",
     "has_passport_sex_gender_exception": "護照性別/性別例外。？",
     "pending_mod_notes_count": "Pending mod註釋",
-    "acknowledged_mod_notes_count": "Acknowledged 模組註釋"
+    "acknowledged_mod_notes_count": "Acknowledged模組註釋"
   }
 }

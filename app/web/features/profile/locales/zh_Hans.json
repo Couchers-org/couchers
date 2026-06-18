@@ -8,7 +8,7 @@
   },
   "heading": {
     "about_me": "关于我",
-    "age_gender": "年龄 / 性别",
+    "age_gender": "年龄/性别",
     "edit": "编辑",
     "edit_profile": "编辑个人资料",
     "education": "教育",
@@ -31,7 +31,7 @@
     "age_verification_mismatch": "用户提供的出生日期与验证的出生日期不符",
     "gender_verification_verified": "此用户已验证其性别",
     "gender_verification_mismatch": "用户提供的性别与验证的性别不符",
-    "photos_section": "Photos"
+    "photos_section": "照片"
   },
   "section_tabs_a11y_label": "用户详情的标签",
   "home_info_headings": {
@@ -61,8 +61,8 @@
     "household_details": "家庭详细信息",
     "household_members": "家庭会员",
     "household_habits": "家庭习惯",
-    "hosting_preferences_subtitle": "让房客知道您对什么感到满意",
-    "about_home_subtitle": "告诉房客您的家以及他们的期望",
+    "hosting_preferences_subtitle": "让客人知道您愿意接受什么",
+    "about_home_subtitle": "告诉客人您的家以及他们可以期待什么",
     "household_details_subtitle": "分享有关您家庭的更多详细信息",
     "general_subtitle": "有关您家和区域的其他详细信息"
   },
@@ -81,7 +81,7 @@
     "basic_information": "基本信息",
     "basic_information_subtitle": "首先提供您的照片、姓名和位置",
     "preferences": "P参考",
-    "preferences_subtitle": "让其他人了解您的托管和聚会偏好",
+    "preferences_subtitle": "让其他人了解您的接待和见面偏好",
     "personal_information": "个人信息",
     "personal_information_subtitle": "分享有关您自己和背景的详细信息",
     "about_me_subtitle": "向别人介绍一下你自己。这就是信任开始的地方。帮助别人了解你的真实身份。请参阅<1>创建精彩个人资料的提示</1>。",
@@ -122,8 +122,8 @@
     "woman": "女性"
   },
   "pronouns": {
-    "man": "他 / 他",
-    "woman": "她 / 她"
+    "man": "他/他",
+    "woman": "她/她"
   },
   "edit_profile_tab_bar_a11y_label": "编辑个人资料的标签",
   "info_unanswered": "问我",
@@ -145,11 +145,11 @@
     "private_text_label": "你还将提交以下私密回答：",
     "public_answer": "这将公开显示在他们的个人资料的评语部分。",
     "public_text_label": "您将留下以下公开评语，该评语将显示在{{name}}的个人资料上：",
-    "rating_label": "你的经历让你感觉像 ",
+    "rating_label": "你的经历让你感觉像",
     "rating_how": "您对{{name}}的整体体验如何？",
     "reference_form_heading_friend": "你与{{name}}见面",
     "reference_form_heading_hosted": "你接待了{{name}}",
-    "reference_form_heading_surfed": "你与{{name}}一起冲浪",
+    "reference_form_heading_surfed": "你与{{name}}一起沙发冲浪",
     "writing_for_text": "你正在为以下人写评语：",
     "reference_submit_heading": "请查看您的评语",
     "reference_type_not_available": "此评语类型对该用户不可用。",
@@ -159,27 +159,27 @@
     "was_appropriate_required": "为了帮助我们保持社区安全，这个问题是必需的。",
     "next_step_label": "下一步",
     "add_a_reference": "添加对{{name}}个人资料的引用",
-    "by_writing_thoughtful": "不确定要写什么？请<1>在此处</1>阅读我们的指南。通过诚实、详细地写下您与此人相处的经历，您将直接帮助其他成员，并为 Couchers 社区的安全和信任做出贡献。",
+    "by_writing_thoughtful": "不确定要写什么？请<1>在此处</1>阅读我们的指南。通过诚实、详细地写下您与此人相处的经历，您将直接帮助其他成员，并为Couchers社区的安全和信任做出贡献。",
     "did_stay_confirmation": {
-      "title_hosted": "确认 {{name}} 没有留下来",
-      "title_surfed": "确认您没有和 {{name}}",
-      "message_hosted": " 一起留下，如果您表明 {{name}} 没有留下来，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要举报某些内容，请在<2>此处</2>了解如何举报。",
+      "title_hosted": "确认{{name}}没有留下来",
+      "title_surfed": "确认您没有和{{name}}",
+      "message_hosted": "一起留下，如果您表明{{name}}没有留下来，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要举报某些内容，请在<2>此处</2>了解如何举报。",
       "message_surfed": "如果您表明您没有留在{{name}}，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要报告某些内容，请在<2>此处</2>找到具体方法。",
-      "confirm_hosted": "确认我没有主持",
-      "confirm_surfed": "确认我没有上网"
+      "confirm_hosted": "确认我没有接待",
+      "confirm_surfed": "确认我没有沙发冲浪"
     },
     "did_stay_explanation": "如果您实际上没有见面，请选择“否”。您将无法撰写公开参考资料，但可以选择与我们分享有关所发生事件的<strong>私人</strong>信息。对方不会被通知，但如果他们说你们见过面，仍然可以留下参考信息。",
     "reference_form_heading_did_stay_surfed": "您和{{name}}住在一起吗？",
     "reference_form_heading_did_stay_hosted": "您接待了{{name}}吗？",
     "reason_didnt_meetup": "您为什么没有见面？ （可选）",
     "cant_write_reference_didnt_stay": "您无法编写推荐信，因为您已表示您没有与该用户呆在一起。",
-    "cant_write_reference_expired": "编写推荐信的时间已过（14 天后）。",
-    "text_explanation_hosted_surfed": "您在下面输入的推荐信将在 {{name}} 为您编写推荐信后或 14 天后与他们共享。 Couchers.org 社区的其他成员也可以看到它。",
+    "cant_write_reference_expired": "编写推荐信的时间已过（14天后）。",
+    "text_explanation_hosted_surfed": "您在下面输入的推荐信将在{{name}}为您编写推荐信后或14天后与他们共享。Couchers.org社区的其他成员也可以看到它。",
     "text_label": "通过在此处分享上下文和任何相关详细信息，让其他人了解您的体验。",
     "thank_you_header": "感谢您留下参考！",
-    "thank_you_references_available": "托管或冲浪时，当双方都提交了参考资料时，或两周后，以较早者为准。",
-    "thank_you_support": "最重要的是，感谢您加入 Couchers 并成为我们社区的一部分！",
-    "thank_you_donation_prompt": "考虑<2>捐款</2>！ Couchers.org 是一个 501(c)(3) 非营利组织，我们需要捐款来保持服务器运行。",
+    "thank_you_references_available": "接待或沙发冲浪时，当双方都提交了参考资料时，或两周后，以较早者为准。",
+    "thank_you_support": "最重要的是，感谢您加入Couchers并成为我们社区的一部分！",
+    "thank_you_donation_prompt": "考虑<2>捐款</2>！Couchers.org是一个501(c)(3)非营利组织，我们需要捐款来保持服务器运行。",
     "rating_required": "请移动滑块并评价您的体验。",
     "rating_negative": "负面",
     "rating_neutral": "中立",
@@ -191,13 +191,13 @@
     "private_text_explanation_1": "在下面的框中，您可以私下告诉我们的安全团队发生了什么事。",
     "private_text_explanation_2": "这只会由我们的安全团队看到，并将保持私密。细节越多越好，但即使是简短的解释也会有很大帮助。点击<2>此处</2>了解更多信息。",
     "private_text_explanation_3": "感谢您帮助我们保障社区安全！",
-    "private_text_summary": "Couchers.org 安全团队将收到以下私人反馈：",
+    "private_text_summary": "Couchers.org安全团队将收到以下私人反馈：",
     "private_text_placeholder": "与我们的安全团队私下分享信息。",
     "yes_safe": "是的，我感到安全。",
     "no_not_safe": "不，我在一次或多次情况下感到不安全。",
     "what_happened": "什么发生了？",
     "friend_reference_requires_friendship": "您只能为您的好友撰写好友推荐信。",
-    "already_wrote_reference_for_stay": "您已为此用户和本次入住撰写了好友推荐信。他们为您撰写推荐信后或 14 天后，您的推荐信将可见。",
+    "already_wrote_reference_for_stay": "您已为此用户和本次入住撰写了好友推荐信。他们为您撰写推荐信后或14天后，您的推荐信将可见。",
     "already_wrote_friend_reference": "您已为此用户编写了朋友推荐信。"
   },
   "request_form": {
@@ -208,14 +208,23 @@
     "departure_date": "离开日期",
     "departure_date_empty": "请指定离开日期",
     "request": "请求",
-    "request_description": "分享你的访问计划，并说明为什么选择与这位特定的沙发主住",
+    "request_description": "分享你的访问计划，并说明为什么选择与这位特定的接待者同住",
     "request_description_empty": "请写一条请求消息",
     "success": "请求已发送！",
-    "request_chars_remaining_other": "请再写至少 {{count}} 个字符以发送托管请求。"
+    "request_chars_remaining_one": "请至少再写{{count}}个字符以发送接待请求。",
+    "request_chars_remaining_other": "请再写至少{{count}}个字符以发送接待请求。"
+  },
+  "message_form": {
+    "send_message": "给{{name}}发送消息",
+    "message": "消息",
+    "message_description": "写下你的消息...",
+    "message_empty": "请写一条消息。",
+    "hosting_request_hint": "要发送接待请求吗？请改用<request>请求</request>按钮。",
+    "success": "消息已发送！"
   },
   "reference_filter_label": {
     "friend": "来自朋友",
-    "hosted": "来自沙发主",
+    "hosted": "来自接待者",
     "surfed": "来自客人",
     "given": "给他人的",
     "all": "所有评语"
@@ -228,7 +237,7 @@
   "accept_friend_label": "接受好友请求",
   "decline_friend_label": "拒绝好友请求",
   "no_references": "还没有此类评语！",
-  "references_filter_a11y_label": "显示评语： ",
+  "references_filter_a11y_label": "显示评语：",
   "see_more_references": "查看更多评语",
   "write_reference": "写评语",
   "last_active_false": "未知",
@@ -246,13 +255,14 @@
   "response_time_text_almost_all": "通常在{{p33}}到{{p66}}之间",
   "unsaved_changes_warning": "你没有保存更改，确定要离开页面吗？",
   "profile_tag_input": {
+    "header_text": "按'Enter'键添加\n<support_link>给我们发邮件</support_link>以添加条目",
     "remove_button_a11y_text": "移除{{tag}}"
   },
   "view_in_admin_console": "在管理员控制台查看用户",
   "incomplete_dialog": {
     "title": "资料未完成",
     "description": "在您完成以下操作之前，您将无法发送请求、消息或创建活动：",
-    "about_me_message": " 让您的“我是谁”部分长度至少 150 个字符。",
+    "about_me_message": "让您的“我是谁”部分长度至少150个字符。",
     "missing_photo_message": "添加个人资料照片。",
     "save_anyway": "仍然保存吗？",
     "continue_editing": "继续编辑"
@@ -261,7 +271,8 @@
   "active": "活跃",
   "helper_text": {
     "missing_profile_photo": "请添加一张照片以完善您的个人资料。",
-    "characters_remaining_other": "<bold>请至少再写 {{count}} 个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
+    "characters_remaining_one": "<bold>请至少再写{{count}}个字符才能解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！",
+    "characters_remaining_other": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
   },
   "do_not_email_error_link": "更新您的电子邮件设置以重新启用此功能。",
   "edit_profile_name_required": "必填名称",
@@ -278,6 +289,7 @@
   "open_profile_new_tab": "在新标签中打开个人资料",
   "reference_amounts": {
     "no_references": "没有引用",
+    "count_references_one": "{{count}}引用",
     "count_references_other": "{{count}}引用",
     "hundred_or_more_references": "100+引用"
   },
@@ -297,7 +309,7 @@
   "avatar_placeholder_info": "<bold>点击占位头像跳转到照片上传部分。</bold>需要您的照片才能与社区互动。显示您脸部的清晰、友好的照片可以建立信任并帮助他人感到舒适。",
   "click_to_add_photo": "点击添加照片",
   "profile_changes_saved_message": "个人资料更改已保存！",
-  "hosting_preferences_success_message": "主机首选项已保存！",
+  "hosting_preferences_success_message": "接待偏好已保存！",
   "gallery": {
     "photo_item_a11y": "照片",
     "photo": "照片",
@@ -305,7 +317,7 @@
     "add_photo": "添加照片",
     "remove_photo": "删除照片",
     "select_photo": "选择一张照片",
-    "photo_count": "{{当前}}，共 {{total}}",
+    "photo_count": "{{当前}}，共{{total}}",
     "empty_title": "添加您的第一张照片",
     "empty_description": "点击此处或上面的按钮上传照片",
     "no_photos": "尚无照片",
@@ -320,18 +332,5 @@
     "next_photo": "下一张照片",
     "close_viewer": "关闭照片查看器",
     "report_photo": "报告照片"
-  },
-  "complete_profile_dialog": {
-    "title": "只差一步：请填写您的个人资料以继续！",
-    "description_1": "在您能 {{action_name}} 之前，您必须 <4>写一些关于自己的内容</4> 并 <7>上传一张头像</7>。",
-    "description_2": "这有助于建立信任的社区并减少垃圾信息。更多信息，<2>请参阅此帮助页面</2>。感谢您的帮助！",
-    "actions": {
-      "send_request": "发送请求",
-      "send_message": "发送消息",
-      "send_friend_request": "send a friend request",
-      "create_event": "创建活动"
-    },
-    "edit_profile_button": "现在编辑您的个人资料",
-    "cancel_button": "算了"
   }
 }
