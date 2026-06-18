@@ -37,6 +37,36 @@ def _(testconfig):
     pass
 
 
+def create_online_event(token: str, request: events_pb2.CreateEventReq) -> events_pb2.Event:
+    """Creates an online event through DB manipulation since the API now prohibits it."""
+    assert request.HasField("online_information")
+
+    # Create an offline version of the event, which the API will allow
+    offline_request = events_pb2.CreateEventReq()
+    offline_request.CopyFrom(request)
+    request.ClearField("online_information")
+    request.offline_information.CopyFrom(
+        events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2)
+    )
+
+    with events_session(token) as api:
+        response: events_pb2.Event = api.CreateEvent(offline_request)
+
+    # Tweak the DB object to turn it into an online event
+    with session_scope() as session:
+        occurrence = session.execute(
+            select(EventOccurrence).where(EventOccurrence.id == response.event_id)
+        ).scalar_one()
+        occurrence.geom = None
+        occurrence.link = request.online_information.link
+
+    # Mock the response
+    response.ClearField("offline_information")
+    response.online_information.CopyFrom(request.online_information)
+
+    return response
+
+
 def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
@@ -192,7 +222,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
             )
 
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "online event" in e.value.details().lower()
+        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateEvent(
@@ -203,7 +233,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     offline_information=events_pb2.OfflineEventInformation(
                         address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
@@ -222,7 +252,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     offline_information=events_pb2.OfflineEventInformation(
                         address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
@@ -241,7 +271,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     offline_information=events_pb2.OfflineEventInformation(
                         address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
@@ -290,8 +320,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(now() - timedelta(hours=2)),
                     end_time=Timestamp_from_datetime(end_time),
@@ -307,8 +338,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(end_time),
                     end_time=Timestamp_from_datetime(start_time),
@@ -324,8 +356,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=2)),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=5)),
@@ -341,8 +374,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=100)),
@@ -400,8 +434,9 @@ def test_ScheduleEvent(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
@@ -463,11 +498,7 @@ def test_ScheduleEvent(db):
                 events_pb2.ScheduleEventReq(
                     event_id=res.event_id,
                     content="New event occurrence",
-                    online_information=events_pb2.OnlineEventInformation(
-                        address="A bit further but still near Null Island",
-                        lat=0.3,
-                        lng=0.2,
-                    ),
+                    online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
                     start_time=Timestamp_from_datetime(new_start_time + timedelta(hours=6)),
                     end_time=Timestamp_from_datetime(new_end_time + timedelta(hours=6)),
                     timezone="UTC",
@@ -475,7 +506,7 @@ def test_ScheduleEvent(db):
             )
 
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "online event" in e.value.details().lower()
+        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
 
 
 def test_cannot_overlap_occurrences_schedule(db):
@@ -489,8 +520,9 @@ def test_cannot_overlap_occurrences_schedule(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -528,8 +560,9 @@ def test_cannot_overlap_occurrences_update(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -589,9 +622,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     user4, token4 = generate_user()
     user5, token5 = generate_user()
     user6, token6 = generate_user()
-
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     time_before = now()
     start_time = now() + timedelta(hours=2)
@@ -765,7 +795,42 @@ def test_UpdateEvent_single(db, moderator: Moderator):
             )
 
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "online event" in e.value.details().lower()
+        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
+
+
+def test_UpdateEvent_online(db, moderator: Moderator):
+    """Validate that we can still update online events, even if the API doesn't let us create them."""
+    user1, token1 = generate_user()
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    create_res = create_online_event(
+        token1,
+        events_pb2.CreateEventReq(
+            title="Dummy Title",
+            content="Dummy content.",
+            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+            start_time=Timestamp_from_datetime(start_time),
+            end_time=Timestamp_from_datetime(end_time),
+            timezone="UTC",
+        ),
+    )
+
+    event_id = create_res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        update_res = api.UpdateEvent(
+            events_pb2.UpdateEventReq(event_id=event_id, title=wrappers_pb2.StringValue(value="New Title"))
+        )
+
+        assert update_res.title == "New Title"
+
+    with events_session(token1) as api:
+        get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert get_res.title == "New Title"
 
 
 def test_UpdateEvent_all(db, moderator: Moderator):
@@ -827,8 +892,9 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                     event_id=event_ids[-1],
                     content=f"{i + 1}th occurrence",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start_time + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start_time + timedelta(hours=2.5 + i)),
@@ -1521,8 +1587,9 @@ def test_ListEventOccurrences(db):
                 title="First occurrence",
                 content="Dummy content.",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
@@ -1538,8 +1605,9 @@ def test_ListEventOccurrences(db):
                     event_id=event_ids[-1],
                     content=f"{i}th occurrence",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
@@ -1947,8 +2015,9 @@ def test_ListEventAttendees_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 parent_community_id=c_id,
                 start_time=Timestamp_from_datetime(start_time),
@@ -2065,8 +2134,9 @@ def test_can_overlap_other_events_schedule_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=5)),
@@ -2081,8 +2151,9 @@ def test_can_overlap_other_events_schedule_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=2)),
@@ -2123,8 +2194,9 @@ def test_can_overlap_other_events_update_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -2138,8 +2210,9 @@ def test_can_overlap_other_events_update_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=7)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=8)),
@@ -2196,8 +2269,9 @@ def test_list_past_events_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
@@ -2239,8 +2313,9 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=3)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
@@ -2953,8 +3028,9 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 content="Content A.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
@@ -2968,8 +3044,9 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     event_id=event_a_ids[-1],
                     content=f"A occurrence {i}",
                     offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
-                        lng=0.1,
+                        lng=0.2,
                     ),
                     start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
@@ -2987,8 +3064,9 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 content="Content B.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=10)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=10.5)),
@@ -3001,8 +3079,9 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 event_id=event_b_ids[-1],
                 content="B occurrence 1",
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
-                    lng=0.1,
+                    lng=0.2,
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=11)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=11.5)),
