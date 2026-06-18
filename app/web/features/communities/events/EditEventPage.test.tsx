@@ -38,8 +38,12 @@ function renderPage(eventId: number = 1, slug: string = "weekly-meetup") {
 
 describe("Edit event page", () => {
   beforeEach(() => {
-    getEventMock.mockResolvedValue(events[0]);
-    updateEventMock.mockResolvedValue(events[0]);
+    getEventMock.mockImplementation((eventId) =>
+      Promise.resolve(events[eventId]),
+    );
+    updateEventMock.mockImplementation((input) =>
+      Promise.resolve(events[input.eventId]),
+    );
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });

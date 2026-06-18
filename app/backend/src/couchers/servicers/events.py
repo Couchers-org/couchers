@@ -672,6 +672,10 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence_update["photo_key"] = request.photo_key.value
 
         if request.HasField("online_information"):
+            # Virtual events are deprecated, prevent converting an offline event to online
+            if occurrence.geom or not occurrence.link:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_create_online")
+
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
             if not request.online_information.link:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
