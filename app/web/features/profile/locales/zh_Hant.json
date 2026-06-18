@@ -211,7 +211,6 @@
     "request_description": "分享你的訪問計劃，並說明為什麼選擇與這位特定的接待者同住",
     "request_description_empty": "請寫一條請求訊息",
     "success": "請求已發送！",
-    "request_chars_remaining_one": "請至少再寫{{count}}個字元，才能送出接待請求。",
     "request_chars_remaining_other": "請至少再寫{{count}}個字元，才能送出接待請求。"
   },
   "message_form": {
@@ -255,7 +254,6 @@
   "response_time_text_almost_all": "通常在{{p33}}到{{p66}}之間",
   "unsaved_changes_warning": "您尚未儲存變更，確定要離開頁面嗎？",
   "profile_tag_input": {
-    "header_text": "按'Enter'鍵添加\n<support_link>給我們發郵件</support_link>以添加條目",
     "remove_button_a11y_text": "移除{{tag}}"
   },
   "view_in_admin_console": "在管理員控制台查看使用者",
@@ -271,7 +269,6 @@
   "active": "活躍",
   "helper_text": {
     "missing_profile_photo": "請添加一張照片以完善您的個人資料。",
-    "characters_remaining_one": "<bold>請至少再寫{{count}}個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！",
     "characters_remaining_other": "<bold>請至少再寫{{count}}個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！"
   },
   "do_not_email_error_link": "更新您的電子郵件設定以重新啟用此功能。",
@@ -289,7 +286,6 @@
   "open_profile_new_tab": "在新標籤中打開個人資料",
   "reference_amounts": {
     "no_references": "沒有引用",
-    "count_references_one": "{{count}}引用",
     "count_references_other": "{{count}}引用",
     "hundred_or_more_references": "100+引用"
   },

@@ -211,7 +211,6 @@
     "request_description": "分享你的访问计划，并说明为什么选择与这位特定的接待者同住",
     "request_description_empty": "请写一条请求消息",
     "success": "请求已发送！",
-    "request_chars_remaining_one": "请至少再写{{count}}个字符以发送接待请求。",
     "request_chars_remaining_other": "请再写至少{{count}}个字符以发送接待请求。"
   },
   "message_form": {
@@ -255,7 +254,6 @@
   "response_time_text_almost_all": "通常在{{p33}}到{{p66}}之间",
   "unsaved_changes_warning": "你没有保存更改，确定要离开页面吗？",
   "profile_tag_input": {
-    "header_text": "按'Enter'键添加\n<support_link>给我们发邮件</support_link>以添加条目",
     "remove_button_a11y_text": "移除{{tag}}"
   },
   "view_in_admin_console": "在管理员控制台查看用户",
@@ -271,7 +269,6 @@
   "active": "活跃",
   "helper_text": {
     "missing_profile_photo": "请添加一张照片以完善您的个人资料。",
-    "characters_remaining_one": "<bold>请至少再写{{count}}个字符才能解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！",
     "characters_remaining_other": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
   },
   "do_not_email_error_link": "更新您的电子邮件设置以重新启用此功能。",
@@ -289,7 +286,6 @@
   "open_profile_new_tab": "在新标签中打开个人资料",
   "reference_amounts": {
     "no_references": "没有引用",
-    "count_references_one": "{{count}}引用",
     "count_references_other": "{{count}}引用",
     "hundred_or_more_references": "100+引用"
   },

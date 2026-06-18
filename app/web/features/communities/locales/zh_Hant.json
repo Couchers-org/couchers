@@ -1,6 +1,4 @@
 {
-  "attendees_count_one": "{{count}}位參與者",
-  "attendees_count_other": "{{count}}位參與者",
   "by_creator": "由{{name}}發起",
   "cancelled": "已取消",
   "cancel_event": "取消活動",
