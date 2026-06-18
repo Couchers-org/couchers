@@ -46,16 +46,20 @@ const StyledAvatar = styled(MuiAvatar)(() => ({
   height: theme.typography.pxToRem(96),
 }));
 
-const StyledSection = styled("section")(() => ({
+const StyledSection = styled("section", {
+  shouldForwardProp: (prop) => prop !== "boardMembersOnly",
+})<{ boardMembersOnly?: boolean }>(({ boardMembersOnly }) => ({
   display: "flex",
   flexFlow: "column nowrap",
   gap: theme.spacing(6),
-  margin: theme.spacing(4, 0),
+  margin: `${boardMembersOnly ? "0" : theme.spacing(4, 0)}`,
 }));
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid, {
+  shouldForwardProp: (prop) => prop !== "boardMembersOnly",
+})<{ boardMembersOnly?: boolean }>(({ boardMembersOnly }) => ({
   justifyContent: "start",
-  margin: theme.spacing(1, 0),
+  margin: `${boardMembersOnly ? "0" : theme.spacing(1, 0)}`,
 }));
 
 const StyleBoardMemberBadgeText = styled("h3")(() => ({
@@ -98,9 +102,15 @@ interface MemberListProps {
   variant: "current" | "past";
   members: Volunteer.AsObject[] | undefined;
   hasExtraCard?: boolean;
+  boardMembersOnly?: boolean;
 }
 
-function MemberList({ variant, members, hasExtraCard }: MemberListProps) {
+function MemberList({
+  variant,
+  members,
+  hasExtraCard,
+  boardMembersOnly,
+}: MemberListProps) {
   if (!members?.length) {
     return <></>;
   }
@@ -112,6 +122,7 @@ function MemberList({ variant, members, hasExtraCard }: MemberListProps) {
       spacing={2}
       justifyContent="center"
       alignItems="stretch"
+      boardMembersOnly={boardMembersOnly}
     >
       {members?.map(
         ({
@@ -230,12 +241,13 @@ function TeamSection({
   }, [volunteers]);
 
   return (
-    <StyledSection>
+    <StyledSection boardMembersOnly={boardMembersOnly}>
       {boardMembers ? (
         <MemberList
           members={boardMembers}
           variant={variant}
           hasExtraCard={hasExtraCard}
+          boardMembersOnly={boardMembersOnly}
         />
       ) : null}
       {!boardMembersOnly ? (
