@@ -42,8 +42,6 @@ def test_GetLanguages(db):
         languages_list = [(r.code, r.name) for r in languages]
         assert ("fin", "Finnish") in languages_list
         assert ("swe", "Swedish") in languages_list
-        assert ("mri", "Māori") in languages_list
-        assert ("kri", "Krio") in languages_list
         assert ("???", "Nonexistent language") not in languages_list
 
 

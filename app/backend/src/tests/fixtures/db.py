@@ -120,9 +120,7 @@ def populate_testing_resources(conn: Connection) -> None:
         ('jpn', 'Japanese'),
         ('pol', 'Polish'),
         ('swe', 'Swedish'),
-        ('cmn', 'Chinese (Mandarin)'),
-        ('kri', 'Krio'),
-        ('mri', 'Māori')
+        ('cmn', 'Chinese (Mandarin)')
     """)
     )
 

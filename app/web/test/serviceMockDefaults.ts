@@ -191,14 +191,6 @@ export async function getLanguages() {
         code: "spa",
         name: "Spanish",
       },
-      {
-        code: "mri",
-        name: "Māori",
-      },
-      {
-        code: "kri",
-        name: "Krio",
-      },
     ],
   };
 }

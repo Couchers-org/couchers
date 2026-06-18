@@ -1,4 +1,4 @@
-"""Add Māori and Krio
+"""Add Māori, Krio and Tok Pisin
 
 Revision ID: 0167
 Revises: 0166
