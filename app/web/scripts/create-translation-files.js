@@ -348,97 +348,6 @@ const LANGUAGE_NAMES = {
   nn: "Norwegian Nynorsk",
 };
 
-// Flag codes mapping (ISO 3166-1 alpha-2 country codes)
-const FLAG_CODES = {
-  sv: "SE",
-  uk: "UA",
-  de: "DE",
-  fr: "FR",
-  es: "ES",
-  it: "IT",
-  pt: "PT",
-  ru: "RU",
-  pl: "PL",
-  cs: "CZ",
-  sk: "SK",
-  hu: "HU",
-  ro: "RO",
-  bg: "BG",
-  hr: "HR",
-  sr: "RS",
-  bs: "BA",
-  mk: "MK",
-  sl: "SI",
-  et: "EE",
-  lv: "LV",
-  lt: "LT",
-  el: "GR",
-  mt: "MT",
-  ca: "ES", // Catalan uses Spanish flag
-  eu: "ES", // Basque uses Spanish flag
-  gl: "ES", // Galician uses Spanish flag
-  cy: "GB", // Welsh uses UK flag
-  ga: "IE",
-  gd: "GB", // Scottish Gaelic uses UK flag
-  is: "IS",
-  fo: "FO",
-  sq: "AL",
-  hy: "AM",
-  ka: "GE",
-  az: "AZ",
-  kk: "KZ",
-  ky: "KG",
-  uz: "UZ",
-  tk: "TM",
-  tt: "RU", // Tatar uses Russian flag
-  mn: "MN",
-  ko: "KR",
-  ja: "JP",
-  zh: "CN",
-  th: "TH",
-  vi: "VN",
-  km: "KH",
-  lo: "LA",
-  my: "MM",
-  bn: "BD",
-  ta: "IN",
-  te: "IN",
-  ml: "IN",
-  kn: "IN",
-  mr: "IN",
-  gu: "IN",
-  pa: "IN",
-  hi: "IN",
-  ur: "PK",
-  ne: "NP",
-  si: "LK",
-  dv: "MV",
-  ps: "AF",
-  fa: "IR",
-  he: "IL",
-  ar: "SA", // Arabic uses Saudi Arabia flag
-  tr: "TR",
-  id: "ID",
-  ms: "MY",
-  tl: "PH",
-  sw: "TZ",
-  am: "ET",
-  ti: "ER",
-  so: "SO",
-  ha: "NG",
-  yo: "NG",
-  ig: "NG",
-  zu: "ZA",
-  xh: "ZA",
-  af: "ZA",
-  nl: "NL",
-  da: "DK",
-  no: "NO",
-  fi: "FI",
-  nb: "NO",
-  nn: "NO",
-};
-
 function validateLanguageCode(code) {
   if (!code) {
     throw new Error(
@@ -518,12 +427,6 @@ function getLanguageName(code) {
   // Handle variants like 'es-419', 'fr-CA', etc.
   const baseCode = code.split("-")[0];
   return LANGUAGE_NAMES[baseCode] || LANGUAGE_NAMES[code] || code;
-}
-
-function getFlagCode(code) {
-  // Handle variants like 'es-419', 'fr-CA', etc.
-  const baseCode = code.split("-")[0];
-  return FLAG_CODES[baseCode] || FLAG_CODES[code] || null;
 }
 
 function addToResourceLanguageNames(languageCode) {
@@ -627,7 +530,7 @@ function addToAllLanguages(languageCode) {
   }
 }
 
-function addToConstants(languageCode, languageName, flagCode) {
+function addToConstants(languageCode, languageName) {
   const constantsPath = path.join(__dirname, "..", "i18n", "constants.ts");
 
   try {
@@ -672,8 +575,9 @@ function addToConstants(languageCode, languageName, flagCode) {
     const indent = "  ";
     const newEntry = [
       `${indent}"${languageCode}": {`,
-      `${indent}  name: "${languageName}",`,
-      `${indent}  flagIconCode: "${flagCode || "XX"}",`,
+      // Placeholder autonym — a maintainer should replace this with the
+      // language's name in its own language (shown in the language picker).
+      `${indent}  nativeName: "${languageName}",`,
       `${indent}},`,
     ];
 
@@ -740,7 +644,6 @@ function main() {
     );
 
     // Get language info
-    const flagCode = getFlagCode(languageCode);
     const languageName = getLanguageName(languageCode);
 
     console.log("\n🔧 Adding language to translation system...");
@@ -749,11 +652,7 @@ function main() {
     const addedToAllLanguages = addToAllLanguages(languageCode);
 
     // Add to constants.ts
-    const addedToConstants = addToConstants(
-      languageCode,
-      languageName,
-      flagCode,
-    );
+    const addedToConstants = addToConstants(languageCode, languageName);
 
     // Also add to web resources language_names
     const addedToResourceNames = addToResourceLanguageNames(languageCode);
@@ -767,16 +666,9 @@ function main() {
       );
     }
 
-    if (!flagCode) {
-      console.log(
-        `⚠️  No flag code found for "${languageCode}". You may want to update the flag code in constants.ts manually.`,
-      );
-    }
-
     console.log("\n🎯 Next steps:");
     console.log("1. Start translating the created files!");
     console.log("2. Test the translations in your application.");
-    console.log("3. Update the flag code in constants.ts if needed.");
   } catch (error) {
     console.error(error.message);
     process.exit(1);
