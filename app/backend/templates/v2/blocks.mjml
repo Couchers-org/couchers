@@ -97,7 +97,7 @@
           <mj-text align="center" font-size="8px" line-height="10px">
             &copy; {{ copyright_year }} Couchers, Inc.<br />
             1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br />
-            {{ nonprofit_note }}
+            <i>{{ nonprofit_note }}</i>
           </mj-text>
         </mj-column>
       </mj-section>
