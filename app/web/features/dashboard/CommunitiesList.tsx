@@ -67,7 +67,9 @@ export default function CommunitiesList() {
 
   const { data, isPending, error } = useListUserCommunities();
 
-  const communities = data?.communitiesList ?? [];
+  const communities = (data?.pages ?? []).flatMap(
+    (page) => page.communitiesList,
+  );
 
   const updateScrollState = () => {
     const el = scrollerRef.current;
