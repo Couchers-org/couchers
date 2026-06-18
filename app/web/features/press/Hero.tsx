@@ -14,9 +14,14 @@ const StyledContainer = styled("div")({
 
 const StyledHeading = styled("h1")(({ theme }) => ({
   color: "#fff",
-  fontSize: "2.5rem",
+  fontSize: "2rem",
   fontWeight: "500",
   margin: 0,
+
+  [theme.breakpoints.up("sm")]: {
+    fontSize: "2.5rem",
+  },
+
   [theme.breakpoints.up("md")]: {
     fontSize: "3rem",
   },
