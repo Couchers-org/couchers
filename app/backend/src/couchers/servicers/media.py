@@ -1,3 +1,8 @@
+"""
+When adding a new foreign key to uploads.key, also update the reverse lookup in
+couchers/helpers/upload_uses.py.
+"""
+
 import logging
 
 import grpc
