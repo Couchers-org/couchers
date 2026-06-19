@@ -68,6 +68,7 @@ from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
+from couchers.upload_uses import UploadUseType, get_upload_uses
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -85,6 +86,13 @@ api2adminactionlevel = {
     admin_pb2.ADMIN_ACTION_LEVEL_DEBUG: AdminActionLevel.debug,
     admin_pb2.ADMIN_ACTION_LEVEL_NORMAL: AdminActionLevel.normal,
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
+}
+
+_upload_use_type2pb = {
+    UploadUseType.profile_gallery_photo: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO,
+    UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
+    UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
+    UploadUseType.page: admin_pb2.UPLOAD_USE_TYPE_PAGE,
 }
 
 otaplatform2api = {
@@ -1407,6 +1415,16 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     thumbnail_url=upload.thumbnail_url,
                     credit=upload.credit or "",
                     created=Timestamp_from_datetime(upload.created),
+                    uses=[
+                        admin_pb2.UploadUse(
+                            type=_upload_use_type2pb[use.use_type],
+                            is_current=use.is_current,
+                            user_id=use.user_id or 0,
+                            event_id=use.event_id or 0,
+                            page_id=use.page_id or 0,
+                        )
+                        for use in get_upload_uses(session, upload.key)
+                    ],
                 )
                 for upload in uploads[:page_size]
             ],

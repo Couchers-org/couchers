@@ -21,6 +21,8 @@ def get_media_auth_interceptor(secret_token: str) -> MediaInterceptor:
     return MediaInterceptor(is_authorized)
 
 
+# Reverse lookup of "where is a given upload used" lives in couchers/upload_uses.py. When you add a new
+# place that references an upload (a new foreign key to uploads.key), update that helper too.
 class Media(media_pb2_grpc.MediaServicer):
     def UploadConfirmation(
         self, request: media_pb2.UploadConfirmationReq, context: CouchersContext, session: Session

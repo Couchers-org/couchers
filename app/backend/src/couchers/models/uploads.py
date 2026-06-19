@@ -39,6 +39,10 @@ class InitiatedUpload(Base, kw_only=True):
 class Upload(Base, kw_only=True):
     """
     Completed uploads.
+
+    Uploads are referenced by key from several other models (PhotoGalleryItem, EventOccurrence,
+    PageVersion, ...). When adding a new foreign key to uploads.key anywhere, also teach the reverse
+    lookup about it in couchers/upload_uses.py so "where is this upload used" stays complete.
     """
 
     __tablename__ = "uploads"

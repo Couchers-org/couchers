@@ -642,6 +642,29 @@ message ListUserUploadsReq {
   string page_token = 3;
 }
 
+enum UploadUseType {
+  UPLOAD_USE_TYPE_UNSPECIFIED = 0;
+  // a photo in a user's profile gallery (not the avatar)
+  UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO = 1;
+  // the first photo in a user's profile gallery, shown as their avatar
+  UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR = 2;
+  // the photo on an event occurrence
+  UPLOAD_USE_TYPE_EVENT = 3;
+  // the photo on a community/group page version
+  UPLOAD_USE_TYPE_PAGE = 4;
+}
+
+message UploadUse {
+  UploadUseType type = 1;
+  // whether this use is the one currently displayed; a superseded page version or deleted event
+  // occurrence still references the upload but is no longer shown
+  bool is_current = 2;
+  // only the identifier relevant to the type is set
+  int64 user_id = 3;
+  int64 event_id = 4;
+  int64 page_id = 5;
+}
+
 message UserUpload {
   string key = 1;
   string filename = 2;
@@ -649,6 +672,8 @@ message UserUpload {
   string thumbnail_url = 4;
   string credit = 5;
   google.protobuf.Timestamp created = 6;
+  // everywhere this upload is currently or historically used
+  repeated UploadUse uses = 7;
 }
 
 message ListUserUploadsRes {
