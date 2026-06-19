@@ -26,8 +26,8 @@
   "related_applications": [
     {
       "platform": "play",
-      "id": "org.couchers.staging.android",
-      "url": "https://play.google.com/store/apps/details?id=org.couchers.staging.android"
+      "id": "org.couchers.android",
+      "url": "https://play.google.com/store/apps/details?id=org.couchers.android"
     }
   ]
 }

@@ -17,6 +17,7 @@ RUN cp .env.$environment env && \
     mv env .env.local && \
     if [ "$environment" = "production" ]; then \
         cp public/robots-prod.txt public/robots.txt && \
+        cp public/manifest-prod.json public/manifest.json && \
         cp public/.well-known/apple-app-site-association-prod public/.well-known/apple-app-site-association && \
         cp public/.well-known/assetlinks-prod.json public/.well-known/assetlinks.json; \
     fi
