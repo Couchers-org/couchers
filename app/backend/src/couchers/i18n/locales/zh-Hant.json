@@ -204,7 +204,6 @@
     "unrecognized_phone_number": "無法識別您的手機號碼。請再次檢查；如果錯誤持續出現，請聯絡支持。",
     "upload_not_found": "找不到上傳內容。",
     "upload_not_found_or_not_owned": "找不到上傳內容，或其不屬於您。",
-    "visibility_must_be_specified": "必須指定可見性。",
     "user_already_admin": "該使用者已經是管理員。",
     "user_already_blocked": "目標使用者已被封鎖。",
     "user_not_admin": "該使用者不是管理員。",

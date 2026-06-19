@@ -203,7 +203,6 @@
     "unrecognized_phone_number": "无法识别您的手机号码。请再次检查；如果错误持续出现，请联系支持。",
     "upload_not_found": "未找到上传内容。",
     "upload_not_found_or_not_owned": "未找到上传内容，或其不属于您。",
-    "visibility_must_be_specified": "必须指定可见性。",
     "user_already_admin": "该用户已经是管理员。",
     "user_already_blocked": "目标用户已被屏蔽。",
     "user_not_admin": "该用户不是管理员。",
