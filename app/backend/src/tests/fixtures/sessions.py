@@ -27,6 +27,7 @@ from couchers.proto import (
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
+    dashboard_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
@@ -59,6 +60,7 @@ from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.dashboard import Dashboard
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
@@ -415,6 +417,13 @@ def discussions_session(token: str):
     channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
+
+
+@contextmanager
+def dashboard_session(token: str):
+    channel = FakeChannel(token)
+    dashboard_pb2_grpc.add_DashboardServicer_to_server(Dashboard(), channel)
+    yield dashboard_pb2_grpc.DashboardStub(channel)
 
 
 @contextmanager
