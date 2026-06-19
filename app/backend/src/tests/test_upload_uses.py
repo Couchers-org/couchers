@@ -6,9 +6,9 @@ from sqlalchemy import select
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import Base, EventOccurrence, PhotoGallery, PhotoGalleryItem, Upload
+from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upload_uses_for_keys
+from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import events_pb2, pages_pb2
-from couchers.upload_uses import UploadUseType, get_upload_uses
 from couchers.utils import Timestamp_from_datetime, now
 from tests.conftest import testconfig  # noqa
 from tests.fixtures.db import generate_user
@@ -53,6 +53,8 @@ def test_get_upload_uses_profile_gallery(db):
         assert avatar_uses[0].use_type == UploadUseType.profile_gallery_photo_avatar
         assert avatar_uses[0].is_current
         assert avatar_uses[0].user_id == user.id
+        assert avatar_uses[0].url is not None
+        assert f"/user/{user.username}" in avatar_uses[0].url
 
         other_uses = get_upload_uses(session, "other_key")
         assert len(other_uses) == 1
@@ -90,6 +92,8 @@ def test_get_upload_uses_event(db):
         assert uses[0].use_type == UploadUseType.event
         assert uses[0].is_current
         assert uses[0].event_id == event_id
+        assert uses[0].url is not None
+        assert f"/event/{event_id}/" in uses[0].url
 
     # a deleted occurrence still references the upload, but is no longer shown
     with session_scope() as session:
@@ -143,6 +147,29 @@ def test_get_upload_uses_page(db):
             assert uses[0].page_id == page_id
 
 
+def test_get_upload_uses_community_page(db):
+    user, _ = generate_user()
+    with session_scope() as session:
+        node_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    key = random_hex(32)
+    _add_upload(user.id, key)
+
+    with session_scope() as session:
+        main_page = session.execute(
+            select(Page).where(Page.type == PageType.main_page).where(Page.parent_node_id == node_id)
+        ).scalar_one()
+        main_page.versions[-1].photo_key = key
+
+    with session_scope() as session:
+        uses = get_upload_uses(session, key)
+        assert len(uses) == 1
+        assert uses[0].use_type == UploadUseType.page
+        assert uses[0].is_current
+        assert uses[0].url is not None
+        assert f"/community/{node_id}/" in uses[0].url
+
+
 def test_get_upload_uses_multiple(db):
     """An upload can be used in several places at once; all are returned."""
     user, token = generate_user()
@@ -175,6 +202,32 @@ def test_get_upload_uses_multiple(db):
             UploadUseType.profile_gallery_photo_avatar,
             UploadUseType.page,
         }
+
+
+def test_get_upload_uses_for_keys_batch(db):
+    user, _ = generate_user()
+    _add_upload(user.id, "gallery_key")
+    _add_upload(user.id, "unused_key")
+
+    with session_scope() as session:
+        gallery = PhotoGallery(owner_user_id=user.id)
+        session.add(gallery)
+        session.flush()
+        session.add(PhotoGalleryItem(gallery_id=gallery.id, upload_key="gallery_key", position=1.0))
+
+    with session_scope() as session:
+        result = get_upload_uses_for_keys(session, ["gallery_key", "unused_key", "nonexistent_key"])
+
+    # only keys with uses appear in the mapping
+    assert set(result.keys()) == {"gallery_key"}
+    assert len(result["gallery_key"]) == 1
+    assert result["gallery_key"][0].use_type == UploadUseType.profile_gallery_photo_avatar
+    assert result["gallery_key"][0].user_id == user.id
+
+
+def test_get_upload_uses_for_keys_empty(db):
+    with session_scope() as session:
+        assert get_upload_uses_for_keys(session, []) == {}
 
 
 def test_upload_uses_covers_all_foreign_keys(db):

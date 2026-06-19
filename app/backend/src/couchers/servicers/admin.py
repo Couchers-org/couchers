@@ -17,6 +17,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
+from couchers.helpers.upload_uses import UploadUseType, get_upload_uses_for_keys
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionToken,
@@ -68,7 +69,6 @@ from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
-from couchers.upload_uses import UploadUseType, get_upload_uses
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,8 @@ api2adminactionlevel = {
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
 }
 
-_upload_use_type2pb = {
+uploadusetype2api = {
+    None: admin_pb2.UPLOAD_USE_TYPE_UNSPECIFIED,
     UploadUseType.profile_gallery_photo: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO,
     UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
     UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
@@ -1406,6 +1407,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             .all()
         )
 
+        page = uploads[:page_size]
+        uses_by_key = get_upload_uses_for_keys(session, [upload.key for upload in page])
+
         return admin_pb2.ListUserUploadsRes(
             uploads=[
                 admin_pb2.UserUpload(
@@ -1417,16 +1421,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     created=Timestamp_from_datetime(upload.created),
                     uses=[
                         admin_pb2.UploadUse(
-                            type=_upload_use_type2pb[use.use_type],
+                            type=uploadusetype2api[use.use_type],
                             is_current=use.is_current,
-                            user_id=use.user_id or 0,
-                            event_id=use.event_id or 0,
-                            page_id=use.page_id or 0,
+                            user_id=use.user_id,
+                            event_id=use.event_id,
+                            page_id=use.page_id,
+                            url=use.url,
                         )
-                        for use in get_upload_uses(session, upload.key)
+                        for use in uses_by_key.get(upload.key, [])
                     ],
                 )
-                for upload in uploads[:page_size]
+                for upload in page
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )
