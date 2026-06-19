@@ -129,3 +129,5 @@ COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
+
+MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000
