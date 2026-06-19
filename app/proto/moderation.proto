@@ -18,10 +18,6 @@ service Moderation {
 
   rpc ModerateContent(ModerateContentReq) returns (ModerateContentRes) {}
 
-  rpc FlagContentForReview(FlagContentForReviewReq) returns (FlagContentForReviewRes) {}
-
-  rpc UnflagContent(UnflagContentReq) returns (UnflagContentRes) {}
-
   rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
 
   rpc ListModerationStates(ListModerationStatesReq) returns (ListModerationStatesRes) {}
@@ -56,6 +52,7 @@ enum ModerationAction {
   MODERATION_ACTION_FLAG = 4;
   MODERATION_ACTION_UNFLAG = 5;
   MODERATION_ACTION_BULK_SET_VISIBILITY = 6;
+  MODERATION_ACTION_SET_PRIORITY = 7;
 }
 
 enum ModerationObjectType {
@@ -91,6 +88,7 @@ message ModerationQueueItemInfo {
   bool is_resolved = 6;
   int64 resolved_by_log_id = 7;
   ModerationStateInfo moderation_state = 8;
+  int32 priority = 9;
 }
 
 message ModerationLogEntryInfo {
@@ -101,6 +99,8 @@ message ModerationLogEntryInfo {
   int64 moderator_user_id = 5;
   ModerationVisibility new_visibility = 6;
   string reason = 7;
+  int32 new_priority = 8;
+  int64 queue_item_id = 9;
 }
 
 message GetModerationQueueReq {
@@ -116,6 +116,10 @@ message GetModerationQueueReq {
   google.protobuf.Timestamp created_after = 8;
   // Filter by content author (optional)
   int64 item_author_user_id = 9;
+  // Filter to items with priority >= this value (optional)
+  optional int32 priority_min = 10;
+  // Filter to items with priority <= this value (optional)
+  optional int32 priority_max = 11;
 
   // Pagination
   uint32 page_size = 1;
@@ -151,31 +155,22 @@ message ModerateContentReq {
   int64 moderation_state_id = 1;
   // Required
   ModerationAction action = 2;
-  // Required
+  // Required for APPROVE / HIDE
   ModerationVisibility visibility = 3;
   string reason = 4;
+  // New priority for SET_PRIORITY; initial priority for FLAG
+  int32 priority = 5;
+  // Target flag for SET_PRIORITY / UNFLAG
+  int64 queue_item_id = 6;
+  // Provenance for FLAG
+  ModerationTrigger trigger = 7;
+  // For FLAG: resolve this flag as the new one opens
+  int64 supersede_queue_item_id = 8;
+  // For APPROVE / HIDE: also resolve all open flags on the state
+  bool clear_flags = 9;
 }
 
 message ModerateContentRes {
-  ModerationStateInfo moderation_state = 1;
-}
-
-message FlagContentForReviewReq {
-  int64 moderation_state_id = 1;
-  ModerationTrigger trigger = 2;
-  string reason = 3;
-}
-
-message FlagContentForReviewRes {
-  ModerationQueueItemInfo queue_item = 1;
-}
-
-message UnflagContentReq {
-  int64 moderation_state_id = 1;
-  string reason = 2;
-}
-
-message UnflagContentRes {
   ModerationStateInfo moderation_state = 1;
 }
 

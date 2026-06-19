@@ -16,7 +16,8 @@ depends_on = None
 
 
 def upgrade():
-    # ALTER TYPE ... ADD VALUE cannot run inside a transaction in PostgreSQL
+    # This COMMIT is redundant: ADD VALUE works fine inside a transaction; only *using* the new value before
+    # commit is disallowed, which this migration doesn't do. Kept as-is since it has already run.
     op.execute("COMMIT")
     op.execute("ALTER TYPE nodetype ADD VALUE IF NOT EXISTS 'macroregion' AFTER 'world'")
 

@@ -10,6 +10,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import select
 
 from couchers.config import config
+from couchers.constants import MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
 from couchers.jobs.worker import process_job
@@ -135,19 +136,31 @@ def test_add_to_moderation_queue(db):
 
     # Add another item to moderation queue via API (the first one was created automatically)
     with real_moderation_session(super_token) as api:
-        res = api.FlagContentForReview(
-            moderation_pb2.FlagContentForReviewReq(
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
                 trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
                 reason="Admin manually flagged for additional review",
             )
         )
 
-        assert res.queue_item.moderation_state_id == state_id
-        assert res.queue_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
-        assert res.queue_item.reason == "Admin manually flagged for additional review"
-        assert res.queue_item.moderation_state.author.user_id == user1.id
-        assert res.queue_item.is_resolved == False
+    with session_scope() as session:
+        flag = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.user_flag)
+        ).scalar_one()
+        assert flag.reason == "Admin manually flagged for additional review"
+        assert flag.resolved_by_log_id is None
+
+        # The FLAG action is recorded in the log, pointing at the new queue item.
+        flag_log = session.execute(
+            select(ModerationLog)
+            .where(ModerationLog.moderation_state_id == state_id)
+            .where(ModerationLog.action == ModerationAction.flag)
+        ).scalar_one()
+        assert flag_log.queue_item_id == flag.id
 
 
 def test_moderate_content(db):
@@ -247,7 +260,7 @@ def test_resolve_queue_item(db):
 
         assert queue_item.resolved_by_log_id is None
 
-    # Approve content via API (which should resolve the queue item)
+    # Approve content with clear_flags, which resolves the open queue item(s)
     with real_moderation_session(moderator_token) as api:
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
@@ -255,6 +268,7 @@ def test_resolve_queue_item(db):
                 action=moderation_pb2.MODERATION_ACTION_APPROVE,
                 visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                 reason="Approved after review",
+                clear_flags=True,
             )
         )
 
@@ -754,9 +768,10 @@ def test_moderation_log_tracking(db):
         )
 
     with real_moderation_session(moderator2_token) as api:
-        api.FlagContentForReview(
-            moderation_pb2.FlagContentForReviewReq(
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
                 trigger=moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW,
                 reason="Wait, this needs another look",
             )
@@ -857,7 +872,7 @@ def test_moderation_queue_workflow(db):
         assert len(unresolved_items) >= 1
         assert queue_item.id in [item.id for item in unresolved_items]
 
-    # Moderator reviews and approves via API (which also resolves the queue item)
+    # Moderator reviews and approves via API, clearing the open queue item
     with real_moderation_session(moderator_token) as api:
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
@@ -865,6 +880,7 @@ def test_moderation_queue_workflow(db):
                 action=moderation_pb2.MODERATION_ACTION_APPROVE,
                 visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                 reason="Content approved",
+                clear_flags=True,
             )
         )
 
@@ -928,9 +944,10 @@ def test_GetModerationQueue_filter_by_trigger(db):
 
     # Add USER_FLAG trigger to second item via API
     with real_moderation_session(super_token) as api:
-        api.FlagContentForReview(
-            moderation_pb2.FlagContentForReviewReq(
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
                 moderation_state_id=state2_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
                 trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
                 reason="Reported by user",
             )
@@ -1102,7 +1119,7 @@ def test_GetModerationQueue_filter_unresolved(db):
     state1_id = create_test_host_request_with_moderation(user_token, host.id)
     state2_id = create_test_host_request_with_moderation(user_token, host.id)
 
-    # Resolve the first one via API (ModerateContent automatically resolves queue items)
+    # Resolve the first one via API (approve with clear_flags resolves the queue item)
     with real_moderation_session(super_token) as api:
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
@@ -1110,6 +1127,7 @@ def test_GetModerationQueue_filter_unresolved(db):
                 action=moderation_pb2.MODERATION_ACTION_APPROVE,
                 visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                 reason="Approved",
+                clear_flags=True,
             )
         )
 
@@ -1545,8 +1563,8 @@ def test_ModerateContent_shadow(db):
         assert state.visibility == ModerationVisibility.shadowed
 
 
-def test_FlagContentForReview(db):
-    """Test flagging content for review via admin API"""
+def test_ModerateContent_flag(db):
+    """Test opening a flag via the FLAG action"""
     super_user, super_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
     user2, _ = generate_user()
@@ -1573,32 +1591,244 @@ def test_FlagContentForReview(db):
         state_id = host_request.moderation_state_id
 
     with real_moderation_session(super_token) as api:
-        res = api.FlagContentForReview(
-            moderation_pb2.FlagContentForReviewReq(
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
                 trigger=moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW,
                 reason="Admin flagged for additional review",
+                priority=5,
             )
         )
-        assert res.queue_item.moderation_state_id == state_id
-        assert res.queue_item.trigger == moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW
-        assert res.queue_item.is_resolved == False
 
-    # Verify queue item was created in database
+    # Verify queue item was created in database with the given priority, plus a log row referencing it
     with session_scope() as session:
-        # Get the most recent queue item (the one we just created)
-        queue_item = (
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.moderator_review)
+        ).scalar_one()
+        assert queue_item.resolved_by_log_id is None
+        assert queue_item.priority == 5
+
+        flag_log = session.execute(
+            select(ModerationLog)
+            .where(ModerationLog.moderation_state_id == state_id)
+            .where(ModerationLog.action == ModerationAction.flag)
+        ).scalar_one()
+        assert flag_log.queue_item_id == queue_item.id
+
+
+def test_ModerateContent_flag_requires_trigger(db):
+    """FLAG without a trigger is rejected."""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    reason="no trigger",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def _open_queue_item_id(state_id):
+    with session_scope() as session:
+        return (
             session.execute(
                 select(ModerationQueueItem)
                 .where(ModerationQueueItem.moderation_state_id == state_id)
-                .order_by(ModerationQueueItem.time_created.desc())
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
             )
             .scalars()
-            .first()
+            .one()
+            .id
         )
-        assert queue_item
-        assert queue_item.trigger == ModerationTrigger.moderator_review
-        assert queue_item.resolved_by_log_id is None
+
+
+def test_ModerateContent_set_priority(db):
+    """SET_PRIORITY changes a flag's priority and logs it, without touching visibility."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    queue_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_SET_PRIORITY,
+                queue_item_id=queue_item_id,
+                priority=10,
+                reason="bump",
+            )
+        )
+
+    with session_scope() as session:
+        queue_item = session.get_one(ModerationQueueItem, queue_item_id)
+        assert queue_item.priority == 10
+        assert queue_item.resolved_by_log_id is None  # not resolved
+        # State stays shadowed (visibility untouched)
+        assert session.get_one(ModerationState, state_id).visibility == ModerationVisibility.shadowed
+
+        log = session.execute(
+            select(ModerationLog)
+            .where(ModerationLog.moderation_state_id == state_id)
+            .where(ModerationLog.action == ModerationAction.set_priority)
+        ).scalar_one()
+        assert log.new_priority == 10
+        assert log.queue_item_id == queue_item_id
+
+    # GetModerationQueue surfaces the new priority
+    with real_moderation_session(mod_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
+        item = next(i for i in res.queue_items if i.queue_item_id == queue_item_id)
+        assert item.priority == 10
+
+
+def test_ModerateContent_unflag(db):
+    """UNFLAG resolves a single named flag and does not change visibility."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    queue_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_UNFLAG,
+                queue_item_id=queue_item_id,
+                reason="dismissed",
+            )
+        )
+
+    with session_scope() as session:
+        queue_item = session.get_one(ModerationQueueItem, queue_item_id)
+        assert queue_item.resolved_by_log_id is not None
+        # Visibility unchanged (still shadowed from creation)
+        assert session.get_one(ModerationState, state_id).visibility == ModerationVisibility.shadowed
+        log = session.get_one(ModerationLog, queue_item.resolved_by_log_id)
+        assert log.action == ModerationAction.unflag
+        assert log.queue_item_id == queue_item_id
+
+
+def test_ModerateContent_unflag_requires_queue_item(db):
+    """UNFLAG without a queue_item_id is rejected."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(mod_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_UNFLAG,
+                    reason="no target",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_ModerateContent_approve_without_clear_flags_leaves_flag_open(db):
+    """APPROVE without clear_flags changes visibility but leaves open flags in the queue."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    queue_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="visible but still under review",
+            )
+        )
+
+    with session_scope() as session:
+        assert session.get_one(ModerationState, state_id).visibility == ModerationVisibility.visible
+        assert session.get_one(ModerationQueueItem, queue_item_id).resolved_by_log_id is None
+
+
+def test_ModerateContent_flag_supersede(db):
+    """FLAG with supersede_queue_item_id resolves the named flag as the new one opens."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    initial_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                priority=3,
+                supersede_queue_item_id=initial_item_id,
+                reason="machine re-flag",
+            )
+        )
+
+    with session_scope() as session:
+        # Old initial_review flag is resolved
+        assert session.get_one(ModerationQueueItem, initial_item_id).resolved_by_log_id is not None
+        # Exactly one open flag remains: the new machine_flag at priority 3
+        open_items = (
+            session.execute(
+                select(ModerationQueueItem)
+                .where(ModerationQueueItem.moderation_state_id == state_id)
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            )
+            .scalars()
+            .all()
+        )
+        assert len(open_items) == 1
+        assert open_items[0].trigger == ModerationTrigger.machine_flag
+        assert open_items[0].priority == 3
+
+
+def test_GetModerationQueue_filter_by_priority(db):
+    """priority_min / priority_max filter the queue by priority range."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    queue_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_SET_PRIORITY,
+                queue_item_id=queue_item_id,
+                priority=7,
+                reason="raise",
+            )
+        )
+
+        # priority_min excludes it below the threshold, includes at/above
+        assert len(api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(priority_min=8)).queue_items) == 0
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(priority_min=7))
+        assert [i.queue_item_id for i in res.queue_items] == [queue_item_id]
+
+        # priority_max excludes it above the threshold
+        assert len(api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(priority_max=6)).queue_items) == 0
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(priority_max=7))
+        assert [i.queue_item_id for i in res.queue_items] == [queue_item_id]
 
 
 # ============================================================================
@@ -1917,12 +2147,13 @@ def test_auto_approve_moderation_queue_approves_old_items(
         assert len(res.host_requests) == 1
         assert res.host_requests[0].host_request_id == host_request_id
 
-    # Moderator sees the queue item is now resolved
     with real_moderation_session(mod_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
-        assert len(res.queue_items) == 0
+        assert len(res.queue_items) == 1
+        flag_item = res.queue_items[0]
+        assert flag_item.trigger == moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG
+        assert flag_item.priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 
-        # State is now VISIBLE
         state_res = api.GetModerationState(
             moderation_pb2.GetModerationStateReq(
                 object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
@@ -1931,16 +2162,18 @@ def test_auto_approve_moderation_queue_approves_old_items(
         )
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_VISIBLE
 
-        # Check the log shows auto-approval by the bot user
         log_res = api.GetModerationLog(
             moderation_pb2.GetModerationLogReq(moderation_state_id=state_res.moderation_state.moderation_state_id)
         )
-        # Find the APPROVE action
         approve_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_APPROVE]
         assert len(approve_entries) == 1
         assert "Auto-approved" in approve_entries[0].reason
         assert "60 seconds" in approve_entries[0].reason
         assert approve_entries[0].moderator_user_id == moderator.id
+
+        flag_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_FLAG]
+        assert len(flag_entries) == 1
+        assert flag_entries[0].moderator_user_id == moderator.id
 
 
 def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCollector):
@@ -2037,6 +2270,7 @@ def test_auto_approve_does_not_approve_already_approved(db):
                 action=moderation_pb2.MODERATION_ACTION_APPROVE,
                 visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                 reason="Approved by moderator",
+                clear_flags=True,
             )
         )
 
@@ -2097,13 +2331,14 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         )
         state_id = state_res.moderation_state.moderation_state_id
 
-        # Set to SHADOWED explicitly - this resolves the INITIAL_REVIEW queue item
+        # Set to SHADOWED explicitly with clear_flags - this resolves the INITIAL_REVIEW queue item
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
                 action=moderation_pb2.MODERATION_ACTION_HIDE,
                 visibility=moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
                 reason="Keeping shadowed for review",
+                clear_flags=True,
             )
         )
 
@@ -2207,6 +2442,66 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
     with requests_session(surfer_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert res.host_request_id == host_request_id
+
+
+def test_auto_approve_preserves_other_open_flags(db):
+    """Auto-approval supersedes only the INITIAL_REVIEW item; other open flags survive and a high-prio flag is added."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+                priority=5,
+                reason="user reported this",
+            )
+        )
+
+    with session_scope() as session:
+        initial_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        initial_item_id = initial_item.id
+        initial_item.time_created = datetime.now(initial_item.time_created.tzinfo) - timedelta(minutes=10)
+
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(select(ModerationQueueItem).where(ModerationQueueItem.id == initial_item_id))
+            .scalar_one()
+            .resolved_by_log_id
+            is not None
+        )
+        assert (
+            session.execute(select(ModerationState).where(ModerationState.id == state_id)).scalar_one().visibility
+            == ModerationVisibility.visible
+        )
+
+        open_items = (
+            session.execute(
+                select(ModerationQueueItem)
+                .where(ModerationQueueItem.moderation_state_id == state_id)
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            )
+            .scalars()
+            .all()
+        )
+        open_by_trigger = {item.trigger: item for item in open_items}
+        assert open_by_trigger.keys() == {ModerationTrigger.user_flag, ModerationTrigger.machine_flag}
+        assert open_by_trigger[ModerationTrigger.user_flag].priority == 5
+        assert open_by_trigger[ModerationTrigger.machine_flag].priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 
 
 # ============================================================================
