@@ -24,6 +24,10 @@ export default function MyDocument(
 
         <link rel="preconnect" href="https://cdn.couchers.org" />
         <meta name="theme-color" content={theme.palette.primary.main} />
+        {/* iOS Smart App Banner; only the prod app is listed on the App Store */}
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod" && (
+          <meta name="apple-itunes-app" content="app-id=6623776751" />
+        )}
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo512.png" />
         <link
