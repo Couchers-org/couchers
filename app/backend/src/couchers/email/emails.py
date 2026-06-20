@@ -16,11 +16,12 @@ Preview line:
 Purpose line of the body (first paragraph after the greeting):
   Usually a single sentence stating the purpose of the email.
   Similar or identical to the subject but may include additional info (e.g. dates).
-  Key pieces of info (names, locations, dates) should be <strong></strong>.
-  Should be punctuated with a period*, or end with a colon ':' if we then quote user content.
+  Should be punctuated with a period*, or end with a colon (':') if we then quote user content.
 
-Rest of body:
-  Omit further prose for day-to-day notifications (the purpose line is enough).
+Other instructions for body text:
+  A single purpose line is enough for day-to-day notifications, no need for further prose.
+  Highlight key pieces of info (names, locations, dates) using <b> tags.
+  Highlight important passages using <strong> tags.
   Provide a link or instructions if the user has follow-up actions.
 
 * Some key emails like new accounts might use an exclamation mark (limit to 1) and more personal prose.
