@@ -47,17 +47,17 @@ class EmailBase(ABC):
         self,
         loc_context: LocalizationContext,
         *,
-        standard_greeting: bool = True,
-        standard_closing: bool = True,
+        default_greeting: bool = True,
+        default_closing: bool = True,
         security_warning: bool = False,
     ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locales=loc_context.locale_list, string_key_base=self.string_key_base)
-        if standard_greeting:
+        builder = EmailBlocksBuilder(locale=loc_context.locale_list, string_key_base=self.string_key_base)
+        if default_greeting:
             builder.para("generic.greeting_line", {"name": self.user_name})
-        if standard_closing:
-            builder.para("generic.closing_line", epilogue=True)
         if security_warning:
             builder.para("generic.security_warning_contact_support", epilogue=True)
+        if default_closing:
+            builder.para("generic.closing_lines.default", epilogue=True)
         return builder
 
     @classmethod
@@ -126,7 +126,7 @@ class UserInfo:
         return UserInfo(
             name="Bob",
             age=30,
-            city="Berlin",
+            city="Berlin, Germany",
             avatar_url="https://couchers.org/logo512.png",
             profile_url="https://couchers.org/user/bob",
         )

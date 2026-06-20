@@ -15,6 +15,10 @@ def icon_url() -> str:
     return f"{config.BASE_URL}/logo512.png"
 
 
+def dashboard_link() -> str:
+    return f"{config.BASE_URL}/dashboard"
+
+
 def profile_link() -> str:
     return f"{config.BASE_URL}/profile"
 
@@ -116,6 +120,10 @@ def donation_cancelled_url() -> str:
 
 def donation_success_url() -> str:
     return f"{config.BASE_URL}/donate?success=true"
+
+
+def strong_verification_url() -> str:
+    return f"{config.BASE_URL}/strong-verification"
 
 
 def complete_strong_verification_url(*, verification_attempt_token: str) -> str:

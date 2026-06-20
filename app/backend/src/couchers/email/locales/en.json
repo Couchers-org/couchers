@@ -1,10 +1,15 @@
 {
   "generic": {
     "greeting_line": "Hi {{name}},",
-    "closing_line": "Best,<br>The Couchers.org Team",
-    "founders_signature": "Aapeli and Itsi,<br>Couchers.org Founders",
-    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
-    "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request.",
+    "security_warning_contact_support": "If you did not initiate this action, please contact us at <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible.",
+    "do_not_reply_request": "Do not reply to this email. Use one of the buttons above to reply to this request.",
+    "thanks": "Thank you!",
+    "closing_lines": {
+      "default": "Best,<br>The Couchers.org Team",
+      "founders": "Aapeli and Itsi,<br>Couchers.org Founders",
+      "aapeli": "Aapeli<br>Couchers.org Co-founder<br><a href=\"mailto:aapeli@couchers.org\">aapeli@couchers.org</a> (feel free to shoot me an email at any time)<br><a href=\"https://couchers.org/user/aapeli\">https://couchers.org/user/aapeli</a>",
+      "emily": "Emily from Couchers.org<br><a href=\"mailto:community@couchers.org\">community@couchers.org</a><br><a href=\"https://couchers.org/user/emily\">https://couchers.org/user/emily</a>"
+    },
     "footer": {
       "received_because": "You're receiving this email because you signed up for Couchers.org.",
       "contact_support": "You can reach our support team at <a href=\"mailto:support@couchers.org\">support@couchers.org</a>.",
@@ -32,117 +37,113 @@
   },
   "account_deletion": {
     "started": {
-      "subject": "Confirm your Couchers.org account deletion",
-      "request_description": "You requested that we delete your account from Couchers.org.",
-      "confirmation_instructions": "To complete this process, please confirm by clicking the following button:",
+      "subject": "Confirm your account deletion",
+      "purpose": "You requested that we delete your Couchers.org account. To complete this process, please click on the following link:",
       "confirm_action": "Confirm account deletion"
     },
     "completed": {
-      "subject": "Your Couchers.org account has been deleted",
-      "confirmation": "You have successfully deleted your account from Couchers.org.",
+      "subject": "Your account has been deleted",
+      "purpose": "You have successfully deleted your Couchers.org account.",
       "farewell": "We are sad to see you go, and wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)",
-      "recovery_instructions_days_one": "If you change your mind, <b>you have {{count}} day to recover your account</b> by clicking the following link:",
-      "recovery_instructions_days_other": "If you change your mind, <b>you have {{count}} days to recover your account</b> by clicking the following link:",
+      "recovery_instructions_days_one": "If you change your mind, <strong>you have {{count}} day to recover your account</strong> by clicking the following link:",
+      "recovery_instructions_days_other": "If you change your mind, <strong>you have {{count}} days to recover your account</strong> by clicking the following link:",
       "recover_action": "Recover account"
     },
     "recovered": {
-      "subject": "Your Couchers.org account has been recovered!",
-      "confirmation": "Your account on Couchers.org has been successfully recovered!",
-      "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
+      "subject": "Your account has been recovered!",
+      "confirmation": "Your Couchers.org account has been successfully recovered. We are glad you decided to stay!",
+      "login_instructions": "To log back in, click on the following link:",
       "login_action": "Log back in",
       "redelete_instructions": "If you change your mind, you can delete your account at any time."
     }
   },
   "activeness_probe": {
-    "subject": "Are you still open to hosting on Couchers.org?",
-    "body": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
-    "instructions_days_one": "To keep your \"Can Host\" status, please log back in within the next {{count}} day. Otherwise, we'll change your hosting status to \"Can't Host.\"",
-    "instructions_days_other": "To keep your \"Can Host\" status, please log back in within the next {{count}} days. Otherwise, we'll change your hosting status to \"Can't Host.\"",
-    "login_action": "Log back in to respond",
+    "subject": "Are you still open to hosting?",
+    "purpose": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
+    "instructions_days_one": "To keep your \"Can Host\" status, please log back in within the next <b>{{count}} day</b>. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "instructions_days_other": "To keep your \"Can Host\" status, please log back in within the next <b>{{count}} days</b>. Otherwise, we'll change your hosting status to \"Can't Host.\"",
+    "login_action": "Log back in",
     "encouragement": "These check-ins help surfers find active hosts more easily and keep response times accurate.",
-    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include new mobile app on iOS and Android, improved dashboard, overhauled messaging and new event features.",
-    "read_blog_action": "Read more on our blog"
+    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include new mobile app on iOS and Android, improved dashboard, overhauled messaging and new event features. Read more on the <a href=\"{{blog_url}}\">Couchers.org blog</a>."
   },
   "api_key_issued": {
     "subject": "Your API key for Couchers.org",
     "header": "You recently requested an API key for Couchers.org. We've issued you with the following API key:",
-    "expiry": "The key expires on {{ datetime }}.",
-    "usage_warning": "This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.",
+    "expiry": "The key expires on <b>{{ datetime }}</b>.",
+    "usage_warning": "This API key is unique to your account; do not share it with anyone. It gives complete access to your account, and you are reponsible for any actions taken using this API key.",
     "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
   },
   "badges": {
     "added": {
       "subject": "The {{ name }} badge was added to your profile",
-      "body": "The {{ name }} badge was added to your profile."
+      "purpose": "The <b>{{ name }}</b> badge was added to your profile."
     },
     "removed": {
       "subject": "The {{ name }} badge was removed from your profile",
-      "body": "The {{ name }} badge was removed from your profile."
+      "purpose": "The <b>{{ name }}</b> badge was removed from your profile."
     }
   },
   "birthdate_changed": {
     "subject": "Your date of birth was changed",
-    "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
+    "purpose": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
   "chat_messages": {
     "received": {
       "direct": {
         "subject": "{{ author }} sent you a message",
-        "body": "{{ author }} sent you a message:",
+        "purpose": "<b>{{ author }}</b> sent you a message:",
         "view_action": "View this message"
       },
       "group": {
-        "subject": "{{ author }} sent a message in \"{{ group }}\"",
-        "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
+        "subject": "{{ author }} sent a message in {{ group }}",
+        "purpose": "<b>{{ author }}</b> sent a message in <b>{{ group }}</b>:",
         "view_action": "View this message"
       }
     },
     "missed": {
-      "subject": "You have unseen messages on Couchers.org!",
-      "in_dm_one": "You missed {{count}} message from {{author}}:",
-      "in_dm_other": "You missed {{count}} messages from {{author}}:",
-      "in_group_one": "You missed {{count}} message in <b>{{group}}</b>:",
-      "in_group_other": "You missed {{count}} messages in <b>{{group}}</b>:",
-      "view_action": "View this message"
+      "subject": "You have unseen messages",
+      "purpose": "You missed some messages since you last visited:",
+      "count_in_dm_one": "{{count}} message from <b>{{author}}</b>:",
+      "count_in_dm_other": "{{count}} messages from <b>{{author}}</b>:",
+      "count_in_group_one": "{{count}} message in <b>{{group}}</b>:",
+      "count_in_group_other": "{{count}} messages in <b>{{group}}</b>:",
+      "view_action": "View messages"
     }
   },
   "discussions": {
     "created": {
       "subject": "{{author}} started a discussion: {{title}}",
-      "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
+      "purpose": "<b>{{author}}</b> started a discussion in <b>{{parent_context}}</b>:",
       "view_action": "View discussion"
     },
     "comment": {
       "subject": "{{author}} commented on {{discussion_title}}",
-      "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
+      "purpose": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
       "view_action": "View discussion"
     }
   },
   "donation_received": {
     "subject": "Thank you for your donation to Couchers.org!",
-    "thanks_amount": "Thank you so much for your donation of ${{amount}} to Couchers.org.",
-    "purpose": "Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.",
+    "purpose": "Thank you so much for your donation of <b>{{amount_with_currency}}</b> to Couchers.org.",
+    "contribution_impact": "Your contribution will go towards building and sustaining the Couchers.org community, and is vital for our goal of a free and non-profit couch surfing platform.",
     "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
     "download_invoice": "Download invoice",
     "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
-    "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-    "generosity_helps": "Your generosity will help deliver the platform for everyone.",
-    "thank_you": "Thank you!"
+    "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>."
   },
   "email_change": {
     "initiated": {
-      "subject": "An email change was initiated on your account",
-      "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
+      "subject": "Email address change initiated",
+      "purpose": "You've requested that your email address be changed to <b>{{ email_address }}</b>. Please review the email we sent to that address to confirm the change."
     },
     "confirmation": {
-      "subject": "Confirm your new email for Couchers.org",
-      "context": "You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ old_email }}</b>. This is the final step in the process.",
-      "instructions": "To complete this change, please confirm your email by clicking the following link:",
+      "subject": "Confirm your new email address",
+      "purpose": "You requested that your email be changed from <b>{{ old_email }}</b> to this email address. To complete this change, please click on the following link:",
       "confirm_action": "Confirm new email"
     },
     "verified": {
       "subject": "Email change completed",
-      "body": "Your new email address has been verified."
+      "purpose": "Your new email address has been verified."
     }
   },
   "events": {
@@ -152,20 +153,20 @@
     },
     "created": {
       "invitation": {
-        "subject": "{{user}} invited you to \"{{title}}\"",
-        "body_with_community": "You've been invited to a new event in the {{community}} community:",
-        "body_no_community": "You've been invited to a new event nearby:"
+        "subject": "{{user}} invited you to {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> invited you to an event in <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> invited you to an event nearby:"
       },
       "notification": {
-        "subject": "{{user}} created an event called \"{{title}}\"",
-        "body_with_community": "A new event was created in the {{community}} community:",
-        "body_no_community": "A new event was created nearby:"
+        "subject": "{{user}} created an event: {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> created an event in <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> created an event nearby:"
       }
     },
     "updated": {
-      "subject": "{{user}} updated \"{{title}}\"",
-      "body": "An event you are subscribed to was updated.",
-      "updated_items": "The following information was updated: <b>{{items_list}}</b>. Here is the updated event:",
+      "subject": "{{user}} updated {{title}}",
+      "purpose_generic": "<b>{{user}}</b> updated an event you are subscribed to:",
+      "purpose_specific": "<b>{{user}}</b> updated an event you are subscribed to ({{items_list}}):",
       "updated_generic": "Here is the updated event:",
       "item_names": {
         "title": "title",
@@ -176,109 +177,106 @@
       }
     },
     "organizer_invited": {
-      "subject": "{{user}} invited you to co-organize \"{{title}}\"",
-      "body": "<b>{{user}}</b> invited you to co-organize \"{{title}}\". The event information is below:",
-      "user_card_text": "Invited you to co-organize the event."
+      "subject": "{{user}} invited you to co-organize {{title}}",
+      "purpose": "<b>{{user}}</b> invited you to co-organize an event:"
     },
     "comment": {
-      "subject": "{{author}} commented on \"{{title}}\"",
-      "body": "<b>{{author}}</b> commented on the event <b>{{title}}</b>:",
-      "event_details": "Here are the details of the event:"
+      "subject": "{{author}} commented on {{title}}",
+      "purpose": "<b>{{author}}</b> commented on an event you're subscribed to:"
     },
     "reminder": {
-      "subject": "Reminder: \"{{title}}\" starts soon",
-      "body": "This is a reminder that the following event is starting in less than 24 hours:"
+      "subject": "Reminder: {{title}} starts soon",
+      "purpose": "An event you're subscribed to is starting in less than 24 hours:"
     },
     "cancel": {
-      "subject": "{{user}} cancelled \"{{title}}\"",
-      "body": "An event you are subscribed to has been cancelled:",
-      "user_card_text": "Cancelled the event."
+      "subject": "{{user}} cancelled {{title}}",
+      "purpose": "<b>{{user}}</b> cancelled an event you are subscribed to:"
     },
     "deleted": {
-      "subject": "A moderator deleted \"{{title}}\"",
-      "body": "An event you are subscribed to has been deleted by the moderators:"
+      "subject": "A moderator deleted {{title}}",
+      "purpose": "A moderator deleted an event you are subscribed to:"
     }
   },
   "friend_requests": {
     "received": {
-      "subject": "{{name}} wants to be your friend on Couchers.org!",
-      "body": "You've received a friend request from {{name}}.",
+      "subject": "{{name}} wants to be your friend",
+      "purpose": "<b>{{name}}</b> sent you a friend request.",
       "view_action": "View friend requests",
       "closing": "We hope you make a new friend!"
     },
     "accepted": {
-      "subject": "{{name}} accepted your friend request!",
-      "body": "{{name}} has accepted your friend request.",
+      "subject": "{{name}} accepted your friend request",
+      "purpose": "<b>{{name}}</b> has accepted your friend request.",
       "view_action": "View their profile",
       "closing": "We hope you continue making new friends!"
     }
   },
   "gender_changed": {
     "subject": "Your gender was changed",
-    "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
+    "purpose": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
   "host_requests": {
     "created": {
       "subject": "{{surfer_name}} sent you a host request",
-      "body": "<b>{{surfer_name}}</b> sent you a host request:",
-      "quick_decline_action": "Quick decline (no login needed)",
-      "respond_encouragement": "Please respond to this request, even a quick decline is better than no response!"
+      "purpose": "<b>{{surfer_name}}</b> sent you a host request:",
+      "respond_encouragement": "Please respond to this request. Even a quick decline is better than no response!"
     },
     "generic": {
       "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
-      "view_action": "View host request"
+      "view_action": "View host request",
+      "quick_decline_action": "Quick decline"
     },
     "reminder": {
-      "subject": "You have a pending host request from {{surfer_name}}!",
-      "body": "Please respond to the request!"
+      "subject": "You have a pending host request from {{surfer_name}}",
+      "purpose": "<b>{{surfer_name}}</b> is waiting for your response. Even a quick decline is better than no response!"
     },
     "message": {
       "from_host": {
         "subject": "{{other_name}} sent you a message in your host request",
-        "body": "<b>{{other_name}}</b> sent you a message in your host request:"
+        "purpose": "<b>{{other_name}}</b> sent you a message in your host request:"
       },
       "from_surfer": {
         "subject": "{{other_name}} sent you a message in their host request",
-        "body": "<b>{{other_name}}</b> sent you a message in their host request:"
+        "purpose": "<b>{{other_name}}</b> sent you a message in their host request:"
       }
     },
     "missed_messages": {
       "from_host": {
         "subject": "{{other_name}} sent you message(s) in your host request",
-        "body": "<b>{{other_name}}</b> sent you message(s) in your host request:"
+        "purpose": "<b>{{other_name}}</b> sent you one or more messages in your host request:"
       },
       "from_surfer": {
         "subject": "{{other_name}} sent you message(s) in their host request",
-        "body": "<b>{{other_name}}</b> sent you message(s) in their host request:"
+        "purpose": "<b>{{other_name}}</b> sent you one or more messages in their host request:"
       }
     },
     "status_changed": {
       "accepted_by_host": {
         "subject": "{{other_name}} accepted your host request",
-        "body": "<b>{{other_name}}</b> accepted your host request:"
+        "purpose": "<b>{{other_name}}</b> accepted your host request:"
       },
       "declined_by_host": {
         "subject": "{{other_name}} declined your host request",
-        "body": "<b>{{other_name}}</b> declined your host request:"
+        "purpose": "<b>{{other_name}}</b> declined your host request:"
       },
       "confirmed_by_surfer": {
         "subject": "{{other_name}} confirmed their host request",
-        "body": "<b>{{other_name}}</b> confirmed their host request:"
+        "purpose": "<b>{{other_name}}</b> confirmed their host request:"
       },
       "cancelled_by_surfer": {
         "subject": "{{other_name}} cancelled their host request",
-        "body": "<b>{{other_name}}</b> cancelled their host request:"
+        "purpose": "<b>{{other_name}}</b> cancelled their host request:"
       }
     }
   },
   "moderator_note": {
-    "subject": "You have received a mod note",
-    "body": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
+    "subject": "You have received a moderator note",
+    "purpose": "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform.",
+    "view_action": "View moderator note"
   },
   "new_blog_post": {
     "subject": "New blog post: {{title}}",
-    "intro": "We published a new blog post:",
-    "post_title": "<b>{{title}}</b>",
+    "purpose": "We published a new blog post:",
     "read_action": "Read the post"
   },
   "onboarding_reminder": {
@@ -288,96 +286,92 @@
       "early_user_role": "We are still a small platform and are growing quickly. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.",
       "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P",
       "edit_profile_prompt": "To edit your profile, click on the following link:",
-      "edit_profile_action": "Complete your profile",
       "share_with_friends": "Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.",
-      "link": "Link: <a href=\"{{ url }}\">{{ url }}",
+      "link": "Link: <a href=\"{{ url }}\">{{ url }}</a>",
       "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
-      "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!",
-      "signature": "Aapeli<br>Couchers.org Co-founder<br><a href=\"mailto:aapeli@couchers.org\">aapeli@couchers.org</a> (feel free to shoot me an email at any time)<br><br><a href=\"https://couchers.org/user/aapeli\">https://couchers.org/user/aapeli</a>"
+      "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!"
     },
     "follow_up": {
-      "subject": "Complete your profile on Couchers.org",
+      "subject": "Complete your profile",
       "intro": "I hope you've taken a bit of time to look around the Couchers.org platform!",
-      "fill_in_profile": "We would love to ask one quick favor of you: please take a moment to fill out your profile by adding a photo and some text.",
-      "edit_profile_action": "Go to edit your profile",
-      "no_empty_accounts": "A big problem that some platforms have is that there are so many empty accounts, and we really want to avoid that!",
-      "profile_importance": "We would really appreciate it if you could add a photo and fill in at least the \"Who I am\" section of your profile, although a full profile would be even better! It's an easy way to help showcase the amazing community we're building together, and it means you'll be fully ready to connect, host, or surf as the community thrives.",
-      "signature": "Emily from Couchers.org<br><a href=\"mailto:community@couchers.org\">community@couchers.org</a><br><br><a href=\"https://couchers.org/user/emily\">https://couchers.org/user/emily</a>"
-    }
+      "request": "We would love to ask one quick favor of you: please take a moment to fill out your profile by adding a photo and some text. Full profiles help our community thrive and make others curious to connect with, surf with, or host you."
+    },
+    "edit_profile_action": "Complete your profile"
   },
   "password_changed": {
     "subject": "Your password was changed",
-    "body": "Your login password for Couchers.org was changed."
+    "purpose": "Your password on Couchers.org was changed."
   },
   "password_reset": {
     "started": {
-      "subject": "Reset your Couchers.org password",
-      "request_description": "You asked for your password to be reset on Couchers.org.",
-      "confirmation_instructions": "To complete this change, click on the following link:",
+      "subject": "Reset your password",
+      "purpose": "You asked for your password to be reset on Couchers.org. To complete this change, click on the following link:",
       "reset_action": "Reset your password"
     },
     "completed": {
       "subject": "Your password was successfully reset",
-      "body": "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+      "purpose": "Your password on Couchers.org was reset."
     }
   },
   "phone_number_verification": {
     "started": {
       "subject": "Phone verification started",
-      "body": "You started phone number verification with the number <b>{{ phone_number }}</b>."
+      "purpose": "You started phone number verification with the number <b>{{ phone_number }}</b>."
     },
     "verified": {
       "subject": "Phone successfully verified",
-      "body": "Your phone was successfully verified as <b>{{ phone_number }}</b>."
+      "purpose": "Your phone number was successfully verified as <b>{{ phone_number }}</b>."
     }
   },
   "postal_verification": {
     "postcard_sent": {
       "subject": "Your verification postcard is on its way",
-      "body": "We've sent a postcard with your verification code to {{ city }}, {{ country }}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
+      "purpose": "We've sent a postcard with your verification code to <b>{{ city }}, {{ country }}</b>. It should arrive within 1-3 weeks depending on your location. Once it arrives, use the following link to complete verification:",
+      "enter_code_action": "Enter postcard code"
     },
     "succeeded": {
       "subject": "Postal Verification succeeded",
-      "body": "You have been verified with Postal Verification! Your address has been confirmed."
+      "purpose": "Your address has been successfully verified with Postal Verification."
     },
     "failed": {
       "subject": "Postal Verification failed",
-      "reason_code_expired": "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt.",
-      "reason_too_many_attempts": "Too many incorrect code attempts. You can start a new verification attempt.",
-      "reason_unknown": "Your postal verification attempt has failed. You can start a new verification attempt."
+      "purpose": {
+        "default": "Your Postal Verification attempt has failed for unknown reasons.",
+        "code_expired": "Your Postal Verification attempt has failed because your code has expired. Codes are valid for 90 days after the postcard is sent.",
+        "too_many_attempts": "Your Postal Verification has failed has failed because of too many incorrect code attempts."
+      },
+      "restart_action": "Request a new postcard"
     }
   },
   "references": {
     "received": {
       "friend": {
         "subject": "You've received a friend reference from {{name}}!",
-        "body": "<b>{{name}}</b> wrote a friend reference for you."
+        "purpose": "<b>{{name}}</b> wrote a friend reference for you:"
       },
       "hosted": {
-        "body": "<b>{{name}}</b> just wrote a reference for you from when you hosted them."
+        "purpose": "<b>{{name}}</b> wrote a reference for you from when you hosted them.",
+        "reciprocate_encouragement": "It's now your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after their stay, and you will no longer be able to write yours."
       },
       "surfed": {
-        "body": "<b>{{name}}</b> just wrote a reference for you from when you surfed with them."
+        "purpose": "<b>{{name}}</b> wrote a reference for you from when you surfed with them.",
+        "reciprocate_encouragement": "It's now your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after your stay, and you will no longer be able to write yours."
       },
       "subject": "You've received a reference from {{name}}!",
-      "before_quote": "This is what they wrote:",
-      "view_action": "View the reference on your profile",
-      "reciprocate_encouragement": "Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{name}}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back."
+      "view_action": "View the reference"
     },
     "reminder": {
-      "subject_days_one": "You have {{count}} day to write a reference for {{name}}!",
-      "subject_days_other": "You have {{count}} days to write a reference for {{name}}!",
+      "subject_days_one": "You have {{count}} day to write a reference for {{name}}",
+      "subject_days_other": "You have {{count}} days to write a reference for {{name}}",
       "hosted": {
-        "body_days_one": "<b>You have {{count}} day left to write a reference for {{name}}</b> from when you hosted them.",
-        "body_days_other": "<b>You have {{count}} days left to write a reference for {{name}}</b> from when you hosted them."
+        "purpose_days_one": "<strong>You have {{count}} day left to write a reference for {{name}}</strong> from when you hosted them. Your reference is vital to keeping the community safe and trustworthy.",
+        "purpose_days_other": "<strong>You have {{count}} days left to write a reference for {{name}}</strong> from when you hosted them. Your reference is vital to keeping the community safe and trustworthy."
       },
       "surfed": {
-        "body_days_one": "<b>You have {{count}} day left to write a reference for {{name}}</b> from when you surfed with them.",
-        "body_days_other": "<b>You have {{count}} days left to write a reference for {{name}}</b> from when you surfed with them."
+        "purpose_days_one": "<strong>You have {{count}} day left to write a reference for {{name}}</strong> from when you surfed with them. Your reference is vital to keeping the community safe and trustworthy.",
+        "purpose_days_other": "<strong>You have {{count}} days left to write a reference for {{name}}</strong> from when you surfed with them. Your reference is vital to keeping the community safe and trustworthy."
       },
-      "importance_note": "Your reference is vital to keeping the community safe, trustworthy, and welcoming. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
-      "no_meeting_note": "If you didn't end up meeting {{name}}, please use the reference flow to let us know (and we'll stop reminding you to write a reference).",
-      "via_messaging_note": "You can also leave a reference by going to the Messaging tab, locating the request, then clicking on the \"Write Reference\" button at the bottom of the conversation.",
+      "no_meeting_note": "If you didn't end up meeting <b>{{name}}</b>, please use that link to let us know, and we'll stop reminding you.",
       "visibility_note": "References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever comes sooner."
     },
     "write_action": "Write a reference for {{name}}"
@@ -387,12 +381,11 @@
     "closing": "See you in a bit :)",
     "verify": {
       "thanks": "Thanks for signing up for Couchers.org!",
-      "instructions": "To finish setting up your account, please click on the following link to confirm your email:",
+      "instructions": "To finish setting up your account, please click on the following link:",
       "confirm_action": "Confirm your email address"
     },
     "continue": {
-      "request": "Please finish signing up for Couchers.org.",
-      "instructions": "Please click on this link to continue:",
+      "purpose": "Please finish signing up for Couchers.org. Click on this link to continue:",
       "continue_action": "Finish signing up",
       "ignore_if_unexpected": "If you did not request a signup, someone else did with your email, and you can safely ignore this message."
     }
@@ -400,22 +393,25 @@
   "strong_verification": {
     "succeeded": {
       "subject": "Strong Verification succeeded",
-      "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
-      "thanks_message": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
+      "purpose": "You have been verified with Strong Verification. You will now see a tick next to your name on the platform.",
+      "thanks_message": "Thanks for verifying! You're helping make Couchers.org safer for everyone.",
       "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
       "donation_request": "If you're able, please consider donating to help keep Couchers.org running and growing.",
       "donate_action": "Donate to support Couchers.org"
     },
     "failed": {
       "subject": "Strong Verification failed",
-      "reason_wrong_birthdate_or_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
-      "reason_not_a_passport": "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
-      "reason_duplicate": "You tried to verify with a passport that has already been used for verification. Please use another passport."
+      "purpose": {
+        "wrong_birthdate_or_gender": "Your Strong Verification attempt has failed because the date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
+        "not_a_passport": "Your Strong Verification attempt has failed because you used a document that is not a passport. You can only use a passport for Strong Verification.",
+        "duplicate": "Your Strong Verification attempt has failed because you used a passport that has already been used on the platform. Please use another passport."
+      },
+      "restart_action": "Restart Strong Verification"
     }
   },
   "thread_reply": {
     "subject": "{{author}} replied in {{parent_context}}",
-    "body": "<b>{{author}}</b> replied in <b>{{parent_context}}</b>:",
+    "purpose": "<b>{{author}}</b> replied in <b>{{parent_context}}</b>:",
     "view_action": "View thread"
   }
 }
