@@ -1,8 +1,8 @@
 {
   "mark_all_read_button_text": "全部标记为已读",
   "mark_all_read_button_text_chats": "将所有聊天标记为已读",
-  "mark_all_read_button_text_hosting": "将所有留宿请求标记为已读",
-  "mark_all_read_button_text_surfing": "将所有沙发请求标记为已读",
+  "mark_all_read_button_text_hosting": "将所有接待请求标记为已读",
+  "mark_all_read_button_text_surfing": "将所有沙发冲浪请求标记为已读",
   "write_reference_button_text": "编写评语",
   "close_request_button_text": "拒绝",
   "confirm_request_button_text": "确认",
@@ -13,8 +13,8 @@
     "tabs": {
       "unread": "未读",
       "chats": "聊天",
-      "hosting": "留宿",
-      "surfing": "找沙发主"
+      "hosting": "接待",
+      "surfing": "沙发冲浪"
     }
   },
   "archive": {
@@ -123,17 +123,17 @@
     "title": "聊天成员"
   },
   "control_message": {
-    "created_chat_text": "{{user}} 创建了聊天",
-    "edited_chat_text": "{{user}} 修改了聊天",
-    "invite_user_text": "{{user}} 邀请了 {{target_user}}",
-    "user_left_chat_text": "{{user}} 离开了聊天",
-    "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
-    "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
+    "created_chat_text": "{{user}}创建了聊天",
+    "edited_chat_text": "{{user}}修改了聊天",
+    "invite_user_text": "{{user}}邀请了{{target_user}}",
+    "user_left_chat_text": "{{user}}离开了聊天",
+    "admin_assignment_text": "{{user}}将{{target_user}}设为了管理员",
+    "admin_removal_text": "{{user}}移除了{{target_user}}的管理员身份",
     "host_request_status_changed": {
-      "accepted": "{{user}} 已接受该请求",
-      "cancelled": "{{user}} 已取消该请求",
-      "confirmed": "{{user}} 已确认该请求",
-      "rejected": "{{user}} 已拒绝该请求"
+      "accepted": "{{user}}已接受该请求",
+      "cancelled": "{{user}}已取消该请求",
+      "confirmed": "{{user}}已确认该请求",
+      "rejected": "{{user}}已拒绝该请求"
     },
     "unknown_message_text": "未知控制消息"
   },
@@ -162,11 +162,12 @@
     "expired": "此请求已过期"
   },
   "host_request_view": {
-    "error_message": "无效的留宿请求ID",
+    "error_message": "无效的接待请求ID",
     "back_button_a11y_label": "返回",
-    "title_for_host": "来自{{user}} 的请求 - {{status}}",
-    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
-    "request_duration_other": "{{count}} 晚"
+    "title_for_host": "来自{{user}}的请求- {{status}}",
+    "title_for_surfer": "向{{user}}发出的请求- {{status}}",
+    "request_duration_one": "{{count}}晚",
+    "request_duration_other": "{{count}}晚"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
   "unknown_user": "未知用户"

@@ -80,9 +80,9 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case NotificationTopicAction.donation__received:
             return emails.DonationReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__change:
-            return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
+            return emails.EmailChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
-            return emails.EmailAddressVerifiedEmail(user_name=user_name)
+            return emails.EmailVerifiedEmail(user_name=user_name)
         case NotificationTopicAction.event__create_approved:
             return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=True)
         case NotificationTopicAction.event__create_any:

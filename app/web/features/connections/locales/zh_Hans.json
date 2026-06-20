@@ -28,7 +28,7 @@
   "unblock_user_confirmation_dialog": {
     "confirm": "取消屏蔽",
     "message": "取消屏蔽后,对方将可以查看您的资料并向您发送请求。如果您之前是好友关系,对方会重新出现在您的好友列表中。对方不会收到通知。",
-    "title": "您确定要取消屏蔽 {{name}} 吗?"
+    "title": "您确定要取消屏蔽{{name}}吗?"
   },
   "decline": "拒绝"
 }

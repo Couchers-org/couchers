@@ -28,7 +28,7 @@
   "unblock_user_confirmation_dialog": {
     "confirm": "取消封鎖",
     "message": "取消封鎖後,對方將可以查看您的資料並向您發送請求。如果您之前是好友關係,對方會重新出現在您的好友列表中。對方不會收到通知。",
-    "title": "您確定要取消封鎖 {{name}} 嗎?"
+    "title": "您確定要取消封鎖{{name}}嗎?"
   },
   "decline": "拒絕"
 }

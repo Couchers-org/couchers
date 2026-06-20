@@ -5,7 +5,7 @@ import {
   MeetingRoom,
 } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import { hostRequestsListKey } from "features/queryKeys";
@@ -217,34 +217,46 @@ export default function UpcomingStays() {
     data: tripsData,
     isLoading: tripsLoading,
     error: tripsError,
-  } = useQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "surfing" }),
-    queryFn: () =>
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+    queryKey: hostRequestsListKey({ type: "surfing", onlyActive: true }),
+    queryFn: ({ pageParam }) =>
       service.requests.listHostRequests({
+        pageToken: pageParam as string | undefined,
         type: "surfing",
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.nextPageToken,
   });
 
   const {
     data: guestsData,
     isLoading: guestsLoading,
     error: guestsError,
-  } = useQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "hosting" }),
-    queryFn: () =>
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+    queryKey: hostRequestsListKey({ type: "hosting", onlyActive: true }),
+    queryFn: ({ pageParam }) =>
       service.requests.listHostRequests({
+        pageToken: pageParam as string | undefined,
         type: "hosting",
         onlyActive: true,
         statusIn: UPCOMING_STATUSES,
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.noMore ? undefined : lastPage.nextPageToken,
   });
 
-  const upcomingTrips = tripsData?.hostRequestsList ?? [];
-  const upcomingGuests = guestsData?.hostRequestsList ?? [];
+  const upcomingTrips = (tripsData?.pages ?? []).flatMap(
+    (page) => page.hostRequestsList,
+  );
+  const upcomingGuests = (guestsData?.pages ?? []).flatMap(
+    (page) => page.hostRequestsList,
+  );
 
   const error = tripsError ?? guestsError;
 

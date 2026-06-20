@@ -32,6 +32,7 @@ If you are a **backend or full stack developer**, there is a Quick Start at [app
 * CI/CD goodies: [docs/cicd.md](docs/cicd.md) lists the different CI/CD functionality that we've got set up and how you can use this to simplify life
 * Database & migrations: [docs/database.md](docs/database.md) explains how to use the database and how we version the database with Alembic and update it when new tables or columns are added
 * Docker: [docs/docker.md](docs/docker.md) has some tips on how to work with docker and be less miserable
+* Release checklist: [docs/release-checklist.md](docs/release-checklist.md) goes over the steps that need to be completed for each release.
 
 ## Translations
 

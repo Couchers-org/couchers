@@ -18,6 +18,7 @@ import {
   QueryType,
   subCommunitiesKey,
   threadKey,
+  userCommunitiesListKey,
   volunteersKey,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -30,6 +31,7 @@ import {
   ListEventsRes,
   ListMembersRes,
   ListNearbyUsersRes,
+  ListUserCommunitiesRes,
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
 import { GetVolunteersRes } from "proto/public_pb";
@@ -190,6 +192,17 @@ export interface CreateDiscussionInput {
   content: string;
   ownerCommunityId: number;
 }
+
+export const useListUserCommunities = () =>
+  useInfiniteQuery<ListUserCommunitiesRes.AsObject, RpcError>({
+    queryKey: [userCommunitiesListKey],
+    queryFn: ({ pageParam }) =>
+      service.communities.listUserCommunities(pageParam as string | undefined),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    staleTime: 10 * 60 * 1000,
+  });
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();

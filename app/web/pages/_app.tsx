@@ -1,4 +1,5 @@
 import "intersection-observer";
+import "./main.css";
 
 import {
   CssBaseline,

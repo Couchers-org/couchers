@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge
+from couchers.metrics import observe_revenue
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
@@ -151,6 +152,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             if metadata.get("site_url") == config.MERCH_SHOP_URL:
                 # merch shop. look up this email and give them the swagster badge
                 customer_email = metadata["customer_email"]
+                observe_revenue("merch", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
@@ -170,6 +172,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
                 # amount comes in cents
+                observe_revenue("donation", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 receipt_url = data_object["receipt_url"]
                 payment_intent_id = data_object["payment_intent"]

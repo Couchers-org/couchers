@@ -21,6 +21,8 @@ from couchers.models import (
     NonvisibleUserAccess,
     NonvisibleUserAccessType,
     NonvisibleUserState,
+    PhotoGallery,
+    PhotoGalleryItem,
     Reference,
     Upload,
     User,
@@ -1657,6 +1659,31 @@ def test_ListUserUploads_pagination(db):
 
     all_keys = first_page_keys + [u.key for u in res2.uploads]
     assert set(all_keys) == {"key0", "key1", "key2"}
+
+
+def test_ListUserUploads_uses(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        session.add(Upload(key="used_key", filename="used.jpg", creator_user_id=user.id))
+        session.add(Upload(key="unused_key", filename="unused.jpg", creator_user_id=user.id))
+        gallery = PhotoGallery(owner_user_id=user.id)
+        session.add(gallery)
+        session.flush()
+        session.add(PhotoGalleryItem(gallery_id=gallery.id, upload_key="used_key", position=1.0))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
+
+    uploads = {u.key: u for u in res.uploads}
+    assert list(uploads["unused_key"].uses) == []
+
+    used_uses = uploads["used_key"].uses
+    assert len(used_uses) == 1
+    assert used_uses[0].type == admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR
+    assert used_uses[0].is_current
+    assert used_uses[0].user_id == user.id
 
 
 def test_ListUserUploads_not_found(db):
