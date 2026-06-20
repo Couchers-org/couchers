@@ -1199,8 +1199,7 @@ class Events(events_pb2_grpc.EventsServicer):
                         EventOrganizer,
                         and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
                     )
-                query = query.where(EventOccurrenceAttendee.user_id == None)
-                query = query.where(EventOrganizer.user_id == None)
+                query = query.where(EventOccurrenceAttendee.user_id == None, EventOrganizer.user_id == None)
         if include_my_communities:
             my_communities = (
                 session.execute(
