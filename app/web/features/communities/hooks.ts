@@ -194,9 +194,14 @@ export interface CreateDiscussionInput {
 }
 
 export const useListUserCommunities = () =>
-  useQuery<ListUserCommunitiesRes.AsObject, RpcError>({
+  useInfiniteQuery<ListUserCommunitiesRes.AsObject, RpcError>({
     queryKey: [userCommunitiesListKey],
-    queryFn: () => service.communities.listUserCommunities(),
+    queryFn: ({ pageParam }) =>
+      service.communities.listUserCommunities(pageParam as string | undefined),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    staleTime: 10 * 60 * 1000,
   });
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {
