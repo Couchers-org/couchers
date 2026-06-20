@@ -12,9 +12,6 @@ import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-  if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
-    return { notFound: true };
-  }
   return {
     props: {
       ...(await serverSideTranslations(

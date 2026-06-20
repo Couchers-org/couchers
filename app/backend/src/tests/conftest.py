@@ -162,6 +162,7 @@ _TEST_FLAG_DEFAULTS: dict[str, Any] = {
     "remove_removed_users_from_mailing_list_enabled": True,
     "notification_translations_enabled": True,
     "email_ics_attachments_enabled": True,
+    "public_trips_enabled": True,
 }
 
 
