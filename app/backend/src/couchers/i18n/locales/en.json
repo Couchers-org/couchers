@@ -221,7 +221,6 @@
     "unrecognized_phone_number": "Your mobile phone number is not recognized. Please double-check it and contact support if this error persists.",
     "upload_not_found": "Upload not found.",
     "upload_not_found_or_not_owned": "Upload not found or you don't own it.",
-    "visibility_must_be_specified": "Visibility must be specified.",
     "user_already_admin": "That user is already an admin.",
     "user_already_blocked": "Target user has already been blocked.",
     "user_not_admin": "That user is not an admin.",

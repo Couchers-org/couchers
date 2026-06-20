@@ -9,7 +9,6 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { CatalanFlagIcon } from "components/Icons";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
@@ -76,34 +75,6 @@ const SmallLanguageCard = styled(Card)<{ percent: number }>(
   }),
 );
 
-const FlagImage = styled("img")<{ percent: number }>(({ percent }) => ({
-  width: 32,
-  height: 24,
-  borderRadius: 4,
-  filter:
-    percent < HIDDEN_CUTOFF
-      ? "grayscale(100%)"
-      : percent < SELECTOR_CUTOFF
-        ? "grayscale(50%)"
-        : "none",
-  transition: "filter 0.2s ease-in-out",
-}));
-
-const CatalanFlag = styled(CatalanFlagIcon)<{ percent: number }>(
-  ({ percent }) => ({
-    width: 32,
-    height: 24,
-    borderRadius: 4,
-    filter:
-      percent < HIDDEN_CUTOFF
-        ? "grayscale(100%)"
-        : percent < SELECTOR_CUTOFF
-          ? "grayscale(50%)"
-          : "none",
-    transition: "filter 0.2s ease-in-out",
-  }),
-);
-
 const getStatusColor = (
   percent: number,
 ): "success" | "info" | "warning" | "error" | "default" => {
@@ -140,19 +111,6 @@ export default function TranslationProgress() {
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
-
-  const renderFlag = (flagCode: string, percent: number) => {
-    if (flagCode === "CAT") {
-      return <CatalanFlag percent={percent} />;
-    }
-
-    return (
-      <FlagImage
-        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-        percent={percent}
-      />
-    );
-  };
 
   if (isLoading) {
     return (
@@ -252,9 +210,8 @@ export default function TranslationProgress() {
                     }}
                   >
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      {renderFlag(languageInfo.flagIconCode, percent)}
                       <Typography variant="subtitle2" fontWeight="bold">
-                        {t(`global:language_names.${languageCode}`)}
+                        {languageInfo.nativeName}
                       </Typography>
                     </Box>
                     <Chip
@@ -309,10 +266,8 @@ export default function TranslationProgress() {
                       width: "100%",
                     }}
                   >
-                    {renderFlag(languageInfo.flagIconCode, percent)}
-
                     <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                      {t(`global:language_names.${languageCode}`)}
+                      {languageInfo.nativeName}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {languageCode.toUpperCase()}

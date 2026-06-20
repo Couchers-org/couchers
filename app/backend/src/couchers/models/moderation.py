@@ -11,7 +11,7 @@ from datetime import datetime
 from functools import cache
 from typing import TYPE_CHECKING, Protocol
 
-from sqlalchemy import BigInteger, ColumnElement, DateTime, Enum, ForeignKey, Index, String, func
+from sqlalchemy import BigInteger, ColumnElement, DateTime, Enum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base, moderation_seq
@@ -57,6 +57,8 @@ class ModerationAction(enum.Enum):
     flag = enum.auto()
     # Remove flag
     unflag = enum.auto()
+    # Change a flag's priority
+    set_priority = enum.auto()
     # Bulk visibility change applied to every item authored by a user
     bulk_set_visibility = enum.auto()
 
@@ -131,6 +133,8 @@ class ModerationQueueItem(Base, kw_only=True):
     trigger: Mapped[ModerationTrigger] = mapped_column(Enum(ModerationTrigger))
     reason: Mapped[str] = mapped_column(String)
 
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
+
     # When resolved, this links to the log entry that resolved it
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True, default=None)
 
@@ -174,6 +178,10 @@ class ModerationLog(Base, kw_only=True):
 
     # State changes (nullable - only include fields that changed)
     new_visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility), default=None)
+    new_priority: Mapped[int | None] = mapped_column(Integer, default=None)
+
+    # The queue item (flag) this action concerned, for flag-level actions
+    queue_item_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_queue.id"), index=True, default=None)
 
     # Explanation for the action
     reason: Mapped[str] = mapped_column(String)

@@ -217,7 +217,6 @@
     "public_trip_in_past": "Ein öffentlicher Trip, der bereits beendet ist, kann nicht bearbeitet werden.",
     "public_trip_not_active": "Dieser öffentliche Trip nimmt keine Angebote mehr an.",
     "public_trip_not_found": "Dieser öffentliche Trip konnte nicht gefunden werden.",
-    "visibility_must_be_specified": "Die Sichtbarkeit muss angegeben werden.",
     "public_trip_user_mismatch": "Der Empfänger der Host-Anfrage stimmt nicht mit dem Reisenden des öffentlichen Trips überein.",
     "public_trips_not_enabled": "Öffentliche Trips sind in dieser Community nicht aktiviert.",
     "duplicate_host_request_for_trip": "Du hast bereits angeboten, diesen Trip zu hosten.",

@@ -8,7 +8,7 @@
   },
   "heading": {
     "about_me": "關於我",
-    "age_gender": "年齡 / 性別",
+    "age_gender": "年齡/性別",
     "edit": "編輯",
     "edit_profile": "編輯個人資料",
     "education": "教育",
@@ -31,7 +31,7 @@
     "age_verification_mismatch": "使用者提供的出生日期與驗證的出生日期不符",
     "gender_verification_verified": "此使用者已驗證其性別",
     "gender_verification_mismatch": "使用者提供的性別與驗證的性別不符",
-    "photos_section": "Photos"
+    "photos_section": "照片"
   },
   "section_tabs_a11y_label": "使用者詳情的標籤",
   "home_info_headings": {
@@ -61,8 +61,8 @@
     "household_details": "家庭詳細資訊",
     "household_members": "家庭會員",
     "household_habits": "家庭習慣",
-    "hosting_preferences_subtitle": "讓房客知道您對什麼感到滿意",
-    "about_home_subtitle": "告訴房客您的家以及他們的期望",
+    "hosting_preferences_subtitle": "讓客人知道您願意接受什麼",
+    "about_home_subtitle": "告訴客人您的家以及他們可以期待什麼",
     "household_details_subtitle": "分享有關您家庭的更多詳細資訊",
     "general_subtitle": "有關您家和區域的其他詳細資訊"
   },
@@ -81,7 +81,7 @@
     "basic_information": "基本資訊",
     "basic_information_subtitle": "首先提供您的照片、姓名和位置",
     "preferences": "P參考",
-    "preferences_subtitle": "讓其他人瞭解您的託管和聚會偏好",
+    "preferences_subtitle": "讓其他人瞭解您的接待和見面偏好",
     "personal_information": "個人資訊",
     "personal_information_subtitle": "分享有關您自己和背景的詳細資訊",
     "about_me_subtitle": "向別人介紹一下你自己。這就是信任開始的地方。幫助別人瞭解你的真實身份。請參閱<1>建立精彩個人資料的提示</1>。",
@@ -122,8 +122,8 @@
     "woman": "女性"
   },
   "pronouns": {
-    "man": "他 / 他",
-    "woman": "她 / 她"
+    "man": "他/他",
+    "woman": "她/她"
   },
   "edit_profile_tab_bar_a11y_label": "編輯個人資料的標籤",
   "info_unanswered": "問我",
@@ -145,11 +145,11 @@
     "private_text_label": "你還將提交以下私密回答：",
     "public_answer": "這將公開顯示在他們的個人資料的評語部分。",
     "public_text_label": "您將留下以下公開評語，該評語將顯示在{{name}}的個人資料上：",
-    "rating_label": "你的經歷讓你感覺像 ",
+    "rating_label": "你的經歷讓你感覺像",
     "rating_how": "您對{{name}}的整體體驗如何？",
     "reference_form_heading_friend": "你與{{name}}見面",
     "reference_form_heading_hosted": "你接待了{{name}}",
-    "reference_form_heading_surfed": "你與{{name}}一起衝浪",
+    "reference_form_heading_surfed": "你與{{name}}一起沙發衝浪",
     "writing_for_text": "你正在為以下人寫評語：",
     "reference_submit_heading": "請查看您的評語",
     "reference_type_not_available": "此評語類型對該使用者不可用。",
@@ -159,27 +159,27 @@
     "was_appropriate_required": "為了幫助我們保持社群安全，這個問題是必需的。",
     "next_step_label": "下一步",
     "add_a_reference": "添加對{{name}}個人資料的引用",
-    "by_writing_thoughtful": "不確定要寫什麼？請<1>在此處</1>閱讀我們的指南。通過誠實、詳細地寫下您與此人相處的經歷，您將直接幫助其他成員，併為 Couchers 社群的安全和信任做出貢獻。",
+    "by_writing_thoughtful": "不確定要寫什麼？請<1>在此處</1>閱讀我們的指南。通過誠實、詳細地寫下您與此人相處的經歷，您將直接幫助其他成員，併為Couchers社群的安全和信任做出貢獻。",
     "did_stay_confirmation": {
-      "title_hosted": "確認 {{name}} 沒有留下來",
-      "title_surfed": "確認您沒有和 {{name}}",
-      "message_hosted": " 一起留下，如果您表明 {{name}} 沒有留下來，您<strong>將無法撰寫推薦信</strong>。他們不會收到通知，但仍然可以為您留下參考資訊。<br /><br />如果您需要舉報某些內容，請在<2>此處</2>瞭解如何舉報。",
+      "title_hosted": "確認{{name}}沒有留下來",
+      "title_surfed": "確認您沒有和{{name}}",
+      "message_hosted": "一起留下，如果您表明{{name}}沒有留下來，您<strong>將無法撰寫推薦信</strong>。他們不會收到通知，但仍然可以為您留下參考資訊。<br /><br />如果您需要舉報某些內容，請在<2>此處</2>瞭解如何舉報。",
       "message_surfed": "如果您表明您沒有留在{{name}}，您<strong>將無法撰寫推薦信</strong>。他們不會收到通知，但仍然可以為您留下參考資訊。<br /><br />如果您需要報告某些內容，請在<2>此處</2>找到具體方法。",
-      "confirm_hosted": "確認我沒有主持",
-      "confirm_surfed": "確認我沒有上網"
+      "confirm_hosted": "確認我沒有接待",
+      "confirm_surfed": "確認我沒有沙發衝浪"
     },
     "did_stay_explanation": "如果您實際上沒有見面，請選擇“否”。您將無法撰寫公開參考資料，但可以選擇與我們分享有關所發生事件的<strong>私人</strong>資訊。對方不會被通知，但如果他們說你們見過面，仍然可以留下參考資訊。",
     "reference_form_heading_did_stay_surfed": "您和{{name}}住在一起嗎？",
     "reference_form_heading_did_stay_hosted": "您接待了{{name}}嗎？",
     "reason_didnt_meetup": "您為什麼沒有見面？ （可選）",
     "cant_write_reference_didnt_stay": "您無法編寫推薦信，因為您已表示您沒有與該使用者呆在一起。",
-    "cant_write_reference_expired": "編寫推薦信的時間已過（14 天后）。",
-    "text_explanation_hosted_surfed": "您在下面輸入的推薦信將在 {{name}} 為您編寫推薦信後或 14 天后與他們共享。 Couchers.org 社群的其他成員也可以看到它。",
+    "cant_write_reference_expired": "編寫推薦信的時間已過（14天后）。",
+    "text_explanation_hosted_surfed": "您在下面輸入的推薦信將在{{name}}為您編寫推薦信後或14天后與他們共享。Couchers.org社群的其他成員也可以看到它。",
     "text_label": "通過在此處分享上下文和任何相關詳細資訊，讓其他人瞭解您的體驗。",
     "thank_you_header": "感謝您留下參考！",
-    "thank_you_references_available": "託管或衝浪時，當雙方都提交了參考資料時，或兩週後，以較早者為準。",
-    "thank_you_support": "最重要的是，感謝您加入 Couchers 併成為我們社群的一部分！",
-    "thank_you_donation_prompt": "考慮<2>捐款</2>！ Couchers.org 是一個 501(c)(3) 非營利組織，我們需要捐款來保持服務器運行。",
+    "thank_you_references_available": "接待或沙發衝浪時，當雙方都提交了參考資料時，或兩週後，以較早者為準。",
+    "thank_you_support": "最重要的是，感謝您加入Couchers併成為我們社群的一部分！",
+    "thank_you_donation_prompt": "考慮<2>捐款</2>！Couchers.org是一個501(c)(3)非營利組織，我們需要捐款來保持服務器運行。",
     "rating_required": "請移動滑塊並評價您的體驗。",
     "rating_negative": "負面",
     "rating_neutral": "中立",
@@ -191,13 +191,13 @@
     "private_text_explanation_1": "在下面的框中，您可以私下告訴我們的安全團隊發生了什麼事。",
     "private_text_explanation_2": "這隻會由我們的安全團隊看到，並將保持私密。細節越多越好，但即使是簡短的解釋也會有很大幫助。點擊<2>此處</2>瞭解更多資訊。",
     "private_text_explanation_3": "感謝您幫助我們保障社群安全！",
-    "private_text_summary": "Couchers.org 安全團隊將收到以下私人反饋：",
+    "private_text_summary": "Couchers.org安全團隊將收到以下私人反饋：",
     "private_text_placeholder": "與我們的安全團隊私下分享資訊。",
-    "yes_safe": "Y是的，我感到安全。",
+    "yes_safe": "是的，我感到安全。",
     "no_not_safe": "不，我在一次或多次情況下感到不安全。",
     "what_happened": "什麼發生了？",
     "friend_reference_requires_friendship": "您只能為您的好友撰寫好友推薦信。",
-    "already_wrote_reference_for_stay": "您已為此使用者和本次入住撰寫了好友推薦信。他們為您撰寫推薦信後或 14 天后，您的推薦信將可見。",
+    "already_wrote_reference_for_stay": "您已為此使用者和本次入住撰寫了好友推薦信。他們為您撰寫推薦信後或14天后，您的推薦信將可見。",
     "already_wrote_friend_reference": "您已為此使用者編寫了朋友推薦信。"
   },
   "request_form": {
@@ -208,14 +208,22 @@
     "departure_date": "離開日期",
     "departure_date_empty": "請指定離開日期",
     "request": "請求",
-    "request_description": "分享你的訪問計劃，並說明為什麼選擇與這位特定的沙發主住",
+    "request_description": "分享你的訪問計劃，並說明為什麼選擇與這位特定的接待者同住",
     "request_description_empty": "請寫一條請求訊息",
     "success": "請求已發送！",
-    "request_chars_remaining_other": "請至少再寫 {{count}} 個字元，才能送出住宿請求。"
+    "request_chars_remaining_other": "請至少再寫{{count}}個字元，才能送出接待請求。"
+  },
+  "message_form": {
+    "send_message": "傳送訊息給{{name}}",
+    "message": "訊息",
+    "message_description": "寫下你的訊息...",
+    "message_empty": "請寫一則訊息。",
+    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。",
+    "success": "訊息已傳送！"
   },
   "reference_filter_label": {
     "friend": "來自朋友",
-    "hosted": "來自沙發主",
+    "hosted": "來自接待者",
     "surfed": "來自客人",
     "given": "給他人的",
     "all": "所有評語"
@@ -228,7 +236,7 @@
   "accept_friend_label": "接受好友請求",
   "decline_friend_label": "拒絕好友請求",
   "no_references": "還沒有此類評語！",
-  "references_filter_a11y_label": "顯示評語： ",
+  "references_filter_a11y_label": "顯示評語：",
   "see_more_references": "查看更多評語",
   "write_reference": "寫評語",
   "last_active_false": "未知",
@@ -252,7 +260,7 @@
   "incomplete_dialog": {
     "title": "資料未完成",
     "description": "在您完成以下操作之前，您將無法發送請求、訊息或建立活動：",
-    "about_me_message": "讓您的「我是誰」段落至少有 150 個字元。",
+    "about_me_message": "讓您的「我是誰」段落至少有150個字元。",
     "missing_photo_message": "添加個人資料照片。",
     "save_anyway": "仍要儲存嗎？",
     "continue_editing": "繼續編輯"
@@ -261,7 +269,7 @@
   "active": "活躍",
   "helper_text": {
     "missing_profile_photo": "請添加一張照片以完善您的個人資料。",
-    "characters_remaining_other": "<bold>請至少再寫 {{count}} 個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！"
+    "characters_remaining_other": "<bold>請至少再寫{{count}}個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！"
   },
   "do_not_email_error_link": "更新您的電子郵件設定以重新啟用此功能。",
   "edit_profile_name_required": "必填名稱",
@@ -305,7 +313,7 @@
     "add_photo": "添加照片",
     "remove_photo": "刪除照片",
     "select_photo": "選擇一張照片",
-    "photo_count": "{{當前}}，共 {{total}}",
+    "photo_count": "{{當前}}，共{{total}}",
     "empty_title": "添加您的第一張照片",
     "empty_description": "點擊此處或上面的按鈕上傳照片",
     "no_photos": "尚無照片",
@@ -320,17 +328,5 @@
     "next_photo": "下一張照片",
     "close_viewer": "關閉照片查看器",
     "report_photo": "報告照片"
-  },
-  "complete_profile_dialog": {
-    "title": "只差一步：請填寫您的個人資料以繼續！",
-    "description_1": "在您能 {{action_name}} 之前，您必須 <4>寫一些關於自己的內容</4> 並 <7>上傳一張頭像</7>。",
-    "description_2": "這有助於建立信任的社群並減少垃圾資訊。更多資訊，<2>請參閱此幫助頁面</2>。感謝您的幫助！",
-    "actions": {
-      "send_request": "發送請求",
-      "send_message": "發送訊息",
-      "create_event": "建立活動"
-    },
-    "edit_profile_button": "現在編輯您的個人資料",
-    "cancel_button": "算了"
   }
 }

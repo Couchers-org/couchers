@@ -1,5 +1,6 @@
 {
   "errors": {
+    "action_must_be_specified": "Action must be specified.",
     "blog_blurb_too_long": "The blog post blurb is too long.",
     "blog_title_too_long": "The blog post title is too long.",
     "cannot_edit_badge": "Admins cannot edit that badge.",
@@ -25,16 +26,21 @@
     "ota_package_not_found": "OTA package not found.",
     "parent_node_not_found": "Parent node not found.",
     "postcard_not_sent": "The postcard has not been sent yet.",
+    "queue_item_id_must_be_specified": "Queue item must be specified.",
+    "queue_item_not_found": "Queue item not found.",
     "reference_not_found": "Reference not found.",
     "tag_already_exists": "That admin tag already exists.",
     "tag_cant_be_empty": "The admin tag cannot be empty.",
     "tag_not_found": "Admin tag not found.",
+    "trigger_must_be_specified": "Trigger must be specified.",
+    "unsupported_action": "Unsupported action.",
     "user_already_has_admin_tag": "The user already has that admin tag.",
     "user_already_has_badge": "The user already has that badge.",
     "user_already_volunteer": "This user is already a volunteer.",
     "user_does_not_have_admin_tag": "The user does not have that admin tag.",
     "user_does_not_have_badge": "The user does not have that badge.",
     "user_not_in_the_moderation_user_list": "User is not in the moderation user list.",
+    "visibility_must_be_specified": "Visibility must be specified.",
     "volunteer_not_found": "Volunteer not found."
   }
 }

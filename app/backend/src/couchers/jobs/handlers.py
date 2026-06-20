@@ -38,6 +38,7 @@ from couchers.constants import (
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
+    MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
 from couchers.crypto import (
@@ -1544,8 +1545,10 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
 def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     """
-    Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
-    Items explicitly actioned by moderators are left alone.
+    Dead man's switch: approves unresolved INITIAL_REVIEW content older than the deadline to VISIBLE, then
+    re-flags it as a high-priority MACHINE_FLAG superseding only the INITIAL_REVIEW item. The switch only fires
+    when moderators are behind, so every auto-approved item stays in the queue for a human to check. Other open
+    flags are untouched, and items already actioned by moderators are left alone.
     """
     deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
     if deadline_seconds <= 0:
@@ -1578,13 +1581,27 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
             return
 
         logger.info(f"Auto-approving {len(approvable)} moderation queue items")
+        reason = f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded."
         for item in approvable:
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=item.moderation_state_id,
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
+                    reason=reason,
+                    clear_flags=False,
+                ),
+                context=ctx,
+                session=session,
+            )
+            Moderation().ModerateContent(
+                request=moderation_pb2.ModerateContentReq(
+                    moderation_state_id=item.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                    priority=MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
+                    reason=reason,
+                    supersede_queue_item_id=item.queue_item_id,
                 ),
                 context=ctx,
                 session=session,

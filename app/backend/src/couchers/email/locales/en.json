@@ -17,26 +17,28 @@
     "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"
   },
-  "account_deletion_started": {
-    "subject": "Confirm your Couchers.org account deletion",
-    "request_description": "You requested that we delete your account from Couchers.org.",
-    "confirmation_instructions": "To complete this process, please confirm by clicking the following button:",
-    "confirm_action": "Confirm account deletion"
-  },
-  "account_deletion_completed": {
-    "subject": "Your Couchers.org account has been deleted",
-    "confirmation": "You have successfully deleted your account from Couchers.org.",
-    "farewell": "We are sad to see you go, and wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)",
-    "recovery_instructions_days_one": "If you change your mind, <b>you have {{count}} day to recover your account</b> by clicking the following link:",
-    "recovery_instructions_days_other": "If you change your mind, <b>you have {{count}} days to recover your account</b> by clicking the following link:",
-    "recover_action": "Recover account"
-  },
-  "account_deletion_recovered": {
-    "subject": "Your Couchers.org account has been recovered!",
-    "confirmation": "Your account on Couchers.org has been successfully recovered!",
-    "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
-    "login_action": "Log back in",
-    "redelete_instructions": "If you change your mind, you can delete your account at any time."
+  "account_deletion": {
+    "started": {
+      "subject": "Confirm your Couchers.org account deletion",
+      "request_description": "You requested that we delete your account from Couchers.org.",
+      "confirmation_instructions": "To complete this process, please confirm by clicking the following button:",
+      "confirm_action": "Confirm account deletion"
+    },
+    "completed": {
+      "subject": "Your Couchers.org account has been deleted",
+      "confirmation": "You have successfully deleted your account from Couchers.org.",
+      "farewell": "We are sad to see you go, and wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)",
+      "recovery_instructions_days_one": "If you change your mind, <b>you have {{count}} day to recover your account</b> by clicking the following link:",
+      "recovery_instructions_days_other": "If you change your mind, <b>you have {{count}} days to recover your account</b> by clicking the following link:",
+      "recover_action": "Recover account"
+    },
+    "recovered": {
+      "subject": "Your Couchers.org account has been recovered!",
+      "confirmation": "Your account on Couchers.org has been successfully recovered!",
+      "login_instructions": "We are so glad you decided to stay! To log back in, click the following link:",
+      "login_action": "Log back in",
+      "redelete_instructions": "If you change your mind, you can delete your account at any time."
+    }
   },
   "activeness_probe": {
     "subject": "Are you still open to hosting on Couchers.org?",
@@ -55,47 +57,53 @@
     "usage_warning": "This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.",
     "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
   },
-  "badge_added": {
-    "subject": "The {{ badge_name }} badge was added to your profile",
-    "body": "The {{ badge_name }} badge was added to your profile."
-  },
-  "badge_removed": {
-    "subject": "The {{ badge_name }} badge was removed from your profile",
-    "body": "The {{ badge_name }} badge was removed from your profile."
+  "badges": {
+    "added": {
+      "subject": "The {{ name }} badge was added to your profile",
+      "body": "The {{ name }} badge was added to your profile."
+    },
+    "removed": {
+      "subject": "The {{ name }} badge was removed from your profile",
+      "body": "The {{ name }} badge was removed from your profile."
+    }
   },
   "birthdate_changed": {
     "subject": "Your date of birth was changed",
     "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
-  "chat_message_received": {
-    "direct": {
-      "subject": "{{ author }} sent you a message",
-      "body": "{{ author }} sent you a message:",
-      "view_action": "View this message"
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }} sent you a message",
+        "body": "{{ author }} sent you a message:",
+        "view_action": "View this message"
+      },
+      "group": {
+        "subject": "{{ author }} sent a message in \"{{ group }}\"",
+        "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
+        "view_action": "View this message"
+      }
     },
-    "group": {
-      "subject": "{{ author }} sent a message in \"{{ group }}\"",
-      "body": "{{ author }} sent a message in <b>{{ group }}</b>:",
+    "missed": {
+      "subject": "You have unseen messages on Couchers.org!",
+      "in_dm_one": "You missed {{count}} message from {{author}}:",
+      "in_dm_other": "You missed {{count}} messages from {{author}}:",
+      "in_group_one": "You missed {{count}} message in <b>{{group}}</b>:",
+      "in_group_other": "You missed {{count}} messages in <b>{{group}}</b>:",
       "view_action": "View this message"
     }
   },
-  "chat_messages_missed": {
-    "subject": "You have unseen messages on Couchers.org!",
-    "in_dm_one": "You missed {{count}} message from {{author}}:",
-    "in_dm_other": "You missed {{count}} messages from {{author}}:",
-    "in_group_one": "You missed {{count}} message in <b>{{group}}</b>:",
-    "in_group_other": "You missed {{count}} messages in <b>{{group}}</b>:",
-    "view_action": "View this message"
-  },
-  "discussion_created": {
-    "subject": "{{author}} started a discussion: {{title}}",
-    "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
-    "view_action": "View discussion"
-  },
-  "discussion_comment": {
-    "subject": "{{author}} commented on {{discussion_title}}",
-    "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
-    "view_action": "View discussion"
+  "discussions": {
+    "created": {
+      "subject": "{{author}} started a discussion: {{title}}",
+      "body": "<b>{{author}}</b> created a new discussion called <b>{{title}}</b> in <b>{{parent_context}}</b>:",
+      "view_action": "View discussion"
+    },
+    "comment": {
+      "subject": "{{author}} commented on {{discussion_title}}",
+      "body": "<b>{{author}}</b> commented on <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
+      "view_action": "View discussion"
+    }
   },
   "donation_received": {
     "subject": "Thank you for your donation to Couchers.org!",
@@ -108,21 +116,23 @@
     "generosity_helps": "Your generosity will help deliver the platform for everyone.",
     "thank_you": "Thank you!"
   },
-  "email_address_change_initiated": {
-    "subject": "An email change was initiated on your account",
-    "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
+  "email_change": {
+    "initiated": {
+      "subject": "An email change was initiated on your account",
+      "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
+    },
+    "confirmation": {
+      "subject": "Confirm your new email for Couchers.org",
+      "context": "You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ old_email }}</b>. This is the final step in the process.",
+      "instructions": "To complete this change, please confirm your email by clicking the following link:",
+      "confirm_action": "Confirm new email"
+    },
+    "verified": {
+      "subject": "Email change completed",
+      "body": "Your new email address has been verified."
+    }
   },
-  "email_address_change_confirmation": {
-    "subject": "Confirm your new email for Couchers.org",
-    "context": "You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ old_email }}</b>. This is the final step in the process.",
-    "instructions": "To complete this change, please confirm your email by clicking the following link:",
-    "confirm_action": "Confirm new email"
-  },
-  "email_address_verified": {
-    "subject": "Email change completed",
-    "body": "Your new email address has been verified."
-  },
-  "event": {
+  "events": {
     "generic": {
       "online_link": "Online",
       "view_action": "View event"
@@ -168,72 +178,76 @@
       "body": "An event you are subscribed to has been deleted by the moderators:"
     }
   },
-  "friend_request_received": {
-    "subject": "{{name}} wants to be your friend on Couchers.org!",
-    "body": "You've received a friend request from {{name}}.",
-    "view_action": "View friend requests",
-    "closing": "We hope you make a new friend!"
-  },
-  "friend_request_accepted": {
-    "subject": "{{name}} accepted your friend request!",
-    "body": "{{name}} has accepted your friend request.",
-    "view_action": "View their profile",
-    "closing": "We hope you continue making new friends!"
+  "friend_requests": {
+    "received": {
+      "subject": "{{name}} wants to be your friend on Couchers.org!",
+      "body": "You've received a friend request from {{name}}.",
+      "view_action": "View friend requests",
+      "closing": "We hope you make a new friend!"
+    },
+    "accepted": {
+      "subject": "{{name}} accepted your friend request!",
+      "body": "{{name}} has accepted your friend request.",
+      "view_action": "View their profile",
+      "closing": "We hope you continue making new friends!"
+    }
   },
   "gender_changed": {
     "subject": "Your gender was changed",
     "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
-  "host_request_created": {
-    "subject": "{{surfer_name}} sent you a host request",
-    "body": "<b>{{surfer_name}}</b> sent you a host request:",
-    "quick_decline_action": "Quick decline (no login needed)",
-    "respond_encouragement": "Please respond to this request, even a quick decline is better than no response!"
-  },
-  "host_request_generic": {
-    "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
-    "view_action": "View host request"
-  },
-  "host_request_reminder": {
-    "subject": "You have a pending host request from {{surfer_name}}!",
-    "body": "Please respond to the request!"
-  },
-  "host_request_message": {
-    "from_host": {
-      "subject": "{{other_name}} sent you a message in your host request",
-      "body": "<b>{{other_name}}</b> sent you a message in your host request:"
+  "host_requests": {
+    "created": {
+      "subject": "{{surfer_name}} sent you a host request",
+      "body": "<b>{{surfer_name}}</b> sent you a host request:",
+      "quick_decline_action": "Quick decline (no login needed)",
+      "respond_encouragement": "Please respond to this request, even a quick decline is better than no response!"
     },
-    "from_surfer": {
-      "subject": "{{other_name}} sent you a message in their host request",
-      "body": "<b>{{other_name}}</b> sent you a message in their host request:"
-    }
-  },
-  "host_request_missed_messages": {
-    "from_host": {
-      "subject": "{{other_name}} sent you message(s) in your host request",
-      "body": "<b>{{other_name}}</b> sent you message(s) in your host request:"
+    "generic": {
+      "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
+      "view_action": "View host request"
     },
-    "from_surfer": {
-      "subject": "{{other_name}} sent you message(s) in their host request",
-      "body": "<b>{{other_name}}</b> sent you message(s) in their host request:"
-    }
-  },
-  "host_request_status_changed": {
-    "accepted_by_host": {
-      "subject": "{{other_name}} accepted your host request",
-      "body": "<b>{{other_name}}</b> accepted your host request:"
+    "reminder": {
+      "subject": "You have a pending host request from {{surfer_name}}!",
+      "body": "Please respond to the request!"
     },
-    "declined_by_host": {
-      "subject": "{{other_name}} declined your host request",
-      "body": "<b>{{other_name}}</b> declined your host request:"
+    "message": {
+      "from_host": {
+        "subject": "{{other_name}} sent you a message in your host request",
+        "body": "<b>{{other_name}}</b> sent you a message in your host request:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} sent you a message in their host request",
+        "body": "<b>{{other_name}}</b> sent you a message in their host request:"
+      }
     },
-    "confirmed_by_surfer": {
-      "subject": "{{other_name}} confirmed their host request",
-      "body": "<b>{{other_name}}</b> confirmed their host request:"
+    "missed_messages": {
+      "from_host": {
+        "subject": "{{other_name}} sent you message(s) in your host request",
+        "body": "<b>{{other_name}}</b> sent you message(s) in your host request:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} sent you message(s) in their host request",
+        "body": "<b>{{other_name}}</b> sent you message(s) in their host request:"
+      }
     },
-    "cancelled_by_surfer": {
-      "subject": "{{other_name}} cancelled their host request",
-      "body": "<b>{{other_name}}</b> cancelled their host request:"
+    "status_changed": {
+      "accepted_by_host": {
+        "subject": "{{other_name}} accepted your host request",
+        "body": "<b>{{other_name}}</b> accepted your host request:"
+      },
+      "declined_by_host": {
+        "subject": "{{other_name}} declined your host request",
+        "body": "<b>{{other_name}}</b> declined your host request:"
+      },
+      "confirmed_by_surfer": {
+        "subject": "{{other_name}} confirmed their host request",
+        "body": "<b>{{other_name}}</b> confirmed their host request:"
+      },
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}} cancelled their host request",
+        "body": "<b>{{other_name}}</b> cancelled their host request:"
+      }
     }
   },
   "moderator_note": {
@@ -274,39 +288,45 @@
     "subject": "Your password was changed",
     "body": "Your login password for Couchers.org was changed."
   },
-  "password_reset_completed": {
-    "subject": "Your password was successfully reset",
-    "body": "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+  "password_reset": {
+    "started": {
+      "subject": "Reset your Couchers.org password",
+      "request_description": "You asked for your password to be reset on Couchers.org.",
+      "confirmation_instructions": "To complete this change, click on the following link:",
+      "reset_action": "Reset your password"
+    },
+    "completed": {
+      "subject": "Your password was successfully reset",
+      "body": "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+    }
   },
-  "password_reset_started": {
-    "subject": "Reset your Couchers.org password",
-    "request_description": "You asked for your password to be reset on Couchers.org.",
-    "confirmation_instructions": "To complete this change, click on the following link:",
-    "reset_action": "Reset your password"
+  "phone_number_verification": {
+    "started": {
+      "subject": "Phone verification started",
+      "body": "You started phone number verification with the number <b>{{ phone_number }}</b>."
+    },
+    "verified": {
+      "subject": "Phone successfully verified",
+      "body": "Your phone was successfully verified as <b>{{ phone_number }}</b>."
+    }
   },
-  "phone_number_verification_started": {
-    "subject": "Phone verification started",
-    "body": "You started phone number verification with the number <b>{{ phone_number }}</b>."
+  "postal_verification": {
+    "postcard_sent": {
+      "subject": "Your verification postcard is on its way",
+      "body": "We've sent a postcard with your verification code to {{ city }}, {{ country }}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
+    },
+    "succeeded": {
+      "subject": "Postal Verification succeeded",
+      "body": "You have been verified with Postal Verification! Your address has been confirmed."
+    },
+    "failed": {
+      "subject": "Postal Verification failed",
+      "reason_code_expired": "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt.",
+      "reason_too_many_attempts": "Too many incorrect code attempts. You can start a new verification attempt.",
+      "reason_unknown": "Your postal verification attempt has failed. You can start a new verification attempt."
+    }
   },
-  "phone_number_verified": {
-    "subject": "Phone successfully verified",
-    "body": "Your phone was successfully verified as <b>{{ phone_number }}</b>."
-  },
-  "postal_verification_failed": {
-    "subject": "Postal Verification failed",
-    "reason_code_expired": "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt.",
-    "reason_too_many_attempts": "Too many incorrect code attempts. You can start a new verification attempt.",
-    "reason_unknown": "Your postal verification attempt has failed. You can start a new verification attempt."
-  },
-  "postal_verification_postcard_sent": {
-    "subject": "Your verification postcard is on its way",
-    "body": "We've sent a postcard with your verification code to {{ city }}, {{ country }}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
-  },
-  "postal_verification_succeeded": {
-    "subject": "Postal Verification succeeded",
-    "body": "You have been verified with Postal Verification! Your address has been confirmed."
-  },
-  "reference": {
+  "references": {
     "received": {
       "friend": {
         "subject": "You've received a friend reference from {{name}}!",
@@ -356,19 +376,21 @@
       "ignore_if_unexpected": "If you did not request a signup, someone else did with your email, and you can safely ignore this message."
     }
   },
-  "strong_verification_failed": {
-    "subject": "Strong Verification failed",
-    "reason_wrong_birthdate_or_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
-    "reason_not_a_passport": "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
-    "reason_duplicate": "You tried to verify with a passport that has already been used for verification. Please use another passport."
-  },
-  "strong_verification_succeeded": {
-    "subject": "Strong Verification succeeded",
-    "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
-    "thanks_message": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
-    "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
-    "donation_request": "If you're able, please consider donating to help keep Couchers.org running and growing.",
-    "donate_action": "Donate to support Couchers.org"
+  "strong_verification": {
+    "succeeded": {
+      "subject": "Strong Verification succeeded",
+      "success_message": "You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
+      "thanks_message": "Thanks for verifying—you're helping make Couchers.org safer for everyone.",
+      "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
+      "donation_request": "If you're able, please consider donating to help keep Couchers.org running and growing.",
+      "donate_action": "Donate to support Couchers.org"
+    },
+    "failed": {
+      "subject": "Strong Verification failed",
+      "reason_wrong_birthdate_or_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
+      "reason_not_a_passport": "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
+      "reason_duplicate": "You tried to verify with a passport that has already been used for verification. Please use another passport."
+    }
   },
   "thread_reply": {
     "subject": "{{author}} replied in {{parent_context}}",
