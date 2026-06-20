@@ -721,7 +721,7 @@ class EventCreatedEmail(EmailBase):
         if self.community_name:
             builder.para(".purpose_with_community", {"user": self.inviting_user.name, "community": self.community_name})
         else:
-            builder.para(".purpose_no_community", {"user": self.inviting_user.name })
+            builder.para(".purpose_no_community", {"user": self.inviting_user.name})
         builder.block(self.event_info.get_details_block(loc_context))
         builder.user(self.inviting_user)
         builder.block(self.event_info.get_description_block())
@@ -1640,7 +1640,9 @@ class HostReferenceReminderEmail(EmailBase):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(f".{self.string_role_subkey}.purpose_days", {"name": self.other_user.name, "count": self.days_left})
+        builder.para(
+            f".{self.string_role_subkey}.purpose_days", {"name": self.other_user.name, "count": self.days_left}
+        )
         builder.user(self.other_user)
         builder.action(
             self.leave_reference_url,
