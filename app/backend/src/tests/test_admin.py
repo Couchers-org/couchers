@@ -1277,6 +1277,17 @@ def test_admin_actions_level(db):
         assert len(res.admin_actions) == 3
         assert res.admin_actions[2].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
+        # Explicitly set to TRACE
+        res = api.AddAdminNote(
+            admin_pb2.AddAdminNoteReq(
+                user=normal_user.username,
+                admin_note="trace note",
+                level=admin_pb2.ADMIN_ACTION_LEVEL_TRACE,
+            )
+        )
+        assert len(res.admin_actions) == 4
+        assert res.admin_actions[3].level == admin_pb2.ADMIN_ACTION_LEVEL_TRACE
+
 
 def test_admin_actions_on_mutations(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)

@@ -77,12 +77,14 @@ MAX_PAGINATION_LENGTH = 250
 
 
 adminactionlevel2api = {
+    AdminActionLevel.trace: admin_pb2.ADMIN_ACTION_LEVEL_TRACE,
     AdminActionLevel.debug: admin_pb2.ADMIN_ACTION_LEVEL_DEBUG,
     AdminActionLevel.normal: admin_pb2.ADMIN_ACTION_LEVEL_NORMAL,
     AdminActionLevel.high: admin_pb2.ADMIN_ACTION_LEVEL_HIGH,
 }
 
 api2adminactionlevel = {
+    admin_pb2.ADMIN_ACTION_LEVEL_TRACE: AdminActionLevel.trace,
     admin_pb2.ADMIN_ACTION_LEVEL_DEBUG: AdminActionLevel.debug,
     admin_pb2.ADMIN_ACTION_LEVEL_NORMAL: AdminActionLevel.normal,
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
