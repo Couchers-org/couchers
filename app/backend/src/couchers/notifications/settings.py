@@ -337,7 +337,7 @@ def get_user_setting_groups(
                 actions = []
                 for topic_action in items:
                     delivery_types = get_preference(session, user_id, topic_action)
-                    description = get_topic_action_description(topic_action, locale=loc_context.locale)
+                    description = get_topic_action_description(topic_action, locales=loc_context.locale_list)
                     actions.append(
                         notifications_pb2.NotificationItem(
                             action=topic_action.action,
