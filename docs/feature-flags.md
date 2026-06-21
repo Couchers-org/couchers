@@ -40,9 +40,9 @@ TODO: there is currently no such mechanism in the frontend; you can just manuall
 To set the value of a feature flag to a non-default value for everyone for a given environment, follow this process:
 
 1. **Click on "Add Rule"**
-  ![Screenshot showing where to find "Add Rule"](feature-flag-set1.png)
+  ![Screenshot showing where to find "Add Rule"](feature-flags-set1.png)
 2. **Choose "Targeted release"**
-  ![Screenshot showing how to select "Targeted release"](feature-flag-set2.png)
+  ![Screenshot showing how to select "Targeted release"](feature-flags-set2.png)
 3. **Select environments**: if you want this value to apply for all environments, select "all", otherwise, select the environment you want (e.g. staging/production)
-  ![Screenshot showing the rule definition page](feature-flag-set3.png)
+  ![Screenshot showing the rule definition page](feature-flags-set3.png)
 4. **Select the value you want to set**
