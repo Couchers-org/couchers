@@ -21,7 +21,8 @@ If you have access, you can then add it to the feature flag service. If not, ask
 * **Feature key**: is the name you gave it.
 * **Project**: if it should only be available in the backend, choose that, otherwise if you need to use it on both backend and apps, choose "Backend + clients".
 * **Tags**: don't add tags.
-* **Value Type**: pick the right data type from "Value Type", and set the "Default Value when Enabled" to the same thing as your default from earlier.
+* **Value Type**: pick the right data type from "Value Type"
+* **Default Value when Enabled**: set this to the **same value as the default you chose** earlier.
 * **Enabled Environments**: Enable all environments.
 * **Description**: Give it a meaningful description in Markdown.
 * **Can be toggled per-user?** tick this if you always use this via `context` in the backend, and if it is possible enable this feature per-user. E.g. some background jobs cannot be toggled per-user as they either run or don't run, or some backend sampling logic that is not associated to users. On the other hand, even if it doesn't make much sense to show a feature per-user, but it is possible, you should tick this option. It tracks possibility, not whether it makes sense.
@@ -33,3 +34,15 @@ If you have access, you can then add it to the feature flag service. If not, ask
 The local backend does not pull the feature flags from the server, instead it resolves them from the override file in `feature-flags.dev.json`. You should set a value here that makes sense for devs developing locally (e.g. enable experimental features), and you can use it for local debug/testing temporary overrides (but don't commit this).
 
 TODO: there is currently no such mechanism in the frontend; you can just manually modify the place where you check the flags.
+
+## Setting the value of a feature flag to a non-default value
+
+To set the value of a feature flag to a non-default value for everyone for a given environment, follow this process:
+
+1. **Click on "Add Rule"**
+  ![Screenshot showing where to find "Add Rule"](feature-flag-set1.png)
+2. **Choose "Targeted release"**
+  ![Screenshot showing how to select "Targeted release"](feature-flag-set2.png)
+3. **Select environments**: if you want this value to apply for all environments, select "all", otherwise, select the environment you want (e.g. staging/production)
+  ![Screenshot showing the rule definition page](feature-flag-set3.png)
+4. **Select the value you want to set**
