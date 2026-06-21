@@ -2018,6 +2018,13 @@
   resolved "https://registry.yarnpkg.com/@sentry/babel-plugin-component-annotate/-/babel-plugin-component-annotate-5.3.0.tgz#356218f747969f9af970987dcf0f17ec81d6e50c"
   integrity sha512-p4q8gn8wcFqZGP/s2MnJCAAd8fTikaU6A0mM97RDHQgStcrYiaS0Sc5zUNfb1V+UOLPuvdEdL6MwyxfzjYJQTA==
 
+"@sentry/browser-utils@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/browser-utils/-/browser-utils-10.59.0.tgz#d4c5744fbe0b4b4159a13549e9a8726174c60daa"
+  integrity sha512-DpJIrNi0Hsj/YONTZ8km1wv7ue2NzrTmFKJ3lRW8Q2nS/mrMeP3LCvjreLtKheTouB4go58NxM68AEFbXk4rPg==
+  dependencies:
+    "@sentry/core" "10.59.0"
+
 "@sentry/browser@10.53.1":
   version "10.53.1"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-10.53.1.tgz#db8dbbf4fc752acec9fec5073a7105a2b0f58f97"
@@ -2028,6 +2035,17 @@
     "@sentry-internal/replay" "10.53.1"
     "@sentry-internal/replay-canvas" "10.53.1"
     "@sentry/core" "10.53.1"
+
+"@sentry/browser@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-10.59.0.tgz#85bbcfa5870f01688d2c99c754f2d927c9ef965c"
+  integrity sha512-d0o0oc78KNWCZ6yq9gREf9BPXWza/Wj9W+nCm0CvPD5k2IbouD/eJsm2Mb+d53YfEm12L+SePfgOx01KbbVx4A==
+  dependencies:
+    "@sentry/browser-utils" "10.59.0"
+    "@sentry/core" "10.59.0"
+    "@sentry/feedback" "10.59.0"
+    "@sentry/replay" "10.59.0"
+    "@sentry/replay-canvas" "10.59.0"
 
 "@sentry/bundler-plugin-core@5.3.0", "@sentry/bundler-plugin-core@^5.3.0":
   version "5.3.0"
@@ -2107,6 +2125,18 @@
   resolved "https://registry.yarnpkg.com/@sentry/core/-/core-10.53.1.tgz#68bed0e5857be6a8d5009268337c4153ab87514d"
   integrity sha512-XG4ezlkyuAPjBC5+9kXC94rXXuqYTw9NRhfaDHssbTFaGnqBR8vQX2UUgZfY7ucbeelRDGfBu1sywoU+mB04uA==
 
+"@sentry/core@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-10.59.0.tgz#96aa9328c21888f3e9262cf3191274b576a62cda"
+  integrity sha512-QeG7XZL5j6CkToYCE7OwCerb/r742Tjj9p1BBohBKcypYTPRuqfD+A3FeUj7pk5CGO6Vj1/gOAmdbuuNbR51dQ==
+
+"@sentry/feedback@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/feedback/-/feedback-10.59.0.tgz#037cf79526dc93fa2e7a93e49b52925b4338f17f"
+  integrity sha512-Sa/06LlG/mYR4z8/JlxOwvkcOHJnaMW6JyTMKNsgEoR1SHZULIpirjUuHIp4P+7R1mqX/KGTj8I7SQ3adA0TxQ==
+  dependencies:
+    "@sentry/core" "10.59.0"
+
 "@sentry/nextjs@^10.53.1":
   version "10.53.1"
   resolved "https://registry.yarnpkg.com/@sentry/nextjs/-/nextjs-10.53.1.tgz#a970753da67be1aa39824dc65f5b0145ce513cd2"
@@ -2177,13 +2207,37 @@
   dependencies:
     "@sentry/core" "10.53.1"
 
-"@sentry/react@10.53.1", "@sentry/react@^10.52.0":
+"@sentry/react@10.53.1":
   version "10.53.1"
   resolved "https://registry.yarnpkg.com/@sentry/react/-/react-10.53.1.tgz#4434b4d1162dd4490ec269068f104d9d639d1437"
   integrity sha512-lrwNq5T/zW84l60894TpKHPcvFuc1I/Hnohecc0TfYVpIcYYuw2orCHoU4v4wgkFaJUpegVetbgdOphViyLVjA==
   dependencies:
     "@sentry/browser" "10.53.1"
     "@sentry/core" "10.53.1"
+
+"@sentry/react@^10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-10.59.0.tgz#2d5a83132668fcc9afb1383cfd1d5be72490ecb5"
+  integrity sha512-B3MmXooGLnTu0gyL8hxElCu1+WVEXjIGoDPvGqn5qMHZNSmB2oPTAt1/UutuxAc6EWu2UKIHnyPowNeY2MPH3g==
+  dependencies:
+    "@sentry/browser" "10.59.0"
+    "@sentry/core" "10.59.0"
+
+"@sentry/replay-canvas@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/replay-canvas/-/replay-canvas-10.59.0.tgz#79adc2809664fe3fb3061b7d27287b825b4e3f8f"
+  integrity sha512-bJkqvxQiat27P7+hUYC/m545Ct/uVxZCjh+PeCFdRcuHnZZ92e6Z7XPLf0LqAR6tR1U7wDUa4V5ugrMIEz+vpQ==
+  dependencies:
+    "@sentry/core" "10.59.0"
+    "@sentry/replay" "10.59.0"
+
+"@sentry/replay@10.59.0":
+  version "10.59.0"
+  resolved "https://registry.yarnpkg.com/@sentry/replay/-/replay-10.59.0.tgz#74008c9cc847702c4a67b545ba70b20bfcbb3316"
+  integrity sha512-fpHL25JErsSfTyusuyZ3Q5JmRZeWYWynJO3PNiQH6A/58EqaCp8U5y8LCJ+CSPaeuBMka3S3Qn6U4eXcvkDMRA==
+  dependencies:
+    "@sentry/browser-utils" "10.59.0"
+    "@sentry/core" "10.59.0"
 
 "@sentry/vercel-edge@10.53.1":
   version "10.53.1"
