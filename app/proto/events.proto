@@ -275,19 +275,23 @@ message ListMyEventsReq {
   bool subscribed = 2;
   bool attending = 3;
   bool organizing = 4;
-  // include events in the user's communities
-  bool my_communities = 7;
-  // when my_communities is set, exclude events in communities that are too large (e.g., the Global Community)
-  bool my_communities_exclude_global = 10;
-
-  bool include_cancelled = 8;
-
   uint32 page_size = 5;
 
   oneof pagination {
     string page_token = 6;
     uint32 page_number = 9;
   }
+
+  // include events in the user's communities
+  bool my_communities = 7;
+
+  bool include_cancelled = 8;
+
+  // when my_communities is set, exclude events in communities that are too large (e.g., the Global Community)
+  bool my_communities_exclude_global = 10;
+
+  // exclude events the current user is already attending or organizing
+  bool exclude_attending = 11;
 }
 
 message ListMyEventsRes {

@@ -1955,6 +1955,77 @@ def test_ListMyEvents(db, moderator: Moderator):
         assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
 
+def test_list_my_events_exclude_attending(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c = create_community(session, 0, 100, "Community", [user1, user2], [], None)
+        c_id = c.id
+
+    start = now()
+
+    def make_event(hours):
+        return events_pb2.CreateEventReq(
+            title="Test Event",
+            content="Test content.",
+            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+            parent_community_id=c_id,
+            timezone="UTC",
+            start_time=Timestamp_from_datetime(start + timedelta(hours=hours)),
+            end_time=Timestamp_from_datetime(start + timedelta(hours=hours + 1)),
+        )
+
+    # user1 organizes e_own; user2 organizes e_attending and e_community_only
+    with events_session(token1) as api:
+        e_own = api.CreateEvent(make_event(1)).event_id
+
+    with events_session(token2) as api:
+        e_attending = api.CreateEvent(make_event(2)).event_id
+        e_community_only = api.CreateEvent(make_event(3)).event_id
+        # e_both: user1 will be both organizer and attendee
+        e_both = api.CreateEvent(make_event(4)).event_id
+
+    moderator.approve_event_occurrence(e_own)
+    moderator.approve_event_occurrence(e_attending)
+    moderator.approve_event_occurrence(e_community_only)
+    moderator.approve_event_occurrence(e_both)
+
+    # invite user1 as organizer of e_both
+    with events_session(token2) as api:
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e_both, user_id=user1.id))
+
+    # user1 RSVPs to e_attending and e_both
+    with events_session(token1) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=e_both, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(token1) as api:
+        # baseline: all four community events visible
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
+        assert {e.event_id for e in res.events} == {e_own, e_attending, e_community_only, e_both}
+
+        # exclude_attending removes events user1 is attending (e_attending, e_both)
+        # and events user1 is organizing (e_own, e_both) — leaving only e_community_only
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, exclude_attending=True))
+        assert [e.event_id for e in res.events] == [e_community_only]
+
+        # exclude_attending with attending=True: invalid combination
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True, exclude_attending=True))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    # user2 has no attendance/organizing relationship with e_community_only, so exclude_attending has no effect on it
+    with events_session(token2) as api:
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, exclude_attending=True))
+        # user2 organizes e_attending, e_community_only, e_both — all excluded except e_own (user2 has no relation)
+        assert [e.event_id for e in res.events] == [e_own]
+
+
 def test_RemoveEventOrganizer(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

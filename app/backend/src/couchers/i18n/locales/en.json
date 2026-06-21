@@ -66,6 +66,8 @@
     "event_cant_update_old_event": "You can't modify, subscribe to, or attend to an event that's more than 1 day old.",
     "event_community_invite_already_approved": "A community invite has already been sent out for this event.",
     "event_community_invite_already_requested": "You have already requested a community invite for this event.",
+    "cannot_combine_attending_and_exclude_attending": "You cannot set both attending and exclude_attending.",
+    "event_community_invite_not_found": "Couldn't find that event community invite.",
     "event_edit_permission_denied": "You're not allowed to edit that event.",
     "event_ends_before_starts": "The event must end after it starts.",
     "event_in_past": "The event must be in the future.",
