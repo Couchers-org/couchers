@@ -1,12 +1,15 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { TabContext } from "@mui/lab";
 import { Breadcrumbs, styled, Typography } from "@mui/material";
+import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
+import { ReactNode } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
@@ -30,13 +33,24 @@ export default function CommunityPageSubHeader({
   community: Community.AsObject;
   tab: CommunityTab;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES, PUBLIC_TRIPS]);
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   const router = useRouter();
-  const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
+  const communityTabBarLabels: Partial<
+    Record<CommunityTab, string | ReactNode>
+  > = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
     ...(community.smallCommunityFeaturesEnabled && {
+      ...(isPublicTripsEnabled && {
+        "public-trips": (
+          <span style={{ display: "inline-flex", alignItems: "center" }}>
+            {t("publicTrips:label")}
+            <BetaFlag />
+          </span>
+        ),
+      }),
       discussions: t("communities:discussions_label"),
       events: t("communities:events_label"),
     }),

@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Alert, Box, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,6 +12,7 @@ import { theme } from "theme";
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import CommunityEvents from "./CommunityEvents";
+import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
@@ -20,6 +22,7 @@ import UpcomingStays from "./UpcomingStays";
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   return (
     <>
@@ -97,6 +100,13 @@ export default function Dashboard() {
             <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunityEvents />
+
+            {isPublicTripsEnabled && (
+              <>
+                <Box sx={{ height: theme.spacing(3) }} />
+                <DashboardMyPublicTrips />
+              </>
+            )}
 
             <Box sx={{ height: theme.spacing(3) }} />
 

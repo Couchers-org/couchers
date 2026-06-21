@@ -163,6 +163,18 @@ export const newUsersListKey = "newUsersList";
 
 // Public
 export const volunteersKey = "volunteers";
+
+// Public Trips
+export const publicTripsBaseKey = "publicTrips";
+export const publicTripsKey = (communityId: number) => [
+  publicTripsBaseKey,
+  communityId,
+];
+export const publicTripsByUserBaseKey = "publicTripsByUser";
+export const publicTripsByUserKey = (userId: number) => [
+  publicTripsByUserBaseKey,
+  userId,
+];
 export const donationStatsKey = "donationStats";
 
 // Translate
