@@ -4,7 +4,7 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from datetime import date, datetime, time, tzinfo
 from typing import cast
 
@@ -13,23 +13,7 @@ import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
 from babel.lists import format_list
 
-from couchers.i18n.locales import DEFAULT_LOCALE, get_main_i18next
 from couchers.resources import get_region_code_iso3166_alpha3_to_alpha2
-
-
-def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
-    """
-    Retrieves a translated string and performs substitutions.
-
-    Args:
-        lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
-        key: The key for the string to be looked up.
-        substitutions: Dictionary of variable substitutions for the string (e.g., {"hours": 24})
-
-    Returns:
-        The translated string with substitutions applied
-    """
-    return get_main_i18next().localize(key, lang or DEFAULT_LOCALE, substitutions)
 
 
 def localize_list(items: Sequence[str], locale: babel.Locale) -> str:

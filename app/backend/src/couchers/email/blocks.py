@@ -51,7 +51,7 @@ class EmailBase(ABC):
         standard_closing: bool = True,
         security_warning: bool = False,
     ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
+        builder = EmailBlocksBuilder(locales=loc_context.locale_list, string_key_base=self.string_key_base)
         if standard_greeting:
             builder.para("generic.greeting_line", {"name": self.user_name})
         if standard_closing:
@@ -78,7 +78,7 @@ class EmailBase(ABC):
         self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
     ) -> str:
         key = full_string_key(key, relative_base=self.string_key_base)
-        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
+        return loc_context.localize_string(key, i18next=get_emails_i18next(), substitutions=substitutions)
 
 
 @dataclass
@@ -153,13 +153,13 @@ class EmailBlocksBuilder:
     Builder object for constructing a list of localized EmailBlock's to form the body of an email.
     """
 
-    _locale: str
+    _locales: list[str]
     _string_key_base: str
     _blocks: list[EmailBlock]
     _epilogue: list[EmailBlock]
 
-    def __init__(self, locale: str, string_key_base: str):
-        self._locale = locale
+    def __init__(self, locales: list[str], string_key_base: str):
+        self._locales = locales
         self._string_key_base = string_key_base
         self._blocks = []
         self._epilogue = []
@@ -194,11 +194,11 @@ class EmailBlocksBuilder:
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:
         key = full_string_key(key, relative_base=self._string_key_base)
-        return get_emails_i18next().localize(key, self._locale, substitutions)
+        return get_emails_i18next().localize(key, self._locales, substitutions)
 
     def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         key = full_string_key(key, relative_base=self._string_key_base)
-        return get_emails_i18next().localize_with_markup(key, self._locale, substitutions)
+        return get_emails_i18next().localize_with_markup(key, self._locales, substitutions)
 
 
 @dataclass(kw_only=True)
