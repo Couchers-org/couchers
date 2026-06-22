@@ -6,7 +6,8 @@ export function listSeparatorForLocale(locale: string) {
   if (!separator) {
     // Intl.ListFormat doesn't have a way to format a list without using "and"/"or".
     // But we can extract the mid-list separator it uses, which is robust for Western, CJK and Arabic.
-    const formatter = new Intl.ListFormat(locale, {
+    // If the local is unknown, fallback to English, which uses commas.
+    const formatter = new Intl.ListFormat([locale, "en"], {
       type: "conjunction",
       style: "long",
     });
