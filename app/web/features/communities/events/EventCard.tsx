@@ -11,16 +11,13 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import Divider from "components/Divider";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { BROWSER_TIMEZONE, localizeDateTimeRange } from "i18n/dates";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
+import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import stripMarkdown from "utils/stripMarkdown";
 

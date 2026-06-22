@@ -1,16 +1,16 @@
 import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
-import { Event } from "proto/events_pb";
-import { routeToEvent } from "routes";
 import {
   BROWSER_TIMEZONE,
   localizeDateTime,
   localizeMonthAbbreviation,
-  timestamp2Date,
-} from "utils/date";
+} from "i18n/dates";
+import { DASHBOARD } from "i18n/namespaces";
+import Link from "next/link";
+import { Event } from "proto/events_pb";
+import { routeToEvent } from "routes";
+import { timestamp2Date } from "utils/date";
 
 export const EventListContainer = styled("div")({
   border: "1px solid var(--mui-palette-grey-300)",

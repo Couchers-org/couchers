@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
+import { localizeDateTime } from "i18n/dates";
 import { AUTH } from "i18n/namespaces";
-import { localizeDateTime } from "utils/date";
 import dayjs from "utils/dayjs";
 
 interface TimezoneProps {

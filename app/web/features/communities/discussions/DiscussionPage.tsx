@@ -17,6 +17,7 @@ import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateTime } from "i18n/dates";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
@@ -24,7 +25,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestamp2Date } from "utils/date";
+import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";

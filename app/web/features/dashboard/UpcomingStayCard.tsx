@@ -6,15 +6,15 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
-import { HostRequest } from "proto/requests_pb";
-import { routeToHostRequest } from "routes";
 import {
   localizeDateTimeRange,
   localizeRelativeDays,
   UTC_TIMEZONE,
-} from "utils/date";
+} from "i18n/dates";
+import { DASHBOARD } from "i18n/namespaces";
+import Link from "next/link";
+import { HostRequest } from "proto/requests_pb";
+import { routeToHostRequest } from "routes";
 import dayjs from "utils/dayjs";
 
 const StyledCard = styled(Box)(({ theme }) => ({

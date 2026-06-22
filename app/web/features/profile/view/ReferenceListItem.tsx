@@ -3,11 +3,12 @@ import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
+import { localizeYearMonth } from "i18n/dates";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { LiteUser } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
-import { localizeYearMonth, timestamp2Date } from "utils/date";
+import { timestamp2Date } from "utils/date";
 
 export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
 

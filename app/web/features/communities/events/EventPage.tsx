@@ -22,6 +22,7 @@ import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { BROWSER_TIMEZONE, localizeDateTimeRange } from "i18n/dates";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
@@ -34,11 +35,7 @@ import {
 } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
+import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 

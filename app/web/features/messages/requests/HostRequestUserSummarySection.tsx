@@ -8,11 +8,12 @@ import {
 import Avatar from "components/Avatar";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange, UTC_TIMEZONE } from "i18n/dates";
 import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { theme } from "theme";
-import { localizeDateTimeRange, numNights, UTC_TIMEZONE } from "utils/date";
+import { numNights } from "utils/date";
 import dayjs from "utils/dayjs";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 

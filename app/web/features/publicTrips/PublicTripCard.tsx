@@ -31,11 +31,11 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/dates";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToCommunity, routeToUser } from "routes";
-import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 

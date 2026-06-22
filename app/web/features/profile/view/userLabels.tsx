@@ -3,6 +3,7 @@ import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
+import { localizeDateTime, localizeYearMonth, UTC_TIMEZONE } from "i18n/dates";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import {
   BirthdateVerificationStatus,
@@ -10,12 +11,7 @@ import {
   User,
 } from "proto/api_pb";
 import { theme } from "theme";
-import {
-  localizeDateTime,
-  localizeYearMonth,
-  timestamp2Date,
-  UTC_TIMEZONE,
-} from "utils/date";
+import { timestamp2Date } from "utils/date";
 import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
 

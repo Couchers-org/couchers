@@ -17,11 +17,12 @@ import {
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
+import { localizeDateTime } from "i18n/dates";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
-import { localizeDateTime, timestamp2Date } from "utils/date";
+import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
 const StyledCard = styled(Card)(({ theme }) => ({

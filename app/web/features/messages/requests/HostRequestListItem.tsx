@@ -26,12 +26,12 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange, UTC_TIMEZONE } from "i18n/dates";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
