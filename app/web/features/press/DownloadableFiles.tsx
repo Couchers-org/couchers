@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  ButtonProps,
-  Link,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, Button, ButtonProps, styled, Typography } from "@mui/material";
 import { CouchersIcon } from "components/Icons";
 
 import StyledBox from "./StyledBox";
@@ -91,7 +84,7 @@ const StyledLogo = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
+const StyledButton = styled(Button)<ButtonProps<"a">>(({ theme }) => ({
   minWidth: "8rem",
   textAlign: "center",
   marginBlockEnd: theme.spacing(2),
@@ -112,7 +105,12 @@ export default function DownloadableFiles() {
             <Typography fontSize="1.25rem" textAlign="center">
               Download our logo in SVG and PNG format
             </Typography>
-            <StyledButton component={Link} href="" variant="outlined">
+            <StyledButton
+              component="a"
+              href="/img/press/downloads/couchers-logo-assets.zip"
+              download="couchers-logo-assets.zip"
+              variant="outlined"
+            >
               Download
             </StyledButton>
           </StyledCard>
@@ -123,7 +121,12 @@ export default function DownloadableFiles() {
             <Typography fontSize="1.25rem" textAlign="center">
               Download mobile app images
             </Typography>
-            <StyledButton component={Link} href="" variant="outlined">
+            <StyledButton
+              component="a"
+              href="/img/press/downloads/couchers-mobile-images.zip"
+              download="couchers-mobile-images.zip"
+              variant="outlined"
+            >
               Download
             </StyledButton>
           </StyledCard>
