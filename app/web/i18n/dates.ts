@@ -242,4 +242,3 @@ function createIntlDateTimeFormat(
   }
   return Intl.DateTimeFormat(args.locale, options);
 }
-
