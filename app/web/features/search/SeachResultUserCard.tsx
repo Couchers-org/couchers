@@ -3,6 +3,7 @@ import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
+import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
@@ -291,6 +292,10 @@ const SearchResultUserCard = ({
                   }}
                 >
                   {user.name}
+                  {"hasStrongVerification" in user &&
+                  user.hasStrongVerification ? (
+                    <StrongVerificationBadge />
+                  ) : null}
                 </Typography>
               </ProfileLink>
             </FlexRow>
