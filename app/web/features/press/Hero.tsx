@@ -7,11 +7,27 @@ const StyledContainer = styled("div")({
   alignItems: "center",
   height: "14rem",
   position: "relative",
+  overflow: "hidden",
   backgroundColor: "var(--mui-palette-primary-main)",
-  backgroundImage:
-    "linear-gradient(#00000066, #000000da), url(https://cdn.couchers.org/img/hero/2048.jpeg)",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
+});
+
+const StyledImage = styled("img")({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  objectPosition: "center",
+});
+
+const StyledOverlay = styled("div")({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "linear-gradient(#00000066, #000000da)",
 });
 
 const StyledHeading = styled("h1")(({ theme }) => ({
@@ -32,6 +48,7 @@ const StyledHeading = styled("h1")(({ theme }) => ({
 const StyledContentContainer = styled("div")(({ theme }) => ({
   position: "absolute",
   padding: "2rem",
+  width: "100%",
   height: "100%",
   display: "flex",
   flexDirection: "column",
@@ -46,6 +63,17 @@ const StyledContentContainer = styled("div")(({ theme }) => ({
 export default function Hero() {
   return (
     <StyledContainer>
+      <StyledImage
+        src="https://cdn.couchers.org/img/hero/2048.jpeg"
+        srcSet={[
+          "https://cdn.couchers.org/img/hero/1024.jpeg 1024w",
+          "https://cdn.couchers.org/img/hero/2048.jpeg 2048w",
+          "https://cdn.couchers.org/img/hero/4096.jpeg 4096w",
+        ].join(", ")}
+        sizes="100vw"
+        alt=""
+      />
+      <StyledOverlay />
       <HeroImageAttribution />
       <StyledContentContainer>
         <StyledHeading>Press & Media</StyledHeading>
