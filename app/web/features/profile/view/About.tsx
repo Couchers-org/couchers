@@ -2,7 +2,7 @@ import { styled, Typography, useTheme } from "@mui/material";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import { useTranslation } from "i18n";
-import { localizeList } from "i18n/lists";
+import { listSeparatorForLocale } from "i18n/lists";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
@@ -79,20 +79,18 @@ export default function About({ user }: AboutProps) {
       </Typography>
       <Typography variant="body1">
         {regions && user.regionsVisitedList.length > 0
-          ? localizeList(
-              user.regionsVisitedList.map((country) => regions[country]),
-              { locale },
-            )
+          ? user.regionsVisitedList
+              .map((country) => regions[country])
+              .join(listSeparatorForLocale(locale))
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />
       <Typography variant="h1">{t("profile:heading.lived_section")}</Typography>
       <Typography variant="body1">
         {regions && user.regionsLivedList.length > 0
-          ? localizeList(
-              user.regionsLivedList.map((country) => regions[country]),
-              { locale },
-            )
+          ? user.regionsLivedList
+              .map((country) => regions[country])
+              .join(listSeparatorForLocale(locale))
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />

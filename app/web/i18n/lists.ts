@@ -1,23 +1,18 @@
-const cache = new Map<string, Intl.ListFormat>();
+const cache = new Map<string, string>();
 
-/// Localizes a list of items with appropriate commas and such.
-export function localizeList(
-  items: string[],
-  {
-    locale,
-    type = "conjunction",
-    style = "long",
-  }: {
-    locale: string;
-    type?: Intl.ListFormatType;
-    style?: Intl.ListFormatStyle;
-  },
-): string {
-  const cacheKey = JSON.stringify({ locale, type, style });
-  let formatter = cache.get(cacheKey);
-  if (!formatter) {
-    formatter = new Intl.ListFormat(locale, { type, style });
-    cache.set(cacheKey, formatter);
+/// Gets the list separator for the given locale.
+export function listSeparatorForLocale(locale: string) {
+  let separator = cache.get(locale);
+  if (!separator) {
+    // Intl.ListFormat doesn't have a way to format a list without using "and"/"or".
+    // But we can extract the mid-list separator it uses, which is robust for Western, CJK and Arabic.
+    const formatter = new Intl.ListFormat(locale, {
+      type: "conjunction",
+      style: "long",
+    });
+    const formatParts = formatter.formatToParts(["a", "b", "c"]);
+    separator = formatParts.find((p) => p.type === "literal")?.value || ", ";
+    cache.set(locale, separator);
   }
-  return formatter.format(items);
+  return separator;
 }
