@@ -259,6 +259,7 @@ export async function listAllEvents({
 }
 
 export interface ListMyEventsInput {
+  excludeAttending?: boolean;
   myCommunities?: boolean;
   myCommunitiesExcludeGlobal?: boolean;
   pageNumber?: number;
@@ -269,6 +270,7 @@ export interface ListMyEventsInput {
 }
 
 export async function listMyEvents({
+  excludeAttending,
   myCommunities,
   myCommunitiesExcludeGlobal,
   pageNumber,
@@ -278,8 +280,13 @@ export async function listMyEvents({
   showCancelled,
 }: ListMyEventsInput) {
   const req = new ListMyEventsReq();
-  req.setAttending(true);
-  req.setOrganizing(true);
+
+  if (excludeAttending) {
+    req.setExcludeAttending(true);
+  } else {
+    req.setAttending(true);
+    req.setOrganizing(true);
+  }
 
   if (myCommunities !== undefined) {
     req.setMyCommunities(myCommunities);
