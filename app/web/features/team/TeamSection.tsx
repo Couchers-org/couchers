@@ -102,6 +102,7 @@ interface MemberListProps {
   variant: "current" | "past";
   members: Volunteer.AsObject[] | undefined;
   hasExtraCard?: boolean;
+  extraCardContent?: { text: string; link: string };
   boardMembersOnly?: boolean;
 }
 
@@ -109,6 +110,7 @@ function MemberList({
   variant,
   members,
   hasExtraCard,
+  extraCardContent,
   boardMembersOnly,
 }: MemberListProps) {
   if (!members?.length) {
@@ -184,20 +186,18 @@ function MemberList({
                   </TeamMemberCardContent>
                 </TeamMemberCard>
               </Grid>
-              {hasExtraCard ? (
+              {hasExtraCard && extraCardContent ? (
                 <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
                   <ExtraCard variant="outlined">
                     <Typography textAlign="center">
-                      We are passionate couch surfers and skilled professionals
-                      committed to creating an improved, safer, and more
-                      inclusive platform.
+                      {extraCardContent.text}
                     </Typography>
                     <Link
                       href={teamRoute}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      More about the team
+                      {extraCardContent.link}
                     </Link>
                   </ExtraCard>
                 </Grid>
@@ -213,14 +213,16 @@ function MemberList({
 interface TeamSectionProps {
   variant: "current" | "past";
   volunteers: Volunteer.AsObject[] | undefined;
-  boardMembersOnly?: boolean;
   hasExtraCard?: boolean;
+  extraCardContent?: { text: string; link: string };
+  boardMembersOnly?: boolean;
 }
 function TeamSection({
   variant,
   volunteers,
-  boardMembersOnly,
   hasExtraCard,
+  extraCardContent,
+  boardMembersOnly,
 }: TeamSectionProps) {
   const volunteersList = useMemo(() => {
     if (!volunteers) {
@@ -247,6 +249,7 @@ function TeamSection({
           members={boardMembers}
           variant={variant}
           hasExtraCard={hasExtraCard}
+          extraCardContent={extraCardContent}
           boardMembersOnly={boardMembersOnly}
         />
       ) : null}

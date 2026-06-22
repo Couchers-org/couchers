@@ -1,4 +1,6 @@
 import { Box, Divider, styled } from "@mui/material";
+import { useTranslation } from "i18n";
+import { PRESS } from "i18n/namespaces";
 
 import SocialMediaLinks from "../../components/SocialMediaLinks";
 import { useListVolunteers } from "../communities/hooks";
@@ -33,6 +35,7 @@ const StyledSocialMediaContainer = styled("div")(({ theme }) => ({
 }));
 
 export default function Press() {
+  const { t } = useTranslation([PRESS]);
   const volunteers = useListVolunteers();
 
   return (
@@ -47,16 +50,20 @@ export default function Press() {
       <About />
       <DownloadableFiles />
       <StyledBox>
-        <StyledSubheading>Meet the team</StyledSubheading>
+        <StyledSubheading>{t("team_subheading")}</StyledSubheading>
         <TeamSection
           variant={"current"}
           volunteers={volunteers.data?.currentVolunteersList}
           boardMembersOnly
           hasExtraCard
+          extraCardContent={{
+            text: t("team_extra_card_text"),
+            link: t("team_extra_card_link"),
+          }}
         />
       </StyledBox>
       <StyledBox sx={{ alignItems: "center" }}>
-        <StyledSubheading>Follow us</StyledSubheading>
+        <StyledSubheading>{t("social_media_subheading")}</StyledSubheading>
         <StyledSocialMediaContainer>
           <SocialMediaLinks iconSize="2.5rem" />
         </StyledSocialMediaContainer>

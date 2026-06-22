@@ -1,4 +1,7 @@
-import { Link, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
+import StyledLink from "components/StyledLink";
+import { useTranslation } from "i18n";
+import { PRESS } from "i18n/namespaces";
 import { blogRoute, foundationRoute, missionRoute } from "routes";
 
 import StyledBox from "./StyledBox";
@@ -6,18 +9,18 @@ import StyledSubheading from "./StyledSubheading";
 
 const aboutUsItems = [
   {
-    heading: "Our Mission and Values",
-    text: "Couchers.org exists to create genuine real-world connections and community. By engaging with people from different cultures and backgrounds, we push people to grow into being more open, empathetic, and tolerant and to build safe, inclusive community.",
+    heading: "about_mission_heading",
+    text: "about_mission_text",
     href: missionRoute,
   },
   {
-    heading: "Our Blog",
-    text: "Welcome to the Couchers.org blog where we write about latest updates, news, and milestones!",
+    heading: "about_blog_heading",
+    text: "about_blog_text",
     href: blogRoute,
   },
   {
-    heading: "Couchers, Inc.",
-    text: "Couchers, Inc. is a 501(c)(3) non-profit organization incorporated in the State of Florida in the United States and operates the Couchers.org service and project.",
+    heading: "about_foundation_heading",
+    text: "about_foundation_text",
     href: foundationRoute,
   },
 ];
@@ -59,15 +62,17 @@ const StyledHeading = styled(Typography)(({ theme }) => ({
 }));
 
 export default function About() {
+  const { t } = useTranslation([PRESS]);
+
   return (
     <StyledBox>
-      <StyledSubheading>Get to know more about us</StyledSubheading>
+      <StyledSubheading>{t("about_subheading")}</StyledSubheading>
       <StyledContainer>
         {aboutUsItems.map(({ heading, text, href }) => (
           <StyledCard key={heading}>
-            <StyledHeading fontSize="1.5rem">{heading}</StyledHeading>
-            <Typography>{text}</Typography>
-            <Link href={href}>Read more</Link>
+            <StyledHeading fontSize="1.5rem">{t(heading)}</StyledHeading>
+            <Typography>{t(text)}</Typography>
+            <StyledLink href={href}>{t("read_more")}</StyledLink>
           </StyledCard>
         ))}
       </StyledContainer>

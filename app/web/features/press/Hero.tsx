@@ -1,4 +1,6 @@
 import { styled, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
+import { PRESS } from "i18n/namespaces";
 
 import HeroImageAttribution from "../dashboard/Hero/HeroImageAttribution";
 
@@ -61,6 +63,9 @@ const StyledContentContainer = styled("div")(({ theme }) => ({
 }));
 
 export default function Hero() {
+  const { t } = useTranslation([PRESS]);
+  const email = "press@couchers.org";
+
   return (
     <StyledContainer>
       <StyledImage
@@ -76,9 +81,9 @@ export default function Hero() {
       <StyledOverlay />
       <HeroImageAttribution />
       <StyledContentContainer>
-        <StyledHeading>Press & Media</StyledHeading>
+        <StyledHeading>{t("hero_title")}</StyledHeading>
         <Typography color="#fff" fontSize="1.25rem">
-          For press and media inquiries, contact press@couchers.org
+          {t("hero_description", { email: email })}
         </Typography>
       </StyledContentContainer>
     </StyledContainer>

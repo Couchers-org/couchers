@@ -1,4 +1,6 @@
 import { Box, Card, Link, styled, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
+import { PRESS } from "i18n/namespaces";
 
 import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
@@ -76,9 +78,11 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 export default function PressCoverage() {
+  const { t } = useTranslation([PRESS]);
+
   return (
     <StyledBox>
-      <StyledSubheading>Featured Coverage</StyledSubheading>
+      <StyledSubheading>{t("press_coverage_subheading")}</StyledSubheading>
       <StyledContainer>
         {articlesData.map(
           ({
@@ -107,7 +111,7 @@ export default function PressCoverage() {
               <Typography>{publishedDate}</Typography>
               <Typography fontSize="1.25rem">"{headline}"</Typography>
               <Link href={href} target="_blank" rel="noopener noreferrer">
-                Read More
+                {t("read_more")}
               </Link>
             </StyledCard>
           ),

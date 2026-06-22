@@ -1,5 +1,7 @@
 import { Box, Button, ButtonProps, styled, Typography } from "@mui/material";
 import { CouchersIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { PRESS } from "i18n/namespaces";
 
 import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
@@ -93,9 +95,11 @@ const StyledButton = styled(Button)<ButtonProps<"a">>(({ theme }) => ({
 }));
 
 export default function DownloadableFiles() {
+  const { t } = useTranslation([PRESS]);
+
   return (
     <StyledBox>
-      <StyledSubheading>Download media assets</StyledSubheading>
+      <StyledSubheading>{t("download_subheading")}</StyledSubheading>
       <StyledContainer>
         <StyledSection>
           <StyledLogo>
@@ -103,7 +107,7 @@ export default function DownloadableFiles() {
           </StyledLogo>
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
-              Download our logo in SVG and PNG format
+              {t("download_logo_text")}
             </Typography>
             <StyledButton
               component="a"
@@ -111,7 +115,7 @@ export default function DownloadableFiles() {
               download="couchers-logo-assets.zip"
               variant="outlined"
             >
-              Download
+              {t("download_button")}
             </StyledButton>
           </StyledCard>
         </StyledSection>
@@ -119,7 +123,7 @@ export default function DownloadableFiles() {
           <StyledImage src="/img/press/mobile-image.png" />
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
-              Download mobile app images
+              {t("download_images_text")}
             </Typography>
             <StyledButton
               component="a"
@@ -127,7 +131,7 @@ export default function DownloadableFiles() {
               download="couchers-mobile-images.zip"
               variant="outlined"
             >
-              Download
+              {t("download_button")}
             </StyledButton>
           </StyledCard>
         </StyledSection>

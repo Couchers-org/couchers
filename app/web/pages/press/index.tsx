@@ -1,12 +1,11 @@
 import { appGetLayout } from "components/AppRoute";
 import Press from "features/press/Press";
 import {
-  CONNECTIONS,
   DASHBOARD,
   GLOBAL,
+  LANDING,
   NOTIFICATIONS,
   PRESS,
-  PROFILE,
 } from "i18n/namespaces";
 import { GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";
@@ -16,15 +15,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      [
-        CONNECTIONS,
-        DASHBOARD,
-        GLOBAL,
-        // LANDING,
-        NOTIFICATIONS,
-        PRESS,
-        PROFILE,
-      ],
+      [DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS, PRESS],
       nextI18nextConfig,
     )),
   },

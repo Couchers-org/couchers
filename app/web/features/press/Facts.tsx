@@ -1,7 +1,7 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
-import { GLOBAL, PRESS } from "i18n/namespaces";
+import { LANDING, PRESS } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
 import { timeAgo } from "utils/timeAgo";
@@ -60,7 +60,7 @@ export default function Facts() {
   const {
     t,
     i18n: { language: locale },
-  } = useTranslation([GLOBAL, PRESS]);
+  } = useTranslation([LANDING, PRESS]);
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +97,7 @@ export default function Facts() {
 
   return (
     <StyledBox>
-      <StyledSubheading>At a glance</StyledSubheading>
+      <StyledSubheading>{t("press:facts_subheading")}</StyledSubheading>
       <StyledWrapper>
         <Box display="flex" alignItems="center">
           <Favorite sx={iconStyle} />
@@ -105,7 +105,7 @@ export default function Facts() {
             <Loader />
           ) : (
             <Typography sx={textStyle}>
-              {t("press:num_users2", {
+              {t("landing:num_users2", {
                 // Number(...) returns NaN on bad input, and || treats it as false
                 count: Number(signupInfo?.userCount) || 77000,
               })}
@@ -115,7 +115,7 @@ export default function Facts() {
         <Box display="flex" alignItems="center">
           <Language sx={iconStyle} />
           <Typography sx={textStyle}>
-            {t("press:num_countries2", { count: 180 })}
+            {t("landing:num_countries2", { count: 180 })}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center">
@@ -126,7 +126,7 @@ export default function Facts() {
             signupInfo &&
             signupInfo.lastSignup && (
               <Typography sx={textStyle}>
-                {t("press:last_signup", {
+                {t("landing:last_signup", {
                   timeAgo: timeAgo({
                     since: new Date(signupInfo.lastSignup),
                     t,
@@ -141,7 +141,7 @@ export default function Facts() {
           <Box display="flex" alignItems="center">
             <People sx={iconStyle} />
             <Typography sx={textStyle}>
-              {volunteersNumber}+ volunteers
+              {t("press:num_volunteers2", { count: volunteersNumber })}
             </Typography>
           </Box>
         ) : null}
