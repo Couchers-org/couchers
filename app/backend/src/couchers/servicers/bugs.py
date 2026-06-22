@@ -202,7 +202,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"**Page**: {request.page}\n"
             f"**User**: {user_details} / `{(context._sofa or '')[:12]}`"
         )
-        issue_labels = ["bug tool", "bug: triage needed"]
+        issue_labels = ["bug: triage needed"]
 
         json_body = {"title": issue_title, "body": issue_body, "labels": issue_labels}
 
