@@ -67,7 +67,10 @@ export default function GroupChatListItem({
   className,
   isArchived = false,
 }: GroupChatListItemProps) {
-  const { t } = useTranslation(MESSAGES);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(MESSAGES);
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
 
@@ -93,6 +96,7 @@ export default function GroupChatListItem({
     groupChatMembersQuery,
     currentUserId,
     t,
+    locale,
   );
   //text is the control message text or message text
   let text = "";

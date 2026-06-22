@@ -2,6 +2,7 @@ import { styled, Typography, useTheme } from "@mui/material";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import { useTranslation } from "i18n";
+import { localizeList } from "i18n/lists";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
@@ -23,7 +24,10 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
 }));
 
 export default function About({ user }: AboutProps) {
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, PROFILE]);
   const theme = useTheme();
   const { regions } = useRegions();
   return (
@@ -75,16 +79,20 @@ export default function About({ user }: AboutProps) {
       </Typography>
       <Typography variant="body1">
         {regions && user.regionsVisitedList.length > 0
-          ? user.regionsVisitedList
-              .map((country) => regions[country])
-              .join(`, `)
+          ? localizeList(
+              user.regionsVisitedList.map((country) => regions[country]),
+              { locale },
+            )
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />
       <Typography variant="h1">{t("profile:heading.lived_section")}</Typography>
       <Typography variant="body1">
         {regions && user.regionsLivedList.length > 0
-          ? user.regionsLivedList.map((country) => regions[country]).join(`, `)
+          ? localizeList(
+              user.regionsLivedList.map((country) => regions[country]),
+              { locale },
+            )
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />

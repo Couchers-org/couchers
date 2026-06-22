@@ -1,4 +1,5 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
+import { localizeList } from "i18n/lists";
 import { TFunction } from "i18next";
 import { GroupChat, Message } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
@@ -88,20 +89,23 @@ export function groupChatTitleText(
   groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
   currentUserId: number,
   t: TFunction<"messages", undefined>,
+  locale: string,
 ) {
   return groupChat.title
     ? groupChat.title
     : groupChatMembersQuery.isLoading
       ? "Chat"
-      : Array.from(groupChatMembersQuery.data?.values() ?? [])
-          .filter((user) => user?.userId !== currentUserId)
-          .map((user) => {
-            const firstNameUser = firstName(user?.name);
-            return firstNameUser === ""
-              ? t("messages:unknown_user")
-              : firstNameUser;
-          })
-          .join(", ");
+      : localizeList(
+          Array.from(groupChatMembersQuery.data?.values() ?? [])
+            .filter((user) => user?.userId !== currentUserId)
+            .map((user) => {
+              const firstNameUser = firstName(user?.name);
+              return firstNameUser === ""
+                ? t("messages:unknown_user")
+                : firstNameUser;
+            }),
+          { locale },
+        );
 }
 
 /** Returns the other user's username, or null if there are more than 2 users. */

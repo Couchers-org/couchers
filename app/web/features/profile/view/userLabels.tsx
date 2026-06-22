@@ -3,6 +3,7 @@ import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
+import { localizeList } from "i18n/lists";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import {
   BirthdateVerificationStatus,
@@ -233,7 +234,10 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
 };
 
 export const AgeGenderLanguagesLabels = ({ user }: Props) => {
-  const { t } = useTranslation("profile");
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation("profile");
   const { languages } = useLanguages();
 
   return (
@@ -246,9 +250,12 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
         <LabelAndText
           label={t("heading.languages_fluent")}
           text={
-            user.languageAbilitiesList
-              .map((ability) => languages[ability.code])
-              .join(", ") || t("languages_fluent_false")
+            localizeList(
+              user.languageAbilitiesList.map(
+                (ability) => languages[ability.code],
+              ),
+              { locale },
+            ) || t("languages_fluent_false")
           }
         />
       )}

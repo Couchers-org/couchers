@@ -97,7 +97,10 @@ export default function GroupChatView({
   chatId: number;
   embedded?: boolean;
 }) {
-  const { t } = useTranslation([GLOBAL, MESSAGES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, MESSAGES]);
   const isNativeEmbed = useIsNativeEmbed();
 
   const queryClient = useQueryClient();
@@ -163,7 +166,13 @@ export default function GroupChatView({
   );
 
   const title = groupChat
-    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t)
+    ? groupChatTitleText(
+        groupChat,
+        groupChatMembersQuery,
+        currentUserId,
+        t,
+        locale,
+      )
     : undefined;
 
   const hasError = groupChatError || messagesError || sendMutation.error;
