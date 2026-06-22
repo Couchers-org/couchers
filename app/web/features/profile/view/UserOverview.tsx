@@ -129,7 +129,7 @@ export default function UserOverview({
         <StyledIntro variant="h1">
           <span>
             {user.name}
-            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+            {user.hasStrongVerification && <StrongVerificationBadge />}
           </span>
         </StyledIntro>
         <StyledLink

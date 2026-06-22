@@ -292,10 +292,7 @@ const SearchResultUserCard = ({
                   }}
                 >
                   {user.name}
-                  {"hasStrongVerification" in user &&
-                  user.hasStrongVerification ? (
-                    <StrongVerificationBadge />
-                  ) : null}
+                  {user.hasStrongVerification && <StrongVerificationBadge />}
                 </Typography>
               </ProfileLink>
             </FlexRow>
