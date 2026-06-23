@@ -593,9 +593,9 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
-        uq_str1 = b"An email change to the email"
+        uq_str1 = b"Email address change initiated"
         uq_str2 = (
-            b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
+            b"You requested that your email be changed from"
         )
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
@@ -651,7 +651,7 @@ def test_DeleteAccount_start(db, email_collector: EmailCollector):
     with account_session(token) as account:
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         email = email_collector.pop_for_recipient(user.email, last=True)
-        assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+        assert email.subject == "[TEST] Confirm your account deletion"
 
     with session_scope() as session:
         deletion_token: AccountDeletionToken = session.execute(
@@ -690,10 +690,10 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
     email = email_collector.pop_for_recipient(user.email, last=True)
-    assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert email.subject == "[TEST] Confirm your account deletion"
     assert email.recipient == user.email
     assert "account deletion" in email.subject.lower()
-    unique_string = "You requested that we delete your account from Couchers.org."
+    unique_string = "You requested that we delete your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "support@couchers.org" in email.plain
