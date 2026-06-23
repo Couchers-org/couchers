@@ -42,7 +42,7 @@ interface StyledImageProps {
 }
 
 const StyledImage = styled("img", {
-  shouldForwardProp: (prop) => prop !== "bgColor",
+  shouldForwardProp: (prop) => prop !== "bgColor" && prop !== "padding",
 })<StyledImageProps>(({ bgColor, padding }) => ({
   width: "auto",
   height: "4rem",

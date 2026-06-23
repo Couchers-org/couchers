@@ -33,7 +33,7 @@ const StyledOverlay = styled("div")({
 });
 
 const StyledHeading = styled("h1")(({ theme }) => ({
-  color: "#fff",
+  color: "var(--mui-palette-common-white)",
   fontSize: "2rem",
   fontWeight: "500",
   margin: 0,
@@ -82,7 +82,7 @@ export default function Hero() {
       <HeroImageAttribution />
       <StyledContentContainer>
         <StyledHeading>{t("hero_title")}</StyledHeading>
-        <Typography color="#fff" fontSize="1.25rem">
+        <Typography color="var(--mui-palette-common-white)" fontSize="1.25rem">
           {t("hero_description", { email: email })}
         </Typography>
       </StyledContentContainer>
