@@ -3,27 +3,17 @@ import { languagesKey } from "features/queryKeys";
 import { service } from "service";
 
 export const useLanguages = () => {
-  const { data: { languages, languagesLookup } = {}, ...rest } = useQuery({
+  const { data: languages, ...rest } = useQuery({
     queryKey: [languagesKey],
     queryFn: () =>
-      service.resources.getLanguages().then((result) =>
-        result.languagesList.reduce(
-          (languagesResult, { code, name }) => {
-            languagesResult.languages[code] = name;
-            languagesResult.languagesLookup[name] = code;
-            return languagesResult;
-          },
-          {
-            languages: {} as { [code: string]: string },
-            languagesLookup: {} as { [name: string]: string },
-          },
+      service.resources
+        .getLanguages()
+        .then((result) =>
+          Object.fromEntries(
+            result.languagesList.map(({ code, name }) => [code, name]),
+          ),
         ),
-      ),
   });
 
-  return {
-    languages,
-    languagesLookup,
-    ...rest,
-  };
+  return { languages, ...rest };
 };
