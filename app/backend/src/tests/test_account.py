@@ -594,9 +594,7 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
         uq_str1 = b"Email address change initiated"
-        uq_str2 = (
-            b"You requested that your email be changed from"
-        )
+        uq_str2 = b"You requested that your email be changed from"
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
