@@ -21,7 +21,8 @@ interface ProfileIncompleteDialogProps {
     | "send_message"
     | "send_request"
     | "create_public_trip"
-    | "send_friend_request";
+    | "send_friend_request"
+    | "create_discussion";
 }
 
 export default function ProfileIncompleteDialog({
@@ -69,9 +70,6 @@ export default function ProfileIncompleteDialog({
         </Button>
         <Button component={Link} href={routeToEditProfile()}>
           {t("profile:complete_profile_dialog.edit_profile_button")}
-        </Button>
-        <Button component={Link} href={routeToEditProfile()}>
-          {t("dashboard:complete_profile_dialog.edit_profile_button")}
         </Button>
       </DialogActions>
     </Dialog>

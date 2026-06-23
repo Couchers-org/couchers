@@ -3,13 +3,15 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import TextBody from "components/TextBody";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { SectionTitle } from "features/communities/CommunityPage";
 import { useListDiscussions } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -62,10 +64,29 @@ export default function DiscussionsListPage({
 }) {
   const { t } = useTranslation([COMMUNITIES]);
 
+  const { data: accountInfo } = useAccountInfo();
   const hash = typeof window !== "undefined" ? window.location.hash : "";
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(
     hash.includes("new"),
   );
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
+  // If #new hash auto-opened the form but profile is incomplete, show dialog instead
+  useEffect(() => {
+    if (accountInfo && !accountInfo.profileComplete && isCreatingNewPost) {
+      setIsCreatingNewPost(false);
+      setProfileDialogOpen(true);
+    }
+  }, [accountInfo, isCreatingNewPost]);
+
+  const handleNewPostClick = () => {
+    if (accountInfo !== undefined && !accountInfo.profileComplete) {
+      setProfileDialogOpen(true);
+    } else {
+      setIsCreatingNewPost(true);
+    }
+  };
+
   const {
     isLoading: isDiscussionsLoading,
     isFetching: isDiscussionsFetching,
@@ -80,6 +101,11 @@ export default function DiscussionsListPage({
 
   return (
     <>
+      <ProfileIncompleteDialog
+        open={profileDialogOpen}
+        onClose={() => setProfileDialogOpen(false)}
+        attempted_action="create_discussion"
+      />
       <StyledDiscussionsHeader>
         <SectionTitle icon={<EmailIcon />}>
           {t("communities:discussions_title")}
@@ -90,9 +116,7 @@ export default function DiscussionsListPage({
       )}
       <Collapse in={!isCreatingNewPost}>
         <StyledNewPostButtonContainer>
-          <StyledCreateResourceButton
-            onClick={() => setIsCreatingNewPost(true)}
-          >
+          <StyledCreateResourceButton onClick={handleNewPostClick}>
             {t("communities:new_post_label")}
           </StyledCreateResourceButton>
           {isRefetching && <CenteredSpinner />}
