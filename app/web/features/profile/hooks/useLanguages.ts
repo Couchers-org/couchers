@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { languagesKey } from "features/queryKeys";
-import { service } from "service";
 import { useTranslation } from "i18n";
+import { service } from "service";
 
 export const useLanguages = () => {
   const locale = useTranslation().i18n.language;
