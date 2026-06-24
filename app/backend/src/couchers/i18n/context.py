@@ -66,8 +66,8 @@ class LocalizationContext:
     def localized_timezone(self) -> str:
         return localize_timezone(self.timezone, self.babel_locale)
 
-    def try_localize_language_name(self, code: str) -> str | None:
-        return try_localize_language_name(code, self.babel_locale)
+    def try_localize_language_name(self, code: str, *, standalone: bool = False) -> str | None:
+        return try_localize_language_name(code, self.babel_locale, standalone=standalone)
 
     def localize_string(
         self, key: str, *, i18next: I18Next | None = None, substitutions: dict[str, str | int] | None = None

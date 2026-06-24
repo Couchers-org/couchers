@@ -36,9 +36,14 @@ def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
     return format_list(items, locale=locale)
 
 
-def try_localize_language_name(code: str, locale: babel.Locale) -> str | None:
+def try_localize_language_name(code: str, locale: babel.Locale, *, standalone: bool = False) -> str | None:
     """
     Attempts to localize the name of a language expressed as an ISO639 code.
+
+    Args:
+        code: The ISO639 language code.
+        locale: The locale to render the language name in.
+        standalone: The result won't be part of a larger sentence and should be capitalized if the language has capitals.
 
     Returns:
         The localized name, or None if no localized name is available.
@@ -48,7 +53,12 @@ def try_localize_language_name(code: str, locale: babel.Locale) -> str | None:
         # the latter is what the CLDR recognizes.
         code = get_language_codes_iso639_3_to_1().get(code, code)
     try:
-        return babel.Locale.parse(code).get_language_name(locale)
+        name = babel.Locale.parse(code).get_language_name(locale)
+        if name is None:
+            return None
+        if standalone:
+            name = name[:1].upper() + name[1:]
+        return name
     except (ValueError, babel.UnknownLocaleError):
         return None
 

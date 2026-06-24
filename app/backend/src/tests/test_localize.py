@@ -21,9 +21,11 @@ babel_zh = babel.Locale.parse("zh")
 def test_localize_language_name() -> None:
     assert try_localize_language_name("en", babel_en) == "English"
     assert try_localize_language_name("es", babel_en) == "Spanish"
+
     assert try_localize_language_name("en", babel_es) == "inglés"
     assert try_localize_language_name("es", babel_es) == "español"
 
+    assert try_localize_language_name("en", babel_es, standalone=True) == "Inglés"  # Sentence case
     assert try_localize_language_name("eng", babel_es) == "inglés"  # ISO639-3 code
     assert try_localize_language_name("xx", babel_en) is None
 
