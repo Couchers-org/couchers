@@ -351,11 +351,11 @@
       },
       "hosted": {
         "purpose": "<b>{{name}}</b> wrote a reference for you from when you hosted them.",
-        "reciprocate_encouragement": "It's now your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after their stay, and you will no longer be able to write yours."
+        "reciprocate_encouragement": "It's your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after their stay, and you will no longer be able to write a reference."
       },
       "surfed": {
         "purpose": "<b>{{name}}</b> wrote a reference for you from when you surfed with them.",
-        "reciprocate_encouragement": "It's now your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after your stay, and you will no longer be able to write yours."
+        "reciprocate_encouragement": "It's your turn to write a reference for <b>{{name}}</b>. Once you submit it, both references will become visible. Otherwise, <b>{{name}}</b>'s reference will automatically become visible 14 days after your stay, and you will no longer be able to write a reference."
       },
       "subject": "You've received a reference from {{name}}!",
       "view_action": "View the reference"
@@ -393,9 +393,9 @@
   "strong_verification": {
     "succeeded": {
       "subject": "Strong Verification succeeded",
-      "purpose": "You have been verified with Strong Verification. You will now see a tick next to your name on the platform.",
-      "thanks_message": "Thanks for verifying! You're helping make Couchers.org safer for everyone.",
-      "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.",
+      "purpose": "You have been verified with Strong Verification. You will now see a verification symbol next to your name on the platform.",
+      "thanks_message": "Thanks for getting verified! You're helping support trust and safety in the Couchers.org community.",
+      "cost_explanation": "Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for our software engineers, designers, and safety team.",
       "donation_request": "If you're able, please consider donating to help keep Couchers.org running and growing.",
       "donate_action": "Donate to support Couchers.org"
     },
