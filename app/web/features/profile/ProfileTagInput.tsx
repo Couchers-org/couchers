@@ -155,7 +155,10 @@ export default function ProfileTagInput({
 }: ProfileTagInputProps) {
   const { t } = useTranslation(PROFILE);
 
-  // If any value doesn't map to an option, add a fake option for it.
+  // In case some value doesn't map to an option, add a fake option for it.
+  // For example if value is [en, xx] and options is { en: "English", fr: "French" },
+  // then we extend to { en: "English", fr: "French", xx: "xx" },
+  // so the all values can be displayed.
   const effectiveOptions: Record<string, string> = {
     ...Object.fromEntries(value.map((k) => [k, k])),
     ...options,
