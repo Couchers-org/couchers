@@ -1,6 +1,7 @@
 import {
   ArchiveOutlined,
   Groups,
+  Person,
   UnarchiveOutlined,
 } from "@mui/icons-material";
 import {
@@ -87,6 +88,7 @@ export default function GroupChatListItem({
   const dmOtherMemberUserId = groupChat.memberUserIdsList.find(
     (id) => id !== currentUserId,
   );
+  const dmOtherMember = groupChatMembersQuery.data?.get(dmOtherMemberUserId);
   //title is the chat title, or all the member's names except current user joined together
   const title = groupChatTitleText(
     groupChat,
@@ -169,10 +171,9 @@ export default function GroupChatListItem({
           {groupChatMembersQuery.isLoading ? (
             <Skeleton />
           ) : groupChat.isDm ? (
-            <Avatar
-              user={groupChatMembersQuery.data?.get(dmOtherMemberUserId)}
-              isProfileLink={false}
-            />
+            <Avatar user={dmOtherMember} isProfileLink={false}>
+              <Person />
+            </Avatar>
           ) : (
             <Avatar isProfileLink={false}>
               <Groups />
