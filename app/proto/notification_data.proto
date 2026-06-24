@@ -188,12 +188,16 @@ message EventReminder {
 
 enum SVFailReason {
   SV_FAIL_REASON_UNKNOWN = 0;
-  // birthdate doesn't match profile or gender
+  // both birthdate and gender don't match the profile
   SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER = 1;
   // not a passport (e.g. used a ID card)
   SV_FAIL_REASON_NOT_A_PASSPORT = 2;
   // this passport is already used by someone else or the same user
   SV_FAIL_REASON_DUPLICATE = 3;
+  // only the birthdate doesn't match the profile
+  SV_FAIL_REASON_WRONG_BIRTHDATE = 4;
+  // only the gender doesn't match the profile
+  SV_FAIL_REASON_WRONG_GENDER = 5;
 }
 
 message VerificationSVFail {

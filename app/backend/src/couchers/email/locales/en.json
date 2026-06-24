@@ -388,6 +388,8 @@
     "failed": {
       "subject": "Strong Verification failed",
       "reason_wrong_birthdate_or_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
+      "reason_wrong_birthdate": "The date of birth on your profile does not match the date of birth on your passport. Please contact the support team to update your date of birth.",
+      "reason_wrong_gender": "The gender on your profile does not match the sex on your passport. Please contact the support team to update your gender, or if your passport sex does not match your gender identity.",
       "reason_not_a_passport": "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
       "reason_duplicate": "You tried to verify with a passport that has already been used for verification. Please use another passport."
     }

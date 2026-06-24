@@ -482,6 +482,8 @@
         "title": "Strong Verification failed",
         "ios_title": "Strong Verification Failed",
         "body_wrong_birthdate_gender": "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity.",
+        "body_wrong_birthdate": "The date of birth on your profile does not match the date of birth on your passport. Please contact the support team to update your date of birth.",
+        "body_wrong_gender": "The gender on your profile does not match the sex on your passport. Please contact the support team to update your gender, or if your passport sex does not match your gender identity.",
         "body_not_a_passport": "You used a document other than a passport. You can only use a passport for Strong Verification.",
         "body_duplicate": "You used a passport that has already been used for verification. Please use another passport."
       }

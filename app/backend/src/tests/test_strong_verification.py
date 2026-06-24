@@ -1011,3 +1011,110 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
         push.content.body
         == "You used a document other than a passport. You can only use a passport for Strong Verification."
     )
+
+
+def _run_sv_passport_mismatch(user, token, verification_id, sex, dob):
+    """Drive a passport SV attempt through to the final data pull with the given (mismatching) passport data."""
+    reference_data = do_and_check_sv(
+        user,
+        token,
+        verification_id=verification_id,
+        sex=sex,
+        dob=dob,
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="APPROVED",
+    )
+
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        json_resp = {
+            "id": verification_id,
+            "created": "2024-05-11T15:46:46Z",
+            "expires": "2024-05-11T16:17:26Z",
+            "state": "APPROVED",
+            "reference": reference_data,
+            "user_ip": "10.123.123.123",
+            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
+            "given_names": "John Wayne",
+            "surname": "Doe",
+            "nationality": "US",
+            "sex": sex,
+            "date_of_birth": dob,
+            "document_type": "PASSPORT",
+            "document_number": "31195855",
+            "expiry_date": default_expiry.isoformat(),
+            "issuing_country": "US",
+            "issuer": "Department of State, U.S. Government",
+            "portrait": "dGVzdHRlc3R0ZXN0...",
+        }
+        mock.return_value = type(
+            "__MockResponse",
+            (),
+            {
+                "status_code": 200,
+                "text": json.dumps(json_resp),
+                "json": lambda: json_resp,
+            },
+        )
+        while process_job():
+            pass
+
+    # the attempt itself succeeds, but the data doesn't match the profile so no badge is granted
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == verification_id)
+        ).scalar_one()
+        assert verification_attempt.user_id == user.id
+        assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
+
+
+def test_strong_verification_wrong_birthdate(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    # passport sex matches gender, but the date of birth doesn't match the profile
+    _run_sv_passport_mismatch(user, token, verification_id=5731012934821984, sex="MALE", dob="1999-12-31")
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The date of birth on your profile does not match the date of birth on your passport. "
+        "Please contact the support team to update your date of birth."
+    )
+
+
+def test_strong_verification_wrong_gender(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    # date of birth matches, but the passport sex doesn't match the gender on the profile
+    _run_sv_passport_mismatch(user, token, verification_id=5731012934821984, sex="FEMALE", dob="1988-01-01")
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The gender on your profile does not match the sex on your passport. "
+        "Please contact the support team to update your gender, or if your passport sex does not "
+        "match your gender identity."
+    )
+
+
+def test_strong_verification_wrong_birthdate_and_gender(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    # neither the date of birth nor the passport sex match the profile
+    _run_sv_passport_mismatch(user, token, verification_id=5731012934821984, sex="FEMALE", dob="1999-12-31")
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The date of birth or gender on your profile does not match the date of birth or sex on your "
+        "passport. Please contact the support team to update your date of birth or gender, or if your "
+        "passport sex does not match your gender identity."
+    )
