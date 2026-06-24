@@ -14,6 +14,7 @@ from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, 
 from babel.lists import format_list
 
 from couchers.i18n.locales import DEFAULT_LOCALE, get_main_i18next
+from couchers.resources import get_language_codes_iso639_3_to_1
 
 
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
@@ -33,6 +34,23 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
 
 def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
     return format_list(items, locale=locale)
+
+
+def try_localize_language_name(code: str, locale: babel.Locale) -> str | None:
+    """
+    Attempts to localize the name of a language expressed as an ISO639 code.
+
+    Returns:
+        The localized name, or None if no localized name is available.
+    """
+    if len(code) == 3:
+        # If the part3 code (3-character) has a corresponding part1 code (2-character),
+        # the latter is what the CLDR recognizes.
+        code = get_language_codes_iso639_3_to_1().get(code, code)
+    try:
+        return babel.Locale.parse(code).get_language_name(locale)
+    except (ValueError, babel.UnknownLocaleError):
+        return None
 
 
 def localize_date(

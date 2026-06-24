@@ -1,1214 +1,1361 @@
 [
   {
-    "code": "_tw",
+    "set3": "_tw",
     "name": "Taiwanese"
   },
   {
-    "code": "aao",
+    "set3": "aao",
     "name": "Arabic (Algerian)"
   },
   {
-    "code": "aar",
+    "set1": "aa",
+    "set3": "aar",
     "name": "Afar"
   },
   {
-    "code": "abk",
+    "set1": "ab",
+    "set3": "abk",
     "name": "Abkhazian"
   },
   {
-    "code": "ace",
+    "set3": "ace",
     "name": "Achinese"
   },
   {
-    "code": "ach",
+    "set3": "ach",
     "name": "Acoli"
   },
   {
-    "code": "acm",
+    "set3": "acm",
     "name": "Arabic (Mesopotamian)"
   },
   {
-    "code": "acq",
+    "set3": "acq",
     "name": "Arabic (Ta'izzi-Adeni)"
   },
   {
-    "code": "acw",
+    "set3": "acw",
     "name": "Arabic (Hejazi)"
   },
   {
-    "code": "ada",
+    "set3": "ada",
     "name": "Adangme"
   },
   {
-    "code": "ady",
+    "set3": "ady",
     "name": "Adyghe"
   },
   {
-    "code": "aeb",
+    "set3": "aeb",
     "name": "Arabic (Tunisian)"
   },
   {
-    "code": "aec",
+    "set3": "aec",
     "name": "Arabic (Sa'idi)"
   },
   {
-    "code": "afr",
+    "set1": "af",
+    "set3": "afr",
     "name": "Afrikaans"
   },
   {
-    "code": "ajp",
+    "set3": "ajp",
     "name": "Arabic (Levantine South)"
   },
   {
-    "code": "aka",
+    "set1": "ak",
+    "set3": "aka",
     "name": "Akan"
   },
   {
-    "code": "amh",
+    "set1": "am",
+    "set3": "amh",
     "name": "Amharic"
   },
   {
-    "code": "anp",
+    "set3": "anp",
     "name": "Angika"
   },
   {
-    "code": "apc",
+    "set3": "apc",
     "name": "Arabic (Levantine North)"
   },
   {
-    "code": "apd",
+    "set3": "apd",
     "name": "Arabic (Sudanese)"
   },
   {
-    "code": "arb",
+    "set3": "arb",
     "name": "Arabic (Standard)"
   },
   {
-    "code": "ary",
+    "set3": "ary",
     "name": "Arabic (Moroccan)"
   },
   {
-    "code": "arz",
+    "set3": "arz",
     "name": "Arabic (Egyptian)"
   },
   {
-    "code": "ase",
+    "set3": "ase",
     "name": "Sign Language: American"
   },
   {
-    "code": "asf",
+    "set3": "asf",
     "name": "Sign Language: Auslan"
   },
   {
-    "code": "asm",
+    "set1": "as",
+    "set3": "asm",
     "name": "Assamese"
   },
   {
-    "code": "ava",
+    "set1": "av",
+    "set3": "ava",
     "name": "Avaric"
   },
   {
-    "code": "awa",
+    "set3": "awa",
     "name": "Awadhi"
   },
   {
-    "code": "aym",
+    "set1": "ay",
+    "set3": "aym",
     "name": "Aymara"
   },
   {
-    "code": "ayn",
+    "set3": "ayn",
     "name": "Arabic (San'ani)"
   },
   {
-    "code": "aze",
+    "set1": "az",
+    "set3": "aze",
     "name": "Azerbaijani"
   },
   {
-    "code": "bak",
+    "set1": "ba",
+    "set3": "bak",
     "name": "Bashkir"
   },
   {
-    "code": "bal",
+    "set3": "bal",
     "name": "Baluchi"
   },
   {
-    "code": "bam",
+    "set1": "bm",
+    "set3": "bam",
     "name": "Bambara"
   },
   {
-    "code": "ban",
+    "set3": "ban",
     "name": "Balinese"
   },
   {
-    "code": "bar",
+    "set3": "bar",
     "name": "Bavarian"
   },
   {
-    "code": "bej",
+    "set3": "bej",
     "name": "Beja"
   },
   {
-    "code": "bel",
+    "set1": "be",
+    "set3": "bel",
     "name": "Belarusian"
   },
   {
-    "code": "bem",
+    "set3": "bem",
     "name": "Bemba"
   },
   {
-    "code": "ben",
+    "set1": "bn",
+    "set3": "ben",
     "name": "Bengali"
   },
   {
-    "code": "bfi",
+    "set3": "bfi",
     "name": "Sign Language: British"
   },
   {
-    "code": "bgc",
+    "set3": "bgc",
     "name": "Haryanvi"
   },
   {
-    "code": "bho",
+    "set3": "bho",
     "name": "Bhojpuri"
   },
   {
-    "code": "bik",
+    "set3": "bik",
     "name": "Bikol"
   },
   {
-    "code": "bin",
+    "set3": "bin",
     "name": "Edo"
   },
   {
-    "code": "bod",
+    "set1": "bo",
+    "set3": "bod",
     "name": "Tibetan"
   },
   {
-    "code": "bos",
+    "set1": "bs",
+    "set3": "bos",
     "name": "Bosnian"
   },
   {
-    "code": "bra",
+    "set3": "bra",
     "name": "Braj"
   },
   {
-    "code": "bre",
+    "set1": "br",
+    "set3": "bre",
     "name": "Breton"
   },
   {
-    "code": "bug",
+    "set3": "bug",
     "name": "Buginese"
   },
   {
-    "code": "bul",
+    "set1": "bg",
+    "set3": "bul",
     "name": "Bulgarian"
   },
   {
-    "code": "bzs",
+    "set3": "bzs",
     "name": "Sign Language: Brazilian"
   },
   {
-    "code": "cat",
+    "set1": "ca",
+    "set3": "cat",
     "name": "Catalan"
   },
   {
-    "code": "cdo",
+    "set3": "cdo",
     "name": "Chinese (Eastern Min)"
   },
   {
-    "code": "ceb",
+    "set3": "ceb",
     "name": "Cebuano"
   },
   {
-    "code": "ces",
+    "set1": "cs",
+    "set3": "ces",
     "name": "Czech"
   },
   {
-    "code": "che",
+    "set1": "ce",
+    "set3": "che",
     "name": "Chechen"
   },
   {
-    "code": "chm",
+    "set3": "chm",
     "name": "Mari"
   },
   {
-    "code": "chv",
+    "set1": "cv",
+    "set3": "chv",
     "name": "Chuvash"
   },
   {
-    "code": "cjy",
+    "set3": "cjy",
     "name": "Chinese (Jin)"
   },
   {
-    "code": "cmn",
+    "set3": "cmn",
     "name": "Chinese (Mandarin)"
   },
   {
-    "code": "cor",
+    "set1": "kw",
+    "set3": "cor",
     "name": "Cornish"
   },
   {
-    "code": "crh",
+    "set3": "crh",
     "name": "Crimean Tatar"
   },
   {
-    "code": "ctg",
+    "set3": "ctg",
     "name": "Chittagonian"
   },
   {
-    "code": "cym",
+    "set1": "cy",
+    "set3": "cym",
     "name": "Welsh"
   },
   {
-    "code": "dan",
+    "set1": "da",
+    "set3": "dan",
     "name": "Danish"
   },
   {
-    "code": "deu",
+    "set1": "de",
+    "set3": "deu",
     "name": "German"
   },
   {
-    "code": "dgr",
+    "set3": "dgr",
     "name": "Dogrib"
   },
   {
-    "code": "din",
+    "set3": "din",
     "name": "Dinka"
   },
   {
-    "code": "doi",
+    "set3": "doi",
     "name": "Dogri"
   },
   {
-    "code": "dsb",
+    "set3": "dsb",
     "name": "Lower Sorbian"
   },
   {
-    "code": "dse",
+    "set3": "dse",
     "name": "Sign Language: Dutch"
   },
   {
-    "code": "dyu",
+    "set3": "dyu",
     "name": "Dyula"
   },
   {
-    "code": "ell",
+    "set1": "el",
+    "set3": "ell",
     "name": "Greek"
   },
   {
-    "code": "eng",
+    "set1": "en",
+    "set3": "eng",
     "name": "English"
   },
   {
-    "code": "epo",
+    "set1": "eo",
+    "set3": "epo",
     "name": "Esperanto"
   },
   {
-    "code": "esl",
+    "set3": "esl",
     "name": "Sign Language: Egyptian"
   },
   {
-    "code": "est",
+    "set1": "et",
+    "set3": "est",
     "name": "Estonian"
   },
   {
-    "code": "eus",
+    "set1": "eu",
+    "set3": "eus",
     "name": "Basque"
   },
   {
-    "code": "ewe",
+    "set1": "ee",
+    "set3": "ewe",
     "name": "Ewe"
   },
   {
-    "code": "ewo",
+    "set3": "ewo",
     "name": "Ewondo"
   },
   {
-    "code": "fan",
+    "set3": "fan",
     "name": "Fang"
   },
   {
-    "code": "fas",
+    "set1": "fa",
+    "set3": "fas",
     "name": "Persian"
   },
   {
-    "code": "fat",
+    "set3": "fat",
     "name": "Fanti"
   },
   {
-    "code": "fil",
+    "set3": "fil",
     "name": "Filipino"
   },
   {
-    "code": "fin",
+    "set1": "fi",
+    "set3": "fin",
     "name": "Finnish"
   },
   {
-    "code": "fon",
+    "set3": "fon",
     "name": "Fon"
   },
   {
-    "code": "fra",
+    "set1": "fr",
+    "set3": "fra",
     "name": "French"
   },
   {
-    "code": "fry",
+    "set1": "fy",
+    "set3": "fry",
     "name": "Frisian"
   },
   {
-    "code": "fsl",
+    "set3": "fsl",
     "name": "Sign Language: French"
   },
   {
-    "code": "ful",
+    "set1": "ff",
+    "set3": "ful",
     "name": "Fulah"
   },
   {
-    "code": "gaa",
+    "set3": "gaa",
     "name": "Ga"
   },
   {
-    "code": "gan",
+    "set3": "gan",
     "name": "Chinese (Gan)"
   },
   {
-    "code": "gba",
+    "set3": "gba",
     "name": "Gbaya"
   },
   {
-    "code": "gla",
+    "set1": "gd",
+    "set3": "gla",
     "name": "Scottish Gaelic"
   },
   {
-    "code": "gle",
+    "set1": "ga",
+    "set3": "gle",
     "name": "Irish"
   },
   {
-    "code": "glg",
+    "set1": "gl",
+    "set3": "glg",
     "name": "Galician"
   },
   {
-    "code": "glv",
+    "set1": "gv",
+    "set3": "glv",
     "name": "Manx"
   },
   {
-    "code": "gon",
+    "set3": "gon",
     "name": "Gondi"
   },
   {
-    "code": "gor",
+    "set3": "gor",
     "name": "Gorontalo"
   },
   {
-    "code": "grn",
+    "set1": "gn",
+    "set3": "grn",
     "name": "Guarani"
   },
   {
-    "code": "gsg",
+    "set3": "gsg",
     "name": "Sign Language: German"
   },
   {
-    "code": "gsw",
+    "set3": "gsw",
     "name": "Alemannic"
   },
   {
-    "code": "guj",
+    "set1": "gu",
+    "set3": "guj",
     "name": "Gujarati"
   },
   {
-    "code": "hak",
+    "set3": "hak",
     "name": "Chinese (Hakka)"
   },
   {
-    "code": "hat",
+    "set1": "ht",
+    "set3": "hat",
     "name": "Haitian"
   },
   {
-    "code": "hau",
+    "set1": "ha",
+    "set3": "hau",
     "name": "Hausa"
   },
   {
-    "code": "heb",
+    "set1": "he",
+    "set3": "heb",
     "name": "Hebrew"
   },
   {
-    "code": "hil",
+    "set3": "hil",
     "name": "Hiligaynon"
   },
   {
-    "code": "hin",
+    "set1": "hi",
+    "set3": "hin",
     "name": "Hindi"
   },
   {
-    "code": "hks",
+    "set3": "hks",
     "name": "Sign Language: Hong Kong"
   },
   {
-    "code": "hmn",
+    "set3": "hmn",
     "name": "Hmong"
   },
   {
-    "code": "hne",
+    "set3": "hne",
     "name": "Chhattisgarhi"
   },
   {
-    "code": "hrv",
+    "set1": "hr",
+    "set3": "hrv",
     "name": "Croatian"
   },
   {
-    "code": "hsn",
+    "set3": "hsn",
     "name": "Chinese (Xiang)"
   },
   {
-    "code": "hun",
+    "set1": "hu",
+    "set3": "hun",
     "name": "Hungarian"
   },
   {
-    "code": "hye",
+    "set1": "hy",
+    "set3": "hye",
     "name": "Armenian"
   },
   {
-    "code": "iba",
+    "set3": "iba",
     "name": "Iban"
   },
   {
-    "code": "ibo",
+    "set1": "ig",
+    "set3": "ibo",
     "name": "Igbo"
   },
   {
-    "code": "iii",
+    "set1": "ii",
+    "set3": "iii",
     "name": "Nuosu"
   },
   {
-    "code": "ilo",
+    "set3": "ilo",
     "name": "Iloko"
   },
   {
-    "code": "ind",
+    "set1": "id",
+    "set3": "ind",
     "name": "Indonesian"
   },
   {
-    "code": "inh",
+    "set3": "inh",
     "name": "Ingush"
   },
   {
-    "code": "inl",
+    "set3": "inl",
     "name": "Sign Language: Indonesian"
   },
   {
-    "code": "ins",
+    "set3": "ins",
     "name": "Sign Language: Indo-Pakistani"
   },
   {
-    "code": "ise",
+    "set3": "ise",
     "name": "Sign Language: Italian"
   },
   {
-    "code": "isl",
+    "set1": "is",
+    "set3": "isl",
     "name": "Icelandic"
   },
   {
-    "code": "ita",
+    "set1": "it",
+    "set3": "ita",
     "name": "Italian"
   },
   {
-    "code": "jav",
+    "set1": "jv",
+    "set3": "jav",
     "name": "Javanese"
   },
   {
-    "code": "jpn",
+    "set1": "ja",
+    "set3": "jpn",
     "name": "Japanese"
   },
   {
-    "code": "jsl",
+    "set3": "jsl",
     "name": "Sign Language: Japanese"
   },
   {
-    "code": "kaa",
+    "set3": "kaa",
     "name": "Kara-Kalpak"
   },
   {
-    "code": "kab",
+    "set3": "kab",
     "name": "Kabyle"
   },
   {
-    "code": "kac",
+    "set3": "kac",
     "name": "Jingpho"
   },
   {
-    "code": "kam",
+    "set3": "kam",
     "name": "Kamba"
   },
   {
-    "code": "kan",
+    "set1": "kn",
+    "set3": "kan",
     "name": "Kannada"
   },
   {
-    "code": "kas",
+    "set1": "ks",
+    "set3": "kas",
     "name": "Kashmiri"
   },
   {
-    "code": "kat",
+    "set1": "ka",
+    "set3": "kat",
     "name": "Georgian"
   },
   {
-    "code": "kau",
+    "set1": "kr",
+    "set3": "kau",
     "name": "Kanuri"
   },
   {
-    "code": "kaz",
+    "set1": "kk",
+    "set3": "kaz",
     "name": "Kazakh"
   },
   {
-    "code": "kbd",
+    "set3": "kbd",
     "name": "Kabardian"
   },
   {
-    "code": "kha",
+    "set3": "kha",
     "name": "Khasi"
   },
   {
-    "code": "khm",
+    "set1": "km",
+    "set3": "khm",
     "name": "Central Khmer"
   },
   {
-    "code": "kik",
+    "set1": "ki",
+    "set3": "kik",
     "name": "Kikuyu"
   },
   {
-    "code": "kin",
+    "set1": "rw",
+    "set3": "kin",
     "name": "Kinyarwanda"
   },
   {
-    "code": "kir",
+    "set1": "ky",
+    "set3": "kir",
     "name": "Kyrgyz"
   },
   {
-    "code": "kmb",
+    "set3": "kmb",
     "name": "Kimbundu"
   },
   {
-    "code": "kok",
+    "set3": "kok",
     "name": "Konkani"
   },
   {
-    "code": "kom",
+    "set1": "kv",
+    "set3": "kom",
     "name": "Komi"
   },
   {
-    "code": "kon",
+    "set1": "kg",
+    "set3": "kon",
     "name": "Kongo"
   },
   {
-    "code": "kor",
+    "set1": "ko",
+    "set3": "kor",
     "name": "Korean"
   },
   {
-    "code": "kpe",
+    "set3": "kpe",
     "name": "Kpelle"
   },
   {
-    "code": "kri",
+    "set3": "kri",
     "name": "Krio"
   },
   {
-    "code": "kru",
+    "set3": "kru",
     "name": "Kurukh"
   },
   {
-    "code": "kur",
+    "set1": "ku",
+    "set3": "kur",
     "name": "Kurdish"
   },
   {
-    "code": "lah",
+    "set3": "lah",
     "name": "Lahnda"
   },
   {
-    "code": "lao",
+    "set1": "lo",
+    "set3": "lao",
     "name": "Lao"
   },
   {
-    "code": "lat",
+    "set1": "la",
+    "set3": "lat",
     "name": "Latin"
   },
   {
-    "code": "lav",
+    "set1": "lv",
+    "set3": "lav",
     "name": "Latvian"
   },
   {
-    "code": "lez",
+    "set3": "lez",
     "name": "Lezghian"
   },
   {
-    "code": "lim",
+    "set1": "li",
+    "set3": "lim",
     "name": "Limburgish"
   },
   {
-    "code": "lin",
+    "set1": "ln",
+    "set3": "lin",
     "name": "Lingala"
   },
   {
-    "code": "lit",
+    "set1": "lt",
+    "set3": "lit",
     "name": "Lithuanian"
   },
   {
-    "code": "lmo",
+    "set3": "lmo",
     "name": "Lombard"
   },
   {
-    "code": "loz",
+    "set3": "loz",
     "name": "Lozi"
   },
   {
-    "code": "ltz",
+    "set1": "lb",
+    "set3": "ltz",
     "name": "Luxembourgish"
   },
   {
-    "code": "lua",
+    "set3": "lua",
     "name": "Luba-Lulua"
   },
   {
-    "code": "lub",
+    "set1": "lu",
+    "set3": "lub",
     "name": "Luba-Katanga"
   },
   {
-    "code": "lug",
+    "set1": "lg",
+    "set3": "lug",
     "name": "Ganda"
   },
   {
-    "code": "luo",
+    "set3": "luo",
     "name": "Luo"
   },
   {
-    "code": "lus",
+    "set3": "lus",
     "name": "Lushai"
   },
   {
-    "code": "mad",
+    "set3": "mad",
     "name": "Madurese"
   },
   {
-    "code": "mag",
+    "set3": "mag",
     "name": "Magahi"
   },
   {
-    "code": "mai",
+    "set3": "mai",
     "name": "Maithili"
   },
   {
-    "code": "mak",
+    "set3": "mak",
     "name": "Makasar"
   },
   {
-    "code": "mal",
+    "set1": "ml",
+    "set3": "mal",
     "name": "Malayalam"
   },
   {
-    "code": "man",
+    "set3": "man",
     "name": "Mandingo"
   },
   {
-    "code": "mar",
+    "set1": "mr",
+    "set3": "mar",
     "name": "Marathi"
   },
   {
-    "code": "mas",
+    "set3": "mas",
     "name": "Masai"
   },
   {
-    "code": "men",
+    "set3": "men",
     "name": "Mende"
   },
   {
-    "code": "mfs",
+    "set3": "mfs",
     "name": "Sign Language: Mexican"
   },
   {
-    "code": "min",
+    "set3": "min",
     "name": "Minangkabau"
   },
   {
-    "code": "mkd",
+    "set1": "mk",
+    "set3": "mkd",
     "name": "Macedonian"
   },
   {
-    "code": "mlg",
+    "set1": "mg",
+    "set3": "mlg",
     "name": "Malagasy"
   },
   {
-    "code": "mlt",
+    "set1": "mt",
+    "set3": "mlt",
     "name": "Maltese"
   },
   {
-    "code": "mni",
+    "set3": "mni",
     "name": "Manipuri"
   },
   {
-    "code": "mnp",
+    "set3": "mnp",
     "name": "Chinese (Northern Min)"
   },
   {
-    "code": "mon",
+    "set1": "mn",
+    "set3": "mon",
     "name": "Mongolian"
   },
   {
-    "code": "mos",
+    "set3": "mos",
     "name": "Mossi"
   },
   {
-    "code": "mri",
+    "set1": "mi",
+    "set3": "mri",
     "name": "Māori"
   },
   {
-    "code": "msa",
+    "set1": "ms",
+    "set3": "msa",
     "name": "Malay"
   },
   {
-    "code": "mwr",
+    "set3": "mwr",
     "name": "Marwari"
   },
   {
-    "code": "mya",
+    "set1": "my",
+    "set3": "mya",
     "name": "Burmese"
   },
   {
-    "code": "nan",
+    "set3": "nan",
     "name": "Chinese (Southern Min)"
   },
   {
-    "code": "nap",
+    "set3": "nap",
     "name": "Neapolitan"
   },
   {
-    "code": "nbl",
+    "set1": "nr",
+    "set3": "nbl",
     "name": "Ndebele (South)"
   },
   {
-    "code": "nde",
+    "set1": "nd",
+    "set3": "nde",
     "name": "Ndebele (North)"
   },
   {
-    "code": "ndo",
+    "set1": "ng",
+    "set3": "ndo",
     "name": "Ndonga"
   },
   {
-    "code": "nds",
+    "set3": "nds",
     "name": "German (Low)"
   },
   {
-    "code": "nep",
+    "set1": "ne",
+    "set3": "nep",
     "name": "Nepali"
   },
   {
-    "code": "new",
+    "set3": "new",
     "name": "Newari"
   },
   {
-    "code": "nia",
+    "set3": "nia",
     "name": "Nias"
   },
   {
-    "code": "nld",
+    "set1": "nl",
+    "set3": "nld",
     "name": "Dutch"
   },
   {
-    "code": "nor",
+    "set1": "no",
+    "set3": "nor",
     "name": "Norwegian"
   },
   {
-    "code": "nso",
+    "set3": "nso",
     "name": "Sotho (Northern)"
   },
   {
-    "code": "nya",
+    "set1": "ny",
+    "set3": "nya",
     "name": "Chewa"
   },
   {
-    "code": "nym",
+    "set3": "nym",
     "name": "Nyamwezi"
   },
   {
-    "code": "nyn",
+    "set3": "nyn",
     "name": "Nyankole"
   },
   {
-    "code": "nyo",
+    "set3": "nyo",
     "name": "Nyoro"
   },
   {
-    "code": "ori",
+    "set1": "or",
+    "set3": "ori",
     "name": "Oriya"
   },
   {
-    "code": "orm",
+    "set1": "om",
+    "set3": "orm",
     "name": "Oromo"
   },
   {
-    "code": "oss",
+    "set1": "os",
+    "set3": "oss",
     "name": "Ossetian"
   },
   {
-    "code": "pag",
+    "set3": "pag",
     "name": "Pangasinan"
   },
   {
-    "code": "pam",
+    "set3": "pam",
     "name": "Kapampangan"
   },
   {
-    "code": "pan",
+    "set1": "pa",
+    "set3": "pan",
     "name": "Punjabi"
   },
   {
-    "code": "pms",
+    "set3": "pms",
     "name": "Piedmontese"
   },
   {
-    "code": "pol",
+    "set1": "pl",
+    "set3": "pol",
     "name": "Polish"
   },
   {
-    "code": "por",
+    "set1": "pt",
+    "set3": "por",
     "name": "Portuguese"
   },
   {
-    "code": "psc",
+    "set3": "psc",
     "name": "Sign Language: Persian"
   },
   {
-    "code": "pso",
+    "set3": "pso",
     "name": "Sign Language: Polish"
   },
   {
-    "code": "pus",
+    "set1": "ps",
+    "set3": "pus",
     "name": "Pashto"
   },
   {
-    "code": "que",
+    "set1": "qu",
+    "set3": "que",
     "name": "Quechua"
   },
   {
-    "code": "raj",
+    "set3": "raj",
     "name": "Rajasthani"
   },
   {
-    "code": "rom",
+    "set3": "rom",
     "name": "Romany"
   },
   {
-    "code": "ron",
+    "set1": "ro",
+    "set3": "ron",
     "name": "Romanian"
   },
   {
-    "code": "rsl",
+    "set3": "rsl",
     "name": "Sign Language: Russian"
   },
   {
-    "code": "run",
+    "set1": "rn",
+    "set3": "run",
     "name": "Rundi"
   },
   {
-    "code": "rus",
+    "set1": "ru",
+    "set3": "rus",
     "name": "Russian"
   },
   {
-    "code": "san",
+    "set1": "sa",
+    "set3": "san",
     "name": "Sanskrit"
   },
   {
-    "code": "sas",
+    "set3": "sas",
     "name": "Sasak"
   },
   {
-    "code": "sat",
+    "set3": "sat",
     "name": "Santali"
   },
   {
-    "code": "scn",
+    "set3": "scn",
     "name": "Sicilian"
   },
   {
-    "code": "shn",
+    "set3": "shn",
     "name": "Shan"
   },
   {
-    "code": "sid",
+    "set3": "sid",
     "name": "Sidamo"
   },
   {
-    "code": "sin",
+    "set1": "si",
+    "set3": "sin",
     "name": "Sinhala"
   },
   {
-    "code": "slk",
+    "set1": "sk",
+    "set3": "slk",
     "name": "Slovak"
   },
   {
-    "code": "slv",
+    "set1": "sl",
+    "set3": "slv",
     "name": "Slovenian"
   },
   {
-    "code": "smi",
+    "set3": "smi",
     "name": "Sámi"
   },
   {
-    "code": "smo",
+    "set1": "sm",
+    "set3": "smo",
     "name": "Samoan"
   },
   {
-    "code": "sna",
+    "set1": "sn",
+    "set3": "sna",
     "name": "Shona"
   },
   {
-    "code": "snd",
+    "set1": "sd",
+    "set3": "snd",
     "name": "Sindhi"
   },
   {
-    "code": "snk",
+    "set3": "snk",
     "name": "Soninke"
   },
   {
-    "code": "som",
+    "set1": "so",
+    "set3": "som",
     "name": "Somali"
   },
   {
-    "code": "sot",
+    "set1": "st",
+    "set3": "sot",
     "name": "Sotho (Southern)"
   },
   {
-    "code": "spa",
+    "set1": "es",
+    "set3": "spa",
     "name": "Spanish"
   },
   {
-    "code": "sqi",
+    "set1": "sq",
+    "set3": "sqi",
     "name": "Albanian"
   },
   {
-    "code": "srd",
+    "set1": "sc",
+    "set3": "srd",
     "name": "Sardinian"
   },
   {
-    "code": "srp",
+    "set1": "sr",
+    "set3": "srp",
     "name": "Serbian"
   },
   {
-    "code": "srr",
+    "set3": "srr",
     "name": "Serer"
   },
   {
-    "code": "ssp",
+    "set3": "ssp",
     "name": "Sign Language: Spanish"
   },
   {
-    "code": "ssw",
+    "set1": "ss",
+    "set3": "ssw",
     "name": "Swati"
   },
   {
-    "code": "suk",
+    "set3": "suk",
     "name": "Sukuma"
   },
   {
-    "code": "sun",
+    "set1": "su",
+    "set3": "sun",
     "name": "Sundanese"
   },
   {
-    "code": "sus",
+    "set3": "sus",
     "name": "Susu"
   },
   {
-    "code": "swa",
+    "set1": "sw",
+    "set3": "swa",
     "name": "Swahili"
   },
   {
-    "code": "swe",
+    "set1": "sv",
+    "set3": "swe",
     "name": "Swedish"
   },
   {
-    "code": "syr",
+    "set3": "syr",
     "name": "Syriac"
   },
   {
-    "code": "tam",
+    "set1": "ta",
+    "set3": "tam",
     "name": "Tamil"
   },
   {
-    "code": "tat",
+    "set1": "tt",
+    "set3": "tat",
     "name": "Tatar"
   },
   {
-    "code": "tel",
+    "set1": "te",
+    "set3": "tel",
     "name": "Telugu"
   },
   {
-    "code": "tem",
+    "set3": "tem",
     "name": "Timne"
   },
   {
-    "code": "tet",
+    "set3": "tet",
     "name": "Tetum"
   },
   {
-    "code": "tgk",
+    "set1": "tg",
+    "set3": "tgk",
     "name": "Tajik"
   },
   {
-    "code": "tgl",
+    "set1": "tl",
+    "set3": "tgl",
     "name": "Tagalog"
   },
   {
-    "code": "tha",
+    "set1": "th",
+    "set3": "tha",
     "name": "Thai"
   },
   {
-    "code": "tig",
+    "set3": "tig",
     "name": "Tigre"
   },
   {
-    "code": "tir",
+    "set1": "ti",
+    "set3": "tir",
     "name": "Tigrinya"
   },
   {
-    "code": "tiv",
+    "set3": "tiv",
     "name": "Tiv"
   },
   {
-    "code": "tmh",
+    "set3": "tmh",
     "name": "Tamashek"
   },
   {
-    "code": "tok",
+    "set3": "tok",
     "name": "Toki Pona"
   },
   {
-    "code": "tpi",
+    "set3": "tpi",
     "name": "Tok Pisin"
   },
   {
-    "code": "tsm",
+    "set3": "tsm",
     "name": "Sign Language: Turkish"
   },
   {
-    "code": "tsn",
+    "set1": "tn",
+    "set3": "tsn",
     "name": "Tswana"
   },
   {
-    "code": "tso",
+    "set1": "ts",
+    "set3": "tso",
     "name": "Tsonga"
   },
   {
-    "code": "tuk",
+    "set1": "tk",
+    "set3": "tuk",
     "name": "Turkmen"
   },
   {
-    "code": "tum",
+    "set3": "tum",
     "name": "Tumbuka"
   },
   {
-    "code": "tur",
+    "set1": "tr",
+    "set3": "tur",
     "name": "Turkish"
   },
   {
-    "code": "twi",
+    "set1": "tw",
+    "set3": "twi",
     "name": "Twi"
   },
   {
-    "code": "ugy",
+    "set3": "ugy",
     "name": "Sign Language: Uruguayan"
   },
   {
-    "code": "uig",
+    "set1": "ug",
+    "set3": "uig",
     "name": "Uyghur"
   },
   {
-    "code": "ukr",
+    "set1": "uk",
+    "set3": "ukr",
     "name": "Ukrainian"
   },
   {
-    "code": "umb",
+    "set3": "umb",
     "name": "Umbundu"
   },
   {
-    "code": "urd",
+    "set1": "ur",
+    "set3": "urd",
     "name": "Urdu"
   },
   {
-    "code": "uzb",
+    "set1": "uz",
+    "set3": "uzb",
     "name": "Uzbek"
   },
   {
-    "code": "vec",
+    "set3": "vec",
     "name": "Venetian"
   },
   {
-    "code": "ven",
+    "set1": "ve",
+    "set3": "ven",
     "name": "Venda"
   },
   {
-    "code": "vie",
+    "set1": "vi",
+    "set3": "vie",
     "name": "Vietnamese"
   },
   {
-    "code": "wal",
+    "set3": "wal",
     "name": "Wolaitta; Wolaytta"
   },
   {
-    "code": "war",
+    "set3": "war",
     "name": "Waray"
   },
   {
-    "code": "wln",
+    "set1": "wa",
+    "set3": "wln",
     "name": "Walloon"
   },
   {
-    "code": "wol",
+    "set1": "wo",
+    "set3": "wol",
     "name": "Wolof"
   },
   {
-    "code": "wuu",
+    "set3": "wuu",
     "name": "Chinese (Wu)"
   },
   {
-    "code": "xho",
+    "set1": "xh",
+    "set3": "xho",
     "name": "Xhosa"
   },
   {
-    "code": "xml",
+    "set3": "xml",
     "name": "Sign Language: Malaysian"
   },
   {
-    "code": "yao",
+    "set3": "yao",
     "name": "Yao"
   },
   {
-    "code": "yid",
+    "set1": "yi",
+    "set3": "yid",
     "name": "Yiddish"
   },
   {
-    "code": "yor",
+    "set1": "yo",
+    "set3": "yor",
     "name": "Yoruba"
   },
   {
-    "code": "ysl",
+    "set3": "ysl",
     "name": "Sign Language: Yugoslav"
   },
   {
-    "code": "yue",
+    "set3": "yue",
     "name": "Chinese (Cantonese/Yue)"
   },
   {
-    "code": "zgh",
+    "set3": "zgh",
     "name": "Berber"
   },
   {
-    "code": "zha",
+    "set1": "za",
+    "set3": "zha",
     "name": "Zhuang"
   },
   {
-    "code": "zul",
+    "set1": "zu",
+    "set3": "zul",
     "name": "Zulu"
   },
   {
-    "code": "zza",
+    "set3": "zza",
     "name": "Zaza"
   }
 ]
