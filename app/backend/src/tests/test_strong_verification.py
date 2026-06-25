@@ -816,8 +816,8 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
     _, superuser_token = generate_user(is_superuser=True)
 
     MockSVFlow(user=user, token=token).process_iris_callbacks(
-        document_type="IDENTITY_CARD",
-        expected_status=StrongVerificationAttemptStatus.failed)
+        document_type="IDENTITY_CARD", expected_status=StrongVerificationAttemptStatus.failed
+    )
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
@@ -832,9 +832,7 @@ def test_strong_verification_wrong_birthdate(db, monkeypatch, push_collector: Pu
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
-    MockSVFlow(user=user, token=token).process_iris_callbacks(
-        date_of_birth=date.fromisoformat("1999-12-31")
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks(date_of_birth=date.fromisoformat("1999-12-31"))
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
@@ -849,9 +847,7 @@ def test_strong_verification_wrong_gender(db, monkeypatch, push_collector: PushC
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
-    MockSVFlow(user=user, token=token).process_iris_callbacks(
-        sex=PassportSex.female
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks(sex=PassportSex.female)
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
