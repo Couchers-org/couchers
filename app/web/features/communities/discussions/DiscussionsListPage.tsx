@@ -11,7 +11,7 @@ import { useListDiscussions } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -66,26 +66,10 @@ export default function DiscussionsListPage({
 
   const { data: accountInfo } = useAccountInfo();
   const hash = typeof window !== "undefined" ? window.location.hash : "";
+  // Intent to create a post, set by both the #new hash and the "New post" button.
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(
     hash.includes("new"),
   );
-  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-
-  // If #new hash auto-opened the form but profile is incomplete, show dialog instead
-  useEffect(() => {
-    if (accountInfo && !accountInfo.profileComplete && isCreatingNewPost) {
-      setIsCreatingNewPost(false);
-      setProfileDialogOpen(true);
-    }
-  }, [accountInfo, isCreatingNewPost]);
-
-  const handleNewPostClick = () => {
-    if (accountInfo !== undefined && !accountInfo.profileComplete) {
-      setProfileDialogOpen(true);
-    } else {
-      setIsCreatingNewPost(true);
-    }
-  };
 
   const {
     isLoading: isDiscussionsLoading,
@@ -99,11 +83,20 @@ export default function DiscussionsListPage({
   // loading is false when refetched since there's old data in cache already
   const isRefetching = !isDiscussionsLoading && isDiscussionsFetching;
 
+  // Derive form/dialog visibility during render so both entry points share the
+  // same gate: show the form only once the profile is known to be complete,
+  // otherwise show the dialog.
+  const profileIncomplete =
+    accountInfo !== undefined && !accountInfo.profileComplete;
+  const showCreateForm =
+    isCreatingNewPost && accountInfo?.profileComplete === true;
+  const profileDialogOpen = isCreatingNewPost && profileIncomplete;
+
   return (
     <>
       <ProfileIncompleteDialog
         open={profileDialogOpen}
-        onClose={() => setProfileDialogOpen(false)}
+        onClose={() => setIsCreatingNewPost(false)}
         attempted_action="create_discussion"
       />
       <StyledDiscussionsHeader>
@@ -114,15 +107,17 @@ export default function DiscussionsListPage({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Collapse in={!isCreatingNewPost}>
+      <Collapse in={!showCreateForm}>
         <StyledNewPostButtonContainer>
-          <StyledCreateResourceButton onClick={handleNewPostClick}>
+          <StyledCreateResourceButton
+            onClick={() => setIsCreatingNewPost(true)}
+          >
             {t("communities:new_post_label")}
           </StyledCreateResourceButton>
           {isRefetching && <CenteredSpinner />}
         </StyledNewPostButtonContainer>
       </Collapse>
-      <Collapse in={isCreatingNewPost}>
+      <Collapse in={showCreateForm}>
         <CreateDiscussionForm
           communityId={community.communityId}
           onCancel={() => setIsCreatingNewPost(false)}
