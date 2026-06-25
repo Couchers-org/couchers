@@ -7,6 +7,7 @@ interface FriendSummaryViewProps {
   children?: React.ReactNode;
   friend?: LiteUser.AsObject | BlockedUser.AsObject;
   isProfileLink?: boolean;
+  cardRef?: React.Ref<HTMLDivElement>;
 }
 
 export const FRIEND_ITEM_TEST_ID = "friend-item";
@@ -33,10 +34,11 @@ function FriendSummaryView({
   children,
   friend,
   isProfileLink,
+  cardRef,
 }: FriendSummaryViewProps) {
   return friend ? (
     <>
-      <StyledFriendItem data-testid={FRIEND_ITEM_TEST_ID}>
+      <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID}>
         <UserSummary
           headlineComponent="h3"
           user={friend}

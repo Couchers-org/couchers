@@ -5,6 +5,7 @@ import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
+import { useEffect, useRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 import type { SetMutationError } from ".";
@@ -74,12 +75,23 @@ function FriendRequestsReceived() {
   const { t } = useTranslation([CONNECTIONS]);
   const router = useRouter();
 
-  const fromUserId = router.query.from ? Number(router.query.from) : null;
+  const friendIdParam = router.query["friend-id"];
+  const friendId = friendIdParam ? Number(friendIdParam) : null;
   const requestNotFound =
-    fromUserId !== null &&
+    friendId !== null &&
     !isLoading &&
     data !== undefined &&
-    !data.some((req) => req.userId === fromUserId);
+    !data.some((req) => req.userId === friendId);
+
+  const highlightedCardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (highlightedCardRef.current) {
+      highlightedCardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [friendId, data]);
 
   return (
     <>
@@ -102,6 +114,11 @@ function FriendRequestsReceived() {
             <FriendSummaryView
               key={friendRequest.friendRequestId}
               friend={friendRequest.friend}
+              cardRef={
+                friendRequest.userId === friendId
+                  ? highlightedCardRef
+                  : undefined
+              }
             >
               <RespondToFriendRequestAction
                 friendRequest={friendRequest}
