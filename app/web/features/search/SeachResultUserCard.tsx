@@ -292,9 +292,9 @@ const SearchResultUserCard = ({
                   }}
                 >
                   {user.name}
-                  {user.hasStrongVerification && <StrongVerificationBadge />}
                 </Typography>
               </ProfileLink>
+              {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
             {!isNativeEmbed && !isMobile && (
               <StyledLink
