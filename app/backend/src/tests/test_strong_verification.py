@@ -270,14 +270,14 @@ class MockSVFlow:
                 assert verification_attempt.passport_encrypted_data
                 assert verification_attempt.passport_date_of_birth == date_of_birth
                 assert verification_attempt.passport_sex == sex
+
+                private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
+                decrypted_data = json.loads(asym_decrypt(private_key, verification_attempt.passport_encrypted_data))
+                assert decrypted_data == json_resp
             else:
                 assert not verification_attempt.has_full_data
 
             # We should have gone through all IRIS callbacks
-            private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
-            decrypted_data = json.loads(asym_decrypt(private_key, verification_attempt.passport_encrypted_data))
-            assert decrypted_data == json_resp
-
             callbacks = (
                 session.execute(
                     select(StrongVerificationCallbackEvent.iris_status)
