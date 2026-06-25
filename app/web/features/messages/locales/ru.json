@@ -170,5 +170,22 @@
     "filter": {
       "all": "Все"
     }
+  },
+  "reference_card": {
+    "title": "Написать отзыв",
+    "description": "Поделитесь своим опытом, чтобы помочь сообществу."
+  },
+  "respond_box_title": "Отправить ответ",
+  "respond_box_description": "Выберите ответ, чтобы {{name}} сразу узнал. Вы можете дополнить его сообщением.",
+  "status_bar_edit_button": "Редактировать",
+  "status_bar_cancel_edit_button": "Отменить",
+  "status_bar_close_button": "Закрыть",
+  "cancel_request_button": "Отменить запрос",
+  "cancel_request_dialog_title": "Отменить запрос?",
+  "cancel_request_dialog_message": "Вы уверены, что хотите отменить свой запрос? Это действие нельзя будет отменить.",
+  "cancel_request_dialog_confirm_button": "Да, отменить",
+  "cancel_request_dialog_dismiss_button": "Нет",
+  "private_feedback_card": {
+    "title": "Отзыв на этот запрос"
   }
 }

@@ -61,5 +61,11 @@
   },
   "events": {
     "location_online_label": "Online"
+  },
+  "public_trips": {
+    "when_tomorrow": "Zítra",
+    "when_today": "Dnes",
+    "manage_link": "Spravovat",
+    "when_now": "Nyní"
   }
 }

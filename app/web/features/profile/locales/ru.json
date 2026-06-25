@@ -4,7 +4,8 @@
     "accept_friend_label": "Принять",
     "decline_friend_label": "Отклонить",
     "request": "Отправить Запрос",
-    "back_to_dashboard": "Вернуться на главную страницу"
+    "back_to_dashboard": "Вернуться на главную страницу",
+    "add_friend": "Добавить в друзья"
   },
   "heading": {
     "age_gender": "Возраст / Пол",
@@ -341,5 +342,6 @@
     },
     "edit_profile_button": "Отредактируйте свой профиль сейчас",
     "cancel_button": "Неважно"
-  }
+  },
+  "do_not_email_error_link": "Обновите настройки электронной почты, чтобы снова включить это."
 }

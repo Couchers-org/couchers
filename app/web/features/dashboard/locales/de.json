@@ -105,5 +105,17 @@
     "no_upcoming_trips": "Keine anstehenden Trips. Bereit zum Entdecken?",
     "no_upcoming_guests": "Noch keine anstehenden Gäste."
   },
-  "now_label": "Jetzt"
+  "now_label": "Jetzt",
+  "public_trips": {
+    "my_trips_header": "Deine öffentlichen Trips",
+    "manage_link": "Verwalten",
+    "when_now": "Jetzt",
+    "when_today": "Heute",
+    "when_tomorrow": "Morgen",
+    "empty_description": "Wohin des Weges? Poste einen öffentlichen Trip in einer Community, um Angebote von Hosts in der Nähe zu erhalten.",
+    "same_gender_only_indicator": "Gleiches Geschlecht",
+    "offers_count_one": "{{count}} Angebot",
+    "offers_count_other": "{{count}} Angebote",
+    "no_offers": "Noch keine Angebote"
+  }
 }

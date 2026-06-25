@@ -222,7 +222,8 @@
     "what_happened": "Wat is er gebeurd?",
     "friend_reference_requires_friendship": "Je kan alleen een vriendenreferentie schrijven voor iemand met wie je bevriend bent.",
     "already_wrote_reference_for_stay": "Je hebt al een referentie geschreven voor deze gebruiker en dit verblijf. Je referentie wordt zichtbaar nadat er een referentie over jou is geschreven, of automatisch na 14 dagen.",
-    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven."
+    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven.",
+    "safety_rating_selector_a11y": "Veiligheidsrating"
   },
   "request_form": {
     "request_chars_remaining_one": "Schrijf nog minstens {{count}} karakter meer om een hostingverzoek te doen.",
@@ -346,5 +347,6 @@
     },
     "edit_profile_button": "Bewerk nu je profiel",
     "cancel_button": "Laat maar"
-  }
+  },
+  "open_full_profile": "Volledig profiel openen"
 }
