@@ -75,14 +75,14 @@ function FriendRequestsReceived() {
   const { t } = useTranslation([CONNECTIONS]);
   const router = useRouter();
 
-  const friendIdParam = router.query["friend-id"];
-  const friendId = friendIdParam ? Number(friendIdParam) : null;
+  const fromUserId = router.query.from ? Number(router.query.from) : null;
   const requestNotFound =
-    friendId !== null &&
+    fromUserId !== null &&
     !isLoading &&
     data !== undefined &&
-    !data.some((req) => req.userId === friendId);
+    !data.some((req) => req.userId === fromUserId);
 
+  // Scroll to the user id from the URL parameter
   const highlightedCardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (highlightedCardRef.current) {
@@ -91,7 +91,7 @@ function FriendRequestsReceived() {
         block: "center",
       });
     }
-  }, [friendId, data]);
+  }, [fromUserId, data]);
 
   return (
     <>
@@ -115,7 +115,7 @@ function FriendRequestsReceived() {
               key={friendRequest.friendRequestId}
               friend={friendRequest.friend}
               cardRef={
-                friendRequest.userId === friendId
+                friendRequest.userId === fromUserId
                   ? highlightedCardRef
                   : undefined
               }

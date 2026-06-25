@@ -33,7 +33,7 @@ beforeEach(() => {
 
 afterEach(() => jest.restoreAllMocks());
 
-describe("FriendRequestsReceived with no ?friend-id query param", () => {
+describe("FriendRequestsReceived with no ?from query param", () => {
   it("shows the empty state message when there are no pending requests", async () => {
     render(<FriendRequestsReceived />, { wrapper });
 
@@ -62,9 +62,9 @@ describe("FriendRequestsReceived with no ?friend-id query param", () => {
   });
 });
 
-describe("FriendRequestsReceived with ?friend-id=<userId> query param", () => {
+describe("FriendRequestsReceived with ?from=<userId> query param", () => {
   it("does not show an alert when the expected request is present", async () => {
-    mockRouter.setCurrentUrl("/connections/friends/?friend-id=3");
+    mockRouter.setCurrentUrl("/connections/friends/?from=3");
     listFriendRequestsMock.mockResolvedValue({
       receivedList: [pendingRequestFromUser3],
       sentList: [],
@@ -79,7 +79,7 @@ describe("FriendRequestsReceived with ?friend-id=<userId> query param", () => {
   });
 
   it("shows an info alert when the expected request is not in the list", async () => {
-    mockRouter.setCurrentUrl("/connections/friends/?friend-id=3");
+    mockRouter.setCurrentUrl("/connections/friends/?from=3");
 
     render(<FriendRequestsReceived />, { wrapper });
 
@@ -91,7 +91,7 @@ describe("FriendRequestsReceived with ?friend-id=<userId> query param", () => {
   });
 
   it("shows an alert when requests exist but none are from the expected user", async () => {
-    mockRouter.setCurrentUrl("/connections/friends/?friend-id=3");
+    mockRouter.setCurrentUrl("/connections/friends/?from=3");
     listFriendRequestsMock.mockResolvedValue({
       receivedList: [
         {

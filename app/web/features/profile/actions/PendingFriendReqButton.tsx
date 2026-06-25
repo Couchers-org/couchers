@@ -20,7 +20,7 @@ function PendingFriendReqButton({
     <Button
       component={Link}
       startIcon={<PersonAddIcon />}
-      href={`${connectionsRoute}?friend-id=${friendRequest.userId}`}
+      href={`${connectionsRoute}?from=${friendRequest.userId}`}
     >
       {t("profile:connection_pending")}
     </Button>
