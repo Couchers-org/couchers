@@ -18,7 +18,7 @@
     "local_time": "Ortszeit",
     "occupation": "Beruf",
     "references": "Referenzen",
-    "who_section": "Wer Ich Bin",
+    "who_section": "Wer ich bin",
     "hobbies_section": "Was ich in meiner Freizeit mache",
     "additional_information_section": "Weitere Informationen",
     "travel_section": "Ich reiste nach",
@@ -344,7 +344,8 @@
       "send_request": "Anfrage senden",
       "send_message": "Nachricht senden",
       "create_event": "Event erstellen",
-      "send_friend_request": "Freundschaftsanfrage senden"
+      "send_friend_request": "Freundschaftsanfrage senden",
+      "create_public_trip": "Erstelle einen öffentlichen Trip"
     },
     "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"
