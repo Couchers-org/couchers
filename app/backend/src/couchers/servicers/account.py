@@ -516,6 +516,7 @@ class Account(account_pb2_grpc.AccountServicer):
             StrongVerificationAttemptStatus.in_progress_waiting_on_user_in_app: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP,
             StrongVerificationAttemptStatus.in_progress_waiting_on_backend: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND,
             StrongVerificationAttemptStatus.failed: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED,
+            StrongVerificationAttemptStatus.duplicate: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED,
         }
         return account_pb2.GetStrongVerificationAttemptStatusRes(
             status=status_to_pb.get(
