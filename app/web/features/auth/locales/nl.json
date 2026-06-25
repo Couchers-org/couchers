@@ -93,7 +93,8 @@
       "required_error": "Selecteer je gender",
       "man": "Man",
       "non_binary": "Non-binair",
-      "woman": "Vrouw"
+      "woman": "Vrouw",
+      "selector_a11y": "Gender"
     },
     "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
     "tos_prompt": "Lees en accepteer de <1></1> om door te gaan.",
