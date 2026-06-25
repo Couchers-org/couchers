@@ -14,6 +14,7 @@ import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { ReportBugRes } from "proto/bugs_pb";
 import { ComponentPropsWithRef, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -56,7 +57,7 @@ const StyledReportTypeButton = styled(Button)(() => ({
 }));
 
 export default function ReportDialog({ open, onClose }: DialogProps) {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation(GLOBAL);
 
   const [type, setType] = useState<"initial" | "bug">("initial");
   const {
