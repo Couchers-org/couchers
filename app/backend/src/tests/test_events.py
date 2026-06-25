@@ -376,6 +376,9 @@ def test_ScheduleEvent(db):
 
     user, token = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
     time_before = now()
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
@@ -385,6 +388,7 @@ def test_ScheduleEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -449,6 +453,9 @@ def test_ScheduleEvent(db):
 def test_cannot_overlap_occurrences_schedule(db):
     user, token = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
     start = now()
 
     with events_session(token) as api:
@@ -456,6 +463,7 @@ def test_cannot_overlap_occurrences_schedule(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -489,6 +497,9 @@ def test_cannot_overlap_occurrences_schedule(db):
 def test_cannot_overlap_occurrences_update(db):
     user, token = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
     start = now()
 
     with events_session(token) as api:
@@ -496,6 +507,7 @@ def test_cannot_overlap_occurrences_update(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -559,6 +571,9 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
     time_before = now()
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
@@ -568,6 +583,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -724,19 +740,25 @@ def test_GetEvent_online(db, moderator: Moderator):
     """Validate that legacy online events are surfaced as offline events through the API."""
     user1, token1 = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
     # Create as an offline event since the API doesn't support online events anymore.
     with events_session(token1) as api:
-        create_res: events_pb2.Event = api.CreateEvent(events_pb2.CreateEventReq(
-            title="Dummy Title",
-            content="Dummy content.",
-            offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
-            start_time=Timestamp_from_datetime(start_time),
-            end_time=Timestamp_from_datetime(end_time),
-            timezone="UTC",
-        ))
+        create_res: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
 
     event_id = create_res.event_id
 
@@ -744,9 +766,7 @@ def test_GetEvent_online(db, moderator: Moderator):
 
     # Tweak the DB object to turn it into a legacy online event
     with session_scope() as session:
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
         occurrence.geom = None
         occurrence.address = None
         occurrence.link = "https://couchers.org/meet/"
@@ -1510,6 +1530,9 @@ def test_ListEventOccurrences(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
     start = now()
 
     event_ids = []
@@ -1519,6 +1542,7 @@ def test_ListEventOccurrences(db):
             events_pb2.CreateEventReq(
                 title="First occurrence",
                 content="Dummy content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -2332,6 +2356,7 @@ def test_update_event_should_notify_queues_job():
                 content="Dummy content.",
                 parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=1.0,
                     lng=2.0,
                 ),
@@ -3044,6 +3069,9 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
@@ -3052,6 +3080,7 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
             events_pb2.CreateEventReq(
                 title="Comment Test",
                 content="Content.",
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,

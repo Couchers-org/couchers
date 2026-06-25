@@ -152,14 +152,12 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
     offline_information: events_pb2.OfflineEventInformation
     if occurrence.geom:
         offline_information = events_pb2.OfflineEventInformation(
-            lat=not_none(occurrence.coordinates)[0],
-            lng=not_none(occurrence.coordinates)[1],
-            address=occurrence.address)
+            lat=not_none(occurrence.coordinates)[0], lng=not_none(occurrence.coordinates)[1], address=occurrence.address
+        )
     else:
         # Backcompat: Surface legacy online events as offline events.
         # They'll appear at null island, but there are so few we're ok with this.
-        offline_information = events_pb2.OfflineEventInformation(
-            address=occurrence.link, lat=0, lng=0)
+        offline_information = events_pb2.OfflineEventInformation(address=occurrence.link, lat=0, lng=0)
 
     return events_pb2.Event(
         event_id=occurrence.id,
@@ -406,8 +404,10 @@ class Events(events_pb2_grpc.EventsServicer):
 
         # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
         if not (
-            request.HasField("offline_information") and
-            request.offline_information.address and request.offline_information.lat and request.offline_information.lng
+            request.HasField("offline_information")
+            and request.offline_information.address
+            and request.offline_information.lat
+            and request.offline_information.lng
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
         if request.offline_information.lat == 0 and request.offline_information.lng == 0:
@@ -515,7 +515,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 "event_id": event.id,
                 "occurrence_id": occurrence.id,
                 "parent_community_id": parent_node.id,
-                "parent_community_name": parent_node.official_cluster.name
+                "parent_community_name": parent_node.official_cluster.name,
             },
         )
 
@@ -538,8 +538,10 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if not (
-            request.HasField("offline_information") and
-            request.offline_information.address and request.offline_information.lat and request.offline_information.lng
+            request.HasField("offline_information")
+            and request.offline_information.address
+            and request.offline_information.lat
+            and request.offline_information.lng
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
         if request.offline_information.lat == 0 and request.offline_information.lng == 0:

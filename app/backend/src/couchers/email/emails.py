@@ -644,7 +644,9 @@ class EventInfo:
             start_time=event.start_time.ToDatetime(tzinfo=UTC),
             end_time=event.end_time.ToDatetime(tzinfo=UTC),
             # Online events are deprecated, but could still exist in queued notifications. Treat it as an address.
-            address=event.online_information.link if event.HasField("online_information") else event.offline_information.address,
+            address=event.online_information.link
+            if event.HasField("online_information")
+            else event.offline_information.address,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
             description_markdown=event.content or "",
         )
