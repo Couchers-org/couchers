@@ -173,7 +173,7 @@ class MockSVFlow:
         if document_expiry is None:
             document_expiry = date.today() + timedelta(days=5 * 365)
 
-        self._emulate_iris_callback("COMPLETED")
+        self._emulate_iris_callback("APPROVED")
 
         with account_session(self.token) as account:
             assert (
