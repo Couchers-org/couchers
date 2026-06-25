@@ -57,6 +57,7 @@ def try_localize_language_name(code: str, locale: babel.Locale, *, standalone: b
         if name is None:
             return None
         if standalone:
+            # The result won't be embedded in a larger sentence. Capitalize the first letter if applicable.
             name = name[:1].upper() + name[1:]
         return name
     except (ValueError, babel.UnknownLocaleError):
