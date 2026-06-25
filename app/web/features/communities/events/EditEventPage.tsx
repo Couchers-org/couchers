@@ -81,7 +81,6 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
 
       updateEventInput = {
         eventId,
-        isOnline: data.isOnline,
         title: data.dirtyFields.title ? data.title : undefined,
         content: data.dirtyFields.content ? data.content : undefined,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
@@ -94,19 +93,11 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
             ? finalEndDate
             : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
+        address: data.dirtyFields.location ? data.location.name : undefined,
+        lat: data.dirtyFields.location ? data.location.location.lat : undefined,
+        lng: data.dirtyFields.location ? data.location.location.lng : undefined,
       };
 
-      if (data.isOnline) {
-        updateEventInput = Object.assign(updateEventInput, {
-          link: data.dirtyFields.link ? data.link : undefined,
-        });
-      } else if (data.dirtyFields.location) {
-        updateEventInput = Object.assign(updateEventInput, {
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-        });
-      }
       return service.events.updateEvent(updateEventInput);
     },
 
@@ -154,7 +145,6 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           mutate={updateEvent}
           title={t("communities:edit_event")}
           isEdit
-          defaultOnline={false}
         >
           {({ isMutationLoading }) => (
             <Button

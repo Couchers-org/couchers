@@ -37,42 +37,10 @@ def _(testconfig):
     pass
 
 
-def create_online_event(token: str, request: events_pb2.CreateEventReq) -> events_pb2.Event:
-    """Creates an online event through DB manipulation since the API now prohibits it."""
-    assert request.HasField("online_information")
-
-    # Create an offline version of the event, which the API will allow
-    offline_request = events_pb2.CreateEventReq()
-    offline_request.CopyFrom(request)
-    request.ClearField("online_information")
-    request.offline_information.CopyFrom(
-        events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2)
-    )
-
-    with events_session(token) as api:
-        response: events_pb2.Event = api.CreateEvent(offline_request)
-
-    # Tweak the DB object to turn it into an online event
-    with session_scope() as session:
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == response.event_id)
-        ).scalar_one()
-        occurrence.geom = None
-        occurrence.link = request.online_information.link
-
-    # Mock the response
-    response.ClearField("offline_information")
-    response.online_information.CopyFrom(request.online_information)
-
-    return response
-
-
 def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
-    # can create online event
-    # can create in person event
     # can't create event that starts in the past
     # can create in different timezones
 
@@ -90,8 +58,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
+    # Can create an event
     with events_session(token1) as api:
-        # in person event
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
@@ -113,7 +81,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -149,7 +118,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -180,7 +150,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -205,25 +176,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
 
     # Failure cases
     with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key=None,
-                    online_information=events_pb2.OnlineEventInformation(
-                        link="https://couchers.org/meet/",
-                    ),
-                    parent_community_id=c_id,
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
-                )
-            )
-
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
-
         with pytest.raises(grpc.RpcError) as e:
             api.CreateEvent(
                 events_pb2.CreateEventReq(
@@ -469,7 +421,8 @@ def test_ScheduleEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "New event occurrence"
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.3
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "A bit further but still near Null Island"
@@ -491,22 +444,6 @@ def test_ScheduleEvent(db):
         assert res.thread.thread_id
         assert res.can_edit
         assert res.can_moderate
-
-        # Cannot schedule as an online event.
-        with pytest.raises(grpc.RpcError) as e:
-            res = api.ScheduleEvent(
-                events_pb2.ScheduleEventReq(
-                    event_id=res.event_id,
-                    content="New event occurrence",
-                    online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
-                    start_time=Timestamp_from_datetime(new_start_time + timedelta(hours=6)),
-                    end_time=Timestamp_from_datetime(new_end_time + timedelta(hours=6)),
-                    timezone="UTC",
-                )
-            )
-
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
 
 
 def test_cannot_overlap_occurrences_schedule(db):
@@ -610,7 +547,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     # test cases:
     # owner can update
     # community owner can update
-    # can't mess up online/in person dichotomy
     # notifies attendees
 
     # event creator
@@ -675,7 +611,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -706,7 +643,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -737,7 +675,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -775,62 +714,53 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     with events_session(token3) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
-        assert res.WhichOneof("mode") == "offline_information"
+        assert res.HasField("offline_information")
         assert res.offline_information.address == "Nearer Null Island"
         assert res.offline_information.lat == 0.01
         assert res.offline_information.lng == 0.02
 
-    with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateEvent(
-                events_pb2.UpdateEventReq(
-                    event_id=event_id,
-                    title=wrappers_pb2.StringValue(value="Dummy Title"),
-                    content=wrappers_pb2.StringValue(value="Dummy content."),
-                    online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone=wrappers_pb2.StringValue(value="UTC"),
-                )
-            )
 
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Online events are deprecated and cannot be created anymore."
-
-
-def test_UpdateEvent_online(db, moderator: Moderator):
-    """Validate that we can still update online events, even if the API doesn't let us create them."""
+def test_GetEvent_online(db, moderator: Moderator):
+    """Validate that legacy online events are surfaced as offline events through the API."""
     user1, token1 = generate_user()
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
-    create_res = create_online_event(
-        token1,
-        events_pb2.CreateEventReq(
+    # Create as an offline event since the API doesn't support online events anymore.
+    with events_session(token1) as api:
+        create_res: events_pb2.Event = api.CreateEvent(events_pb2.CreateEventReq(
             title="Dummy Title",
             content="Dummy content.",
-            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+            offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
             start_time=Timestamp_from_datetime(start_time),
             end_time=Timestamp_from_datetime(end_time),
             timezone="UTC",
-        ),
-    )
+        ))
 
     event_id = create_res.event_id
 
     moderator.approve_event_occurrence(event_id)
 
-    with events_session(token1) as api:
-        update_res = api.UpdateEvent(
-            events_pb2.UpdateEventReq(event_id=event_id, title=wrappers_pb2.StringValue(value="New Title"))
-        )
+    # Tweak the DB object to turn it into a legacy online event
+    with session_scope() as session:
+        occurrence = session.execute(
+            select(EventOccurrence).where(EventOccurrence.id == event_id)
+        ).scalar_one()
+        occurrence.geom = None
+        occurrence.address = None
+        occurrence.link = "https://couchers.org/meet/"
 
-        assert update_res.title == "New Title"
-
+    # Backend should surface it as an offline event
     with events_session(token1) as api:
-        get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert get_res.title == "New Title"
+        get_res: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert get_res.title == "Dummy Title"
+        assert not get_res.HasField("online_information")
+        assert get_res.HasField("offline_information")
+        assert get_res.offline_information.address == "https://couchers.org/meet/"
+        assert get_res.offline_information.lng == 0
+        assert get_res.offline_information.lat == 0
 
 
 def test_UpdateEvent_all(db, moderator: Moderator):
@@ -998,7 +928,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -1029,7 +960,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
@@ -1060,7 +992,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.WhichOneof("mode") == "offline_information"
+        assert not res.HasField("online_information")
+        assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"

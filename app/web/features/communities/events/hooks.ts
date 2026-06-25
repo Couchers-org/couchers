@@ -132,7 +132,6 @@ export function useEventSearch({
   pageSize,
   pastEvents,
   isMyCommunities,
-  isOnlineOnly,
   searchLocation,
   excludeAttending,
 }: {
@@ -140,7 +139,6 @@ export function useEventSearch({
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
-  isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
   attending?: boolean;
   organizing?: boolean;
@@ -150,7 +148,6 @@ export function useEventSearch({
     queryKey: [
       "searchEvents",
       isMyCommunities,
-      isOnlineOnly,
       pageNumber,
       pastEvents,
       searchLocation,
@@ -162,7 +159,6 @@ export function useEventSearch({
         pageSize,
         pastEvents,
         isMyCommunities,
-        isOnlineOnly,
         searchLocation,
         excludeAttending,
       }),

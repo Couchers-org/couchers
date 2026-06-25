@@ -150,7 +150,6 @@ const LongEventCard = ({
   );
 
   const isCreatedByMe = event.creatorUserId === userId;
-  const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;
 
   return (
@@ -182,9 +181,6 @@ const LongEventCard = ({
               {isCreatedByMe && (
                 <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
               )}
-              {isOnline && (
-                <Pill variant="rounded">{t("communities:online")}</Pill>
-              )}
               {isCancelled && (
                 <CancelledPill variant="rounded">
                   {t("communities:cancelled")}
@@ -195,9 +191,7 @@ const LongEventCard = ({
 
           <Row>
             <EventInfo>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
+              {event.offlineInformation?.address}
               <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>

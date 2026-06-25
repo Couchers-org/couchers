@@ -152,7 +152,6 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
       lat: 2,
       lng: 1,
       address: "test city, test county, test country",
@@ -245,7 +244,6 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
       lat: 2,
       lng: 1,
       address: "test city, test county, test country",

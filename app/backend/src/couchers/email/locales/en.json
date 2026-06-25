@@ -147,7 +147,6 @@
   },
   "events": {
     "generic": {
-      "online_link": "Online",
       "view_action": "View event"
     },
     "created": {

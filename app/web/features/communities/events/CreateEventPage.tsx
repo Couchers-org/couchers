@@ -90,7 +90,6 @@ export default function CreateEventPage() {
         data.eventImage || eventToDuplicate?.photoKey || undefined;
 
       const createEventInput: CreateEventInput = {
-        isOnline: false,
         title: data.title,
         content: data.content,
         photoKey,
@@ -161,7 +160,6 @@ export default function CreateEventPage() {
         title={t("communities:create_event_page_title")}
         isEdit={false}
         event={eventToDuplicate}
-        defaultOnline={false}
       >
         {({ isMutationLoading }) => (
           <>

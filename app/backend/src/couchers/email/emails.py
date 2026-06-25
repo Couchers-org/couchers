@@ -612,8 +612,7 @@ class EventInfo:
     title: str
     start_time: datetime
     end_time: datetime
-    online_link: str | None
-    address: str | None
+    address: str
     view_url: str
     description_markdown: str
 
@@ -623,21 +622,11 @@ class EventInfo:
         end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
         time_range_display = f"{start_time_display} - {end_time_display}"
 
-        # Format the following. Only "Online" is translated and it's on its own line,
-        # so the string concatenation is fine.
-        # **<title>**
-        # <datetime-range>
-        # *<address> / [Online](<online_link>)*
         html = f"<b>{escape(self.title)}</b>"
         html += "<br>"
         html += time_range_display
-        if self.online_link:
-            html += "<br>"
-            online_link_text = loc_context.localize_string("events.generic.online_link", i18next=get_emails_i18next())
-            html += f'<i><a href="{escape(self.online_link)}">{escape(online_link_text)}</a></i>'
-        elif self.address:
-            html += "<br>"
-            html += f"<i>{escape(self.address)}</i>"
+        html += "<br>"
+        html += f"<i>{escape(self.address)}</i>"
 
         return ParaBlock(text=Markup(html))
 
@@ -654,8 +643,8 @@ class EventInfo:
             title=event.title,
             start_time=event.start_time.ToDatetime(tzinfo=UTC),
             end_time=event.end_time.ToDatetime(tzinfo=UTC),
-            online_link=event.online_information.link or None,
-            address=event.offline_information.address or None,
+            # Online events are deprecated, but could still exist in queued notifications. Treat it as an address.
+            address=event.online_information.link if event.HasField("online_information") else event.offline_information.address,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
             description_markdown=event.content or "",
         )
@@ -666,7 +655,6 @@ class EventInfo:
             title="Berlin Meetup",
             start_time=datetime(2025, 7, 15, 18, 0, 0, tzinfo=UTC),
             end_time=datetime(2025, 7, 15, 21, 0, 0, tzinfo=UTC),
-            online_link=None,
             address="Alexanderplatz, Berlin",
             view_url="https://couchers.org/events/123/berlin-community-meetup",
             description_markdown="Come join us for our monthly meetup!",

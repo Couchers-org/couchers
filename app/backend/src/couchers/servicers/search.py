@@ -808,11 +808,6 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                 )
 
-        if request.only_online:
-            statement = statement.where(EventOccurrence.geom == None)
-        elif request.only_offline:
-            statement = statement.where(EventOccurrence.geom != None)
-
         if (
             request.subscribed
             or request.attending

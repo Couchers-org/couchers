@@ -63,31 +63,6 @@ describe("Event card", () => {
     expect(screen.getByText(thirdEvent.content)).toBeVisible();
   });
 
-  it("renders an online event card details correctly", () => {
-    render(<EventCard event={secondEvent} />, { wrapper });
-
-    expect(
-      screen.getByRole("heading", { name: secondEvent.title }),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("communities:virtual_event_location_placeholder")),
-    ).toBeVisible();
-    expect(
-      screen.getByText("Tue, Jun 29, 2021, 9:00 – 10:00 PM", {
-        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
-      }),
-    ).toBeVisible();
-    expect(screen.getByText(String(secondEvent.goingCount))).toBeVisible();
-    expect(
-      screen.getByText(
-        t("communities:comments_count", {
-          count: secondEvent.thread?.numResponses,
-        }),
-      ),
-    ).toBeVisible();
-    expect(screen.getByText(secondEvent.content)).toBeVisible();
-  });
-
   it("does not render a badge for if the event is not cancelled", () => {
     const { container } = render(<EventCard event={firstEvent} />, { wrapper });
 

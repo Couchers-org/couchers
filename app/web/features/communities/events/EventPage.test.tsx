@@ -136,21 +136,6 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
-  it("renders an online event successfully", async () => {
-    getEventMock.mockResolvedValue(secondEvent);
-    renderEventPage(secondEvent.eventId, secondEvent.slug);
-
-    // Should be identical in structure as first test, so only assert on things that are different
-    expect(
-      await screen.findByText(
-        t("communities:virtual_event_deprecated_warning"),
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: t("communities:event_link") }),
-    ).toBeVisible();
-  });
-
   it("renders an event with a different start and end day correctly", async () => {
     getEventMock.mockResolvedValue(thirdEvent);
     renderEventPage(thirdEvent.eventId, thirdEvent.slug);

@@ -82,13 +82,6 @@ const StyledTitle = styled("div")(() => ({
   gridArea: "eventTitle",
 }));
 
-const StyledOnlineInfoContainer = styled("div")(() => ({
-  display: "grid",
-  columnGap: theme.spacing(2),
-  gridAutoFlow: "column",
-  gridTemplateColumns: "max-content max-content",
-}));
-
 const StyledEventTypeText = styled(Typography)(() => ({
   color: theme.palette.grey[600],
 }));
@@ -351,24 +344,9 @@ export default function EventPage({
               </StyledBackButton>
               <StyledTitle>
                 <Typography variant="h1">{event.title}</Typography>
-                {event.onlineInformation ? (
-                  <StyledOnlineInfoContainer>
-                    <StyledEventTypeText variant="body1">
-                      {t("communities:virtual_event")}
-                    </StyledEventTypeText>
-                    <StyledLink
-                      href={event.onlineInformation.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t("communities:event_link")}
-                    </StyledLink>
-                  </StyledOnlineInfoContainer>
-                ) : (
-                  <StyledEventTypeText variant="body1">
-                    {event.offlineInformation?.address}
-                  </StyledEventTypeText>
-                )}
+                <StyledEventTypeText variant="body1">
+                  {event.offlineInformation?.address}
+                </StyledEventTypeText>
                 {event.isCancelled && (
                   <StyledCancelledChip label={t("communities:cancelled")} />
                 )}

@@ -51,14 +51,13 @@ const StyledEventDetailsContainer = styled("div")(() => ({
   rowGap: theme.spacing(1),
 }));
 
-interface OfflineEventData {
+interface EventData {
   content: string;
   title: string;
   startDate: Dayjs;
   endDate: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
-  isOnline: boolean;
   shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;
@@ -66,8 +65,7 @@ interface OfflineEventData {
   location: GeocodeResult;
 }
 
-// Creating new online events is deprecated
-export type CreateEventData = OfflineEventData;
+export type CreateEventData = EventData;
 
 export type CreateEventVariables = CreateEventData & {
   dirtyFields: DeepMap<CreateEventData, true>;
@@ -86,8 +84,6 @@ interface EventFormProps {
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
-  // If true, and no event is passed, will default to editing an online event.
-  defaultOnline: boolean;
 }
 
 export default function EventForm({
@@ -98,13 +94,8 @@ export default function EventForm({
   isMutationLoading,
   title,
   isEdit,
-  defaultOnline = false,
 }: EventFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
-
-  // Online events are deprecated. They cannot be created anymore,
-  // can the type of an existing event be changed between online and offline.
-  const isOnline = !!event?.onlineInformation || defaultOnline;
 
   const {
     control,
@@ -115,9 +106,6 @@ export default function EventForm({
     formState: { dirtyFields, errors },
   } = useForm<CreateEventData>({
     mode: "onBlur",
-    defaultValues: {
-      isOnline: isOnline,
-    },
   });
 
   const locationDefaultValue = useRef(
@@ -192,37 +180,17 @@ export default function EventForm({
           dirtyFields={dirtyFields}
         />
         <StyledLocationContainer>
-          {isOnline ? (
-            <>
-              <TextField
-                id="link"
-                {...register("link", {
-                  required: t("communities:link_required"),
-                })}
-                defaultValue={event?.onlineInformation?.link}
-                error={!!errors.link?.message}
-                helperText={errors.link?.message || ""}
-                fullWidth
-                label={t("communities:virtual_event_link")}
-                variant="standard"
-              />
-              <Alert severity="warning">
-                {t("communities.virtual_event_deprecated_warning")}
-              </Alert>
-            </>
-          ) : (
-            <LocationAutocomplete
-              control={control}
-              name="location"
-              defaultValue={locationDefaultValue}
-              fieldError={errors.location?.message}
-              fullWidth
-              label={t("communities:location")}
-              required={t("communities:location_required")}
-              showFullDisplayName
-              autocompleteContext="create-event-form"
-            />
-          )}
+          <LocationAutocomplete
+            control={control}
+            name="location"
+            defaultValue={locationDefaultValue}
+            fieldError={errors.location?.message}
+            fullWidth
+            label={t("communities:location")}
+            required={t("communities:location_required")}
+            showFullDisplayName
+            autocompleteContext="create-event-form"
+          />
 
           {isEdit && (
             <FormControlLabel

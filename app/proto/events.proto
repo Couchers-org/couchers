@@ -118,10 +118,10 @@ message Event {
   string photo_url = 8;
   string photo_key = 35;
 
-  oneof mode {
-    OnlineEventInformation online_information = 9;
-    OfflineEventInformation offline_information = 10;
-  }
+  // Online events will never be returned by the server anymore,
+  // but are still needed server-side due to existing references in notification_data.
+  OnlineEventInformation online_information = 9 [deprecated = true];
+  OfflineEventInformation offline_information = 10;
 
   google.protobuf.Timestamp created = 13;
   google.protobuf.Timestamp last_edited = 14;
@@ -167,13 +167,9 @@ message CreateEventReq {
   string content = 2; // CommonMark without images
   // from media server
   string photo_key = 3;
-  oneof mode {
-    // Server will now reject virtual events
-    OnlineEventInformation online_information = 4 [deprecated = true];
-    OfflineEventInformation offline_information = 5;
-  }
-  // must give this if online, otherwise optional as it can be auto-filled from the location
-  int64 parent_community_id = 8;
+  reserved 4; // Formerly online_information.
+  OfflineEventInformation offline_information = 5;
+  int64 parent_community_id = 8; // Optional, can be auto-filled from the location
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
@@ -186,11 +182,8 @@ message ScheduleEventReq {
   string content = 2; // CommonMark without images
   // from media server
   string photo_key = 3;
-  oneof mode {
-    // Server will now reject virtual events
-    OnlineEventInformation online_information = 4 [deprecated = true];
-    OfflineEventInformation offline_information = 5;
-  }
+  reserved 4; // Formerly online_information.
+  OfflineEventInformation offline_information = 5;
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
@@ -206,10 +199,8 @@ message UpdateEventReq {
   google.protobuf.StringValue content = 4; // CommonMark without images
   // from media server, set to empty string to clear
   google.protobuf.StringValue photo_key = 5;
-  oneof mode {
-    OnlineEventInformation online_information = 6;
-    OfflineEventInformation offline_information = 7;
-  }
+  reserved 6; // Formerly online_information.
+  OfflineEventInformation offline_information = 7;
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
   // the tzdata timezone identifier

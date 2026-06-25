@@ -27,11 +27,9 @@ const serviceFn = jest.fn();
 function TestComponent({
   event,
   isEdit = false,
-  defaultOnline = false,
 }: {
   event?: Event.AsObject;
   isEdit?: boolean;
-  defaultOnline?: boolean;
 }) {
   const { error, mutate, isPending } = useMutation<
     Event.AsObject,
@@ -49,26 +47,14 @@ function TestComponent({
       isMutationLoading={isPending}
       title={t("communities:create_an_event")}
       isEdit={isEdit}
-      defaultOnline={!!defaultOnline}
     >
       {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
   );
 }
 
-function renderForm(
-  event?: Event.AsObject,
-  isEdit?: boolean,
-  defaultOnline?: boolean,
-) {
-  render(
-    <TestComponent
-      event={event}
-      isEdit={isEdit}
-      defaultOnline={defaultOnline}
-    />,
-    { wrapper },
-  );
+function renderForm(event?: Event.AsObject, isEdit?: boolean) {
+  render(<TestComponent event={event} isEdit={isEdit} />, { wrapper });
 }
 
 function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
@@ -123,9 +109,6 @@ describe("Event form", () => {
       screen.getByLabelText(t("communities:location")),
       "",
     );
-    expect(
-      screen.getByText(t("communities:virtual_event_deprecated_warning")),
-    ).not.toBeVisible();
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
     expect(
       screen.getByRole("button", { name: t("global:create") }),
@@ -165,9 +148,6 @@ describe("Event form", () => {
       screen.getByLabelText(t("communities:location")),
       "Concertgebouw",
     );
-    expect(
-      screen.getByText(t("communities:virtual_event_deprecated_warning")),
-    ).not.toBeVisible();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:event_details")),
       "*Be there* or be square!",
@@ -185,18 +165,6 @@ describe("Event form", () => {
         name: t("communities:event_image_input_alt"),
       }),
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
-  });
-
-  it("should hide the location field for virtual events", async () => {
-    renderForm(undefined, undefined, true); // Online event
-
-    expect(
-      screen.getByText(t("communities:virtual_event_deprecated_warning")),
-    ).toBeVisible();
-    expect(screen.getByLabelText(t("communities:location"))).toBeVisible();
-    expect(
-      screen.queryByLabelText(t("communities:location")),
-    ).not.toBeInTheDocument();
   });
 
   it("should not submit if the title is missing", async () => {
@@ -228,31 +196,6 @@ describe("Event form", () => {
     expect(
       await screen.findByText(t("communities:location_required")),
     ).toBeVisible();
-    expect(serviceFn).not.toHaveBeenCalled();
-  });
-
-  it("should not submit if an event meeting link is missing for an online event", async () => {
-    renderForm(undefined, undefined, true); // Online event
-
-    const user = userEvent.setup({
-      advanceTimers: jest.advanceTimersByTime,
-    });
-
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
-
-    const linkRequiredHelperText = await screen.findByText(
-      t("communities:link_required"),
-    );
-
-    expect(linkRequiredHelperText).toBeVisible();
-
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -324,7 +267,6 @@ describe("Event form", () => {
     // Verify the submitted data contains the expected values
     const submittedData = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(false);
     expect(submittedData.location.name).toBe(
       "test city, test county, test country",
     );
@@ -483,7 +425,6 @@ describe("Event form", () => {
     // Verify the submitted data contains the expected values
     const submittedData = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(false);
     expect(submittedData.location.name).toBe(
       "test city, test county, test country",
     );
