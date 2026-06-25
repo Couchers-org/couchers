@@ -147,5 +147,9 @@
   "no_results_found_with_link": "Сообщества не найдены. <0>Запросить это сообщество!</0>",
   "event_title_label": "Заголовок",
   "discussion_creation_date": "Создано {{dateOnly}}",
-  "duplicate_event": "Дублировать мероприятие"
+  "duplicate_event": "Дублировать мероприятие",
+  "comment_deleted": "Этот комментарий был удалён.",
+  "edit_comment": "Редактировать комментарий",
+  "delete_comment": "Удалить комментарий",
+  "comment_edited_date": "Изменено {{timeAgo}}"
 }
