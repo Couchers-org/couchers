@@ -251,17 +251,27 @@ class MockSVFlow:
             ).scalar_one()
 
             assert verification_attempt.user_id == self.user.id
-            assert verification_attempt.status == expected_status
-            assert verification_attempt.has_full_data
-            assert verification_attempt.passport_encrypted_data
-            assert verification_attempt.passport_date_of_birth == date_of_birth
-            assert verification_attempt.passport_sex == sex
-            assert verification_attempt.has_minimal_data
-            assert verification_attempt.passport_expiry_date == document_expiry
-            assert verification_attempt.passport_nationality == nationality
-            assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
             assert verification_attempt.iris_token == self.iris_token
             assert verification_attempt.iris_session_id == self.verification_id
+            assert verification_attempt.status == expected_status
+
+            # Check minimal data
+            if verification_attempt.status != StrongVerificationAttemptStatus.failed:
+                assert verification_attempt.has_minimal_data
+                assert verification_attempt.passport_expiry_date == document_expiry
+                assert verification_attempt.passport_nationality == nationality
+                assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
+            else:
+                assert not verification_attempt.has_minimal_data
+
+            # Check full data
+            if verification_attempt.status == StrongVerificationAttemptStatus.succeeded:
+                assert verification_attempt.has_full_data
+                assert verification_attempt.passport_encrypted_data
+                assert verification_attempt.passport_date_of_birth == date_of_birth
+                assert verification_attempt.passport_sex == sex
+            else:
+                assert not verification_attempt.has_full_data
 
             # We should have gone through all IRIS callbacks
             private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
@@ -806,8 +816,8 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
     _, superuser_token = generate_user(is_superuser=True)
 
     MockSVFlow(user=user, token=token).process_iris_callbacks(
-        document_type="IDENTITY_CARD"
-    )
+        document_type="IDENTITY_CARD",
+        expected_status=StrongVerificationAttemptStatus.failed)
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
