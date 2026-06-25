@@ -953,12 +953,6 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         nationality = json_data["nationality"]
         last_three_document_chars = json_data["document_number"][-3:]
 
-        verification_attempt.has_minimal_data = True
-        verification_attempt.passport_expiry_date = expiry_date
-        verification_attempt.passport_nationality = nationality
-        verification_attempt.passport_last_three_document_chars = last_three_document_chars
-
-        # Check whether there was already an attempt with this passport.
         existing_attempt = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.passport_expiry_date == expiry_date)
@@ -967,6 +961,11 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
             .order_by(StrongVerificationAttempt.id)
             .limit(1)
         ).scalar_one_or_none()
+
+        verification_attempt.has_minimal_data = True
+        verification_attempt.passport_expiry_date = expiry_date
+        verification_attempt.passport_nationality = nationality
+        verification_attempt.passport_last_three_document_chars = last_three_document_chars
 
         if existing_attempt:
             verification_attempt.status = StrongVerificationAttemptStatus.duplicate
