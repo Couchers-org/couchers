@@ -35,7 +35,7 @@ function RespondToFriendRequestAction({
   return (
     <Stack direction="row" spacing={1}>
       <Button
-        aria-label={t("connections:decline")}
+        aria-label={t("connections:friend_requests_dismiss_button")}
         onClick={() => {
           reset();
           respondToFriendRequest({
@@ -47,7 +47,7 @@ function RespondToFriendRequestAction({
         variant="outlined"
         loading={isLoading}
       >
-        {t("connections:decline")}
+        {t("connections:friend_requests_dismiss_button")}
       </Button>
       <Button
         aria-label={t("connections:accept")}
