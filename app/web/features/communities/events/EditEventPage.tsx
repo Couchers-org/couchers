@@ -65,7 +65,6 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      let updateEventInput: UpdateEventInput;
       const startTime = dayjs(data.startTime);
       const endTime = dayjs(data.endTime);
       const finalStartDate = data.startDate
@@ -79,7 +78,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
-      updateEventInput = {
+      const updateEventInput: UpdateEventInput = {
         eventId,
         title: data.dirtyFields.title ? data.title : undefined,
         content: data.dirtyFields.content ? data.content : undefined,

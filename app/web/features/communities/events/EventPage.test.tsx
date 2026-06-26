@@ -25,7 +25,7 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const [firstEvent, secondEvent, thirdEvent] = events;
+const [firstEvent, _, thirdEvent] = events;
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent

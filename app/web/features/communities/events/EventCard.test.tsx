@@ -7,7 +7,7 @@ import EventCard from "./EventCard";
 
 const { t } = i18n;
 
-const [firstEvent, secondEvent, thirdEvent, cancelledEvent] = events;
+const [firstEvent, _, thirdEvent, cancelledEvent] = events;
 
 describe("Event card", () => {
   it("renders an offline event card details correctly with the same start and end day", async () => {
