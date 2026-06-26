@@ -212,6 +212,7 @@ class HTMLRenderer:
                                 "name": block.info.name,
                                 "age": block.info.age,
                                 "city": block.info.city,
+                                "profile_url": block.info.profile_url,
                                 "avatar_url": block.info.avatar_url,
                                 "comment": block.comment,
                             },

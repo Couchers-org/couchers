@@ -58,7 +58,9 @@
           <mj-table>
             <tr>
               <td style="width: 100px;">
-                <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
+                <a href="{{ profile_url }}">
+                  <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
+                </a>
               </td>
               <td>
                 <b>{{ name }}</b>, {{ age }}<br />
