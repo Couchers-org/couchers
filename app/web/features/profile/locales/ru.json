@@ -1,8 +1,6 @@
 {
   "actions": {
     "message_label": "Сообщение",
-    "accept_friend_label": "Принять",
-    "decline_friend_label": "Отклонить",
     "request": "Отправить Запрос",
     "back_to_dashboard": "Вернуться на главную страницу",
     "add_friend": "Добавить в друзья"
@@ -276,8 +274,6 @@
   "more_profile_actions": "...",
   "more_profile_actions_a11y_text": "Больше действий с профилем",
   "report_user": "Пожаловаться на этого пользователя",
-  "accept_friend_label": "Принять запрос в друзья",
-  "decline_friend_label": "Отклонить запрос в друзья",
   "no_references": "Пока нет таких отзывов!",
   "languages_fluent_false": "Не указано",
   "regions_empty_state": "Никуда",

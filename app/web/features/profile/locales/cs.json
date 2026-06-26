@@ -80,8 +80,6 @@
   "actions": {
     "back_to_dashboard": "Zpět na přehled",
     "message_label": "Zpráva",
-    "accept_friend_label": "Přijmout",
-    "decline_friend_label": "Zamítnout",
     "request": "Žádost"
   },
   "active": "Aktivní",

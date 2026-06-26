@@ -19,7 +19,6 @@
   "pending": "En attente",
   "remove_friend": "Supprimer l’ami.e",
   "accept": "Accepter",
-  "decline": "Réfuser",
   "remove_friend_confirmation_dialog": {
     "title": "Supprimer l’ami.e",
     "message": "Êtes-vous sûr.e de vouloir supprimer {{name}} ? Cette action est irréversible.",

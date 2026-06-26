@@ -2,8 +2,6 @@
   "actions": {
     "back_to_dashboard": "Göstergeye geri dön",
     "message_label": "Mesaj",
-    "accept_friend_label": "Kabul et",
-    "decline_friend_label": "Reddet",
     "request": "İstek"
   },
   "heading": {

@@ -28,8 +28,6 @@
   },
   "actions": {
     "message_label": "Chatten",
-    "accept_friend_label": "Annehmen",
-    "decline_friend_label": "Ablehnen",
     "request": "Anfragen",
     "back_to_dashboard": "Zurück zur Startseite",
     "add_friend": "Freund hinzufügen"
@@ -267,8 +265,6 @@
     "paid_onsite": "Kostenpflichtiges Parken vor Ort",
     "paid_offsite": "Bezahltes Parken vor dem Grundstück"
   },
-  "accept_friend_label": "Freundschaftsanfrage annehmen",
-  "decline_friend_label": "Freundschaftsanfrage ablehnen",
   "no_references": "Noch keine Referenzen dieser Art!",
   "see_more_references": "Weitere Referenzen anzeigen",
   "write_reference": "Referenz schreiben",
