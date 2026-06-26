@@ -1,6 +1,7 @@
 import functools
 import json
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -42,6 +43,13 @@ def get_region_dict() -> dict[str, str]:
     """
     with session_scope() as session:
         return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
+
+
+@functools.cache
+def get_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
+    with open(resources_folder / "regions.json", "r") as f:
+        json_regions = json.load(f)
+    return {region["alpha3"]: region["alpha2"] for region in json_regions if "alpha2" in region}
 
 
 def region_is_allowed(code: str) -> bool:

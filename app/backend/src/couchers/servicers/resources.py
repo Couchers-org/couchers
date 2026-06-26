@@ -57,7 +57,10 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     ) -> resources_pb2.GetLanguagesRes:
         return resources_pb2.GetLanguagesRes(
             languages=[
-                resources_pb2.Language(code=code, name=name) for code, name in sorted(get_language_dict().items())
+                resources_pb2.Language(
+                    code=code, name=context.localization.try_localize_region_name(iso3166_code=code) or english_name
+                )
+                for code, english_name in sorted(get_language_dict().items())
             ]
         )
 

@@ -3,12 +3,30 @@ from zoneinfo import ZoneInfo
 
 import babel
 
-from couchers.i18n.localize import localize_date, localize_datetime, localize_time, localize_timezone
+from couchers.i18n.localize import (
+    localize_date,
+    localize_datetime,
+    localize_time,
+    localize_timezone,
+    try_localize_iso3166_region_name,
+)
 
 babel_en = babel.Locale.parse("en")
 babel_es = babel.Locale.parse("es")
 babel_fr = babel.Locale.parse("fr")
 babel_zh = babel.Locale.parse("zh")
+
+
+def test_localize_region_name() -> None:
+    assert try_localize_iso3166_region_name("US", babel_en) == "United States"
+    assert try_localize_iso3166_region_name("DE", babel_en) == "Germany"
+
+    assert try_localize_iso3166_region_name("US", babel_es) == "Estados Unidos"
+    assert try_localize_iso3166_region_name("DE", babel_es) == "Alemania"
+
+    assert try_localize_iso3166_region_name("USA", babel_en) == "United States"  # alpha3 code
+
+    assert try_localize_iso3166_region_name("xx", babel_en) is None
 
 
 def test_localize_date() -> None:
