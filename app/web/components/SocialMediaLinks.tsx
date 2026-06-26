@@ -1,7 +1,4 @@
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import RedditIcon from "@mui/icons-material/Reddit";
+import { Facebook, GitHub, Instagram, Reddit } from "@mui/icons-material";
 import { Link } from "@mui/material";
 import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import { facebookURL, githubURL, instagramURL, redditURL } from "routes";
@@ -10,17 +7,17 @@ const socialLinks = [
   {
     label: "GitHub",
     href: githubURL,
-    icon: <GitHubIcon fontSize="inherit" />,
+    icon: <GitHub fontSize="inherit" />,
   },
   {
     label: "Instagram",
     href: instagramURL,
-    icon: <InstagramIcon fontSize="inherit" />,
+    icon: <Instagram fontSize="inherit" />,
   },
   {
     label: "Reddit",
     href: redditURL,
-    icon: <RedditIcon fontSize="inherit" />,
+    icon: <Reddit fontSize="inherit" />,
   },
   {
     label: "BlueSky",
@@ -35,7 +32,7 @@ const socialLinks = [
   {
     label: "Facebook",
     href: facebookURL,
-    icon: <FacebookIcon fontSize="inherit" />,
+    icon: <Facebook fontSize="inherit" />,
   },
 ];
 
