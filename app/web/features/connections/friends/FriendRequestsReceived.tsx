@@ -5,6 +5,7 @@ import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
+import { useEffect, useRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 import type { SetMutationError } from ".";
@@ -81,6 +82,17 @@ function FriendRequestsReceived() {
     data !== undefined &&
     !data.some((req) => req.userId === fromUserId);
 
+  // Scroll to the user id from the URL parameter
+  const highlightedCardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (highlightedCardRef.current) {
+      highlightedCardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [fromUserId, data]);
+
   return (
     <>
       {requestNotFound && (
@@ -102,6 +114,11 @@ function FriendRequestsReceived() {
             <FriendSummaryView
               key={friendRequest.friendRequestId}
               friend={friendRequest.friend}
+              cardRef={
+                friendRequest.userId === fromUserId
+                  ? highlightedCardRef
+                  : undefined
+              }
             >
               <RespondToFriendRequestAction
                 friendRequest={friendRequest}
