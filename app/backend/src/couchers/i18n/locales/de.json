@@ -230,7 +230,7 @@
     "reply_delete_permission_denied": "Du darfst diesen Kommentar nicht löschen.",
     "reply_deleted": "Dieser Kommentar wurde gelöscht.",
     "reply_edit_permission_denied": "Du darfst diesen Kommentar nicht bearbeiten.",
-    "cannot_combine_attending_and_exclude_attending": "Du kannst nicht gleichzeitig „teilnehmen\" und „nicht_teilnehmen\" festlegen.",
+    "cannot_combine_attending_and_exclude_attending": "Deine Filter können Events, an denen du teilnimmst, nicht gleichzeitig einschließen und ausschließen.",
     "event_community_invite_not_found": "Die Event-Einladung für die Community konnte nicht gefunden werden.",
     "public_trips_disabled": "Öffentliche Trips sind derzeit deaktiviert."
   },

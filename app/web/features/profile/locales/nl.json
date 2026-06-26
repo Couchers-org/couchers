@@ -3,8 +3,6 @@
   "actions": {
     "back_to_dashboard": "Terug naar dashboard",
     "message_label": "Bericht sturen",
-    "accept_friend_label": "Accepteren",
-    "decline_friend_label": "Afwijzen",
     "request": "Verzoek",
     "add_friend": "Vriend toevoegen"
   },
@@ -260,8 +258,6 @@
     "hosted": "Gehost",
     "surfed": "Gast"
   },
-  "accept_friend_label": "Vriendschapsverzoek accepteren",
-  "decline_friend_label": "Vriendschapsverzoek afwijzen",
   "no_references": "Je hebt nog niet van dit soort referenties!",
   "references_filter_a11y_label": "Referenties laten zien: ",
   "see_more_references": "Meer referenties bekijken",
