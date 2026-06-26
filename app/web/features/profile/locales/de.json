@@ -30,8 +30,7 @@
     "message_label": "Chatten",
     "request": "Anfragen",
     "back_to_dashboard": "Zurück zur Startseite",
-    "add_friend": "Freund hinzufügen",
-    "dismiss_friend_request_menuitem": "Ignorieren"
+    "add_friend": "Freund hinzufügen"
   },
   "my_connections": "Meine Kontakte",
   "profile_tag_input": {
