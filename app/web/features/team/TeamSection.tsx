@@ -138,85 +138,81 @@ function MemberList({
           linkUrl,
         }) => {
           return (
-            <Fragment key={name}>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <TeamMemberCard
-                  key={name}
-                  memberType={
-                    variant === "past"
-                      ? "pastMember"
-                      : isBoardMember
-                        ? "boardMember"
-                        : undefined
-                  }
-                  variant="outlined"
-                >
-                  <TeamMemberCardContent>
-                    <StyledAvatar alt={`Headshot of ${name}`} src={img} />
-                    <DetailDiv>
-                      <Typography variant={"h3"} component="h2">
-                        {name}
-                      </Typography>
-                      {isBoardMember && <BoardMemberBadge />}
-                      <Typography variant="body1">{role}</Typography>
-                      <div>
-                        <IconText icon={PinIcon} text={location} />
-                        {linkUrl && (
-                          <IconText
-                            icon={
-                              linkType === "linkedin"
-                                ? LinkedInIcon
-                                : linkType === "email"
-                                  ? EmailIcon
-                                  : linkType === "couchers"
-                                    ? CouchersIcon
-                                    : GlobeIcon
-                            }
-                            text={
-                              <Typography variant="body1">
-                                <StyledLink href={linkUrl}>
-                                  {linkText}
-                                </StyledLink>
-                              </Typography>
-                            }
-                          />
-                        )}
-                      </div>
-                    </DetailDiv>
-                  </TeamMemberCardContent>
-                </TeamMemberCard>
-              </Grid>
-              {hasExtraCard && extraCardContent ? (
-                <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
-                  <ExtraCard variant="outlined">
-                    <Typography textAlign="center">
-                      {extraCardContent.text}
+            <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
+              <TeamMemberCard
+                key={name}
+                memberType={
+                  variant === "past"
+                    ? "pastMember"
+                    : isBoardMember
+                      ? "boardMember"
+                      : undefined
+                }
+                variant="outlined"
+              >
+                <TeamMemberCardContent>
+                  <StyledAvatar alt={`Headshot of ${name}`} src={img} />
+                  <DetailDiv>
+                    <Typography variant={"h3"} component="h2">
+                      {name}
                     </Typography>
-                    <Link
-                      href={teamRoute}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {extraCardContent.link}
-                    </Link>
-                  </ExtraCard>
-                </Grid>
-              ) : null}
-            </Fragment>
+                    {isBoardMember && <BoardMemberBadge />}
+                    <Typography variant="body1">{role}</Typography>
+                    <div>
+                      <IconText icon={PinIcon} text={location} />
+                      {linkUrl && (
+                        <IconText
+                          icon={
+                            linkType === "linkedin"
+                              ? LinkedInIcon
+                              : linkType === "email"
+                                ? EmailIcon
+                                : linkType === "couchers"
+                                  ? CouchersIcon
+                                  : GlobeIcon
+                          }
+                          text={
+                            <Typography variant="body1">
+                              <StyledLink href={linkUrl}>{linkText}</StyledLink>
+                            </Typography>
+                          }
+                        />
+                      )}
+                    </div>
+                  </DetailDiv>
+                </TeamMemberCardContent>
+              </TeamMemberCard>
+            </Grid>
           );
         },
       )}
+      {hasExtraCard && extraCardContent ? (
+        <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
+          <ExtraCard variant="outlined">
+            <Typography textAlign="center">{extraCardContent.text}</Typography>
+            <Link href={teamRoute} target="_blank" rel="noopener noreferrer">
+              {extraCardContent.link}
+            </Link>
+          </ExtraCard>
+        </Grid>
+      ) : null}
     </StyledGrid>
   );
 }
+
+type ExtraCardContent = {
+  text: string;
+  link: string;
+};
 
 interface TeamSectionProps {
   variant: "current" | "past";
   volunteers: Volunteer.AsObject[] | undefined;
   hasExtraCard?: boolean;
-  extraCardContent?: { text: string; link: string };
+  extraCardContent?: ExtraCardContent;
   boardMembersOnly?: boolean;
 }
+
 function TeamSection({
   variant,
   volunteers,
