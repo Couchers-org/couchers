@@ -36,5 +36,6 @@
     "confirm": "Ja, ich kenne sie. Anfrage senden!"
   },
   "friend_request_no_longer_available": "Diese Freundschaftsanfrage ist nicht mehr verfügbar.",
-  "cancel_request_button_a11y": "Anfrage abbrechen"
+  "cancel_request_button_a11y": "Anfrage abbrechen",
+  "friend_requests_dismiss_button": "Ignorieren"
 }
