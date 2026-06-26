@@ -29,21 +29,17 @@ const updateEventMock = service.events.updateEvent as jest.MockedFunction<
   typeof service.events.updateEvent
 >;
 
-function renderPage(eventId: number = 1, slug: string = "weekly-meetup") {
-  mockRouter.setCurrentUrl(routeToEditEvent(eventId, slug));
+function renderPage() {
+  mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
   const { wrapper } = getHookWrapperWithClient();
 
-  render(<EditEventPage eventId={eventId} />, { wrapper });
+  render(<EditEventPage eventId={1} />, { wrapper });
 }
 
 describe("Edit event page", () => {
   beforeEach(() => {
-    getEventMock.mockImplementation((eventId) =>
-      Promise.resolve(events[eventId]),
-    );
-    updateEventMock.mockImplementation((input) =>
-      Promise.resolve(events[input.eventId]),
-    );
+    getEventMock.mockResolvedValue(events[0]);
+    updateEventMock.mockResolvedValue(events[0]);
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
@@ -53,7 +49,7 @@ describe("Edit event page", () => {
     await act(() => i18n.changeLanguage("en"));
   });
 
-  it("renders an existing event and updates it successfully", async () => {
+  it("renders with the existing event and updates it successfully", async () => {
     renderPage();
 
     // Brief sanity check that the form has existing data
