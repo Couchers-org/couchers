@@ -35,6 +35,12 @@ def test_GetRegions(db):
         assert ("SWE", "Sweden") in regions_list
         assert ("???", "Nonexistent region") not in regions_list
 
+    with resources_session(locale="es") as api:
+        regions = api.GetRegions(empty_pb2.Empty()).regions
+        regions_list = [(r.alpha3, r.name) for r in regions]
+        assert ("FIN", "Finland") not in regions_list
+        assert ("FIN", "Finlandia") in regions_list
+
 
 def test_GetLanguages(db):
     with resources_session() as api:
