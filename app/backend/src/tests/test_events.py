@@ -81,7 +81,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -118,7 +117,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -150,7 +148,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -425,7 +422,6 @@ def test_ScheduleEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "New event occurrence"
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.3
         assert res.offline_information.lng == 0.2
@@ -627,7 +623,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -659,7 +654,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -691,7 +685,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -776,7 +769,6 @@ def test_GetEvent_online(db, moderator: Moderator):
         get_res: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert get_res.title == "Dummy Title"
-        assert not get_res.HasField("online_information")
         assert get_res.HasField("offline_information")
         assert get_res.offline_information.address == "https://couchers.org/meet/"
         assert get_res.offline_information.lng == 0
@@ -948,7 +940,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -980,7 +971,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
@@ -1012,7 +1002,6 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.HasField("online_information")
         assert res.HasField("offline_information")
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2

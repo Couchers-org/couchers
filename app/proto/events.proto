@@ -118,9 +118,7 @@ message Event {
   string photo_url = 8;
   string photo_key = 35;
 
-  // Online events will never be returned by the server anymore,
-  // but are still needed server-side due to existing references in notification_data.
-  OnlineEventInformation online_information = 9 [deprecated = true];
+  reserved 9; // Formerly online_information.
   OfflineEventInformation offline_information = 10;
 
   google.protobuf.Timestamp created = 13;

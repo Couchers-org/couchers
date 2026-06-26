@@ -612,7 +612,7 @@ class EventInfo:
     title: str
     start_time: datetime
     end_time: datetime
-    address: str
+    address: str | None  # The None case handles legacy online events
     view_url: str
     description_markdown: str
 
@@ -625,8 +625,9 @@ class EventInfo:
         html = f"<b>{escape(self.title)}</b>"
         html += "<br>"
         html += time_range_display
-        html += "<br>"
-        html += f"<i>{escape(self.address)}</i>"
+        if self.address:
+            html += "<br>"
+            html += f"<i>{escape(self.address)}</i>"
 
         return ParaBlock(text=Markup(html))
 
@@ -643,10 +644,8 @@ class EventInfo:
             title=event.title,
             start_time=event.start_time.ToDatetime(tzinfo=UTC),
             end_time=event.end_time.ToDatetime(tzinfo=UTC),
-            # Online events are deprecated, but could still exist in queued notifications. Treat it as an address.
-            address=event.online_information.link
-            if event.HasField("online_information")
-            else event.offline_information.address,
+            # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
+            address=(event.offline_information.address or None) if event.HasField("offline_information") else None,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
             description_markdown=event.content or "",
         )
