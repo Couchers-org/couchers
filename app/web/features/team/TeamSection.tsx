@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   Grid,
-  Link,
   styled,
   Typography,
 } from "@mui/material";
@@ -18,7 +17,7 @@ import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
 import { GLOBAL } from "i18n/namespaces";
 import { Volunteer } from "proto/public_pb";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { teamRoute } from "routes";
 import { theme } from "theme";
@@ -52,14 +51,14 @@ const StyledSection = styled("section", {
   display: "flex",
   flexFlow: "column nowrap",
   gap: theme.spacing(6),
-  margin: `${boardMembersOnly ? "0" : theme.spacing(4, 0)}`,
+  margin: boardMembersOnly ? "0" : theme.spacing(4, 0),
 }));
 
 const StyledGrid = styled(Grid, {
   shouldForwardProp: (prop) => prop !== "boardMembersOnly",
 })<{ boardMembersOnly?: boolean }>(({ boardMembersOnly }) => ({
   justifyContent: "start",
-  margin: `${boardMembersOnly ? "0" : theme.spacing(1, 0)}`,
+  margin: boardMembersOnly ? "0" : theme.spacing(1, 0),
 }));
 
 const StyleBoardMemberBadgeText = styled("h3")(() => ({
@@ -71,7 +70,7 @@ const StyleBoardMemberBadgeText = styled("h3")(() => ({
 
 const ExtraCard = styled(Card)(({ theme }) => ({
   height: "100%",
-  border: `1px solid ${theme.palette.grey[400]}`,
+  borderColor: "var(--mui-palette-grey-400)",
   padding: "1rem",
   display: "flex",
   flexDirection: "column",
@@ -190,9 +189,7 @@ function MemberList({
         <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
           <ExtraCard variant="outlined">
             <Typography textAlign="center">{extraCardContent.text}</Typography>
-            <Link href={teamRoute} target="_blank" rel="noopener noreferrer">
-              {extraCardContent.link}
-            </Link>
+            <StyledLink href={teamRoute}>{extraCardContent.link}</StyledLink>
           </ExtraCard>
         </Grid>
       ) : null}
@@ -233,7 +230,7 @@ function TeamSection({
 
   const boardMembers = useMemo(() => {
     if (!volunteers) {
-      return false;
+      return;
     }
     return volunteers.filter((volunteer) => volunteer.isBoardMember);
   }, [volunteers]);
