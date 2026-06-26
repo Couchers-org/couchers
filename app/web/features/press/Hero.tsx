@@ -83,7 +83,7 @@ export default function Hero() {
       <StyledContentContainer>
         <StyledHeading>{t("hero_title")}</StyledHeading>
         <Typography color="var(--mui-palette-common-white)" fontSize="1.25rem">
-          {t("hero_description", { email: email })}
+          {t("hero_description", { email })}
         </Typography>
       </StyledContentContainer>
     </StyledContainer>
