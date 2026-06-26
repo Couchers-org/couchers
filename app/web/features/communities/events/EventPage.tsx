@@ -16,7 +16,6 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
