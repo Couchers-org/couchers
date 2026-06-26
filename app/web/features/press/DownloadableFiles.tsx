@@ -112,7 +112,7 @@ export default function DownloadableFiles() {
           </StyledCard>
         </StyledSection>
         <StyledSection>
-          <StyledImage src="/img/press/mobile-image.png" />
+          <StyledImage src="/img/press/mobile-image.webp" />
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
               {t("download_images_text")}

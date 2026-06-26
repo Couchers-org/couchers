@@ -7,7 +7,7 @@ import StyledSubheading from "./StyledSubheading";
 
 const articlesData = [
   {
-    imgPath: "/img/press/travel-noir-logo.png",
+    imgPath: "/img/press/travel-noir-logo.webp",
     altText: "Travel Noir",
     bgColor: "#001d2e",
     padding: "1rem",
