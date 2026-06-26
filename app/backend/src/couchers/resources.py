@@ -45,6 +45,13 @@ def get_region_dict() -> dict[str, str]:
         return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
 
 
+@functools.cache
+def get_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
+    with open(resources_folder / "regions.json", "r") as f:
+        json_regions = json.load(f)
+    return {region["alpha3"]: region["alpha2"] for region in json_regions if "alpha2" in region}
+
+
 def region_is_allowed(code: str) -> bool:
     """
     Check a region code is valid
