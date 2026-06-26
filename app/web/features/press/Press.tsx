@@ -41,7 +41,7 @@ export default function Press() {
   return (
     <StyledContainer>
       <Hero />
-      <Facts />
+      <Facts volunteers={volunteers} />
       <Divider
         sx={{
           backgroundColor: "var(--mui-palette-divider)",

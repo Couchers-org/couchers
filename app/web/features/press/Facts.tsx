@@ -1,12 +1,13 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
+import { UseQueryResult } from "@tanstack/react-query";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANDING, PRESS } from "i18n/namespaces";
 import { useEffect, useState } from "react";
-import { theme } from "theme";
 import { timeAgo } from "utils/timeAgo";
 
-import { useListVolunteers } from "../communities/hooks";
+import { GetVolunteersRes } from "../../proto/public_pb";
 import StyledBox from "./StyledBox";
 import StyledSubheading from "./StyledSubheading";
 
@@ -39,39 +40,38 @@ const StyledWrapper = styled(Box)(({ theme }) => ({
 const iconStyle = {
   marginRight: 1,
   fontSize: "30px",
-  color: theme.palette.primary.main,
+  color: "var(--mui-palette-primary-main)",
 };
 
 const textStyle = { fontSize: "1.25rem" };
 
-function Loader() {
+type LoaderProps = {
+  width: string;
+};
+
+function Loader({ width }: LoaderProps) {
   return (
-    <Box sx={{ width: 180 }}>
+    <Box width={width}>
       <Typography sx={textStyle}>
         <Box component="span" display="inline-block" width="100%">
-          <Skeleton variant="text" width="100%" height={36} />
+          <Skeleton variant="text" width="100%" />
         </Box>
       </Typography>
     </Box>
   );
 }
 
-export default function Facts() {
+type FactsProps = {
+  volunteers: UseQueryResult<GetVolunteersRes.AsObject, RpcError>;
+};
+
+export default function Facts({ volunteers }: FactsProps) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([LANDING, PRESS]);
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  const volunteers = useListVolunteers();
-  const currentVolunteersList = volunteers.data?.currentVolunteersList;
-  const pastVolunteersList = volunteers.data?.pastVolunteersList;
-  const volunteersNumber =
-    currentVolunteersList && pastVolunteersList
-      ? currentVolunteersList?.length + pastVolunteersList?.length
-      : undefined;
+  const [isSignupInfoLoading, setIsSignupInfoLoading] = useState(true);
 
   useEffect(() => {
     const fetchSignupInfo = async () => {
@@ -88,12 +88,19 @@ export default function Facts() {
       } catch (error) {
         console.error("Error fetching signup info:", error);
       } finally {
-        setIsLoading(false);
+        setIsSignupInfoLoading(false);
       }
     };
 
     fetchSignupInfo();
   }, []);
+
+  const currentVolunteersList = volunteers.data?.currentVolunteersList ?? [];
+  const pastVolunteersList = volunteers.data?.pastVolunteersList ?? [];
+  const volunteersNumber =
+    currentVolunteersList.length + pastVolunteersList.length;
+
+  const isLoading = isSignupInfoLoading || volunteers.isLoading;
 
   return (
     <StyledBox>
@@ -102,7 +109,7 @@ export default function Facts() {
         <Box display="flex" alignItems="center">
           <Favorite sx={iconStyle} />
           {isLoading ? (
-            <Loader />
+            <Loader width="9rem" />
           ) : (
             <Typography sx={textStyle}>
               {t("landing:num_users2", {
@@ -114,37 +121,40 @@ export default function Facts() {
         </Box>
         <Box display="flex" alignItems="center">
           <Language sx={iconStyle} />
-          <Typography sx={textStyle}>
-            {t("landing:num_countries2", { count: 180 })}
-          </Typography>
+          {isLoading ? (
+            <Loader width="9.5rem" />
+          ) : (
+            <Typography sx={textStyle}>
+              {t("landing:num_countries2", { count: 180 })}
+            </Typography>
+          )}
         </Box>
         <Box display="flex" alignItems="center">
           <Star sx={iconStyle} />
           {isLoading ? (
-            <Loader />
-          ) : (
-            signupInfo &&
-            signupInfo.lastSignup && (
-              <Typography sx={textStyle}>
-                {t("landing:last_signup", {
-                  timeAgo: timeAgo({
-                    since: new Date(signupInfo.lastSignup),
-                    t,
-                    locale,
-                  }),
-                })}
-              </Typography>
-            )
-          )}
+            <Loader width="14.5rem" />
+          ) : signupInfo?.lastSignup ? (
+            <Typography sx={textStyle}>
+              {t("landing:last_signup", {
+                timeAgo: timeAgo({
+                  since: new Date(signupInfo.lastSignup),
+                  t,
+                  locale,
+                }),
+              })}
+            </Typography>
+          ) : null}
         </Box>
-        {volunteersNumber ? (
-          <Box display="flex" alignItems="center">
-            <People sx={iconStyle} />
+        <Box display="flex" alignItems="center">
+          <People sx={iconStyle} />
+          {isLoading ? (
+            <Loader width="7.5rem" />
+          ) : (
             <Typography sx={textStyle}>
               {t("press:num_volunteers2", { count: volunteersNumber })}
             </Typography>
-          </Box>
-        ) : null}
+          )}
+        </Box>
       </StyledWrapper>
     </StyledBox>
   );
