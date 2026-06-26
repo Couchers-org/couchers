@@ -68,6 +68,8 @@ describe("Edit event page", () => {
       t("communities:location"),
     ) as HTMLInputElement;
 
+    await user.click(locationInput);
+    await user.keyboard("{Control>}a{/Control}");
     await user.type(locationInput, "tes{enter}");
 
     expect(locationInput).toHaveValue("tes");
