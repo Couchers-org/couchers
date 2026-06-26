@@ -70,7 +70,7 @@ export default function About() {
       <StyledContainer>
         {aboutUsItems.map(({ heading, text, href }) => (
           <StyledCard key={heading}>
-            <StyledHeading fontSize="1.5rem">{t(heading)}</StyledHeading>
+            <StyledHeading>{t(heading)}</StyledHeading>
             <Typography>{t(text)}</Typography>
             <StyledLink href={href}>{t("read_more")}</StyledLink>
           </StyledCard>

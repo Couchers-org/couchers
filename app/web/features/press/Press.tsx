@@ -42,17 +42,13 @@ export default function Press() {
     <StyledContainer>
       <Hero />
       <Facts volunteers={volunteers} />
-      <Divider
-        sx={{
-          backgroundColor: "var(--mui-palette-divider)",
-        }}
-      />
+      <Divider />
       <About />
       <DownloadableFiles />
       <StyledBox>
         <StyledSubheading>{t("team_subheading")}</StyledSubheading>
         <TeamSection
-          variant={"current"}
+          variant="current"
           volunteers={volunteers.data?.currentVolunteersList}
           boardMembersOnly
           hasExtraCard
@@ -68,11 +64,7 @@ export default function Press() {
           <SocialMediaLinks iconSize="2.5rem" />
         </StyledSocialMediaContainer>
       </StyledBox>
-      <Divider
-        sx={{
-          backgroundColor: "var(--mui-palette-divider)",
-        }}
-      />
+      <Divider />
       <PressCoverage />
     </StyledContainer>
   );

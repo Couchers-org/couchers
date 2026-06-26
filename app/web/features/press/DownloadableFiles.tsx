@@ -23,10 +23,6 @@ const StyledSection = styled("section")(({ theme }) => ({
   borderRadius: "4px",
   overflow: "hidden",
 
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "column",
-  },
-
   [theme.breakpoints.up("md")]: {
     flexDirection: "row",
   },
@@ -55,9 +51,7 @@ const StyledImage = styled("img")(({ theme }) => ({
   objectPosition: "center top",
 
   [theme.breakpoints.up("sm")]: {
-    width: "100%",
     height: "17rem",
-    objectPosition: "center top",
   },
 
   [theme.breakpoints.up("md")]: {
@@ -89,9 +83,7 @@ const StyledLogo = styled(Box)(({ theme }) => ({
 const StyledButton = styled(Button)<ButtonProps<"a">>(({ theme }) => ({
   minWidth: "8rem",
   textAlign: "center",
-  marginBlockEnd: theme.spacing(2),
   width: "10rem",
-  margin: 0,
 }));
 
 export default function DownloadableFiles() {
