@@ -71,7 +71,8 @@ def try_localize_iso3166_region_name(code: str, locale: babel.Locale) -> str | N
     """
     # The Unicode CLDR uses alpha2 codes as keys (all alpha3 codes have a corresponding alpha2 code)
     code = get_iso3166_alpha3_to_alpha2().get(code, code)
-    return locale.territories.get(code, None)
+    region_name: str | None = locale.territories.get(code, None)
+    return region_name
 
 
 def localize_date(

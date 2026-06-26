@@ -153,9 +153,10 @@ class FakeChannel:
     instances when handlers are invoked.
     """
 
-    def __init__(self, token: str | None = None):
+    def __init__(self, token: str | None = None, *, locale: str | None = None):
         self.handlers: dict[str, Any] = {}
         self._token = token
+        self._locale = locale or DEFAULT_LOCALE
         self._pool = get_descriptor_pool()
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers: Any):
@@ -188,7 +189,7 @@ class FakeChannel:
                     is_api_key=False,
                     token=self._token if auth_info else None,
                     localization=LocalizationContext(
-                        locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
+                        locale=(auth_info and auth_info.ui_language_preference) or self._locale,
                         timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
                     ),
                     sofa="test_sofa_cookie_value",
@@ -528,7 +529,7 @@ def bugs_session(token: str | None = None):
 
 
 @contextmanager
-def resources_session():
-    channel = FakeChannel()
+def resources_session(*, locale: str | None = None):
+    channel = FakeChannel(locale=locale)
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
