@@ -6,12 +6,12 @@ import SocialMediaLinks from "../../components/SocialMediaLinks";
 import { useListVolunteers } from "../communities/hooks";
 import TeamSection from "../team/TeamSection";
 import About from "./About";
-import DownloadableFiles from "./DownloadableFiles";
 import Facts from "./Facts";
 import Hero from "./Hero";
+import MediaAssets from "./MediaAssets";
 import PressCoverage from "./PressCoverage";
-import StyledBox from "./StyledBox";
-import StyledSubheading from "./StyledSubheading";
+import SectionHeading from "./SectionHeading";
+import SectionWrapper from "./SectionWrapper";
 
 const StyledContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -44,9 +44,9 @@ export default function Press() {
       <Facts volunteers={volunteers} />
       <Divider />
       <About />
-      <DownloadableFiles />
-      <StyledBox>
-        <StyledSubheading>{t("team_subheading")}</StyledSubheading>
+      <MediaAssets />
+      <SectionWrapper>
+        <SectionHeading>{t("team_subheading")}</SectionHeading>
         <TeamSection
           variant="current"
           volunteers={volunteers.data?.currentVolunteersList}
@@ -57,13 +57,13 @@ export default function Press() {
             link: t("team_extra_card_link"),
           }}
         />
-      </StyledBox>
-      <StyledBox sx={{ alignItems: "center" }}>
-        <StyledSubheading>{t("social_media_subheading")}</StyledSubheading>
+      </SectionWrapper>
+      <SectionWrapper sx={{ alignItems: "center" }}>
+        <SectionHeading>{t("social_media_subheading")}</SectionHeading>
         <StyledSocialMediaContainer>
           <SocialMediaLinks iconSize="2.5rem" />
         </StyledSocialMediaContainer>
-      </StyledBox>
+      </SectionWrapper>
       <Divider />
       <PressCoverage />
     </StyledContainer>

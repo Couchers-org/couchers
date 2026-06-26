@@ -3,8 +3,8 @@ import { CouchersIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { PRESS } from "i18n/namespaces";
 
-import StyledBox from "./StyledBox";
-import StyledSubheading from "./StyledSubheading";
+import SectionHeading from "./SectionHeading";
+import SectionWrapper from "./SectionWrapper";
 
 const StyledContainer = styled("div")(({ theme }) => ({
   display: "grid",
@@ -86,12 +86,12 @@ const StyledButton = styled(Button)<ButtonProps<"a">>(({ theme }) => ({
   width: "10rem",
 }));
 
-export default function DownloadableFiles() {
+export default function MediaAssets() {
   const { t } = useTranslation([PRESS]);
 
   return (
-    <StyledBox>
-      <StyledSubheading>{t("download_subheading")}</StyledSubheading>
+    <SectionWrapper>
+      <SectionHeading>{t("download_subheading")}</SectionHeading>
       <StyledContainer>
         <StyledSection>
           <StyledLogo>
@@ -128,6 +128,6 @@ export default function DownloadableFiles() {
           </StyledCard>
         </StyledSection>
       </StyledContainer>
-    </StyledBox>
+    </SectionWrapper>
   );
 }

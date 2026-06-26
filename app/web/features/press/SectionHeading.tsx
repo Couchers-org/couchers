@@ -13,6 +13,6 @@ const StyledHeading = styled("h2")(({ theme }) => ({
   },
 }));
 
-export default function StyledSubheading({ children }: PropsWithChildren) {
+export default function SectionHeading({ children }: PropsWithChildren) {
   return <StyledHeading>{children}</StyledHeading>;
 }

@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { timeAgo } from "utils/timeAgo";
 
 import { GetVolunteersRes } from "../../proto/public_pb";
-import StyledBox from "./StyledBox";
-import StyledSubheading from "./StyledSubheading";
+import SectionHeading from "./SectionHeading";
+import SectionWrapper from "./SectionWrapper";
 
 interface SignupInfo {
   userCount: string;
@@ -103,8 +103,8 @@ export default function Facts({ volunteers }: FactsProps) {
   const isLoading = isSignupInfoLoading || volunteers.isLoading;
 
   return (
-    <StyledBox>
-      <StyledSubheading>{t("press:facts_subheading")}</StyledSubheading>
+    <SectionWrapper>
+      <SectionHeading>{t("press:facts_subheading")}</SectionHeading>
       <StyledWrapper>
         <Box display="flex" alignItems="center">
           <Favorite sx={iconStyle} />
@@ -156,6 +156,6 @@ export default function Facts({ volunteers }: FactsProps) {
           )}
         </Box>
       </StyledWrapper>
-    </StyledBox>
+    </SectionWrapper>
   );
 }

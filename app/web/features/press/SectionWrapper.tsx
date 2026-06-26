@@ -11,11 +11,11 @@ const StyledWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-type StyledBoxProps = {
+type SectionWrapperProps = {
   children?: ReactNode;
   sx?: SxProps<Theme>;
 };
 
-export default function StyledBox({ children, sx }: StyledBoxProps) {
+export default function SectionWrapper({ children, sx }: SectionWrapperProps) {
   return <StyledWrapper sx={sx}>{children}</StyledWrapper>;
 }

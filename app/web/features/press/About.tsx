@@ -4,8 +4,8 @@ import { useTranslation } from "i18n";
 import { PRESS } from "i18n/namespaces";
 import { blogRoute, foundationRoute, missionRoute } from "routes";
 
-import StyledBox from "./StyledBox";
-import StyledSubheading from "./StyledSubheading";
+import SectionHeading from "./SectionHeading";
+import SectionWrapper from "./SectionWrapper";
 
 const aboutUsItems = [
   {
@@ -65,8 +65,8 @@ export default function About() {
   const { t } = useTranslation([PRESS]);
 
   return (
-    <StyledBox>
-      <StyledSubheading>{t("about_subheading")}</StyledSubheading>
+    <SectionWrapper>
+      <SectionHeading>{t("about_subheading")}</SectionHeading>
       <StyledContainer>
         {aboutUsItems.map(({ heading, text, href }) => (
           <StyledCard key={heading}>
@@ -76,6 +76,6 @@ export default function About() {
           </StyledCard>
         ))}
       </StyledContainer>
-    </StyledBox>
+    </SectionWrapper>
   );
 }

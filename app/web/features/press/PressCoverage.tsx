@@ -2,8 +2,8 @@ import { Box, Card, Link, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { PRESS } from "i18n/namespaces";
 
-import StyledBox from "./StyledBox";
-import StyledSubheading from "./StyledSubheading";
+import SectionHeading from "./SectionHeading";
+import SectionWrapper from "./SectionWrapper";
 
 const articlesData = [
   {
@@ -81,8 +81,8 @@ export default function PressCoverage() {
   const { t } = useTranslation([PRESS]);
 
   return (
-    <StyledBox>
-      <StyledSubheading>{t("press_coverage_subheading")}</StyledSubheading>
+    <SectionWrapper>
+      <SectionHeading>{t("press_coverage_subheading")}</SectionHeading>
       <StyledContainer>
         {articlesData.map(
           ({
@@ -117,6 +117,6 @@ export default function PressCoverage() {
           ),
         )}
       </StyledContainer>
-    </StyledBox>
+    </SectionWrapper>
   );
 }
