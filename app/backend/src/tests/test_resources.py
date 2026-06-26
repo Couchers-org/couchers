@@ -38,8 +38,8 @@ def test_GetRegions(db):
     with resources_session(locale="es") as api:
         regions = api.GetRegions(empty_pb2.Empty()).regions
         regions_list = [(r.alpha3, r.name) for r in regions]
-        assert ("FIN", "Finland") not in regions_list
         assert ("FIN", "Finlandia") in regions_list
+        assert ("FIN", "Finland") not in regions_list
 
 
 def test_GetLanguages(db):
@@ -49,6 +49,12 @@ def test_GetLanguages(db):
         assert ("fin", "Finnish") in languages_list
         assert ("swe", "Swedish") in languages_list
         assert ("???", "Nonexistent language") not in languages_list
+
+    with resources_session(locale="es") as api:
+        languages = api.GetLanguages(empty_pb2.Empty()).languages
+        languages_list = [(r.code, r.name) for r in languages]
+        assert ("swe", "Sueco") in languages_list
+        assert ("swe", "Swedish") not in languages_list
 
 
 def test_GetBadges(db):

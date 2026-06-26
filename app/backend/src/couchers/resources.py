@@ -46,7 +46,7 @@ def get_region_dict() -> dict[str, str]:
 
 
 @functools.cache
-def get_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
+def get_region_code_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
     with open(resources_folder / "regions.json", "r") as f:
         json_regions = json.load(f)
     return {region["alpha3"]: region["alpha2"] for region in json_regions if "alpha2" in region}

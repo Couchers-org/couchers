@@ -14,8 +14,7 @@ from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, 
 from babel.lists import format_list
 
 from couchers.i18n.locales import DEFAULT_LOCALE, get_main_i18next
-from couchers.resources import get_language_codes_iso639_3_to_1
-from couchers.resources import get_iso3166_alpha3_to_alpha2
+from couchers.resources import get_language_codes_iso639_3_to_1, get_region_code_iso3166_alpha3_to_alpha2
 
 
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
@@ -37,7 +36,7 @@ def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
     return format_list(items, locale=locale)
 
 
-def try_localize_language_name(code: str, locale: babel.Locale, *, standalone: bool = False) -> str | None:
+def try_localize_language_name_from_iso639(code: str, locale: babel.Locale, standalone: bool = False) -> str | None:
     """
     Attempts to localize the name of a language expressed as an ISO639 code.
 
@@ -65,12 +64,12 @@ def try_localize_language_name(code: str, locale: babel.Locale, *, standalone: b
         return None
 
 
-def try_localize_iso3166_region_name(code: str, locale: babel.Locale) -> str | None:
+def try_localize_region_name_from_iso3166(code: str, locale: babel.Locale) -> str | None:
     """
     Gets a region name specified as an ISO3166 alpha2 or alpha3 code, localized in the given locale.
     """
     # The Unicode CLDR uses alpha2 codes as keys (all alpha3 codes have a corresponding alpha2 code)
-    code = get_iso3166_alpha3_to_alpha2().get(code, code)
+    code = get_region_code_iso3166_alpha3_to_alpha2().get(code, code)
     region_name: str | None = locale.territories.get(code, None)
     return region_name
 

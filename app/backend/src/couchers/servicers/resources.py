@@ -50,7 +50,7 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
             regions=[
                 resources_pb2.Region(
                     alpha3=alpha3,
-                    name=context.localization.try_localize_region_name(iso3166_code=alpha3) or english_name,
+                    name=context.localization.try_localize_region_name_from_iso3166(alpha3) or english_name,
                 )
                 for alpha3, english_name in sorted(get_region_dict().items())
             ]
@@ -63,7 +63,8 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
             languages=[
                 resources_pb2.Language(
                     code=code,
-                    name=context.localization.try_localize_language_name(code, standalone=True) or english_name,
+                    name=context.localization.try_localize_language_name_from_iso639(code, standalone=True)
+                    or english_name,
                 )
                 for code, english_name in sorted(get_language_dict().items())
             ]
