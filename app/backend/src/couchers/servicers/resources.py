@@ -48,7 +48,11 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     ) -> resources_pb2.GetRegionsRes:
         return resources_pb2.GetRegionsRes(
             regions=[
-                resources_pb2.Region(alpha3=alpha3, name=name) for alpha3, name in sorted(get_region_dict().items())
+                resources_pb2.Region(
+                    alpha3=alpha3,
+                    name=context.localization.try_localize_region_name(iso3166_code=alpha3) or english_name,
+                )
+                for alpha3, english_name in sorted(get_region_dict().items())
             ]
         )
 
