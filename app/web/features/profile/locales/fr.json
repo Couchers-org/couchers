@@ -1,9 +1,7 @@
 {
   "actions": {
-    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
-    "accept_friend_label": "Accepter",
     "request": "Envoyer une demande"
   },
   "heading": {
@@ -248,8 +246,6 @@
     "friend": "Par des ami(e)s",
     "given": "Donnée aux autres"
   },
-  "accept_friend_label": "Accepter la demande d'ami",
-  "decline_friend_label": "Refuser la demande d’ami",
   "response_time_text_most": "Normalement de {{p33}} à {{p66}}",
   "response_time_text_almost_all": "Normalement de {{p33}} à {{p66}}",
   "no_references": "Aucune référence de ce type pour le moment !",

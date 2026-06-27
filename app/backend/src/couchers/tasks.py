@@ -12,7 +12,7 @@ from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.blocks import EmailBase
-from couchers.email.emails import EmailAddressChangeConfirmationEmail, SignupContinueEmail, SignupVerifyEmail
+from couchers.email.emails import EmailChangeConfirmationEmail, SignupContinueEmail, SignupVerifyEmail
 from couchers.email.queuing import queue_system_email, queue_userless_email
 from couchers.models import (
     AccountDeletionReason,
@@ -86,7 +86,7 @@ def send_email_changed_confirmation_to_new_email(context: CouchersContext, sessi
     elif not user.new_email:
         raise ValueError(f"No new email for {user.id}")
 
-    email = EmailAddressChangeConfirmationEmail(
+    email = EmailChangeConfirmationEmail(
         user_name=user.name,
         old_email=user.email,
         confirm_url=urls.change_email_link(confirmation_token=user.new_email_token),

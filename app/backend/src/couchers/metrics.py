@@ -725,6 +725,18 @@ emails_counter: Counter = Counter(
 )
 
 
+# Revenue from successful Stripe charges, in cents, split by source (donation vs merch).
+revenue_cents_counter: Counter = Counter(
+    "couchers_revenue_cents_total",
+    "Revenue from successful Stripe charges, in cents",
+    labelnames=["type"],
+)
+
+
+def observe_revenue(revenue_type: str, amount_cents: int) -> None:
+    revenue_cents_counter.labels(revenue_type).inc(amount_cents)
+
+
 antibots_assessed_counter: Counter = Counter(
     "couchers_antibots_assessed_total",
     "Number of times an antibot assessment is created",

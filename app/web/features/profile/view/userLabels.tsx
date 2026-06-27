@@ -82,7 +82,7 @@ export const ResponseRateLabel = ({ user }: Props) => {
   const {
     t,
     i18n: { language },
-  } = useTranslation("profile");
+  } = useTranslation(PROFILE);
   // Localize the humanized durations at the call site (no global dayjs locale).
   const dayjsLocale = i18nToDayjsLocale(language);
 
@@ -163,7 +163,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     gender,
     pronouns,
   } = user;
-  const { t } = useTranslation("profile");
+  const { t } = useTranslation(PROFILE);
 
   const getBirthdateVerificationIcon = (
     status: BirthdateVerificationStatus,
@@ -233,7 +233,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
 };
 
 export const AgeGenderLanguagesLabels = ({ user }: Props) => {
-  const { t } = useTranslation("profile");
+  const { t } = useTranslation(PROFILE);
   const { languages } = useLanguages();
 
   return (

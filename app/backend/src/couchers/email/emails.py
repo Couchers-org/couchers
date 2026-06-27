@@ -41,7 +41,7 @@ class AccountDeletionStartedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "account_deletion_started"
+        return "account_deletion.started"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -76,7 +76,7 @@ class AccountDeletionCompletedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "account_deletion_completed"
+        return "account_deletion.completed"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -111,7 +111,7 @@ class AccountDeletionRecoveredEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "account_deletion_recovered"
+        return "account_deletion.recovered"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -200,14 +200,14 @@ class BadgeChangedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "badge_added" if self.added else "badge_removed"
+        return "badges.added" if self.added else "badges.removed"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"badge_name": self.badge_name})
+        return self._localize(loc_context, ".subject", {"name": self.badge_name})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".body", {"badge_name": self.badge_name})
+        builder.para(".body", {"name": self.badge_name})
         return builder.build()
 
     @classmethod
@@ -264,7 +264,7 @@ class ChatMessageReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"chat_message_received.{'direct' if self.group_chat_title is None else 'group'}"
+        return f"chat_messages.received.{'direct' if self.group_chat_title is None else 'group'}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -285,7 +285,7 @@ class ChatMessageReceivedEmail(EmailBase):
             user_name,
             author=UserInfo.from_protobuf(data.author),
             text=data.text,
-            group_chat_title=data.group_chat_title,
+            group_chat_title=data.group_chat_title or None,
             view_url=urls.chat_link(chat_id=data.group_chat_id),
         )
 
@@ -322,7 +322,7 @@ class ChatMessagesMissedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "chat_messages_missed"
+        return "chat_messages.missed"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject")
@@ -330,10 +330,10 @@ class ChatMessagesMissedEmail(EmailBase):
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         for entry in self.entries:
-            if entry.group_chat_title:
-                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
-            else:
+            if entry.group_chat_title is None:
                 builder.para(".in_dm", {"count": entry.missed_count, "author": entry.latest_message_author.name})
+            else:
+                builder.para(".in_group", {"count": entry.missed_count, "group": entry.group_chat_title})
             builder.user(entry.latest_message_author)
             builder.quote(entry.latest_message_text, markdown=False)
             builder.action(entry.view_url, ".view_action")
@@ -343,7 +343,7 @@ class ChatMessagesMissedEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ChatMissedMessages, *, user_name: str) -> Self:
         missed_entries = [
             cls.Entry(
-                group_chat_title=message.group_chat_title,
+                group_chat_title=message.group_chat_title or None,
                 missed_count=message.unseen_count,
                 latest_message_author=UserInfo.from_protobuf(message.author),
                 latest_message_text=message.text,
@@ -386,7 +386,7 @@ class DiscussionCreatedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "discussion_created"
+        return "discussions.created"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.title})
@@ -444,7 +444,7 @@ class DiscussionCommentEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "discussion_comment"
+        return "discussions.comment"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -529,14 +529,14 @@ class DonationReceivedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
-class EmailAddressChangedEmail(EmailBase):
+class EmailChangedEmail(EmailBase):
     """Sent to a user to notify them that their email address was changed."""
 
     new_email: str
 
     @property
     def string_key_base(self) -> str:
-        return "email_address_change_initiated"
+        return "email_change.initiated"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -553,7 +553,7 @@ class EmailAddressChangedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
-class EmailAddressChangeConfirmationEmail(EmailBase):
+class EmailChangeConfirmationEmail(EmailBase):
     """Sent to a user to confirm their new email address."""
 
     old_email: str
@@ -561,7 +561,7 @@ class EmailAddressChangeConfirmationEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "email_address_change_confirmation"
+        return "email_change.confirmation"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -576,12 +576,12 @@ class EmailAddressChangeConfirmationEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
-class EmailAddressVerifiedEmail(EmailBase):
+class EmailVerifiedEmail(EmailBase):
     """Sent to a user to notify them that their new email address has been verified."""
 
     @property
     def string_key_base(self) -> str:
-        return "email_address_verified"
+        return "email_change.verified"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -621,7 +621,7 @@ class EventInfo:
         html += time_range_display
         if self.online_link:
             html += "<br>"
-            online_link_text = get_emails_i18next().localize("event.generic.online_link", loc_context.locale)
+            online_link_text = get_emails_i18next().localize("events.generic.online_link", loc_context.locale)
             html += f'<i><a href="{escape(self.online_link)}">{escape(online_link_text)}</a></i>'
         elif self.address:
             html += "<br>"
@@ -633,7 +633,7 @@ class EventInfo:
         return QuoteBlock(text=Markup(self.description_markdown), markdown=True)
 
     def get_view_action_block(self, loc_context: LocalizationContext) -> EmailBlock:
-        view_action_text = get_emails_i18next().localize("event.generic.view_action", loc_context.locale)
+        view_action_text = get_emails_i18next().localize("events.generic.view_action", loc_context.locale)
         return ActionBlock(text=view_action_text, target_url=self.view_url)
 
     @classmethod
@@ -673,7 +673,7 @@ class EventCreatedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return f"event.created.{'invitation' if self.is_invite else 'notification'}"
+        return f"events.created.{'invitation' if self.is_invite else 'notification'}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -737,7 +737,7 @@ class EventUpdatedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.updated"
+        return "events.updated"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -787,7 +787,7 @@ class EventOrganizerInvitedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.organizer_invited"
+        return "events.organizer_invited"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -829,7 +829,7 @@ class EventCommentEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.comment"
+        return "events.comment"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.event_info.title})
@@ -873,7 +873,7 @@ class EventReminderEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.reminder"
+        return "events.reminder"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"title": self.event_info.title})
@@ -907,7 +907,7 @@ class EventCancelledEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.cancel"
+        return "events.cancel"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(
@@ -946,7 +946,7 @@ class EventDeletedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "event.deleted"
+        return "events.deleted"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"title": self.event_info.title})
@@ -983,7 +983,7 @@ class FriendReferenceReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "reference.received.friend"
+        return "references.received.friend"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.from_user.name})
@@ -993,7 +993,7 @@ class FriendReferenceReceivedEmail(EmailBase):
         builder.para(".body", {"name": self.from_user.name})
         builder.user(self.from_user)
         builder.quote(self.text, markdown=False)
-        builder.action(urls.profile_references_link(), "reference.received.view_action")
+        builder.action(urls.profile_references_link(), "references.received.view_action")
         return builder.build()
 
     @classmethod
@@ -1019,7 +1019,7 @@ class FriendRequestReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "friend_request_received"
+        return "friend_requests.received"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.befriender.name})
@@ -1058,7 +1058,7 @@ class FriendRequestAcceptedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "friend_request_accepted"
+        return "friend_requests.accepted"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.new_friend.name})
@@ -1130,7 +1130,7 @@ class HostRequestCreatedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "host_request_created"
+        return "host_requests.created"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
@@ -1140,14 +1140,14 @@ class HostRequestCreatedEmail(EmailBase):
         builder.para(".body", {"surfer_name": self.surfer.name})
         builder.user(
             self.surfer,
-            "host_request_generic.date_range",
+            "host_requests.generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.view_link, "host_requests.generic.view_action")
         builder.action(self.quick_decline_link, ".quick_decline_action")
         builder.para(".respond_encouragement")
         builder.para(_do_not_reply_request_string_key)
@@ -1191,7 +1191,7 @@ class HostRequestReminderEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "host_request_reminder"
+        return "host_requests.reminder"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
@@ -1201,13 +1201,13 @@ class HostRequestReminderEmail(EmailBase):
         builder.para(".body")
         builder.user(
             self.surfer,
-            "host_request_generic.date_range",
+            "host_requests.generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.view_link, "host_requests.generic.view_action")
         builder.para(_do_not_reply_request_string_key)
         return builder.build()
 
@@ -1248,7 +1248,7 @@ class HostRequestMessageEmail(EmailBase):
     @property
     def string_key_base(self) -> str:
         variant = "from_host" if self.from_host else "from_surfer"
-        return f"host_request_message.{variant}"
+        return f"host_requests.message.{variant}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
@@ -1258,14 +1258,14 @@ class HostRequestMessageEmail(EmailBase):
         builder.para(".body", {"other_name": self.other_user.name})
         builder.user(
             self.other_user,
-            "host_request_generic.date_range",
+            "host_requests.generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.view_link, "host_requests.generic.view_action")
         builder.para(_do_not_reply_request_string_key)
         return builder.build()
 
@@ -1308,7 +1308,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
     @property
     def string_key_base(self) -> str:
         variant = "from_host" if self.from_host else "from_surfer"
-        return f"host_request_missed_messages.{variant}"
+        return f"host_requests.missed_messages.{variant}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
@@ -1318,13 +1318,13 @@ class HostRequestMissedMessagesEmail(EmailBase):
         builder.para(".body", {"other_name": self.other_user.name})
         builder.user(
             self.other_user,
-            "host_request_generic.date_range",
+            "host_requests.generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.view_link, "host_requests.generic.view_action")
         builder.para(_do_not_reply_request_string_key)
         return builder.build()
 
@@ -1364,7 +1364,7 @@ class HostRequestStatusChangedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        base_key = "host_request_status_changed"
+        base_key = "host_requests.status_changed"
         match self.new_status:
             case conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 return f"{base_key}.accepted_by_host"
@@ -1385,13 +1385,13 @@ class HostRequestStatusChangedEmail(EmailBase):
         builder.para(".body", {"other_name": self.other_user.name})
         builder.user(
             self.other_user,
-            "host_request_generic.date_range",
+            "host_requests.generic.date_range",
             {
                 "from_date": _localize_host_request_date(self.from_date, loc_context),
                 "to_date": _localize_host_request_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_request_generic.view_action")
+        builder.action(self.view_link, "host_requests.generic.view_action")
         builder.para(_do_not_reply_request_string_key)
         return builder.build()
 
@@ -1462,7 +1462,7 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "reference.received"
+        return "references.received"
 
     @property
     def string_role_subkey(self) -> str:
@@ -1481,7 +1481,7 @@ class HostReferenceReceivedEmail(EmailBase):
             builder.action(urls.profile_references_link(), ".view_action")
         else:
             builder.para(".reciprocate_encouragement", {"name": self.from_user.name})
-            builder.action(self.leave_reference_url, "reference.write_action", {"name": self.from_user.name})
+            builder.action(self.leave_reference_url, "references.write_action", {"name": self.from_user.name})
         return builder.build()
 
     @classmethod
@@ -1528,7 +1528,7 @@ class HostReferenceReminderEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "reference.reminder"
+        return "references.reminder"
 
     @property
     def string_role_subkey(self) -> str:
@@ -1548,7 +1548,7 @@ class HostReferenceReminderEmail(EmailBase):
         builder.user(self.other_user)
         builder.action(
             self.leave_reference_url,
-            "reference.write_action",
+            "references.write_action",
             {"name": self.other_user.name},
         )
         builder.para(".via_messaging_note")
@@ -1705,7 +1705,7 @@ class PasswordResetCompletedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "password_reset_completed"
+        return "password_reset.completed"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1725,7 +1725,7 @@ class PasswordResetStartedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "password_reset_started"
+        return "password_reset.started"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1755,7 +1755,7 @@ class PhoneNumberChangeEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "phone_number_verified" if self.completed else "phone_number_verification_started"
+        return "phone_number_verification.verified" if self.completed else "phone_number_verification.started"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1788,7 +1788,7 @@ class PostalVerificationFailedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "postal_verification_failed"
+        return "postal_verification.failed"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1828,7 +1828,7 @@ class PostalVerificationPostcardSentEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "postal_verification_postcard_sent"
+        return "postal_verification.postcard_sent"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1850,7 +1850,7 @@ class PostalVerificationSucceededEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "postal_verification_succeeded"
+        return "postal_verification.succeeded"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1923,7 +1923,7 @@ class StrongVerificationFailedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "strong_verification_failed"
+        return "strong_verification.failed"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)
@@ -1962,7 +1962,7 @@ class StrongVerificationSucceededEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        return "strong_verification_succeeded"
+        return "strong_verification.succeeded"
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, security_warning=True)

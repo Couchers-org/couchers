@@ -1,8 +1,6 @@
 {
   "actions": {
     "message_label": "Enviar un mensaje",
-    "accept_friend_label": "Aceptar",
-    "decline_friend_label": "Declinar",
     "request": "Enviar solicitud",
     "back_to_dashboard": "Volver al tablón",
     "add_friend": "Añadir amigo"
@@ -276,8 +274,6 @@
   "info_unanswered": "Pregúntame",
   "more_profile_actions_a11y_text": "Más acciones del perfil",
   "report_user": "Reportar este usuario",
-  "accept_friend_label": "Aceptar solicitud de amistad",
-  "decline_friend_label": "Declinar solicitud de amistad",
   "no_references": "¡Sin referencias de este tipo todavía!",
   "references_filter_a11y_label": "Mostrar referencias: ",
   "see_more_references": "Ver más referencias",

@@ -293,7 +293,10 @@
       "event_description": "Telefon numaranız değiştirildi"
     },
     "verify": {
-      "event_description": "Telefon numaranız doğrulandı"
+      "event_description": "Telefon numaranız doğrulandı",
+      "push": {
+        "body": "Telefon numaranız {{phone_number}} olarak başarıyla doğrulandı."
+      }
     }
   },
   "reference": {
@@ -363,6 +366,11 @@
         "title": "Şifre sıfırlandı"
       },
       "event_description": "Şifre sıfırlama tamamlandı"
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Posta doğrulamanız başarısız oldu"
     }
   }
 }

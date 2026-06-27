@@ -24,7 +24,7 @@
       "last_active_field_label": "最后活跃",
       "hosting_status_field_label": "接待状态",
       "age": {
-        "field_label": "沙发主年龄",
+        "field_label": "接待者年龄",
         "min_age": "最低年龄",
         "max_age": "最大年龄"
       },
@@ -37,15 +37,15 @@
       "sleeping_arrangement_filters": {
         "shared_room": {
           "label": "共享房间",
-          "description": " 例如：共用卧室但有自己的睡眠空间"
+          "description": "例如：共用卧室但有自己的睡眠空间"
         },
         "private": {
           "label": "私人空间",
-          "description": " 例如：单独房间或类似设施"
+          "description": "例如：单独房间或类似设施"
         },
         "common": {
           "label": "公共休息区域",
-          "description": " 例如：客厅的沙发"
+          "description": "例如：客厅的沙发"
         }
       }
     },
@@ -73,9 +73,9 @@
   },
   "search_result": {
     "no_user_result_message": "未找到用户。请尝试移除部分筛选条件以查看更多结果。",
-    "missing_about_description": "{{name}} 还没有介绍自己",
-    "people_range_message_one": "{{currentRange}} / {{count}} 人",
-    "people_range_message_other": "{{currentRange}} / {{count}} 人",
+    "missing_about_description": "{{name}}还没有介绍自己",
+    "people_range_message_one": "{{currentRange}} / {{count}}人",
+    "people_range_message_other": "{{currentRange}} / {{count}}人",
     "include_empty_profiles_button": "显示所有用户资料",
     "few_results_suggestion": "默认情况下，空白和“无法接待”的个人资料会被隐藏。"
   },

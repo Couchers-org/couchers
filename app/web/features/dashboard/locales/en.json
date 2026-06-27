@@ -60,6 +60,18 @@
     "location_online_label": "Online",
     "today_label": "Today"
   },
+  "public_trips": {
+    "my_trips_header": "Your public trips",
+    "manage_link": "Manage",
+    "when_now": "Now",
+    "when_today": "Today",
+    "when_tomorrow": "Tomorrow",
+    "empty_description": "Heading somewhere? Post a public trip in a community to receive offers from nearby hosts.",
+    "same_gender_only_indicator": "Same gender",
+    "offers_count_one": "{{count}} offer",
+    "offers_count_other": "{{count}} offers",
+    "no_offers": "No offers yet"
+  },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",
     "upcoming_guests_header": "Your upcoming guests",

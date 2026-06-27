@@ -3,8 +3,6 @@
   "actions": {
     "back_to_dashboard": "Terug naar dashboard",
     "message_label": "Bericht sturen",
-    "accept_friend_label": "Accepteren",
-    "decline_friend_label": "Afwijzen",
     "request": "Verzoek",
     "add_friend": "Vriend toevoegen"
   },
@@ -222,7 +220,8 @@
     "what_happened": "Wat is er gebeurd?",
     "friend_reference_requires_friendship": "Je kan alleen een vriendenreferentie schrijven voor iemand met wie je bevriend bent.",
     "already_wrote_reference_for_stay": "Je hebt al een referentie geschreven voor deze gebruiker en dit verblijf. Je referentie wordt zichtbaar nadat er een referentie over jou is geschreven, of automatisch na 14 dagen.",
-    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven."
+    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven.",
+    "safety_rating_selector_a11y": "Veiligheidsrating"
   },
   "request_form": {
     "request_chars_remaining_one": "Schrijf nog minstens {{count}} karakter meer om een hostingverzoek te doen.",
@@ -259,8 +258,6 @@
     "hosted": "Gehost",
     "surfed": "Gast"
   },
-  "accept_friend_label": "Vriendschapsverzoek accepteren",
-  "decline_friend_label": "Vriendschapsverzoek afwijzen",
   "no_references": "Je hebt nog niet van dit soort referenties!",
   "references_filter_a11y_label": "Referenties laten zien: ",
   "see_more_references": "Meer referenties bekijken",
@@ -346,5 +343,6 @@
     },
     "edit_profile_button": "Bewerk nu je profiel",
     "cancel_button": "Laat maar"
-  }
+  },
+  "open_full_profile": "Volledig profiel openen"
 }

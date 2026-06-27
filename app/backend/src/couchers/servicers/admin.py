@@ -17,6 +17,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
+from couchers.helpers.upload_uses import UploadUseType, get_upload_uses_for_keys
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionToken,
@@ -76,15 +77,25 @@ MAX_PAGINATION_LENGTH = 250
 
 
 adminactionlevel2api = {
+    AdminActionLevel.trace: admin_pb2.ADMIN_ACTION_LEVEL_TRACE,
     AdminActionLevel.debug: admin_pb2.ADMIN_ACTION_LEVEL_DEBUG,
     AdminActionLevel.normal: admin_pb2.ADMIN_ACTION_LEVEL_NORMAL,
     AdminActionLevel.high: admin_pb2.ADMIN_ACTION_LEVEL_HIGH,
 }
 
 api2adminactionlevel = {
+    admin_pb2.ADMIN_ACTION_LEVEL_TRACE: AdminActionLevel.trace,
     admin_pb2.ADMIN_ACTION_LEVEL_DEBUG: AdminActionLevel.debug,
     admin_pb2.ADMIN_ACTION_LEVEL_NORMAL: AdminActionLevel.normal,
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
+}
+
+uploadusetype2api = {
+    None: admin_pb2.UPLOAD_USE_TYPE_UNSPECIFIED,
+    UploadUseType.profile_gallery_photo: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO,
+    UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
+    UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
+    UploadUseType.page: admin_pb2.UPLOAD_USE_TYPE_PAGE,
 }
 
 otaplatform2api = {
@@ -1398,6 +1409,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             .all()
         )
 
+        page = uploads[:page_size]
+        uses_by_key = get_upload_uses_for_keys(session, [upload.key for upload in page])
+
         return admin_pb2.ListUserUploadsRes(
             uploads=[
                 admin_pb2.UserUpload(
@@ -1407,8 +1421,19 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     thumbnail_url=upload.thumbnail_url,
                     credit=upload.credit or "",
                     created=Timestamp_from_datetime(upload.created),
+                    uses=[
+                        admin_pb2.UploadUse(
+                            type=uploadusetype2api[use.use_type],
+                            is_current=use.is_current,
+                            user_id=use.user_id,
+                            event_id=use.event_id,
+                            page_id=use.page_id,
+                            url=use.url,
+                        )
+                        for use in uses_by_key.get(upload.key, [])
+                    ],
                 )
-                for upload in uploads[:page_size]
+                for upload in page
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )
