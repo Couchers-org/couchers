@@ -6,6 +6,7 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
+import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EditEventPage from "./EditEventPage";
@@ -37,6 +38,14 @@ function renderPage() {
 }
 
 describe("Edit event page", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     getEventMock.mockResolvedValue(events[0]);
     updateEventMock.mockResolvedValue(events[0]);
@@ -68,8 +77,7 @@ describe("Edit event page", () => {
       t("communities:location"),
     ) as HTMLInputElement;
 
-    await user.click(locationInput);
-    await user.keyboard("{Control>}a{/Control}");
+    await user.clear(locationInput);
     await user.type(locationInput, "tes{enter}");
 
     expect(locationInput).toHaveValue("tes");
@@ -106,7 +114,9 @@ describe("Edit event page", () => {
       eventId: 1,
       title: "Weekly Meetup in the dam",
       content: "Here are some more details!",
-      locationInput: "test city, test county, test country",
+      address: "test city, test county, test country",
+      lat: 2,
+      lng: 1,
       endTime: new Date("2021-07-01 03:37"),
     });
 
