@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.constants import VALID_NAME_MAX_LENGTH
 from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
@@ -66,34 +67,51 @@ def test_is_valid_username() -> None:
 
 
 def test_is_valid_name() -> None:
-    # valid names
+    # Basics
     assert is_valid_name("ab")
     assert is_valid_name("a b")
-    assert is_valid_name("O'Connor")
     assert is_valid_name("Jean-Luc")
-    assert is_valid_name("老子")
+
+    # OK punctuation
+    assert is_valid_name("King K. Rool")
+    assert is_valid_name("Doe, John")
+    assert is_valid_name("Alice & Bob")
+    assert is_valid_name("Alice / Bob")
+    assert is_valid_name("Alice | Bob")
+
+    # Apostrophes and Quotes
+    assert is_valid_name("O'Connor")
+    assert is_valid_name('William “Bill” Clinton')
+    assert is_valid_name("Sha’Nia Jenkins")
+
+    # Other scripts
+    assert is_valid_name("孙悟空")
     assert is_valid_name("Combining Diặcritics")
     assert is_valid_name("काव्य")  # Hindi combining diacritics
     assert is_valid_name("Meritxell Col·lell")  # Catalan middle dot
     assert is_valid_name("レオナルド・ディカプリオ")  # Japanese middle dot
-    assert is_valid_name("Homer J. Simpson")  # Abbreviating dot
     assert is_valid_name("Lanaʻi")  # Hawaiian ʻokina glottal stop
 
-    # invalid: too short
+    # invalid: too short / too long
     assert not is_valid_name("a")
+    assert not is_valid_name("a" * (VALID_NAME_MAX_LENGTH + 1))
     # invalid: only whitespace
     assert not is_valid_name("	")
     assert not is_valid_name("")
     assert not is_valid_name(" ")
     assert not is_valid_name("  ")
     # invalid: leading/trailing whitespace
-    assert not is_valid_name(" ab")
-    assert not is_valid_name("ab ")
-    assert not is_valid_name(" ab ")
-    # invalid: contains characters outside of letters/whitespace/'/-
-    assert not is_valid_name("1")
-    # invalid: too long
-    assert not is_valid_name("a" * 101)
+    assert not is_valid_name(" leading whitespace")
+    assert not is_valid_name("trailing whitespace ")
+    assert not is_valid_name(" surrounding whitespace ")
+    # invalid: disallowed characters
+    assert not is_valid_name("digits123")
+    assert not is_valid_name("email@domain.com")
+    assert not is_valid_name("Frosty the ☃️")
+    assert not is_valid_name("exclamative!")
+    assert not is_valid_name("interrogative?")
+    assert not is_valid_name("under_score")
+    assert not is_valid_name("(╯‵□′)╯︵┻━┻")
 
 
 def test_parse_date() -> None:
