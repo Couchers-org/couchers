@@ -85,12 +85,21 @@
       <mj-section padding="0px">
         <mj-column>
           <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
-          <mj-text align="center" font-size="10px" line-height="12px"> You're receiving this email because you signed up for Couchers.org.<br /> You can reach our support team at <a href="mailto:support@couchers.org">support@couchers.org</a>.<br /> All times are in {{ footer_timezone_name }}, based on your profile location. </mj-text>
-          <mj-text align="center" font-size="10px"><a href="https://couchers.org/donate">Donate</a> | <a href="https://github.com/Couchers-org/couchers">GitHub</a> | <a href="https://couchers.org/volunteer">Volunteer</a> | <a href="https://couchers.org/blog">Blog</a></mj-text>
+          <mj-text align="center" font-size="10px" line-height="12px">
+            {{ received_because }}<br />
+            {{ contact_support }}<br />
+            {{ timezone_note }}
+          </mj-text>
+          <mj-text align="center" font-size="10px">
+            <a href="https://couchers.org/donate">{{ donate_link }}</a>
+            | <a href="https://github.com/Couchers-org/couchers">GitHub</a>
+            | <a href="https://couchers.org/volunteer">{{ volunteer_link }}</a>
+            | <a href="https://couchers.org/blog">{{ blog_link }}</a>
+          </mj-text>
           <mj-text align="center" font-size="8px" line-height="10px">
-            &copy; {{ footer_copyright_year }} Couchers, Inc.<br />
+            &copy; {{ copyright_year }} Couchers, Inc.<br />
             1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br />
-            <i>Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.</i>
+            <i>{{ nonprofit_note }}</i>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -98,27 +107,27 @@
     <mj-section>
       <mj-column>
         <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">
-          {% if footer_email_is_critical %}
-            This is a security email, you cannot unsubscribe from it.
+          {% if is_critical %}
+            {{ security_email_note }}
           {% else %}
-            <a href="{{footer_manage_notifications_link}}">Manage notification preferences</a>.
-            {% if footer_notification_topic_action or footer_notification_topic_key %}
+            <a href="{{ manage_notifications_url }}">{{ notification_settings_link }}</a>.
+            {% if topic_action_description or topic_key_description %}
               <br />
               Turn off emails for:
-              {% if footer_notification_topic_action %}
-                <a href="{{footer_notification_topic_action_link}}">{{footer_notification_topic_action}}</a>
+              {% if topic_action_description %}
+                <a href="{{ unsubscribe_topic_action_url }}">{{ topic_action_description }}</a>
               {% endif %}
-              {% if footer_notification_topic_key %}
-                {% if footer_notification_topic_action %} / {% endif %}
-                <a href="{{footer_notification_topic_key_link}}">{{footer_notification_topic_key}}</a>
+              {% if topic_key_description %}
+                {% if topic_action_description %} / {% endif %}
+                <a href="{{ unsubscribe_topic_key_url }}">{{ topic_key_description }}</a>
               {% endif %}
             {% endif %}
             <br />
-            <a href="{{footer_do_not_email_link}}">Do not email me (disables hosting)</a>.
+            <a href="{{ do_not_email_url }}">{{ do_not_email_link }}</a>.
           {% endif %}
         </mj-text>
         <mj-image src="attachment_imgs/logo-grey.png" width="50px" padding="0px"></mj-image>
-        <mj-text css-class="unsub" align="center" font-size="8px" line-height="16px" color="#777" padding="0px">The happy Couchers couch hopes you have a great rest of the day.</mj-text>
+        <mj-text css-class="unsub" align="center" font-size="8px" line-height="16px" color="#777" padding="0px">{{ happy_couch_icon_caption }}</mj-text>
       </mj-column>
     </mj-section>
   </mj-body>

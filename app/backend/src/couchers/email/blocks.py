@@ -5,7 +5,7 @@ that can be rendered HTML and plaintext for any locale.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Self
+from typing import Self
 
 from markupsafe import Markup
 
@@ -207,18 +207,6 @@ class EmailFooter:
     copyright_year: int = now().year
     unsubscribe_info: UnsubscribeInfo | None
 
-    def to_template_args(self) -> dict[str, Any]:
-        args: dict[str, Any] = {
-            "footer_timezone_name": self.timezone_name,
-            "footer_copyright_year": self.copyright_year,
-            "footer_email_is_critical": self.unsubscribe_info is None,
-        }
-
-        if unsubscribe_info := self.unsubscribe_info:
-            args.update(unsubscribe_info.to_template_args())
-
-        return args
-
 
 @dataclass(kw_only=True)
 class UnsubscribeInfo:
@@ -226,20 +214,6 @@ class UnsubscribeInfo:
     do_not_email_url: str
     topic_action_link: UnsubscribeLink
     topic_key_link: UnsubscribeLink | None = None
-
-    def to_template_args(self) -> dict[str, Any]:
-        args: dict[str, Any] = {
-            "footer_manage_notifications_link": self.manage_notifications_url,
-            "footer_do_not_email_link": self.do_not_email_url,
-            "footer_notification_topic_action": self.topic_action_link.text,
-            "footer_notification_topic_action_link": self.topic_action_link.url,
-        }
-
-        if topic_key_link := self.topic_key_link:
-            args["footer_notification_topic_key"] = topic_key_link.text
-            args["footer_notification_topic_key_link"] = topic_key_link.url
-
-        return args
 
 
 @dataclass(kw_only=True)

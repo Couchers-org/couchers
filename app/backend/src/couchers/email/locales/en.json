@@ -4,7 +4,20 @@
     "closing_line": "Best,<br>The Couchers.org Team",
     "founders_signature": "Aapeli and Itsi,<br>Couchers.org Founders",
     "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!",
-    "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request."
+    "do_not_reply_request": "<b>Do not reply to this email.</b> Use one of the buttons above to reply to this request.",
+    "footer": {
+      "received_because": "You're receiving this email because you signed up for Couchers.org.",
+      "contact_support": "You can reach our support team at <a href=\"mailto:support@couchers.org\">support@couchers.org</a>.",
+      "timezone_note": "All times are in {{ timezone }}, based on your profile location.",
+      "donate_link": "Donate",
+      "volunteer_link": "Volunteer",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.",
+      "security_email_note": "This is a security email, you cannot unsubscribe from it.",
+      "notification_settings_link": "Manage notification preferences",
+      "do_not_email_link": "Do not email me (disables hosting)",
+      "happy_couch_icon_caption": "The happy Couchers couch hopes you have a great rest of the day."
+    }
   },
   "calendar_events": {
     "title_cancelled": "Cancelled: {{ title }}",

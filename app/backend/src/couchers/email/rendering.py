@@ -8,6 +8,7 @@ from email.headerregistry import Address
 from functools import cache
 from html import unescape
 from pathlib import Path
+from typing import Any
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -17,6 +18,7 @@ from couchers.email.blocks import ActionBlock, EmailBase, EmailBlock, EmailFoote
 from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
+from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.proto.internal import jobs_pb2
 from couchers.templating import Jinja2Template
 
@@ -103,8 +105,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
     footer_template = Jinja2Template(
         source=(template_folder / "_footer.txt").read_text(encoding="utf8").strip(), html=False
     )
-    footer_template_args = footer.to_template_args()
-    return "".join(concat) + footer_template.render(footer_template_args)
+    footer_template_args = _get_footer_template_args(footer, loc_context)
+    concat.append(footer_template.render(footer_template_args))
+
+    return "".join(concat)
 
 
 def _to_plaintext(text: str | Markup) -> str:
@@ -130,6 +134,47 @@ def _to_plaintext(text: str | Markup) -> str:
 
     # We've handled tags but still have escapes like "&gt;", convert those to plaintext.
     return unescape(text)
+
+
+def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationContext) -> dict[str, Any]:
+    i18n = get_emails_i18next()
+
+    def localize(key: str, substitutions: SubstitutionDict | None = None) -> Markup:
+        key = full_string_key(key, relative_base="generic.footer")
+        return i18n.localize_with_markup(key, loc_context.locale, substitutions)
+
+    args: dict[str, Any] = {
+        "received_because": localize(".received_because"),
+        "contact_support": localize(".contact_support"),
+        "timezone_note": localize(".timezone_note", {"timezone": footer.timezone_name}),
+        "copyright_year": footer.copyright_year,
+        "donate_link": localize(".donate_link"),
+        "volunteer_link": localize(".volunteer_link"),
+        "blog_link": localize(".blog_link"),
+        "nonprofit_note": localize(".nonprofit_note"),
+        "is_critical": footer.unsubscribe_info is None,
+    }
+
+    if unsubscribe_info := footer.unsubscribe_info:
+        # TODO(#7420): Localize "Turn off emails for: " text, avoiding string concatenations.
+        args.update(
+            {
+                "notification_settings_link": localize(".notification_settings_link"),
+                "manage_notifications_url": unsubscribe_info.manage_notifications_url,
+                "do_not_email_link": localize(".do_not_email_link"),
+                "do_not_email_url": unsubscribe_info.do_not_email_url,
+                "topic_action_description": unsubscribe_info.topic_action_link.text,
+                "unsubscribe_topic_action_url": unsubscribe_info.topic_action_link.url,
+            }
+        )
+
+        if topic_key_link := unsubscribe_info.topic_key_link:
+            args["topic_key_description"] = topic_key_link.text
+            args["unsubscribe_topic_key_url"] = topic_key_link.url
+    else:
+        args["security_email_note"] = localize(".security_email_note")
+
+    return args
 
 
 def render_html_body(
@@ -229,7 +274,7 @@ class HTMLRenderer:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
-        footer_template_args = footer.to_template_args()
+        footer_template_args = _get_footer_template_args(footer, loc_context)
         concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)
