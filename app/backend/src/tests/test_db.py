@@ -81,7 +81,7 @@ def test_is_valid_name() -> None:
 
     # Apostrophes and Quotes
     assert is_valid_name("O'Connor")
-    assert is_valid_name('William “Bill” Clinton')
+    assert is_valid_name("William “Bill” Clinton")
     assert is_valid_name("Sha’Nia Jenkins")
 
     # Other scripts
