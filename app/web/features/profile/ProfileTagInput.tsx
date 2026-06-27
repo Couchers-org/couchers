@@ -153,7 +153,7 @@ export default function ProfileTagInput({
   className,
   inputFieldProps,
 }: ProfileTagInputProps) {
-  const { t } = useTranslation(PROFILE);
+  const { t, i18n } = useTranslation(PROFILE);
 
   // In case some value doesn't map to an option, add a fake option for it.
   // For example if value is [en, xx] and options is { en: "English", fr: "French" },
@@ -272,7 +272,7 @@ export default function ProfileTagInput({
             disablePortal
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
-              .sort((a, b) => a.label.localeCompare(b.label))}
+              .sort((a, b) => a.label.localeCompare(b.label, i18n.language))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
