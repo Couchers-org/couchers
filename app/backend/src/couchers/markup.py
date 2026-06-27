@@ -1,8 +1,9 @@
 from html.parser import HTMLParser
 from typing import Any
+from urllib.parse import urlencode
 
 from markdown_it import MarkdownIt
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 # Markdown config should match frontend's MarkdownNoSSR component.
 _markdown = MarkdownIt(
@@ -60,3 +61,15 @@ class _HTMLToPlaintext(HTMLParser):
     def handle_data(self, data: str) -> None:
         # Escapes have already been unescaped
         self.plaintext += data.replace("\n", "")  # Newlines in html are meaningless
+
+
+def html_email_link(email: str, subject: str | None = None) -> Markup:
+    url = f"mailto:{email}"
+    if subject:
+        query = {"subject": subject}
+        url += f"?{urlencode(query)}"
+    return html_link(url, text=email)
+
+
+def html_link(url: str, *, text: str | None = None) -> Markup:
+    return Markup(f'<a href="{escape(url)}">{escape(text or url)}</a>')

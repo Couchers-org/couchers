@@ -48,7 +48,7 @@ from couchers.email.blocks import (
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
-from couchers.markup import markdown_to_plaintext
+from couchers.markup import html_email_link, html_link, markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -549,7 +549,7 @@ class DonationReceivedEmail(EmailBase):
         builder.para(".invoice_receipt_info")
         builder.action(self.receipt_url, ".download_invoice")
         builder.para(".tax_acknowledgment")
-        builder.para(".questions_contact")
+        builder.para(".questions_contact", {"email": html_email_link("donations@couchers.org")})
         builder.para("generic.thanks")
         builder.para("generic.closing_lines.founders")
         return builder.build()
@@ -1752,16 +1752,28 @@ class OnboardingReminderEmail(EmailBase):
             builder.para(".edit_profile_prompt")
             builder.action(edit_profile_url, "onboarding_reminder.edit_profile_action")
             builder.para(".share_with_friends")
-            builder.para(".link", {"url": urls.app_link()})
+            builder.para(".link", {"link": html_link(urls.app_link())})
             builder.para(".platform_under_development")
             builder.para(".thanks_for_joining")
-            builder.para("generic.closing_lines.aapeli")
+            builder.para(
+                "generic.closing_lines.aapeli",
+                {
+                    "email_link": html_email_link("aapeli@couchers.org"),
+                    "profile_link": html_link("https://couchers.org/user/aapeli"),
+                },
+            )
         else:
             builder.para(".intro")
             builder.para(".request")
             builder.action(edit_profile_url, "onboarding_reminder.edit_profile_action")
             builder.para("generic.thanks")
-            builder.para("generic.closing_lines.emily")
+            builder.para(
+                "generic.closing_lines.emily",
+                {
+                    "email_link": html_email_link("community@couchers.org"),
+                    "profile_link": html_link("https://couchers.org/user/emily"),
+                },
+            )
         return builder.build()
 
     @classmethod

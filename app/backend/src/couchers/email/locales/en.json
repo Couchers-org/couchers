@@ -1,7 +1,7 @@
 {
   "generic": {
     "greeting_line": "Hi {{name}},",
-    "security_warning_contact_support": "If you did not initiate this action, please contact us at <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible.",
+    "security_warning_contact_support": "If you did not initiate this action, please contact us at {{ email_link }} so we can sort this out as soon as possible.",
     "do_not_reply_request": "Do not reply to this email. Use one of the buttons above to reply to this request.",
     "thanks": "Thank you!",
     "closing_lines": {
@@ -12,7 +12,7 @@
     },
     "footer": {
       "received_because": "You're receiving this email because you signed up for Couchers.org.",
-      "contact_support": "You can reach our support team at <a href=\"mailto:support@couchers.org\">support@couchers.org</a>.",
+      "contact_support": "You can reach our support team at {{ email_link }}.",
       "timezone_note": "All times are in {{ timezone }}, based on your profile location.",
       "donate_link": "Donate",
       "volunteer_link": "Volunteer",
@@ -129,7 +129,7 @@
     "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
     "download_invoice": "Download invoice",
     "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
-    "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>."
+    "questions_contact": "If you have any questions about your donation, please email us at {{ email }}."
   },
   "email_change": {
     "initiated": {
@@ -285,7 +285,7 @@
       "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on the 'About me' and 'My home' tabs of your profile. Please upload a photo of yourself and fill in some profile text. You can even copy and paste the text from your account on a different couch surfing platform if you're feeling lazy :P",
       "edit_profile_prompt": "To edit your profile, click on the following link:",
       "share_with_friends": "Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.",
-      "link": "Link: <a href=\"{{ url }}\">{{ url }}</a>",
+      "link": "Link: {{ link }}",
       "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org volunteers around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
       "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!"
     },
