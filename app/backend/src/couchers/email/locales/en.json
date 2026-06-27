@@ -165,7 +165,15 @@
     "updated": {
       "subject": "{{user}} updated \"{{title}}\"",
       "body": "An event you are subscribed to was updated.",
-      "updated_items": "The following information was updated: <b>{{items_list}}</b>. Here is the updated event:"
+      "updated_items": "The following information was updated: <b>{{items_list}}</b>. Here is the updated event:",
+      "updated_generic": "Here is the updated event:",
+      "item_names": {
+        "title": "title",
+        "content": "content",
+        "location": "location",
+        "start_time": "start time",
+        "end_time": "end time"
+      }
     },
     "organizer_invited": {
       "subject": "{{user}} invited you to co-organize \"{{title}}\"",

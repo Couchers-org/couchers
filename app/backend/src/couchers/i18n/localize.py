@@ -4,13 +4,14 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime, time, tzinfo
 from typing import cast
 
 import babel
 import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
+from babel.lists import format_list
 
 from couchers.i18n.locales import DEFAULT_LOCALE, get_main_i18next
 
@@ -28,6 +29,10 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
         The translated string with substitutions applied
     """
     return get_main_i18next().localize(key, lang or DEFAULT_LOCALE, substitutions)
+
+
+def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
+    return format_list(items, locale=locale)
 
 
 def localize_date(
