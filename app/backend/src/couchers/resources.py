@@ -37,7 +37,7 @@ def get_icon(name: str) -> str:
 
 
 @functools.cache
-def get_region_dict() -> dict[str, str]:
+def get_region_dict() -> Mapping[str, str]:
     """
     Get a list of allowed regions as a dictionary of {alpha3: name}.
     """
@@ -66,17 +66,6 @@ def get_language_dict() -> Mapping[str, str]:
     """
     with session_scope() as session:
         return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
-
-
-@functools.cache
-def get_language_codes_iso639_3_to_1() -> Mapping[str, str]:
-    """
-    Gets a mapping from ISO639-3 (three char) to ISO639-1 (two char) codes,
-    where there is an equivalence.
-    """
-    with open(resources_folder / "languages-iso639.json", "r") as file:
-        entries: list[dict[str, str]] = json.load(file)
-    return {entry["set3"]: entry["set1"] for entry in entries if "set1" in entry}
 
 
 @functools.cache
@@ -176,8 +165,8 @@ def copy_resources_to_database(session: Session) -> None:
     with open(resources_folder / "regions.json", "r") as f:
         regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
 
-    with open(resources_folder / "languages-iso639.json", "r") as f:
-        languages = [(language["set3"], language["name"]) for language in json.load(f)]
+    with open(resources_folder / "languages.json", "r") as f:
+        languages = [(language["code"], language["name"]) for language in json.load(f)]
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
