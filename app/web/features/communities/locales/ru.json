@@ -151,5 +151,17 @@
   "comment_deleted": "Этот комментарий был удалён.",
   "edit_comment": "Редактировать комментарий",
   "delete_comment": "Удалить комментарий",
-  "comment_edited_date": "Изменено {{timeAgo}}"
+  "comment_edited_date": "Изменено {{timeAgo}}",
+  "discussion_edited_date": "Изменено {{timeAgo}}",
+  "discussion_deleted": "Это обсуждение было удалено.",
+  "delete_discussion": "Удалить обсуждение",
+  "delete_discussion_dialog": {
+    "title": "Удалить обсуждение",
+    "message": "Вы уверены, что хотите удалить это обсуждение? Комментарии останутся видимыми.",
+    "confirm": "Удалить",
+    "cancel": "Отменить"
+  },
+  "edit_discussion": "Редактировать обсуждение",
+  "copy_link": "Скопировать ссылку",
+  "copy_link_success": "Ссылка скопирована в буфер обмена"
 }
