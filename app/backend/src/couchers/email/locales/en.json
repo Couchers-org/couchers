@@ -283,12 +283,12 @@
     "initial": {
       "subject": "Welcome to Couchers.org and the future of couch surfing",
       "welcome": "Welcome to Couchers.org, and our growing worldwide community of couch surfers. We are excited that you have joined us!",
-      "early_user_role": "We are still a small platform and are growing quickly. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.",
-      "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P",
+      "early_user_role": "We’re an evolving platform experiencing rapid growth. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.",
+      "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on the 'About me' and 'My home' tabs of your profile. Please upload a photo of yourself and fill in some profile text. You can even copy and paste the text from your account on a different couch surfing platform if you're feeling lazy :P",
       "edit_profile_prompt": "To edit your profile, click on the following link:",
       "share_with_friends": "Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.",
       "link": "Link: <a href=\"{{ url }}\">{{ url }}</a>",
-      "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
+      "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org volunteers around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
       "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!"
     },
     "follow_up": {
