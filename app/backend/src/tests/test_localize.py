@@ -3,12 +3,44 @@ from zoneinfo import ZoneInfo
 
 import babel
 
-from couchers.i18n.localize import localize_date, localize_datetime, localize_list, localize_time, localize_timezone
+from couchers.i18n.localize import (
+    localize_date,
+    localize_datetime,
+    localize_list,
+    localize_time,
+    localize_timezone,
+    try_localize_language_name_from_iso639,
+    try_localize_region_name_from_iso3166,
+)
 
 babel_en = babel.Locale.parse("en")
 babel_es = babel.Locale.parse("es")
 babel_fr = babel.Locale.parse("fr")
 babel_zh = babel.Locale.parse("zh")
+
+
+def test_localize_language_name() -> None:
+    assert try_localize_language_name_from_iso639("en", babel_en) == "English"
+    assert try_localize_language_name_from_iso639("es", babel_en) == "Spanish"
+
+    assert try_localize_language_name_from_iso639("en", babel_es) == "inglés"
+    assert try_localize_language_name_from_iso639("es", babel_es) == "español"
+
+    assert try_localize_language_name_from_iso639("en", babel_es, standalone=True) == "Inglés"  # Sentence case
+    assert try_localize_language_name_from_iso639("eng", babel_es) == "inglés"  # ISO639-3 code
+    assert try_localize_language_name_from_iso639("xx", babel_en) is None
+
+
+def test_localize_region_name() -> None:
+    assert try_localize_region_name_from_iso3166("US", babel_en) == "United States"
+    assert try_localize_region_name_from_iso3166("DE", babel_en) == "Germany"
+
+    assert try_localize_region_name_from_iso3166("US", babel_es) == "Estados Unidos"
+    assert try_localize_region_name_from_iso3166("DE", babel_es) == "Alemania"
+
+    assert try_localize_region_name_from_iso3166("USA", babel_en) == "United States"  # alpha3 code
+
+    assert try_localize_region_name_from_iso3166("xx", babel_en) is None
 
 
 def test_localize_date() -> None:

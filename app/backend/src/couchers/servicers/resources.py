@@ -48,7 +48,11 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     ) -> resources_pb2.GetRegionsRes:
         return resources_pb2.GetRegionsRes(
             regions=[
-                resources_pb2.Region(alpha3=alpha3, name=name) for alpha3, name in sorted(get_region_dict().items())
+                resources_pb2.Region(
+                    alpha3=alpha3,
+                    name=context.localization.try_localize_region_name_from_iso3166(alpha3) or english_name,
+                )
+                for alpha3, english_name in sorted(get_region_dict().items())
             ]
         )
 
@@ -57,7 +61,12 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     ) -> resources_pb2.GetLanguagesRes:
         return resources_pb2.GetLanguagesRes(
             languages=[
-                resources_pb2.Language(code=code, name=name) for code, name in sorted(get_language_dict().items())
+                resources_pb2.Language(
+                    code=code,
+                    name=context.localization.try_localize_language_name_from_iso639(code, standalone=True)
+                    or english_name,
+                )
+                for code, english_name in sorted(get_language_dict().items())
             ]
         )
 
