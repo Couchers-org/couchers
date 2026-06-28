@@ -23,6 +23,7 @@ from couchers.email.blocks import (
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
+from couchers.markup import markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
 from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -271,6 +272,9 @@ class ChatMessageReceivedEmail(EmailBase):
             loc_context, ".subject", {"author": self.author.name, "group": self.group_chat_title or ""}
         )
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(".body", {"author": self.author.name, "group": self.group_chat_title or ""})
@@ -326,6 +330,11 @@ class ChatMessagesMissedEmail(EmailBase):
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject")
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        if len(self.entries) != 1:
+            return None
+        return self.entries[0].latest_message_text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -391,6 +400,9 @@ class DiscussionCreatedEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.title})
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.markdown_text)
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(
@@ -451,6 +463,9 @@ class DiscussionCommentEmail(EmailBase):
             loc_context, ".subject", {"author": self.author.name, "discussion_title": self.discussion_title}
         )
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.markdown_text)
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(
@@ -502,9 +517,6 @@ class DonationReceivedEmail(EmailBase):
     @property
     def string_key_base(self) -> str:
         return "donation_received"
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".thanks_amount", {"amount": self.amount})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, standard_closing=False)
@@ -679,6 +691,9 @@ class EventCreatedEmail(EmailBase):
         return self._localize(
             loc_context, ".subject", {"user": self.inviting_user.name, "title": self.event_info.title}
         )
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.event_info.description_markdown)
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -882,6 +897,9 @@ class EventCommentEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"author": self.author.name, "title": self.event_info.title})
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.comment_markdown)
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(".body", {"author": self.author.name, "title": self.event_info.title})
@@ -1036,6 +1054,9 @@ class FriendReferenceReceivedEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.from_user.name})
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(".body", {"name": self.from_user.name})
@@ -1072,9 +1093,6 @@ class FriendRequestReceivedEmail(EmailBase):
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.befriender.name})
 
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".body", {"name": self.befriender.name})
-
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(".body", {"name": self.befriender.name})
@@ -1110,9 +1128,6 @@ class FriendRequestAcceptedEmail(EmailBase):
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.new_friend.name})
-
-    def get_preview_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".body", {"name": self.new_friend.name})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -1182,6 +1197,9 @@ class HostRequestCreatedEmail(EmailBase):
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -1300,6 +1318,9 @@ class HostRequestMessageEmail(EmailBase):
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -1518,6 +1539,9 @@ class HostReferenceReceivedEmail(EmailBase):
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         return self._localize(loc_context, ".subject", {"name": self.from_user.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
@@ -2044,6 +2068,9 @@ class ThreadReplyEmail(EmailBase):
         return self._localize(
             loc_context, ".subject", {"author": self.author.name, "parent_context": self.parent_context}
         )
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.markdown_text)
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
