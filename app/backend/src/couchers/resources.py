@@ -47,6 +47,11 @@ def get_region_dict() -> Mapping[str, str]:
 
 @functools.cache
 def get_region_code_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
+    """
+    Gets a best-effort mapping table from ISO-3166 alpha3 to alpha2 codes.
+    The alpha3 keys of get_region_dict() are not guaranteed to be present in this table.
+    Valid region codes, this mapping, and localized strings are all versioned separately (database / repo / CLDR).
+    """
     with open(resources_folder / "regions.json", "r") as f:
         json_regions = json.load(f)
     return {region["alpha3"]: region["alpha2"] for region in json_regions if "alpha2" in region}
