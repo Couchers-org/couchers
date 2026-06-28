@@ -791,7 +791,7 @@ class EventUpdatedEmail(EmailBase):
             updated_items_text = loc_context.localize_list(
                 [self._localize(loc_context, key) for key in updated_items_string_keys]
             )
-            builder.para(".purpose_specific", {"user": self.updating_user.name, "items_list": updated_items_text})
+            builder.para(".purpose_with_items", {"user": self.updating_user.name, "items_list": updated_items_text})
         else:
             builder.para(".purpose_generic", {"user": self.updating_user.name})
 

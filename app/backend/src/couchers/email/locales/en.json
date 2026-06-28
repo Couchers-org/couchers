@@ -166,8 +166,7 @@
     "updated": {
       "subject": "{{user}} updated {{title}}",
       "purpose_generic": "<b>{{user}}</b> updated an event you are subscribed to:",
-      "purpose_specific": "<b>{{user}}</b> updated an event you are subscribed to ({{items_list}}):",
-      "updated_generic": "Here is the updated event:",
+      "purpose_with_items": "<b>{{user}}</b> updated an event you are subscribed to ({{items_list}}):",
       "item_names": {
         "title": "title",
         "content": "content",
