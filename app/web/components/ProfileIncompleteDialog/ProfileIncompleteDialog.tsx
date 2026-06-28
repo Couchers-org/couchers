@@ -70,9 +70,6 @@ export default function ProfileIncompleteDialog({
         <Button component={Link} href={routeToEditProfile()}>
           {t("profile:complete_profile_dialog.edit_profile_button")}
         </Button>
-        <Button component={Link} href={routeToEditProfile()}>
-          {t("dashboard:complete_profile_dialog.edit_profile_button")}
-        </Button>
       </DialogActions>
     </Dialog>
   );

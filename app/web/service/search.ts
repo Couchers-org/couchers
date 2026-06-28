@@ -187,6 +187,7 @@ export async function EventSearch({
   searchLocation,
   attending,
   organizing,
+  excludeAttending,
 }: {
   pageNumber: number;
   pageSize: number;
@@ -196,6 +197,7 @@ export async function EventSearch({
   searchLocation?: GeocodeResult | "";
   attending?: boolean;
   organizing?: boolean;
+  excludeAttending?: boolean;
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
@@ -231,6 +233,9 @@ export async function EventSearch({
   }
   if (organizing !== undefined) {
     req.setOrganizing(organizing);
+  }
+  if (excludeAttending !== undefined) {
+    req.setExcludeAttending(excludeAttending);
   }
 
   const res = await client.search.eventSearch(req);

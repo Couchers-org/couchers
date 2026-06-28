@@ -24,12 +24,7 @@ export default function FriendActions({
     user.pendingFriendRequest &&
     user.pendingFriendRequest.sent === false
   ) {
-    return (
-      <PendingFriendReqButton
-        friendRequest={user.pendingFriendRequest}
-        setMutationError={setMutationError}
-      />
-    );
+    return <PendingFriendReqButton friendRequest={user.pendingFriendRequest} />;
   } else {
     return null;
   }

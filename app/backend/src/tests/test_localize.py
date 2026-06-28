@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import babel
 
-from couchers.i18n.localize import localize_date, localize_datetime, localize_time, localize_timezone
+from couchers.i18n.localize import localize_date, localize_datetime, localize_list, localize_time, localize_timezone
 
 babel_en = babel.Locale.parse("en")
 babel_es = babel.Locale.parse("es")
@@ -34,3 +34,10 @@ def test_localize_datetime() -> None:
 def test_localize_timezone() -> None:
     assert localize_timezone(ZoneInfo("Europe/London"), babel_en) == "United Kingdom Time"
     assert localize_timezone(ZoneInfo("Europe/London"), babel_es) == "hora de Reino Unido"
+
+
+def test_localize_list() -> None:
+    abc = ["a", "b", "c"]
+    assert localize_list(abc, babel_en) == "a, b, and c"
+    assert localize_list(abc, babel_es) == "a, b y c"
+    assert localize_list(abc, babel_zh) == "a、b和c"

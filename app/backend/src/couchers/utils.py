@@ -35,7 +35,7 @@ from couchers.crypto import (
 )
 from couchers.proto.internal import internal_pb2
 
-_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX)
+_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX, regex.UNICODE)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
