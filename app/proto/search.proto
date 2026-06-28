@@ -263,6 +263,8 @@ message EventSearchReq {
     string page_token = 11;
     uint32 page_number = 18;
   }
+    // exclude events the user is already attending or organizing (useful with my_communities)
+  bool exclude_attending = 19;
 }
 
 message EventSearchRes {
