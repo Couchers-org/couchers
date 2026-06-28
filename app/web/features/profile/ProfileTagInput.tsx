@@ -272,7 +272,7 @@ export default function ProfileTagInput({
             disablePortal
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
-              .sort((a, b) => a.label.localeCompare(b.label))}
+              .sort((a, b) => a.label.localeCompare(b.label, i18n.language))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
