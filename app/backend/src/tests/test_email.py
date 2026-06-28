@@ -422,7 +422,7 @@ This is a security email, you cannot unsubscribe from it.
 """
         )
 
-        assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
+        assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
         assert email.sender_name == "Couchers.org"
         assert email.sender_email == "notify@couchers.org.invalid"
         assert email.recipient == "testing@couchers.org.invalid"
