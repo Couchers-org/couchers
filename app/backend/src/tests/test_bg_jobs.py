@@ -1199,7 +1199,7 @@ def test_send_host_request_reminders(db, moderator):
         (
             "user2@couchers.org.invalid",
             "[TEST] You have a pending host request from User 1",
-            ("Please respond to the request!", "User 1"),
+            ("User 1", "is waiting for your response"),
         )
     ]
 

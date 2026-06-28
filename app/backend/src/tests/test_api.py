@@ -966,7 +966,7 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
 
     email = email_collector.pop_for_recipient(user1.email, last=True)
     assert email.recipient == user1.email
-    assert email.subject == f"[TEST] {user2.name} accepted your friend request!"
+    assert email.subject == f"[TEST] {user2.name} accepted your friend request"
     assert user1.name in email.plain
     assert user1.name in email.html
     assert user2.name in email.plain

@@ -727,7 +727,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     email = email_collector.pop_for_recipient(user.email, last=True)
     assert email.recipient == user.email
     assert "account has been deleted" in email.subject.lower()
-    unique_string = "You have successfully deleted your account from Couchers.org."
+    unique_string = "You have successfully deleted your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "7 days" in email.plain
