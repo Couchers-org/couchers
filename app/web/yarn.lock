@@ -6433,10 +6433,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libphonenumber-js@^1.12.37:
-  version "1.12.38"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.38.tgz#51e70b23cc1f5502e15c56b8ff09c71a91b86c66"
-  integrity sha512-vwzxmasAy9hZigxtqTbFEwp8ZdZ975TiqVDwj5bKx5sR+zi5ucUQy9mbVTkKM9GzqdLdxux/hTw2nmN5J7POMA==
+libphonenumber-js@^1.13.4:
+  version "1.13.7"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.13.7.tgz#ca52f8f5e3e70a66cde0655e7d4dbe0c44cadfd2"
+  integrity sha512-rvr3HIMdOgzhz1RFGjftji+wjoAFlzhqCNqJOU/MKTZQ8d9NZxAR/tI+0weDicyoucqVR0U1GCniqHJ0f8aM2A==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -7543,15 +7543,15 @@ react-map-gl@^8.1.1:
     "@vis.gl/react-mapbox" "8.1.1"
     "@vis.gl/react-maplibre" "8.1.1"
 
-react-phone-number-input@^3.4.16:
-  version "3.4.16"
-  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.16.tgz#e442cdb790ce3138c14e1a705b4e254528855aff"
-  integrity sha512-ix1+SIyGuLxnlAeW+XQNhwOmmDd4Zmr6Ng1eQl0E2XS8xIuue3gdZeBG4LGTMjTIFneOTO9pUPL+AEDhV6+r+A==
+react-phone-number-input@^3.4.17:
+  version "3.4.17"
+  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.17.tgz#f528d5c50dcdf85a9022ba9e593cd72d03f0997e"
+  integrity sha512-1wcjhBAWHgEBAGLi5/XbeZI7Q3aEHNb2z/dHY6R2Gz70TQvu0ZoOT28NTdwtZf4lyRKXWufnTzVhLPBUD8LfmQ==
   dependencies:
     classnames "^2.5.1"
     country-flag-icons "^1.6.14"
     input-format "^0.3.14"
-    libphonenumber-js "^1.12.37"
+    libphonenumber-js "^1.13.4"
     prop-types "^15.8.1"
 
 react-simple-maps@^3.0.0:
