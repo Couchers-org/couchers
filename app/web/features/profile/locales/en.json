@@ -5,8 +5,6 @@
     "add_friend": "Add friend",
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
-    "accept_friend_label": "Accept",
-    "decline_friend_label": "Decline",
     "request": "Request"
   },
   "heading": {
@@ -256,8 +254,6 @@
     "hosted": "Hosted",
     "surfed": "Guest"
   },
-  "accept_friend_label": "Accept friend request",
-  "decline_friend_label": "Decline friend request",
   "no_references": "No references of this kind yet!",
   "references_filter_a11y_label": "Show references: ",
   "see_more_references": "See more references",

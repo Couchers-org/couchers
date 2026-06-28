@@ -3,27 +3,17 @@ import { regionsKey } from "features/queryKeys";
 import { service } from "service";
 
 export const useRegions = () => {
-  const { data, ...rest } = useQuery({
+  const { data: regions, ...rest } = useQuery({
     queryKey: [regionsKey],
     queryFn: () =>
-      service.resources.getRegions().then((result) =>
-        result.regionsList.reduce(
-          (regionsResult, { alpha3, name }) => {
-            regionsResult.regions[alpha3] = name;
-            regionsResult.regionsLookup[name] = alpha3;
-            return regionsResult;
-          },
-          {
-            regions: {} as { [code: string]: string },
-            regionsLookup: {} as { [name: string]: string },
-          },
+      service.resources
+        .getRegions()
+        .then((result) =>
+          Object.fromEntries(
+            result.regionsList.map(({ alpha3, name }) => [alpha3, name]),
+          ),
         ),
-      ),
   });
 
-  return {
-    regions: data?.regions,
-    regionsLookup: data?.regionsLookup,
-    ...rest,
-  };
+  return { regions, ...rest };
 };

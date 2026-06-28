@@ -1,8 +1,6 @@
 {
   "actions": {
     "message_label": "資訊",
-    "accept_friend_label": "接受",
-    "decline_friend_label": "拒絕",
     "request": "請求",
     "back_to_dashboard": "回到個人主頁"
   },
@@ -233,8 +231,6 @@
     "hosted": "已接待",
     "surfed": "客人"
   },
-  "accept_friend_label": "接受好友請求",
-  "decline_friend_label": "拒絕好友請求",
   "no_references": "還沒有此類評語！",
   "references_filter_a11y_label": "顯示評語：",
   "see_more_references": "查看更多評語",

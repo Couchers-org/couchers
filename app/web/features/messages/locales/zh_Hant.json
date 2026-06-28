@@ -166,7 +166,6 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "來自{{user}}的請求- {{status}}",
     "title_for_surfer": "向{{user}}發出的請求- {{status}}",
-    "request_duration_one": "{{count}}晚",
     "request_duration_other": "{{count}}晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",
