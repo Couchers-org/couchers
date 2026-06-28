@@ -63,6 +63,10 @@ message PublicTrip {
   optional int32 offers_count = 11;
   // Display name of the community this trip belongs to
   string community_name = 12;
+  // The id of the viewer's own non-cancelled host request (offer) on this trip,
+  // or 0 if they haven't offered. Lets the client show an "already offered"
+  // state and link to the existing thread. Not set for the trip owner.
+  int64 viewer_host_request_id = 13;
 }
 
 message CreatePublicTripReq {

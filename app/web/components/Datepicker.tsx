@@ -180,6 +180,12 @@ const Datepicker = ({
                       "aria-label": ariaLabel,
                     },
                   },
+                  // Shrink the calendar button so its circular hover/ripple stays
+                  // within the input's content box instead of overlapping the
+                  // (standard variant) underline.
+                  openPickerButton: {
+                    size: "small",
+                  },
                 },
               })}
         />

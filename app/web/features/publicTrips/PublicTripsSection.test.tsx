@@ -1,6 +1,14 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mockRouter from "next-router-mock";
 import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
+import { routeToHostRequest } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import publicTripsFixture from "test/fixtures/publicTrips.json";
@@ -36,6 +44,10 @@ const updatePublicTripMock = service.publicTrips
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
+const createHostRequestMock = service.requests
+  .createHostRequest as MockedService<
+  typeof service.requests.createHostRequest
+>;
 
 // Use a real fixture description to satisfy the 150-utf16 min-length check.
 const VALID_DESCRIPTION = publicTrips[0].description;
@@ -52,6 +64,17 @@ function dateOffset(days: number) {
   return {
     keystrokes: `${mm}${dd}${yyyy}`,
     isoDate: `${yyyy}-${mm}-${dd}`,
+  };
+}
+
+// The fixture trips use static (now-past) dates; an offerable trip must be
+// active and in the future so its Offer-to-host button isn't dimmed/disabled.
+function activeTrip(trip: PublicTrip.AsObject): PublicTrip.AsObject {
+  return {
+    ...trip,
+    status: PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+    fromDate: dateOffset(7).isoDate,
+    toDate: dateOffset(14).isoDate,
   };
 }
 
@@ -401,8 +424,125 @@ describe("PublicTripsSection", () => {
   });
 
   describe("offer to host", () => {
-    it.todo(
-      "opens the host-request form and submits createHostRequest with public_trip_id linked",
-    );
+    it("shows an 'Already offered' link to the thread on trips the viewer has offered on, and an enabled 'Offer to host' on the rest", async () => {
+      const VIEWER_HOST_REQUEST_ID = 555;
+      // Trip 1: the viewer already has an offer (host request 555).
+      // Trip 2: no offer (viewerHostRequestId 0).
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: [
+          {
+            ...activeTrip(publicTrips[0]),
+            viewerHostRequestId: VIEWER_HOST_REQUEST_ID,
+          },
+          { ...activeTrip(publicTrips[1]), viewerHostRequestId: 0 },
+        ],
+        nextPageToken: "",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      // Wait for the cards to render.
+      await screen.findByRole("link", {
+        name: t("publicTrips:already_offered"),
+      });
+      const tripAlreadyOffered = document.getElementById("trip-1")!;
+      // It's a link to the existing offer thread, not an offer button.
+      const link = within(tripAlreadyOffered).getByRole("link", {
+        name: t("publicTrips:already_offered"),
+      });
+      expect(link).toHaveAttribute(
+        "href",
+        routeToHostRequest(VIEWER_HOST_REQUEST_ID),
+      );
+      expect(
+        within(tripAlreadyOffered).queryByRole("button", {
+          name: t("publicTrips:offer_to_host"),
+        }),
+      ).not.toBeInTheDocument();
+
+      // A different active trip the viewer hasn't offered on shows an enabled
+      // offer button.
+      const tripNotOffered = document.getElementById("trip-2")!;
+      expect(
+        within(tripNotOffered).getByRole("button", {
+          name: t("publicTrips:offer_to_host"),
+        }),
+      ).toBeEnabled();
+    });
+
+    it("opens the offer form and submits createHostRequest with the public trip linked, then redirects to the thread", async () => {
+      const HOST_REQUEST_ID = 99;
+      createHostRequestMock.mockResolvedValue(HOST_REQUEST_ID);
+      // A single active trip owned by user 2.
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: [activeTrip(publicTrips[0])],
+        nextPageToken: "",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+      const user = userEvent.setup();
+
+      // Trip 1 is owned by user 2, so the default user (1) sees the offer button.
+      await screen.findAllByRole("button", {
+        name: t("publicTrips:offer_to_host"),
+      });
+      const tripCard = document.getElementById("trip-1")!;
+      await user.click(
+        within(tripCard).getByRole("button", {
+          name: t("publicTrips:offer_to_host"),
+        }),
+      );
+
+      const dialog = await screen.findByRole("dialog");
+      // Dates are pre-filled from the trip; just supply a long enough message.
+      const message = within(dialog).getByLabelText(
+        t("publicTrips:offer_dialog_message_label"),
+        { selector: "textarea" },
+      );
+      const text = "a".repeat(260);
+      fireEvent.change(message, { target: { value: text } });
+
+      await user.click(
+        within(dialog).getByRole("button", {
+          name: t("publicTrips:offer_dialog_submit"),
+        }),
+      );
+
+      await waitFor(() => {
+        expect(createHostRequestMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            hostUserId: 2,
+            publicTripId: 1,
+            text,
+          }),
+        );
+      });
+      // Redirects to the created host request thread.
+      await waitFor(() => {
+        expect(mockRouter.asPath).toBe(routeToHostRequest(HOST_REQUEST_ID));
+      });
+    });
+
+    it("disables the offer button on a closed or past trip", async () => {
+      // Closed/past trips are normally filtered out of the list, but guard the
+      // race where a trip closes/expires while its card is on screen.
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: [
+          {
+            ...publicTrips[0],
+            status: PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED,
+          },
+        ],
+        nextPageToken: "",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      expect(
+        await screen.findByRole("button", {
+          name: t("publicTrips:offer_to_host"),
+        }),
+      ).toBeDisabled();
+    });
   });
 });
