@@ -664,7 +664,9 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence_update["photo_key"] = request.photo_key.value
 
         if request.HasField("offline_information"):
-            notify_updated.append(notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION))
+            notify_updated.append(
+                notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
+            )
             occurrence_update["link"] = None
             if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
