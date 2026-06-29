@@ -783,7 +783,7 @@ def test_event_created_event(db):
             events_pb2.CreateEventReq(
                 title="Test Meetup",
                 content="Let's hang out",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="123 Main St",
                     lat=0.1,
                     lng=0.2,

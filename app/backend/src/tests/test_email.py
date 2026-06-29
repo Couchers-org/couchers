@@ -513,7 +513,7 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
                 content="Dummy content.",
                 photo_key=None,
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

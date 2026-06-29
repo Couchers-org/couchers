@@ -228,7 +228,7 @@ export default function EventListRow({ event }: EventListRowProps) {
           </MetaItem>
           <MetaItem>
             <Place sx={{ fontSize: "12px" }} />
-            <MetaText>{event.offlineInformation?.address}</MetaText>
+            <MetaText>{event.location?.address}</MetaText>
           </MetaItem>
         </MetaLine>
       </ContentWrapper>

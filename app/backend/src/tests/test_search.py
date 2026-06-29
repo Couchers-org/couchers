@@ -412,7 +412,7 @@ def sample_event_data() -> dict[str, Any]:
         "title": "Dummy Title",
         "content": "Dummy content.",
         "photo_key": None,
-        "offline_information": events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+        "location": events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
         "start_time": Timestamp_from_datetime(start_time),
         "end_time": Timestamp_from_datetime(end_time),
         "timezone": "UTC",
@@ -517,7 +517,7 @@ def test_event_search_by_circle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Inside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
             )
 
         outside_pts = [(1, 0.1), (0.1, 1), (10, 1)]
@@ -525,7 +525,7 @@ def test_event_search_by_circle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Outside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
             )
 
     with search_session(token) as api:
@@ -544,7 +544,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Inside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
             )
 
         outside_pts = [(-1, 0.1), (0.1, 0.01), (-0.01, 0.01), (0.1, 1.2), (10, 1)]
@@ -552,7 +552,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Outside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
             )
 
     with search_session(token) as api:
@@ -676,7 +676,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(
         create_event(
             api,
             title="Other community event",
-            offline_information=events_pb2.OfflineEventInformation(lat=58, lng=1, address="Somewhere"),
+            location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
         )
 
     # Approve all events so they're visible to other users
@@ -742,7 +742,7 @@ def test_event_search_exclude_attending(sample_community, create_event, moderato
         create_event(
             api,
             title="Other community event",
-            offline_information=events_pb2.OfflineEventInformation(lat=58, lng=1, address="Somewhere"),
+            location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
         )
 
     with session_scope() as session:

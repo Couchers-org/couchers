@@ -8,13 +8,13 @@ import {
   AttendanceState,
   CancelEventReq,
   CreateEventReq,
+  EventLocation,
   GetEventReq,
   InviteEventOrganizerReq,
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   ListMyEventsReq,
-  OfflineEventInformation,
   RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
@@ -139,11 +139,11 @@ export async function createEvent(input: CreateEventInput) {
     req.setPhotoKey(input.photoKey);
   }
 
-  const offlineEventInfo = new OfflineEventInformation();
-  offlineEventInfo.setAddress(input.address);
-  offlineEventInfo.setLat(input.lat);
-  offlineEventInfo.setLng(input.lng);
-  req.setOfflineInformation(offlineEventInfo);
+  const location = new EventLocation();
+  location.setAddress(input.address);
+  location.setLat(input.lat);
+  location.setLng(input.lng);
+  req.setLocation(location);
 
   if (input.parentCommunityId) {
     req.setParentCommunityId(input.parentCommunityId);
@@ -180,11 +180,11 @@ export async function updateEvent(input: UpdateEventInput) {
   }
 
   if (input.address && input.lat && input.lng) {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+    const location = new EventLocation();
+    location.setAddress(input.address);
+    location.setLat(input.lat);
+    location.setLng(input.lng);
+    req.setLocation(location);
   }
 
   if (input.shouldNotify) {

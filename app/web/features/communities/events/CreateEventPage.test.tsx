@@ -71,7 +71,7 @@ describe("Create event page", () => {
     jest.useRealTimers();
   });
 
-  it("creates on offline event with no route state correctly", async () => {
+  it("creates on event with no route state correctly", async () => {
     renderPageWithState();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -163,7 +163,7 @@ describe("Create event page", () => {
     });
   });
 
-  it("creates on offline event with route state correctly", async () => {
+  it("creates on event with route state correctly", async () => {
     renderPageWithState({ communityId: 99 });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });

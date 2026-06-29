@@ -149,15 +149,15 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         )
     ).scalar_one()
 
-    offline_information: events_pb2.OfflineEventInformation
+    location: events_pb2.EventLocation
     if occurrence.geom:
-        offline_information = events_pb2.OfflineEventInformation(
+        location = events_pb2.EventLocation(
             lat=not_none(occurrence.coordinates)[0], lng=not_none(occurrence.coordinates)[1], address=occurrence.address
         )
     else:
         # Backcompat: Surface legacy online events as offline events.
         # They'll appear at null island, but there are so few we're ok with this.
-        offline_information = events_pb2.OfflineEventInformation(address=occurrence.link, lat=0, lng=0)
+        location = events_pb2.EventLocation(address=occurrence.link, lat=0, lng=0)
 
     return events_pb2.Event(
         event_id=occurrence.id,
@@ -169,7 +169,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
         photo_key=occurrence.photo_key or "",
-        offline_information=offline_information,
+        location=location,
         created=Timestamp_from_datetime(occurrence.created),
         last_edited=Timestamp_from_datetime(occurrence.last_edited),
         creator_user_id=occurrence.creator_user_id,
@@ -404,16 +404,13 @@ class Events(events_pb2_grpc.EventsServicer):
 
         # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
         if not (
-            request.HasField("offline_information")
-            and request.offline_information.address
-            and request.offline_information.lat
-            and request.offline_information.lng
+            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-        if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+        if request.location.lat == 0 and request.location.lng == 0:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-        geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-        address = request.offline_information.address
+        geom = create_coordinate(request.location.lat, request.location.lng)
+        address = request.location.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -538,16 +535,13 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
         if not (
-            request.HasField("offline_information")
-            and request.offline_information.address
-            and request.offline_information.lat
-            and request.offline_information.lng
+            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-        if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+        if request.location.lat == 0 and request.location.lng == 0:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-        geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-        address = request.offline_information.address
+        geom = create_coordinate(request.location.lat, request.location.lng)
+        address = request.location.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -663,15 +657,13 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
-        if request.HasField("offline_information"):
+        if request.HasField("location"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
             occurrence_update["link"] = None
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+            if request.location.lat == 0 and request.location.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            occurrence_update["geom"] = create_coordinate(
-                request.offline_information.lat, request.offline_information.lng
-            )
-            occurrence_update["address"] = request.offline_information.address
+            occurrence_update["geom"] = create_coordinate(request.location.lat, request.location.lng)
+            occurrence_update["address"] = request.location.address
 
         if request.HasField("start_time") or request.HasField("end_time"):
             if request.update_all_future:

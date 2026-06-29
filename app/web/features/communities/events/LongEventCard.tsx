@@ -191,7 +191,7 @@ const LongEventCard = ({
 
           <Row>
             <EventInfo>
-              {event.offlineInformation?.address}
+              {event.location?.address}
               <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>

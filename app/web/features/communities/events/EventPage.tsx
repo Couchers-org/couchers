@@ -344,7 +344,7 @@ export default function EventPage({
               <StyledTitle>
                 <Typography variant="h1">{event.title}</Typography>
                 <StyledEventTypeText variant="body1">
-                  {event.offlineInformation?.address}
+                  {event.location?.address}
                 </StyledEventTypeText>
                 {event.isCancelled && (
                   <StyledCancelledChip label={t("communities:cancelled")} />

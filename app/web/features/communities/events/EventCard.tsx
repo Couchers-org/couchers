@@ -200,7 +200,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               maxWidth: "25em",
             }}
           >
-            {event.offlineInformation?.address}
+            {event.location?.address}
           </Typography>
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />

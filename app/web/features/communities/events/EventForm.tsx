@@ -109,14 +109,11 @@ export default function EventForm({
   });
 
   const locationDefaultValue = useRef(
-    event?.offlineInformation
+    event?.location
       ? {
-          name: event.offlineInformation.address,
-          simplifiedName: event.offlineInformation.address,
-          location: new LngLat(
-            event.offlineInformation.lng,
-            event.offlineInformation.lat,
-          ),
+          name: event.location.address,
+          simplifiedName: event.location.address,
+          location: new LngLat(event.location.lng, event.location.lat),
           bbox: [0, 0, 0, 0] as Coordinates,
         }
       : ("" as const),
