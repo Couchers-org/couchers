@@ -124,7 +124,7 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
 
     def localize(key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         key = full_string_key(key, relative_base="generic.footer")
-        return i18n.localize_with_markup(key, loc_context.locale, substitutions)
+        return i18n.localize_with_markup(key, loc_context.locale_list, substitutions)
 
     args: dict[str, Any] = {
         "received_because": localize(".received_because"),
