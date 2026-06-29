@@ -30,6 +30,7 @@ import {
   missionRoute,
   newsletterSignupURL,
   planRoute,
+  pressRoute,
   roadmapRoute,
   shopRoute,
   teamRoute,
@@ -188,6 +189,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={roadmapRoute}>
               {t("nav.roadmap_updates")}
             </FooterLink>
+            <FooterLink href={pressRoute}>{t("nav.press")}</FooterLink>
           </div>
           <div>
             <Typography variant="h4" component="h4">

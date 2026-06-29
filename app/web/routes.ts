@@ -40,6 +40,7 @@ export const contactRoute = "/contact";
 export const roadmapRoute = "/roadmap";
 export const shopRoute = "/shop";
 export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
+export const pressRoute = "/press";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
