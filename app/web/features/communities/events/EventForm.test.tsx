@@ -158,7 +158,7 @@ describe("Event form", () => {
   });
 
   it("renders the image input for an event with no photo correctly", async () => {
-    renderForm(events[2], true);
+    renderForm(events[1], true);
 
     expect(
       await screen.findByRole("img", {

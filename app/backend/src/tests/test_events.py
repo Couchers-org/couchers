@@ -1781,7 +1781,11 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
         return events_pb2.CreateEventReq(
             title="Test Event",
             content="Test content.",
-            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+            offline_information=events_pb2.OfflineEventInformation(
+                address="Near Null Island",
+                lat=0.1,
+                lng=0.2,
+            ),
             parent_community_id=c_id,
             timezone="UTC",
             start_time=Timestamp_from_datetime(start + timedelta(hours=hours)),

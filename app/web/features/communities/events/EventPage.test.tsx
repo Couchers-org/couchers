@@ -25,7 +25,7 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const [firstEvent, _, thirdEvent] = events;
+const [firstEvent, secondEvent] = events;
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
@@ -137,8 +137,8 @@ describe("Event page", () => {
   });
 
   it("renders an event with a different start and end day correctly", async () => {
-    getEventMock.mockResolvedValue(thirdEvent);
-    renderEventPage(thirdEvent.eventId, thirdEvent.slug);
+    getEventMock.mockResolvedValue(secondEvent);
+    renderEventPage(secondEvent.eventId, secondEvent.slug);
 
     expect(
       await screen.findByText(
