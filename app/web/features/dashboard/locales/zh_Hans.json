@@ -45,8 +45,7 @@
     "your_upcoming_header": "您即将参加的活动",
     "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前没有活动。何不<0>创建</0>一个✨？",
-    "community_header": "您所在社区的活动",
-    "location_online_label": "线上"
+    "community_header": "您所在社区的活动"
   },
   "reminder": {
     "respond_to_host_request": {
