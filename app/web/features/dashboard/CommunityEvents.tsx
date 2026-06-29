@@ -54,6 +54,7 @@ export default function CommunityEvents() {
         pageSize: 3,
         myCommunities: true,
         myCommunitiesExcludeGlobal: true,
+        excludeAttending: true,
       }),
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,

@@ -134,6 +134,7 @@ export function useEventSearch({
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
+  excludeAttending,
 }: {
   pageNumber: number;
   pageSize: number;
@@ -143,6 +144,7 @@ export function useEventSearch({
   searchLocation?: GeocodeResult | "";
   attending?: boolean;
   organizing?: boolean;
+  excludeAttending?: boolean;
 }) {
   return useQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [
@@ -152,6 +154,7 @@ export function useEventSearch({
       pageNumber,
       pastEvents,
       searchLocation,
+      excludeAttending,
     ],
     queryFn: () =>
       service.search.EventSearch({
@@ -161,6 +164,7 @@ export function useEventSearch({
         isMyCommunities,
         isOnlineOnly,
         searchLocation,
+        excludeAttending,
       }),
   });
 }
