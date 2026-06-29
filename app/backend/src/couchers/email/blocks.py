@@ -51,7 +51,7 @@ class EmailBase(ABC):
         default_closing: bool = True,
         security_warning: bool = False,
     ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locale=loc_context.locale_list, string_key_base=self.string_key_base)
+        builder = EmailBlocksBuilder(locales=loc_context.locale_list, string_key_base=self.string_key_base)
         if default_greeting:
             builder.para("generic.greeting_line", {"name": self.user_name})
         if security_warning:
