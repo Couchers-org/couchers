@@ -769,7 +769,7 @@ def test_friend_reference_event(db):
 
 
 def test_event_created_event(db):
-    """Creating an event logs event.created with community info and online status."""
+    """Creating an event logs event.created with community info."""
     user, token = generate_user()
 
     with session_scope() as session:
@@ -803,7 +803,6 @@ def test_event_created_event(db):
         assert e.properties["occurrence_id"] is not None
         assert e.properties["parent_community_id"] is not None
         assert e.properties["parent_community_name"] is not None
-        assert e.properties["online"] is False
 
 
 # ===== Integration tests: password change =====

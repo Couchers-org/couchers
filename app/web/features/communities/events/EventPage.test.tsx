@@ -25,7 +25,7 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const [firstEvent, secondEvent, thirdEvent] = events;
+const [firstEvent, secondEvent] = events;
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
@@ -136,22 +136,9 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
-  it("renders an online event successfully", async () => {
+  it("renders an event with a different start and end day correctly", async () => {
     getEventMock.mockResolvedValue(secondEvent);
     renderEventPage(secondEvent.eventId, secondEvent.slug);
-
-    // Should be identical in structure as first test, so only assert on things that are different
-    expect(
-      await screen.findByText(t("communities:virtual_event")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: t("communities:event_link") }),
-    ).toBeVisible();
-  });
-
-  it("renders an event with a different start and end day correctly", async () => {
-    getEventMock.mockResolvedValue(thirdEvent);
-    renderEventPage(thirdEvent.eventId, thirdEvent.slug);
 
     expect(
       await screen.findByText(

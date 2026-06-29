@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { routeToEvent, routeToNewEvent } from "routes";
+import { routeToNewEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
@@ -69,106 +69,6 @@ describe("Create event page", () => {
 
   afterEach(() => {
     jest.useRealTimers();
-  });
-
-  it("renders and creates an online event successfully", async () => {
-    render(<CreateEventPage />, { wrapper });
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    const titleInput = (await screen.findByLabelText(
-      t("communities:event_title_label"),
-    )) as HTMLInputElement;
-
-    await user.type(titleInput, "Test event");
-
-    expect(titleInput).toHaveValue("Test event");
-
-    const startDateGroup = await screen.findByRole("group", {
-      name: t("communities:start_date"),
-    });
-
-    await user.click(startDateGroup);
-    await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
-
-    expect(startDateGroup).toHaveTextContent("08/01/2021");
-
-    const startTimeGroup = await screen.findByRole("group", {
-      name: t("communities:start_time"),
-    });
-
-    await user.click(startTimeGroup);
-    await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("01:00 AM");
-
-    expect(startTimeGroup).toHaveTextContent("01:00 am");
-
-    const endDateGroup = await screen.findByRole("group", {
-      name: t("communities:end_date"),
-    });
-
-    await user.click(endDateGroup);
-    await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
-
-    expect(endDateGroup).toHaveTextContent("08/01/2021");
-
-    const endTimeGroup = await screen.findByRole("group", {
-      name: t("communities:end_time"),
-    });
-
-    await user.click(endTimeGroup);
-    await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("02:00 AM");
-
-    expect(endTimeGroup).toHaveTextContent("02:00 am");
-
-    const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
-
-    await user.click(virtualEventCheckBox);
-
-    expect(virtualEventCheckBox.checked).toBe(true);
-
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
-    )) as HTMLInputElement;
-
-    await user.type(eventLinkInput, "https://couchers.org/social");
-
-    expect(screen.getByLabelText(t("communities:event_link"))).toHaveValue(
-      "https://couchers.org/social",
-    );
-
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
-
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
-
-    expect(createEventMock).toHaveBeenCalledTimes(1);
-
-    expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: true,
-      title: "Test event",
-      content: "sick social!",
-      photoKey: undefined,
-      startTime: new Date("2021-08-01 01:00 AM"),
-      endTime: new Date("2021-08-01 02:00 AM"),
-      parentCommunityId: 1,
-      link: "https://couchers.org/social",
-    });
-
-    // Verifies that success re-directs user
-    expect(mockRouter.pathname).toBe(routeToEvent(1, "weekly-meetup"));
   });
 
   it("creates on offline event with no route state correctly", async () => {
@@ -252,7 +152,6 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
       lat: 2,
       lng: 1,
       address: "test city, test county, test country",
@@ -345,7 +244,6 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
     expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
       lat: 2,
       lng: 1,
       address: "test city, test county, test country",

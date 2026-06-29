@@ -183,7 +183,6 @@ export async function EventSearch({
   pageSize,
   pastEvents,
   isMyCommunities,
-  isOnlineOnly,
   searchLocation,
   attending,
   organizing,
@@ -193,7 +192,6 @@ export async function EventSearch({
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
-  isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
   attending?: boolean;
   organizing?: boolean;
@@ -224,9 +222,6 @@ export async function EventSearch({
   }
   if (isMyCommunities !== undefined) {
     req.setMyCommunities(isMyCommunities);
-  }
-  if (isOnlineOnly !== undefined) {
-    req.setOnlyOnline(isOnlineOnly);
   }
   if (attending !== undefined) {
     req.setAttending(attending);

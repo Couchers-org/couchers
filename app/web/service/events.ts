@@ -15,7 +15,6 @@ import {
   ListEventOrganizersReq,
   ListMyEventsReq,
   OfflineEventInformation,
-  OnlineEventInformation,
   RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
@@ -121,23 +120,13 @@ interface EventInput {
   title: string;
   startTime: Date;
   endTime: Date;
-}
-
-interface OnlineEventInput extends EventInput {
-  isOnline: true;
-  parentCommunityId: number;
-  link: string;
-}
-
-interface OfflineEventInput extends EventInput {
-  isOnline: false;
   address: string;
   lat: number;
   lng: number;
   parentCommunityId?: number;
 }
 
-export type CreateEventInput = OnlineEventInput | OfflineEventInput;
+export type CreateEventInput = EventInput;
 
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
@@ -150,39 +139,25 @@ export async function createEvent(input: CreateEventInput) {
     req.setPhotoKey(input.photoKey);
   }
 
-  if (input.isOnline) {
-    const onlineEventInfo = new OnlineEventInformation();
-    onlineEventInfo.setLink(input.link);
-    req.setParentCommunityId(input.parentCommunityId);
-    req.setOnlineInformation(onlineEventInfo);
-  } else {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  const offlineEventInfo = new OfflineEventInformation();
+  offlineEventInfo.setAddress(input.address);
+  offlineEventInfo.setLat(input.lat);
+  offlineEventInfo.setLng(input.lng);
+  req.setOfflineInformation(offlineEventInfo);
 
-    if (input.parentCommunityId) {
-      req.setParentCommunityId(input.parentCommunityId);
-    }
+  if (input.parentCommunityId) {
+    req.setParentCommunityId(input.parentCommunityId);
   }
 
   const res = await client.events.createEvent(req);
   return res.toObject();
 }
 
-export interface UpdateOnlineEventInput
-  extends Partial<Omit<OnlineEventInput, "parentCommunityId">> {
-  isOnline: true;
+export interface UpdateEventInput
+  extends Partial<Omit<EventInput, "parentCommunityId">> {
+  eventId: number;
+  shouldNotify: boolean;
 }
-export interface UpdateOfflineEventInput
-  extends Partial<Omit<OfflineEventInput, "parentCommunityId">> {
-  isOnline: false;
-}
-export type UpdateEventInput = (
-  | UpdateOnlineEventInput
-  | UpdateOfflineEventInput
-) & { eventId: number; shouldNotify: boolean };
 
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
@@ -204,13 +179,7 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setPhotoKey(new StringValue().setValue(input.photoKey));
   }
 
-  if (input.isOnline) {
-    if (input.link) {
-      const onlineEventInfo = new OnlineEventInformation();
-      onlineEventInfo.setLink(input.link);
-      req.setOnlineInformation(onlineEventInfo);
-    }
-  } else if (input.address && input.lat && input.lng) {
+  if (input.address && input.lat && input.lng) {
     const offlineEventInfo = new OfflineEventInformation();
     offlineEventInfo.setAddress(input.address);
     offlineEventInfo.setLat(input.lat);

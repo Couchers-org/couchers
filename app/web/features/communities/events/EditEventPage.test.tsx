@@ -6,6 +6,7 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
+import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EditEventPage from "./EditEventPage";
@@ -37,6 +38,14 @@ function renderPage() {
 }
 
 describe("Edit event page", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     getEventMock.mockResolvedValue(events[0]);
     updateEventMock.mockResolvedValue(events[0]);
@@ -64,29 +73,26 @@ describe("Edit event page", () => {
 
     expect(titleField).toHaveValue("Weekly Meetup in the dam");
 
-    const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event"),
+    const locationInput = screen.getByLabelText(
+      t("communities:location"),
     ) as HTMLInputElement;
 
-    await user.click(virtualEventCheckBox);
+    await user.clear(locationInput);
+    await user.type(locationInput, "tes{enter}");
 
-    expect(virtualEventCheckBox.checked).toBe(true);
+    expect(locationInput).toHaveValue("tes");
 
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
-    )) as HTMLInputElement;
-
-    await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
-
-    expect(eventLinkInput).toHaveValue("https://couchers.org/amsterdam-social");
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
     await user.clear(eventDetails);
 
-    await user.type(eventDetails, "We are going virtual this week!");
+    await user.type(eventDetails, "Here are some more details!");
 
-    expect(eventDetails).toHaveValue("We are going virtual this week!");
+    expect(eventDetails).toHaveValue("Here are some more details!");
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),
@@ -106,10 +112,11 @@ describe("Edit event page", () => {
     // Check it only sends the updated field to the backend
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: true,
       title: "Weekly Meetup in the dam",
-      content: "We are going virtual this week!",
-      link: "https://couchers.org/amsterdam-social",
+      content: "Here are some more details!",
+      address: "test city, test county, test country",
+      lat: 2,
+      lng: 1,
       endTime: new Date("2021-07-01 03:37"),
     });
 
@@ -140,7 +147,6 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: false,
       startTime: new Date("2021-08-01 02:37"),
     });
   });
@@ -173,7 +179,6 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: false,
       startTime: new Date("2021-06-29 00:00"),
     });
   });

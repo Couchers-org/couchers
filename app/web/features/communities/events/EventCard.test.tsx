@@ -7,7 +7,8 @@ import EventCard from "./EventCard";
 
 const { t } = i18n;
 
-const [firstEvent, secondEvent, thirdEvent, cancelledEvent] = events;
+const [firstEvent, secondEvent] = events;
+const cancelledEvent = events[3];
 
 describe("Event card", () => {
   it("renders an offline event card details correctly with the same start and end day", async () => {
@@ -36,13 +37,13 @@ describe("Event card", () => {
   });
 
   it("renders an event card details correctly with a different start and end day", async () => {
-    render(<EventCard event={thirdEvent} />, { wrapper });
+    render(<EventCard event={secondEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: thirdEvent.title }),
+      screen.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(thirdEvent.offlineInformation!.address),
+      screen.getByText(secondEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
       screen.getByText(
@@ -51,31 +52,6 @@ describe("Event card", () => {
           normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
         },
       ),
-    ).toBeVisible();
-    expect(screen.getByText(String(thirdEvent.goingCount))).toBeVisible();
-    expect(
-      screen.getByText(
-        t("communities:comments_count", {
-          count: thirdEvent.thread?.numResponses,
-        }),
-      ),
-    ).toBeVisible();
-    expect(screen.getByText(thirdEvent.content)).toBeVisible();
-  });
-
-  it("renders an online event card details correctly", () => {
-    render(<EventCard event={secondEvent} />, { wrapper });
-
-    expect(
-      screen.getByRole("heading", { name: secondEvent.title }),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("communities:virtual_event_location_placeholder")),
-    ).toBeVisible();
-    expect(
-      screen.getByText("Tue, Jun 29, 2021, 9:00 – 10:00 PM", {
-        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
-      }),
     ).toBeVisible();
     expect(screen.getByText(String(secondEvent.goingCount))).toBeVisible();
     expect(

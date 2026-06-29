@@ -230,10 +230,7 @@ message EventSearchReq {
   // whether the query (if any) should only search through event title and not event description
   bool query_title_only = 3;
 
-  oneof online_status {
-    bool only_online = 12;
-    bool only_offline = 13;
-  }
+  reserved 12, 13; // Formerly only_online & only_offline. We don't have online events anymore.
 
   // all false => everything
   bool subscribed = 14;

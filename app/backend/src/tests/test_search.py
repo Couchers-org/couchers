@@ -654,33 +654,6 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
         assert res.total_items == 5
 
 
-def test_event_search_online_status(sample_community, create_event):
-    """Test that EventSearch respects only_online and only_offline filters and by default returns both."""
-    user, token = generate_user()
-
-    with events_session(token) as api:
-        create_event(api, title="Offline event")
-
-        create_event(
-            api,
-            title="Online event",
-            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
-            parent_community_id=sample_community,
-            offline_information=events_pb2.OfflineEventInformation(),
-        )
-
-    with search_session(token) as api:
-        res = api.EventSearch(search_pb2.EventSearchReq())
-        assert len(res.events) == 2
-        assert {event.title for event in res.events} == {"Offline event", "Online event"}
-
-        res = api.EventSearch(search_pb2.EventSearchReq(only_online=True))
-        assert {event.title for event in res.events} == {"Online event"}
-
-        res = api.EventSearch(search_pb2.EventSearchReq(only_offline=True))
-        assert {event.title for event in res.events} == {"Offline event"}
-
-
 def test_event_search_filter_subscription_attendance_organizing_my_communities(
     sample_community, create_event, moderator: Moderator
 ):
