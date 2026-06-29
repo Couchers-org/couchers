@@ -106,13 +106,17 @@ export default function MediaAssets() {
               href="/img/press/downloads/couchers-logo-assets.zip"
               download="couchers-logo-assets.zip"
               variant="outlined"
+              aria-label={t("download_logo_aria_label")}
             >
               {t("download_button")}
             </StyledButton>
           </StyledCard>
         </StyledSection>
         <StyledSection>
-          <StyledImage src="/img/press/mobile-image.webp" />
+          <StyledImage
+            src="/img/press/mobile-image.webp"
+            alt={t("mobile_image_alt")}
+          />
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
               {t("download_images_text")}
@@ -122,6 +126,7 @@ export default function MediaAssets() {
               href="/img/press/downloads/couchers-mobile-images.zip"
               download="couchers-mobile-images.zip"
               variant="outlined"
+              aria-label={t("download_mobile_images_aria_label")}
             >
               {t("download_button")}
             </StyledButton>

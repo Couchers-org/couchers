@@ -12,6 +12,7 @@ const articlesData = [
     bgColor: "#001d2e",
     padding: "1rem",
     publishedDate: "April 1, 2025",
+    dateTime: "2025-04-01",
     headline:
       "Couchsurfing vs. house sitting: how to stay for free around the world",
     href: "https://travelnoire.com/couchsurfing-house-sitting-travel",
@@ -22,6 +23,7 @@ const articlesData = [
     bgColor: "#1d1d1d",
     padding: "1rem",
     publishedDate: "October 6, 2022",
+    dateTime: "2022-10-06",
     headline: "The couchsurfing crossroads",
     href: "https://adventureuncovered.com/stories/the-couchsurfing-crossroads/",
   },
@@ -31,6 +33,7 @@ const articlesData = [
     bgColor: undefined,
     padding: undefined,
     publishedDate: "September 15, 2021",
+    dateTime: "2021-09-15",
     headline: "Paradise lost: The rise and ruin of Couchsurfing.com",
     href: "https://www.inverse.com/input/features/rise-and-ruin-of-couchsurfing",
   },
@@ -91,6 +94,7 @@ export default function PressCoverage() {
             bgColor,
             padding,
             publishedDate,
+            dateTime,
             headline,
             href,
           }) => (
@@ -108,9 +112,16 @@ export default function PressCoverage() {
                   padding={padding}
                 />
               </Box>
-              <Typography>{publishedDate}</Typography>
+              <Typography component="time" dateTime={dateTime}>
+                {publishedDate}
+              </Typography>
               <Typography fontSize="1.25rem">"{headline}"</Typography>
-              <Link href={href} target="_blank" rel="noopener noreferrer">
+              <Link
+                href={href}
+                aria-label={`${t("read_more")}: ${headline} ${t("opens_in_a_new_tab")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {t("read_more")}
               </Link>
             </StyledCard>
