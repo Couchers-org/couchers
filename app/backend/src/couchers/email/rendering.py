@@ -74,10 +74,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
             case ParaBlock():
                 concat.append(_to_plaintext(block.text))
             case UserBlock():
-                line = get_emails_i18next().localize(
+                line = loc_context.localize_string(
                     "plaintext_formats.user",
-                    loc_context.locale,
-                    {"name": block.info.name, "age": str(block.info.age), "city": block.info.city},
+                    i18next=get_emails_i18next(),
+                    substitutions={"name": block.info.name, "age": str(block.info.age), "city": block.info.city},
                 )
                 concat.append(line)
                 if block.comment:
@@ -87,8 +87,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
                 for line in block.text.splitlines():
                     concat.append(f"> {line}")
             case ActionBlock():
-                line = get_emails_i18next().localize(
-                    "plaintext_formats.action", loc_context.locale, {"text": block.text, "url": block.target_url}
+                line = loc_context.localize_string(
+                    "plaintext_formats.action",
+                    i18next=get_emails_i18next(),
+                    substitutions={"text": block.text, "url": block.target_url},
                 )
                 concat.append(line)
             case _:
@@ -122,7 +124,7 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
 
     def localize(key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         key = full_string_key(key, relative_base="generic.footer")
-        return i18n.localize_with_markup(key, loc_context.locale, substitutions)
+        return i18n.localize_with_markup(key, loc_context.locale_list, substitutions)
 
     args: dict[str, Any] = {
         "received_because": localize(".received_because"),

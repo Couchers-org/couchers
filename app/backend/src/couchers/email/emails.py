@@ -633,7 +633,7 @@ class EventInfo:
         html += time_range_display
         if self.online_link:
             html += "<br>"
-            online_link_text = get_emails_i18next().localize("events.generic.online_link", loc_context.locale)
+            online_link_text = loc_context.localize_string("events.generic.online_link", i18next=get_emails_i18next())
             html += f'<i><a href="{escape(self.online_link)}">{escape(online_link_text)}</a></i>'
         elif self.address:
             html += "<br>"
@@ -645,7 +645,7 @@ class EventInfo:
         return QuoteBlock(text=Markup(self.description_markdown), markdown=True)
 
     def get_view_action_block(self, loc_context: LocalizationContext) -> EmailBlock:
-        view_action_text = get_emails_i18next().localize("events.generic.view_action", loc_context.locale)
+        view_action_text = loc_context.localize_string("events.generic.view_action", i18next=get_emails_i18next())
         return ActionBlock(text=view_action_text, target_url=self.view_url)
 
     @classmethod

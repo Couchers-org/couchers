@@ -7,11 +7,11 @@ from zoneinfo import ZoneInfo
 import babel
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from couchers.i18n.i18next import I18Next
+from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import (
     DEFAULT_LOCALE,
     get_babel_locale,
-    get_locale_fallbacks,
+    get_locale_chain,
     get_main_i18next,
     is_supported_locale,
 )
@@ -52,7 +52,7 @@ class LocalizationContext:
             raise ValueError(f"Unsupported locale {locale}.")
 
         self.locale = locale
-        self.locale_list = [self.locale] + get_locale_fallbacks(self.locale)
+        self.locale_list = get_locale_chain(self.locale)
         self.timezone = timezone
         self.babel_locale = get_babel_locale(locale)
 
@@ -74,10 +74,10 @@ class LocalizationContext:
         return try_localize_region_name_from_iso3166(code, self.babel_locale)
 
     def localize_string(
-        self, key: str, *, i18next: I18Next | None = None, substitutions: dict[str, str | int] | None = None
+        self, key: str, *, i18next: I18Next | None = None, substitutions: SubstitutionDict | None = None
     ) -> str:
         i18next = i18next or get_main_i18next()
-        return i18next.localize(key, self.locale, substitutions=substitutions)
+        return i18next.localize(key, self.locale_list, substitutions=substitutions)
 
     def localize_list(self, items: Sequence[str]) -> str:
         return localize_list(items, self.babel_locale)
