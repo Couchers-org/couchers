@@ -73,7 +73,6 @@
     "invalid_notification_preference": "Preferencias de notificación inválidas.",
     "invalid_password": "Contraseña incorrecta.",
     "invalid_phone": "El número de teléfono debe estar en formato internacional sin puntuación.",
-    "missing_event_address_location_or_link": "Falta la dirección, ubicación o enlace del evento.",
     "missing_event_address_or_location": "Falta la dirección o ubicación del evento.",
     "missing_event_content": "Falta contenido del evento.",
     "missing_page_address": "Falta la dirección de la página.",

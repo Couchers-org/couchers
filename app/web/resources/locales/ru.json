@@ -164,7 +164,8 @@
     "merch_shop": "Магазин мерча",
     "switch_to_light_mode": "Переключиться на светлую тему",
     "switch_to_dark_mode": "Переключиться на тёмную тему",
-    "home": "Главная"
+    "home": "Главная",
+    "close_menu_a11y": "Закрыть меню"
   },
   "team": {
     "title": "Команда",
@@ -342,5 +343,8 @@
   },
   "close_button_a11y": "Закрыть",
   "app_store_badge_a11y": "Скачать в App Store",
-  "google_play_badge_a11y": "Скачать в Google Play"
+  "google_play_badge_a11y": "Скачать в Google Play",
+  "bar": {
+    "help_button_a11y": "Помощь"
+  }
 }

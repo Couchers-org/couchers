@@ -45,8 +45,7 @@
     "your_upcoming_header": "您即將參加的活動",
     "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前沒有活動。何不<0>建立</0>一個✨？",
-    "community_header": "您所在社群的活動",
-    "location_online_label": "線上"
+    "community_header": "您所在社群的活動"
   },
   "reminder": {
     "respond_to_host_request": {

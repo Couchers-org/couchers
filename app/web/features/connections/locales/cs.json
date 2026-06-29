@@ -35,5 +35,6 @@
   "add_friend_confirmation_dialog": {
     "title": "Znáš tuto osobu?",
     "confirm": "Ano, znám ji. Odeslat žádost!"
-  }
+  },
+  "friend_requests_dismiss_button": "Zamítnout"
 }
