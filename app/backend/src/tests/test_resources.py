@@ -1,6 +1,10 @@
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
+from couchers.db import session_scope
+from couchers.models import Language
+from couchers.resources import copy_resources_to_database
 from tests.fixtures.sessions import resources_session
 
 
@@ -55,6 +59,21 @@ def test_GetLanguages(db):
         languages_list = [(r.code, r.name) for r in languages]
         assert ("swe", "Sueco") in languages_list
         assert ("swe", "Swedish") not in languages_list
+
+
+def test_languages_resource_excludes_invalid_codes(db):
+    # Load the real languages.json (not the hardcoded testing fixture) so a future bad code is caught.
+    # Mirrors test_add_dummy_data's pattern of calling copy_resources_to_database directly.
+    with session_scope() as session:
+        copy_resources_to_database(session)
+        codes = set(session.execute(select(Language.code)).scalars().all())
+    # Codes removed in #9172: invalid/deprecated ISO 639-3 entries
+    assert "_tw" not in codes  # invented code; use nan (Chinese Southern Min) instead
+    assert "ajp" not in codes  # deprecated; ISO merged into apc (Arabic Levantine North)
+    assert "smi" not in codes  # ISO 639-2 group code with no individual equivalent
+    # Remap targets must remain present
+    assert "nan" in codes
+    assert "apc" in codes
 
 
 def test_GetBadges(db):
