@@ -82,6 +82,18 @@ def public_trip_to_pb(
             .where(HostRequest.public_trip_id == public_trip.id)
             .where(HostRequest.status != HostRequestStatus.cancelled)
         ).scalar_one()
+    else:
+        # The viewer's own existing offer on this trip (if any), so the client can
+        # show an "already offered" state and link to the thread.
+        pb.viewer_host_request_id = (
+            session.execute(
+                select(HostRequest.conversation_id)
+                .where(HostRequest.public_trip_id == public_trip.id)
+                .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.status != HostRequestStatus.cancelled)
+            ).scalar_one_or_none()
+            or 0
+        )
     return pb
 
 
