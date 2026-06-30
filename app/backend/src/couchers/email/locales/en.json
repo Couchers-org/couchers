@@ -7,8 +7,8 @@
     "closing_lines": {
       "default": "Best,<br>The Couchers.org Team",
       "founders": "Aapeli and Itsi,<br>Couchers.org Founders",
-      "aapeli": "Aapeli<br>Couchers.org Co-founder<br><a href=\"mailto:aapeli@couchers.org\">aapeli@couchers.org</a> (feel free to shoot me an email at any time)<br><a href=\"https://couchers.org/user/aapeli\">https://couchers.org/user/aapeli</a>",
-      "emily": "Emily from Couchers.org<br><a href=\"mailto:community@couchers.org\">community@couchers.org</a><br><a href=\"https://couchers.org/user/emily\">https://couchers.org/user/emily</a>"
+      "aapeli": "Aapeli<br>Couchers.org Co-founder<br>{{ profile_link }}",
+      "emily": "Emily from Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
     },
     "footer": {
       "received_because": "You're receiving this email because you signed up for Couchers.org.",

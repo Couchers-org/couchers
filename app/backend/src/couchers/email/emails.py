@@ -1758,7 +1758,6 @@ class OnboardingReminderEmail(EmailBase):
             builder.para(
                 "generic.closing_lines.aapeli",
                 {
-                    "email_link": html_email_link("aapeli@couchers.org"),
                     "profile_link": html_link("https://couchers.org/user/aapeli"),
                 },
             )
