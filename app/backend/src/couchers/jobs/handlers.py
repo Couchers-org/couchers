@@ -1011,14 +1011,20 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
                 key="",
             )
         else:
+            birthdate_ok = verification_attempt.matches_birthdate(user)
+            gender_ok = verification_attempt.matches_gender(user)
+            if not birthdate_ok and not gender_ok:
+                reason = notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
+            elif not birthdate_ok:
+                reason = notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE
+            else:
+                reason = notification_data_pb2.SV_FAIL_REASON_WRONG_GENDER
             notify(
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action=NotificationTopicAction.verification__sv_fail,
                 key="",
-                data=notification_data_pb2.VerificationSVFail(
-                    reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
-                ),
+                data=notification_data_pb2.VerificationSVFail(reason=reason),
             )
 
 

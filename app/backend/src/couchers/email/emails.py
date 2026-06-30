@@ -1991,6 +1991,10 @@ class StrongVerificationFailedEmail(EmailBase):
         match self.reason:
             case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
                 reason_string_key = ".reason_wrong_birthdate_or_gender"
+            case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE:
+                reason_string_key = ".reason_wrong_birthdate"
+            case notification_data_pb2.SV_FAIL_REASON_WRONG_GENDER:
+                reason_string_key = ".reason_wrong_gender"
             case notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
                 reason_string_key = ".reason_not_a_passport"
             case notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
@@ -2012,6 +2016,8 @@ class StrongVerificationFailedEmail(EmailBase):
         )
         return [
             replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE),
+            replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_WRONG_GENDER),
             replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT),
             replace(prototype, reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
         ]

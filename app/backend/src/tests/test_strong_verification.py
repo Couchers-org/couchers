@@ -36,204 +36,270 @@ def _(testconfig):
     pass
 
 
-def _emulate_iris_callback(session_id, session_state, reference):
-    assert session_state in ["CREATED", "INITIATED", "FAILED", "ABORTED", "COMPLETED", "REJECTED", "APPROVED"]
-    with real_iris_session() as iris:
-        data = json.dumps(
-            {"session_id": session_id, "session_state": session_state, "session_reference": reference}
-        ).encode("ascii")
-        iris.Webhook(httpbody_pb2.HttpBody(content_type="application/json", data=data))
+class MockSVFlow:
+    """Simulates the strong verification flow, including all IRIS callbacks."""
 
+    def __init__(self, user: User, token: str, verification_id: int = 5731012934821983) -> None:
+        self.user = user
+        self.token = token
+        self.verification_id = verification_id
 
-default_expiry = date.today() + timedelta(days=5 * 365)
+        iris_token_data = {
+            "merchant_id": 5731012934821982,
+            "session_id": self.verification_id,
+            "seed": 1674246339,
+            "face_verification": False,
+            "host": "https://passportreader.app",
+        }
+        self.iris_token = b64encode_unpadded(json.dumps(iris_token_data).encode("utf8"))
 
+        with account_session(self.token) as account:
+            # start by initiation
+            with patch("couchers.servicers.account.requests.post") as mock:
+                json_resp1 = {
+                    "id": self.verification_id,
+                    "token": self.iris_token,
+                }
+                mock.return_value = type(
+                    "__MockResponse",
+                    (),
+                    {
+                        "status_code": 200,
+                        "text": json.dumps(json_resp1),
+                        "json": lambda: json_resp1,
+                    },
+                )
+                res = account.InitiateStrongVerification(empty_pb2.Empty())
 
-def do_and_check_sv(
-    user,
-    token,
-    verification_id,
-    sex,
-    dob,
-    document_type,
-    document_number,
-    document_expiry,
-    nationality,
-    return_after=None,
-):
-    iris_token_data = {
-        "merchant_id": 5731012934821982,
-        "session_id": verification_id,
-        "seed": 1674246339,
-        "face_verification": False,
-        "host": "https://passportreader.app",
-    }
-    iris_token = b64encode_unpadded(json.dumps(iris_token_data).encode("utf8"))
+            mock.assert_called_once_with(
+                "https://passportreader.app/api/v1/session.create",
+                auth=("dummy_pubkey", "dummy_secret"),
+                json={
+                    "callback_url": "http://localhost:8888/iris/webhook",
+                    "face_verification": False,
+                    "passport_only": True,
+                    "reference": ANY,
+                },
+                timeout=10,
+                verify="/etc/ssl/certs/ca-certificates.crt",
+            )
+            self.reference_data = mock.call_args.kwargs["json"]["reference"]
+            self.verification_attempt_token = res.verification_attempt_token
+            return_url = f"http://localhost:3000/complete-strong-verification?verification_attempt_token={self.verification_attempt_token}"
+            assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
+                {"token": self.iris_token, "redirect_url": return_url}
+            )
 
-    with account_session(token) as account:
-        # start by initiation
-        with patch("couchers.servicers.account.requests.post") as mock:
-            json_resp1 = {
-                "id": verification_id,
-                "token": iris_token,
+            assert (
+                account.GetStrongVerificationAttemptStatus(
+                    account_pb2.GetStrongVerificationAttemptStatusReq(
+                        verification_attempt_token=self.verification_attempt_token
+                    )
+                ).status
+                == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP
+            )
+
+    def process_iris_callbacks(
+        self,
+        *,
+        nationality: str = "US",
+        sex: PassportSex | None = None,
+        date_of_birth: date | None = None,
+        document_type: str = "PASSPORT",
+        document_number: str = "31195855",
+        document_expiry: date | None = None,
+        expected_status: StrongVerificationAttemptStatus = StrongVerificationAttemptStatus.succeeded,
+    ) -> None:
+        self.process_iris_initiated_callback()
+        self.process_iris_completed_callback()
+        self.process_iris_approved_callback(
+            nationality=nationality,
+            sex=sex,
+            date_of_birth=date_of_birth,
+            document_type=document_type,
+            document_number=document_number,
+            document_expiry=document_expiry,
+            expected_status=expected_status,
+        )
+
+    def process_iris_initiated_callback(self) -> None:
+        # ok, now the user downloads the app, scans their id, and Iris ID sends callbacks to the server
+        self._emulate_iris_callback("INITIATED")
+
+        with account_session(self.token) as account:
+            assert (
+                account.GetStrongVerificationAttemptStatus(
+                    account_pb2.GetStrongVerificationAttemptStatusReq(
+                        verification_attempt_token=self.verification_attempt_token
+                    )
+                ).status
+                == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
+            )
+
+    def process_iris_completed_callback(self) -> None:
+        self._emulate_iris_callback("COMPLETED")
+
+        with account_session(self.token) as account:
+            assert (
+                account.GetStrongVerificationAttemptStatus(
+                    account_pb2.GetStrongVerificationAttemptStatusReq(
+                        verification_attempt_token=self.verification_attempt_token
+                    )
+                ).status
+                == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
+            )
+
+    def process_iris_approved_callback(
+        self,
+        *,
+        nationality: str = "US",
+        sex: PassportSex | None = None,
+        date_of_birth: date | None = None,
+        document_type: str = "PASSPORT",
+        document_number: str = "31195855",
+        document_expiry: date | None = None,
+        expected_status: StrongVerificationAttemptStatus = StrongVerificationAttemptStatus.succeeded,
+    ) -> None:
+        if sex is None:
+            match self.user.gender:
+                case "Man":
+                    sex = PassportSex.male
+                case "Woman":
+                    sex = PassportSex.female
+                case _:
+                    sex = PassportSex.unspecified
+        if date_of_birth is None:
+            date_of_birth = self.user.birthdate
+        if document_expiry is None:
+            document_expiry = date.today() + timedelta(days=5 * 365)
+
+        self._emulate_iris_callback("APPROVED")
+
+        with account_session(self.token) as account:
+            assert (
+                account.GetStrongVerificationAttemptStatus(
+                    account_pb2.GetStrongVerificationAttemptStatusReq(
+                        verification_attempt_token=self.verification_attempt_token
+                    )
+                ).status
+                == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
+            )
+
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            json_resp = {
+                "id": self.verification_id,
+                "created": "2024-05-11T15:46:46Z",
+                "expires": "2024-05-11T16:17:26Z",
+                "state": "APPROVED",
+                "reference": self.reference_data,
+                "user_ip": "10.123.123.123",
+                "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
+                "given_names": "John Wayne",
+                "surname": "Doe",
+                "nationality": nationality,
+                "sex": sex.name.upper(),
+                "date_of_birth": date_of_birth.isoformat(),
+                "document_type": document_type,
+                "document_number": document_number,
+                "expiry_date": document_expiry.isoformat(),
+                "issuing_country": nationality,
+                "issuer": "Department of State, U.S. Government",
+                "portrait": "dGVzdHRlc3R0ZXN0...",
             }
             mock.return_value = type(
                 "__MockResponse",
                 (),
                 {
                     "status_code": 200,
-                    "text": json.dumps(json_resp1),
-                    "json": lambda: json_resp1,
+                    "text": json.dumps(json_resp),
+                    "json": lambda: json_resp,
                 },
             )
-            res = account.InitiateStrongVerification(empty_pb2.Empty())
+            while process_job():
+                pass
+
         mock.assert_called_once_with(
-            "https://passportreader.app/api/v1/session.create",
+            "https://passportreader.app/api/v1/session.get",
             auth=("dummy_pubkey", "dummy_secret"),
-            json={
-                "callback_url": "http://localhost:8888/iris/webhook",
-                "face_verification": False,
-                "passport_only": True,
-                "reference": ANY,
-            },
+            json={"id": self.verification_id},
             timeout=10,
             verify="/etc/ssl/certs/ca-certificates.crt",
         )
-        reference_data = mock.call_args.kwargs["json"]["reference"]
-        verification_attempt_token = res.verification_attempt_token
-        return_url = f"http://localhost:3000/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
-        assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
-            {"token": iris_token, "redirect_url": return_url}
-        )
 
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP
-        )
-
-    # ok, now the user downloads the app, scans their id, and Iris ID sends callbacks to the server
-    _emulate_iris_callback(verification_id, "INITIATED", reference_data)
-
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
-        )
-
-    if return_after == "INITIATED":
-        return reference_data
-
-    _emulate_iris_callback(verification_id, "COMPLETED", reference_data)
-
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
-        )
-
-    if return_after == "COMPLETED":
-        return reference_data
-
-    _emulate_iris_callback(verification_id, "APPROVED", reference_data)
-
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
-        )
-
-    if return_after == "APPROVED":
-        return reference_data
-
-    with patch("couchers.jobs.handlers.requests.post") as mock:
-        json_resp2 = {
-            "id": verification_id,
-            "created": "2024-05-11T15:46:46Z",
-            "expires": "2024-05-11T16:17:26Z",
-            "state": "APPROVED",
-            "reference": reference_data,
-            "user_ip": "10.123.123.123",
-            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
-            "given_names": "John Wayne",
-            "surname": "Doe",
-            "nationality": nationality,
-            "sex": sex,
-            "date_of_birth": dob,
-            "document_type": document_type,
-            "document_number": document_number,
-            "expiry_date": document_expiry.isoformat(),
-            "issuing_country": nationality,
-            "issuer": "Department of State, U.S. Government",
-            "portrait": "dGVzdHRlc3R0ZXN0...",
-        }
-        mock.return_value = type(
-            "__MockResponse",
-            (),
-            {
-                "status_code": 200,
-                "text": json.dumps(json_resp2),
-                "json": lambda: json_resp2,
-            },
-        )
-        while process_job():
-            pass
-
-    mock.assert_called_once_with(
-        "https://passportreader.app/api/v1/session.get",
-        auth=("dummy_pubkey", "dummy_secret"),
-        json={"id": verification_id},
-        timeout=10,
-        verify="/etc/ssl/certs/ca-certificates.crt",
-    )
-
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED
-        )
-
-    with session_scope() as session:
-        verification_attempt = session.execute(
-            select(StrongVerificationAttempt).where(
-                StrongVerificationAttempt.verification_attempt_token == verification_attempt_token
+        # The API should now report success or failure
+        with account_session(self.token) as account:
+            expected_pb_status = (
+                account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED
+                if expected_status == StrongVerificationAttemptStatus.succeeded
+                else account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED
             )
-        ).scalar_one()
-        assert verification_attempt.user_id == user.id
-        assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
-        assert verification_attempt.has_full_data
-        assert verification_attempt.passport_encrypted_data
-        # assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
-        # assert verification_attempt.passport_sex == PassportSex.male
-        assert verification_attempt.has_minimal_data
-        assert verification_attempt.passport_expiry_date == document_expiry
-        assert verification_attempt.passport_nationality == nationality
-        assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
-        assert verification_attempt.iris_token == iris_token
-        assert verification_attempt.iris_session_id == verification_id
-
-        private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
-        decrypted_data = json.loads(asym_decrypt(private_key, verification_attempt.passport_encrypted_data))
-        assert decrypted_data == json_resp2
-
-        callbacks = (
-            session.execute(
-                select(StrongVerificationCallbackEvent.iris_status)
-                .where(StrongVerificationCallbackEvent.verification_attempt_id == verification_attempt.id)
-                .order_by(StrongVerificationCallbackEvent.created.asc())
+            assert (
+                account.GetStrongVerificationAttemptStatus(
+                    account_pb2.GetStrongVerificationAttemptStatusReq(
+                        verification_attempt_token=self.verification_attempt_token
+                    )
+                ).status
+                == expected_pb_status
             )
-            .scalars()
-            .all()
-        )
-        assert callbacks == ["INITIATED", "COMPLETED", "APPROVED"]
+
+        # The StrongVerificationAttempt row should now reflect data from the IRIS callback
+        with session_scope() as session:
+            verification_attempt = session.execute(
+                select(StrongVerificationAttempt).where(
+                    StrongVerificationAttempt.verification_attempt_token == self.verification_attempt_token
+                )
+            ).scalar_one()
+
+            assert verification_attempt.user_id == self.user.id
+            assert verification_attempt.iris_token == self.iris_token
+            assert verification_attempt.iris_session_id == self.verification_id
+            assert verification_attempt.status == expected_status
+
+            # Check minimal data
+            if verification_attempt.status != StrongVerificationAttemptStatus.failed:
+                assert verification_attempt.has_minimal_data
+                assert verification_attempt.passport_expiry_date == document_expiry
+                assert verification_attempt.passport_nationality == nationality
+                assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
+            else:
+                assert not verification_attempt.has_minimal_data
+
+            # Check full data
+            if verification_attempt.status == StrongVerificationAttemptStatus.succeeded:
+                assert verification_attempt.has_full_data
+                assert verification_attempt.passport_encrypted_data
+                assert verification_attempt.passport_date_of_birth == date_of_birth
+                assert verification_attempt.passport_sex == sex
+
+                private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
+                decrypted_data = json.loads(asym_decrypt(private_key, verification_attempt.passport_encrypted_data))
+                assert decrypted_data == json_resp
+            else:
+                assert not verification_attempt.has_full_data
+
+            # We should have gone through all IRIS callbacks
+            callbacks = (
+                session.execute(
+                    select(StrongVerificationCallbackEvent.iris_status)
+                    .where(StrongVerificationCallbackEvent.verification_attempt_id == verification_attempt.id)
+                    .order_by(StrongVerificationCallbackEvent.created.asc())
+                )
+                .scalars()
+                .all()
+            )
+            assert callbacks == ["INITIATED", "COMPLETED", "APPROVED"]
+
+    def _emulate_iris_callback(self, session_state: str):
+        assert session_state in ["CREATED", "INITIATED", "FAILED", "ABORTED", "COMPLETED", "REJECTED", "APPROVED"]
+        with real_iris_session() as iris:
+            data = json.dumps(
+                {
+                    "session_id": self.verification_id,
+                    "session_state": session_state,
+                    "session_reference": self.reference_data,
+                }
+            ).encode("ascii")
+            iris.Webhook(httpbody_pb2.HttpBody(content_type="application/json", data=data))
 
 
 def monkeypatch_sv_config(monkeypatch):
@@ -270,16 +336,14 @@ def test_strong_verification_happy_path(db, monkeypatch):
             == res.has_strong_verification
         )
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
+    expiry = date.today() + timedelta(days=5 * 365)
+
+    MockSVFlow(user=user, token=token).process_iris_callbacks(
         nationality="US",
+        sex=PassportSex.male,
+        date_of_birth=date.fromisoformat("1988-01-01"),
+        document_number="31195855",
+        document_expiry=expiry,
     )
 
     with session_scope() as session:
@@ -289,7 +353,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
         assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
         assert verification_attempt.passport_sex == PassportSex.male
-        assert verification_attempt.passport_expiry_date == default_expiry
+        assert verification_attempt.passport_expiry_date == expiry
         assert verification_attempt.passport_nationality == "US"
         assert verification_attempt.passport_last_three_document_chars == "855"
 
@@ -448,17 +512,7 @@ def test_strong_verification_delete_data(db, monkeypatch):
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -517,19 +571,7 @@ def test_strong_verification_expiry(db, monkeypatch):
             == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
         )
 
-    expiry = date.today() + timedelta(days=10)
-
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=expiry,
-        nationality="US",
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks(document_expiry=date.today() + timedelta(days=10))
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -552,16 +594,8 @@ def test_strong_verification_expiry(db, monkeypatch):
         assert not res.has_strong_verification
         assert not res.has_strong_verification
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821985,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="PA41323412",
-        document_expiry=date.today() + timedelta(days=365),
-        nationality="AU",
+    MockSVFlow(user=user, token=token, verification_id=5731012934821985).process_iris_callbacks(
+        nationality="AU", document_number="PA41323412", document_expiry=date.today() + timedelta(days=365)
     )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
@@ -579,18 +613,8 @@ def test_strong_verification_regression(db, monkeypatch):
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-        return_after="INITIATED",
-    )
+    sv_flow = MockSVFlow(user=user, token=token)
+    sv_flow.process_iris_initiated_callback()
 
     with api_session(token) as api:
         api.Ping(api_pb2.PingReq())
@@ -601,30 +625,11 @@ def test_strong_verification_regression2(db, monkeypatch):
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-        return_after="INITIATED",
-    )
+    sv_flow = MockSVFlow(user=user, token=token, verification_id=5731012934821983)
+    sv_flow.process_iris_initiated_callback()
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821985,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="PA41323412",
-        document_expiry=default_expiry,
-        nationality="AU",
-    )
+    sv_flow = MockSVFlow(user=user, token=token, verification_id=5731012934821985)
+    sv_flow.process_iris_callbacks(nationality="AU", document_number="PA41323412")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -662,17 +667,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
             == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
         )
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -718,66 +713,9 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
             == 0
         )
 
-    reference_data = do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821984,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-        return_after="APPROVED",
+    MockSVFlow(user=user, token=token, verification_id=5731012934821984).process_iris_callbacks(
+        expected_status=StrongVerificationAttemptStatus.duplicate
     )
-
-    with patch("couchers.jobs.handlers.requests.post") as mock:
-        json_resp2 = {
-            "id": 5731012934821984,
-            "created": "2024-05-11T15:46:46Z",
-            "expires": "2024-05-11T16:17:26Z",
-            "state": "APPROVED",
-            "reference": reference_data,
-            "user_ip": "10.123.123.123",
-            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
-            "given_names": "John Wayne",
-            "surname": "Doe",
-            "nationality": "US",
-            "sex": "MALE",
-            "date_of_birth": "1988-01-01",
-            "document_type": "PASSPORT",
-            "document_number": "31195855",
-            "expiry_date": default_expiry.isoformat(),
-            "issuing_country": "US",
-            "issuer": "Department of State, U.S. Government",
-            "portrait": "dGVzdHRlc3R0ZXN0...",
-        }
-        mock.return_value = type(
-            "__MockResponse",
-            (),
-            {
-                "status_code": 200,
-                "text": json.dumps(json_resp2),
-                "json": lambda: json_resp2,
-            },
-        )
-        while process_job():
-            pass
-
-    mock.assert_called_once_with(
-        "https://passportreader.app/api/v1/session.get",
-        auth=("dummy_pubkey", "dummy_secret"),
-        json={"id": 5731012934821984},
-        timeout=10,
-        verify="/etc/ssl/certs/ca-certificates.crt",
-    )
-
-    with session_scope() as session:
-        verification_attempt = session.execute(
-            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
-        ).scalar_one()
-        assert verification_attempt.user_id == user.id
-        assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
@@ -816,17 +754,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821983,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-    )
+    MockSVFlow(user=user, token=token).process_iris_callbacks(nationality="US", document_number="31195855")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -869,66 +797,9 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
             == 0
         )
 
-    reference_data = do_and_check_sv(
-        user2,
-        token2,
-        verification_id=5731012934821984,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="PASSPORT",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-        return_after="APPROVED",
+    MockSVFlow(user=user2, token=token2, verification_id=5731012934821984).process_iris_callbacks(
+        nationality="US", document_number="31195855", expected_status=StrongVerificationAttemptStatus.duplicate
     )
-
-    with patch("couchers.jobs.handlers.requests.post") as mock:
-        json_resp2 = {
-            "id": 5731012934821984,
-            "created": "2024-05-11T15:46:46Z",
-            "expires": "2024-05-11T16:17:26Z",
-            "state": "APPROVED",
-            "reference": reference_data,
-            "user_ip": "10.123.123.123",
-            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
-            "given_names": "John Wayne",
-            "surname": "Doe",
-            "nationality": "US",
-            "sex": "MALE",
-            "date_of_birth": "1988-01-01",
-            "document_type": "PASSPORT",
-            "document_number": "31195855",
-            "expiry_date": default_expiry.isoformat(),
-            "issuing_country": "US",
-            "issuer": "Department of State, U.S. Government",
-            "portrait": "dGVzdHRlc3R0ZXN0...",
-        }
-        mock.return_value = type(
-            "__MockResponse",
-            (),
-            {
-                "status_code": 200,
-                "text": json.dumps(json_resp2),
-                "json": lambda: json_resp2,
-            },
-        )
-        while process_job():
-            pass
-
-    mock.assert_called_once_with(
-        "https://passportreader.app/api/v1/session.get",
-        auth=("dummy_pubkey", "dummy_secret"),
-        json={"id": 5731012934821984},
-        timeout=10,
-        verify="/etc/ssl/certs/ca-certificates.crt",
-    )
-
-    with session_scope() as session:
-        verification_attempt = session.execute(
-            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
-        ).scalar_one()
-        assert verification_attempt.user_id == user2.id
-        assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == "Strong Verification failed"
@@ -944,70 +815,63 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
-    reference_data = do_and_check_sv(
-        user,
-        token,
-        verification_id=5731012934821984,
-        sex="MALE",
-        dob="1988-01-01",
-        document_type="IDENTITY_CARD",
-        document_number="31195855",
-        document_expiry=default_expiry,
-        nationality="US",
-        return_after="APPROVED",
+    MockSVFlow(user=user, token=token).process_iris_callbacks(
+        document_type="IDENTITY_CARD", expected_status=StrongVerificationAttemptStatus.failed
     )
-
-    with patch("couchers.jobs.handlers.requests.post") as mock:
-        json_resp2 = {
-            "id": 5731012934821984,
-            "created": "2024-05-11T15:46:46Z",
-            "expires": "2024-05-11T16:17:26Z",
-            "state": "APPROVED",
-            "reference": reference_data,
-            "user_ip": "10.123.123.123",
-            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
-            "given_names": "John Wayne",
-            "surname": "Doe",
-            "nationality": "US",
-            "sex": "MALE",
-            "date_of_birth": "1988-01-01",
-            "document_type": "IDENTITY_CARD",
-            "document_number": "31195855",
-            "expiry_date": default_expiry.isoformat(),
-            "issuing_country": "US",
-            "issuer": "Department of State, U.S. Government",
-            "portrait": "dGVzdHRlc3R0ZXN0...",
-        }
-        mock.return_value = type(
-            "__MockResponse",
-            (),
-            {
-                "status_code": 200,
-                "text": json.dumps(json_resp2),
-                "json": lambda: json_resp2,
-            },
-        )
-        while process_job():
-            pass
-
-    mock.assert_called_once_with(
-        "https://passportreader.app/api/v1/session.get",
-        auth=("dummy_pubkey", "dummy_secret"),
-        json={"id": 5731012934821984},
-        timeout=10,
-        verify="/etc/ssl/certs/ca-certificates.crt",
-    )
-
-    with session_scope() as session:
-        verification_attempt = session.execute(
-            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
-        ).scalar_one()
-        assert verification_attempt.user_id == user.id
-        assert verification_attempt.status == StrongVerificationAttemptStatus.failed
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
         == "You used a document other than a passport. You can only use a passport for Strong Verification."
+    )
+
+
+def test_strong_verification_wrong_birthdate(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    MockSVFlow(user=user, token=token).process_iris_callbacks(date_of_birth=date.fromisoformat("1999-12-31"))
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The date of birth on your profile does not match the date of birth on your passport. "
+        "Please contact the support team to update your date of birth."
+    )
+
+
+def test_strong_verification_wrong_gender(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    MockSVFlow(user=user, token=token).process_iris_callbacks(sex=PassportSex.female)
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The gender on your profile does not match the sex on your passport. "
+        "Please contact the support team to update your gender, or if your passport sex does not "
+        "match your gender identity."
+    )
+
+
+def test_strong_verification_wrong_birthdate_and_gender(db, monkeypatch, push_collector: PushCollector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    MockSVFlow(user=user, token=token).process_iris_callbacks(
+        date_of_birth=date.fromisoformat("1999-12-31"),
+        sex=PassportSex.female,
+    )
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Strong Verification failed"
+    assert push.content.body == (
+        "The date of birth or gender on your profile does not match the date of birth or sex on your "
+        "passport. Please contact the support team to update your date of birth or gender, or if your "
+        "passport sex does not match your gender identity."
     )

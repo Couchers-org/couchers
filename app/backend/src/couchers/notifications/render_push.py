@@ -850,6 +850,10 @@ def _render_verification__sv_fail(
     match data.reason:
         case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
             body_key = "body_wrong_birthdate_gender"
+        case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE:
+            body_key = "body_wrong_birthdate"
+        case notification_data_pb2.SV_FAIL_REASON_WRONG_GENDER:
+            body_key = "body_wrong_gender"
         case notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
             body_key = "body_not_a_passport"
         case notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
