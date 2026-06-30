@@ -67,6 +67,15 @@ message PublicTrip {
   // or 0 if they haven't offered. Lets the client show an "already offered"
   // state and link to the existing thread. Not set for the trip owner.
   int64 viewer_host_request_id = 13;
+  // Per-status breakdown of the offers on this trip. Only populated when the
+  // viewer is the trip owner.
+  optional PublicTripOfferTally offer_tally = 14;
+}
+
+message PublicTripOfferTally {
+  int32 pending = 1;
+  int32 accepted = 2; // accepted + confirmed
+  int32 declined = 3; // rejected
 }
 
 message CreatePublicTripReq {

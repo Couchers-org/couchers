@@ -6,9 +6,9 @@ from urllib.parse import urlencode
 import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
+from sqlalchemy.sql import and_, case, delete, exists, func, intersect, or_, union
 
 from couchers import urls
 from couchers.abuse import maybe_log_nonvisible_user_access
@@ -229,6 +229,51 @@ class API(api_pb2_grpc.APIServicer):
             )
         ).scalar_one()
 
+        # Role-based unread host-request counts. Unlike sent/received above, these
+        # classify by stay-role, so public-trip offers (role reversal) bucket
+        # correctly: the offering host counts under hosting, the traveller under surfing.
+        def role_based_unseen_host_request_count(party_predicate: ColumnElement[bool]) -> int:
+            viewer_last_seen = case(
+                (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
+                else_=HostRequest.recipient_last_seen_message_id,
+            )
+            reqs_query = select(HostRequest.conversation_id, viewer_last_seen.label("last_seen")).where(party_predicate)
+            reqs_query = where_users_column_visible(reqs_query, context, HostRequest.initiator_user_id)
+            reqs_query = where_users_column_visible(reqs_query, context, HostRequest.recipient_user_id)
+            reqs_query = where_moderated_content_visible(reqs_query, context, HostRequest, is_list_operation=True)
+            reqs = reqs_query.subquery()
+            return session.execute(
+                select(func.count())
+                .select_from(reqs)
+                .where(
+                    exists(
+                        select(1)
+                        .where(Message.conversation_id == reqs.c.conversation_id)
+                        .where(Message.id > reqs.c.last_seen)
+                    )
+                )
+            ).scalar_one()
+
+        me = context.user_id
+        unseen_hosting_host_request_count = role_based_unseen_host_request_count(
+            or_(
+                and_(HostRequest.public_trip_id.is_(None), HostRequest.recipient_user_id == me),
+                and_(HostRequest.public_trip_id.isnot(None), HostRequest.initiator_user_id == me),
+            )
+        )
+        unseen_surfing_host_request_count = role_based_unseen_host_request_count(
+            or_(
+                and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == me),
+                and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me),
+            )
+        )
+        if context.get_boolean_value("public_trips_enabled", False):
+            unseen_public_trip_offer_count = role_based_unseen_host_request_count(
+                and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me)
+            )
+        else:
+            unseen_public_trip_offer_count = 0
+
         unseen_message_query = (
             select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -277,6 +322,9 @@ class API(api_pb2_grpc.APIServicer):
             unseen_message_count=unseen_message_count,
             unseen_sent_host_request_count=unseen_sent_host_request_count,
             unseen_received_host_request_count=unseen_received_host_request_count,
+            unseen_hosting_host_request_count=unseen_hosting_host_request_count,
+            unseen_surfing_host_request_count=unseen_surfing_host_request_count,
+            unseen_public_trip_offer_count=unseen_public_trip_offer_count,
             pending_friend_request_count=pending_friend_request_count,
             unseen_notification_count=unseen_notification_count,
         )

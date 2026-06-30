@@ -8,6 +8,7 @@ from sqlalchemy import select
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
+from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
@@ -983,6 +984,53 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 1
         assert not res.public_trips[0].HasField("offers_count")
+        assert not res.public_trips[0].HasField("offer_tally")
+
+
+def test_list_public_trips_by_user_offer_tally_owner(db):
+    traveler, traveler_token = generate_user()
+    hosts = [generate_user() for _ in range(5)]
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    for _host, host_token in hosts:
+        with requests_session(host_token) as api:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveler.id,
+                    from_date=(today() + timedelta(days=5)).isoformat(),
+                    to_date=(today() + timedelta(days=10)).isoformat(),
+                    text=_valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+
+    # Set one offer per status: pending, accepted, confirmed, rejected, cancelled.
+    with session_scope() as session:
+        offers = (
+            session.execute(
+                select(HostRequest).where(HostRequest.public_trip_id == trip_id).order_by(HostRequest.conversation_id)
+            )
+            .scalars()
+            .all()
+        )
+        offers[0].status = HostRequestStatus.pending
+        offers[1].status = HostRequestStatus.accepted
+        offers[2].status = HostRequestStatus.confirmed
+        offers[3].status = HostRequestStatus.rejected
+        offers[4].status = HostRequestStatus.cancelled
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.HasField("offer_tally")
+        assert trip.offer_tally.pending == 1
+        # accepted bucket includes confirmed
+        assert trip.offer_tally.accepted == 2
+        assert trip.offer_tally.declined == 1
+        # cancelled is excluded from offers_count and the tally
+        assert trip.offers_count == 4
 
 
 def test_viewer_host_request_id_reflects_viewers_own_offer(db):

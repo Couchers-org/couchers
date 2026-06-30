@@ -405,6 +405,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return host_request_to_pb(host_request, session, context)
 
+    # TODO(remove after FE migrates to ListMessageThreads)
     def ListHostRequests(
         self, request: requests_pb2.ListHostRequestsReq, context: CouchersContext, session: Session
     ) -> requests_pb2.ListHostRequestsRes:
