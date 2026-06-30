@@ -1015,27 +1015,27 @@ def test_send_reference_reminders(db):
     expected_emails = [
         (
             "user11@couchers.org.invalid",
-            "[TEST] You have 14 days to write a reference for User 12!",
+            "[TEST] You have 14 days to write a reference for User 12",
             ("from when you hosted them", "/leave-reference/hosted/"),
         ),
         (
             "user4@couchers.org.invalid",
-            "[TEST] You have 3 days to write a reference for User 3!",
+            "[TEST] You have 3 days to write a reference for User 3",
             ("from when you surfed with them", "/leave-reference/surfed/"),
         ),
         (
             "user5@couchers.org.invalid",
-            "[TEST] You have 7 days to write a reference for User 6!",
+            "[TEST] You have 7 days to write a reference for User 6",
             ("from when you hosted them", "/leave-reference/hosted/"),
         ),
         (
             "user7@couchers.org.invalid",
-            "[TEST] You have 14 days to write a reference for User 8!",
+            "[TEST] You have 14 days to write a reference for User 8",
             ("from when you surfed with them", "/leave-reference/surfed/"),
         ),
         (
             "user8@couchers.org.invalid",
-            "[TEST] You have 14 days to write a reference for User 7!",
+            "[TEST] You have 14 days to write a reference for User 7",
             ("from when you hosted them", "/leave-reference/hosted/"),
         ),
     ]
@@ -1198,8 +1198,8 @@ def test_send_host_request_reminders(db, moderator):
     expected_emails = [
         (
             "user2@couchers.org.invalid",
-            "[TEST] You have a pending host request from User 1!",
-            ("Please respond to the request!", "User 1"),
+            "[TEST] You have a pending host request from User 1",
+            ("User 1", "is waiting for your response"),
         )
     ]
 
