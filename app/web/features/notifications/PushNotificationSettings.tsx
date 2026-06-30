@@ -112,13 +112,15 @@ export default function PushNotificationSettings() {
       )}
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isPushEnabled ? (
-          <Trans i18nKey="notifications:notification_settings.push_notifications.enabled_message">
-            You currently have push notifications <strong>enabled</strong>.
-          </Trans>
+          <Trans
+            i18nKey="notifications:notification_settings.push_notifications.enabled_message"
+            components={{ 1: <strong /> }}
+          />
         ) : (
-          <Trans i18nKey="notifications:notification_settings.push_notifications.disabled_message">
-            You currently have push notifications <strong>disabled</strong>.
-          </Trans>
+          <Trans
+            i18nKey="notifications:notification_settings.push_notifications.disabled_message"
+            components={{ 1: <strong /> }}
+          />
         )}
       </Typography>
       <Typography variant="body1">

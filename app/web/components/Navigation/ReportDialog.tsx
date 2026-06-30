@@ -111,7 +111,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 </StyledLink>
               ),
             }}
-          ></Trans>
+          />
         </Snackbar>
       )}
       <Dialog aria-labelledby="bug-reporter" open={open} onClose={handleClose}>

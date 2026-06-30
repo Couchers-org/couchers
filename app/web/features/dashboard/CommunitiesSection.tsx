@@ -18,17 +18,19 @@ export default function CommunitiesSection() {
     <>
       <CommunitiesList />
       <StyledCreateCommunityText variant="body1" paragraph>
-        <Trans i18nKey="dashboard:your_communities_helper_text2">
-          {`Don't see your community? `}
-          <MuiLink
-            href={communityCreationFormURL(accountInfo?.username)}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
-            Get it started!
-          </MuiLink>
-        </Trans>
+        <Trans
+          i18nKey="dashboard:your_communities_helper_text2"
+          components={{
+            1: (
+              <MuiLink
+                href={communityCreationFormURL(accountInfo?.username)}
+                target="_blank"
+                rel="noreferrer noopener"
+                underline="hover"
+              />
+            ),
+          }}
+        />
       </StyledCreateCommunityText>
     </>
   );

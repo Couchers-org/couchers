@@ -36,12 +36,12 @@ export default function HostRequestGuideLinks({
     return (
       <StyledHelpTextContainer>
         <Typography variant="body1">
-          <Trans i18nKey="messages:host_pending_request_help_text">
-            <StyledLink variant="body1" href={howToRespondRequestGuideUrl}>
-              Things to consider
-            </StyledLink>{" "}
-            before responding.
-          </Trans>
+          <Trans
+            i18nKey="messages:host_pending_request_help_text"
+            components={{
+              0: <StyledLink variant="body1" href={howToRespondRequestGuideUrl} />,
+            }}
+          />
         </Typography>
       </StyledHelpTextContainer>
     );
@@ -49,12 +49,12 @@ export default function HostRequestGuideLinks({
     return (
       <StyledHelpTextContainer>
         <Typography variant="body1">
-          <Trans i18nKey="messages:surfer_declined_request_help_text">
-            <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
-              Read our guide
-            </StyledLink>{" "}
-            on how to write a request that will get accepted.
-          </Trans>
+          <Trans
+            i18nKey="messages:surfer_declined_request_help_text"
+            components={{
+              0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+            }}
+          />
         </Typography>
       </StyledHelpTextContainer>
     );

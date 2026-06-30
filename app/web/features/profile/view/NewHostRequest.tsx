@@ -316,12 +316,12 @@ export default function NewHostRequest({
             </StyledDateRow>
           </StyledRequestRow>
           <StyledHelpText variant="body1">
-            <Trans i18nKey="profile:request_form.guide_link_help_text">
-              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
-                Read our guide
-              </StyledLink>{" "}
-              on how to write a request that will get accepted.
-            </Trans>
+            <Trans
+              i18nKey="profile:request_form.guide_link_help_text"
+              components={{
+                0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+              }}
+            />
           </StyledHelpText>
 
           <StyledRequestField
