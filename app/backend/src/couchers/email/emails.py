@@ -41,6 +41,7 @@ from couchers.email.blocks import (
     ActionBlock,
     EmailBase,
     EmailBlock,
+    EmailBlocksBuilder,
     ParaBlock,
     QuoteBlock,
     UserInfo,
@@ -1744,36 +1745,38 @@ class OnboardingReminderEmail(EmailBase):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, default_closing=False)
-        edit_profile_url = urls.edit_profile_link()
         if self.initial:
-            builder.para(".welcome")
-            builder.para(".early_user_role")
-            builder.para(".fill_in_profile")
-            builder.para(".edit_profile_prompt")
-            builder.action(edit_profile_url, "onboarding_reminder.edit_profile_action")
-            builder.para(".share_with_friends")
-            builder.para(".link", {"link": html_link(urls.app_link())})
-            builder.para(".platform_under_development")
-            builder.para(".thanks_for_joining")
-            builder.para(
-                "generic.closing_lines.aapeli",
-                {
-                    "profile_link": html_link("https://couchers.org/user/aapeli"),
-                },
-            )
+            self._build_body_initial(builder)
         else:
-            builder.para(".intro")
-            builder.para(".request")
-            builder.action(edit_profile_url, "onboarding_reminder.edit_profile_action")
-            builder.para("generic.thanks")
-            builder.para(
-                "generic.closing_lines.emily",
-                {
-                    "email_link": html_mailto_link("community@couchers.org"),
-                    "profile_link": html_link("https://couchers.org/user/emily"),
-                },
-            )
+            self._build_body_followup(builder)
         return builder.build()
+
+    def _build_body_initial(self, builder: EmailBlocksBuilder) -> None:
+        builder.para(".welcome")
+        builder.para(".early_user_role")
+        builder.para(".complete_profile_request")
+        builder.para(".profile_importance")
+        builder.action(urls.edit_profile_link(), "onboarding_reminder.complete_profile_action")
+        builder.para(".share_request")
+        builder.para(
+            "generic.closing_lines.aapeli",
+            {
+                "profile_link": html_link("https://couchers.org/user/aapeli"),
+            },
+        )
+
+    def _build_body_followup(self, builder: EmailBlocksBuilder) -> None:
+        builder.para(".intro")
+        builder.para(".request")
+        builder.action(urls.edit_profile_link(), "onboarding_reminder.complete_profile_action")
+        builder.para("generic.thanks")
+        builder.para(
+            "generic.closing_lines.emily",
+            {
+                "email_link": html_mailto_link("community@couchers.org"),
+                "profile_link": html_link("https://couchers.org/user/emily"),
+            },
+        )
 
     @classmethod
     def test_instances(cls) -> list[Self]:
