@@ -65,7 +65,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 title="Dummy Title",
                 content="Dummy content.",
                 photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -81,10 +81,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -117,10 +117,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -148,10 +148,10 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -179,7 +179,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     # title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -198,7 +198,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     # content="Dummy content.",
                     photo_key=None,
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -217,7 +217,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key="nonexistent",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -235,7 +235,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                     ),
                     start_time=Timestamp_from_datetime(start_time),
@@ -251,7 +251,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         lat=0.1,
                         lng=0.1,
                     ),
@@ -268,7 +268,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -286,7 +286,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -304,7 +304,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -322,7 +322,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -353,7 +353,7 @@ def test_CreateEvent_incomplete_profile(db):
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -386,7 +386,7 @@ def test_ScheduleEvent(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -404,7 +404,7 @@ def test_ScheduleEvent(db):
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
                 content="New event occurrence",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
                     lng=0.2,
@@ -422,10 +422,10 @@ def test_ScheduleEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "New event occurrence"
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.3
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "A bit further but still near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.3
+        assert res.location.lng == 0.2
+        assert res.location.address == "A bit further but still near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user.id
@@ -460,7 +460,7 @@ def test_cannot_overlap_occurrences_schedule(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -476,7 +476,7 @@ def test_cannot_overlap_occurrences_schedule(db):
                 events_pb2.ScheduleEventReq(
                     event_id=res.event_id,
                     content="New event occurrence",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="A bit further but still near Null Island",
                         lat=0.3,
                         lng=0.2,
@@ -504,7 +504,7 @@ def test_cannot_overlap_occurrences_update(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -519,7 +519,7 @@ def test_cannot_overlap_occurrences_update(db):
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
                 content="New event occurrence",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
                     lng=0.2,
@@ -580,7 +580,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -623,10 +623,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -654,10 +654,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -685,10 +685,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -712,7 +712,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         res = api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Nearer Null Island",
                     lat=0.01,
                     lng=0.02,
@@ -723,10 +723,10 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     with events_session(token3) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
-        assert res.HasField("offline_information")
-        assert res.offline_information.address == "Nearer Null Island"
-        assert res.offline_information.lat == 0.01
-        assert res.offline_information.lng == 0.02
+        assert res.HasField("location")
+        assert res.location.address == "Nearer Null Island"
+        assert res.location.lat == 0.01
+        assert res.location.lng == 0.02
 
 
 def test_GetEvent_online(db, moderator: Moderator):
@@ -746,7 +746,7 @@ def test_GetEvent_online(db, moderator: Moderator):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",
@@ -769,10 +769,10 @@ def test_GetEvent_online(db, moderator: Moderator):
         get_res: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert get_res.title == "Dummy Title"
-        assert get_res.HasField("offline_information")
-        assert get_res.offline_information.address == "https://couchers.org/meet/"
-        assert get_res.offline_information.lng == 0
-        assert get_res.offline_information.lat == 0
+        assert get_res.HasField("location")
+        assert get_res.location.address == "https://couchers.org/meet/"
+        assert get_res.location.lng == 0
+        assert get_res.location.lat == 0
 
 
 def test_UpdateEvent_all(db, moderator: Moderator):
@@ -800,7 +800,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="0th occurrence",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -833,7 +833,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
                     content=f"{i + 1}th occurrence",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -860,7 +860,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                 event_id=updated_event_id,
                 title=wrappers_pb2.StringValue(value="New Title"),
                 content=wrappers_pb2.StringValue(value="New content."),
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     lat=0.2,
                     lng=0.2,
                 ),
@@ -906,7 +906,7 @@ def test_GetEvent(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -940,10 +940,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -971,10 +971,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -1002,10 +1002,10 @@ def test_GetEvent(db, moderator: Moderator):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.HasField("offline_information")
-        assert res.offline_information.lat == 0.1
-        assert res.offline_information.lng == 0.2
-        assert res.offline_information.address == "Near Null Island"
+        assert res.HasField("location")
+        assert res.location.lat == 0.1
+        assert res.location.lng == 0.2
+        assert res.location.address == "Near Null Island"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -1048,7 +1048,7 @@ def test_CancelEvent(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1166,7 +1166,7 @@ def test_ListEventAttendees(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1221,7 +1221,7 @@ def test_ListEventSubscribers(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1274,7 +1274,7 @@ def test_ListEventOrganizers(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1326,7 +1326,7 @@ def test_TransferEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1361,7 +1361,7 @@ def test_TransferEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1405,7 +1405,7 @@ def test_SetEventSubscription(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1438,7 +1438,7 @@ def test_SetEventAttendance(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1484,7 +1484,7 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1532,7 +1532,7 @@ def test_ListEventOccurrences(db):
                 title="First occurrence",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1550,7 +1550,7 @@ def test_ListEventOccurrences(db):
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
                     content=f"{i}th occurrence",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -1605,9 +1605,9 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     def new_event(hours_from_now: int, community_id: int) -> events_pb2.CreateEventReq:
         return events_pb2.CreateEventReq(
-            title="Dummy Offline Title",
+            title="Dummy Title",
             content="Dummy content.",
-            offline_information=events_pb2.OfflineEventInformation(
+            location=events_pb2.EventLocation(
                 address="Near Null Island",
                 lat=0.1,
                 lng=0.2,
@@ -1781,7 +1781,7 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
         return events_pb2.CreateEventReq(
             title="Test Event",
             content="Test content.",
-            offline_information=events_pb2.OfflineEventInformation(
+            location=events_pb2.EventLocation(
                 address="Near Null Island",
                 lat=0.1,
                 lng=0.2,
@@ -1854,7 +1854,7 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -1964,7 +1964,7 @@ def test_ListEventAttendees_regression(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2015,7 +2015,7 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2083,7 +2083,7 @@ def test_can_overlap_other_events_schedule_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2100,7 +2100,7 @@ def test_can_overlap_other_events_schedule_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2116,7 +2116,7 @@ def test_can_overlap_other_events_schedule_regression(db):
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
                 content="New event occurrence",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
                     lng=0.2,
@@ -2143,7 +2143,7 @@ def test_can_overlap_other_events_update_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2159,7 +2159,7 @@ def test_can_overlap_other_events_update_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2174,7 +2174,7 @@ def test_can_overlap_other_events_update_regression(db):
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
                 content="New event occurrence",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
                     lng=0.2,
@@ -2218,7 +2218,7 @@ def test_list_past_events_regression(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2262,7 +2262,7 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2348,7 +2348,7 @@ def test_update_event_should_notify_queues_job():
                 title="Dummy Title",
                 content="Dummy content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=1.0,
                     lng=2.0,
@@ -2417,7 +2417,7 @@ def test_event_photo_key(db):
                 title="Event Without Photo",
                 content="No photo content.",
                 photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2437,7 +2437,7 @@ def test_event_photo_key(db):
                 title="Event With Photo",
                 content="Has photo content.",
                 photo_key="test_event_photo_key_123",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2474,7 +2474,7 @@ def test_event_created_with_shadowed_visibility(db):
             events_pb2.CreateEventReq(
                 title="Test UMS Event",
                 content="UMS content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2510,7 +2510,7 @@ def test_shadowed_event_visible_to_creator_only(db):
             events_pb2.CreateEventReq(
                 title="Shadowed Event",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2550,7 +2550,7 @@ def test_event_visible_after_approval(db, moderator: Moderator):
             events_pb2.CreateEventReq(
                 title="Approved Event",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2593,7 +2593,7 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
             events_pb2.CreateEventReq(
                 title="List Test Event",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2646,7 +2646,7 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
             events_pb2.CreateEventReq(
                 title="Deferred Event",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2700,7 +2700,7 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
             events_pb2.CreateEventReq(
                 title="Update Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2761,7 +2761,7 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
             events_pb2.CreateEventReq(
                 title="Cancel Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2815,7 +2815,7 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
             events_pb2.CreateEventReq(
                 title="Reminder Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2869,7 +2869,7 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
             events_pb2.CreateEventReq(
                 title="Cancelled Reminder Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2928,7 +2928,7 @@ def test_event_reminder_not_sent_for_invisible_attendee(
             events_pb2.CreateEventReq(
                 title="Invisible Attendee Reminder Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2978,7 +2978,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 title="Event A",
                 content="Content A.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2994,7 +2994,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 events_pb2.ScheduleEventReq(
                     event_id=event_a_ids[-1],
                     content=f"A occurrence {i}",
-                    offline_information=events_pb2.OfflineEventInformation(
+                    location=events_pb2.EventLocation(
                         address="Near Null Island",
                         lat=0.1,
                         lng=0.2,
@@ -3014,7 +3014,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                 title="Event B",
                 content="Content B.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -3029,7 +3029,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
             events_pb2.ScheduleEventReq(
                 event_id=event_b_ids[-1],
                 content="B occurrence 1",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -3074,7 +3074,7 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
                 title="Comment Test",
                 content="Content.",
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -3132,7 +3132,7 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
             events_pb2.CreateEventReq(
                 title="Reply Test",
                 content="Content.",
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

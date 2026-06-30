@@ -11,15 +11,13 @@ const [firstEvent, secondEvent] = events;
 const cancelledEvent = events[3];
 
 describe("Event card", () => {
-  it("renders an offline event card details correctly with the same start and end day", async () => {
+  it("renders an event card details correctly with the same start and end day", async () => {
     render(<EventCard event={firstEvent} />, { wrapper });
 
     expect(
       screen.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
-    expect(
-      screen.getByText(firstEvent.offlineInformation!.address),
-    ).toBeVisible();
+    expect(screen.getByText(firstEvent.location!.address)).toBeVisible();
     expect(
       screen.getByText("Tue, Jun 29, 2021, 2:37 – 3:37 AM", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
@@ -42,9 +40,7 @@ describe("Event card", () => {
     expect(
       screen.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
-    expect(
-      screen.getByText(secondEvent.offlineInformation!.address),
-    ).toBeVisible();
+    expect(screen.getByText(secondEvent.location!.address)).toBeVisible();
     expect(
       screen.getByText(
         "Tue, Jun 29, 2021, 9:00 PM – Wed, Jun 30, 2021, 2:00 AM",

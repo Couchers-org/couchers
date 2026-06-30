@@ -210,7 +210,7 @@ def create_event(
             events_pb2.CreateEventReq(
                 title=title,
                 content=content,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

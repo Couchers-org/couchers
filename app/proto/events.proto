@@ -83,13 +83,8 @@ service Events {
   // TODO: DownloadCalendarInvite
 }
 
-message OnlineEventInformation {
-  // videoconferencing link, etc
-  string link = 1;
-}
-
-message OfflineEventInformation {
-  // in-person events must have address + location
+message EventLocation {
+  // Events must have address + coordinates
   string address = 1;
   double lat = 2;
   double lng = 3;
@@ -119,7 +114,7 @@ message Event {
   string photo_key = 35;
 
   reserved 9; // Formerly online_information.
-  OfflineEventInformation offline_information = 10;
+  EventLocation location = 10;
 
   google.protobuf.Timestamp created = 13;
   google.protobuf.Timestamp last_edited = 14;
@@ -166,7 +161,7 @@ message CreateEventReq {
   // from media server
   string photo_key = 3;
   reserved 4; // Formerly online_information.
-  OfflineEventInformation offline_information = 5;
+  EventLocation location = 5;
   int64 parent_community_id = 8; // Optional, can be auto-filled from the location
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 9;
@@ -181,7 +176,7 @@ message ScheduleEventReq {
   // from media server
   string photo_key = 3;
   reserved 4; // Formerly online_information.
-  OfflineEventInformation offline_information = 5;
+  EventLocation location = 5;
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
@@ -198,7 +193,7 @@ message UpdateEventReq {
   // from media server, set to empty string to clear
   google.protobuf.StringValue photo_key = 5;
   reserved 6; // Formerly online_information.
-  OfflineEventInformation offline_information = 7;
+  EventLocation location = 7;
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
   // the tzdata timezone identifier

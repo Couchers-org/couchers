@@ -645,7 +645,7 @@ class EventInfo:
             start_time=event.start_time.ToDatetime(tzinfo=UTC),
             end_time=event.end_time.ToDatetime(tzinfo=UTC),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
-            address=(event.offline_information.address or None) if event.HasField("offline_information") else None,
+            address=(event.location.address or None) if event.HasField("location") else None,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
             description_markdown=event.content or "",
         )

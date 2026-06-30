@@ -179,7 +179,7 @@ describe("Event form", () => {
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
-  it("should not submit if location is missing for an offline event", async () => {
+  it("should not submit if location is missing for an event", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -353,7 +353,7 @@ describe("Event form", () => {
     await assertErrorAlert(errorMessage);
   });
 
-  it("should submit an offline event successfully", async () => {
+  it("should submit an event successfully", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });

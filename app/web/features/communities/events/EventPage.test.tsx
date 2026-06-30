@@ -86,15 +86,13 @@ describe("Event page", () => {
     jest.useRealTimers();
   });
 
-  it("renders an offline event successfully", async () => {
+  it("renders an event successfully", async () => {
     renderEventPage();
 
     expect(
       await screen.findByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
-    expect(
-      await screen.findByText(firstEvent.offlineInformation!.address),
-    ).toBeVisible();
+    expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
       await screen.findByText("Tuesday, June 29, 2021, 2:37 – 3:37 AM", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
