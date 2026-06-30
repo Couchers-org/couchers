@@ -214,7 +214,12 @@ export default function PrivateFeedback({
                 <Trans
                   i18nKey="profile:leave_reference.private_text_explanation_2"
                   components={{
-                    2: <StyledLink href={helpCenterPrivateFeedbackUrl} sx={{ fontWeight: 600 }} />,
+                    2: (
+                      <StyledLink
+                        href={helpCenterPrivateFeedbackUrl}
+                        sx={{ fontWeight: 600 }}
+                      />
+                    ),
                   }}
                 />
               </Typography>

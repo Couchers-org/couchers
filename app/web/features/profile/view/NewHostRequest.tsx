@@ -319,7 +319,12 @@ export default function NewHostRequest({
             <Trans
               i18nKey="profile:request_form.guide_link_help_text"
               components={{
-                0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+                0: (
+                  <StyledLink
+                    variant="body1"
+                    href={howToWriteRequestGuideUrl}
+                  />
+                ),
               }}
             />
           </StyledHelpText>

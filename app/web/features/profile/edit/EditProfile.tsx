@@ -453,7 +453,12 @@ export default function EditProfileForm() {
               <Trans
                 i18nKey="profile:edit_profile_helper_text"
                 components={{
-                  2: <StyledLink variant="body1" href={howToMakeGreatProfileUrl} />,
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
                 }}
               />
             </Typography>
