@@ -17,7 +17,7 @@ from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
-from couchers.markup import html_email_link, html_to_plaintext, markdown_to_html
+from couchers.markup import html_mailto_link, html_to_plaintext, markdown_to_html
 from couchers.proto.internal import jobs_pb2
 from couchers.templating import Jinja2Template
 
@@ -128,7 +128,7 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
 
     args: dict[str, Any] = {
         "received_because": localize(".received_because"),
-        "contact_support": localize(".contact_support", {"email_link": html_email_link("support@couchers.org")}),
+        "contact_support": localize(".contact_support", {"email_link": html_mailto_link("support@couchers.org")}),
         "timezone_note": localize(".timezone_note", {"timezone": footer.timezone_name}),
         "copyright_year": footer.copyright_year,
         "donate_link": localize(".donate_link"),

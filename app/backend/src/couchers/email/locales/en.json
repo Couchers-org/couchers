@@ -129,7 +129,7 @@
     "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
     "download_invoice": "Download invoice",
     "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
-    "questions_contact": "If you have any questions about your donation, please email us at {{ email }}."
+    "questions_contact": "If you have any questions about your donation, please email us at {{ email_link }}."
   },
   "email_change": {
     "initiated": {

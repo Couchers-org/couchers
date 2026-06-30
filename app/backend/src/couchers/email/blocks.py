@@ -13,7 +13,7 @@ from couchers import urls
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
-from couchers.markup import html_email_link
+from couchers.markup import html_mailto_link
 from couchers.proto import api_pb2
 from couchers.utils import now
 
@@ -59,7 +59,7 @@ class EmailBase(ABC):
             # Not localizing the suggested subject line to encourage folks to use English if they can.
             builder.para(
                 "generic.security_warning_contact_support",
-                {"email_link": html_email_link("support@couchers.org", subject="Action not initiated by me")},
+                {"email_link": html_mailto_link("support@couchers.org", subject="Action not initiated by me")},
                 epilogue=True,
             )
         if default_closing:

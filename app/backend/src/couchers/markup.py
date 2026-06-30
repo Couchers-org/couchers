@@ -63,7 +63,7 @@ class _HTMLToPlaintext(HTMLParser):
         self.plaintext += data.replace("\n", "")  # Newlines in html are meaningless
 
 
-def html_email_link(email: str, subject: str | None = None) -> Markup:
+def html_mailto_link(email: str, subject: str | None = None) -> Markup:
     url = f"mailto:{email}"
     if subject:
         query = {"subject": subject}
