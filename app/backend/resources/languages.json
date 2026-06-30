@@ -1,5 +1,9 @@
 [
   {
+    "code": "_tw",
+    "name": "Taiwanese"
+  },
+  {
     "code": "aao",
     "name": "Arabic (Algerian)"
   },
@@ -938,6 +942,10 @@
   {
     "code": "slv",
     "name": "Slovenian"
+  },
+  {
+    "code": "smi",
+    "name": "Sámi"
   },
   {
     "code": "smo",
