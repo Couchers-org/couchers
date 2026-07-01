@@ -326,7 +326,7 @@
     "a11y": "Kopírovat",
     "copied_tooltip": "Zkopírováno do schránky"
   },
-  "google_play_badge_a11y": "Rozjeďte to Google Play",
+  "google_play_badge_a11y": "Stáhnout v Google Play",
   "app_store_badge_a11y": "Stáhnout v App Store",
   "image_input": {
     "select_button_a11y": "Vyber obrázek",
@@ -338,5 +338,6 @@
   },
   "bar": {
     "help_button_a11y": "Nápověda"
-  }
+  },
+  "close_button_a11y": "Zavřít"
 }

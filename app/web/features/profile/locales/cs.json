@@ -80,7 +80,8 @@
   "actions": {
     "back_to_dashboard": "Zpět na přehled",
     "message_label": "Zpráva",
-    "request": "Žádost"
+    "request": "Žádost",
+    "add_friend": "Přidat přítele"
   },
   "active": "Aktivní",
   "section_tabs_a11y_label": "záložky pro uživatelské údaje",
