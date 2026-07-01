@@ -280,21 +280,18 @@
   "onboarding_reminder": {
     "initial": {
       "subject": "Welcome to Couchers.org and the future of couch surfing",
-      "welcome": "Welcome to Couchers.org, and our growing worldwide community of couch surfers. We are excited that you have joined us!",
-      "early_user_role": "We’re an evolving platform experiencing rapid growth. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.",
-      "fill_in_profile": "Please take some time to explore the platform. As a first step, please write a bit about yourself on the 'About me' and 'My home' tabs of your profile. Please upload a photo of yourself and fill in some profile text. You can even copy and paste the text from your account on a different couch surfing platform if you're feeling lazy :P",
-      "edit_profile_prompt": "To edit your profile, click on the following link:",
-      "share_with_friends": "Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.",
-      "link": "Link: {{ link }}",
-      "platform_under_development": "The platform is still under development, and features are actively being built by our amazing team of Couchers.org volunteers around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.",
-      "thanks_for_joining": "Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!"
+      "welcome": "Welcome to Couchers.org, and our worldwide couch surfing community!",
+      "early_user_role": "We are growing quickly, and looking back, you will be one of the early users. You therefore have a vital role in shaping the culture and feel of the growing community and our platform. I’m really excited that you found us, and that you decided to join us!",
+      "complete_profile_request": "When you’ve had a chance to look around, please complete your profile by uploading a photo, and writing a bit about yourself (and about your home, if you wish to host).",
+      "profile_importance": "A profile that feels like a real person is what helps someone decide they'd love to meet or stay with you. Try to give the community a sample of your vibe! Don't overthink it: just write like yourself. Share what you're into, how you like to spend your time, and the things that matter to you.",
+      "share_request": "One more thing: please share the word and grow the community! Our best members are those who were invited by someone else."
     },
     "follow_up": {
       "subject": "Complete your profile",
       "intro": "I hope you've taken a bit of time to look around the Couchers.org platform!",
       "request": "We would love to ask one quick favor of you: please take a moment to fill out your profile by adding a photo and some text in the 'about me' and 'my home' sections. Filling out your profile makes others more interested in engaging with you and helps our community feel more welcoming."
     },
-    "edit_profile_action": "Complete your profile"
+    "complete_profile_action": "Complete your profile"
   },
   "password_changed": {
     "subject": "Your password was changed",
