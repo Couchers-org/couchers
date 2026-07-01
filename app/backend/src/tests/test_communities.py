@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, datetime_to_iso8601_utc_local, now, to_multi
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import (
@@ -215,9 +215,8 @@ def create_event(
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + start_td),
-                end_time=Timestamp_from_datetime(now() + start_td + timedelta(hours=2)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + start_td),
+                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + start_td + timedelta(hours=2)),
             )
         )
         api.TransferEvent(

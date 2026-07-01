@@ -38,7 +38,7 @@ from couchers.proto import (
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, now, parse_date
+from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_utc_local, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
@@ -760,9 +760,8 @@ def test_DeleteEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
             )
         )
         event_id = res.event_id

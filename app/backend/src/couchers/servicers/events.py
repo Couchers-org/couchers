@@ -1,11 +1,13 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Any, cast
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import grpc
+from geoalchemy2 import WKBElement
 from google.protobuf import empty_pb2
 from psycopg.types.range import TimestamptzRange
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
@@ -32,6 +34,7 @@ from couchers.models import (
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
@@ -48,7 +51,6 @@ from couchers.utils import (
     millis_from_dt,
     not_none,
     now,
-    to_aware_datetime,
 )
 
 logger = logging.getLogger(__name__)
@@ -218,6 +220,38 @@ def _get_event_and_occurrence_one_or_none(
         _get_event_and_occurrence_query(occurrence_id, include_deleted, context=context)
     ).one_or_none()
     return result._tuple() if result else None
+
+
+def _check_location(location: events_pb2.EventLocation | None, context: CouchersContext) -> tuple[WKBElement, str]:
+    # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
+    if not (location and location.address and location.lat and location.lng):
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+    if location.lat == 0 and location.lng == 0:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+    geom = create_coordinate(location.lat, location.lng)
+    address = location.address
+
+    return (geom, address)
+
+
+def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Session) -> ZoneInfo:
+    timezone_id = session.execute(
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom))).limit(1)
+    ).scalar_one_or_none()
+    if not timezone_id:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_timezone_not_found")
+
+    try:
+        return ZoneInfo(timezone_id)
+    except ZoneInfoNotFoundError:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_timezone_not_found")
+
+
+def _check_iso8601_local_datetime(value: str, timezone: ZoneInfo, context: CouchersContext) -> datetime:
+    try:
+        return datetime.fromisoformat(value).replace(tzinfo=timezone)
+    except ValueError:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_start_end_datetime")
 
 
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
@@ -394,20 +428,11 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
 
-        # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-        if not (
-            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-        if request.location.lat == 0 and request.location.lng == 0:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-        geom = create_coordinate(request.location.lat, request.location.lng)
-        address = request.location.address
-
-        start_time = to_aware_datetime(request.start_time)
-        end_time = to_aware_datetime(request.end_time)
-
-        _check_occurrence_time_validity(start_time, end_time, context)
+        geom, address = _check_location(request.location if request.HasField("location") else None, context)
+        timezone = _check_timezone_at(geom, context, session)
+        start_datetime = _check_iso8601_local_datetime(request.start_datetime_iso8601_local, timezone, context)
+        end_datetime = _check_iso8601_local_datetime(request.end_datetime_iso8601_local, timezone, context)
+        _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
         if request.parent_community_id:
             parent_node = session.execute(
@@ -453,8 +478,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 geom=geom,
                 address=address,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                # timezone=timezone,
-                during=TimestamptzRange(start_time, end_time),
+                during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
             )
@@ -525,19 +549,12 @@ class Events(events_pb2_grpc.EventsServicer):
     ) -> events_pb2.Event:
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
-        if not (
-            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-        if request.location.lat == 0 and request.location.lng == 0:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-        geom = create_coordinate(request.location.lat, request.location.lng)
-        address = request.location.address
 
-        start_time = to_aware_datetime(request.start_time)
-        end_time = to_aware_datetime(request.end_time)
-
-        _check_occurrence_time_validity(start_time, end_time, context)
+        geom, address = _check_location(request.location if request.HasField("location") else None, context)
+        timezone = _check_timezone_at(geom, context, session)
+        start_datetime = _check_iso8601_local_datetime(request.start_datetime_iso8601_local, timezone, context)
+        end_datetime = _check_iso8601_local_datetime(request.end_datetime_iso8601_local, timezone, context)
+        _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
@@ -557,7 +574,7 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        during = TimestamptzRange(start_time, end_time)
+        during = TimestamptzRange(start_datetime, end_datetime)
 
         # && is the overlap operator for ranges
         if (
@@ -583,7 +600,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 geom=geom,
                 address=address,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                # timezone=timezone,
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
@@ -647,24 +663,30 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
+        timezone: ZoneInfo
         if request.HasField("location"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
-            if request.location.lat == 0 and request.location.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            occurrence_update["geom"] = create_coordinate(request.location.lat, request.location.lng)
-            occurrence_update["address"] = request.location.address
+            geom, address = _check_location(request.location if request.HasField("location") else None, context)
+            timezone = _check_timezone_at(geom, context, session)
+            occurrence_update["geom"] = geom
+            occurrence_update["address"] = address
+            occurrence_update["timezone"] = timezone.key
+        else:
+            timezone = ZoneInfo(occurrence.timezone)
 
-        if request.HasField("start_time") or request.HasField("end_time"):
+        if request.HasField("start_datetime_iso8601_local") or request.HasField("end_datetime_iso8601_local"):
             if request.update_all_future:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
-            if request.HasField("start_time"):
+            if request.HasField("start_datetime_iso8601_local"):
                 notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME)
-                start_time = to_aware_datetime(request.start_time)
+                start_time = _check_iso8601_local_datetime(
+                    request.start_datetime_iso8601_local.value, timezone, context
+                )
             else:
                 start_time = occurrence.start_time
-            if request.HasField("end_time"):
+            if request.HasField("end_datetime_iso8601_local"):
                 notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
-                end_time = to_aware_datetime(request.end_time)
+                end_time = _check_iso8601_local_datetime(request.end_datetime_iso8601_local.value, timezone, context)
             else:
                 end_time = occurrence.end_time
 
@@ -688,10 +710,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
             occurrence_update["during"] = during
-
-        # TODO
-        # if request.HasField("timezone"):
-        #     occurrence_update["timezone"] = request.timezone
 
         # allow editing any event which hasn't ended more than 24 hours before now
         # when editing all future events, we edit all which have not yet ended

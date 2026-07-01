@@ -127,9 +127,7 @@ message Event {
   // the tzdata timezone identifier
   string timezone = 18;
 
-  // start/end_time_display were unused and not localized
-  reserved 19, 20;
-  reserved "start_time_display", "end_time_display";
+  reserved 19, 20; // Formerly start_time_display, end_time_display. Now localized on the frontend.
 
   // the user's attendance state
   AttendanceState attendance_state = 21;
@@ -163,11 +161,12 @@ message CreateEventReq {
   reserved 4; // Formerly online_information.
   EventLocation location = 5;
   int64 parent_community_id = 8; // Optional, can be auto-filled from the location
-  // timestamps are in UTC
-  google.protobuf.Timestamp start_time = 9;
-  google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identifier, empty string means tz of creating user
-  string timezone = 11;
+  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS) without timezone specifier.
+  // The timezone is determined from the location of the event.
+  string start_datetime_iso8601_local = 12;
+  string end_datetime_iso8601_local = 13;
+  reserved 9, 10; // Formerly start_time, end_time. Problematic when the frontend doesn't know the timezone.
+  reserved 11; // Formerly timezone, but wasn't used.
 }
 
 message ScheduleEventReq {
@@ -177,11 +176,12 @@ message ScheduleEventReq {
   string photo_key = 3;
   reserved 4; // Formerly online_information.
   EventLocation location = 5;
-  // timestamps are in UTC
-  google.protobuf.Timestamp start_time = 8;
-  google.protobuf.Timestamp end_time = 9;
-  // the tzdata timezone identifier, empty string means tz of creating user
-  string timezone = 10;
+  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS) without timezone specifier.
+  // The timezone is determined from the location of the event.
+  string start_datetime_iso8601_local = 11;
+  string end_datetime_iso8601_local = 12;
+  reserved 8, 9; // Formerly start_time, end_time. Problematic when the frontend doesn't know the timezone.
+  reserved 10; // Formerly timezone, but wasn't used.
 }
 
 message UpdateEventReq {
@@ -194,10 +194,12 @@ message UpdateEventReq {
   google.protobuf.StringValue photo_key = 5;
   reserved 6; // Formerly online_information.
   EventLocation location = 7;
-  google.protobuf.Timestamp start_time = 9;
-  google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identifier
-  google.protobuf.StringValue timezone = 11;
+  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS) without timezone specifier.
+  // The timezone is determined from the location of the event.
+  google.protobuf.StringValue start_datetime_iso8601_local = 13;
+  google.protobuf.StringValue end_datetime_iso8601_local = 14;
+  reserved 9, 10; // Formerly start_time, end_time. Problematic when the frontend doesn't know the timezone.
+  reserved 11; // Formerly timezone, but wasn't used.
 
   // whether to notify all attendees about the change
   bool should_notify = 12;

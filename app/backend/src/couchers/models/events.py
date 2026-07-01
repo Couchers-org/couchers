@@ -16,6 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
+    select,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -25,6 +26,7 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.models.moderation import ModerationObjectType
+from couchers.models.static import TimezoneArea
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
@@ -134,7 +136,13 @@ class EventOccurrence(Base, kw_only=True):
     # The physical address string. Legacy online events have been migrated to put the link in here.
     address: Mapped[str] = mapped_column(String)
 
-    timezone = "Etc/UTC"
+    timezone = column_property(
+        select(TimezoneArea.tzid)
+        .where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom)))
+        .limit(1)
+        .scalar_subquery(),
+        deferred=True,
+    )
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
