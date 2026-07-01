@@ -43,7 +43,7 @@ dependencies = [
     "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
     "growthbook>=1.2.0",
-    "pyroscope-io>=1.0.9",
+    "pyroscope-io>=1.0.12",
 ]
 
 [project.scripts]
