@@ -20,7 +20,10 @@
         "host_request": "Žádosti o ubytování"
       },
       "collapse_all": "Sbalit vše",
-      "expand_all": "Rozbalit vše"
+      "expand_all": "Rozbalit vše",
+      "channels": {
+        "email_label": "Email"
+      }
     },
     "push_notifications": {
       "title": "Push notifikace",
