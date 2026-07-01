@@ -443,7 +443,7 @@ def _group_chat_candidate_query(
     Candidate (conversation_id, latest_message_id, kind) rows for the user's group
     chats (incl. DMs), with moderation + archived + unread filtering applied.
     """
-    inner = (
+    latest_by_group_chat = (
         select(
             GroupChatSubscription.group_chat_id.label("conversation_id"),
             func.max(Message.id).label("latest_message_id"),
@@ -457,20 +457,22 @@ def _group_chat_candidate_query(
         .group_by(GroupChatSubscription.group_chat_id)
     )
     if only_archived is not None:
-        inner = inner.where(GroupChatSubscription.is_archived == only_archived)
-    inner_sub = where_moderated_content_visible(inner, context, GroupChat, is_list_operation=True).subquery()
+        latest_by_group_chat = latest_by_group_chat.where(GroupChatSubscription.is_archived == only_archived)
+    visible_group_chats = where_moderated_content_visible(
+        latest_by_group_chat, context, GroupChat, is_list_operation=True
+    ).subquery()
 
-    q = select(
-        inner_sub.c.conversation_id.label("conversation_id"),
-        inner_sub.c.latest_message_id.label("latest_message_id"),
+    candidate_query = select(
+        visible_group_chats.c.conversation_id.label("conversation_id"),
+        visible_group_chats.c.latest_message_id.label("latest_message_id"),
         literal("group_chat").label("kind"),
     )
     if unread:
         # restrict to chats with at least one message newer than the user's last-seen
-        q = q.join(GroupChatSubscription, GroupChatSubscription.id == inner_sub.c.subscription_id).where(
-            inner_sub.c.latest_message_id > GroupChatSubscription.last_seen_message_id
-        )
-    return q
+        candidate_query = candidate_query.join(
+            GroupChatSubscription, GroupChatSubscription.id == visible_group_chats.c.subscription_id
+        ).where(visible_group_chats.c.latest_message_id > GroupChatSubscription.last_seen_message_id)
+    return candidate_query
 
 
 def _host_request_candidate_query(
@@ -481,11 +483,11 @@ def _host_request_candidate_query(
     requests / public-trip offers matching party_predicate, with visibility +
     moderation + archived + unread filtering applied.
     """
-    viewer_last_seen = case(
+    viewer_last_seen_message_id = case(
         (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
         else_=HostRequest.recipient_last_seen_message_id,
     )
-    q = (
+    candidate_query = (
         select(
             HostRequest.conversation_id.label("conversation_id"),
             func.max(Message.id).label("latest_message_id"),
@@ -496,7 +498,7 @@ def _host_request_candidate_query(
         .group_by(HostRequest.conversation_id)
     )
     if only_archived is not None:
-        q = q.where(
+        candidate_query = candidate_query.where(
             or_(
                 and_(
                     HostRequest.initiator_user_id == context.user_id,
@@ -509,33 +511,33 @@ def _host_request_candidate_query(
             )
         )
     if unread:
-        q = q.having(func.max(Message.id) > viewer_last_seen)
-    q = where_users_column_visible(q, context, HostRequest.initiator_user_id)
-    q = where_users_column_visible(q, context, HostRequest.recipient_user_id)
-    q = where_moderated_content_visible(q, context, HostRequest, is_list_operation=True)
-    return q
+        candidate_query = candidate_query.having(func.max(Message.id) > viewer_last_seen_message_id)
+    candidate_query = where_users_column_visible(candidate_query, context, HostRequest.initiator_user_id)
+    candidate_query = where_users_column_visible(candidate_query, context, HostRequest.recipient_user_id)
+    candidate_query = where_moderated_content_visible(candidate_query, context, HostRequest, is_list_operation=True)
+    return candidate_query
 
 
 def _host_request_party_predicate(context: CouchersContext, thread_filter: int) -> ColumnElement[bool]:
     """Role-based membership predicate for the host-request leg, per filter."""
-    me = context.user_id
+    viewer_id = context.user_id
     if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_HOSTING:
         # I am the host of the stay: normal request I received, or an offer I sent
         return or_(
-            and_(HostRequest.public_trip_id.is_(None), HostRequest.recipient_user_id == me),
-            and_(HostRequest.public_trip_id.isnot(None), HostRequest.initiator_user_id == me),
+            and_(HostRequest.public_trip_id.is_(None), HostRequest.recipient_user_id == viewer_id),
+            and_(HostRequest.public_trip_id.isnot(None), HostRequest.initiator_user_id == viewer_id),
         )
     if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_SURFING:
         # I am the guest of the stay: normal request I sent, or an offer I received
         return or_(
-            and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == me),
-            and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me),
+            and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == viewer_id),
+            and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == viewer_id),
         )
     if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS:
         # my incoming public-trip offers (I'm the traveller = recipient)
-        return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me)
+        return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == viewer_id)
     # ALL / UNREAD: any host request I'm party to
-    return or_(HostRequest.initiator_user_id == me, HostRequest.recipient_user_id == me)
+    return or_(HostRequest.initiator_user_id == viewer_id, HostRequest.recipient_user_id == viewer_id)
 
 
 def _build_group_chats_pb(
@@ -544,7 +546,8 @@ def _build_group_chats_pb(
     """Build GroupChat protobufs (with unseen counts) for a page of group-chat ids."""
     if not group_chat_ids:
         return {}
-    t = (
+    # For each group chat, find the viewer's subscription and its latest message.
+    latest_per_group_chat = (
         select(
             GroupChatSubscription.group_chat_id.label("group_chat_id"),
             func.max(GroupChatSubscription.id).label("subscription_id"),
@@ -558,18 +561,18 @@ def _build_group_chats_pb(
         .group_by(GroupChatSubscription.group_chat_id)
         .subquery()
     )
-    results = session.execute(
+    group_chat_rows = session.execute(
         select(GroupChat, GroupChatSubscription, Message)
-        .select_from(t)
-        .join(Message, Message.id == t.c.message_id)
-        .join(GroupChatSubscription, GroupChatSubscription.id == t.c.subscription_id)
-        .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
+        .select_from(latest_per_group_chat)
+        .join(Message, Message.id == latest_per_group_chat.c.message_id)
+        .join(GroupChatSubscription, GroupChatSubscription.id == latest_per_group_chat.c.subscription_id)
+        .join(GroupChat, GroupChat.conversation_id == latest_per_group_chat.c.group_chat_id)
         .join(Conversation, Conversation.id == GroupChat.conversation_id)
         .options(contains_eager(GroupChat.conversation))
     ).all()
 
-    subscription_ids = [r.GroupChatSubscription.id for r in results]
-    unseen_counts: dict[int, int] = dict(
+    subscription_ids = [row.GroupChatSubscription.id for row in group_chat_rows]
+    unseen_count_by_subscription: dict[int, int] = dict(
         session.execute(  # type: ignore[arg-type]
             select(GroupChatSubscription.id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
@@ -579,15 +582,15 @@ def _build_group_chats_pb(
         ).all()
     )
     return {
-        r.GroupChat.conversation_id: _group_chat_to_pb(
+        row.GroupChat.conversation_id: _group_chat_to_pb(
             session,
             context,
-            r.GroupChat,
-            r.GroupChatSubscription,
-            r.Message,
-            unseen_counts.get(r.GroupChatSubscription.id, 0),
+            row.GroupChat,
+            row.GroupChatSubscription,
+            row.Message,
+            unseen_count_by_subscription.get(row.GroupChatSubscription.id, 0),
         )
-        for r in results
+        for row in group_chat_rows
     }
 
 
@@ -595,44 +598,45 @@ def _build_host_request_threads_pb(
     session: Session,
     context: CouchersContext,
     host_request_ids: list[int],
-    latest_message_id_by_conv: dict[int, int],
+    latest_message_id_by_conversation: dict[int, int],
 ) -> dict[int, conversations_pb2.HostRequestThread]:
     """Build HostRequestThread protobufs (with role-based roles + unseen counts) for a page."""
     if not host_request_ids:
         return {}
-    results = session.execute(
+    host_request_rows = session.execute(
         select(HostRequest, Conversation)
         .join(Conversation, Conversation.id == HostRequest.conversation_id)
         .where(HostRequest.conversation_id.in_(host_request_ids))
     ).all()
 
-    latest_message_ids = [latest_message_id_by_conv[c] for c in host_request_ids]
-    messages_by_id = {
-        m.id: m for m in session.execute(select(Message).where(Message.id.in_(latest_message_ids))).scalars().all()
+    latest_message_ids = [latest_message_id_by_conversation[conversation_id] for conversation_id in host_request_ids]
+    message_by_id = {
+        message.id: message
+        for message in session.execute(select(Message).where(Message.id.in_(latest_message_ids))).scalars().all()
     }
 
-    viewer_last_seen = case(
+    viewer_last_seen_message_id = case(
         (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
         else_=HostRequest.recipient_last_seen_message_id,
     )
-    unseen_counts: dict[int, int] = dict(
+    unseen_count_by_conversation: dict[int, int] = dict(
         session.execute(  # type: ignore[arg-type]
             select(HostRequest.conversation_id, func.count(Message.id))
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
             .where(HostRequest.conversation_id.in_(host_request_ids))
-            .where(Message.id > viewer_last_seen)
+            .where(Message.id > viewer_last_seen_message_id)
             .group_by(HostRequest.conversation_id)
         ).all()
     )
     return {
-        r.HostRequest.conversation_id: _host_request_thread_to_pb(
-            r.HostRequest,
-            r.Conversation,
-            messages_by_id.get(latest_message_id_by_conv[r.HostRequest.conversation_id]),
+        row.HostRequest.conversation_id: _host_request_thread_to_pb(
+            row.HostRequest,
+            row.Conversation,
+            message_by_id.get(latest_message_id_by_conversation[row.HostRequest.conversation_id]),
             context.user_id,
-            unseen_counts.get(r.HostRequest.conversation_id, 0),
+            unseen_count_by_conversation.get(row.HostRequest.conversation_id, 0),
         )
-        for r in results
+        for row in host_request_rows
     }
 
 
@@ -743,44 +747,56 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
         )
 
-        legs = []
+        # Build one candidate subquery per included thread kind, each yielding
+        # (conversation_id, latest_message_id, kind), then union them so a single
+        # global cursor (Message.id) can paginate across all kinds.
+        candidate_queries = []
         if include_chats:
-            legs.append(_group_chat_candidate_query(context, only_archived, unread))
+            candidate_queries.append(_group_chat_candidate_query(context, only_archived, unread))
         if include_host_requests:
-            legs.append(
+            candidate_queries.append(
                 _host_request_candidate_query(
                     context, _host_request_party_predicate(context, thread_filter), only_archived, unread
                 )
             )
 
-        combined = (legs[0] if len(legs) == 1 else union_all(*legs)).subquery()
-        stmt = select(combined.c.conversation_id, combined.c.latest_message_id, combined.c.kind)
+        combined_candidates = (
+            candidate_queries[0] if len(candidate_queries) == 1 else union_all(*candidate_queries)
+        ).subquery()
+        page_query = select(
+            combined_candidates.c.conversation_id,
+            combined_candidates.c.latest_message_id,
+            combined_candidates.c.kind,
+        )
         if request.page_token:
-            stmt = stmt.where(combined.c.latest_message_id < int(request.page_token))
-        stmt = stmt.order_by(combined.c.latest_message_id.desc()).limit(page_size + 1)
-        rows = session.execute(stmt).all()
+            page_query = page_query.where(combined_candidates.c.latest_message_id < int(request.page_token))
+        page_query = page_query.order_by(combined_candidates.c.latest_message_id.desc()).limit(page_size + 1)
+        candidate_rows = session.execute(page_query).all()
 
-        page = rows[:page_size]
-        no_more = len(rows) <= page_size
-        next_page_token = str(min(r.latest_message_id for r in page)) if (page and not no_more) else ""
+        page_rows = candidate_rows[:page_size]
+        no_more = len(candidate_rows) <= page_size
+        next_page_token = str(min(row.latest_message_id for row in page_rows)) if (page_rows and not no_more) else ""
 
-        latest_message_id_by_conv = {r.conversation_id: r.latest_message_id for r in page}
-        gc_ids = [r.conversation_id for r in page if r.kind == "group_chat"]
-        hr_ids = [r.conversation_id for r in page if r.kind == "host_request"]
+        latest_message_id_by_conversation = {row.conversation_id: row.latest_message_id for row in page_rows}
+        group_chat_ids = [row.conversation_id for row in page_rows if row.kind == "group_chat"]
+        host_request_ids = [row.conversation_id for row in page_rows if row.kind == "host_request"]
 
-        gc_pbs = _build_group_chats_pb(session, context, gc_ids)
-        hr_pbs = _build_host_request_threads_pb(session, context, hr_ids, latest_message_id_by_conv)
+        # Hydrate each kind in a batch, then re-assemble in the paginated order.
+        group_chats_by_id = _build_group_chats_pb(session, context, group_chat_ids)
+        host_request_threads_by_id = _build_host_request_threads_pb(
+            session, context, host_request_ids, latest_message_id_by_conversation
+        )
 
         threads = []
-        for r in page:
-            if r.kind == "group_chat":
-                gc = gc_pbs.get(r.conversation_id)
-                if gc is not None:
-                    threads.append(conversations_pb2.MessageThread(group_chat=gc))
+        for row in page_rows:
+            if row.kind == "group_chat":
+                group_chat = group_chats_by_id.get(row.conversation_id)
+                if group_chat is not None:
+                    threads.append(conversations_pb2.MessageThread(group_chat=group_chat))
             else:
-                hr = hr_pbs.get(r.conversation_id)
-                if hr is not None:
-                    threads.append(conversations_pb2.MessageThread(host_request=hr))
+                host_request_thread = host_request_threads_by_id.get(row.conversation_id)
+                if host_request_thread is not None:
+                    threads.append(conversations_pb2.MessageThread(host_request=host_request_thread))
 
         return conversations_pb2.ListMessageThreadsRes(
             threads=threads, next_page_token=next_page_token, no_more=no_more
@@ -813,25 +829,25 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         )
 
         if include_chats:
-            latest_by_conv = {
+            latest_message_id_by_conversation = {
                 row.conversation_id: row.latest_message_id
                 for row in session.execute(_group_chat_candidate_query(context, only_archived, unread)).all()
             }
-            if latest_by_conv:
+            if latest_message_id_by_conversation:
                 subscriptions = (
                     session.execute(
                         select(GroupChatSubscription)
                         .where(GroupChatSubscription.user_id == context.user_id)
-                        .where(GroupChatSubscription.group_chat_id.in_(latest_by_conv.keys()))
+                        .where(GroupChatSubscription.group_chat_id.in_(latest_message_id_by_conversation.keys()))
                         .where(GroupChatSubscription.left == None)
                     )
                     .scalars()
                     .all()
                 )
                 for subscription in subscriptions:
-                    latest = latest_by_conv[subscription.group_chat_id]
-                    if subscription.last_seen_message_id < latest:
-                        subscription.last_seen_message_id = latest
+                    latest_message_id = latest_message_id_by_conversation[subscription.group_chat_id]
+                    if subscription.last_seen_message_id < latest_message_id:
+                        subscription.last_seen_message_id = latest_message_id
                     mark_notifications_seen(
                         session,
                         user_id=context.user_id,
@@ -843,24 +859,30 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
 
         if include_host_requests:
-            party = _host_request_party_predicate(context, thread_filter)
-            latest_by_conv = {
+            party_predicate = _host_request_party_predicate(context, thread_filter)
+            latest_message_id_by_conversation = {
                 row.conversation_id: row.latest_message_id
-                for row in session.execute(_host_request_candidate_query(context, party, only_archived, unread)).all()
+                for row in session.execute(
+                    _host_request_candidate_query(context, party_predicate, only_archived, unread)
+                ).all()
             }
-            if latest_by_conv:
+            if latest_message_id_by_conversation:
                 host_requests = (
-                    session.execute(select(HostRequest).where(HostRequest.conversation_id.in_(latest_by_conv.keys())))
+                    session.execute(
+                        select(HostRequest).where(
+                            HostRequest.conversation_id.in_(latest_message_id_by_conversation.keys())
+                        )
+                    )
                     .scalars()
                     .all()
                 )
                 for host_request in host_requests:
-                    latest = latest_by_conv[host_request.conversation_id]
+                    latest_message_id = latest_message_id_by_conversation[host_request.conversation_id]
                     if host_request.initiator_user_id == context.user_id:
-                        if host_request.initiator_last_seen_message_id < latest:
-                            host_request.initiator_last_seen_message_id = latest
-                    elif host_request.recipient_last_seen_message_id < latest:
-                        host_request.recipient_last_seen_message_id = latest
+                        if host_request.initiator_last_seen_message_id < latest_message_id:
+                            host_request.initiator_last_seen_message_id = latest_message_id
+                    elif host_request.recipient_last_seen_message_id < latest_message_id:
+                        host_request.recipient_last_seen_message_id = latest_message_id
                     mark_notifications_seen(
                         session,
                         user_id=context.user_id,
