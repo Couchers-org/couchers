@@ -1,8 +1,10 @@
-import { ExpandMore, Place } from "@mui/icons-material";
-import { Collapse, IconButton, List, styled, Typography } from "@mui/material";
+import { ExpandMore, Place, WavingHandOutlined } from "@mui/icons-material";
+import { Collapse, List, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { EditIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import { useListPublicTripsByUser } from "features/publicTrips/useListPublicTrips";
@@ -10,59 +12,74 @@ import { messageThreadsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { MESSAGES } from "i18n/namespaces";
+import { MESSAGES, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   HostRequestThread,
   ListMessageThreadsRes,
   MessageThreadFilter,
 } from "proto/conversations_pb";
-import { PublicTrip } from "proto/public_trips_pb";
-import React, { useEffect, useState } from "react";
-import { routeToHostRequest } from "routes";
+import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
+import React, { useCallback, useEffect, useState } from "react";
+import { myPublicTripsRoute, routeToHostRequest } from "routes";
 import { service } from "service";
-import { theme } from "theme";
 import { localizeDateTimeRange, numNights, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 
 const OFFERS_PAGE_SIZE = 50;
 
-const StyledGroupHeader = styled("div")(({ theme }) => ({
+// Each trip is a self-contained accordion: a bordered card whose header toggles
+// the offers held inside it.
+const StyledActions = styled("div")(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1.5),
-  padding: theme.spacing(1.25, 0),
-  borderTop: "1px solid var(--mui-palette-divider)",
-}));
-
-const StyledTallyContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  gap: theme.spacing(0.75),
-  alignItems: "center",
-  flexWrap: "wrap",
   justifyContent: "flex-end",
+  marginBottom: theme.spacing(1.5),
 }));
 
-const StyledTally = styled("span")(({ theme }) => ({
-  height: 20,
+const StyledGroupContainer = styled("div")(({ theme }) => ({
+  border: "1px solid var(--mui-palette-divider)",
+  borderRadius: theme.shape.borderRadius * 2,
+  marginBottom: theme.spacing(2),
+  overflow: "hidden",
+  backgroundColor: "var(--mui-palette-background-paper)",
+}));
+
+const StyledGroupHeader = styled("button")<{ expanded: boolean }>(
+  ({ theme, expanded }) => ({
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(1.25, 2),
+    border: "none",
+    textAlign: "left",
+    cursor: "pointer",
+    backgroundColor: "var(--mui-palette-grey-50)",
+    borderBottom: expanded ? "1px solid var(--mui-palette-divider)" : "none",
+    "&:hover": {
+      backgroundColor: "var(--mui-palette-action-hover)",
+    },
+  }),
+);
+
+// Total offers indicator, matching the public trips dashboard widget.
+const StyledOffersChip = styled("div")(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
-  gap: theme.spacing(0.5),
-  padding: theme.spacing(0, 1),
-  borderRadius: 16,
+  gap: "3px",
+  flexShrink: 0,
   fontSize: "0.75rem",
-  fontWeight: 500,
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+  color: "var(--mui-palette-primary-dark)",
+  "& svg": {
+    fontSize: theme.typography.pxToRem(15),
+  },
 }));
 
-const StyledDot = styled("span")({
-  width: 8,
-  height: 8,
-  borderRadius: "50%",
-});
-
-const StyledHostRequestListItem = styled(HostRequestListItem)(() => ({
-  marginInline: `-${theme.spacing(2)}`,
-  paddingInline: `${theme.spacing(2)}`,
+const StyledHostRequestListItem = styled(HostRequestListItem)(({ theme }) => ({
+  paddingInline: theme.spacing(2),
 }));
 
 function guardMenuNavigation(e: React.MouseEvent) {
@@ -72,50 +89,15 @@ function guardMenuNavigation(e: React.MouseEvent) {
   }
 }
 
-function TripTally({ trip }: { trip: PublicTrip.AsObject }) {
+function OffersChip({ count, dimmed }: { count: number; dimmed?: boolean }) {
   const { t } = useTranslation(MESSAGES);
-  const tally = trip.offerTally;
-  if (!tally) return null;
   return (
-    <StyledTallyContainer>
-      {tally.pending > 0 && (
-        <StyledTally
-          sx={{
-            backgroundColor: "var(--mui-palette-action-hover)",
-            color: "var(--mui-palette-text-secondary)",
-          }}
-        >
-          <StyledDot sx={{ backgroundColor: "var(--mui-palette-grey-500)" }} />
-          {t("my_public_trips.tally_pending", { count: tally.pending })}
-        </StyledTally>
-      )}
-      {tally.accepted > 0 && (
-        <StyledTally
-          sx={{
-            backgroundColor: "rgba(26, 195, 2, 0.12)",
-            color: "var(--mui-palette-success-main)",
-          }}
-        >
-          <StyledDot
-            sx={{ backgroundColor: "var(--mui-palette-success-main)" }}
-          />
-          {t("my_public_trips.tally_accepted", { count: tally.accepted })}
-        </StyledTally>
-      )}
-      {tally.declined > 0 && (
-        <StyledTally
-          sx={{
-            backgroundColor: "rgba(255, 0, 0, 0.08)",
-            color: "var(--mui-palette-error-main)",
-          }}
-        >
-          <StyledDot
-            sx={{ backgroundColor: "var(--mui-palette-error-main)" }}
-          />
-          {t("my_public_trips.tally_declined", { count: tally.declined })}
-        </StyledTally>
-      )}
-    </StyledTallyContainer>
+    <StyledOffersChip
+      sx={dimmed ? { color: "var(--mui-palette-grey-500)" } : undefined}
+    >
+      <WavingHandOutlined />
+      {t("my_public_trips.offers", { count })}
+    </StyledOffersChip>
   );
 }
 
@@ -123,9 +105,18 @@ export default function MyPublicTripsMessages() {
   const {
     t,
     i18n: { language: locale },
-  } = useTranslation(MESSAGES);
+  } = useTranslation([MESSAGES, PUBLIC_TRIPS]);
   const { data: currentUser } = useCurrentUser();
   const userId = currentUser?.userId;
+
+  // When deep-linked from a trip card ("view offers"), scroll that trip into view.
+  const router = useRouter();
+  const targetTripId = router.query.trip
+    ? Number(router.query.trip)
+    : undefined;
+  const scrollTargetIntoView = useCallback((node: HTMLDivElement | null) => {
+    node?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const {
     data: tripsData,
@@ -217,27 +208,61 @@ export default function MyPublicTripsMessages() {
 
   return (
     <div>
+      <StyledActions>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<EditIcon />}
+          component={Link}
+          href={myPublicTripsRoute}
+        >
+          {t("publicTrips:edit_my_trips")}
+        </Button>
+      </StyledActions>
       {tripGroups.map((trip) => {
         const tripOffers = offersByTrip.get(trip.tripId) ?? [];
         const isCollapsed = collapsed.has(trip.tripId);
+        // Dim closed/past trips, matching how past host requests are shown.
+        const isDimmed =
+          trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED ||
+          dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
         return (
-          <div key={trip.tripId}>
-            <StyledGroupHeader>
-              <IconButton
-                size="small"
-                aria-label={t("my_public_trips.toggle_group")}
-                onClick={() => toggle(trip.tripId)}
-              >
-                <ExpandMore
-                  sx={{
-                    transition: "transform 0.2s",
-                    transform: isCollapsed ? "rotate(-90deg)" : "none",
-                  }}
-                />
-              </IconButton>
-              <Place sx={{ color: "var(--mui-palette-primary-dark)" }} />
+          <StyledGroupContainer
+            key={trip.tripId}
+            ref={
+              trip.tripId === targetTripId ? scrollTargetIntoView : undefined
+            }
+          >
+            <StyledGroupHeader
+              expanded={!isCollapsed}
+              aria-expanded={!isCollapsed}
+              aria-label={t("my_public_trips.toggle_group")}
+              onClick={() => toggle(trip.tripId)}
+            >
+              <ExpandMore
+                sx={{
+                  color: "var(--mui-palette-text-secondary)",
+                  transition: "transform 0.2s",
+                  transform: isCollapsed ? "rotate(-90deg)" : "none",
+                }}
+              />
+              <Place
+                sx={{
+                  color: isDimmed
+                    ? "var(--mui-palette-grey-500)"
+                    : "var(--mui-palette-primary-dark)",
+                }}
+              />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="h3" noWrap>
+                <Typography
+                  variant="h3"
+                  noWrap
+                  sx={
+                    isDimmed
+                      ? { color: "var(--mui-palette-grey-500)" }
+                      : undefined
+                  }
+                >
                   {trip.communityName}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
@@ -250,14 +275,12 @@ export default function MyPublicTripsMessages() {
                   {t("my_public_trips.nights", {
                     count: numNights(trip.toDate, trip.fromDate),
                   })}
-                  {" · "}
-                  {t("my_public_trips.offers", { count: tripOffers.length })}
                 </Typography>
               </div>
-              <TripTally trip={trip} />
+              <OffersChip count={tripOffers.length} dimmed={isDimmed} />
             </StyledGroupHeader>
             <Collapse in={!isCollapsed} mountOnEnter unmountOnExit>
-              <List sx={{ width: "100%" }}>
+              <List disablePadding sx={{ width: "100%" }}>
                 {tripOffers.map((offer) => (
                   <Link
                     key={`offer-${offer.hostRequestId}`}
@@ -269,7 +292,7 @@ export default function MyPublicTripsMessages() {
                 ))}
               </List>
             </Collapse>
-          </div>
+          </StyledGroupContainer>
         );
       })}
     </div>

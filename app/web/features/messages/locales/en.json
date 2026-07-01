@@ -64,7 +64,7 @@
       "chats": "Chats",
       "hosting": "Hosting",
       "surfing": "Surfing",
-      "public_trips": "Public trips"
+      "public_trips": "My public trips"
     }
   },
   "archive": {
@@ -235,13 +235,7 @@
     "nights_one": "{{count}} night",
     "nights_other": "{{count}} nights",
     "offers_one": "{{count}} offer",
-    "offers_other": "{{count}} offers",
-    "tally_pending_one": "{{count}} pending",
-    "tally_pending_other": "{{count}} pending",
-    "tally_accepted_one": "{{count}} accepted",
-    "tally_accepted_other": "{{count}} accepted",
-    "tally_declined_one": "{{count}} declined",
-    "tally_declined_other": "{{count}} declined"
+    "offers_other": "{{count}} offers"
   },
   "host_request_view": {
     "error_message": "Invalid host request ID",

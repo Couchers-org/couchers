@@ -20,6 +20,8 @@ import {
   hostRequestKey,
   hostRequestMessagesKey,
   hostRequestsListKey,
+  listNotificationsQueryKey,
+  messageThreadsListKey,
   pingQueryKey,
 } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
@@ -32,13 +34,13 @@ import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
 } from "proto/requests_pb";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
-import { useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
@@ -152,9 +154,17 @@ export default function HostRequestView({
   const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
   const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
-  const isHost = hostRequest?.hostUserId === currentUserId;
   const isOffer = !!hostRequest?.publicTripId;
-  const otherUser = isHost ? surfer : host;
+  // Whether the viewer is the host of the *stay* (the one offering a couch).
+  // For a normal request that's the recipient (hostUserId); for a public-trip
+  // offer the roles are reversed, so it's the initiator (surferUserId), i.e. the
+  // person who offered to host. GetHostRequest is not role-swapped, so we derive
+  // it here.
+  const isHost = isOffer
+    ? hostRequest?.surferUserId === currentUserId
+    : hostRequest?.hostUserId === currentUserId;
+  // The other party in the conversation, independent of stay-role.
+  const otherUser = hostRequest?.surferUserId === currentUserId ? host : surfer;
   const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
   const titleStatus =
@@ -164,27 +174,19 @@ export default function HostRequestView({
         hostRequest.status as keyof typeof requestStatusToTransKey
       ],
     );
+  const titleTransKey = isOffer
+    ? isHost
+      ? "host_request_view.offer_title_for_host"
+      : "host_request_view.offer_title_for_surfer"
+    : isHost
+      ? "host_request_view.title_for_host"
+      : "host_request_view.title_for_surfer";
   let title =
     otherUser && hostRequest
-      ? isOffer
-        ? isHost
-          ? t("host_request_view.offer_title_for_surfer", {
-              user: firstName(otherUser.name),
-              status: titleStatus,
-            })
-          : t("host_request_view.offer_title_for_host", {
-              user: firstName(otherUser.name),
-              status: titleStatus,
-            })
-        : isHost
-          ? t("host_request_view.title_for_host", {
-              user: firstName(otherUser.name),
-              status: titleStatus,
-            })
-          : t("host_request_view.title_for_surfer", {
-              user: firstName(otherUser.name),
-              status: titleStatus,
-            })
+      ? t(titleTransKey, {
+          user: firstName(otherUser.name),
+          status: titleStatus,
+        })
       : undefined;
 
   if (isRequestPast) {
@@ -200,6 +202,7 @@ export default function HostRequestView({
         queryKey: hostRequestMessagesKey(hostRequestId),
       });
       queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
   const respondMutation = useMutation<
@@ -222,6 +225,7 @@ export default function HostRequestView({
         queryKey: hostRequestMessagesKey(hostRequestId),
       });
       queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
@@ -232,13 +236,30 @@ export default function HostRequestView({
       queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
       });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+      // The backend also marks the related notifications seen, so refresh the feed.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(
     markLastRequestSeen,
     hostRequest?.lastSeenMessageId,
   );
+
+  // Mark the thread seen as soon as it's opened (while still mounted), so the
+  // read state and unread badges update reliably even if the user navigates back
+  // immediately — the per-message onVisible debounce alone can be lost on unmount.
+  const latestMessageId = messagesRes?.pages?.[0]?.messagesList?.[0]?.messageId;
+  useEffect(() => {
+    if (
+      hostRequest &&
+      latestMessageId &&
+      latestMessageId > hostRequest.lastSeenMessageId
+    ) {
+      markLastRequestSeen(latestMessageId);
+    }
+  }, [hostRequest, latestMessageId, markLastRequestSeen]);
 
   const archiveMutation = useMutation<void, RpcError>({
     mutationFn: async () => {
@@ -248,7 +269,8 @@ export default function HostRequestView({
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
+      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
       });
@@ -264,7 +286,20 @@ export default function HostRequestView({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
-  const handleBack = () => router.push(messagesRoute);
+  // Go back to wherever the user came from (preserving the messages tab they were
+  // on). On the native embed, pop the native nav stack; on web go back if there's
+  // in-app history, otherwise fall back to the messages list.
+  const handleBack = () => {
+    if (isNativeEmbed) {
+      sendNativeBack();
+      return;
+    }
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(messagesRoute);
+    }
+  };
 
   const hasError =
     respondMutation.error || sendMutation.error || hostRequestError;

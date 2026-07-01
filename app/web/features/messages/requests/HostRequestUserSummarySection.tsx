@@ -50,6 +50,11 @@ const StyledShortUserInfo = styled("div")(({ theme }) => ({
   marginLeft: theme.spacing(2),
 }));
 
+const StyledDatesRow = styled("div")({
+  display: "flex",
+  alignItems: "center",
+});
+
 const StyledPublicTripChip = styled(Chip)(({ theme }) => ({
   height: 20,
   fontSize: "0.75rem",
@@ -109,25 +114,27 @@ const HostRequestUserSummarySection = ({
           )}
         </Typography>
         {hostRequest && (
-          <Typography
-            component="p"
-            variant="h3"
-            sx={{ paddingRight: theme.spacing(1) }}
-          >
-            {localizeDateTimeRange(
-              // Host request are plain dates (no time),
-              // just make sure to parse and format them in the same timezone.
-              dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-              dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
-              {
-                timezone: UTC_TIMEZONE,
-                locale,
-                includeTime: false,
-                abbreviate: true,
-              },
-            )}
+          <StyledDatesRow>
+            <Typography
+              component="span"
+              variant="h3"
+              sx={{ paddingRight: theme.spacing(1) }}
+            >
+              {localizeDateTimeRange(
+                // Host request are plain dates (no time),
+                // just make sure to parse and format them in the same timezone.
+                dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
+                dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                {
+                  timezone: UTC_TIMEZONE,
+                  locale,
+                  includeTime: false,
+                  abbreviate: true,
+                },
+              )}
+            </Typography>
             {publicTripChip}
-          </Typography>
+          </StyledDatesRow>
         )}
       </StyledShortUserInfo>
     </StyledSmallUserSummary>

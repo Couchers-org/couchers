@@ -17,6 +17,8 @@ import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
+  listNotificationsQueryKey,
+  messageThreadsListKey,
   pingQueryKey,
 } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
@@ -140,7 +142,8 @@ export default function GroupChatView({
     mutationFn: (text) => service.conversations.sendMessage(chatId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
@@ -154,7 +157,10 @@ export default function GroupChatView({
       service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+      // The backend also marks the related notifications seen, so refresh the feed.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(

@@ -20,7 +20,7 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ListMessageThreadsRes } from "proto/conversations_pb";
+import { ListMessageThreadsRes, MessageThread } from "proto/conversations_pb";
 import React from "react";
 import { routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
@@ -164,11 +164,71 @@ export default function AllMessagesTab() {
   const unseenAllCount =
     unseenChatsCount + unseenHostingCount + unseenSurfingCount;
 
+  const renderThread = (thread: MessageThread.AsObject) => {
+    if (thread.groupChat) {
+      return (
+        <Link
+          key={`chat-${thread.groupChat.groupChatId}`}
+          href={routeToGroupChat(thread.groupChat.groupChatId)}
+          onClick={guardMenuNavigation}
+        >
+          <StyledGroupChatListItem
+            groupChat={thread.groupChat}
+            isArchived={showArchived}
+          />
+        </Link>
+      );
+    }
+    if (thread.hostRequest) {
+      return (
+        <Link
+          key={`request-${thread.hostRequest.hostRequestId}`}
+          href={routeToHostRequest(thread.hostRequest.hostRequestId)}
+          onClick={guardMenuNavigation}
+        >
+          <StyledHostRequestListItem
+            hostRequest={thread.hostRequest}
+            isArchived={showArchived}
+          />
+        </Link>
+      );
+    }
+    return null;
+  };
+
+  const emptyStateText = showArchived
+    ? t("archive.no_archived_messages")
+    : t("all_messages_tab.no_messages");
+
+  let messagesContent;
+  if (isGroupedView) {
+    messagesContent = <MyPublicTripsMessages />;
+  } else if (error) {
+    messagesContent = <Alert severity="error">{error.message}</Alert>;
+  } else if (isLoading) {
+    messagesContent = <CenteredSpinner />;
+  } else {
+    messagesContent = (
+      <StyledList>
+        {threads.length === 0 ? (
+          <TextBody>{emptyStateText}</TextBody>
+        ) : (
+          threads.map(renderThread)
+        )}
+        {hasNextPage && (
+          <div ref={loadMoreRef}>
+            <CenteredSpinner />
+          </div>
+        )}
+      </StyledList>
+    );
+  }
+
   return (
     <StyledWrapper>
       {!showArchived && !isGroupedView && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
-        <NotificationBadge>
+        <NotificationBadge count={unseenAllCount}>
           <Chip
             label={t("all_messages_tab.filter.all")}
             onClick={() => handleFilterChange("all")}
@@ -227,54 +287,7 @@ export default function AllMessagesTab() {
           variant={filter === "archived" ? "filled" : "outlined"}
         />
       </StyledFilterContainer>
-      {isGroupedView ? (
-        <MyPublicTripsMessages />
-      ) : error ? (
-        <Alert severity="error">{error.message}</Alert>
-      ) : isLoading ? (
-        <CenteredSpinner />
-      ) : (
-        <StyledList>
-          {threads.length === 0 ? (
-            <TextBody>
-              {showArchived
-                ? t("archive.no_archived_messages")
-                : t("all_messages_tab.no_messages")}
-            </TextBody>
-          ) : (
-            threads.map((thread) =>
-              thread.groupChat ? (
-                <Link
-                  key={`chat-${thread.groupChat.groupChatId}`}
-                  href={routeToGroupChat(thread.groupChat.groupChatId)}
-                  onClick={guardMenuNavigation}
-                >
-                  <StyledGroupChatListItem
-                    groupChat={thread.groupChat}
-                    isArchived={showArchived}
-                  />
-                </Link>
-              ) : thread.hostRequest ? (
-                <Link
-                  key={`request-${thread.hostRequest.hostRequestId}`}
-                  href={routeToHostRequest(thread.hostRequest.hostRequestId)}
-                  onClick={guardMenuNavigation}
-                >
-                  <StyledHostRequestListItem
-                    hostRequest={thread.hostRequest}
-                    isArchived={showArchived}
-                  />
-                </Link>
-              ) : null,
-            )
-          )}
-          {hasNextPage && (
-            <div ref={loadMoreRef}>
-              <CenteredSpinner />
-            </div>
-          )}
-        </StyledList>
-      )}
+      {messagesContent}
     </StyledWrapper>
   );
 }

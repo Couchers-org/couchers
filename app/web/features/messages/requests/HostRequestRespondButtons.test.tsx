@@ -189,3 +189,92 @@ describe("HostRequestRespondButtons — surfer confirm card", () => {
     expect(screen.getByRole("dialog")).toBeVisible();
   });
 });
+
+describe("HostRequestRespondButtons — public-trip offer", () => {
+  it("shows the offering host a Withdraw card, not Accept/Decline, while pending", () => {
+    render(
+      <HostRequestRespondButtons
+        isHost
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name="Aapeli"
+      />,
+      { wrapper },
+    );
+    expect(
+      screen.getByRole("button", {
+        name: t("messages:withdraw_offer_button"),
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: t("global:accept") }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("withdrawing the offer opens a confirmation dialog", async () => {
+    render(
+      <HostRequestRespondButtons
+        isHost
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name="Aapeli"
+      />,
+      { wrapper },
+    );
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole("button", { name: t("messages:withdraw_offer_button") }),
+    );
+    expect(screen.getByRole("dialog")).toBeVisible();
+  });
+
+  it("shows the traveller Accept/Decline, not Withdraw, while pending", () => {
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name="Luca"
+      />,
+      { wrapper },
+    );
+    expect(
+      screen.getByRole("button", { name: t("global:accept") }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: t("messages:close_request_button_text"),
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: t("messages:withdraw_offer_button"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the traveller a confirmation banner once they've accepted", () => {
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name="Luca"
+      />,
+      { wrapper },
+    );
+    expect(
+      screen.getByText(
+        t("messages:offer_accept_confirmation", { name: "Luca" }),
+      ),
+    ).toBeInTheDocument();
+  });
+});

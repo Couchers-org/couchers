@@ -36,9 +36,15 @@ import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
-import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import {
+  routeToCommunity,
+  routeToHostRequest,
+  routeToPublicTripOffers,
+  routeToUser,
+} from "routes";
 import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -179,6 +185,7 @@ export default function PublicTripCard({
   const { data: accountInfo } = useAccountInfo();
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
+  const router = useRouter();
   const { mutate: updateTrip } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
 
@@ -252,6 +259,16 @@ export default function PublicTripCard({
           >
             {(setConfirmOpen) => {
               const menuItems: EllipsisMenuItem[] = [
+                ...(trip.offersCount && trip.offersCount > 0
+                  ? [
+                      {
+                        icon: WavingHandOutlined,
+                        label: t("publicTrips:view_offers"),
+                        onClick: () =>
+                          router.push(routeToPublicTripOffers(trip.tripId)),
+                      },
+                    ]
+                  : []),
                 {
                   icon: EditIcon,
                   label: t("publicTrips:edit"),
@@ -443,17 +460,27 @@ export default function PublicTripCard({
                     )}
                     {trip.offersCount !== undefined && (
                       <Box
-                        component="span"
+                        component={trip.offersCount > 0 ? Link : "span"}
+                        href={
+                          trip.offersCount > 0
+                            ? routeToPublicTripOffers(trip.tripId)
+                            : undefined
+                        }
                         sx={{
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "3px",
                           fontSize: "0.8125rem",
                           fontWeight: 700,
+                          textDecoration: "none",
                           color:
                             trip.offersCount > 0
                               ? "var(--mui-palette-primary-main)"
                               : "var(--mui-palette-text-secondary)",
+                          ...(trip.offersCount > 0 && {
+                            cursor: "pointer",
+                            "&:hover": { textDecoration: "underline" },
+                          }),
                         }}
                       >
                         {trip.offersCount > 0 ? (

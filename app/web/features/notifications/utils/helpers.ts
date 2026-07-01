@@ -254,6 +254,12 @@ export const useMarkSingleNotificationIsSeen = () => {
         },
       });
     },
+    onSettled: () => {
+      // Refetch the list (to reconcile the optimistic update) and the ping so the
+      // overall unread notification count / badge stays in sync.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+    },
   });
 
   return { error, markSingleNotificationIsSeenMutation: mutate, isPending };
