@@ -74,6 +74,36 @@ def _create_host_request(surfer_token: str, host_id: int, moderator, public_trip
     return int(res.host_request_id)
 
 
+def test_list_message_threads_latest_status_change_message(db, moderator):
+    # Regression: a thread whose latest message is a host-request status change
+    # must serialize with its content set (not an empty control message).
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    request_id = _create_host_request(token2, user1.id, moderator)
+
+    # user1 (the host) accepts, so the latest message becomes a status change
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="",
+            )
+        )
+
+    with conversations_session(token1) as c:
+        res = c.ListMessageThreads(
+            conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_ALL)
+        )
+    thread = next(t for t in res.threads if t.WhichOneof("thread") == "host_request")
+    assert thread.host_request.latest_message.WhichOneof("content") == "host_request_status_changed"
+    assert (
+        thread.host_request.latest_message.host_request_status_changed.status
+        == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+
 def test_list_message_threads_interleaves_chats_and_requests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

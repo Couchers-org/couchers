@@ -108,6 +108,13 @@ def _message_to_pb(message: Message) -> conversations_pb2.Message:
                 if message.message_type == MessageType.user_removed
                 else None
             ),
+            host_request_status_changed=(
+                conversations_pb2.MessageContentHostRequestStatusChanged(
+                    status=hostrequeststatus2api[message.host_request_status_target]  # type: ignore[index]
+                )
+                if message.message_type == MessageType.host_request_status_changed
+                else None
+            ),
         )
 
 
