@@ -13,8 +13,11 @@ import {
   InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
+  ListMessageThreadsReq,
   MakeGroupChatAdminReq,
+  MarkAllThreadsSeenReq,
   MarkLastSeenGroupChatReq,
+  MessageThreadFilter,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendDirectMessageReq,
@@ -41,6 +44,49 @@ export async function listGroupChats(
   const response = await client.conversations.listGroupChats(req);
 
   return response.toObject();
+}
+
+export async function listMessageThreads({
+  filter,
+  onlyArchived,
+  pageToken,
+  count,
+}: {
+  filter: MessageThreadFilter;
+  onlyArchived?: boolean;
+  pageToken?: string;
+  count?: number;
+}) {
+  const req = new ListMessageThreadsReq();
+  req.setFilter(filter);
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  if (count !== undefined) {
+    req.setNumber(count);
+  }
+
+  const response = await client.conversations.listMessageThreads(req);
+
+  return response.toObject();
+}
+
+export async function markAllThreadsSeen({
+  filter,
+  onlyArchived,
+}: {
+  filter: MessageThreadFilter;
+  onlyArchived?: boolean;
+}) {
+  const req = new MarkAllThreadsSeenReq();
+  req.setFilter(filter);
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  return client.conversations.markAllThreadsSeen(req);
 }
 
 export async function getGroupChat(id: number) {

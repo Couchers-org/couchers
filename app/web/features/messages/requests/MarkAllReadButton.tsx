@@ -2,85 +2,36 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
-import { hasUnreadMessages } from "features/messages/utils";
 import {
-  groupChatsListKey,
-  hostRequestsListKey,
-  pingQueryKey,
-} from "features/queryKeys";
+  messageFilterToRequest,
+  MessageFilterType,
+} from "features/messages/constants";
+import { messageThreadsListKey, pingQueryKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
-import getAllPages from "utils/getAllPages";
 
-export default function MarkAllReadButton({
-  type,
-}: {
-  type: "chats" | "hosting" | "surfing" | "all";
-}) {
+export type MarkAllReadType = Exclude<MessageFilterType, "archived">;
+
+const labelKeyByType: Record<MarkAllReadType, string> = {
+  all: "mark_all_read_button_text",
+  unread: "mark_all_read_button_text",
+  chats: "mark_all_read_button_text_chats",
+  hosting: "mark_all_read_button_text_hosting",
+  surfing: "mark_all_read_button_text_surfing",
+  "public-trips": "mark_all_read_button_text_public_trips",
+};
+
+export default function MarkAllReadButton({ type }: { type: MarkAllReadType }) {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation({
-    mutationFn: async () => {
-      const shouldMarkChats = type === "chats" || type === "all";
-      const shouldMarkRequests =
-        type === "hosting" || type === "surfing" || type === "all";
-
-      if (shouldMarkChats) {
-        const data = await getAllPages({
-          serviceFunction: service.conversations.listGroupChats,
-          listKey: "groupChatsList",
-          params: (previousData) => previousData?.lastMessageId,
-          hasMore: (previousData) => !previousData.noMore,
-        });
-        await Promise.all(
-          data.map<void>((chat) =>
-            hasUnreadMessages(chat)
-              ? service.conversations.markLastSeenGroupChat(
-                  chat.groupChatId,
-                  chat.latestMessage.messageId,
-                )
-              : Promise.resolve(),
-          ),
-        );
-      }
-
-      if (shouldMarkRequests) {
-        const requestType: "all" | "hosting" | "surfing" =
-          type === "hosting" || type === "surfing" ? type : "all";
-        const data = await getAllPages({
-          serviceFunction: service.requests.listHostRequests,
-          listKey: "hostRequestsList",
-          params: (previousData) => ({
-            pageToken: previousData?.nextPageToken,
-            type: requestType,
-          }),
-          hasMore: (previousData) => !previousData.noMore,
-        });
-        await Promise.all(
-          data.map<void>((request) =>
-            hasUnreadMessages(request)
-              ? service.requests.markLastRequestSeen(
-                  request.hostRequestId,
-                  request.latestMessage.messageId,
-                )
-              : Promise.resolve(),
-          ),
-        );
-      }
-    },
-
+    mutationFn: () =>
+      service.conversations.markAllThreadsSeen(messageFilterToRequest(type)),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: hostRequestsListKey(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: [groupChatsListKey],
-      });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       // Invalidate ping to update badge counts in tabs
-      queryClient.invalidateQueries({
-        queryKey: [pingQueryKey],
-      });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
 
@@ -108,9 +59,7 @@ export default function MarkAllReadButton({
           },
         }}
       >
-        {type === "all"
-          ? t("mark_all_read_button_text")
-          : t(`mark_all_read_button_text_${type}`)}
+        {t(labelKeyByType[type])}
       </Button>
     </>
   );

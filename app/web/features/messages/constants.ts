@@ -1,4 +1,68 @@
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus, MessageThreadFilter } from "proto/conversations_pb";
+
+export type MessageFilterType =
+  | "all"
+  | "unread"
+  | "chats"
+  | "hosting"
+  | "surfing"
+  | "public-trips"
+  | "archived";
+
+export const MESSAGE_FILTER_TYPES: MessageFilterType[] = [
+  "all",
+  "unread",
+  "chats",
+  "hosting",
+  "surfing",
+  "public-trips",
+  "archived",
+];
+
+// Maps a URL filter slug to the unified ListMessageThreads request params.
+// "archived" is orthogonal: it's the full list restricted to archived threads.
+export function messageFilterToRequest(filter: MessageFilterType): {
+  filter: MessageThreadFilter;
+  onlyArchived: boolean;
+} {
+  switch (filter) {
+    case "unread":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_UNREAD,
+        onlyArchived: false,
+      };
+    case "chats":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_CHATS,
+        onlyArchived: false,
+      };
+    case "hosting":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_HOSTING,
+        onlyArchived: false,
+      };
+    case "surfing":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_SURFING,
+        onlyArchived: false,
+      };
+    case "public-trips":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+        onlyArchived: false,
+      };
+    case "archived":
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
+        onlyArchived: true,
+      };
+    default:
+      return {
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
+        onlyArchived: false,
+      };
+  }
+}
 
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]:

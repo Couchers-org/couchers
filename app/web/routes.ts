@@ -91,6 +91,7 @@ export const messageTypeStrings = [
   "chats",
   "hosting",
   "surfing",
+  "public-trips",
   "archived",
 ] as const;
 export type MessageType = (typeof messageTypeStrings)[number];

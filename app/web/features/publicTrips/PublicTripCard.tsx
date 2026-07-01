@@ -28,6 +28,7 @@ import {
   VisibilityIcon,
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -470,12 +471,13 @@ export default function PublicTripCard({
                   </Box>
                 ) : (
                   <>
-                    <StyledLink
-                      href={routeToUser(user.username)}
-                      target={isNativeEmbed ? undefined : "_blank"}
+                    <ProfileLink
+                      userId={user.userId}
+                      username={user.username}
+                      openInNewTab={!isNativeEmbed}
                     >
                       {t("publicTrips:view_profile")}
-                    </StyledLink>
+                    </ProfileLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <FlagButton
                         contentRef={`public_trip/${trip.tripId}`}

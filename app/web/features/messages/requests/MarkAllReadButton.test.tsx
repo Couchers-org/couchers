@@ -2,138 +2,73 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { GroupChat } from "proto/conversations_pb";
-import { HostRequest } from "proto/requests_pb";
+import { MessageThreadFilter } from "proto/conversations_pb";
 import { service } from "service";
-import chat from "test/fixtures/groupChat.json";
-import request from "test/fixtures/hostRequest.json";
-import messages from "test/fixtures/messages.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 const { t } = i18n;
 
-const listGroupChatsMock = service.conversations
-  .listGroupChats as jest.MockedFunction<
-  typeof service.conversations.listGroupChats
->;
-const listHostRequestsMock = service.requests
-  .listHostRequests as jest.MockedFunction<
-  typeof service.requests.listHostRequests
->;
-const markLastRequestSeenMock = service.requests
-  .markLastRequestSeen as jest.MockedFunction<
-  typeof service.requests.markLastRequestSeen
->;
-const markLastSeenGroupChatMock = service.conversations
-  .markLastSeenGroupChat as jest.MockedFunction<
-  typeof service.conversations.markLastSeenGroupChat
+const markAllThreadsSeenMock = service.conversations
+  .markAllThreadsSeen as jest.MockedFunction<
+  typeof service.conversations.markAllThreadsSeen
 >;
 
 describe("MarkAllReadButton", () => {
-  const mutableStore: {
-    chats: GroupChat.AsObject[];
-    requests: HostRequest.AsObject[];
-  } = {
-    chats: [],
-    requests: [],
-  };
   beforeEach(() => {
-    mutableStore.chats = [...defaultChats];
-    mutableStore.requests = [...defaultRequests];
-    //naive implementations rely on id = array index + 1
-    listGroupChatsMock.mockImplementation(
-      async (lastMessageId = 0, number = 1) => {
-        const chats = [
-          ...mutableStore.chats.slice(lastMessageId, lastMessageId + number),
-        ];
-        return {
-          groupChatsList: chats,
-          lastMessageId: chats[chats.length - 1].latestMessage!.messageId,
-          noMore: lastMessageId + 1 === mutableStore.chats.length,
-        };
-      },
-    );
-    listHostRequestsMock.mockImplementation(
-      async ({ pageToken = "", count = 1 }) => {
-        const offset = pageToken ? parseInt(pageToken) : 0;
-        const requests = [
-          ...mutableStore.requests.slice(offset, offset + count),
-        ];
-        return {
-          hostRequestsList: requests,
-          nextPageToken: String(
-            requests[requests.length - 1].latestMessage!.messageId,
-          ),
-          noMore: offset + 1 === mutableStore.requests.length,
-        };
-      },
-    );
-    markLastRequestSeenMock.mockImplementation(
-      async (hostRequestId, messageId) => {
-        mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
-        return new Empty();
-      },
-    );
-    markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
-      mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
-      return new Empty();
-    });
+    markAllThreadsSeenMock.mockResolvedValue(new Empty());
   });
 
-  it("marks expected chats", async () => {
-    render(<MarkAllReadButton type="chats" />, { wrapper });
+  it.each([
+    ["chats", MessageThreadFilter.MESSAGE_THREAD_FILTER_CHATS],
+    ["hosting", MessageThreadFilter.MESSAGE_THREAD_FILTER_HOSTING],
+    ["surfing", MessageThreadFilter.MESSAGE_THREAD_FILTER_SURFING],
+    ["public-trips", MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS],
+  ] as const)(
+    "marks all threads seen for the %s filter",
+    async (type, expectedFilter) => {
+      const label =
+        type === "public-trips"
+          ? t("messages:mark_all_read_button_text_public_trips")
+          : t(`messages:mark_all_read_button_text_${type}`);
+      render(<MarkAllReadButton type={type} />, { wrapper });
 
-    const user = userEvent.setup();
-    await user.click(
-      await screen.findByRole("button", {
-        name: t("messages:mark_all_read_button_text_chats"),
-      }),
-    );
+      const user = userEvent.setup();
+      await user.click(await screen.findByRole("button", { name: label }));
 
-    await waitFor(() => {
-      expect(markLastSeenGroupChatMock).toBeCalledTimes(1);
-      expect(markLastSeenGroupChatMock).toBeCalledWith(2, 2);
-      expect(mutableStore).toMatchObject({
-        chats: [
-          { lastSeenMessageId: 1 },
-          { lastSeenMessageId: 2 },
-          { lastSeenMessageId: 4 },
-        ],
+      await waitFor(() => {
+        expect(markAllThreadsSeenMock).toHaveBeenCalledWith({
+          filter: expectedFilter,
+          onlyArchived: false,
+        });
       });
-    });
-  });
-  it("marks expected requests", async () => {
-    render(<MarkAllReadButton type="hosting" />, { wrapper });
-    const user = userEvent.setup();
+    },
+  );
 
+  it("marks everything seen for the all filter", async () => {
+    render(<MarkAllReadButton type="all" />, { wrapper });
+    const user = userEvent.setup();
     await user.click(
       await screen.findByRole("button", {
-        name: t("messages:mark_all_read_button_text_hosting"),
+        name: t("messages:mark_all_read_button_text"),
       }),
     );
 
     await waitFor(() => {
-      expect(markLastRequestSeenMock).toBeCalledTimes(1);
-      expect(markLastRequestSeenMock).toBeCalledWith(2, 2);
-      expect(mutableStore).toMatchObject({
-        requests: [
-          { lastSeenMessageId: 1 },
-          { lastSeenMessageId: 2 },
-          { lastSeenMessageId: 4 },
-        ],
+      expect(markAllThreadsSeenMock).toHaveBeenCalledWith({
+        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
+        onlyArchived: false,
       });
     });
   });
 
   it("gives an error alert", async () => {
     mockConsoleError();
-    listGroupChatsMock.mockRejectedValueOnce(new Error("Generic error"));
+    markAllThreadsSeenMock.mockRejectedValueOnce(new Error("Generic error"));
     render(<MarkAllReadButton type="chats" />, { wrapper });
 
     const user = userEvent.setup();
-
     await user.click(
       await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text_chats"),
@@ -143,67 +78,3 @@ describe("MarkAllReadButton", () => {
     await assertErrorAlert("Generic error");
   });
 });
-
-//id must = array index + 1
-const defaultChats: GroupChat.AsObject[] = [
-  {
-    ...chat,
-    groupChatId: 1,
-    lastSeenMessageId: 1,
-    latestMessage: { ...messages[0], messageId: 1 },
-    isArchived: false,
-  },
-  {
-    ...chat,
-    groupChatId: 2,
-    lastSeenMessageId: 1,
-    latestMessage: { ...messages[0], messageId: 2 },
-    isArchived: false,
-  },
-  {
-    ...chat,
-    groupChatId: 3,
-    lastSeenMessageId: 4,
-    latestMessage: { ...messages[0], messageId: 3 },
-    isArchived: false,
-  },
-];
-
-const defaultRequests: HostRequest.AsObject[] = [
-  {
-    ...request,
-    hostRequestId: 1,
-    lastSeenMessageId: 1,
-    latestMessage: { ...messages[0], messageId: 1 },
-    hostingCity: "Los Angeles",
-    hostingLat: 34.0522,
-    hostingLng: -118.2437,
-    hostingRadius: 100,
-    needHostRequestFeedback: false,
-    isArchived: false,
-  },
-  {
-    ...request,
-    hostRequestId: 2,
-    lastSeenMessageId: 1,
-    latestMessage: { ...messages[0], messageId: 2 },
-    hostingCity: "San Francisco",
-    hostingLat: 37.7749,
-    hostingLng: -122.4194,
-    hostingRadius: 50,
-    needHostRequestFeedback: false,
-    isArchived: false,
-  },
-  {
-    ...request,
-    hostRequestId: 3,
-    lastSeenMessageId: 4,
-    latestMessage: { ...messages[0], messageId: 3 },
-    hostingCity: "New York",
-    hostingLat: 40.7128,
-    hostingLng: -74.006,
-    hostingRadius: 75,
-    needHostRequestFeedback: false,
-    isArchived: false,
-  },
-];

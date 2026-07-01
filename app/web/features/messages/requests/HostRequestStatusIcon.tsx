@@ -1,25 +1,28 @@
 import { Avatar, AvatarProps } from "@mui/material";
 import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
 import { HostRequestStatus } from "proto/conversations_pb";
-import { HostRequest } from "proto/requests_pb";
 import React from "react";
 import { theme } from "theme";
 
 interface HostRequestStatusIconProps extends AvatarProps {
-  hostRequest: HostRequest.AsObject;
+  status: HostRequestStatus;
+  // For public-trip offers, an accepted offer is a positive terminal state for
+  // the traveller, so it's shown green rather than the neutral gray of a normal
+  // accepted request that's still awaiting confirmation.
+  isOffer?: boolean;
 }
 
 export default function HostRequestStatusIcon({
-  hostRequest,
+  status: s,
+  isOffer = false,
   ...props
 }: HostRequestStatusIconProps) {
-  const s = hostRequest.status;
   let icon = null;
   let color = null;
 
   if (s === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) {
     icon = <CheckIcon fontSize="inherit" />;
-    color = "gray";
+    color = isOffer ? "green" : "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) {
     icon = <CrossIcon fontSize="inherit" />;
     color = "red";

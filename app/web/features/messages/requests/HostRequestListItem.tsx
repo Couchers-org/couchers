@@ -21,13 +21,13 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import { hostRequestsListKey } from "features/queryKeys";
+import { messageThreadsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequest } from "proto/requests_pb";
+import { HostRequestThread } from "proto/conversations_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
@@ -91,7 +91,7 @@ const RequestTypeChip = styled(Chip)<{ ishost: "true" | "false" }>(
 );
 
 interface HostRequestListItemProps {
-  hostRequest: HostRequest.AsObject;
+  hostRequest: HostRequestThread.AsObject;
   className?: string;
   isArchived?: boolean;
 }
@@ -106,7 +106,10 @@ export default function HostRequestListItem({
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  const isHost = authState.userId === hostRequest.hostUserId;
+  // viewerIsHost is role-correct from the backend (handles public-trip offers,
+  // where the roles are reversed relative to initiator/recipient).
+  const isHost = hostRequest.viewerIsHost;
+  const isOffer = hostRequest.isPublicTripOffer;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
@@ -171,11 +174,11 @@ export default function HostRequestListItem({
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: hostRequestsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
@@ -223,7 +226,10 @@ export default function HostRequestListItem({
           secondary={
             <>
               <StyledHostStatusContainer>
-                <StyledHostRequestStatusIcon hostRequest={hostRequest} />
+                <StyledHostRequestStatusIcon
+                  status={hostRequest.status}
+                  isOffer={isOffer}
+                />
                 {isOtherUserLoading ? (
                   <Skeleton width={200} />
                 ) : (
@@ -231,6 +237,8 @@ export default function HostRequestListItem({
                     isHost={isHost}
                     requestStatus={hostRequest.status}
                     isPast={isPast}
+                    isOffer={isOffer}
+                    otherName={firstName(otherUser?.name)}
                     hostName={!isHost ? firstName(otherUser?.name) : undefined}
                   />
                 )}
@@ -251,11 +259,13 @@ export default function HostRequestListItem({
                 </Typography>
                 <RequestTypeChip
                   label={
-                    isHost
-                      ? t("messages_page.tabs.hosting")
-                      : t("messages_page.tabs.surfing")
+                    isOffer
+                      ? t("host_request_item.public_trip_chip")
+                      : isHost
+                        ? t("messages_page.tabs.hosting")
+                        : t("messages_page.tabs.surfing")
                   }
-                  ishost={isHost ? "true" : "false"}
+                  ishost={isOffer || isHost ? "true" : "false"}
                   size="small"
                 />
               </StyledDateAndBadgeContainer>

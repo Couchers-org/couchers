@@ -1,4 +1,5 @@
 import {
+  Chip,
   Skeleton,
   styled,
   Tooltip,
@@ -49,18 +50,36 @@ const StyledShortUserInfo = styled("div")(({ theme }) => ({
   marginLeft: theme.spacing(2),
 }));
 
+const StyledPublicTripChip = styled(Chip)(({ theme }) => ({
+  height: 20,
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  marginLeft: theme.spacing(1),
+  backgroundColor: "rgba(0, 163, 152, 0.1)",
+  color: "var(--mui-palette-primary-main)",
+}));
+
 const HostRequestUserSummarySection = ({
   hostRequest,
   otherUser,
+  isOffer = false,
 }: {
   hostRequest: HostRequest.AsObject | undefined;
   otherUser: LiteUser.AsObject | undefined;
+  isOffer?: boolean;
 }) => {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const publicTripChip = isOffer ? (
+    <StyledPublicTripChip
+      label={t("host_request_item.public_trip_chip")}
+      size="small"
+    />
+  ) : null;
 
   const smallUserSummarySection = (
     <StyledSmallUserSummary>
@@ -107,6 +126,7 @@ const HostRequestUserSummarySection = ({
                 abbreviate: true,
               },
             )}
+            {publicTripChip}
           </Typography>
         )}
       </StyledShortUserInfo>
@@ -146,6 +166,7 @@ const HostRequestUserSummarySection = ({
               })}
               )
             </Typography>
+            {publicTripChip}
           </StyledRequestedDatesWrapper>
         )}
       </UserSummary>

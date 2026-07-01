@@ -153,28 +153,38 @@ export default function HostRequestView({
   const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = hostRequest?.hostUserId === currentUserId;
+  const isOffer = !!hostRequest?.publicTripId;
   const otherUser = isHost ? surfer : host;
   const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
+  const titleStatus =
+    hostRequest &&
+    t(
+      requestStatusToTransKey[
+        hostRequest.status as keyof typeof requestStatusToTransKey
+      ],
+    );
   let title =
     otherUser && hostRequest
-      ? isHost
-        ? t("host_request_view.title_for_host", {
-            user: firstName(otherUser.name),
-            status: t(
-              requestStatusToTransKey[
-                hostRequest.status as keyof typeof requestStatusToTransKey
-              ],
-            ),
-          })
-        : t("host_request_view.title_for_surfer", {
-            user: firstName(otherUser.name),
-            status: t(
-              requestStatusToTransKey[
-                hostRequest.status as keyof typeof requestStatusToTransKey
-              ],
-            ),
-          })
+      ? isOffer
+        ? isHost
+          ? t("host_request_view.offer_title_for_surfer", {
+              user: firstName(otherUser.name),
+              status: titleStatus,
+            })
+          : t("host_request_view.offer_title_for_host", {
+              user: firstName(otherUser.name),
+              status: titleStatus,
+            })
+        : isHost
+          ? t("host_request_view.title_for_host", {
+              user: firstName(otherUser.name),
+              status: titleStatus,
+            })
+          : t("host_request_view.title_for_surfer", {
+              user: firstName(otherUser.name),
+              status: titleStatus,
+            })
       : undefined;
 
   if (isRequestPast) {
@@ -323,11 +333,13 @@ export default function HostRequestView({
       <HostRequestUserSummarySection
         hostRequest={hostRequest}
         otherUser={otherUser}
+        isOffer={isOffer}
       />
       {hostRequest && !isRequestPast && (
         <HostRequestStatusBanner
           isHost={isHost}
           status={hostRequest.status}
+          isOffer={isOffer}
           isLoading={respondMutation.isPending}
           onAccept={handleBannerRespond(
             HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
@@ -367,6 +379,7 @@ export default function HostRequestView({
                 <HostRequestRespondButtons
                   isHost={isHost}
                   status={hostRequest.status}
+                  isOffer={isOffer}
                   isLoading={respondMutation.isPending}
                   handleStatus={handleBannerRespond}
                   name={otherUser ? firstName(otherUser.name) : undefined}

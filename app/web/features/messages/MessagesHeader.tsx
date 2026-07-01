@@ -1,11 +1,12 @@
 import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
+import MarkAllReadButton, {
+  MarkAllReadType,
+} from "features/messages/requests/MarkAllReadButton";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { MessageType } from "routes";
-import { assertNever } from "utils/assertNever";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   paddingLeft: theme.spacing(2),
@@ -18,24 +19,9 @@ const StyledHeader = styled("div")(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-// Map tab to MarkAllReadButton type (excluding archived)
-const getMarkAllReadType = (
-  tab: MessageType,
-): "chats" | "hosting" | "surfing" | "all" | null => {
-  switch (tab) {
-    case "chats":
-    case "hosting":
-    case "surfing":
-      return tab;
-    case "all":
-    case "unread":
-      return "all";
-    case "archived":
-      return null;
-    default:
-      return assertNever(tab);
-  }
-};
+// Map tab to MarkAllReadButton type (archived has no mark-all action)
+const getMarkAllReadType = (tab: MessageType): MarkAllReadType | null =>
+  tab === "archived" ? null : tab;
 
 export default function MessagesHeader({ tab }: { tab: MessageType }) {
   const { t } = useTranslation(MESSAGES);

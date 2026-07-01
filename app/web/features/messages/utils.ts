@@ -1,6 +1,6 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
-import { GroupChat, Message } from "proto/conversations_pb";
+import { GroupChat, HostRequestThread, Message } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
@@ -9,7 +9,10 @@ import {
   requestStatusChangedMessageToTransKey,
 } from "./constants";
 
-type Conversation = GroupChat.AsObject | HostRequest.AsObject;
+type Conversation =
+  | GroupChat.AsObject
+  | HostRequest.AsObject
+  | HostRequestThread.AsObject;
 
 export function hasUnreadMessages<T extends Conversation>(
   conversation: T,

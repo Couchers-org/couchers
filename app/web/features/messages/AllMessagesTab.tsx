@@ -1,30 +1,36 @@
 import { Chip, List, styled } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NotificationBadge from "components/NotificationBadge";
 import TextBody from "components/TextBody";
+import {
+  MESSAGE_FILTER_TYPES,
+  messageFilterToRequest,
+  MessageFilterType,
+} from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
+import MyPublicTripsMessages from "features/messages/MyPublicTripsMessages";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListsAutoRefetch from "features/messages/useMessageListsAutoRefetch";
-import { hasUnreadMessages } from "features/messages/utils";
-import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
-import useCurrentUser from "features/userQueries/useCurrentUser";
+import { messageThreadsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { GroupChat, ListGroupChatsRes } from "proto/conversations_pb";
-import { HostRequest, ListHostRequestsRes } from "proto/requests_pb";
-import React, { useMemo } from "react";
+import { ListMessageThreadsRes } from "proto/conversations_pb";
+import React from "react";
 import { routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 import useNotifications from "../useNotifications";
+
+const PAGE_SIZE = 25;
+const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
 const StyledWrapper = styled("div")(() => ({
   padding: theme.spacing(0, 2),
@@ -81,31 +87,18 @@ const StyledFilterContainer = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-type FilterType =
-  | "all"
-  | "unread"
-  | "chats"
-  | "hosting"
-  | "surfing"
-  | "archived";
-
-interface MessageItem {
-  type: "chat" | "host-request";
-  id: number;
-  lastMessageTime: number; // timestamp in seconds
-  data: GroupChat.AsObject | HostRequest.AsObject;
-  isArchived: boolean;
+// clicking the overflow menu / its items shouldn't navigate into the thread
+function guardMenuNavigation(e: React.MouseEvent) {
+  const target = e.target as HTMLElement;
+  if (target.closest("button") || target.closest('[role="menu"]')) {
+    e.preventDefault();
+  }
 }
 
 export default function AllMessagesTab() {
   const { t } = useTranslation(MESSAGES);
   const router = useRouter();
   const { data: notifications } = useNotifications();
-  const { data: currentUser } = useCurrentUser();
-  const unseenMessageCount = notifications?.unseenMessageCount;
-  const unseenReceivedHostRequestCount =
-    notifications?.unseenReceivedHostRequestCount;
-  const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
 
   useMessageListsAutoRefetch();
 
@@ -117,177 +110,63 @@ export default function AllMessagesTab() {
         ? [router.query.slug]
         : router.query.slug;
 
-  const filterFromPath = slugs[0] as FilterType;
-  const filter = [
-    "all",
-    "unread",
-    "chats",
-    "hosting",
-    "surfing",
-    "archived",
-  ].includes(filterFromPath)
-    ? filterFromPath
-    : "all";
+  const filterFromPath = slugs[0] as MessageFilterType;
+  const filter: MessageFilterType =
+    MESSAGE_FILTER_TYPES.includes(filterFromPath) &&
+    (filterFromPath !== "public-trips" || isPublicTripsEnabled)
+      ? filterFromPath
+      : "all";
 
   const showArchived = filter === "archived";
-  const requestType =
-    filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
+  const isGroupedView = filter === "public-trips";
+  const { filter: threadFilter, onlyArchived } = messageFilterToRequest(filter);
 
-  // Navigate to the appropriate route when filter changes
-  const handleFilterChange = (newFilter: FilterType) => {
+  const handleFilterChange = (newFilter: MessageFilterType) => {
     router.push(`/messages/${newFilter}`);
   };
 
-  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
-  const shouldFetchRequests = filter !== "chats";
-
-  // Fetch group chats
   const {
-    data: chatsData,
-    isLoading: chatsLoading,
-    error: chatsError,
-    hasNextPage: chatsHasNextPage,
-    fetchNextPage: chatsFetchNextPage,
-    isFetchingNextPage: chatsIsFetchingNextPage,
-  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
-    queryKey: groupChatsListKey({ onlyArchived: showArchived }),
-    queryFn: ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(
-        lastMessageId as number | undefined,
-        50,
-        showArchived,
-      ),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore || !lastPage.lastMessageId
-        ? undefined
-        : lastPage.lastMessageId,
-    initialPageParam: undefined,
-    enabled: shouldFetchChats,
-  });
-
-  // Fetch host requests
-  const {
-    data: requestsData,
-    isLoading: requestsLoading,
-    error: requestsError,
-    hasNextPage: requestsHasNextPage,
-    fetchNextPage: requestsFetchNextPage,
-    isFetchingNextPage: requestsIsFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({
-      onlyArchived: showArchived,
-      type: requestType,
-    }),
-    queryFn: ({ pageParam: pageToken }) =>
-      service.requests.listHostRequests({
-        pageToken: pageToken as string | undefined,
-        onlyArchived: showArchived,
-        type: requestType,
+    data,
+    isLoading,
+    error,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<ListMessageThreadsRes.AsObject, RpcError>({
+    queryKey: messageThreadsListKey({ filter, onlyArchived }),
+    queryFn: ({ pageParam }) =>
+      service.conversations.listMessageThreads({
+        filter: threadFilter,
+        onlyArchived,
+        pageToken: pageParam as string | undefined,
+        count: PAGE_SIZE,
       }),
     getNextPageParam: (lastPage) =>
       lastPage.noMore || !lastPage.nextPageToken
         ? undefined
         : lastPage.nextPageToken,
     initialPageParam: undefined,
-    enabled: shouldFetchRequests,
+    enabled: !isGroupedView,
   });
 
-  const isLoading = chatsLoading || requestsLoading;
-  const error = chatsError || requestsError;
+  const threads = data?.pages.flatMap((page) => page.threadsList) ?? [];
 
-  // Combine and sort all messages by last message time
-  const allMessages = useMemo(() => {
-    const messages: MessageItem[] = [];
+  const { ref: loadMoreRef } = useOnVisibleEffect(
+    hasNextPage && !isFetchingNextPage ? fetchNextPage : undefined,
+  );
 
-    // Add chats
-    if (chatsData) {
-      chatsData.pages.forEach((page) => {
-        page.groupChatsList.forEach((chat) => {
-          messages.push({
-            type: "chat",
-            id: chat.groupChatId,
-            lastMessageTime: chat.latestMessage?.time?.seconds ?? 0,
-            data: chat,
-            isArchived: showArchived,
-          });
-        });
-      });
-    }
-
-    // Add host requests
-    if (requestsData) {
-      requestsData.pages.forEach((page) => {
-        page.hostRequestsList.forEach((request) => {
-          messages.push({
-            type: "host-request",
-            id: request.hostRequestId,
-            lastMessageTime: request.latestMessage?.time?.seconds ?? 0,
-            data: request,
-            isArchived: showArchived,
-          });
-        });
-      });
-    }
-
-    // Sort by last message time (newest first)
-    return messages.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
-  }, [chatsData, requestsData, showArchived]);
-
-  // Filter messages based on selected filter
-  const filteredMessages = useMemo(() => {
-    if (filter === "all" || filter === "archived") {
-      return allMessages;
-    }
-    if (filter === "unread") {
-      return allMessages.filter((msg) => hasUnreadMessages(msg.data));
-    }
-    if (filter === "chats") {
-      return allMessages.filter((msg) => msg.type === "chat");
-    }
-    if (filter === "hosting") {
-      return allMessages.filter(
-        (msg) =>
-          msg.type === "host-request" &&
-          (msg.data as HostRequest.AsObject).hostUserId === currentUser?.userId,
-      );
-    }
-    if (filter === "surfing") {
-      return allMessages.filter(
-        (msg) =>
-          msg.type === "host-request" &&
-          (msg.data as HostRequest.AsObject).surferUserId ===
-            currentUser?.userId,
-      );
-    }
-    return allMessages;
-  }, [allMessages, filter, currentUser?.userId]);
-
-  const hasMoreMessages =
-    (shouldFetchChats && chatsHasNextPage) ||
-    (shouldFetchRequests && requestsHasNextPage);
-  const isFetchingMore =
-    (shouldFetchChats && chatsIsFetchingNextPage) ||
-    (shouldFetchRequests && requestsIsFetchingNextPage);
-
-  const loadMoreMessages = async () => {
-    const promises = [];
-    if (shouldFetchChats && chatsHasNextPage)
-      promises.push(chatsFetchNextPage());
-    if (shouldFetchRequests && requestsHasNextPage)
-      promises.push(requestsFetchNextPage());
-    await Promise.all(promises);
-  };
-
-  // Calculate unread counts for each filter
-  const unseenChatsCount = unseenMessageCount ?? 0;
-  const unseenHostingCount = unseenReceivedHostRequestCount ?? 0;
-  const unseenSurfingCount = unseenSentHostRequestCount ?? 0;
+  // Unread badge counts (role-based, from the ping). hosting + surfing already
+  // include public-trip offers, so "all" is chats + hosting + surfing.
+  const unseenChatsCount = notifications?.unseenMessageCount ?? 0;
+  const unseenHostingCount = notifications?.unseenHostingHostRequestCount ?? 0;
+  const unseenSurfingCount = notifications?.unseenSurfingHostRequestCount ?? 0;
+  const unseenPublicTripsCount = notifications?.unseenPublicTripOfferCount ?? 0;
   const unseenAllCount =
     unseenChatsCount + unseenHostingCount + unseenSurfingCount;
 
   return (
     <StyledWrapper>
-      {!showArchived && <StyledCreateGroupChatButton />}
+      {!showArchived && !isGroupedView && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
         <NotificationBadge>
           <Chip
@@ -329,6 +208,16 @@ export default function AllMessagesTab() {
             variant={filter === "surfing" ? "filled" : "outlined"}
           />
         </NotificationBadge>
+        {isPublicTripsEnabled && (
+          <NotificationBadge count={unseenPublicTripsCount}>
+            <Chip
+              label={t("messages_page.tabs.public_trips")}
+              onClick={() => handleFilterChange("public-trips")}
+              color={filter === "public-trips" ? "primary" : "default"}
+              variant={filter === "public-trips" ? "filled" : "outlined"}
+            />
+          </NotificationBadge>
+        )}
         <Chip
           label={t("archive.archived")}
           onClick={() =>
@@ -338,66 +227,51 @@ export default function AllMessagesTab() {
           variant={filter === "archived" ? "filled" : "outlined"}
         />
       </StyledFilterContainer>
-      {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
+      {isGroupedView ? (
+        <MyPublicTripsMessages />
+      ) : error ? (
+        <Alert severity="error">{error.message}</Alert>
+      ) : isLoading ? (
         <CenteredSpinner />
       ) : (
         <StyledList>
-          {filteredMessages.length === 0 ? (
+          {threads.length === 0 ? (
             <TextBody>
               {showArchived
                 ? t("archive.no_archived_messages")
                 : t("all_messages_tab.no_messages")}
             </TextBody>
           ) : (
-            filteredMessages.map((message) =>
-              message.type === "chat" ? (
+            threads.map((thread) =>
+              thread.groupChat ? (
                 <Link
-                  key={`chat-${message.id}`}
-                  href={routeToGroupChat(message.id)}
-                  onClick={(e) => {
-                    // Prevent navigation if clicking on the menu button or menu items
-                    const target = e.target as HTMLElement;
-                    if (
-                      target.closest("button") ||
-                      target.closest('[role="menu"]')
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
+                  key={`chat-${thread.groupChat.groupChatId}`}
+                  href={routeToGroupChat(thread.groupChat.groupChatId)}
+                  onClick={guardMenuNavigation}
                 >
                   <StyledGroupChatListItem
-                    groupChat={message.data as GroupChat.AsObject}
-                    isArchived={message.isArchived}
+                    groupChat={thread.groupChat}
+                    isArchived={showArchived}
                   />
                 </Link>
-              ) : (
+              ) : thread.hostRequest ? (
                 <Link
-                  key={`request-${message.id}`}
-                  href={routeToHostRequest(message.id)}
-                  onClick={(e) => {
-                    // Prevent navigation if clicking on the menu button or menu items
-                    const target = e.target as HTMLElement;
-                    if (
-                      target.closest("button") ||
-                      target.closest('[role="menu"]')
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
+                  key={`request-${thread.hostRequest.hostRequestId}`}
+                  href={routeToHostRequest(thread.hostRequest.hostRequestId)}
+                  onClick={guardMenuNavigation}
                 >
                   <StyledHostRequestListItem
-                    hostRequest={message.data as HostRequest.AsObject}
-                    isArchived={message.isArchived}
+                    hostRequest={thread.hostRequest}
+                    isArchived={showArchived}
                   />
                 </Link>
-              ),
+              ) : null,
             )
           )}
-          {hasMoreMessages && (
-            <Button onClick={loadMoreMessages} loading={isFetchingMore}>
-              {t("all_messages_tab.load_more")}
-            </Button>
+          {hasNextPage && (
+            <div ref={loadMoreRef}>
+              <CenteredSpinner />
+            </div>
           )}
         </StyledList>
       )}
