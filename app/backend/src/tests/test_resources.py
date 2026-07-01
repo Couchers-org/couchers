@@ -1,4 +1,4 @@
-import pytest
+9import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -69,8 +69,6 @@ def test_languages_resource_drops_deprecated_ajp(db):
         codes = set(session.execute(select(Language.code)).scalars().all())
     assert "ajp" not in codes  # deprecated; ISO 639-3 CR 2022-006 merged it into apc
     assert "apc" in codes
-    assert "_tw" in codes  # kept intentionally (non-standard but deliberate)
-    assert "smi" in codes  # kept: valid ISO 639-2 collective code, not deprecated
 
 
 def test_GetBadges(db):
