@@ -1,6 +1,5 @@
 import re
 import smtplib
-from collections.abc import Sequence
 from email.headerregistry import Address
 from email.message import EmailMessage, MIMEPart
 from email.utils import make_msgid
@@ -12,8 +11,6 @@ from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
 from couchers.models import Email
 from couchers.proto.internal import jobs_pb2
-
-template_base = Path(Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2")
 
 # Base directory for relative EmailPart.data_file_path
 email_related_part_data_path_base = Path(couchers.__file__).parents[3]  # /app/backend
@@ -51,7 +48,7 @@ def embed_html_relative_images(
     return html, related_parts
 
 
-def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str) -> tuple[EmailMessage, str | None]:
+def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str) -> EmailMessage:
     msg = EmailMessage()
     msg["Subject"] = payload.subject
     msg["From"] = Address(payload.sender_name, addr_spec=payload.sender_email)
@@ -67,29 +64,19 @@ def email_proto_to_message(payload: jobs_pb2.SendEmailPayload, couchers_id: str)
 
     msg.set_content(payload.plain)
 
-    html_body: str | None = payload.html
-    if html_body:
-        related_parts: Sequence[jobs_pb2.EmailPart] = payload.html_related_parts
-        if not related_parts:
-            # Backcompat (2026-06): Embedding relative images used to be this function's responsibility,
-            # and was moved to the payload builder. Keep this fallback in case we have queued payloads
-            # that didn't do their own embedding.
-            content_id_domain = Address(addr_spec=payload.sender_email).domain
-            html_body, related_parts = embed_html_relative_images(
-                html_body, base_dir=template_base, content_id_domain=content_id_domain
-            )
-
-        msg.add_alternative(html_body, subtype="html")
+    if payload.html:
+        msg.add_alternative(payload.html, subtype="html")
         html_part = cast(list[MIMEPart], msg.get_payload())[-1]
 
-        for related_part in related_parts:
-            _add_email_part(html_part, related_part, related=True)
+        if payload.html_related_parts:
+            for related_part in payload.html_related_parts:
+                _add_email_part(html_part, related_part, related=True)
 
     if payload.attachments:
         for attachment in payload.attachments:
             _add_email_part(msg, attachment, related=False)
 
-    return msg, html_body
+    return msg
 
 
 def _add_email_part(msg: MIMEPart, part: jobs_pb2.EmailPart, *, related: bool) -> MIMEPart:
@@ -125,7 +112,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     Returns a models.Email object that can be straight away added to the database.
     """
     message_id = random_hex()
-    msg, updated_html = email_proto_to_message(payload, message_id)
+    msg = email_proto_to_message(payload, message_id)
 
     with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as server:
         server.ehlo()
@@ -143,7 +130,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         recipient=payload.recipient,
         subject=payload.subject,
         plain=payload.plain,
-        html=updated_html or "",
+        html=payload.html,
         list_unsubscribe_header=payload.list_unsubscribe_header,
         source_data=payload.source_data,
     )
