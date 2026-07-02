@@ -134,8 +134,8 @@ class EventOccurrence(Base, kw_only=True):
     # The physical address string. Legacy online events have been migrated to put the link in here.
     address: Mapped[str] = mapped_column(String)
 
-    # IANA timezone identifier of the event. None if unknown.
-    timezone: Mapped[str | None] = mapped_column(String, default=None)
+    # IANA timezone identifier of the event
+    timezone: Mapped[str] = mapped_column(String)
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
