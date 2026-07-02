@@ -587,7 +587,9 @@ def test_event_search_pagination(sample_community, create_event):
                 api,
                 title=f"Event {i + 1}",
                 start_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1, minutes=30)),
+                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(
+                    anchor_time + timedelta(hours=i + 1, minutes=30)
+                ),
             )
 
     with search_session(token) as api:
@@ -634,7 +636,9 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
                 api,
                 title=f"Event {i + 1}",
                 start_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1, minutes=30)),
+                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(
+                    anchor_time + timedelta(hours=i + 1, minutes=30)
+                ),
             )
 
     with search_session(token) as api:
