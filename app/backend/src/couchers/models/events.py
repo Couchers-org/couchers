@@ -136,13 +136,8 @@ class EventOccurrence(Base, kw_only=True):
     # The physical address string. Legacy online events have been migrated to put the link in here.
     address: Mapped[str] = mapped_column(String)
 
-    timezone = column_property(
-        select(TimezoneArea.tzid)
-        .where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom)))
-        .limit(1)
-        .scalar_subquery(),
-        deferred=True,
-    )
+    # IANA timezone identifier of the event. None if unknown.
+    timezone: Mapped[str | None] = mapped_column(String, default=None)
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
