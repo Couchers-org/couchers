@@ -1,4 +1,4 @@
-9import pytest
+import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
