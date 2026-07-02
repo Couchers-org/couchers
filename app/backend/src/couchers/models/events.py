@@ -16,7 +16,6 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
-    select,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -26,7 +25,6 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.models.moderation import ModerationObjectType
-from couchers.models.static import TimezoneArea
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
