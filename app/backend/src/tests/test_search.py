@@ -10,7 +10,13 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_utc_local, create_coordinate, millis_from_dt, now
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    datetime_to_iso8601_utc_local,
+    millis_from_dt,
+    now,
+)
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import communities_session, events_session, search_session
@@ -414,7 +420,7 @@ def sample_event_data() -> dict[str, Any]:
         "photo_key": None,
         "location": events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
         "start_datetime_iso8601_local": datetime_to_iso8601_utc_local(start_time),
-        "end_datetime_iso8601_local": datetime_to_iso8601_utc_local(end_time)
+        "end_datetime_iso8601_local": datetime_to_iso8601_utc_local(end_time),
     }
 
 
