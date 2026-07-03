@@ -1,10 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import {
-  facebookURL,
-  githubURL,
-  instagramURL,
-  redditURL,
-} from "routes";
+import { facebookURL, githubURL, instagramURL, redditURL } from "routes";
 import wrapper from "test/hookWrapper";
 
 import SocialMediaLinks from "./SocialMediaLinks";

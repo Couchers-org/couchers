@@ -95,10 +95,9 @@ describe("TeamSection", () => {
   });
 
   it("shows the board member badge for board members", () => {
-    render(
-      <TeamSection variant="current" volunteers={[boardMember]} />,
-      { wrapper },
-    );
+    render(<TeamSection variant="current" volunteers={[boardMember]} />, {
+      wrapper,
+    });
     expect(screen.getByText(t("global:team.board_member"))).toBeInTheDocument();
   });
 

@@ -12,9 +12,7 @@ describe("About", () => {
     expect(
       screen.getByText(t("press:about_mission_heading")),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(t("press:about_blog_heading")),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("press:about_blog_heading"))).toBeInTheDocument();
     expect(
       screen.getByText(t("press:about_foundation_heading")),
     ).toBeInTheDocument();
