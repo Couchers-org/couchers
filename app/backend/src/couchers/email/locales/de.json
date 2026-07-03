@@ -42,7 +42,371 @@
       "confirm_action": "Accountlöschung bestätigen"
     },
     "completed": {
-      "subject": "Dein Konto wurde gelöscht"
+      "subject": "Dein Konto wurde gelöscht",
+      "purpose": "Du hast dein Couchers.org-Konto erfolgreich gelöscht.",
+      "farewell": "Es tut uns leid, dich gehen zu sehen, und wir wünschen dir alles Gute für deine zukünftigen Reisen. Du bist auf der Couchers.org-Plattform jederzeit wieder willkommen :)",
+      "recovery_instructions_days_one": "Falls du deine Meinung änderst, <strong>hast du {{count}} Tag Zeit, um dein Konto wiederherzustellen</strong>, indem du auf den folgenden Link klickst:",
+      "recovery_instructions_days_other": "Falls du deine Meinung änderst, <strong>hast du {{count}} Tage Zeit, um dein Konto wiederherzustellen</strong>, indem du auf den folgenden Link klickst:",
+      "recover_action": "Konto wiederherstellen"
+    },
+    "recovered": {
+      "subject": "Dein Konto wurde wiederhergestellt!",
+      "confirmation": "Dein Couchers.org-Konto wurde erfolgreich wiederhergestellt. Wir freuen uns, dass du dich entschieden hast zu bleiben!",
+      "login_instructions": "Um dich wieder anzumelden, klicke auf den folgenden Link:",
+      "login_action": "Melde dich wieder an",
+      "redelete_instructions": "Wenn du es dir anders überlegst, kannst du dein Konto jederzeit löschen."
     }
+  },
+  "activeness_probe": {
+    "subject": "Bist du noch bereit zu hosten?",
+    "purpose": "Uns ist aufgefallen, dass du dich eine Weile nicht mehr eingeloggt hast und wollten nachfragen, ob du weiterhin bereit bist Surfer zu hosten.",
+    "instructions_days_one": "Um deinen \"Kann-Hosten\"-Status zu behalten, melde dich bitte innerhalb <b>{{count}} Tag</b> wieder an. Andernfalls ändern wir deinen Hosting-Status auf \"Kann nicht hosten.\"",
+    "instructions_days_other": "Um deinen \"Kann-Hosten\"-Status zu behalten, melde dich bitte innerhalb der nächsten <b>{{count}} Tage</b> wieder an. Andernfalls ändern wir deinen Hosting-Status auf \"Kann nicht hosten.\"",
+    "login_action": "Melde dich wieder an",
+    "encouragement": "Diese Check-ins helfen Surfern, aktive Hosts leichter zu finden und halten die Antwortzeiten korrekt.",
+    "latest_release": "Falls du es verpasst hast: Wir haben kürzlich Version {{version}} veröffentlicht. Zu den neuesten Updates gehören eine neue App für iOS und Android, ein verbessertes Dashboard, überarbeitete Nachrichten und neue Event-Funktionen. Lies mehr im <a href=\"{{blog_url}}\">Couchers.org Blog</a>."
+  },
+  "api_key_issued": {
+    "subject": "Dein API-Schlüssel für Couchers.org",
+    "header": "Du hast kürzlich einen API-Schlüssel für Couchers.org angefordert. Wir haben dir den folgenden API-Schlüssel ausgestellt:",
+    "expiry": "Der Schlüssel läuft am <b>{{ datetime }}</b> ab.",
+    "usage_warning": "Dieser API-Schlüssel ist einzigartig für dein Konto; teile ihn mit niemandem. Er gewährt vollständigen Zugriff auf dein Konto, und du bist für alle Aktionen verantwortlich, die mit diesem API-Schlüssel durchgeführt werden.",
+    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere Nutzungsbedingungen, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
+  },
+  "badges": {
+    "added": {
+      "subject": "Das {{ name }} Abzeichen wurde deinem Profil hinzugefügt",
+      "purpose": "Das <b>{{ name }}</b> Abzeichen wurde deinem Profil hinzugefügt."
+    },
+    "removed": {
+      "subject": "Das „{{ name }}“ Abzeichen wurde von deinem Profil entfernt",
+      "purpose": "Das <b>{{ name }}</b>-Abzeichen wurde von deinem Profil entfernt."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "Dein Geburtsdatum wurde geändert",
+    "purpose": "Dein Geburtsdatum wurde von einem Administrator zu <b>{{ date }}</b> geändert."
+  },
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }} hat dir eine Nachricht gesendet",
+        "purpose": "<b>{{ author }}</b> hat dir eine Nachricht gesendet:",
+        "view_action": "Diese Nachricht ansehen"
+      },
+      "group": {
+        "subject": "{{ author }} hat eine Nachricht in {{ group }} gesendet",
+        "purpose": "<b>{{ author }}</b> hat eine Nachricht in <b>{{ group }}</b> gesendet:",
+        "view_action": "Diese Nachricht ansehen"
+      }
+    },
+    "missed": {
+      "subject": "Du hast ungelesene Nachrichten",
+      "purpose": "Du hast seit deinem letzten Besuch einige Nachrichten verpasst:",
+      "count_in_dm_one": "{{count}} Nachricht von <b>{{author}}</b>:",
+      "count_in_dm_other": "{{count}} Nachrichten von <b>{{author}}</b>:",
+      "count_in_group_one": "{{count}} Nachricht in <b>{{group}}</b>:",
+      "count_in_group_other": "{{count}} Nachrichten in <b>{{group}}</b>:",
+      "view_action": "Nachrichten ansehen"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} hat einen Beitrag gestartet: {{title}}",
+      "purpose": "<b>{{author}}</b> hat einen Beitrag in <b>{{parent_context}}</b> gestartet:",
+      "view_action": "Beitrag ansehen"
+    },
+    "comment": {
+      "subject": "{{author}} hat {{discussion_title}} kommentiert",
+      "purpose": "<b>{{author}}</b> hat <b>{{discussion_title}}</b> in <b>{{parent_context}}</b> kommentiert:",
+      "view_action": "Beitrag ansehen"
+    }
+  },
+  "donation_received": {
+    "subject": "Vielen Dank für deine Spende an Couchers.org!",
+    "purpose": "Vielen Dank für deine Spende von <b>{{amount_with_currency}}</b> an Couchers.org.",
+    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couchsurfing-Plattform.",
+    "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
+    "download_invoice": "Rechnung herunterladen",
+    "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht.",
+    "questions_contact": "Wenn du Fragen zu deiner Spende hast, schreib uns bitte eine E-Mail an {{ email_link }}."
+  },
+  "email_change": {
+    "initiated": {
+      "subject": "E-Mail-Adressänderung eingeleitet",
+      "purpose": "Du hast beantragt, dass deine E-Mail-Adresse in <b>{{ email_address }}</b> geändert wird. Bitte überprüfe die E-Mail, die wir an diese Adresse gesendet haben, um die Änderung zu bestätigen."
+    },
+    "confirmation": {
+      "subject": "Bestätige deine neue E-Mail-Adresse",
+      "purpose": "Du hast beantragt, dass deine E-Mail-Adresse von <b>{{ old_email }}</b> zu dieser E-Mail-Adresse geändert wird. Um diese Änderung abzuschließen, klicke bitte auf den folgenden Link:",
+      "confirm_action": "Neue E-Mail-Adresse bestätigen"
+    },
+    "verified": {
+      "subject": "E-Mail-Änderung abgeschlossen",
+      "purpose": "Deine neue E-Mail-Adresse wurde bestätigt."
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Event anzeigen"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} hat dich zu {{title}} eingeladen",
+        "purpose_with_community": "<b>{{user}}</b> hat dich zu einem Event in <b>{{community}}</b> eingeladen:",
+        "purpose_no_community": "<b>{{user}}</b> hat dich zu einem Event in deiner Nähe eingeladen:"
+      },
+      "notification": {
+        "subject": "{{user}} hat ein Event erstellt: {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> hat ein Event in <b>{{community}}</b> erstellt:",
+        "purpose_no_community": "<b>{{user}}</b> hat ein Event in deiner Nähe erstellt:"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} hat {{title}} aktualisiert",
+      "purpose_generic": "<b>{{user}}</b> hat ein Event, an dem du teilnimmst, aktualisiert:",
+      "purpose_with_items": "<b>{{user}}</b> hat ein Event, an dem du teilnimmst, aktualisiert ({{items_list}}):",
+      "item_names": {
+        "title": "Titel",
+        "content": "Inhalt",
+        "location": "Ort",
+        "start_time": "Startzeit",
+        "end_time": "Endzeit"
+      }
+    },
+    "organizer_invited": {
+      "subject": "{{user}} hat dich eingeladen, {{title}} mitzuorganisieren",
+      "purpose": "<b>{{user}}</b> hat dich eingeladen, ein Event mitzuorganisieren:"
+    },
+    "comment": {
+      "subject": "{{author}} hat {{title}} kommentiert",
+      "purpose": "<b>{{author}}</b> hat ein Event, an dem du teilnimmst, kommentiert:"
+    },
+    "reminder": {
+      "subject": "Erinnerung: {{title}} beginnt bald",
+      "purpose": "Ein Event, an dem du teilnimmst, beginnt in weniger als 24 Stunden:"
+    },
+    "cancel": {
+      "subject": "{{user}} hat {{title}} abgesagt",
+      "purpose": "<b>{{user}}</b> hat ein Event, an dem du teilnimmst, abgesagt:"
+    },
+    "deleted": {
+      "subject": "Ein Moderator hat {{title}} gelöscht",
+      "purpose": "Ein Moderator hat ein Event, an dem du teilnimmst, gelöscht:"
+    }
+  },
+  "friend_requests": {
+    "received": {
+      "subject": "{{name}} möchte dein Freund sein",
+      "purpose": "<b>{{name}}</b> hat dir eine Freundschaftsanfrage gesendet.",
+      "view_action": "Freundschaftsanfragen ansehen",
+      "closing": "Wir hoffen, dass du einen neuen Freund gefunden hast!"
+    },
+    "accepted": {
+      "subject": "{{name}} hat deine Freundschaftsanfrage angenommen",
+      "purpose": "<b>{{name}}</b> hat deine Freundschaftsanfrage angenommen.",
+      "view_action": "Profil ansehen",
+      "closing": "Wir hoffen, dass du weiterhin neue Freunde findest!"
+    }
+  },
+  "gender_changed": {
+    "subject": "Dein Geschlecht wurde geändert",
+    "purpose": "Dein Geschlecht auf Couchers.org wurde von einem Administrator zu <b>{{ gender }}</b> geändert."
+  },
+  "host_requests": {
+    "created": {
+      "subject": "{{surfer_name}} hat dir eine Host-Anfrage gesendet",
+      "purpose": "<b>{{surfer_name}}</b> hat dir eine Host-Anfrage gesendet:",
+      "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+    },
+    "generic": {
+      "date_range": "Von <b>{{from_date}}</b> bis <b>{{to_date}}</b>.",
+      "view_action": "Host-Anfrage ansehen",
+      "quick_decline_action": "Schnelle Absage"
+    },
+    "reminder": {
+      "subject": "Du hast eine ausstehende Host-Anfrage von {{surfer_name}}",
+      "purpose": "<b>{{surfer_name}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+    },
+    "message": {
+      "from_host": {
+        "subject": "{{other_name}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
+        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} hat dir eine Nachricht in der Host-Anfrage gesendet",
+        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+      }
+    },
+    "missed_messages": {
+      "from_host": {
+        "subject": "{{other_name}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
+        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
+        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+      }
+    },
+    "status_changed": {
+      "accepted_by_host": {
+        "subject": "{{other_name}} hat deine Host-Anfrage angenommen",
+        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage angenommen:"
+      },
+      "declined_by_host": {
+        "subject": "{{other_name}} hat deine Host-Anfrage abgelehnt",
+        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage abgelehnt:"
+      },
+      "confirmed_by_surfer": {
+        "subject": "{{other_name}} hat die Host-Anfrage bestätigt",
+        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage bestätigt:"
+      },
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}} hat die Host-Anfrage zurückgezogen",
+        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage zurückgezogen:"
+      }
+    }
+  },
+  "moderator_note": {
+    "subject": "Du hast eine Moderatoren-Notiz erhalten",
+    "purpose": "Du hast eine wichtige Nachricht von den Moderatoren erhalten. Du musst sie lesen und bestätigen, bevor du die Plattform weiter nutzen kannst.",
+    "view_action": "Moderation Notiz anzeigen"
+  },
+  "new_blog_post": {
+    "subject": "Neuer Blogbeitrag: {{title}}",
+    "purpose": "Wir haben einen neuen Blog-Beitrag veröffentlicht:",
+    "read_action": "Lies den Beitrag"
+  },
+  "onboarding_reminder": {
+    "initial": {
+      "subject": "Willkommen bei Couchers.org und der Zukunft des Couchsurfings",
+      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couchsurfing-Community!",
+      "early_user_role": "Wir wachsen schnell, und wenn du zurückblickst, wirst du einer der ersten Nutzer gewesen sein. Du spielst daher eine entscheidende Rolle dabei, die Kultur und Atmosphäre der wachsenden Community und unserer Plattform zu prägen. Ich freue mich wirklich, dass du uns gefunden hast und dich entschieden hast, dabei zu sein!",
+      "complete_profile_request": "Wenn du dich ein wenig umgesehen hast, vervollständige bitte dein Profil, indem du ein Foto hochlädst und ein wenig über dich schreibst (und über dein Zuhause, falls du hosten möchtest).",
+      "profile_importance": "Ein Profil, das sich wie eine echte Person anfühlt, hilft anderen dabei, sich zu entscheiden, dass sie dich gerne treffen oder bei dir übernachten möchten. Versuch, der Community einen Eindruck von deinem Vibe zu geben! Denk nicht zu viel nach: Schreib einfach, wie du bist. Erzähl, worauf du stehst, wie du deine Zeit gerne verbringst und was dir wichtig ist.",
+      "share_request": "Noch eine Sache: Erzähl anderen von uns und lass die Community wachsen! Unsere besten Mitglieder sind diejenigen, die von jemand anderem eingeladen wurden."
+    },
+    "follow_up": {
+      "subject": "Profil vervollständigen",
+      "intro": "Ich hoffe, du hast dir ein bisschen Zeit genommen, dich auf der Couchers.org-Plattform umzusehen!",
+      "request": "Wir hätten einen kleinen Gefallen an dich: Nimm dir bitte einen Moment Zeit, um dein Profil auszufüllen, indem du ein Foto hinzufügst und ein paar Zeilen in den Bereichen „Über mich“ und „Mein Zuhause“ schreibst. Ein ausgefülltes Profil weckt bei anderen mehr Interesse daran, mit dir in Kontakt zu treten, und trägt dazu bei, dass sich unsere Community einladender anfühlt."
+    },
+    "complete_profile_action": "Profil vervollständigen"
+  },
+  "password_changed": {
+    "subject": "Dein Passwort wurde geändert",
+    "purpose": "Dein Passwort auf Couchers.org wurde geändert."
+  },
+  "password_reset": {
+    "started": {
+      "subject": "Setze dein Passwort zurück",
+      "purpose": "Du hast darum gebeten, dein Passwort auf Couchers.org zurückzusetzen. Um diese Änderung abzuschließen, klicke auf den folgenden Link:",
+      "reset_action": "Setze dein Passwort zurück"
+    },
+    "completed": {
+      "subject": "Dein Passwort wurde erfolgreich zurückgesetzt",
+      "purpose": "Dein Passwort auf Couchers.org wurde zurückgesetzt."
+    }
+  },
+  "phone_number_verification": {
+    "started": {
+      "subject": "Telefonverifizierung gestartet",
+      "purpose": "Du hast die Verifizierung der Telefonnummer <b>{{ phone_number }}</b> gestartet."
+    },
+    "verified": {
+      "subject": "Telefon erfolgreich verifiziert",
+      "purpose": "Deine Telefonnummer wurde erfolgreich als <b>{{ phone_number }}</b> verifiziert."
+    }
+  },
+  "postal_verification": {
+    "postcard_sent": {
+      "subject": "Deine Verifizierungs-Postkarte ist unterwegs",
+      "purpose": "Wir haben eine Postkarte mit deinem Verifizierungscode nach <b>{{ city }}, {{ country }}</b> geschickt. Sie sollte je nach Standort innerhalb von 1-3 Wochen ankommen. Sobald sie da ist, verwende den folgenden Link, um die Bestätigung abzuschließen:",
+      "enter_code_action": "Postkarten-Code eingeben"
+    },
+    "succeeded": {
+      "subject": "Adress-Verifizierung erfolgreich",
+      "purpose": "Deine Adresse wurde erfolgreich mit der Postalischen Verifizierung überprüft."
+    },
+    "failed": {
+      "subject": "Adress-Verifizierung fehlgeschlagen",
+      "purpose": {
+        "default": "Deine Adress-Verifizierung ist aus unbekannten Gründen fehlgeschlagen.",
+        "code_expired": "Deine Adress-Verifizierung ist fehlgeschlagen, weil dein Code abgelaufen ist. Codes sind 90 Tage nach dem Versand der Postkarte gültig.",
+        "too_many_attempts": "Deine Adress-Verifizierung ist wegen zu vieler falscher Code-Eingaben fehlgeschlagen."
+      },
+      "restart_action": "Fordere eine neue Postkarte an"
+    }
+  },
+  "references": {
+    "received": {
+      "friend": {
+        "subject": "Du hast eine Freundschaftsempfehlung von {{name}} erhalten!",
+        "purpose": "<b>{{name}}</b> hat eine Freundschaftsreferenz für dich geschrieben:"
+      },
+      "hosted": {
+        "reciprocate_encouragement": "Du bist an der Reihe, eine Referenz für <b>{{name}}</b> zu schreiben. Sobald du sie einreichst, werden beide Referenzen sichtbar. Andernfalls wird die Referenz von <b>{{name}}</b> automatisch 14 Tage nach dem Aufenthalt sichtbar, und du kannst dann keine Referenz mehr schreiben.",
+        "purpose": "<b>{{name}}</b> hat eine Referenz für den Aufenthalt bei dir geschrieben."
+      },
+      "surfed": {
+        "reciprocate_encouragement": "Du bist an der Reihe, eine Referenz für <b>{{name}}</b> zu schreiben. Sobald du sie einreichst, werden beide Referenzen sichtbar. Andernfalls wird die Referenz von <b>{{name}}</b> automatisch 14 Tage nach dem Aufenthalt sichtbar, und du kannst dann keine Referenz mehr schreiben.",
+        "purpose": "<b>{{name}}</b> hat eine Referenz für deinen Aufenthalt geschrieben."
+      },
+      "subject": "Du hast eine Referenz von {{name}} erhalten!",
+      "view_action": "Referenz ansehen"
+    },
+    "reminder": {
+      "subject_days_one": "Du hast {{count}} Tag, um eine Referenz für {{name}} zu schreiben",
+      "subject_days_other": "Du hast {{count}} Tage, um eine Referenz für {{name}} zu schreiben",
+      "no_meeting_note": "Falls du <b>{{name}}</b> nicht getroffen hast, nutze bitte diesen Link, um uns Bescheid zu geben, und wir hören auf, dich zu erinnern.",
+      "visibility_note": "Referenzen werden 2 Wochen nach dem Aufenthalt sichtbar oder sobald ihr beide eine Referenz füreinander geschrieben habt – je nachdem, was zuerst eintritt.",
+      "hosted": {
+        "purpose_days_one": "<strong>Du hast noch {{count}} Tag, um eine Referenz für {{name}}'s</strong> Aufenthalt zu schreiben. Deine Referenz ist entscheidend, um die Community sicher und vertrauenswürdig zu halten.",
+        "purpose_days_other": "<strong>Du hast noch {{count}} Tage, um eine Referenz für {{name}}'s</strong> Aufenthalt zu schreiben. Deine Referenz ist entscheidend, um die Community sicher und vertrauenswürdig zu halten."
+      },
+      "surfed": {
+        "purpose_days_one": "<strong>Du hast noch {{count}} Tag, um eine Referenz für {{name}}</strong> für deinen Aufenthalt zu schreiben. Deine Referenz ist entscheidend, um die Community sicher und vertrauenswürdig zu halten.",
+        "purpose_days_other": "<strong>Du hast noch {{count}} Tage, um eine Referenz für {{name}}</strong> für deinen Aufenthalt zu schreiben. Deine Referenz ist entscheidend, um die Community sicher und vertrauenswürdig zu halten."
+      }
+    },
+    "write_action": "Schreibe eine Referenz für {{name}}"
+  },
+  "signup": {
+    "subject": "Registrierung bei Couchers.org abschließen",
+    "closing": "Bis gleich :)",
+    "verify": {
+      "thanks": "Danke, dass du dich bei Couchers.org angemeldet hast!",
+      "instructions": "Um die Einrichtung deines Kontos abzuschließen, klicke bitte auf den folgenden Link:",
+      "confirm_action": "Bestätige deine E-Mail-Adresse"
+    },
+    "continue": {
+      "purpose": "Bitte schließe deine Anmeldung bei Couchers.org ab. Klicke auf diesen Link, um fortzufahren:",
+      "continue_action": "Anmeldung abschließen",
+      "ignore_if_unexpected": "Falls du dich nicht registriert hast, hat es jemand anderes mit deiner E-Mail-Adresse getan, und du kannst diese Nachricht bedenkenlos ignorieren."
+    }
+  },
+  "strong_verification": {
+    "succeeded": {
+      "subject": "Starke Verifizierung erfolgreich",
+      "purpose": "Du wurdest mit Starker Verifizierung verifiziert. Neben deinem Namen auf der Plattform wird nun ein Verifizierungssymbol angezeigt.",
+      "thanks_message": "Danke, dass du dich verifiziert hast! Du hilfst dabei, Vertrauen und Sicherheit in der Couchers.org-Community zu unterstützen.",
+      "cost_explanation": "Die Verifizierung ist für dich kostenlos, verursacht uns aber Kosten. Als gemeinnützige Organisation, die von Freiwilligen betrieben wird, sind wir auf Spenden angewiesen, um Ausgaben wie den Betrieb unserer Server, die Verifizierung und Tools für unsere Softwareentwickler, Designer und unser Sicherheitsteam zu decken.",
+      "donation_request": "Wenn du dazu in der Lage bist, erwäge bitte eine Spende, um Couchers.org am Laufen zu halten und weiter wachsen zu lassen.",
+      "donate_action": "Spende, um Couchers.org zu unterstützen"
+    },
+    "failed": {
+      "subject": "Starke Verifizierung fehlgeschlagen",
+      "purpose": {
+        "wrong_birthdate_or_gender": "Deine Starke Verifizierung ist fehlgeschlagen, weil das Geburtsdatum oder Geschlecht in deinem Profil nicht mit dem Geburtsdatum oder Geschlecht in deinem Reisepass übereinstimmt. Bitte kontaktiere das Support-Team, um dein Geburtsdatum oder Geschlecht zu aktualisieren, oder falls das Geschlecht in deinem Reisepass nicht deiner Geschlechtsidentität entspricht.",
+        "not_a_passport": "Deine starke Verifizierung ist fehlgeschlagen, weil du ein Dokument verwendet hast, das kein Reisepass ist. Für die starke Verifizierung kannst du nur einen Reisepass verwenden.",
+        "duplicate": "Deine Starke Verifizierung ist fehlgeschlagen, weil du einen Reisepass verwendet hast, der bereits auf der Plattform genutzt wurde. Bitte verwende einen anderen Reisepass."
+      },
+      "restart_action": "Starke Verifizierung neu starten"
+    }
+  },
+  "thread_reply": {
+    "subject": "{{author}} hat in {{parent_context}} geantwortet",
+    "purpose": "<b>{{author}}</b> hat in <b>{{parent_context}}</b> geantwortet:",
+    "view_action": "Thread anzeigen"
   }
 }
