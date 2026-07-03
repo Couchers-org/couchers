@@ -237,18 +237,24 @@ function TeamSection({
 
   return (
     <StyledSection boardMembersOnly={boardMembersOnly}>
-      {boardMembers ? (
-        <MemberList
-          members={boardMembers}
-          variant={variant}
-          hasExtraCard={hasExtraCard}
-          extraCardContent={extraCardContent}
-          boardMembersOnly={boardMembersOnly}
-        />
-      ) : null}
-      {!boardMembersOnly ? (
+      {variant === "past" ? (
         <MemberList members={volunteersList} variant={variant} />
-      ) : null}
+      ) : (
+        <>
+          {boardMembers ? (
+            <MemberList
+              members={boardMembers}
+              variant={variant}
+              hasExtraCard={hasExtraCard}
+              extraCardContent={extraCardContent}
+              boardMembersOnly={boardMembersOnly}
+            />
+          ) : null}
+          {!boardMembersOnly ? (
+            <MemberList members={volunteersList} variant={variant} />
+          ) : null}
+        </>
+      )}
     </StyledSection>
   );
 }
