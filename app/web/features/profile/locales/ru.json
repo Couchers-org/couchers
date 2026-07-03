@@ -129,7 +129,8 @@
     "rating_negative": "Отрицательный",
     "rating_positive": "Положительный",
     "rating_amazing": "Потрясающе!",
-    "ratings_slider_label": "ползунок рейтинга"
+    "ratings_slider_label": "ползунок рейтинга",
+    "safety_rating_selector_a11y": "Рейтинг безопасности"
   },
   "incomplete_dialog": {
     "about_me_message": "Заполните раздел «Кто я» минимум 150 символами.",
@@ -177,7 +178,12 @@
     "request_chars_remaining_many": "Пожалуйста, напишите ещё как минимум {{count}} символов, чтобы отправить запрос хосту."
   },
   "message_form": {
-    "hosting_request_hint": "Отправляете запрос на хостинг? Используйте кнопку <request>Запрос</request>."
+    "hosting_request_hint": "Отправляете запрос на хостинг? Используйте кнопку <request>Запрос</request>.",
+    "message": "Сообщение",
+    "message_description": "Напишите ваше сообщение...",
+    "message_empty": "Пожалуйста, напишите сообщение.",
+    "success": "Сообщение отправлено!",
+    "send_message": "Отправьте сообщение {{name}}"
   },
   "open_profile_new_tab": "Открыть профиль в новой вкладке",
   "see_more_references": "Показать ещё отзывы",
@@ -334,10 +340,12 @@
       "send_request": "отправить запрос",
       "send_message": "отправить сообщение",
       "send_friend_request": "send a friend request",
-      "create_event": "создать мероприятие"
+      "create_event": "создать мероприятие",
+      "create_public_trip": "создать публичную поездку"
     },
     "edit_profile_button": "Отредактируйте свой профиль сейчас",
     "cancel_button": "Неважно"
   },
-  "do_not_email_error_link": "Обновите настройки электронной почты, чтобы снова включить это."
+  "do_not_email_error_link": "Обновите настройки электронной почты, чтобы снова включить это.",
+  "open_full_profile": "Открыть полный профиль"
 }

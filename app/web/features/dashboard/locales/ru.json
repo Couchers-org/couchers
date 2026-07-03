@@ -52,7 +52,9 @@
       "button": "Редактировать профиль"
     },
     "respond_to_host_request": {
-      "title": "Ответьте {{name}}"
+      "title": "Ответьте {{name}}",
+      "description": "Не забудьте ответить на запрос хоста, отправив сообщение {{name}}.",
+      "button": "Просмотреть запрос"
     },
     "strong_verification": {
       "title": "Усиленная верификация"
