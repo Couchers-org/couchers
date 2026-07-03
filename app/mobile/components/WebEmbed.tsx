@@ -1,4 +1,5 @@
 import { useFocusEffect } from "expo-router";
+import { hasAction, requestReview } from "expo-store-review";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +20,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 
+import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
@@ -38,7 +40,7 @@ export default function WebEmbed({
   path,
   onNativeBackFallback,
 }: WebEmbedProps) {
-  const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+  const WEB_BASE_URL = getWebBaseUrl();
 
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
@@ -327,7 +329,12 @@ export default function WebEmbed({
         // mode can be "light", "dark", or null (follow system)
         const mode = payload.mode;
         if (mode === "light" || mode === "dark" || mode === null) {
-          Appearance.setColorScheme(mode);
+          // Guard against calling setColorScheme with the same value — on some
+          // Samsung/Android builds this fires a system event that propagates
+          // back into the WebView's prefers-color-scheme, causing a loop.
+          if (mode === null || Appearance.getColorScheme() !== mode) {
+            Appearance.setColorScheme(mode);
+          }
         }
       } else if (payload?.type === "NATIVE_BACK") {
         if (canGoBackRef.current && webviewRef.current) {
@@ -363,6 +370,10 @@ export default function WebEmbed({
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // WebView file input crashes on mobile; use native picker instead.
         pickImage(sendImagePickResult);
+      } else if (payload?.type === "REQUEST_REVIEW") {
+        hasAction().then((canReview) => {
+          if (canReview) requestReview();
+        });
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.

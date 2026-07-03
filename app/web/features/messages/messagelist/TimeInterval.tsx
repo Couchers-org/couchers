@@ -4,10 +4,6 @@ import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { timeAgo } from "utils/timeAgo";
 
-const Root = styled("div")(({ theme }) => ({
-  paddingInlineEnd: theme.spacing(1),
-}));
-
 const StyledTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem", // 12px
 }));
@@ -24,10 +20,8 @@ export default function TimeInterval({ date, className }: TimeIntervalProps) {
   } = useTranslation(GLOBAL);
 
   return (
-    <Root className={className}>
-      <StyledTypography variant="caption">
-        {timeAgo({ since: date, t, locale })}
-      </StyledTypography>
-    </Root>
+    <StyledTypography className={className} variant="caption">
+      {timeAgo({ since: date, t, locale })}
+    </StyledTypography>
   );
 }

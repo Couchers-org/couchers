@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql import func, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -206,11 +206,11 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     author=user_model_to_pb(
                         message.author,
                         session,
-                        make_background_user_context(user_id=user_id),
+                        make_notification_user_context(user_id=user_id),
                     ),
                     text=message.text,
                     group_chat_id=message.conversation_id,
-                    group_chat_title=group_chat.title,
+                    group_chat_title=group_chat.title or None,
                     # unseen_count irrelevant for this notification
                 ),
                 moderation_state_id=group_chat.moderation_state_id,
@@ -888,6 +888,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         ).scalar_one_or_none()
 
         if not chat:
+            if process_rate_limits_and_check_abort(
+                session=session, user_id=user_id, action=RateLimitAction.chat_initiation
+            ):
+                context.abort_with_error_code(
+                    grpc.StatusCode.RESOURCE_EXHAUSTED,
+                    "chat_initiation_rate_limit2",
+                    substitutions={"count": RATE_LIMIT_HOURS},
+                )
             chat = _create_chat(session, user_id, [recipient_id])
 
         # Retrieve the sender's active subscription to the chat

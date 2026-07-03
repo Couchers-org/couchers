@@ -11,7 +11,7 @@ export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
-export const listMyCommunitiesDiscussionsKey = "listMyCommunitiesDiscussions";
+export const listMyCommunitiesDiscussionsKey = "myCommunitiesDiscussions";
 export const listNotificationsQueryKey = "listNotifications";
 export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
@@ -139,6 +139,7 @@ export const hostRequestMessagesKey = (id?: number) => [
 
 // User
 export const userCommunitiesKey = "userCommunities";
+export const userCommunitiesListKey = "userCommunitiesListV2";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const myCommunityEventsKey = (type: EventsType) => [
   "myCommunityEvents",
@@ -162,6 +163,18 @@ export const newUsersListKey = "newUsersList";
 
 // Public
 export const volunteersKey = "volunteers";
+
+// Public Trips
+export const publicTripsBaseKey = "publicTrips";
+export const publicTripsKey = (communityId: number) => [
+  publicTripsBaseKey,
+  communityId,
+];
+export const publicTripsByUserBaseKey = "publicTripsByUser";
+export const publicTripsByUserKey = (userId: number) => [
+  publicTripsByUserBaseKey,
+  userId,
+];
 export const donationStatsKey = "donationStats";
 
 // Translate

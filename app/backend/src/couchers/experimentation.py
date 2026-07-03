@@ -1,7 +1,8 @@
 """
-Experimentation framework for feature flags and experiments.
+Feature flag and experimentation framework.
 
-Uses GrowthBook under the hood, but abstracts the implementation details.
+FEATURE_FLAGS_FILE_OVERRIDE_PATH (dev only) reads flags from a JSON file instead of GrowthBook;
+unknown flags fall through to their in-code default either way.
 
 Two ways to evaluate a flag:
   - Per-user/request: use the CouchersContext methods (context.get_boolean_value, get_string_value,
@@ -12,8 +13,7 @@ Two ways to evaluate a flag:
     to vary per user. Whenever a user is (or could reasonably be) available, use the context: only the
     per-user path can do percentage rollouts, experiments, and feature-usage tracking.
 
-Both paths share the enabled / pass-all-gates gating helpers here. setup_experimentation() is called
-once at process startup.
+setup_experimentation() is called once at process startup.
 """
 
 import json
@@ -21,6 +21,7 @@ import logging
 import threading
 import time
 from collections.abc import Callable
+from functools import cache
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
@@ -30,9 +31,10 @@ from growthbook import GrowthBook
 from growthbook.common_types import Experiment, FeatureResult, Result
 from sqlalchemy.dialects.postgresql import insert
 
+from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +62,8 @@ class GrowthBookUnavailableError(Exception):
 
 def _fetch_features() -> dict[str, Any] | None:
     """Fetch the GrowthBook feature payload over HTTP. Returns None on failure."""
-    api_host = config["GROWTHBOOK_API_HOST"].rstrip("/")
-    client_key = config["GROWTHBOOK_CLIENT_KEY"]
+    api_host = config.GROWTHBOOK_API_HOST.rstrip("/")
+    client_key = config.GROWTHBOOK_CLIENT_KEY
     url = f"{api_host}/api/features/{client_key}"
     try:
         http = urllib3.PoolManager(
@@ -98,7 +100,7 @@ def seconds_since_last_fetch() -> float | None:
 
 
 def _write_cache(response: dict[str, Any]) -> None:
-    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    path = Path(config.GROWTHBOOK_CACHE_PATH)
     data = json.dumps({"fetched_at": time.time(), "response": response})
     # Temp file alongside the target then rename: rename is atomic within a filesystem, so a reader
     # never sees a half-written cache.
@@ -110,7 +112,7 @@ def _write_cache(response: dict[str, Any]) -> None:
 
 def _read_cache() -> tuple[dict[str, Any], float] | None:
     """(response, fetched_at), or None if no cache file exists yet. A corrupt file raises."""
-    path = Path(config["GROWTHBOOK_CACHE_PATH"])
+    path = Path(config.GROWTHBOOK_CACHE_PATH)
     if not path.exists():
         return None
     payload = json.loads(path.read_text())
@@ -128,22 +130,34 @@ def _refresh_loop() -> None:
         # On a failed fetch, keep last-known-good state and retry next tick; the staleness metric climbs.
 
 
+@cache
+def _load_local_flags(path_str: str) -> dict[str, Any]:
+    """Read and validate the dev-only override file; cached per path."""
+    # resolve relative to the backend root, independent of cwd (absolute paths are left untouched)
+    path = Path(__file__).parent / ".." / ".." / path_str
+    loaded = json.loads(path.read_text())
+    if not isinstance(loaded, dict):
+        raise ValueError(f"Feature flag override file {path} must contain a JSON object")
+    logger.info("Loaded %d feature flag override(s) from %s", len(loaded), path)
+    return loaded
+
+
 def setup_experimentation() -> None:
     """
-    Initialize the experimentation framework.
+    Initialize the feature flag framework.
 
-    Safe to call multiple times - subsequent calls are no-ops. Fetches the
-    feature payload once synchronously, then starts a background thread that
-    refreshes every minute. Request threads only ever read the in-memory
-    snapshot - they never block on the GrowthBook CDN.
+    Safe to call multiple times - subsequent calls are no-ops. In GrowthBook mode this fetches the
+    feature payload once synchronously, then starts a background thread that refreshes every minute;
+    request threads only ever read the in-memory snapshot. In local-file mode (dev only) it loads the
+    JSON file once and never contacts GrowthBook.
     """
     global _initialized, _refresh_thread
 
     if _initialized:
         return
 
-    if not config["EXPERIMENTATION_ENABLED"]:
-        logger.info("Experimentation is disabled, skipping initialization")
+    if config.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+        _load_local_flags(config.FEATURE_FLAGS_FILE_OVERRIDE_PATH)
         _initialized = True
         return
 
@@ -202,6 +216,7 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
             user_id=user_id,
             experiment_key=experiment.key,
             variation_id=result.variationId,
+            source=ExposureSource.backend,
             data=data,
         )
         .on_conflict_do_nothing(constraint="uq_experiment_exposures_user_exp_var")
@@ -258,19 +273,15 @@ def _global_evaluator() -> GrowthBook:
     return _create_evaluator(None)
 
 
-# These two helpers are the single home of the gating logic, shared by the global functions below
-# and by CouchersContext (which passes its own cached per-request evaluator). get_evaluator is only
-# invoked once gating passes, so it stays lazy.
+# Single home of the gating logic, shared by the global functions below and by CouchersContext (which
+# passes its own cached per-request evaluator). get_evaluator stays lazy - skipped in file-override mode.
 def _feature_value[T](flag_key: str, default: T, get_evaluator: Callable[[], GrowthBook]) -> T:
-    if not config["EXPERIMENTATION_ENABLED"]:
-        return default
-    return get_evaluator().get_feature_value(flag_key, default)  # type: ignore[no-any-return]
-
-
-def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], GrowthBook]) -> bool:
-    if config["EXPERIMENTATION_PASS_ALL_GATES"]:
-        return True
-    return _feature_value(flag_key, default, get_evaluator)
+    if config.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
+        return _load_local_flags(config.FEATURE_FLAGS_FILE_OVERRIDE_PATH).get(flag_key, default)  # type: ignore[no-any-return]
+    result = get_evaluator().eval_feature(flag_key)
+    value = default if result.value is None else result.value
+    metrics.observe_feature_flag_evaluation(flag_key, result.source, value)
+    return value
 
 
 # Global (no-user) flag evaluation. Use these ONLY when there is genuinely no user to evaluate for and
@@ -280,7 +291,7 @@ def _boolean_value(flag_key: str, default: bool, get_evaluator: Callable[[], Gro
 # feature-usage tracking. With no user to bucket, rollouts and experiments are skipped and flags fall
 # through to their in-code defaults unless a rule forces a value globally.
 def get_global_boolean_value(flag_key: str, default: bool) -> bool:
-    return _boolean_value(flag_key, default, _global_evaluator)
+    return _feature_value(flag_key, default, _global_evaluator)
 
 
 def get_global_string_value(flag_key: str, default: str) -> str:

@@ -3,6 +3,7 @@ from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from functools import cache
 from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
@@ -12,13 +13,15 @@ from zoneinfo import ZoneInfo
 
 import grpc
 import sentry_sdk
-from google.protobuf.descriptor import ServiceDescriptor
+from google.protobuf.descriptor import Descriptor, ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select
-from sqlalchemy.sql import and_, func
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.sql import func
 
+from couchers.config import config
 from couchers.constants import (
     CALL_CANCELLED_ERROR_MESSAGE,
     COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
@@ -32,9 +35,18 @@ from couchers.context import CouchersContext, make_interactive_context, make_med
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
-from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.metrics import observe_in_servicer_duration_histogram
+from couchers.i18n.locales import to_supported_locale
+from couchers.metrics import (
+    observe_api_call,
+    observe_in_servicer_duration_histogram,
+    observe_in_servicer_perf_histograms,
+    observe_in_servicer_pool_wait_histogram,
+    observe_in_servicer_serde_histogram,
+    observe_in_servicer_setup_errors_counter,
+    observe_in_servicer_setup_histogram,
+)
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
+from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -95,19 +107,9 @@ def _try_get_and_update_user_details(
 
     with session_scope() as session:
         result = session.execute(
-            select(User, UserSession, UserActivity)
+            select(User, UserSession, User.is_jailed)
             .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
-            .outerjoin(
-                UserActivity,
-                and_(
-                    UserActivity.user_id == User.id,
-                    UserActivity.period == _binned_now(),
-                    UserActivity.ip_address == ip_address,
-                    UserActivity.user_agent == user_agent,
-                    UserActivity.sofa == sofa,
-                ),
-            )
             .where(User.is_visible)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
@@ -117,7 +119,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session, user_activity = result._tuple()
+        user, user_session, is_jailed = result._tuple()
 
         # update user last active time if it's been a while
         if now() - user.last_active > timedelta(minutes=5):
@@ -127,28 +129,38 @@ def _try_get_and_update_user_details(
         user_session.last_seen = func.now()
         user_session.api_calls += 1
 
-        if user_activity:
-            user_activity.api_calls += 1
-            if client_platform is not None:
-                user_activity.client_platform = client_platform
-        else:
-            session.add(
-                UserActivity(
-                    user_id=user.id,
-                    period=_binned_now(),
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                    sofa=sofa,
-                    client_platform=client_platform,
-                    api_calls=1,
-                )
-            )
-
-        session.commit()
-
-        return UserAuthInfo(
+        # upsert so concurrent requests for the same activity tuple don't race to insert and violate the index
+        insert_stmt = pg_insert(UserActivity).values(
             user_id=user.id,
-            is_jailed=user.is_jailed,
+            period=_binned_now(),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            sofa=sofa,
+            client_platform=client_platform,
+            api_calls=1,
+        )
+        session.execute(
+            insert_stmt.on_conflict_do_update(
+                index_elements=[
+                    UserActivity.user_id,
+                    UserActivity.period,
+                    UserActivity.ip_address,
+                    UserActivity.user_agent,
+                    UserActivity.sofa,
+                ],
+                set_={
+                    "api_calls": UserActivity.api_calls + 1,
+                    "client_platform": func.coalesce(
+                        insert_stmt.excluded.client_platform, UserActivity.client_platform
+                    ),
+                },
+            )
+        )
+
+        # build before committing to avoid expire_on_commit reloading these attributes
+        auth_info = UserAuthInfo(
+            user_id=user.id,
+            is_jailed=is_jailed,
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
@@ -157,6 +169,10 @@ def _try_get_and_update_user_details(
             token=token,
             is_api_key=is_api_key,
         )
+
+        session.commit()
+
+        return auth_info
 
 
 def abort_handler[T, R](
@@ -176,35 +192,77 @@ def unauthenticated_handler[T, R](
     return abort_handler(message, status_code)
 
 
+@cache
+def _descriptor_has_sensitive(descriptor: Descriptor) -> bool:
+    """Whether this message type transitively contains any field marked sensitive."""
+    seen: set[Descriptor] = set()
+    stack = [descriptor]
+    while stack:
+        d = stack.pop()
+        if d in seen:
+            continue
+        seen.add(d)
+        for f in d.fields:
+            if f.GetOptions().Extensions[annotations_pb2.sensitive]:
+                return True
+            if f.message_type is not None:
+                stack.append(f.message_type)
+    return False
+
+
+@dataclass(frozen=True, slots=True)
+class _SanitizePlan:
+    fields_to_clear: tuple[str, ...]
+    fields_to_recurse: tuple[tuple[str, bool], ...]  # (field name, is_repeated)
+
+
+@cache
+def _sanitize_plan(descriptor: Descriptor) -> _SanitizePlan:
+    """For a message type, the fields to clear and the subfields worth recursing into."""
+    clear = []
+    recurse = []
+    for f in descriptor.fields:
+        if f.GetOptions().Extensions[annotations_pb2.sensitive]:
+            clear.append(f.name)
+        elif f.message_type is not None and _descriptor_has_sensitive(f.message_type):
+            recurse.append((f.name, f.is_repeated))
+    return _SanitizePlan(fields_to_clear=tuple(clear), fields_to_recurse=tuple(recurse))
+
+
+def _sanitize_message(message: Message) -> None:
+    plan = _sanitize_plan(message.DESCRIPTOR)
+    for name in plan.fields_to_clear:
+        message.ClearField(name)
+    for name, is_repeated in plan.fields_to_recurse:
+        submessage = getattr(message, name)
+        if not submessage:
+            continue
+        if is_repeated:
+            for msg in submessage:
+                _sanitize_message(msg)
+        else:
+            _sanitize_message(submessage)
+
+
 @overload
 def _sanitized_bytes(proto: Message) -> bytes: ...
 @overload
 def _sanitized_bytes(proto: None) -> None: ...
 def _sanitized_bytes(proto: Message | None) -> bytes | None:
     """
-    Remove fields marked sensitive and return serialized bytes
+    Remove fields marked sensitive and return serialized bytes.
+
+    Sensitivity is static per message type, so the descriptor analysis is cached: messages whose type has no
+    sensitive field anywhere serialize directly without a copy or walk.
     """
     if not proto:
         return None
 
+    if not _descriptor_has_sensitive(proto.DESCRIPTOR):
+        return proto.SerializeToString()
+
     new_proto = deepcopy(proto)
-
-    def _sanitize_message(message: Message) -> None:
-        for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
-                message.ClearField(name)
-            if descriptor.message_type:
-                submessage = getattr(message, name)
-                if not submessage:
-                    continue
-                if descriptor.is_repeated:
-                    for msg in submessage:
-                        _sanitize_message(msg)
-                else:
-                    _sanitize_message(submessage)
-
     _sanitize_message(new_proto)
-
     return new_proto.SerializeToString()
 
 
@@ -219,6 +277,8 @@ def _store_log(
     response: Message | None,
     traceback: str | None = None,
     perf_report: str | None = None,
+    perf: PerfResult | None = None,
+    client_platform: ClientPlatform | None = None,
     ip_address: str | None,
     user_agent: str | None,
     sofa: str | None,
@@ -243,6 +303,11 @@ def _store_log(
                 response_truncated=response_truncated,
                 traceback=traceback,
                 perf_report=perf_report,
+                db_query_count=perf.db_query_count if perf else None,
+                db_write_query_count=perf.db_write_query_count if perf else None,
+                db_time_ms=perf.db_time_ms if perf else None,
+                cpu_ms=perf.cpu_ms if perf else None,
+                client_platform=client_platform,
                 ip_address=ip_address,
                 user_agent=user_agent,
                 sofa=sofa,
@@ -280,46 +345,62 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
-        try:
-            auth_level = find_auth_level(self._pool, method)
-        except AbortError as ae:
-            return abort_handler(ae.msg, ae.code)
+        # accounting for the auth/setup phase; the handler re-arms its own below
+        start_perf()
 
         try:
-            headers = parse_headers(dict(handler_call_details.invocation_metadata))
-        except BadHeaders:
-            return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
+            try:
+                auth_level = find_auth_level(self._pool, method)
+            except AbortError as ae:
+                return abort_handler(ae.msg, ae.code)
 
-        auth_info = _try_get_and_update_user_details(
-            headers.token,
-            headers.is_api_key,
-            headers.ip_address,
-            headers.user_agent,
-            headers.sofa,
-            headers.client_platform,
-        )
+            try:
+                headers = parse_headers(dict(handler_call_details.invocation_metadata))
+            except BadHeaders:
+                return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
 
-        try:
-            check_permissions(auth_info, auth_level)
-        except AbortError as ae:
-            return unauthenticated_handler(ae.msg, ae.code)
+            # if this is not present in prod, it's a Big Bug in config
+            assert config.DEV or headers.ip_address is not None
 
-        if not (handler := continuation(handler_call_details)):
-            raise RuntimeError(f"No handler in '{method}'")
+            auth_info = _try_get_and_update_user_details(
+                headers.token,
+                headers.is_api_key,
+                headers.ip_address,
+                headers.user_agent,
+                headers.sofa,
+                headers.client_platform,
+            )
 
-        if not (prev_function := handler.unary_unary):
-            raise RuntimeError(f"No prev_function in '{method}', {handler}")
+            try:
+                check_permissions(auth_info, auth_level)
+            except AbortError as ae:
+                return unauthenticated_handler(ae.msg, ae.code)
 
-        if headers.sofa:
-            sofa = headers.sofa
-            new_sofa_cookie = None
-        else:
-            sofa, new_sofa_cookie = generate_sofa_cookie()
+            if not (handler := continuation(handler_call_details)):
+                raise RuntimeError(f"No handler in '{method}'")
 
-        loc_context = LocalizationContext(
-            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
-            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-        )
+            if not (prev_function := handler.unary_unary):
+                raise RuntimeError(f"No prev_function in '{method}', {handler}")
+
+            if headers.sofa:
+                sofa = headers.sofa
+                new_sofa_cookie = None
+            else:
+                sofa, new_sofa_cookie = generate_sofa_cookie()
+
+            locale = to_supported_locale((auth_info.ui_language_preference if auth_info else headers.ui_lang) or "")
+            loc_context = LocalizationContext(
+                locale=locale,
+                timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+            )
+
+            observe_in_servicer_setup_histogram(method, read_perf())
+        except Exception as e:
+            observe_in_servicer_setup_errors_counter(method, type(e).__name__)
+            sentry_sdk.set_tag("context", "servicer_setup")
+            sentry_sdk.set_tag("method", method)
+            sentry_sdk.capture_exception(e)
+            return abort_handler(UNKNOWN_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
@@ -332,9 +413,18 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                # force the checkout now so its wait is timed here rather than hiding in the handler's first query
+                pool_wait_start = perf_counter_ns()
+                session.connection()
+                observe_in_servicer_pool_wait_histogram(method, (perf_counter_ns() - pool_wait_start) / 1e9)
+                start_perf()
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
+                    # flush so pending ORM writes execute (and are counted) before we snapshot; a handler that only
+                    # session.add(...)s and returns would otherwise flush at commit, after read_perf()
+                    session.flush()
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
@@ -344,12 +434,17 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
+                    observe_api_call(method, headers.client_platform)
+                    observe_in_servicer_perf_histograms(method, perf)
                 except Exception as e:
+                    perf = read_perf()
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
 
@@ -369,6 +464,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         request=req,
                         response=None,
                         traceback=traceback,
+                        perf=perf,
+                        client_platform=headers.client_platform,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                         sofa=sofa,
@@ -376,6 +473,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
                     )
+                    observe_api_call(method, headers.client_platform)
+                    observe_in_servicer_perf_histograms(method, perf)
 
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
@@ -412,10 +511,21 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             return res
 
+        def timed_serde[A, B](fn: Callable[[A], B], direction: str) -> Callable[[A], B]:
+            def wrapped(arg: A) -> B:
+                t0 = perf_counter_ns()
+                result = fn(arg)
+                observe_in_servicer_serde_histogram(method, direction, (perf_counter_ns() - t0) / 1e9)
+                return result
+
+            return wrapped
+
+        # always set for our generated-proto methods, but grpc types them as optional
+        assert handler.request_deserializer is not None and handler.response_serializer is not None
         return grpc.unary_unary_rpc_method_handler(
             function_without_couchers_stuff,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
+            request_deserializer=timed_serde(handler.request_deserializer, "deserialize"),
+            response_serializer=timed_serde(handler.response_serializer, "serialize"),
         )
 
 

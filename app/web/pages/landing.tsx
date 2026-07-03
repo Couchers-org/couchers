@@ -1,5 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import LandingPage from "features/landing/LandingPage";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import {
   AUTH,
   DASHBOARD,
@@ -8,16 +9,16 @@ import {
   NOTIFICATIONS,
 } from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [AUTH, DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      AUTH,
+      DASHBOARD,
+      GLOBAL,
+      LANDING,
+      NOTIFICATIONS,
+    ])),
   },
 });
 
@@ -27,6 +28,6 @@ export default function HomePage() {
 
 HomePage.getLayout = appGetLayout({
   isPrivate: false,
-  variant: "full-screen",
+  variant: "full-width",
   bottomMargin: "80px",
 });

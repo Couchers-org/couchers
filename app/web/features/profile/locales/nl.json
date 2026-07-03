@@ -3,8 +3,6 @@
   "actions": {
     "back_to_dashboard": "Terug naar dashboard",
     "message_label": "Bericht sturen",
-    "accept_friend_label": "Accepteren",
-    "decline_friend_label": "Afwijzen",
     "request": "Verzoek",
     "add_friend": "Vriend toevoegen"
   },
@@ -222,7 +220,8 @@
     "what_happened": "Wat is er gebeurd?",
     "friend_reference_requires_friendship": "Je kan alleen een vriendenreferentie schrijven voor iemand met wie je bevriend bent.",
     "already_wrote_reference_for_stay": "Je hebt al een referentie geschreven voor deze gebruiker en dit verblijf. Je referentie wordt zichtbaar nadat er een referentie over jou is geschreven, of automatisch na 14 dagen.",
-    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven."
+    "already_wrote_friend_reference": "Je hebt al een vriendenreferentie voor deze gebruiker geschreven.",
+    "safety_rating_selector_a11y": "Veiligheidsrating"
   },
   "request_form": {
     "request_chars_remaining_one": "Schrijf nog minstens {{count}} karakter meer om een hostingverzoek te doen.",
@@ -259,8 +258,6 @@
     "hosted": "Gehost",
     "surfed": "Gast"
   },
-  "accept_friend_label": "Vriendschapsverzoek accepteren",
-  "decline_friend_label": "Vriendschapsverzoek afwijzen",
   "no_references": "Je hebt nog niet van dit soort referenties!",
   "references_filter_a11y_label": "Referenties laten zien: ",
   "see_more_references": "Meer referenties bekijken",
@@ -333,5 +330,19 @@
     "close_viewer": "Fotoalbum sluiten",
     "report_photo": "Foto rapporteren"
   },
-  "do_not_email_error_link": "Update je instellingen voor e-mail om dit weer aan te zetten."
+  "do_not_email_error_link": "Update je instellingen voor e-mail om dit weer aan te zetten.",
+  "complete_profile_dialog": {
+    "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",
+    "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
+    "description_2": "Dit helpt om een vertrouwde community op te bouwen en spam te verminderen. Voor meer informatie, <2>kijk op deze hulppagina</2>. Bedankt voor je hulp!",
+    "actions": {
+      "send_request": "een verzoek doen",
+      "send_message": "een bericht sturen",
+      "send_friend_request": "stuur een vriendschapsverzoek",
+      "create_event": "een event aanmaken"
+    },
+    "edit_profile_button": "Bewerk nu je profiel",
+    "cancel_button": "Laat maar"
+  },
+  "open_full_profile": "Volledig profiel openen"
 }

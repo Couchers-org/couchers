@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -62,6 +62,14 @@ hostrequeststatus2api = {
     HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
     HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+}
+
+api2hostrequeststatus = {
+    conversations_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
+    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
+    conversations_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
+    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
+    conversations_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
 }
 
 hostrequestquality2sql = {
@@ -331,14 +339,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(host_request)
         session.flush()
 
+        recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
         notify(
             session,
             user_id=host_request.recipient_user_id,
             topic_action=NotificationTopicAction.host_request__create,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
-                host_request=host_request_to_pb(host_request, session, context),
-                surfer=user_model_to_pb(host_request.initiator, session, context),
+                host_request=host_request_to_pb(host_request, session, recipient_context),
+                surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
                 text=request.text,
             ),
             moderation_state_id=moderation_state.id,
@@ -429,8 +438,26 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             is_list_operation=True,
         ).where(message_2.id == None)
 
-        if request.last_request_id != 0:
-            statement = statement.where(Message.id < request.last_request_id)
+        sort_by_from_date = request.sort_by == requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
+
+        if sort_by_from_date:
+            if request.page_token:
+                token_date_str, token_conv_id_str = request.page_token.split(":")
+                token_date = parse_date(token_date_str)
+                token_conv_id = int(token_conv_id_str)
+                statement = statement.where(
+                    or_(
+                        HostRequest.from_date > token_date,
+                        and_(
+                            HostRequest.from_date == token_date,
+                            HostRequest.conversation_id > token_conv_id,
+                        ),
+                    )
+                )
+        else:
+            if request.page_token:
+                statement = statement.where(Message.id < int(request.page_token))
+
         if request.only_sent:
             statement = statement.where(HostRequest.initiator_user_id == context.user_id)
         elif request.only_received:
@@ -464,9 +491,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     HostRequest.status == HostRequestStatus.confirmed,
                 )
             )
-            statement = statement.where(HostRequest.end_time <= func.now())
+            statement = statement.where(HostRequest.end_time >= func.now())
 
-        statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
+        if request.status_in:
+            statement = statement.where(HostRequest.status.in_([api2hostrequeststatus[s] for s in request.status_in]))
+
+        if sort_by_from_date:
+            statement = statement.order_by(HostRequest.from_date.asc(), HostRequest.conversation_id.asc())
+        else:
+            statement = statement.order_by(Message.id.desc())
+        statement = statement.limit(pagination + 1)
         results = session.execute(statement).all()
 
         host_requests = []
@@ -494,11 +528,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
             )
 
-        last_request_id = min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0  # TODO
         no_more = len(results) <= pagination
 
+        if len(results) > pagination:
+            if sort_by_from_date:
+                last = results[pagination - 1]
+                next_page_token = f"{date_to_api(last.HostRequest.from_date)}:{last.HostRequest.conversation_id}"
+            else:
+                next_page_token = str(min(g.Message.id for g in results[:pagination]))
+        else:
+            next_page_token = None
+
         return requests_pb2.ListHostRequestsRes(
-            last_request_id=last_request_id, no_more=no_more, host_requests=host_requests
+            next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
         )
 
     def RespondHostRequest(
@@ -561,14 +603,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.accepted
             session.flush()
 
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__accept,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestAccept(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    host=user_model_to_pb(host_request.recipient, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -602,14 +645,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.rejected
             session.flush()
 
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__reject,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    host=user_model_to_pb(host_request.recipient, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -643,14 +687,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.confirmed
             session.flush()
 
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__confirm,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestConfirm(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.initiator, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -683,14 +728,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.cancelled
             session.flush()
 
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__cancel,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.initiator, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -809,14 +855,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.initiator_user_id == context.user_id:
             host_request.initiator_last_seen_message_id = message.id
 
+            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.initiator, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    user=user_model_to_pb(host_request.initiator, session, recipient_context),
                     text=request.text,
                     am_host=True,
                 ),
@@ -826,14 +873,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         else:
             host_request.recipient_last_seen_message_id = message.id
 
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
             notify(
                 session,
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.recipient, session, context),
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    user=user_model_to_pb(host_request.recipient, session, recipient_context),
                     text=request.text,
                     am_host=False,
                 ),

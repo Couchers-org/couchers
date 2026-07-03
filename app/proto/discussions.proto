@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package org.couchers.api.discussions;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "threads.proto";
@@ -20,6 +22,14 @@ service Discussions {
 
   rpc ListMyCommunitiesDiscussions(ListMyCommunitiesDiscussionsReq) returns (ListMyCommunitiesDiscussionsRes) {
     // List recent discussions from all communities the user belongs to, newest first
+  }
+
+  rpc UpdateDiscussion(UpdateDiscussionReq) returns (Discussion) {
+    // Update a discussion; only the creator can edit
+  }
+
+  rpc DeleteDiscussion(DeleteDiscussionReq) returns (google.protobuf.Empty) {
+    // Delete a discussion; creator or community moderator can delete
   }
 }
 
@@ -39,6 +49,9 @@ message Discussion {
   org.couchers.api.threads.Thread thread = 11;
 
   bool can_moderate = 10;
+  bool can_edit = 13;
+  bool deleted = 14;
+  google.protobuf.Timestamp last_edited = 15;
 }
 
 message CreateDiscussionReq {
@@ -62,4 +75,14 @@ message ListMyCommunitiesDiscussionsReq {
 message ListMyCommunitiesDiscussionsRes {
   repeated Discussion discussions = 1;
   string next_page_token = 2;
+}
+
+message UpdateDiscussionReq {
+  int64 discussion_id = 1;
+  google.protobuf.StringValue title = 2;
+  google.protobuf.StringValue content = 3;
+}
+
+message DeleteDiscussionReq {
+  int64 discussion_id = 1;
 }

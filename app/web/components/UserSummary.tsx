@@ -1,4 +1,5 @@
 import {
+  Box,
   ListItemAvatar,
   ListItemText,
   Skeleton,
@@ -13,8 +14,16 @@ import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
+
+// It could be BlockedUser.AsObject or LiteUser.AsObject and only LiteUser has hasStrongVerification
+function isLiteUser(
+  user: LiteUser.AsObject | BlockedUser.AsObject,
+): user is LiteUser.AsObject {
+  return "hasStrongVerification" in user;
+}
 
 const StyledWrapper = styled("div")({
   display: "flex",
@@ -83,6 +92,7 @@ export default function UserSummary({
     },
   );
 
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -123,16 +133,14 @@ export default function UserSummary({
             sx={{ maxWidth: 300 }}
           />
         ) : (
-          <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             {nameOnly
               ? nameValue
               : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
-            {user &&
-            "hasStrongVerification" in user &&
-            user.hasStrongVerification ? (
+            {isLiteUser(user) && user.hasStrongVerification && (
               <StrongVerificationBadge />
-            ) : null}
-          </>
+            )}
+          </Box>
         )}
       </Typography>
     </Tooltip>
@@ -158,11 +166,11 @@ export default function UserSummary({
             <ProfileLink
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
-              openInNewTab
+              openInNewTab={!isMobile}
               style={{ display: "flex", alignItems: "center" }}
             >
               {title}
-              <StyledOpenInNewIcon />
+              {!isMobile && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title

@@ -15,13 +15,17 @@ message SendEmailPayload {
   // source data as to where this email came from
   string source_data = 8;
   reserved 9; // Previous "attachments" field, which had mime_type+filename subfields.
-  repeated EmailAttachmentV2 attachments = 10;
+  repeated EmailPart attachments = 10;
+  repeated EmailPart html_related_parts = 11; // MIME parts which are multipart/related to the HTML body.
 }
 
-message EmailAttachmentV2 {
+// A MIME part of an SMPT email, usable for attached files or inline images.
+message EmailPart {
   bytes data = 1;
   string content_disposition = 2; // The Content-Disposition header, including parameters
   string content_type = 3; // The Content-Type header, including parameters
+  string content_id = 4; // The Content-ID header, including parameters
+  string data_file_path = 5; // The server-side path to the file containing the data (mutually exclusive with "data").
 }
 
 message HandleNotificationPayload {
@@ -76,7 +80,11 @@ message GenerateEventCreateNotificationsPayload {
 message GenerateEventUpdateNotificationsPayload {
   int64 updating_user_id = 1;
   int64 occurrence_id = 2;
-  repeated string updated_items = 3;
+  // TODO(#9117): Remove once unused. Was not i18n-friendly. Use updated_enum_items.
+  repeated string updated_str_items = 3 [deprecated = true];
+  // EventUpdateItem is from the shared protos and cannot be referenced here.
+  // int32 has the same on-wire encoding.
+  repeated int32 updated_enum_items = 4;
 }
 
 message GenerateEventCancelNotificationsPayload {

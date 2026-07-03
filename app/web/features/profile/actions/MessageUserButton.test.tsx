@@ -135,7 +135,7 @@ describe("MessageUserButton", () => {
     await waitFor(async () =>
       expect(
         await screen.findByLabelText(
-          t("dashboard:complete_profile_dialog.title"),
+          t("profile:complete_profile_dialog.title"),
         ),
       ).toBeVisible(),
     );

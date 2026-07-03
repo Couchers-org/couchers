@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -144,11 +145,11 @@ const LongEventCard = ({
       locale,
       includeDayOfWeek: true,
       includeTime: true,
+      capitalize: true,
     },
   );
 
   const isCreatedByMe = event.creatorUserId === userId;
-  const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;
 
   return (
@@ -180,9 +181,6 @@ const LongEventCard = ({
               {isCreatedByMe && (
                 <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
               )}
-              {isOnline && (
-                <Pill variant="rounded">{t("communities:online")}</Pill>
-              )}
               {isCancelled && (
                 <CancelledPill variant="rounded">
                   {t("communities:cancelled")}
@@ -193,16 +191,13 @@ const LongEventCard = ({
 
           <Row>
             <EventInfo>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
+              {event.location?.address}
               <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>
               <Attendees>
-                {t("communities:attendees_count", {
-                  count: event.goingCount,
-                })}
+                <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
+                {event.goingCount}
               </Attendees>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {

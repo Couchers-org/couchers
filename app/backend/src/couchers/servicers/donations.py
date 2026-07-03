@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge
+from couchers.metrics import observe_revenue
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
@@ -30,7 +31,7 @@ def _create_stripe_customer(session: Session, user: User) -> None:
         email=user.email,
         # metadata allows us to store arbitrary metadata for ourselves
         metadata={"user_id": user.id},  # type: ignore[dict-item]
-        api_key=config["STRIPE_API_KEY"],
+        api_key=config.STRIPE_API_KEY,
     )
     user.stripe_customer_id = customer.id
     # commit since we only ever want one stripe customer id per user, so if the rest of this api call fails, this will still be saved in the db
@@ -55,7 +56,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         if request.recurring:
             item = {
-                "price": config["STRIPE_RECURRING_PRODUCT_ID"],
+                "price": config.STRIPE_RECURRING_PRODUCT_ID,
                 "quantity": request.amount,
             }
         else:
@@ -81,7 +82,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],  # type: ignore[list-item]
-            api_key=config["STRIPE_API_KEY"],
+            api_key=config.STRIPE_API_KEY,
         )
 
         session.add(
@@ -119,7 +120,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         stripe_session = stripe.billing_portal.Session.create(
             customer=not_none(user.stripe_customer_id),
             return_url=urls.donation_url(),
-            api_key=config["STRIPE_API_KEY"],
+            api_key=config.STRIPE_API_KEY,
         )
 
         return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=stripe_session.url)
@@ -134,9 +135,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # invoice. There are other events too, but we don't handle them right now.
         event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
             payload=request.data,
-            sig_header=context.headers.get("stripe-signature"),
-            secret=config["STRIPE_WEBHOOK_SECRET"],
-            api_key=config["STRIPE_API_KEY"],
+            sig_header=context.get_header("stripe-signature"),
+            secret=config.STRIPE_WEBHOOK_SECRET,
+            api_key=config.STRIPE_API_KEY,
         )
         data = event["data"]
         event_type = event["type"]
@@ -148,9 +149,10 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
 
         if event_type == "charge.succeeded":
-            if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
+            if metadata.get("site_url") == config.MERCH_SHOP_URL:
                 # merch shop. look up this email and give them the swagster badge
                 customer_email = metadata["customer_email"]
+                observe_revenue("merch", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
@@ -161,7 +163,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     customer_info = customer_email
                 try:
                     send_slack_message(
-                        config["SLACK_MERCH_CHANNEL"],
+                        config.SLACK_MERCH_CHANNEL,
                         f"Merch purchase: ${amount} from {customer_info}",
                     )
                 except Exception as e:
@@ -170,6 +172,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
                 # amount comes in cents
+                observe_revenue("donation", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 receipt_url = data_object["receipt_url"]
                 payment_intent_id = data_object["payment_intent"]
@@ -202,7 +205,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 user_link = urls.user_link(username=user.username)
                 try:
                     send_slack_message(
-                        config["SLACK_DONATIONS_CHANNEL"],
+                        config.SLACK_DONATIONS_CHANNEL,
                         f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
                     )
                 except Exception as e:

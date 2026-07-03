@@ -10,9 +10,23 @@ from couchers.context import make_background_user_context, make_logged_out_conte
 from couchers.db import session_scope
 from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
 from couchers.i18n import LocalizationContext
-from couchers.models.logging import ExperimentExposure, FeatureUsage
+from couchers.metrics import feature_flag_evaluations_counter
+from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 from couchers.proto import bugs_pb2
 from tests.fixtures.sessions import bugs_session
+
+
+def _flag_eval_count(flag_key: str, source: str, value: str) -> float:
+    return sum(
+        s.value
+        for m in feature_flag_evaluations_counter.collect()
+        for s in m.samples
+        if s.name == "couchers_feature_flag_evaluations_total"
+        and s.labels.get("flag_key") == flag_key
+        and s.labels.get("source") == source
+        and s.labels.get("value") == value
+    )
+
 
 # Raw GrowthBook feature definitions for exercising the framework's own bucketing/exposure mechanics.
 # Most tests just need feature_flags.set(key, value); these go through feature_flags.set_definition().
@@ -52,13 +66,6 @@ def test_unknown_feature_returns_in_code_default(feature_flags):
     assert context.get_string_value("does_not_exist", "my_default") == "my_default"
 
 
-def test_value_method_returns_in_code_default_when_disabled(monkeypatch, feature_flags):
-    feature_flags.set("global_flag", True)
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", False)
-    context = make_background_user_context(123)
-    assert context.get_string_value("global_flag", "off") == "off"
-
-
 def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_flags):
     # Evaluating an experiment-backed flag for a bucketed user records exactly one exposure - this is
     # the whole point of per-flag evaluation: exposure is logged only for flags the user actually hits.
@@ -70,6 +77,7 @@ def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_
         rows = session.execute(select(ExperimentExposure).where(ExperimentExposure.user_id == 123)).scalars().all()
         assert len(rows) == 1
         assert rows[0].experiment_key == "my_experiment"
+        assert rows[0].source == ExposureSource.backend
 
 
 def test_evaluate_feature_flag_servicer_returns_value(feature_flags, db):
@@ -150,6 +158,19 @@ def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags
     assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"
 
 
+def test_evaluation_increments_metric_with_source_and_value(feature_flags):
+    feature_flags.set("metric_flag", "yes")
+    before = _flag_eval_count("metric_flag", "defaultValue", "yes")
+    assert experimentation.get_global_string_value("metric_flag", "no") == "yes"
+    assert _flag_eval_count("metric_flag", "defaultValue", "yes") == before + 1
+
+
+def test_unknown_feature_increments_metric_with_unknown_source(feature_flags):
+    before = _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback")
+    assert experimentation.get_global_string_value("metric_unknown_flag", "fallback") == "fallback"
+    assert _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback") == before + 1
+
+
 @pytest.fixture
 def setup_isolation(monkeypatch, tmp_path):
     """Run setup_experimentation() against a clean module state and a tmp cache path, and make sure the
@@ -157,7 +178,7 @@ def setup_isolation(monkeypatch, tmp_path):
     monkeypatch.setattr(experimentation, "_initialized", False)
     monkeypatch.setattr(experimentation, "_last_fetch_time", None)
     monkeypatch.setattr(experimentation, "_state", {"features": {}, "savedGroups": {}})
-    monkeypatch.setitem(config, "EXPERIMENTATION_ENABLED", True)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     monkeypatch.setitem(config, "GROWTHBOOK_CACHE_PATH", str(tmp_path / "cache.json"))
     yield tmp_path / "cache.json"
     experimentation._refresh_stop.set()
@@ -213,3 +234,47 @@ def test_setup_raises_on_corrupt_cache(setup_isolation, monkeypatch):
 
 def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
     assert experimentation.seconds_since_last_fetch() is None
+
+
+def test_flags_value_returned(flags):
+    flags.set_string("my_flag", "from_file")
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_string_value("my_flag", "fallback") == "from_file"
+
+
+def test_flags_missing_key_returns_in_code_default(flags):
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_string_value("missing_flag", "fallback") == "fallback"
+
+
+def test_flags_boolean_value(flags):
+    flags.set_boolean("bool_flag", False)
+    context = make_logged_out_context(LocalizationContext.en_utc())
+    assert context.get_boolean_value("bool_flag", default=True) is False
+
+
+def test_load_local_flags_from_file(tmp_path):
+    path = tmp_path / "flags.json"
+    path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
+    assert experimentation._load_local_flags(str(path)) == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
+
+
+def test_load_local_flags_rejects_non_object(tmp_path):
+    path = tmp_path / "flags.json"
+    path.write_text(json.dumps(["not", "an", "object"]))
+    with pytest.raises(ValueError, match="must contain a JSON object"):
+        experimentation._load_local_flags(str(path))
+
+
+def test_setup_in_local_file_mode_loads_file_and_skips_growthbook(monkeypatch, tmp_path):
+    path = tmp_path / "flags.json"
+    path.write_text(json.dumps({"flag_x": "from_file"}))
+    monkeypatch.setattr(experimentation, "_initialized", False)
+    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", str(path))
+    # If GrowthBook were touched, this would blow up.
+    monkeypatch.setattr(experimentation, "_fetch_features", lambda: pytest.fail("GrowthBook should not be touched"))
+
+    setup_experimentation()
+
+    assert experimentation._load_local_flags(str(path)) == {"flag_x": "from_file"}
+    assert experimentation._refresh_thread is None

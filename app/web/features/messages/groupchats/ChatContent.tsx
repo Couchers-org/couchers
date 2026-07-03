@@ -28,6 +28,7 @@ const ChatContent = ({
   markLastSeen,
   isError,
   footer,
+  isDm = false,
 }: {
   isHostRequest: boolean;
   isLoading: boolean;
@@ -39,6 +40,7 @@ const ChatContent = ({
   markLastSeen: (messageId: number) => void;
   isError: boolean;
   footer?: ReactNode;
+  isDm?: boolean;
 }) => {
   if (isLoading) {
     return <CenteredSpinner minHeight="100%" />;
@@ -62,6 +64,7 @@ const ChatContent = ({
       <MessageList
         markLastSeen={markLastSeen}
         messages={messages.pages.map((page) => page.messagesList).flat()}
+        isDm={isHostRequest || isDm}
       />
       {footer}
     </StyledInfiniteMessageLoader>

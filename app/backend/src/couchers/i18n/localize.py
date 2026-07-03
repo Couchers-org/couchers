@@ -4,49 +4,57 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 import re
-from collections.abc import Mapping
+from collections.abc import Sequence
 from datetime import date, datetime, time, tzinfo
-from functools import lru_cache
-from pathlib import Path
 from typing import cast
 
 import babel
 import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
+from babel.lists import format_list
 
-from couchers.i18n.i18next import I18Next
-from couchers.i18n.locales import DEFAULT_LOCALE, load_locales
-
-
-@lru_cache(maxsize=1)
-def get_main_i18next() -> I18Next:
-    """Gets the I18Next instance for the main locales files."""
-    return load_locales(Path(__file__).parent / "locales")
+from couchers.resources import get_region_code_iso3166_alpha3_to_alpha2
 
 
-def get_babel_locale(locale_list: list[str]) -> babel.Locale:
-    """Resolves a babel.Locale object from a list of locale candidates."""
-    for locale in locale_list:
-        try:
-            return babel.Locale.parse(locale, sep="-")
-        except babel.UnknownLocaleError:
-            continue
-    raise LookupError(f"No babel locale found for locales {', '.join(locale_list)}")
+def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
+    return format_list(items, locale=locale)
 
 
-def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
+def try_localize_language_name_from_iso639(code: str, locale: babel.Locale, standalone: bool = False) -> str | None:
     """
-    Retrieves a translated string and performs substitutions.
+    Attempts to localize the name of a language expressed as an ISO639 code.
 
     Args:
-        lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
-        key: The key for the string to be looked up.
-        substitutions: Dictionary of variable substitutions for the string (e.g., {"hours": 24})
+        code: The ISO639 language code.
+        locale: The locale to render the language name in.
+        standalone: The result won't be part of a larger sentence and should be capitalized if the language has capitals.
 
     Returns:
-        The translated string with substitutions applied
+        The localized name, or None if no localized name is available.
     """
-    return get_main_i18next().localize(key, lang or DEFAULT_LOCALE, substitutions)
+    try:
+        name = babel.Locale.parse(code).get_language_name(locale)
+        if name is None:
+            return None
+        if standalone:
+            # The Unicode CLDR returns a casing that allows embedding in a larger sentence, e.g. "español".
+            # If we're displaying the language name on its own, capitalize its first letter if applicable.
+            # An LLM prompt revealed that this holds for all major languages.
+            # It is a no-op for scripts that don't have capital letters.
+            name = name[:1].title() + name[1:]
+        return name
+    except (ValueError, babel.UnknownLocaleError):
+        return None
+
+
+def try_localize_region_name_from_iso3166(code: str, locale: babel.Locale) -> str | None:
+    """
+    Gets a region name specified as an ISO3166 alpha2 or alpha3 code, localized in the given locale.
+    """
+    # The Unicode CLDR uses alpha2 codes as keys (all alpha3 codes have a corresponding alpha2 code)
+    code = get_region_code_iso3166_alpha3_to_alpha2().get(code, code)
+    region_name: str | None = locale.territories.get(code, None)
+    return region_name
 
 
 def localize_date(

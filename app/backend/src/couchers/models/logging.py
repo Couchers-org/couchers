@@ -10,11 +10,17 @@ from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+from couchers.models.rest import ClientPlatform
 
 
 class EventSource(enum.Enum):
     backend = enum.auto()
     frontend = enum.auto()
+
+
+class ExposureSource(enum.Enum):
+    backend = enum.auto()
+    client = enum.auto()
 
 
 class APICall(Base, kw_only=True):
@@ -32,7 +38,7 @@ class APICall(Base, kw_only=True):
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema
-    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+    version: Mapped[str] = mapped_column(String, default=config.VERSION)
 
     # approximate time of the call
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
@@ -64,6 +70,15 @@ class APICall(Base, kw_only=True):
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
+    # per-request resource accounting, covering the handler span (see couchers/perf.py)
+    db_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    # counts only SQLAlchemy rendered insert/update/delete
+    db_write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    db_time_ms: Mapped[float | None] = mapped_column(Float, default=None)
+    cpu_ms: Mapped[float | None] = mapped_column(Float, default=None)
+
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
+
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
@@ -89,7 +104,7 @@ class EventLog(Base, kw_only=True):
     occurred: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # backend/frontend version
-    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+    version: Mapped[str] = mapped_column(String, default=config.VERSION)
 
     # sofa, null for background/system events
     sofa: Mapped[str | None] = mapped_column(String, default=None)
@@ -135,7 +150,7 @@ class ExperimentExposure(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # backend version when the first exposure was recorded
-    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+    version: Mapped[str] = mapped_column(String, default=config.VERSION)
 
     # user exposed to the experiment
     user_id: Mapped[int] = mapped_column(BigInteger)
@@ -145,6 +160,8 @@ class ExperimentExposure(Base, kw_only=True):
 
     # the variation the user was bucketed into
     variation_id: Mapped[int] = mapped_column(BigInteger)
+
+    source: Mapped[ExposureSource] = mapped_column(Enum(ExposureSource))
 
     # remaining GrowthBook fields (variation_key, hash_attribute, hash_value,
     # bucket, in_experiment, feature_id, sticky_bucket_used, etc.)
@@ -184,5 +201,46 @@ class FeatureUsage(Base, kw_only=True):
     __table_args__ = (
         Index("ix_logging_feature_usage_feature_key_time", "feature_key", "time"),
         Index("ix_logging_feature_usage_user_id_time", "user_id", "time"),
+        {"schema": "logging"},
+    )
+
+
+class NonvisibleUserAccessType(enum.Enum):
+    login_attempt = enum.auto()
+    profile_view = enum.auto()
+    ghost_served = enum.auto()
+
+
+class NonvisibleUserState(enum.Enum):
+    banned = enum.auto()
+    shadowed = enum.auto()
+    deleted = enum.auto()
+
+
+class NonvisibleUserAccess(Base, kw_only=True):
+    __tablename__ = "nonvisible_user_access"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    version: Mapped[str] = mapped_column(String, default=config.VERSION)
+
+    access_type: Mapped[NonvisibleUserAccessType] = mapped_column(Enum(NonvisibleUserAccessType))
+
+    target_user_id: Mapped[int] = mapped_column(BigInteger)
+    target_state: Mapped[NonvisibleUserState] = mapped_column(Enum(NonvisibleUserState))
+
+    actor_user_id: Mapped[int | None] = mapped_column(BigInteger, default=None)
+
+    ip_address: Mapped[str | None] = mapped_column(String, default=None)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
+
+    __table_args__ = (
+        Index("ix_logging_nonvisible_user_access_target_user_id_time", "target_user_id", "time"),
+        Index("ix_logging_nonvisible_user_access_actor_user_id_time", "actor_user_id", "time"),
+        Index("ix_logging_nonvisible_user_access_sofa", "sofa"),
+        Index("ix_logging_nonvisible_user_access_ip_address", "ip_address"),
         {"schema": "logging"},
     )

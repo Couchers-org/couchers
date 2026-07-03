@@ -44,7 +44,8 @@ make mypy
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
-- Always run `make format` and `make mypy` after modifying backend code
+- Always run `make format` and `make mypy` after modifying backend code. mypy MUST pass — a failing mypy is never acceptable, so fix it before moving on (don't dismiss errors as "pre-existing")
+- If mypy or tests fail with import errors or missing symbols from generated proto modules (`couchers.proto.*` — e.g. a message type that exists in a `.proto` source but not in the generated `*_pb2.py`), your locally generated protos are stale: run `make protos` to regenerate them, then re-check
 - NEVER try-catch an exception and silently throw it away or just log it. By and large you don't need to wrap code in try-catch blocks, we already handle exceptions
 - Use `enum.auto()` for all enums (except in the rare case that they are inherently ordinal and we use that order in business logic)
 - Put relationships and constraints at the end of models
@@ -91,6 +92,20 @@ make mypy
 - Located in `/app/proto`
 - Run `make protos` from backend after changes
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
+
+**⚠️ FIELD NUMBERS ARE PERMANENT — NEVER RENUMBER OR REPURPOSE A FIELD ⚠️**
+
+Field numbers are the wire format. Once a field has shipped, its number is bound to that semantic FOREVER:
+- **NEVER** change the number of an existing field.
+- **NEVER** change the type of an existing field (e.g. `string` → `bytes`, `int32` → `int64`).
+- **NEVER** rename a field to mean something different — the wire doesn't see the name, it sees the number, so the old client's bytes will be silently decoded as the new field of the same tag (e.g. an old `string debug_json = 1` decoded as a new `string install_id = 1` looks valid but is garbage data).
+- **NEVER** reuse a removed field's number OR name for something new.
+
+When removing a field that has shipped: delete the field and add `reserved <number>;` AND `reserved "field_name";` lines so neither the tag nor the name can ever be reused. Reserving the name matters too — it stops a future field from accidentally reviving an old meaning by reusing the name, and protects JSON/text-format consumers that key on names. When the field has never shipped, delete it outright.
+
+When adding a field: pick the next unused number. You may place the line wherever it reads best in the file — proto3 doesn't care about source order, only the number matters. The number must always be a previously-unused tag.
+
+If you ever feel tempted to renumber, STOP and ask the user. There is essentially never a valid reason.
 
 ### Localization
 - Never hardcode English text - always use the `t()` function or `<Trans>` component for user-facing text

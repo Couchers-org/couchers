@@ -31,11 +31,17 @@ const StyledCommentsListContainer = styled("div")(({ theme }) => ({
   },
 }));
 
+const COMMENT_REFETCH_INTERVAL_MS = 30_000;
+
 interface CommentTreeProps {
   threadId: number;
+  discussionId?: number;
 }
 
-export default function CommentTree({ threadId }: CommentTreeProps) {
+export default function CommentTree({
+  threadId,
+  discussionId,
+}: CommentTreeProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {
@@ -45,7 +51,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
     hasNextPage,
     isFetchingNextPage,
     isLoading: isCommentsLoading,
-  } = useThread(threadId);
+  } = useThread(threadId, { refetchInterval: COMMENT_REFETCH_INTERVAL_MS });
 
   return (
     <>
@@ -70,7 +76,13 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
             .reverse()
             .map((comment) => {
               return (
-                <Comment key={comment.threadId} topLevel comment={comment} />
+                <Comment
+                  key={comment.threadId}
+                  topLevel
+                  comment={comment}
+                  parentThreadId={threadId}
+                  discussionId={discussionId}
+                />
               );
             })}
         </StyledCommentsListContainer>

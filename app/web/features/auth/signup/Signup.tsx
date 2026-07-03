@@ -1,20 +1,12 @@
-import {
-  alpha,
-  Box,
-  Container,
-  Skeleton,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -46,7 +38,6 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -121,9 +112,8 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <Container
+      <PageContainer
         component="section"
-        maxWidth="lg"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -196,18 +186,7 @@ export default function Signup() {
             </Trans>
           </Typography>
         </StyledFormWrapper>
-        {isMobile && (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: theme.spacing(2),
-            }}
-          >
-            <LanguagePickerSelect />
-          </Box>
-        )}
-      </Container>
+      </PageContainer>
     </>
   );
 }

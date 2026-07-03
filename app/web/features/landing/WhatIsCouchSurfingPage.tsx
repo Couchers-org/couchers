@@ -10,7 +10,6 @@ import {
 } from "@mui/icons-material";
 import {
   Box,
-  Container,
   Grid,
   List,
   ListItem,
@@ -20,6 +19,7 @@ import {
 } from "@mui/material";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -37,13 +37,9 @@ export default function WhatIsCouchSurfingPage() {
   return (
     <>
       <HtmlMeta title={t("what_is_cs.title")} />
-      <Container
-        component="article"
-        maxWidth="lg"
-        sx={{ py: { xs: 0, md: 8 } }}
-      >
+      <PageContainer component="article" sx={{ py: { xs: 0, md: 8 } }}>
         <Box component="section" sx={{ py: 6 }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 0, md: 3 } }}>
+          <PageContainer sx={{ px: { xs: 0, md: 3 } }}>
             <Grid
               container
               spacing={{ xs: 1, md: 4 }}
@@ -107,7 +103,7 @@ export default function WhatIsCouchSurfingPage() {
                 </Box>
               </Grid>
             </Grid>
-          </Container>
+          </PageContainer>
         </Box>
         <HistoryTimeline />
         <Box component="section" sx={{ py: 6 }}>
@@ -306,7 +302,7 @@ export default function WhatIsCouchSurfingPage() {
             width: "100vw",
           }}
         >
-          <Container maxWidth="lg">
+          <PageContainer>
             <Grid container spacing={4} alignItems="center">
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography
@@ -405,7 +401,7 @@ export default function WhatIsCouchSurfingPage() {
                 </Box>
               </Grid>
             </Grid>
-          </Container>
+          </PageContainer>
         </Box>
 
         <Box component="section" sx={{ py: 6 }}>
@@ -421,7 +417,7 @@ export default function WhatIsCouchSurfingPage() {
           </Typography>
           <CompareTable />
         </Box>
-      </Container>
+      </PageContainer>
       <Box
         component="section"
         sx={{
@@ -435,7 +431,7 @@ export default function WhatIsCouchSurfingPage() {
           width: "100vw",
         }}
       >
-        <Container maxWidth="lg">
+        <PageContainer>
           <Stack spacing={2} alignItems="center" textAlign="center">
             <Typography
               variant="h2"
@@ -460,7 +456,7 @@ export default function WhatIsCouchSurfingPage() {
               {t("what_is_cs.join_couchers")}
             </Button>
           </Stack>
-        </Container>
+        </PageContainer>
       </Box>
     </>
   );

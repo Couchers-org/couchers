@@ -1,5 +1,8 @@
 // taken from backend
-export const nameValidationPattern = /^[\p{L}\s'-]+$/u;
+export const nameValidationPattern =
+  /^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$/u;
+export const nameMinLength = 2;
+export const nameMaxLength = 100;
 export const usernameValidationPattern = /^[a-z][0-9a-z_]*[a-z0-9]$/i;
 export const validatePassword = (password: string) => {
   return password.length >= 8 && password.length < 256;

@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.constants import VALID_NAME_MAX_LENGTH
 from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
@@ -66,13 +67,51 @@ def test_is_valid_username() -> None:
 
 
 def test_is_valid_name() -> None:
-    assert is_valid_name("a")
+    # Basics
+    assert is_valid_name("ab")
     assert is_valid_name("a b")
-    assert is_valid_name("1")
-    assert is_valid_name("老子")
+    assert is_valid_name("Jean-Luc")
+
+    # OK punctuation
+    assert is_valid_name("King K. Rool")
+    assert is_valid_name("Doe, John")
+    assert is_valid_name("Alice & Bob")
+    assert is_valid_name("Alice / Bob")
+    assert is_valid_name("Alice | Bob")
+
+    # Apostrophes and Quotes
+    assert is_valid_name("O'Connor")
+    assert is_valid_name("William “Bill” Clinton")
+    assert is_valid_name("Sha’Nia Jenkins")
+
+    # Other scripts
+    assert is_valid_name("孙悟空")
+    assert is_valid_name("Combining Diặcritics")
+    assert is_valid_name("काव्य")  # Hindi combining diacritics
+    assert is_valid_name("Meritxell Col·lell")  # Catalan middle dot
+    assert is_valid_name("レオナルド・ディカプリオ")  # Japanese middle dot
+    assert is_valid_name("Lanaʻi")  # Hawaiian ʻokina glottal stop
+
+    # invalid: too short / too long
+    assert not is_valid_name("a")
+    assert not is_valid_name("a" * (VALID_NAME_MAX_LENGTH + 1))
+    # invalid: only whitespace
     assert not is_valid_name("	")
     assert not is_valid_name("")
     assert not is_valid_name(" ")
+    assert not is_valid_name("  ")
+    # invalid: leading/trailing whitespace
+    assert not is_valid_name(" leading whitespace")
+    assert not is_valid_name("trailing whitespace ")
+    assert not is_valid_name(" surrounding whitespace ")
+    # invalid: disallowed characters
+    assert not is_valid_name("digits123")
+    assert not is_valid_name("email@domain.com")
+    assert not is_valid_name("Frosty the ☃️")
+    assert not is_valid_name("exclamative!")
+    assert not is_valid_name("interrogative?")
+    assert not is_valid_name("under_score")
+    assert not is_valid_name("(╯‵□′)╯︵┻━┻")
 
 
 def test_parse_date() -> None:
@@ -110,7 +149,7 @@ def test_get_parent_node_at_location(testing_communities):
 
 def pg_dump() -> str:
     return subprocess.run(
-        ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
+        ["pg_dump", "-s", config.DATABASE_CONNECTION_STRING], stdout=subprocess.PIPE, encoding="ascii", check=True
     ).stdout
 
 

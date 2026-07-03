@@ -1,6 +1,6 @@
 # Couchers Mobile App
 
-React Native mobile app built with [Expo](https://expo.dev). We maintain two separate apps (staging and production) that can coexist on the same device with different bundle IDs and API endpoints.
+React Native mobile app built with [Expo](https://expo.dev). We maintain three separate apps (staging, production, and a development tool) that can coexist on the same device with different bundle IDs and API endpoints.
 
 ## Table of Contents
 
@@ -10,8 +10,9 @@ React Native mobile app built with [Expo](https://expo.dev). We maintain two sep
 4. [Releasing Staging Build](#4-releasing-staging-build)
 5. [Releasing Production Build](#5-releasing-production-build)
 6. [App Variants](#app-variants)
-7. [Updating Dependencies](#updating-dependencies)
-8. [Learn More](#learn-more)
+7. [Dev Tool (TestFlight)](#dev-tool-testflight)
+8. [Updating Dependencies](#updating-dependencies)
+9. [Learn More](#learn-more)
 
 ## 1. First Time Setup
 
@@ -50,6 +51,16 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
+> **Note:** Local builds default to the `devtool` variant (`org.couchers.devtool.ios` / `org.couchers.devtool.android`), keeping them isolated from the production and staging apps. Production notifications won't open your local build.
+
+On iOS: if you get issues about signing, try opening `app/mobile/ios` in Xcode and setting up app signing there.
+
+> **Tip:** If you only work on JavaScript/TypeScript, you can skip the local
+> native build (and Xcode/Android Studio) entirely — install the prebuilt
+> **Couchers Dev Tool** app from TestFlight and run `npx expo start` against it.
+> See [Dev Tool (TestFlight)](#dev-tool-testflight). You only
+> need a local native build when changing native dependencies or `app.config.js`.
+
 **After the initial build is installed, use this for daily development:**
 ```bash
 npx expo start
@@ -65,9 +76,30 @@ Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes wi
 
 ### Testing Web App Changes on Mobile
 
-If you need to test local web or backend changes on your phone, run everything locally and configure environment variables to point to your computer's IP address.
+If you need to test local web or backend changes on your phone, run the setup script — it auto-detects your IP and updates all config files at once:
 
-**[Follow the local development guide](../../docs/run-local-app-on-mobile.md)** for detailed instructions.
+```bash
+npm run setup:local
+```
+
+Then restart everything from the repo root, each in a separate terminal:
+
+```bash
+# Terminal 1 — backend (requires Docker)
+docker compose up --build
+
+# Terminal 2 — web frontend
+cd app/web && yarn start
+
+# Terminal 3 — Expo
+cd app/mobile && npx expo start
+```
+
+When done, restore with:
+
+```bash
+npm run setup:local:restore
+```
 
 ### Quick Development (Mobile Code Only)
 
@@ -98,6 +130,8 @@ See [Expo Android emulator docs](https://docs.expo.dev/workflow/android-studio-e
 ## 4. Releasing Staging Build
 
 Staging builds point to `dev-api.couchershq.org` and are for internal testing only. The staging app (`Couchers (Staging)`) can be installed alongside the production app.
+
+> **CI builds staging automatically.** On every `develop` push, CI cuts and submits a fresh staging store build when the native fingerprint changes (and ships pure JS/TS changes over the air), exactly like production — see `app/.gitlab-ci.yml` (`build:`/`deploy:mobile-native-staging-*` and `build:mobile-ota-staging`). The manual commands below are the ad-hoc fallback; set `FORCE_NATIVE_BUILD_AND_SUBMIT=true` on a pipeline to force a fresh store build when the fingerprint is unchanged.
 
 ### Before Building
 
@@ -138,6 +172,8 @@ The build will be immediately available for internal testing (no review required
 
 Production builds point to `api.couchers.org` and are released to the public.
 
+> **CI builds production automatically.** On every `develop` push, CI cuts and submits a fresh production store build when the native fingerprint changes (and ships pure JS/TS changes over the air) — see `app/.gitlab-ci.yml` (`build:`/`deploy:mobile-native-prod-*` and `build:mobile-ota-prod`). The submit lands in TestFlight / the Play internal track; promoting to public review is still manual (below). The manual commands are the ad-hoc fallback.
+
 ### Before Building
 
 Ensure staging has been tested, then run pre-flight checks:
@@ -168,16 +204,71 @@ npm run release:android:production
 
 ## App Variants
 
-We maintain **two separate apps** that can coexist on the same device:
+We maintain **three separate apps** that can coexist on the same device:
 
 | Variant | App Name | iOS Bundle ID | Android Package | API Server |
 |---------|----------|---------------|-----------------|------------|
+| **Dev Tool** | Couchers Dev Tool | `org.couchers.devtool.ios` | `org.couchers.devtool.android` | `dev-api.couchershq.org` |
 | **Staging** | Couchers (Staging) | `org.couchers.staging.ios` | `org.couchers.staging.android` | `dev-api.couchershq.org` |
 | **Production** | Couchers | `org.couchers.ios` | `org.couchers.android` | `api.couchers.org` |
 
-**Benefits:** Both apps can be installed simultaneously, separate push notification channels, test staging changes without affecting production users.
+**Benefits:** All apps can be installed simultaneously, separate push notification channels, test staging changes without affecting production users.
 
 **How it works:** Build profiles in `eas.json` set an `APP_VARIANT` environment variable, which `app.config.js` reads to configure bundle IDs, app names, and API endpoints dynamically.
+
+The **Dev Tool** variant is a [development build](#dev-tool-testflight) (it reuses the staging icons and backend). The **Dev Tool** and **Staging** apps both point at `dev-api.couchershq.org` but are distinct apps with separate bundle IDs.
+
+## Dev Tool (TestFlight)
+
+The **Couchers Dev Tool** variant is a [development build](https://docs.expo.dev/develop/development-builds/introduction/) — essentially "Expo Go, but with our own native modules." It bundles every native dependency in the project plus the Expo dev launcher, and points at the staging backend. Devs install it once from TestFlight and load JavaScript over the air, so they never need Xcode, CocoaPods, or a local native build for day-to-day JS/TS work. The "Dev Tool" name signals it's a developer utility, not another release flavor like staging or production.
+
+**Daily workflow (no Xcode needed):**
+
+```bash
+npx expo start
+```
+
+Open the **Couchers Dev Tool** app and connect to the Metro server (same network), or scan the QR code. JS/TS changes hot-reload exactly as they do with a locally built development build.
+
+**When a new Dev Tool build is required:** only when the set of native dependencies changes (adding/removing a native package, changing `app.config.js`, or bumping the Expo SDK). Pure JS/TS changes never need a rebuild — they load over the air.
+
+### Releasing a new Dev Tool build
+
+**Automatic (CI).** Every push to the configured build branch (`DEVTOOL_BUILD_BRANCH` in `app/.gitlab-ci.yml` — `mobile/v1.1.20` while validating, then `develop`) runs `build:mobile-native-devtool`, which recomputes the Expo fingerprint and, **only if it changed since the last-built client**, builds a fresh client on EAS. JS/TS-only changes don't change the fingerprint, so they're skipped — those load over the air (see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md)). The last-built fingerprint is recorded per platform under `s3://<dev-assets>/devtool-builds/` and only updated after a successful build, so a failed build is retried next pipeline.
+
+All three install options live on **one Dev Tool page**: **`https://develop--devtool-builds.preview.couchershq.org/`**. Bookmark it; re-download to update.
+
+- **iOS (device)** → EAS build + auto-submit to **TestFlight**; the page points invited devs there (a signed device build can't be sideloaded outside TestFlight).
+- **iOS (simulator)** → EAS builds a simulator `.app` (the `devtool-simulator` profile), which CI downloads and publishes; the page lists the `tar`/`xcrun simctl install` steps. For Mac devs who want to run the Dev Tool in the iOS Simulator without a local Xcode build.
+- **Android** → EAS builds a sideloadable **APK** (the `devtool-apk` profile), which CI downloads and publishes for sideloading. Google Play has no TestFlight-style channel for a dev-client APK (Play distributes AABs through release tracks, not installers), so we host it ourselves.
+
+The page and artifacts live under the preview subdomain rewriter's `{ref}--{artifact-type}` convention (`develop--devtool-builds` → `devtool-builds/develop/`, with each platform's download in a sub-path) — the same layout as the per-commit OTA artifacts (`{sha}--ota/{platform}`).
+
+The iOS simulator and Android builds share the iOS/Android device fingerprints respectively, so they rebuild on exactly the same native changes (the simulator flag and APK build type live in `eas.json`, which is excluded from the runtime fingerprint).
+
+**Manual** (same EAS builds, run locally):
+
+```bash
+npm run release:ios:devtool             # iOS device → TestFlight (auto-submit)
+npm run release:ios:devtool:simulator   # iOS Simulator → .app (EAS gives a download link)
+npm run release:android:devtool         # Android → APK (EAS gives a download link/QR)
+```
+
+Once submitted, the iOS build appears in TestFlight after Apple's automated processing (no full App Review for internal testers).
+
+### One-time setup (maintainers)
+
+Before the first release:
+
+1. Create the app in [App Store Connect](https://appstoreconnect.apple.com) with bundle ID `org.couchers.devtool.ios`. (No Google Play Console app is needed — the Android Dev Tool is a self-hosted APK, not a Play release.)
+2. Set `submit.devtool.ios.ascAppId` in `eas.json` to the App Store Connect app ID.
+3. Invite developers as internal TestFlight testers — no per-device UDID registration is required (unlike EAS internal/ad-hoc distribution).
+
+For the **automatic CI rebuild** (`build:mobile-native-devtool`), additionally:
+
+4. Add an Expo robot token (build + submit scope) as the masked, protected GitLab CI/CD variable **`EXPO_TOKEN`**. The Android APK is signed with the keystore EAS already holds for the `devtool` builds, so no extra Android credentials are required.
+
+Per-PR JavaScript previews (the OTA QR posted on PRs) are already wired up; see [`docs/mobile-dev-tool-ota.md`](../../docs/mobile-dev-tool-ota.md).
 
 ## Updating Dependencies
 

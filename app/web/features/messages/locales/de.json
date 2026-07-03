@@ -135,14 +135,14 @@
     "pending": "Diese Anfrage ist noch ausstehend",
     "host_status": {
       "accepted": "Du hast diese Anfrage angenommen",
-      "cancelled": "Du hast diese Anfrage storniert",
+      "cancelled": "Der Surfer hat diese Anfrage storniert",
       "confirmed": "Viel Spaß! Du hast diese Anfrage angenommen und der Surfer hat sie bestätigt.",
       "rejected": "Du hast diese Anfrage abgelehnt",
       "accepted_waiting": "Du hast diese Anfrage angenommen — warte auf die Bestätigung des Surfers."
     },
     "surfer_status": {
       "accepted": "Viel Spaß! {{name}} hat die Anfrage angenommen.",
-      "cancelled": "Deine Anfrage wurde storniert",
+      "cancelled": "Du hast diese Anfrage storniert",
       "confirmed": "Viel Spaß! {{name}} hat diese Anfrage angenommen und du hast sie bestätigt.",
       "rejected": "Deine Anfrage wurde abgelehnt"
     },
@@ -211,5 +211,6 @@
     "submit_button": "Absenden"
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
-  "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben."
+  "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",
+  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen"
 }

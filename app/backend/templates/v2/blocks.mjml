@@ -1,60 +1,134 @@
-<!-- begin-block:para -->
-<mj-section padding="0px">
-  <mj-column>
-    <mj-text>{{ text }}</mj-text>
-  </mj-column>
-</mj-section>
-<!-- end-block:para -->
+<mjml>
+  <mj-head>
+    <mj-title>{{ header_subject }}</mj-title>
+    <mj-preview>{{ header_preview }}</mj-preview>
+    <mj-attributes>
+      <mj-text color="#333" />
+    </mj-attributes>
+    <mj-style inline="inline">a { color: #00a398; } .unsub a { color: #777; text-decoration: underline; text-decoration-color: #ccc; }</mj-style>
+    <mj-font name="Ubuntu" href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css" />
+  </mj-head>
+  <mj-body background-color="#eee">
+    <mj-section>
+    </mj-section>
+    <mj-wrapper background-color="#fff" border-radius="5px" padding="20px" css-class="body">
+      <mj-section>
+        <mj-column>
+          <mj-image src="attachment_imgs/logo-with-couchers.org-small.png" alt="Couchers.org" width="300px"></mj-image>
+          <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
+        </mj-column>
+      </mj-section>
 
-<!-- begin-block:action -->
-<mj-section padding="0px">
-  <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url }}">
-      <b>{{ text }}</b>
-    </mj-button>
-  </mj-column>
-</mj-section>
-<!-- end-block:action -->
+      <!-- begin-block:para -->
+      <mj-section padding="0px">
+        <mj-column>
+          <mj-text>{{ text }}</mj-text>
+        </mj-column>
+      </mj-section>
+      <!-- end-block:para -->
 
-<!-- begin-block:two-buttons -->
-<mj-section padding="0px">
-  <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_1 }}">
-      <b>{{ text_1 }}</b>
-    </mj-button>
-  </mj-column>
-  <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_2 }}">
-      <b>{{ text_2 }}</b>
-    </mj-button>
-  </mj-column>
-</mj-section>
-<!-- end-block:two-buttons -->
+      <!-- begin-block:action -->
+      <mj-section padding="0px">
+        <mj-column>
+          <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url }}">
+            <b>{{ text }}</b>
+          </mj-button>
+        </mj-column>
+      </mj-section>
+      <!-- end-block:action -->
 
-<!-- begin-block:user -->
-<mj-section padding="0px" text-align="left">
-  <mj-column>
-    <mj-table>
-      <tr>
-        <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
-        </td>
-        <td>
-          <b>{{ name }}</b>, {{ age }}<br />
-          {{ city }}{% if comment %}<br />
-          {{ comment }}
+      <!-- begin-block:two-buttons -->
+      <mj-section padding="0px">
+        <mj-column>
+          <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_1 }}">
+            <b>{{ text_1 }}</b>
+          </mj-button>
+        </mj-column>
+        <mj-column>
+          <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url_2 }}">
+            <b>{{ text_2 }}</b>
+          </mj-button>
+        </mj-column>
+      </mj-section>
+      <!-- end-block:two-buttons -->
+
+      <!-- begin-block:user -->
+      <mj-section padding="0px" text-align="left">
+        <mj-column>
+          <mj-table>
+            <tr>
+              <td style="width: 100px;">
+                <a href="{{ profile_url }}">
+                  <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
+                </a>
+              </td>
+              <td>
+                <b>{{ name }}</b>, {{ age }}<br />
+                {{ city }}{% if comment %}<br />
+                {{ comment }}
+                {% endif %}
+              </td>
+            </tr>
+          </mj-table>
+        </mj-column>
+      </mj-section>
+      <!-- end-block:user -->
+
+      <!-- begin-block:quote -->
+      <mj-section padding="10px 20px" text-align="left">
+        <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+          <mj-text>{{ text }}</mj-text>
+        </mj-column>
+      </mj-section>
+      <!-- end-block:quote -->
+
+      <mj-section padding="0px">
+        <mj-column>
+          <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
+          <mj-text align="center" font-size="10px" line-height="12px">
+            {{ received_because }}<br />
+            {{ contact_support }}<br />
+            {{ timezone_note }}
+          </mj-text>
+          <mj-text align="center" font-size="10px">
+            <a href="https://couchers.org/donate">{{ donate_link }}</a>
+            | <a href="https://github.com/Couchers-org/couchers">GitHub</a>
+            | <a href="https://couchers.org/volunteer">{{ volunteer_link }}</a>
+            | <a href="https://couchers.org/blog">{{ blog_link }}</a>
+          </mj-text>
+          <mj-text align="center" font-size="8px" line-height="10px">
+            &copy; {{ copyright_year }} Couchers, Inc.<br />
+            1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br />
+            <i>{{ nonprofit_note }}</i>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-section>
+      <mj-column>
+        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">
+          {% if is_critical %}
+            {{ security_email_note }}
+          {% else %}
+            <a href="{{ manage_notifications_url }}">{{ notification_settings_link }}</a>.
+            {% if topic_action_description or topic_key_description %}
+              <br />
+              Turn off emails for:
+              {% if topic_action_description %}
+                <a href="{{ unsubscribe_topic_action_url }}">{{ topic_action_description }}</a>
+              {% endif %}
+              {% if topic_key_description %}
+                {% if topic_action_description %} / {% endif %}
+                <a href="{{ unsubscribe_topic_key_url }}">{{ topic_key_description }}</a>
+              {% endif %}
+            {% endif %}
+            <br />
+            <a href="{{ do_not_email_url }}">{{ do_not_email_link }}</a>.
           {% endif %}
-        </td>
-      </tr>
-    </mj-table>
-  </mj-column>
-</mj-section>
-<!-- end-block:user -->
-
-<!-- begin-block:quote -->
-<mj-section padding="10px 20px" text-align="left">
-  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
-    <mj-text>{{ text }}</mj-text>
-  </mj-column>
-</mj-section>
-<!-- end-block:quote -->
+        </mj-text>
+        <mj-image src="attachment_imgs/logo-grey.png" width="50px" padding="0px"></mj-image>
+        <mj-text css-class="unsub" align="center" font-size="8px" line-height="16px" color="#777" padding="0px">{{ happy_couch_icon_caption }}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -6,8 +6,6 @@
     "message": "Verwende dieses Formular, um die Moderatoren aufzufordern, eine Benachrichtigung über dieses Event an alle Benutzer in der Nähe zu senden."
   },
   "show_cancelled_events": "Abgesagte Events anzeigen",
-  "attendees_count_one": "{{count}} Teilnehmende Person",
-  "attendees_count_other": "{{count}} Teilnehmende",
   "cancelled": "Abgesagt",
   "cancel_event": "Event absagen",
   "cancel_event_success_message": "Das Event wurde erfolgreich abgesagt.",
@@ -52,7 +50,6 @@
   "new_post_label": "Neuer Beitrag",
   "no_comments": "Aktuell gibt es keine Kommentare zu diesem Beitrag.",
   "new_discussion_topic_placeholder": "Erstelle einen neuen Beitrag - z. B. Mein Lieblingsmoment in Amsterdam ist, wenn...",
-  "online": "Online",
   "overview_label": "Übersicht",
   "places_title": "Orte",
   "post": "Post",
@@ -100,10 +97,6 @@
   "see_more_events_label": "Mehr Events anzeigen",
   "start_time": "Anfangszeit",
   "title_required": "Bitte gib einen Titel für das Event an.",
-  "virtual_event": "Virtuelles Event",
-  "virtual_event_link": "Event Link",
-  "virtual_event_location_placeholder": "Details zum Link anzeigen",
-  "virtual_events_subtext": "Virtuelle Events werden zur globalen Community hinzugefügt.",
   "all_events_page_tabs_a11y_label": "Tabs für Eventübersichtsseite",
   "see_all": "Alle anzeigen",
   "start_date": "Anfangsdatum",
@@ -151,5 +144,20 @@
   "discussion_creation_date": "Erstellt am {{dateOnly}}",
   "duplicate_event": "Event duplizieren",
   "copy_link": "Link kopieren",
-  "copy_link_success": "Link in die Zwischenablage kopiert"
+  "copy_link_success": "Link in die Zwischenablage kopiert",
+  "community_breadcrumb_a11y": "Aktuelle Community",
+  "comment_deleted": "Dieser Kommentar wurde gelöscht.",
+  "edit_comment": "Kommentar bearbeiten",
+  "delete_comment": "Kommentar löschen",
+  "comment_edited_date": "Bearbeitet {{timeAgo}}",
+  "discussion_edited_date": "Bearbeitet {{timeAgo}}",
+  "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
+  "delete_discussion": "Beitrag löschen",
+  "delete_discussion_dialog": {
+    "title": "Beitrag löschen",
+    "message": "Möchtest du diesen Beitrag wirklich löschen? Die Kommentare bleiben sichtbar.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen"
+  },
+  "edit_discussion": "Beitrag bearbeiten"
 }

@@ -1,7 +1,6 @@
 import {
   ChatBubbleOutline,
   ChevronRight,
-  Forum,
   Place,
   Schedule,
 } from "@mui/icons-material";
@@ -43,17 +42,6 @@ const RowLink = styled(Link)({
   "&:hover": {
     backgroundColor: "var(--mui-palette-grey-50)",
   },
-});
-
-const IconChip = styled("div")({
-  width: 40,
-  height: 40,
-  flexShrink: 0,
-  borderRadius: "5px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "var(--mui-palette-primary-main)",
 });
 
 const ContentWrapper = styled("div")({
@@ -112,12 +100,6 @@ const SkeletonRow = styled("div")({
 export function DiscussionListRowSkeleton() {
   return (
     <SkeletonRow>
-      <Skeleton
-        variant="rectangular"
-        width={40}
-        height={40}
-        sx={{ borderRadius: "5px", flexShrink: 0 }}
-      />
       <div style={{ flex: 1, minWidth: 0 }}>
         <Skeleton width="55%" height={20} />
         <Skeleton width="90%" height={14} sx={{ marginTop: "4px" }} />
@@ -149,9 +131,6 @@ export default function DiscussionListRow({
 
   return (
     <RowLink href={routeToDiscussion(discussion.discussionId, discussion.slug)}>
-      <IconChip>
-        <Forum sx={{ fontSize: "18px" }} />
-      </IconChip>
       <ContentWrapper>
         <RowTitle>{discussion.title}</RowTitle>
         {teaser && <ContentTeaser>{teaser}</ContentTeaser>}

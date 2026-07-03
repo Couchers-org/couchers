@@ -1,5 +1,9 @@
 import json
+from collections.abc import Callable
+from functools import lru_cache
 from pathlib import Path
+
+import babel
 
 from couchers.i18n.i18next import I18Next
 
@@ -19,13 +23,61 @@ _LOCALE_FALLBACKS: dict[str, str] = {
 }
 
 
-def get_locale_fallbacks(locale: str) -> list[str]:
-    """Gets the list of locales to which to fallback to if the given one is unavailable."""
+def get_supported_locales() -> list[str]:
+    """Gets the list of supported locales (i.e., for which we have translations)."""
+    return list(get_main_i18next().translations_by_locale.keys())
+
+
+def is_supported_locale(locale: str) -> bool:
+    """Checks if a locale is supported (i.e., if we have translations for it)."""
+    return locale in get_main_i18next().translations_by_locale.keys()
+
+
+def to_supported_locale(locale: str) -> str:
+    """Converts a locale to the closest supported one."""
+
+    if is_supported_locale(locale):
+        return locale
+
+    # Normalize casing in case that's why we don't have a match (e.g., "en-us" vs "en-US")
+    try:
+        # Locale.parse returns either a 4-tuple or a 5-tuple
+        result_tuple = babel.parse_locale(locale, sep="-")
+        if len(result_tuple) == 4:
+            result = (*result_tuple, None)  # Normalize to 5-tuple for unpacking
+        language, territory, script, _, _ = result
+    except ValueError:
+        return DEFAULT_LOCALE
+
+    language = language.lower()
+    territory = territory.upper() if territory else None  # pt-BR, fr-CA
+    script = script.title() if script else None  # zh-Hans, zh-Hant
+
+    normalized_locale = "-".join(filter(None, [language, territory, script]))
+    if is_supported_locale(normalized_locale):
+        return normalized_locale
+
+    if is_supported_locale(language):
+        return language
+
+    return DEFAULT_LOCALE
+
+
+def get_locale_chain(locale: str) -> list[str]:
+    """Gets the ordered list of locales to try when looking up a string, starting with the given locale."""
     if fallback := _LOCALE_FALLBACKS.get(locale):
-        return [fallback, DEFAULT_LOCALE]
+        return [locale, fallback, DEFAULT_LOCALE]
     if locale == DEFAULT_LOCALE:
-        return []
-    return [DEFAULT_LOCALE]
+        return [locale]
+    return [locale, DEFAULT_LOCALE]
+
+
+def get_babel_locale(locale: str) -> babel.Locale:
+    """
+    Returns the babel locale object for a given locale string.
+    Guaranteed by tests to succeed for supported locales.
+    """
+    return babel.Locale.parse(locale, sep="-")
 
 
 def load_locales(directory: Path) -> I18Next:
@@ -47,11 +99,30 @@ def load_locales(directory: Path) -> I18Next:
     default_translation = i18next.translations_by_locale.get(DEFAULT_LOCALE)
     if default_translation is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.default_translation = default_translation
-
-    # Apply fallbacks
-    for translation in i18next.translations_by_locale.values():
-        for fallback_locale in get_locale_fallbacks(translation.locale):
-            translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next
+
+
+@lru_cache(maxsize=1)
+def get_main_i18next() -> I18Next:
+    """Gets the I18Next instance for the main locales files."""
+    return load_locales(Path(__file__).parent / "locales")
+
+
+@lru_cache(maxsize=1)
+def get_admin_i18next() -> I18Next:
+    """Gets the I18Next instance for the admin/editor locales files (English only)."""
+    return load_locales(Path(__file__).parent / "admin_locales")
+
+
+# Maps a translation component name to the I18Next instance that holds its strings. Servicers select
+# the component when localizing (e.g. admin/editor errors live in their own English-only component).
+_TRANSLATION_COMPONENTS: dict[str, Callable[[], I18Next]] = {
+    "main": get_main_i18next,
+    "admin": get_admin_i18next,
+}
+
+
+def get_translation_component(component: str) -> I18Next:
+    """Gets the I18Next instance for a named translation component."""
+    return _TRANSLATION_COMPONENTS[component]()

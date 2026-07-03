@@ -45,6 +45,11 @@ import {
   useUnsavedChangesWarning,
 } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import {
+  nameMaxLength,
+  nameMinLength,
+  nameValidationPattern,
+} from "utils/validation";
 
 import {
   ABOUT_ME_MIN_LENGTH,
@@ -273,6 +278,35 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
+  const { regions } = useRegions();
+  const { languages } = useLanguages();
+
+  const initialFormValues =
+    user && languages && regions
+      ? {
+          name: user.name,
+          pronouns: user.pronouns,
+          hometown: user.hometown,
+          occupation: user.occupation,
+          education: user.education,
+          hostingStatus: user.hostingStatus,
+          meetupStatus: user.meetupStatus,
+          fluentLanguages: user.languageAbilitiesList
+            .map((ability) => ability.code)
+            .filter(Boolean),
+          regionsVisited: user.regionsVisitedList,
+          regionsLived: user.regionsLivedList,
+          aboutMe: user.aboutMe,
+          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          additionalInformation: user.additionalInformation,
+          location: {
+            city: user.city,
+            lat: user.lat,
+            lng: user.lng,
+            radius: user.radius,
+          },
+        }
+      : undefined;
 
   const {
     control,
@@ -285,73 +319,10 @@ export default function EditProfileForm() {
     getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
+    mode: "onBlur",
+    values: initialFormValues,
+    resetOptions: { keepDirty: true },
   });
-
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
-
-  // Reset form with user data when user and data are loaded
-  // This allows only showing save bar once something changes
-  useEffect(() => {
-    if (user && languages && regions) {
-      reset(
-        {
-          name: user.name,
-          pronouns: user.pronouns,
-          hometown: user.hometown,
-          occupation: user.occupation,
-          education: user.education,
-          hostingStatus: user.hostingStatus,
-          meetupStatus: user.meetupStatus,
-          fluentLanguages: user.languageAbilitiesList
-            .map((ability) => languages[ability.code] || "")
-            .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          regionsLived: user.regionsLivedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: user.additionalInformation,
-          location: {
-            city: user.city,
-            lat: user.lat,
-            lng: user.lng,
-            radius: user.radius,
-          },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    } else {
-      // Initialize with empty arrays to prevent undefined errors
-      reset(
-        {
-          name: "",
-          pronouns: "",
-          hometown: "",
-          occupation: "",
-          education: "",
-          hostingStatus: user?.hostingStatus,
-          meetupStatus: user?.meetupStatus,
-          fluentLanguages: [],
-          regionsVisited: [],
-          regionsLived: [],
-          aboutMe: "",
-          thingsILike: DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: "",
-          location: {
-            city: user?.city || "",
-            lat: user?.lat || 0,
-            lng: user?.lng || 0,
-            radius: user?.radius || 0,
-          },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    }
-  }, [user, reset, languages, regions]);
 
   // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
   useEffect(() => {
@@ -403,15 +374,11 @@ export default function EditProfileForm() {
           profileData: {
             ...location,
             ...restData,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region],
-            ),
+            regionsVisited,
+            regionsLived,
             languageAbilities: {
               valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
+                code: language,
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
@@ -568,13 +535,27 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <StyledProfileTextInput
                   id="name"
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: t("auth:basic_form.name.required_error"),
+                    minLength: {
+                      value: nameMinLength,
+                      message: t("auth:basic_form.name.min_length_error"),
+                    },
+                    maxLength: {
+                      value: nameMaxLength,
+                      message: t("auth:basic_form.name.max_length_error"),
+                    },
+                    pattern: {
+                      value: nameValidationPattern,
+                      message: t(
+                        "auth:basic_form.name.invalid_characters_error",
+                      ),
+                    },
+                  })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
-                  error={!!errors.name}
-                  helperText={
-                    errors.name ? t("profile:edit_profile_name_required") : ""
-                  }
+                  error={!!errors?.name?.message}
+                  helperText={errors?.name?.message ?? " "}
                 />
               </FieldGroup>
 
@@ -626,7 +607,7 @@ export default function EditProfileForm() {
             </ProfileSection>
 
             {/* Preferences Section */}
-            <ProfileSection>
+            <ProfileSection id="preferences">
               <SectionTitle>
                 {t("profile:edit_profile_headings.preferences")}
               </SectionTitle>
@@ -859,7 +840,7 @@ export default function EditProfileForm() {
                   <Controller
                     control={control}
                     defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
+                      (ability) => ability.code,
                     )}
                     name="fluentLanguages"
                     render={({ field }) => (
@@ -867,7 +848,7 @@ export default function EditProfileForm() {
                         inputFieldProps={field}
                         onChange={(_, value) => field.onChange(value)}
                         value={field.value}
-                        options={Object.values(languages)}
+                        options={languages}
                         label={t(
                           "profile:edit_profile_headings.languages_spoken",
                         )}
@@ -1002,16 +983,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsVisitedList}
                     name="regionsVisited"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t(
                           "profile:edit_profile_headings.regions_visited",
                         )}
@@ -1024,16 +1003,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsLivedList}
                     name="regionsLived"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t("profile:edit_profile_headings.regions_lived")}
                         id="regions-lived"
                       />

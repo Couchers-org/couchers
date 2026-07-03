@@ -16,6 +16,9 @@ from couchers.models import (
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     RateLimitAction,
     User,
     UserBadge,
@@ -26,7 +29,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     api_session,
     blocking_session,
@@ -312,6 +315,55 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert lite_user_pb.lng == 0
     assert lite_user_pb.radius == 0
     assert not lite_user_pb.has_strong_verification
+
+
+@pytest.mark.parametrize(
+    "flag,state",
+    [
+        ("banned_at", NonvisibleUserState.banned),
+        ("shadowed_at", NonvisibleUserState.shadowed),
+        ("deleted_at", NonvisibleUserState.deleted),
+    ],
+)
+def test_viewing_nonvisible_user_profile_is_logged(db, flag, state):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    assert user_pb.is_ghost
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.ghost_served
+        assert access.target_state == state
+        assert access.target_user_id == user2.id
+        assert access.actor_user_id == user1.id
+        assert access.ip_address is None
+        assert access.user_agent is None
+        assert access.sofa is None
+
+
+def test_viewing_blocked_user_profile_is_not_logged(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with blocking_session(token1) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    assert user_pb.is_ghost
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(NonvisibleUserAccess)).scalar_one() == 0
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
@@ -824,7 +876,7 @@ def test_pending_friend_request_count(db, moderator):
         assert res.pending_friend_request_count == 0
 
 
-def test_friend_request_flow(db, push_collector: PushCollector, moderator):
+def test_friend_request_flow(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
@@ -862,25 +914,24 @@ def test_friend_request_flow(db, push_collector: PushCollector, moderator):
         assert len(res.received) == 0
 
     # Moderator approves the friend request - this triggers the notification
-    with mock_notification_email() as mock:
-        moderator.approve_friend_request(friend_request_id)
+    moderator.approve_friend_request(friend_request_id)
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"Friend request from {user1.name}"
     assert push.content.body == f"{user1.name} wants to be your friend."
+    assert push.content.action_url == f"http://localhost:3000/connections/friends/?from={user1.id}"
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == user2.email
-    assert e.subject == f"[TEST] {user1.name} wants to be your friend on Couchers.org!"
-    assert user2.name in e.plain
-    assert user2.name in e.html
-    assert user1.name in e.plain
-    assert user1.name in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert "http://localhost:3000/connections/friends/" in e.plain
-    assert "http://localhost:3000/connections/friends/" in e.html
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert email.recipient == user2.email
+    assert email.subject == f"[TEST] {user1.name} wants to be your friend"
+    assert user2.name in email.plain
+    assert user2.name in email.html
+    assert user1.name in email.plain
+    assert user1.name in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert "http://localhost:3000/connections/friends/" in email.plain
+    assert "http://localhost:3000/connections/friends/" in email.html
 
     # Now recipient can see the approved friend request
     with api_session(token2) as api:
@@ -895,8 +946,7 @@ def test_friend_request_flow(db, push_collector: PushCollector, moderator):
         fr_id = res.received[0].friend_request_id
 
         # accept it
-        with mock_notification_email() as mock:
-            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -914,18 +964,17 @@ def test_friend_request_flow(db, push_collector: PushCollector, moderator):
     assert push.content.title == f"{user2.name} accepted your friend request"
     assert push.content.body == f"You are now friends with {user2.name}."
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == user1.email
-    assert e.subject == f"[TEST] {user2.name} accepted your friend request!"
-    assert user1.name in e.plain
-    assert user1.name in e.html
-    assert user2.name in e.plain
-    assert user2.name in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/user/{user2.username}" in e.plain
-    assert f"http://localhost:3000/user/{user2.username}" in e.html
+    email = email_collector.pop_for_recipient(user1.email, last=True)
+    assert email.recipient == user1.email
+    assert email.subject == f"[TEST] {user2.name} accepted your friend request"
+    assert user1.name in email.plain
+    assert user1.name in email.html
+    assert user2.name in email.plain
+    assert user2.name in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/user/{user2.username}" in email.plain
+    assert f"http://localhost:3000/user/{user2.username}" in email.html
 
     with api_session(token1) as api:
         # check it's gone
@@ -1069,49 +1118,45 @@ def test_cant_friend_request_incomplete_profile(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
 
-def test_excessive_friend_requests_are_reported(db):
+def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollector):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.friend_request]
     with api_session(token) as api:
         # Test warning email
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.warning_limit):
-                friend_user, _ = generate_user()
-                _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.warning_limit):
             friend_user, _ = generate_user()
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
-            )
+        assert email_collector.count_for_reports() == 0
+        friend_user, _ = generate_user()
+        _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
+        )
 
         # Test ban after exceeding FRIEND_REQUEST_HARD_LIMIT
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
-                friend_user, _ = generate_user()
-                _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
             friend_user, _ = generate_user()
-            with pytest.raises(grpc.RpcError) as exc_info:
-                _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
-            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert (
-                exc_info.value.details()
-                == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
-            )
+            _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
-            )
-            assert "The user has been blocked from sending further friend requests for now." in email
+        assert email_collector.count_for_reports() == 0
+        friend_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further friend requests for now." in email.plain
 
 
 def test_ListFriends(db, moderator):

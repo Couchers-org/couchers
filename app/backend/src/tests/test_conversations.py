@@ -20,7 +20,7 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
 
 
@@ -678,21 +678,62 @@ def test_make_remove_group_chat_admin(db, moderator):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
-def test_send_message(db):
+def test_send_message(db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     make_friends(user1, user2)
     make_friends(user1, user3)
 
+    # Let user2 receive email notifications for every chat message
+    with notifications_session(token2) as n:
+        n.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=NotificationTopicAction.chat__message.topic,
+                        action=NotificationTopicAction.chat__message.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ]
+            )
+        )
+
+    group_chat_title = "My group chat"
+    message1 = "Test message 1"
+
+    # Let user1 create a group chat with user2 and send a message
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                title=wrappers_pb2.StringValue(value=group_chat_title), recipient_user_ids=[user2.id]
+            )
+        )
         group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=message1))
+
+        # Sender can already see group chat
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
-        assert res.messages[0].text.text == "Test message 1"
+        assert res.messages[0].text.text == message1
         assert to_aware_datetime(res.messages[0].time) <= now()
         assert res.messages[0].author_user_id == user1.id
+
+    # user2 sees nothing until the group chat is approved
+    assert push_collector.count_for_user(user2.id) == 0
+    assert email_collector.count_for_recipient(user2.email) == 0
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # user2 gets email and push notifications
+    push = push_collector.pop_for_user(user2.id, last=True)
+    assert push.topic_action == NotificationTopicAction.chat__message.display
+    assert message1 in push.content.body
+
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert group_chat_title in email.subject
+    assert message1 in email.plain
+    assert message1 in email.html
 
     # can't send message if not in chat
     with conversations_session(token3) as c:
@@ -707,12 +748,28 @@ def test_send_message(db):
         assert e.value.details() == "You can't send a message in this chat."
 
 
-def test_send_direct_message(db, moderator, push_collector: PushCollector):
+def test_send_direct_message(db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
 
     make_friends(user1, user2)
 
+    # Let user2 receive email notifications for every chat message
+    with notifications_session(token2) as n:
+        n.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=NotificationTopicAction.chat__message.topic,
+                        action=NotificationTopicAction.chat__message.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ]
+            )
+        )
+
+    # Let user1 send two DM's to user2
     message1 = "Hello, user2!"
     message2 = "One more message."
 
@@ -723,17 +780,26 @@ def test_send_direct_message(db, moderator, push_collector: PushCollector):
 
         c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message2))
 
-    process_jobs()
-
+    # user2 should have received push and email notifications for both messages
     push = push_collector.pop_for_user(user2.id, last=False)
     assert push.topic_action == NotificationTopicAction.chat__message.display
     assert push.content.title == user1.name
     assert push.content.body == message1
 
+    email = email_collector.pop_for_recipient(user2.email, last=False)
+    assert user1.name in email.subject
+    assert message1 in email.plain
+    assert message1 in email.html
+
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.topic_action == NotificationTopicAction.chat__message.display
     assert push.content.title == user1.name
     assert push.content.body == message2
+
+    email = email_collector.pop_for_recipient(user2.email, last=True)
+    assert user1.name in email.subject
+    assert message2 in email.plain
+    assert message2 in email.html
 
     with conversations_session(token2) as c2:
         # Fetch the chat by ID returned from SendDirectMessage
@@ -753,49 +819,98 @@ def test_send_direct_message(db, moderator, push_collector: PushCollector):
         assert messages[0].author_user_id == user1.id
 
 
-def test_excessive_chat_initiations_are_reported(db):
+def test_excessive_chat_initiations_are_reported(db, email_collector: EmailCollector):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
     with conversations_session(token) as c:
         # Test warning email
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.warning_limit):
-                recipient_user, _ = generate_user()
-                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.warning_limit):
             recipient_user, _ = generate_user()
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
-            )
+        assert email_collector.count_for_reports() == 0
+
+        recipient_user, _ = generate_user()
+        _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
 
         # Test new chat initiations fail after exceeding CHAT_INITIATION_HARD_LIMIT
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
-                recipient_user, _ = generate_user()
-                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
             recipient_user, _ = generate_user()
-            with pytest.raises(grpc.RpcError) as exc_info:
-                _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert (
-                exc_info.value.details()
-                == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
-            )
+            _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
-            )
-            assert "The user has been blocked from sending further chat initiations for now." in email
+        assert email_collector.count_for_reports() == 0
+
+        recipient_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further chat initiations for now." in email.plain
+
+
+def test_send_direct_message_rate_limit(db, moderator, email_collector: EmailCollector):
+    """SendDirectMessage should enforce the chat_initiation rate limit when creating a new DM, but not when sending into an existing one."""
+    user, token = generate_user(complete_profile=True)
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
+
+    with conversations_session(token) as c:
+        for _ in range(rate_limit_definition.warning_limit):
+            recipient, _ = generate_user()
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+
+        assert email_collector.count_for_reports() == 0
+
+        recipient, _ = generate_user()
+        existing_dm_recipient_id = recipient.id
+        c.SendDirectMessage(
+            conversations_pb2.SendDirectMessageReq(recipient_user_id=existing_dm_recipient_id, text="hi")
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
+
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+            recipient, _ = generate_user()
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+
+        assert email_collector.count_for_reports() == 0
+
+        # follow-up into an existing DM must not count as a new initiation
+        c.SendDirectMessage(
+            conversations_pb2.SendDirectMessageReq(recipient_user_id=existing_dm_recipient_id, text="follow-up")
+        )
+        assert email_collector.count_for_reports() == 0
+
+        recipient, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further chat initiations for now." in email.plain
 
 
 def test_leave_invite_to_group_chat(db, moderator):

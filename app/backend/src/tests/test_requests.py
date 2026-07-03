@@ -17,6 +17,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    HostRequest,
     Message,
     MessageType,
     Node,
@@ -35,7 +36,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
 
@@ -284,7 +285,7 @@ def test_create_request_incomplete_profile(db):
     assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
-def test_excessive_requests_are_reported(db):
+def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
     """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
@@ -292,20 +293,49 @@ def test_excessive_requests_are_reported(db):
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
     with requests_session(token) as api:
         # Test warning email
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.warning_limit):
-                host_user, _ = generate_user()
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text(),
-                    )
-                )
-
-            assert mock_email.call_count == 0
+        for _ in range(rate_limit_definition.warning_limit):
             host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+
+        assert email_collector.count_for_reports() == 0
+        host_user, _ = generate_user()
+        _ = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Excessive test request"),
+            )
+        )
+
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
+        )
+
+        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
+        for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
+            host_user, _ = generate_user()
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+
+        assert email_collector.count_for_reports() == 0
+
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
             _ = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=host_user.id,
@@ -314,48 +344,17 @@ def test_excessive_requests_are_reported(db):
                     text=valid_request_text("Excessive test request"),
                 )
             )
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
-            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert (
+            exc_info.value.details()
+            == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
+        )
 
-        # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
-        with mock_notification_email() as mock_email:
-            for _ in range(rate_limit_definition.hard_limit - rate_limit_definition.warning_limit - 1):
-                host_user, _ = generate_user()
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text(),
-                    )
-                )
-
-            assert mock_email.call_count == 0
-            host_user, _ = generate_user()
-            with pytest.raises(grpc.RpcError) as exc_info:
-                _ = api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id,
-                        from_date=today_plus_2.isoformat(),
-                        to_date=today_plus_3.isoformat(),
-                        text=valid_request_text("Excessive test request"),
-                    )
-                )
-            assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert (
-                exc_info.value.details()
-                == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
-            )
-
-            assert mock_email.call_count == 1
-            email = email_fields(mock_email).plain
-            assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
-            )
-            assert "The user has been blocked from sending further host requests for now." in email
+        email = email_collector.pop_for_reports(last=True)
+        assert email.plain.startswith(
+            f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
+        )
+        assert "The user has been blocked from sending further host requests for now." in email.plain
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -558,17 +557,153 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, page_token=res.next_page_token)
         )
         assert not res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 1"
         res = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, page_token=res.next_page_token)
         )
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
+
+
+def test_ListHostRequests_sort_by_from_date(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_5 = today() + timedelta(days=5)
+    today_plus_7 = today() + timedelta(days=7)
+    today_plus_10 = today() + timedelta(days=10)
+
+    with requests_session(token1) as api:
+        hr_late = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_7.isoformat(),
+                to_date=today_plus_10.isoformat(),
+                text=valid_request_text("Late request"),
+            )
+        ).host_request_id
+
+        hr_early = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Early request"),
+            )
+        ).host_request_id
+
+        hr_mid = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_5.isoformat(),
+                to_date=today_plus_7.isoformat(),
+                text=valid_request_text("Mid request"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_late)
+    moderator.approve_host_request(hr_early)
+    moderator.approve_host_request(hr_mid)
+
+    with requests_session(token2) as api:
+        # default sort: latest message first (creation order reversed)
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert res.no_more
+        assert [r.host_request_id for r in res.host_requests] == [hr_mid, hr_early, hr_late]
+
+        # from_date sort: ascending by travel date
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+            )
+        )
+        assert res.no_more
+        assert [r.host_request_id for r in res.host_requests] == [hr_early, hr_mid, hr_late]
+
+
+def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
+    """Pagination cursor correctly handles both different and identical from_dates."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_5 = today() + timedelta(days=5)
+
+    with requests_session(token1) as api:
+        hr_a = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Request A"),
+            )
+        ).host_request_id
+
+        # Same from_date as A — tiebreaker by conversation_id
+        hr_b = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Request B"),
+            )
+        ).host_request_id
+
+        hr_c = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_5.isoformat(),
+                to_date=(today_plus_5 + timedelta(days=2)).isoformat(),
+                text=valid_request_text("Request C"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_a)
+    moderator.approve_host_request(hr_b)
+    moderator.approve_host_request(hr_c)
+
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+            )
+        )
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_a
+
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                page_token=res.next_page_token,
+            )
+        )
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_b
+
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                only_received=True,
+                number=1,
+                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                page_token=res.next_page_token,
+            )
+        )
+        assert res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].host_request_id == hr_c
 
 
 def test_ListHostRequests_active_filter(db, moderator):
@@ -601,6 +736,145 @@ def test_ListHostRequests_active_filter(db, moderator):
         assert len(res.host_requests) == 1
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
         assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_active_filter_excludes_past(db, moderator):
+    """only_active must exclude requests whose end date has passed (regression test for <= bug)."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+
+    with requests_session(token1) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Past stay regression"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            )
+        )
+
+    # Future request is visible with only_active
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        assert len(res.host_requests) == 1
+
+    # Move dates into the past
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == request_id)).scalar_one()
+        hr.from_date = today() - timedelta(days=3)
+        hr.to_date = today() - timedelta(days=2)
+
+    # Past request must be excluded by only_active
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        assert len(res.host_requests) == 0
+
+    # Still visible without the filter
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 1
+
+
+def test_ListHostRequests_status_in_filter(db, moderator):
+    """status_in must return only requests with the specified statuses."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_plus_4 = today() + timedelta(days=4)
+    today_plus_5 = today() + timedelta(days=5)
+
+    # Create a pending request
+    with requests_session(token1) as api:
+        pending_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text=valid_request_text("Pending"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(pending_id)
+
+    # Create an accepted request
+    with requests_session(token1) as api:
+        accepted_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_4.isoformat(),
+                to_date=today_plus_5.isoformat(),
+                text=valid_request_text("Accepted"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(accepted_id)
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=accepted_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            )
+        )
+
+    # Filter to accepted only
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
+            )
+        )
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+
+    # Filter to pending only
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
+            )
+        )
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+
+    # Filter to accepted + pending — both appear
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[
+                    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    conversations_pb2.HOST_REQUEST_STATUS_PENDING,
+                ],
+            )
+        )
+        assert len(res.host_requests) == 2
+
+    # Filter to confirmed — none appear
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(
+                status_in=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
+            )
+        )
+        assert len(res.host_requests) == 0
+
+    # Empty status_in — all requests returned (no filter applied)
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 2
 
 
 def test_RespondHostRequests(db, moderator):
@@ -1408,7 +1682,7 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, push_collector: PushCollector, moderator):
+def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1428,62 +1702,59 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
             )
         ).host_request_id
 
-    with mock_notification_email() as mock:
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == host.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert "quick decline" in e.plain.lower(), e.plain
-    assert "quick decline" in e.html.lower()
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert host_loc_context.localize_date(today_plus_2) in e.plain
-    assert host_loc_context.localize_date(today_plus_2) in e.html
-    assert host_loc_context.localize_date(today_plus_3) in e.plain
-    assert host_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
-    assert not e.attachments
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.recipient == host.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert "quick decline" in email.plain.lower(), email.plain
+    assert "quick decline" in email.html.lower()
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
+    assert not email.attachments
 
     assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     with requests_session(host_token) as api:
-        with mock_notification_email() as mock:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    text="Accepting host request",
-                )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=hr_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
             )
+        )
 
-    e = email_fields(mock)
-    assert e.recipient == surfer.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert surfer_loc_context.localize_date(today_plus_2) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_2) in e.html
-    assert surfer_loc_context.localize_date(today_plus_3) in e.plain
-    assert surfer_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
-    assert len(e.attachments or []) == 1
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.recipient == surfer.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert surfer_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert surfer_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
+    assert len(email.attachments or []) == 1
 
     assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} accepted your host request"
 
 
-def test_quick_decline(db, push_collector: PushCollector, moderator):
+def test_quick_decline(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1502,33 +1773,31 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
             )
         ).host_request_id
 
-    with mock_notification_email() as mock:
-        moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr_id)
 
-    mock.assert_called_once()
-    e = email_fields(mock)
-    assert e.recipient == host.email
-    assert "host request" in e.subject.lower()
-    assert host.name in e.plain
-    assert host.name in e.html
-    assert "quick decline" in e.plain.lower(), e.plain
-    assert "quick decline" in e.html.lower()
-    assert surfer.name in e.plain
-    assert surfer.name in e.html
-    assert host_loc_context.localize_date(today_plus_2) in e.plain
-    assert host_loc_context.localize_date(today_plus_2) in e.html
-    assert host_loc_context.localize_date(today_plus_3) in e.plain
-    assert host_loc_context.localize_date(today_plus_3) in e.html
-    assert "http://localhost:5001/img/thumbnail/" not in e.plain
-    assert "http://localhost:5001/img/thumbnail/" in e.html
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
-    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.recipient == host.email
+    assert "host request" in email.subject.lower()
+    assert host.name in email.plain
+    assert host.name in email.html
+    assert "quick decline" in email.plain.lower(), email.plain
+    assert "quick decline" in email.html.lower()
+    assert surfer.name in email.plain
+    assert surfer.name in email.html
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_2, with_year=False) in email.html
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.plain
+    assert host_loc_context.localize_date(today_plus_3, with_year=False) in email.html
+    assert "http://localhost:5001/img/thumbnail/" not in email.plain
+    assert "http://localhost:5001/img/thumbnail/" in email.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.html
 
     assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+    for link in re.findall(r'<a href="(.*?)"', email.html):
         if "payload" not in link:
             continue
         print(link)

@@ -1,7 +1,4 @@
 {
-  "attendees_count_one": "{{count}} participant.e",
-  "attendees_count_many": "{{count}} participant.e.s",
-  "attendees_count_other": "{{count}} participant.e.s",
   "by_creator": "écrit par {{name}}",
   "cancel_event": "Annuler l'événement",
   "show_cancelled_events": "Montrer les événements annulés",
@@ -59,7 +56,6 @@
   "page_content_required": "Veuillez remplir le contenu de la page",
   "previous_page": "Retourner à la page précédente",
   "see_more_discussions_label": "Afficher plus de discussions",
-  "online": "En ligne",
   "see_more_information": "Afficher plus d'information",
   "details_subheading_colon": "Détails :",
   "details_subheading": "Détails",

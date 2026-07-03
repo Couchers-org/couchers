@@ -1,5 +1,6 @@
 import http.cookies
 from typing import cast
+from unittest.mock import DEFAULT, patch
 
 import grpc
 import pytest
@@ -14,6 +15,9 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     LoginToken,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     PasswordResetToken,
     SignupFlow,
     User,
@@ -22,7 +26,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, api_pb2, auth_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     MetadataKeeperInterceptor,
     account_session,
@@ -226,6 +230,85 @@ def test_signup_incremental(db):
         assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
 
 
+def test_signup_funnel_counters(db):
+    """Each per-step signup funnel counter should fire exactly once across an incremental signup."""
+    with patch.multiple(
+        "couchers.servicers.auth",
+        signup_initiations_counter=DEFAULT,
+        signup_account_filled_counter=DEFAULT,
+        signup_email_verified_counter=DEFAULT,
+        signup_guidelines_accepted_counter=DEFAULT,
+        signup_motivations_filled_counter=DEFAULT,
+        signup_completions_counter=DEFAULT,
+    ) as counters:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                )
+            )
+        flow_token = res.flow_token
+        counters["signup_initiations_counter"].inc.assert_called_once()
+
+        with session_scope() as session:
+            email_token = (
+                session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+            )
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        counters["signup_account_filled_counter"].inc.assert_called_once()
+
+        # accept the guidelines twice; the counter must still only fire once
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        counters["signup_guidelines_accepted_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+                )
+            )
+        counters["signup_motivations_filled_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token, email_token=email_token))
+        counters["signup_email_verified_counter"].inc.assert_called_once()
+
+        assert res.HasField("auth_res")
+        counters["signup_completions_counter"].labels.assert_called_once_with("Bot")
+
+
 def _quick_signup() -> int:
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
@@ -338,17 +421,16 @@ def test_login_part_signed_up_verified_email(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 
-    with mock_notification_email() as mock:
+    with EmailCollector() as email_collector:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as err:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
             assert err.value.details() == "Please check your email for a link to continue signing up."
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == "email@couchers.org.invalid"
-    assert flow_token in e.plain
-    assert flow_token in e.html
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert flow_token in email.plain
+        assert flow_token in email.html
 
 
 def test_login_part_signed_up_not_verified_email(db):
@@ -374,26 +456,25 @@ def test_login_part_signed_up_not_verified_email(db):
     flow_token = res.flow_token
     assert res.need_verify_email
 
-    with mock_notification_email() as mock:
+    with EmailCollector() as email_collector:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as err:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
             assert err.value.details() == "Please check your email for a link to continue signing up."
 
-    with session_scope() as session:
-        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
-        email_token = flow.email_token
+        with session_scope() as session:
+            flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+            email_token = flow.email_token
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == "email@couchers.org.invalid"
-    assert email_token
-    assert email_token in e.plain
-    assert email_token in e.html
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert email_token
+        assert email_token in email.plain
+        assert email_token in email.html
 
 
 def test_banned_user(db):
-    _quick_signup()
+    user_id = _quick_signup()
 
     with session_scope() as session:
         session.execute(select(User)).scalar_one().banned_at = now()
@@ -403,6 +484,30 @@ def test_banned_user(db):
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "Your account is suspended."
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.banned
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
+
+
+def test_shadowed_user_login_logged(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().shadowed_at = now()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.shadowed
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
 
 
 def test_deleted_user(db):
@@ -431,29 +536,27 @@ def test_invalid_token(db):
     assert e.value.details() == "Unauthorized"
 
 
-def test_password_reset_v2(db, push_collector: PushCollector):
+def test_password_reset_v2(db, email_collector: EmailCollector, push_collector: PushCollector):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with mock_notification_email() as mock:
-            res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
+        res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
 
     with session_scope() as session:
         password_reset_token = session.execute(select(PasswordResetToken.token)).scalar_one()
 
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == user.email
-    assert "reset" in e.subject.lower()
-    assert password_reset_token in e.plain
-    assert password_reset_token in e.html
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "reset" in email.subject.lower()
+    assert password_reset_token in email.plain
+    assert password_reset_token in email.html
     unique_string = "You asked for your password to be reset on Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password reset requested"
@@ -471,10 +574,9 @@ def test_password_reset_v2(db, push_collector: PushCollector):
     # make sure we can set a good password
     with auth_api_session() as (auth_api, metadata_interceptor):
         pwd = random_hex()
-        with mock_notification_email() as mock:
-            auth_api.CompletePasswordResetV2(
-                auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
-            )
+        auth_api.CompletePasswordResetV2(
+            auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
+        )
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password reset"
@@ -741,32 +843,30 @@ def test_signup_continue_with_email(db):
         assert e.value.details() == "Please check your email for a link to continue signing up."
 
 
-def test_signup_resend_email(db):
+def test_signup_resend_email(db, email_collector: EmailCollector):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with mock_notification_email() as mock:
-            res = auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(
-                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
-                    account=auth_pb2.SignupAccount(
-                        username="frodo",
-                        password="a very insecure password",
-                        birthdate="1970-01-01",
-                        gender="Bot",
-                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-                        city="New York City",
-                        lat=40.7331,
-                        lng=-73.9778,
-                        radius=500,
-                        accept_tos=True,
-                    ),
-                    feedback=auth_pb2.ContributorForm(),
-                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
-                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
-                )
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == "email@couchers.org.invalid"
+        )
+
+    email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
 
     flow_token = res.flow_token
     assert flow_token
@@ -780,19 +880,17 @@ def test_signup_resend_email(db):
 
     # ask for a new signup email
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with mock_notification_email() as mock:
-            res = auth_api.SignupFlow(
-                auth_pb2.SignupFlowReq(
-                    flow_token=flow_token,
-                    resend_verification_email=True,
-                )
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                resend_verification_email=True,
             )
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == "email@couchers.org.invalid"
-        assert email_token
-        assert email_token in e.plain
-        assert email_token in e.html
+        )
+
+    email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+    assert email_token
+    assert email_token in email.plain
+    assert email_token in email.html
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow)).scalar_one()

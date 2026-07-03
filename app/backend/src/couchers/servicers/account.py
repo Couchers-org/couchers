@@ -259,7 +259,7 @@ class Account(account_pb2_grpc.AccountServicer):
         user.new_email_token_created = now()
         user.new_email_token_expiry = now() + timedelta(hours=2)
 
-        send_email_changed_confirmation_to_new_email(session, user)
+        send_email_changed_confirmation_to_new_email(context, session, user)
 
         # will still go into old email
         notify(
@@ -461,9 +461,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         response = requests.post(
             "https://passportreader.app/api/v1/session.create",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.IRIS_ID_PUBKEY, config.IRIS_ID_SECRET),
             json={
-                "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
+                "callback_url": f"{config.BACKEND_BASE_URL}/iris/webhook",
                 "face_verification": False,
                 "passport_only": True,
                 "reference": reference,
@@ -773,6 +773,28 @@ class Account(account_pb2_grpc.AccountServicer):
                 )
             )
             for host_request_id, lite_user in pending_host_requests
+        ]
+
+        # surfer needs to confirm accepted requests
+        confirm_query = select(HostRequest.conversation_id, LiteUser).join(
+            LiteUser, LiteUser.id == HostRequest.recipient_user_id
+        )
+        confirm_query = where_users_column_visible(confirm_query, context, HostRequest.recipient_user_id)
+        confirm_query = where_moderated_content_visible(confirm_query, context, HostRequest, is_list_operation=True)
+        accepted_host_requests = session.execute(
+            confirm_query.where(HostRequest.initiator_user_id == context.user_id)
+            .where(HostRequest.status == HostRequestStatus.accepted)
+            .where(HostRequest.end_time > func.now())
+            .order_by(HostRequest.end_time.asc())
+        ).all()
+        reminders += [
+            account_pb2.Reminder(
+                confirm_host_request_reminder=account_pb2.ConfirmHostRequestReminder(
+                    host_request_id=host_request_id,
+                    host_user=lite_user_to_pb(session, lite_user, context),
+                )
+            )
+            for host_request_id, lite_user in accepted_host_requests
         ]
 
         # references come second, in order of deadline, desc

@@ -1,7 +1,5 @@
-﻿{
-  "attendees_count_one": "{{count}} 位參與者",
-  "attendees_count_other": "{{count}} 位參與者",
-  "by_creator": "由 {{name}} 發起",
+{
+  "by_creator": "由{{name}}發起",
   "cancelled": "已取消",
   "cancel_event": "取消活動",
   "show_cancelled_events": "顯示已取消的活動",
@@ -23,14 +21,14 @@
   },
   "comment": "評論",
   "comments": "評論",
-  "comments_count": "評論數 | {{count}}",
+  "comments_count": "評論數| {{count}}",
   "community_header": "歡迎來到{{name}}",
   "community_image_input_alt": "社群圖片輸入",
   "upload_helper_text_replace": "點擊以更換照片",
   "community_moderators": "社群管理員",
   "edit_info_page_success_message": "社群頁面已成功更新。",
   "community_tabs_a11y_label": "社群頁面標籤",
-  "discussion_creation_date": "建立於 {{dateOnly}}",
+  "discussion_creation_date": "建立於{{dateOnly}}",
   "create_new_discussion_title": "建立新貼文",
   "discussions_empty_state": "目前尚無討論。",
   "discussions_label": "討論",
@@ -40,7 +38,7 @@
   "edit_info_page_title": "編輯在地資訊",
   "error_loading_community": "載入社群時發生錯誤。",
   "events_empty_state": "目前沒有活動。要不要<0>建立</0>一個✨？",
-  "find_host": "尋找沙發主",
+  "find_host": "尋找接待者",
   "finished": "已完成",
   "community_info_page_title": "一般資訊",
   "hangouts_label": "一同玩樂",
@@ -61,7 +59,6 @@
   "new_post_label": "新貼文",
   "no_comments": "目前此討論尚無評論。",
   "no_moderators": "目前尚無社群構建者。",
-  "online": "在線",
   "my_communities": "我的社群",
   "overview_label": "概覽",
   "page_content_field_label": "頁面內容",
@@ -96,7 +93,7 @@
   "events_label": "活動",
   "events_title": "活動",
   "event_title_label": "標題",
-  "invalid_time": "時間必須是24小時格式 HH:MM。",
+  "invalid_time": "時間必須是24小時格式HH:MM。",
   "join_event": "參加活動",
   "leave_event": "離開活動",
   "going_to_event": "我將參加",
@@ -117,10 +114,6 @@
   "start_time": "開始時間",
   "title_required": "請為活動提供一個標題。",
   "upload_helper_text": "點擊以上傳圖片",
-  "virtual_event": "虛擬活動",
-  "virtual_event_link": "活動連結",
-  "virtual_event_location_placeholder": "查看連結詳情",
-  "virtual_events_subtext": "虛擬活動會被添加到全球社群。",
   "past": "過去",
   "upcoming": "即將開始",
   "all_events_page_tabs_a11y_label": "活動列表頁標籤",
@@ -138,12 +131,12 @@
   "make_co_organizer": {
     "title": "設為聯合組織者",
     "dialog_text": "您確定要將{{name}}設為{{event}}的聯合組織者嗎？",
-    "dialog_title": "將 {{name}} 設為聯合組織者"
+    "dialog_title": "將{{name}}設為聯合組織者"
   },
   "remove_as_co_organizer": {
     "title": "移除聯合組織者",
     "dialog_text": "您確定要將{{name}}從{{event}}的聯合組織者中移除嗎？",
-    "dialog_title": "將 {{name}} 移除聯合組織者"
+    "dialog_title": "將{{name}}移除聯合組織者"
   },
   "search_communities": "搜尋並前往社群",
   "search_communities_placeholder": "依城市或國家名稱搜尋…",
@@ -151,4 +144,3 @@
   "no_results_found_with_link": "未找到相關社群。<0>申請建立該社群！</0>",
   "fill_out_comment": "你需要先輸入一些內容！"
 }
-

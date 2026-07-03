@@ -10,19 +10,6 @@
   "please_complete_profile": "Conclua seu perfil para garantir que você vai aparecer nas pesquisas:",
   "fill_in_who_i_am": "1. Preencha sua seção \"Quem sou eu\" com algumas frases sobre você",
   "upload_photo": "2. Carregue uma foto (clicando no avatar na página de edição)",
-  "edit_profile_button_text": "Editar seu perfil",
-  "complete_profile_dialog": {
-    "title": "Quase lá: conclua seu perfil para continuar!",
-    "description_1": "Antes de poder {{action_name}}, você precisa <4>escrever alguma coisa sobre si</4> em seu perfil e <7>carregar uma foto de perfil</7>.",
-    "actions": {
-      "send_request": "enviar uma solicitação",
-      "send_message": "enviar uma mensagem",
-      "create_event": "criar um evento"
-    },
-    "edit_profile_button": "Edite seu perfil agora",
-    "cancel_button": "Outra hora",
-    "description_2": "Isso ajuda a criar uma comunidade confiável e reduzir spam. Para mais informações, <2>consulte esta página de ajuda</2>. Agradecemos pela ajuda!"
-  },
   "no_community": "Você não está em nenhuma comunidade atualmente.",
   "no_sub_communities": "Nenhuma subcomunidade.",
   "profile_summary_edit": "Editar Perfil",

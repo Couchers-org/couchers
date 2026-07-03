@@ -66,6 +66,7 @@ export default function ReferenceListItem({
               {localizeYearMonth(timestamp2Date(reference.writtenTime), {
                 locale,
                 abbreviate: true,
+                capitalize: true,
               })}
             </Pill>
           )}

@@ -5,7 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
-from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email.queuing import queue_email
@@ -17,7 +16,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.push import push_to_user
-from couchers.notifications.render_email import render_email_notification
+from couchers.notifications.render_email import get_send_email_payload
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.notifications.utils import can_notify_deleted_user
@@ -46,27 +45,14 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     if not context.get_boolean_value("notification_translations_enabled", default=False):
         loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
 
-    rendered = render_email_notification(
+    payload = get_send_email_payload(
         user,
         notification,
         loc_context,
         include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
     )
 
-    queue_email(
-        session,
-        jobs_pb2.SendEmailPayload(
-            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-            recipient=user.email,
-            subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
-            plain=rendered.body_plaintext,
-            html=rendered.body_html,
-            source_data=rendered.source_data,
-            list_unsubscribe_header=rendered.list_unsubscribe_header,
-            attachments=rendered.attachments,
-        ),
-    )
+    queue_email(session, payload)
 
 
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:

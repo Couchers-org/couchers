@@ -1,6 +1,4 @@
 {
-  "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees",
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
@@ -22,6 +20,10 @@
     "close": "Cancel"
   },
   "comment": "Comment",
+  "comment_deleted": "This comment has been deleted.",
+  "edit_comment": "Edit comment",
+  "delete_comment": "Delete comment",
+  "comment_edited_date": "Edited {{timeAgo}}",
   "comments": "Comments",
   "comments_count": "Comments | {{count}}",
   "fill_out_comment": "You need to type something first!",
@@ -32,6 +34,16 @@
   "edit_info_page_success_message": "The community page has been successfully updated.",
   "community_tabs_a11y_label": "Tabs for community sub-pages",
   "discussion_creation_date": "Created on {{dateOnly}}",
+  "discussion_edited_date": "Edited {{timeAgo}}",
+  "discussion_deleted": "This discussion has been deleted.",
+  "delete_discussion": "Delete discussion",
+  "delete_discussion_dialog": {
+    "title": "Delete discussion",
+    "message": "Are you sure you want to delete this discussion? The comments will remain visible.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "edit_discussion": "Edit discussion",
   "create_new_discussion_title": "Create new post",
   "discussions_empty_state": "No discussions at the moment.",
   "discussions_label": "Discussions",
@@ -64,7 +76,6 @@
   "new_post_label": "New post",
   "no_comments": "There are no comments in this discussion at the moment.",
   "no_moderators": "There aren't any Community Builders here at the moment.",
-  "online": "Online",
   "my_communities": "My Communities",
   "overview_label": "Overview",
   "page_content_field_label": "Page content",
@@ -126,10 +137,6 @@
   "title_required": "Please provide a title for the event.",
   "total_members": "total members",
   "upload_helper_text": "Click to begin uploading an image",
-  "virtual_event": "Virtual event",
-  "virtual_event_link": "Event link",
-  "virtual_event_location_placeholder": "View details for link",
-  "virtual_events_subtext": "Virtual events will be added to the global community.",
   "past": "Past",
   "upcoming": "Upcoming",
   "your_events": "Your events",
@@ -151,5 +158,6 @@
   "search_communities": "Search and visit a community",
   "search_communities_placeholder": "Search by city or country name...",
   "search_communities_helper": "Select a community to go to its page",
-  "no_results_found_with_link": "No communities found. <0>Request this community!</0>"
+  "no_results_found_with_link": "No communities found. <0>Request this community!</0>",
+  "community_breadcrumb_a11y": "Current community"
 }

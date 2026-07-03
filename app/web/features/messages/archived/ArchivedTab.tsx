@@ -77,15 +77,15 @@ export default function ArchivedTab() {
     isFetchingNextPage: requestsIsFetchingNextPage,
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({ onlyArchived: true, type: "all" }),
-    queryFn: ({ pageParam: lastRequestId }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.requests.listHostRequests({
-        lastRequestId: lastRequestId as number | undefined,
+        pageToken: pageToken as string | undefined,
         type: "all",
         onlyActive: false,
         onlyArchived: true,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastRequestId,
+      lastPage.noMore ? undefined : lastPage.nextPageToken,
     initialPageParam: undefined,
   });
 

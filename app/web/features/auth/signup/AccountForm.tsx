@@ -295,6 +295,7 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
+          pickerInputOnly
           inputProps={{
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
           }}
@@ -399,7 +400,7 @@ export default function AccountForm() {
                 id="gender"
                 {...field}
                 row
-                aria-label="gender"
+                aria-label={t("auth:account_form.gender.selector_a11y")}
                 name="gender-radio"
               >
                 <FormControlLabel

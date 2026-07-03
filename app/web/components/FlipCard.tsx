@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { ReactNode, useCallback, useState } from "react";
-
-import { useTranslation } from "../i18n";
 
 export interface FlipCardProps {
   icon: ReactNode;
@@ -20,7 +20,7 @@ export default function FlipCard({
   children,
   height = { xs: 300, md: 320 },
 }: FlipCardProps) {
-  const { t } = useTranslation(["GLOBAL"]);
+  const { t } = useTranslation([GLOBAL]);
   const [flipped, setFlipped] = useState(false);
   const toggle = useCallback(() => setFlipped((f) => !f), []);
 

@@ -1,17 +1,15 @@
 import { appGetLayout } from "components/AppRoute";
 import TOS from "components/TOS";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(
-      locale ?? "en",
-      [GLOBAL, NOTIFICATIONS],
-      nextI18nextConfig,
-    )),
+    ...(await appServerSideTranslations(locale ?? "en", [
+      GLOBAL,
+      NOTIFICATIONS,
+    ])),
   },
 });
 
@@ -21,5 +19,4 @@ export default function TOSPage() {
 
 TOSPage.getLayout = appGetLayout({
   isPrivate: false,
-  variant: "full-screen",
 });

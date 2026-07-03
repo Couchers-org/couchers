@@ -27,5 +27,18 @@
     "choose_from_library": "Aus der Bibliothek wählen",
     "open_settings": "Einstellungen öffnen",
     "choose_photo_source": "Wähle aus, woher dein Foto stammen soll"
+  },
+  "update": {
+    "required_title": "Update erforderlich",
+    "action_update": "Jetzt updaten",
+    "action_reinstall": "Hol dir die neue App",
+    "later": "Später",
+    "failed": "Das Update konnte nicht angewendet werden. Bitte versuche es erneut.",
+    "body_warn": "Es sieht so aus, als würdest du eine alte Version der App verwenden, daher musst du sie bald aktualisieren.",
+    "body_block": "Es sieht so aus, als würdest du eine alte Version der App verwenden, daher musst du sie jetzt aktualisieren.",
+    "body_banned": "Es scheint, dass wir dir eine fehlerhafte Version der App geschickt haben, daher musst du sie aktualisieren.",
+    "preamble_warn": "Wir sind ein kleines Freiwilligenteam und die Unterstützung alter Versionen ist wirklich schwierig. Wir entschuldigen uns für die Unannehmlichkeiten.",
+    "preamble_block": "Wir sind ein kleines Freiwilligenteam und die Unterstützung alter Versionen ist wirklich schwierig. Wir entschuldigen uns für die Unannehmlichkeiten.",
+    "preamble_banned": "Wir sind ein kleines Freiwilligenteam und machen manchmal Fehler, wir entschuldigen uns für die Umstände!"
   }
 }

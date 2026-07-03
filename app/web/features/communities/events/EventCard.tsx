@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -140,6 +141,7 @@ export default function EventCard({ event, className }: EventCardProps) {
       locale,
       includeDayOfWeek: true,
       abbreviate: true,
+      capitalize: true,
     },
   );
 
@@ -171,13 +173,6 @@ export default function EventCard({ event, className }: EventCardProps) {
             backgroundPosition: "center",
           }}
         >
-          {event.onlineInformation && (
-            <Chip
-              size="medium"
-              label={t("communities:online")}
-              sx={{ borderRadius: 1, fontWeight: "bold" }}
-            />
-          )}
           <FlagButtonWrapper>
             <FlagButton
               contentRef={`event/${event.eventId}`}
@@ -205,9 +200,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               maxWidth: "25em",
             }}
           >
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : t("communities:virtual_event_location_placeholder")}
+            {event.location?.address}
           </Typography>
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />
@@ -217,10 +210,13 @@ export default function EventCard({ event, className }: EventCardProps) {
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
-              <Typography variant="body2" color="textSecondary">
-                {t("communities:attendees_count", {
-                  count: event.goingCount,
-                })}
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
+                {event.goingCount}
               </Typography>
               <StyledCommentsCount variant="body2">
                 {t("communities:comments_count", {

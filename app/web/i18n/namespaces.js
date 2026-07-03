@@ -16,6 +16,7 @@ const MESSAGES = "messages";
 const MOD = "mod";
 const NOTIFICATIONS = "notifications";
 const PROFILE = "profile";
+const PUBLIC_TRIPS = "publicTrips";
 const SEARCH = "search";
 const PRESS = "press";
 
@@ -32,6 +33,7 @@ const NAMESPACES = [
   NOTIFICATIONS,
   PRESS,
   PROFILE,
+  PUBLIC_TRIPS,
   SEARCH,
 ];
 
@@ -48,6 +50,7 @@ module.exports = {
   NOTIFICATIONS,
   PRESS,
   PROFILE,
+  PUBLIC_TRIPS,
   SEARCH,
   NAMESPACES,
 };

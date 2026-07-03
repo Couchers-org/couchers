@@ -26,7 +26,6 @@
   "new_discussion_topic": "Tema de la discusión",
   "new_post_label": "Nueva publicación",
   "no_comments": "En este momento no hay comentarios en esta discusión.",
-  "online": "En línea",
   "overview_label": "Resumen",
   "places_empty_state": "Todavía no hay lugares para enseñar.",
   "places_title": "Lugares",
@@ -59,9 +58,6 @@
   "past_time_error": "La fecha proporcionada debe estar en el futuro.",
   "see_more_events_label": "Ver más eventos",
   "upload_helper_text": "Picha para empezar a cargar una imagen",
-  "virtual_event": "Evento virtual",
-  "virtual_event_link": "Enlace del evento",
-  "virtual_event_location_placeholder": "Ver detalles del enlace",
   "past": "Pasados",
   "upcoming": "Próximos",
   "discover_events_subtitle": "¡Echa un vistazo a los eventos próximos y futuros organizados por los miembros de la comunidad de Couchers.org!",
@@ -74,7 +70,6 @@
   "location_required": "Por favor, proporciona una ubicación para el evento.",
   "no_attendees": "¡Todavía no hay nadie que vaya a asistir a este evento!",
   "title_required": "Por favor, proporciona un título para el evento.",
-  "virtual_events_subtext": "Los eventos virtuales serán añadidos a la comunidad global.",
   "cancelled": "Cancelado",
   "comment": "Comentar",
   "post": "Publicar",
@@ -85,9 +80,6 @@
     "open": "Invitar a la comunidad"
   },
   "members_label": "Miembros",
-  "attendees_count_one": "{{count}} asistente",
-  "attendees_count_many": "{{count}} de asistentes",
-  "attendees_count_other": "{{count}} asistentes",
   "page_content_field_label": "Contenido de la página",
   "by_creator": "Por {{name}}",
   "cancel_event": "Cancelar evento",
@@ -152,5 +144,20 @@
   "duplicate_event": "Evento duplicado",
   "event_title_label": "Título",
   "copy_link": "Copiar enlace",
-  "copy_link_success": "Enlace copiado al portapapeles"
+  "copy_link_success": "Enlace copiado al portapapeles",
+  "comment_deleted": "Este comentario ha sido eliminado.",
+  "edit_comment": "Editar comentario",
+  "delete_comment": "Eliminar comentario",
+  "comment_edited_date": "Editado {{timeAgo}}",
+  "discussion_edited_date": "Editado {{timeAgo}}",
+  "discussion_deleted": "Esta discusión ha sido eliminada.",
+  "delete_discussion": "Eliminar discusión",
+  "delete_discussion_dialog": {
+    "title": "Eliminar discusión",
+    "message": "¿Estás seguro de que quieres eliminar esta discusión? Los comentarios seguirán siendo visibles.",
+    "confirm": "Eliminar",
+    "cancel": "Cancelar"
+  },
+  "edit_discussion": "Editar discusión",
+  "community_breadcrumb_a11y": "Comunidad actual"
 }

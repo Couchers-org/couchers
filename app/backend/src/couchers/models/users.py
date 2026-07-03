@@ -485,10 +485,20 @@ class User(Base, kw_only=True):
         # mod_notes come from a backref in ModNote
         return self.mod_notes.where(ModNote.is_pending).count() > 0
 
+    @jailed_pending_mod_notes.inplace.expression
+    @classmethod
+    def _jailed_pending_mod_notes_expression(cls) -> ColumnElement[bool]:
+        return select(ModNote.id).where(ModNote.user_id == cls.id, ModNote.is_pending).exists()
+
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
         # search for User.pending_activeness_probe
         return self.pending_activeness_probe != None
+
+    @jailed_pending_activeness_probe.inplace.expression
+    @classmethod
+    def _jailed_pending_activeness_probe_expression(cls) -> ColumnElement[bool]:
+        return select(ActivenessProbe.id).where(ActivenessProbe.user_id == cls.id, ActivenessProbe.is_pending).exists()
 
     @hybrid_property
     def is_jailed(self) -> Any:
@@ -498,6 +508,17 @@ class User(Base, kw_only=True):
             | self.is_missing_location
             | self.jailed_pending_mod_notes
             | self.jailed_pending_activeness_probe
+        )
+
+    @is_jailed.inplace.expression
+    @classmethod
+    def _is_jailed_expression(cls) -> ColumnElement[bool]:
+        return (
+            cls.jailed_missing_tos
+            | cls.jailed_missing_community_guidelines
+            | cls.is_missing_location
+            | cls.jailed_pending_mod_notes
+            | cls.jailed_pending_activeness_probe
         )
 
     @hybrid_property

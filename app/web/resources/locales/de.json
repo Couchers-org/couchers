@@ -32,7 +32,10 @@
     "merch_shop": "Merch-Shop",
     "home": "Startseite",
     "switch_to_dark_mode": "Zum Dark-Mode wechseln",
-    "switch_to_light_mode": "Zum hellen Modus wechseln"
+    "switch_to_light_mode": "Zum hellen Modus wechseln",
+    "close_menu_a11y": "Menü schließen",
+    "open_drawer_a11y": "Drawer-Menü öffnen",
+    "close_drawer_a11y": "Drawer-Menü schließen"
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
@@ -62,7 +65,7 @@
   "submit": "Absenden",
   "load_more": "Mehr laden",
   "read_more": "Mehr erfahren",
-  "next": "Weiter",
+  "next": "Nächste",
   "mod": "Moderation",
   "hosting_status": {
     "can_host": "Kann hosten",
@@ -314,7 +317,7 @@
       "surf": "Surfe mit einem Einheimischen während deiner Reise",
       "attend_events": "Nehme an Events mit Einheimischen und Reisenden teil",
       "find_people": "Finde Gleichgesinnte in deiner Stadt und treffe dich mit ihnen",
-      "join_discussions": "Trete Diskussionen in deiner lokalen Community bei oder starte eigene"
+      "join_discussions": "Trete Beiträge in deiner lokalen Community bei oder starte eigene"
     },
     "description_1": "Couchsurfing ist ein Konzept, bei dem einige Mitglieder (sogenannte Hosts) auf der Plattform angeben, dass sie bereit sind, andere Mitglieder (sogenannte Surfer), die ihre Stadt besuchen, bei sich aufzunehmen."
   },
@@ -339,5 +342,9 @@
     "copied_tooltip": "In die Zwischenablage kopiert"
   },
   "app_store_badge_a11y": "Laden im App Store",
-  "google_play_badge_a11y": "Jetzt bei Google Play"
+  "google_play_badge_a11y": "Jetzt bei Google Play",
+  "close_button_a11y": "Schließen",
+  "bar": {
+    "help_button_a11y": "Hilfe"
+  }
 }

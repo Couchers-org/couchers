@@ -1,17 +1,5 @@
 {
   "dashboard": "Nástěnka",
-  "complete_profile_dialog": {
-    "actions": {
-      "send_request": "odeslat žádost",
-      "send_message": "poslat zprávu",
-      "create_event": "vytvořit událost"
-    },
-    "title": "Už jsme skoro hotoví: prosím, dokonči svůj profil, abychom mohli pokračovat!",
-    "description_2": "Pomáhá nám to budovat důvěryhodnou komunitu a snižovat množství spamu. Pro více informací <2>se podívej na tuto stránku nápovědy</2>. Děkujeme za tvou pomoc!",
-    "edit_profile_button": "Upravit si svůj profil nyní",
-    "cancel_button": "To nevadí",
-    "description_1": "Než budeš moci {{action_name}}, musíš ve svém profilu <4>napsat něco o sobě</4> a <7>nahrát profilovou fotografii</7>."
-  },
   "welcome": "Vítej na Couchers.org!",
   "load_more": "Načíst více",
   "profile_summary_edit": "Upravit profil",
@@ -20,7 +8,6 @@
   "please_complete_profile": "Dokonči prosím svůj profil a ujisti se, že se zobrazuje ve vyhledávání:",
   "fill_in_who_i_am": "1. Vyplň sekci \"Kdo jsem\" několika větami o sobě",
   "upload_photo": "2. Nahraj fotografii (kliknutím na avatar na stránce úprav)",
-  "edit_profile_button_text": "Upravit svůj profil",
   "your_communities_heading": "Tvé komunity",
   "all_communities_heading": "Všechny komunity",
   "no_community": "Momentálně nejsi v žádné komunitě.",
@@ -71,7 +58,10 @@
       "title": "Napsat referenci"
     }
   },
-  "events": {
-    "location_online_label": "Online"
+  "public_trips": {
+    "when_tomorrow": "Zítra",
+    "when_today": "Dnes",
+    "manage_link": "Spravovat",
+    "when_now": "Nyní"
   }
 }

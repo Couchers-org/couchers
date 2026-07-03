@@ -133,10 +133,21 @@ message EventCreate {
   }
 }
 
+enum EventUpdateItem {
+  EVENT_UPDATE_ITEM_UNKNOWN = 0;
+  EVENT_UPDATE_ITEM_TITLE = 1;
+  EVENT_UPDATE_ITEM_CONTENT = 2;
+  EVENT_UPDATE_ITEM_LOCATION = 3;
+  EVENT_UPDATE_ITEM_START_TIME = 4;
+  EVENT_UPDATE_ITEM_END_TIME = 5;
+}
+
 message EventUpdate {
   org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
-  repeated string updated_items = 3;
+  // TODO(#9117): Remove once unused. Was not i18n-friendly. Use updated_enum_items.
+  repeated string updated_str_items = 3 [deprecated = true];
+  repeated EventUpdateItem updated_enum_items = 4;
 }
 
 message EventCancel {
@@ -150,8 +161,7 @@ message EventDelete {
 
 message ChatMessage {
   org.couchers.api.core.User author = 1;
-  // Obsolete (2026-05): Was not i18n-friendly. Use group_chat_title. Kept for handling fallback.
-  string message = 2 [deprecated = true];
+  reserved 2; // Formerly "message", non-localized.
   string text = 3;
   uint64 group_chat_id = 4;
   string group_chat_title = 5;  // Empty for direct messages

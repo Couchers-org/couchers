@@ -159,6 +159,8 @@ export const routeToGroup = (id: number, slug: string) =>
 export const discussionBaseRoute = "/discussion";
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
+export const routeToEditDiscussion = (id: number, slug: string) =>
+  `${routeToDiscussion(id, slug)}/edit`;
 
 export const eventBaseRoute = "/event";
 export const newEventRoute = `${eventBaseRoute}/new`;
@@ -175,6 +177,7 @@ const communityBaseRoute = "/community";
 export const communityTabs = [
   "overview",
   "info",
+  "public-trips",
   "discussions",
   "events",
   "members",
@@ -188,6 +191,8 @@ export const routeToCommunity = (
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
+
+export const myPublicTripsRoute = "/public-trips";
 
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";

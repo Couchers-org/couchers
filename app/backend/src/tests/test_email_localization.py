@@ -5,7 +5,7 @@ These emails build their localization keys at runtime (sometimes dynamically fro
 state, e.g. a host request status), so a missing or mistyped key only blows up when that
 specific email is sent in production. Here we render every email -- and every variant of
 emails whose output depends on internal state -- and assert that no localization key is
-missing. See `EmailBase.dummy_variants`.
+missing. See `EmailBase.test_instances`.
 """
 
 import inspect
@@ -14,14 +14,13 @@ from datetime import UTC
 import pytest
 
 import couchers.email.emails
-from couchers.email.emails import EmailBase
-from couchers.email.rendering import (
+from couchers.email.blocks import (
+    EmailBase,
     EmailFooter,
     UnsubscribeInfo,
     UnsubscribeLink,
-    render_html_body,
-    render_plaintext_body,
 )
+from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 
 
@@ -30,7 +29,7 @@ def _all_email_variants() -> list[tuple[str, EmailBase]]:
     for _, email_class in inspect.getmembers(
         couchers.email.emails, lambda o: inspect.isclass(o) and o.__base__ == EmailBase
     ):
-        instances = email_class.dummy_variants()
+        instances = email_class.test_instances()
         for i, instance in enumerate(instances):
             variant_id = email_class.__name__ if len(instances) == 1 else f"{email_class.__name__}-{i}"
             variants.append((variant_id, instance))
@@ -58,12 +57,10 @@ def _(testconfig):
 def test_email_renders_in_english(email: EmailBase):
     loc_context = LocalizationContext(locale="en", timezone=UTC)
 
-    subject = email.get_subject_line(loc_context)
-    assert subject
-
-    preview = email.get_preview_line(loc_context)
-    blocks = email.get_body_blocks(loc_context)
-
-    # Render both the html and plaintext bodies end-to-end, since each resolves its own keys.
-    render_html_body(subject=subject, preview=preview, blocks=blocks, footer=_FOOTER, loc_context=loc_context)
-    render_plaintext_body(blocks=blocks, footer=_FOOTER, loc_context=loc_context)
+    # Render all email strings, since each resolve their own keys.
+    rendered = render_email(email, _FOOTER, loc_context)
+    assert rendered.subject
+    assert "<" not in rendered.subject, "Subject line shoudn't contain HTML"
+    assert rendered.body_plaintext
+    assert rendered.body_html
+    assert len(rendered.html_image_parts) > 0, "Images should have been embedded"

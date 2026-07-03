@@ -1,5 +1,12 @@
 Bug fixes and improvements:
-- Tapping a user avatar or name opens their profile in a bottom sheet to save your place
-- Language changes now apply immediately across all tabs
-- Samsung specific fixes for some interaction issues
-- Fixed community info edit page on mobile
+- Fixed: Links from emails (account verification, password recovery, postal verification, account deletion) now open correctly in the app
+- Fixed: On Android, pressing back while viewing a member's profile now closes it instead of leaving the page
+- Fixed: Rapid flickering between dark and light mode for some users
+- Fixed: Unread message reminder notifications are now correctly marked as read when you read the messages
+- Fixed: Strong verification now opens correctly in the browser
+- You can now swipe down on a member's profile card to dismiss it
+- Notification banners are no longer shown when you are already reading that conversation in the app
+- Viewing your own profile card now shows an "Open full profile" button instead of confusing navigation options
+- Profile badges now load instantly
+- Fixed: Some translations intermittently not working
+- Fixed: Can now open badges page within profile sheet

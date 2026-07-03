@@ -1,0 +1,48 @@
+{
+  "generic": {
+    "greeting_line": "Hi {{name}},",
+    "security_warning_contact_support": "Falls du diese Aktion nicht veranlasst hast, kontaktiere uns bitte unter {{ email_link }}, damit wir das so schnell wie möglich klären können.",
+    "do_not_reply_request": "Antworte nicht auf diese E-Mail. Verwende einen der Buttons oben, um auf diese Anfrage zu antworten.",
+    "thanks": "Danke!",
+    "closing_lines": {
+      "default": "Beste Grüße,<br>Das Couchers.org-Team",
+      "founders": "Aapeli und Itsi,<br>Gründer von Couchers.org",
+      "aapeli": "Aapeli<br>Couchers.org Mitgründer<br>{{ profile_link }}",
+      "emily": "Emily von Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Du erhältst diese E-Mail, weil du dich bei Couchers.org registriert hast.",
+      "contact_support": "Du erreichst unser Support-Team unter {{ email_link }}.",
+      "timezone_note": "Alle Zeiten sind in {{ timezone }}, basierend auf deinem Profilstandort.",
+      "donate_link": "Spenden",
+      "volunteer_link": "Helfen",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
+      "security_email_note": "Dies ist eine Sicherheits-E-Mail, von der du dich nicht abmelden kannst.",
+      "notification_settings_link": "Benachrichtigungspräferenzen verwalten",
+      "do_not_email_link": "Schreibt mir keine E-Mails (deaktiviert das Hosting)",
+      "happy_couch_icon_caption": "Die Happy-Couchers-Couch wünscht dir einen wunderschönen restlichen Tag."
+    }
+  },
+  "calendar_events": {
+    "title_cancelled": "Abgebrochen: {{ title }}",
+    "host_requests": {
+      "title_host": "Hosting {{ name }}",
+      "title_surfer": "Surfen mit {{ name }}"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "Bestätige die Löschung deines Kontos",
+      "purpose": "Du hast beantragt, dass wir dein Couchers.org-Konto löschen. Um diesen Vorgang abzuschließen, klicke bitte auf den folgenden Link:",
+      "confirm_action": "Accountlöschung bestätigen"
+    },
+    "completed": {
+      "subject": "Dein Konto wurde gelöscht"
+    }
+  }
+}
