@@ -861,3 +861,23 @@ def test_admin_delete_discussion_creates_version_record(db):
         assert v.old_title == "Admin will delete this"
         assert v.new_title is None
         assert v.editor_user_id == admin.id
+
+
+def test_create_discussion_incomplete_profile(db):
+    user, token = generate_user(complete_profile=False)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
+
+    with discussions_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateDiscussion(
+                discussions_pb2.CreateDiscussionReq(
+                    title="dummy title",
+                    content="dummy content",
+                    owner_community_id=community_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You have to complete your profile before you can start a discussion."

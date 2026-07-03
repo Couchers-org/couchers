@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
@@ -118,6 +119,10 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         if not cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_discussion")
 
         thread = Thread()
         session.add(thread)
