@@ -3,15 +3,17 @@ import { Breadcrumbs, styled, Typography } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
+import { useListSubCommunities } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+import SubCommunitiesDropdown from "./SubCommunitiesDropdown";
 
 const StyledBreadcrumbsContainer = styled("div")(() => ({
   display: "flex",
@@ -36,6 +38,26 @@ export default function CommunityPageSubHeader({
   const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
   const router = useRouter();
+
+  // MUI's Breadcrumbs inserts a separator per child element regardless of what that child
+  // renders to, so a leaf `SubCommunitiesDropdown` (which itself returns null) would still leave
+  // a dangling separator. Read the same (cached, deduped) query here to omit the element
+  // entirely when there's nothing to drill into.
+  const {
+    data: subCommunitiesData,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useListSubCommunities(community.communityId);
+  // Fetch every page so the dropdown's client-side search sees all children, not just page one.
+  // Child counts are bounded (tens), so this is cheap.
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const subCommunities =
+    subCommunitiesData?.pages.flatMap((page) => page.communitiesList) ?? [];
   const communityTabBarLabels: Partial<
     Record<CommunityTab, string | ReactNode>
   > = {
@@ -89,6 +111,9 @@ export default function CommunityPageSubHeader({
                 </StyledLink>
               ),
             )}
+          {subCommunities.length > 0 && (
+            <SubCommunitiesDropdown subCommunities={subCommunities} />
+          )}
         </StyledBreadcrumbs>
         <JoinCommunityButton community={community} />
       </StyledBreadcrumbsContainer>

@@ -40,6 +40,8 @@ const getLiteUserMock = service.user.getLiteUser as MockedService<
 const getCommunityMock = service.communities.getCommunity as MockedService<
   typeof service.communities.getCommunity
 >;
+const listCommunitiesMock = service.communities
+  .listCommunities as MockedService<typeof service.communities.listCommunities>;
 const getDiscussionMock = service.discussions.getDiscussion as MockedService<
   typeof service.discussions.getDiscussion
 >;
@@ -122,6 +124,11 @@ describe("Discussion page", () => {
   beforeEach(() => {
     getLiteUserMock.mockImplementation(getLiteUser);
     getCommunityMock.mockResolvedValue(community);
+    // CommunityPageSubHeader lists sub-communities for its breadcrumb drill-down dropdown.
+    listCommunitiesMock.mockResolvedValue({
+      communitiesList: [],
+      nextPageToken: "",
+    });
     getDiscussionMock.mockResolvedValue(discussions[0]);
     getThreadMock.mockImplementation(getThread);
     postReplyMock.mockResolvedValue({
