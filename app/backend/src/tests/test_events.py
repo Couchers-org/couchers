@@ -267,7 +267,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() - timedelta(hours=2)),
                     end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
                 )
             )
@@ -803,6 +803,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                 title=wrappers_pb2.StringValue(value="New Title"),
                 content=wrappers_pb2.StringValue(value="New content."),
                 location=events_pb2.EventLocation(
+                    address="Not so near Null Island",
                     lat=0.2,
                     lng=0.2,
                 ),

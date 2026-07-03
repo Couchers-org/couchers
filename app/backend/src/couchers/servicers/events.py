@@ -668,7 +668,7 @@ class Events(events_pb2_grpc.EventsServicer):
         timezone: ZoneInfo
         if request.HasField("location"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
-            geom, address = _check_location(request.location if request.HasField("location") else None, context)
+            geom, address = _check_location(request.location, context)
             timezone = _check_timezone_at(geom, context, session)
             occurrence_update["geom"] = geom
             occurrence_update["address"] = address
