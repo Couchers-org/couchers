@@ -52,7 +52,14 @@
       "button": "Редактировать профиль"
     },
     "respond_to_host_request": {
-      "title": "Ответьте на {{name}}"
+      "title": "Ответьте {{name}}"
+    },
+    "strong_verification": {
+      "title": "Усиленная верификация"
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Прокрутить влево",
+      "right_arrow_a11y": "Прокрутить вправо"
     }
   },
   "prev_page_button_a11y": "Предыдущая страница",
@@ -66,18 +73,24 @@
     "your_upcoming_header": "Ваши предстоящие мероприятия",
     "see_all_link": "Посмотреть все →",
     "today_label": "Сегодня",
-    "community_header": "События в ваших сообществах"
+    "community_header": "Мероприятия в ваших сообществах"
   },
   "public_trips": {
     "when_now": "Сейчас",
     "when_today": "Сегодня",
     "when_tomorrow": "Завтра",
-    "same_gender_only_indicator": "Тот же пол"
+    "same_gender_only_indicator": "Тот же пол",
+    "offers_count_one": "{{count}} предложение",
+    "offers_count_few": "{{count}} предложения",
+    "offers_count_many": "{{count}} предложений",
+    "no_offers": "Пока нет предложений"
   },
   "stays": {
     "upcoming_trips_header": "Ваши предстоящие поездки",
     "night_count_one": "{{count}} ночь",
     "night_count_few": "{{count}} ночи",
-    "night_count_many": "{{count}} ночей"
+    "night_count_many": "{{count}} ночей",
+    "upcoming_guests_header": "Ваши предстоящие гости",
+    "no_upcoming_trips": "Нет предстоящих поездок. Готовы к путешествию?"
   }
 }
