@@ -201,5 +201,6 @@
     "back_button": "Назад",
     "submit_button": "Отправить"
   },
-  "surfer_confirm_box_title": "{{name}} принял ваш запрос!"
+  "surfer_confirm_box_title": "{{name}} принял ваш запрос!",
+  "surfer_bar_pending": "Вы отправили запрос к хосту — ожидаем ответа от {{name}}."
 }
