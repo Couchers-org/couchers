@@ -341,7 +341,8 @@
       "send_message": "Nachricht senden",
       "create_event": "Event erstellen",
       "send_friend_request": "Freundschaftsanfrage senden",
-      "create_public_trip": "Erstelle einen öffentlichen Trip"
+      "create_public_trip": "Erstelle einen öffentlichen Trip",
+      "create_discussion": "Erstelle einen Beitrag"
     },
     "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"
