@@ -173,13 +173,6 @@ export default function EventCard({ event, className }: EventCardProps) {
             backgroundPosition: "center",
           }}
         >
-          {event.onlineInformation && (
-            <Chip
-              size="medium"
-              label={t("communities:online")}
-              sx={{ borderRadius: 1, fontWeight: "bold" }}
-            />
-          )}
           <FlagButtonWrapper>
             <FlagButton
               contentRef={`event/${event.eventId}`}
@@ -207,9 +200,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               maxWidth: "25em",
             }}
           >
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : t("communities:virtual_event_location_placeholder")}
+            {event.location?.address}
           </Typography>
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />

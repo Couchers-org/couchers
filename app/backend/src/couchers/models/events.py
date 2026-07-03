@@ -129,7 +129,7 @@ class EventOccurrence(Base, kw_only=True):
     is_cancelled: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    # a null geom is an online-only event
+    # a null geom is a legacy online-only event
     geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), default=None)
     # physical address, iff geom is not null
     address: Mapped[str | None] = mapped_column(String, default=None)

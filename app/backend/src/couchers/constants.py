@@ -15,7 +15,9 @@ EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0
 # Must match the frontend values in app/web/utils/validation.ts
 VALID_NAME_MIN_LENGTH = 2
 VALID_NAME_MAX_LENGTH = 100
-VALID_NAME_REGEX = r"^[\p{L}'-]+(\s+[\p{L}'-]+)*$"
+
+# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
+VALID_NAME_REGEX = r"""^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$"""
 
 BANNED_USERNAME_PHRASES = [
     "admin",

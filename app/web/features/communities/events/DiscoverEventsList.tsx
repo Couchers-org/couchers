@@ -87,7 +87,6 @@ const DiscoverEventsList = () => {
 
   const [pageNumber, setPageNumber] = useState(1);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
-  const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
 
   const { data, error, isLoading } = useEventSearch({
@@ -95,8 +94,8 @@ const DiscoverEventsList = () => {
     pageSize,
     pageNumber,
     isMyCommunities,
-    isOnlineOnly,
     searchLocation: locationResult,
+    excludeAttending: true,
   });
 
   const hasEvents = data && data.eventsList && data.eventsList.length > 0;
@@ -111,11 +110,6 @@ const DiscoverEventsList = () => {
 
   const handleFilterIsMyCommunitiesClick = () => {
     setIsMyCommunities(!isMyCommunities);
-    setPageNumber(1);
-  };
-
-  const handleFilterIsOnlineOnlyClick = () => {
-    setIsOnlineOnly(!isOnlineOnly);
     setPageNumber(1);
   };
 
@@ -160,13 +154,6 @@ const DiscoverEventsList = () => {
               onClick={handleFilterIsMyCommunitiesClick}
             >
               {t("communities:my_communities")}
-            </StyledFilterTag>
-            <StyledFilterTag
-              isSelected={isOnlineOnly}
-              variant="body2"
-              onClick={handleFilterIsOnlineOnlyClick}
-            >
-              {t("communities:online")}
             </StyledFilterTag>
           </StyledFilterTagContainer>
           {!isMobile && renderLocationAutoComplete()}

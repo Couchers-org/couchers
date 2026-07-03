@@ -78,7 +78,7 @@ def test_get_upload_uses_event(db):
                 title="Event With Photo",
                 content="content",
                 photo_key="event_key",
-                offline_information=events_pb2.OfflineEventInformation(address="Null Island", lat=0.1, lng=0.2),
+                location=events_pb2.EventLocation(address="Null Island", lat=0.1, lng=0.2),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",

@@ -3,7 +3,6 @@
   "please_complete_profile": "请完善您的个人资料，并确保您的资料在搜索中显示：",
   "fill_in_who_i_am": "1.填写您的\"我是谁\"部分，介绍一下自己",
   "upload_photo": "2.上传照片（点击编辑页面上的头像）",
-  "edit_profile_button_text": "编辑个人资料",
   "complete_profile_explanation": "您是否讨厌其他平台上那些没有信息的空白\"幽灵\"资料？请不要忽视我们！👻👻👻",
   "your_communities_heading": "您的社区",
   "all_communities_heading": "所有社区",
@@ -41,14 +40,12 @@
   "all_communities_intro": "以下是目前已存在的所有社区页面。<strong>点击社区名称可查看其下的其他社区。</strong>",
   "community_missing": "您的国家或城市不在列表中吗？请使用<1>此表格</1>进行申请！",
   "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。",
-  "member_count_one": "{{count}}位成员",
   "member_count_other": "{{count}}位成员",
   "events": {
     "your_upcoming_header": "您即将参加的活动",
     "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前没有活动。何不<0>创建</0>一个✨？",
-    "community_header": "您所在社区的活动",
-    "location_online_label": "线上"
+    "community_header": "您所在社区的活动"
   },
   "reminder": {
     "respond_to_host_request": {

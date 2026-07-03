@@ -6,7 +6,7 @@
     "confirm": "Yes, I know them. Send request!"
   },
   "accept": "Accept",
-  "decline": "Decline",
+  "friend_requests_dismiss_button": "Dismiss",
   "blocked_list_title": "Blocked users",
   "block_user": "Block user",
   "block_user_confirmation_dialog": {

@@ -2,7 +2,6 @@
   "accept": "Přijmout",
   "my_connections": "Moje kontakty",
   "add_friend": "Přidat přítele",
-  "decline": "Odmítnout",
   "blocked_list_title": "Zablokovaní uživatelé",
   "block_user": "Zablokovat uživatele",
   "block_user_confirmation_dialog": {
@@ -36,5 +35,6 @@
   "add_friend_confirmation_dialog": {
     "title": "Znáš tuto osobu?",
     "confirm": "Ano, znám ji. Odeslat žádost!"
-  }
+  },
+  "friend_requests_dismiss_button": "Zamítnout"
 }

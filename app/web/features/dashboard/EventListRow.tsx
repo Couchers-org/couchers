@@ -196,10 +196,6 @@ export default function EventListRow({ event }: EventListRowProps) {
     includeTime: true,
   });
 
-  const location = event.offlineInformation
-    ? event.offlineInformation.address
-    : t("dashboard:events.location_online_label");
-
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
       <DateChip data-today={isToday || isOngoing || undefined}>
@@ -232,7 +228,7 @@ export default function EventListRow({ event }: EventListRowProps) {
           </MetaItem>
           <MetaItem>
             <Place sx={{ fontSize: "12px" }} />
-            <MetaText>{location}</MetaText>
+            <MetaText>{event.location?.address}</MetaText>
           </MetaItem>
         </MetaLine>
       </ContentWrapper>

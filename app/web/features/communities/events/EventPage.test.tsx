@@ -25,7 +25,7 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const [firstEvent, secondEvent, thirdEvent] = events;
+const [firstEvent, secondEvent] = events;
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
@@ -86,15 +86,13 @@ describe("Event page", () => {
     jest.useRealTimers();
   });
 
-  it("renders an offline event successfully", async () => {
+  it("renders an event successfully", async () => {
     renderEventPage();
 
     expect(
       await screen.findByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
-    expect(
-      await screen.findByText(firstEvent.offlineInformation!.address),
-    ).toBeVisible();
+    expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
       await screen.findByText("Tuesday, June 29, 2021, 2:37 – 3:37 AM", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
@@ -136,22 +134,9 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
-  it("renders an online event successfully", async () => {
+  it("renders an event with a different start and end day correctly", async () => {
     getEventMock.mockResolvedValue(secondEvent);
     renderEventPage(secondEvent.eventId, secondEvent.slug);
-
-    // Should be identical in structure as first test, so only assert on things that are different
-    expect(
-      await screen.findByText(t("communities:virtual_event")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: t("communities:event_link") }),
-    ).toBeVisible();
-  });
-
-  it("renders an event with a different start and end day correctly", async () => {
-    getEventMock.mockResolvedValue(thirdEvent);
-    renderEventPage(thirdEvent.eventId, thirdEvent.slug);
 
     expect(
       await screen.findByText(

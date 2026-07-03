@@ -106,6 +106,7 @@ describe("Community events", () => {
       pageSize: 3,
       myCommunities: true,
       myCommunitiesExcludeGlobal: true,
+      excludeAttending: true,
     });
   });
 });

@@ -42,12 +42,14 @@ def create_host_request_event(
     event.extra.append(ContentLine(name="SEQUENCE", value=str(sequence)))
 
     if hosting:
-        event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_host", loc_context.locale, {"name": other_name}
+        event.name = loc_context.localize_string(
+            "calendar_events.host_requests.title_host", i18next=get_emails_i18next(), substitutions={"name": other_name}
         )
     else:
-        event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_surfer", loc_context.locale, {"name": other_name}
+        event.name = loc_context.localize_string(
+            "calendar_events.host_requests.title_surfer",
+            i18next=get_emails_i18next(),
+            substitutions={"name": other_name},
         )
 
     # Our to_date is inclusive, iCalendar's DTEND is exclusive (for full-day events)
@@ -76,8 +78,8 @@ def create_host_request_cancellation_calendar(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> Calendar:
     event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
-    event.name = get_emails_i18next().localize(
-        "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
+    event.name = loc_context.localize_string(
+        "calendar_events.title_cancelled", i18next=get_emails_i18next(), substitutions={"title": event.name}
     )
     event.status = "CANCELLED"
 

@@ -3,7 +3,6 @@
   "please_complete_profile": "Vul je profiel helemaal in om te zorgen dat je goed gevonden wordt:",
   "fill_in_who_i_am": "1. Schrijf bij \"Wie ik ben\" een paar regels over jezelf",
   "upload_photo": "2. Upload een foto (door op je profielfoto te klikken op de Bewerken-pagina)",
-  "edit_profile_button_text": "Bewerk je profiel",
   "complete_profile_explanation": "Vind jij het ook zo vervelend, van die lege \"ghost\" profielen zonder informatie? Ghost ons alsjeblieft niet! 👻👻👻",
   "your_communities_heading": "Jouw communities",
   "welcome": "Welkom bij Couchers.org!",
@@ -77,7 +76,6 @@
     "see_all_link": "Alles bekijken →",
     "your_upcoming_empty_message": "Geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
     "community_header": "Events in jouw communities",
-    "location_online_label": "Online",
     "today_label": "Vandaag"
   },
   "discussions": {
