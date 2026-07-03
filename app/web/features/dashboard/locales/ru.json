@@ -65,5 +65,11 @@
     "when_today": "Сегодня",
     "when_tomorrow": "Завтра",
     "same_gender_only_indicator": "Тот же пол"
+  },
+  "stays": {
+    "upcoming_trips_header": "Ваши предстоящие поездки",
+    "night_count_one": "{{count}} ночь",
+    "night_count_few": "{{count}} ночи",
+    "night_count_many": "{{count}} ночей"
   }
 }
