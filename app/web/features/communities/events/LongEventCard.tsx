@@ -132,8 +132,9 @@ const LongEventCard = ({
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    timestampToPlainDateTime(event.startTime!, event.timezone),
-    timestampToPlainDateTime(event.endTime!, event.timezone),
+    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+    timestampToPlainDateTime(event.startTime!),
+    timestampToPlainDateTime(event.endTime!),
     {
       locale,
       includeDayOfWeek: true,
