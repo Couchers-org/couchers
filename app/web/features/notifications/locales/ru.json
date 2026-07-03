@@ -19,7 +19,11 @@
       "title": "Настройки уведомлений",
       "list_heading": "Уведомления, которые вы можете получать",
       "collapse_all": "Свернуть все",
-      "error_loading": "Ошибка загрузки настроек уведомлений"
+      "error_loading": "Ошибка загрузки настроек уведомлений",
+      "channels": {
+        "email_label": "Email",
+        "push_label": "Push"
+      }
     },
     "push_notifications": {
       "title": "Всплывающие уведомления",
