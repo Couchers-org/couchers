@@ -63,7 +63,7 @@ const Timepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value ? temporalToDayjs(field.value) : undefined}
+          value={field.value ? temporalToDayjs(field.value) : null}
           onChange={(valueDayjs: Dayjs | null) => {
             const valueTemporal =
               valueDayjs && valueDayjs.isValid()

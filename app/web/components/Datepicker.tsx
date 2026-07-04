@@ -157,7 +157,7 @@ const Datepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value ? temporalToDayjs(field.value) : undefined}
+          value={field.value ? temporalToDayjs(field.value) : null}
           minDate={minValue ? temporalToDayjs(minValue) : undefined}
           maxDate={maxValue ? temporalToDayjs(maxValue) : undefined}
           onChange={(valueDayjs: Dayjs | null) => {
