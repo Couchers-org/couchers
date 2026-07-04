@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
@@ -117,7 +118,7 @@ describe("Edit event page", () => {
       address: "test city, test county, test country",
       lat: 2,
       lng: 1,
-      endTime: new Date("2021-07-01 03:37"),
+      endTime: Temporal.PlainDateTime.from("2021-07-01T03:37"),
     });
 
     // Verifies that success re-directs user
@@ -147,7 +148,7 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      startTime: new Date("2021-08-01 02:37"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T02:37"),
     });
   });
 
@@ -179,7 +180,7 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      startTime: new Date("2021-06-29 00:00"),
+      startTime: Temporal.PlainDateTime.from("2021-06-29T00:00"),
     });
   });
 

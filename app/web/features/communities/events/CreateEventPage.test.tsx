@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
@@ -158,8 +159,8 @@ describe("Create event page", () => {
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,
-      startTime: new Date("2021-08-01 01:00 AM"),
-      endTime: new Date("2021-08-01 02:00 AM"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
+      endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
     });
   });
 
@@ -250,8 +251,8 @@ describe("Create event page", () => {
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,
-      startTime: new Date("2021-08-01 01:00 AM"),
-      endTime: new Date("2021-08-01 02:00 AM"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
+      endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
       parentCommunityId: 99,
     });
   });
