@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Event } from "proto/events_pb";
@@ -478,10 +479,12 @@ describe("Event time changer", () => {
       expect(onValidSubmit).toHaveBeenCalledTimes(1);
       const submittedData = onValidSubmit.mock.calls[0][0];
 
-      expect(submittedData.startDate.format("YYYY-MM-DD")).toBe("2021-08-05");
-      expect(submittedData.startTime.format("HH:mm")).toBe("14:00");
-      expect(submittedData.endDate.format("YYYY-MM-DD")).toBe("2021-08-06");
-      expect(submittedData.endTime.format("HH:mm")).toBe("15:00");
+      expect(submittedData.startDate).toBe(
+        Temporal.PlainDate.from("2021-08-05"),
+      );
+      expect(submittedData.startTime).toBe(Temporal.PlainTime.from("14:00"));
+      expect(submittedData.endDate).toBe(Temporal.PlainDate.from("2021-08-06"));
+      expect(submittedData.endTime).toBe(Temporal.PlainTime.from("15:00"));
     });
   });
 });

@@ -1,7 +1,7 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
-import daysjs, { Dayjs } from "./dayjs";
+import dayjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
 // Creating Intl.Segmenter every time is slow, so cache one per locale.
@@ -61,7 +61,7 @@ export function localizeDateTime(
   date: Date | Dayjs,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(date)) {
+  if (dayjs.isDayjs(date)) {
     date = date.toDate();
   }
   const format = getIntlDateTimeFormat(args);
@@ -97,10 +97,10 @@ export function localizeDateTimeRange(
   end: Date | Dayjs,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(start)) {
+  if (dayjs.isDayjs(start)) {
     start = start.toDate();
   }
-  if (daysjs.isDayjs(end)) {
+  if (dayjs.isDayjs(end)) {
     end = end.toDate();
   }
   const format = getIntlDateTimeFormat(args);
@@ -167,7 +167,7 @@ export function localizeMonthAbbreviation(
     capitalize?: boolean;
   },
 ): string {
-  if (daysjs.isDayjs(date)) {
+  if (dayjs.isDayjs(date)) {
     date = date.toDate();
   }
   const cacheKey = JSON.stringify(args, (_, v) =>
@@ -259,19 +259,6 @@ function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
 
-function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
-  return (
-    date1.month() === date2.month() &&
-    date1.year() === date2.year() &&
-    date1.date() === date2.date()
-  );
-}
-
-/** Compares whether date1 is equal to or in the future of date2 */
-function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
-  return isSameDate(date1, date2) || date1.isAfter(date2);
-}
-
 /// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
 export function localizeRelativeDays(days: number, locale: string): string {
   return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
@@ -280,4 +267,4 @@ export function localizeRelativeDays(days: number, locale: string): string {
   );
 }
 
-export { isSameOrFutureDate, numNights, timestamp2Date };
+export { numNights, timestamp2Date };

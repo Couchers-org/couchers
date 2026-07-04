@@ -14,7 +14,6 @@ import { useRouter } from "next/router";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { Event } from "../../../proto/events_pb";
@@ -65,31 +64,18 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
-
       const updateEventInput: UpdateEventInput = {
         eventId,
         title: data.dirtyFields.title ? data.title : undefined,
         content: data.dirtyFields.content ? data.content : undefined,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
         startTime:
-          data.dirtyFields.startTime || data.dirtyFields.startDate
-            ? finalStartDate
+          data.dirtyFields.startDate || data.dirtyFields.startTime
+            ? data.startDate.toPlainDateTime(data.startTime)
             : undefined,
         endTime:
-          data.dirtyFields.endTime || data.dirtyFields.endDate
-            ? finalEndDate
+          data.dirtyFields.endDate || data.dirtyFields.endDate
+            ? data.endDate.toPlainDateTime(data.endTime)
             : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
         address: data.dirtyFields.location ? data.location.name : undefined,

@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   Int64Value,
@@ -20,6 +21,7 @@ import {
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import dayjs from "utils/dayjs";
 
 import client from "./client";
 
@@ -118,8 +120,8 @@ interface EventInput {
   content: string;
   photoKey?: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: Temporal.PlainDateTime;
+  endTime: Temporal.PlainDateTime;
   address: string;
   lat: number;
   lng: number;
@@ -132,8 +134,12 @@ export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+
+  // FIXME(#8064): Events should be created in their location's timezone
+  req.setStartTime(
+    Timestamp.fromDate(dayjs(input.startTime.toString()).toDate()),
+  );
+  req.setEndTime(Timestamp.fromDate(dayjs(input.endTime.toString()).toDate()));
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);

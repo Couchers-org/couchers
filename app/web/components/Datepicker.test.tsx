@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { act, render, screen } from "@testing-library/react";
@@ -5,7 +6,7 @@ import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
 import i18n from "test/i18n";
-import dayjs, { Dayjs } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
@@ -20,7 +21,11 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
+const Form = ({
+  setDate,
+}: {
+  setDate: (date: Temporal.PlainDate | null) => void;
+}) => {
   const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
@@ -34,7 +39,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         testId="datepicker"
         label="Date field"
         name="datefield"
-        defaultValue={dayjs()}
+        defaultValue={Temporal.Now.plainDateISO()}
       />
       <input type="submit" name={t("submit")} />
     </form>
@@ -54,7 +59,7 @@ describe("DatePicker", () => {
   });
 
   it("should submit with proper date for clicking", async () => {
-    let date: Dayjs | undefined = undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -65,12 +70,12 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toBeDefined();
-    expect(date!.date).toEqual(dayjs("2021-03-23").date);
+    expect(date).not.toBeNull();
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone US/Eastern", async () => {
-    let date: Dayjs | undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -81,13 +86,13 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone UTC", async () => {
     dayjs.tz.setDefault("UTC");
 
-    let date: Dayjs | undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -98,13 +103,13 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Europe/London", async () => {
     dayjs.tz.setDefault("Europe/London");
 
-    let date: Dayjs | undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -115,13 +120,13 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Brazil/East", async () => {
     dayjs.tz.setDefault("Brazil/East");
 
-    let date: Dayjs | undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -132,13 +137,13 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Australia/Adelaide", async () => {
     dayjs.tz.setDefault("Australia/Adelaide");
 
-    let date: Dayjs | undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -149,13 +154,13 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("typing should work in de's DD.MM.YYYY format", async () => {
     i18n.changeLanguage("de");
 
-    let date: Dayjs | undefined = undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -169,15 +174,14 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(date).not.toBeNull();
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 
   it("typing should work in en's MM/DD/YYYY format", async () => {
     i18n.changeLanguage("en");
 
-    let date: Dayjs | undefined = undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -191,15 +195,14 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(date).not.toBeNull();
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 
   it("typing should work in zh-Hant's YYYY/MM/DD format", async () => {
     i18n.changeLanguage("zh-Hant");
 
-    let date: Dayjs | undefined = undefined;
+    let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -213,9 +216,8 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(date).not.toBeNull();
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 
   it("uses the locale date format when no format prop is given", async () => {
@@ -239,7 +241,7 @@ describe("DatePicker", () => {
           testId="datepicker"
           label="Date field"
           name="datefield"
-          defaultValue={dayjs("2021-03-20")}
+          defaultValue={Temporal.PlainDate.from("2021-03-20")}
           pickerInputOnly
         />
       );
@@ -265,7 +267,7 @@ describe("DatePicker", () => {
             testId="datepicker"
             label="Date field"
             name="datefield"
-            defaultValue={dayjs("1990-04-08")}
+            defaultValue={Temporal.PlainDate.from("1990-04-08")}
             pickerInputOnly
           />
         </LocalizationProvider>
@@ -292,7 +294,6 @@ describe("DatePicker", () => {
           testId="datepicker"
           label="Date field"
           name="datefield"
-          defaultValue={null}
           pickerInputOnly
         />
       );

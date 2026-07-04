@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Checkbox,
@@ -21,7 +22,7 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -46,7 +47,7 @@ export type SignupAccountInputs = {
   username: string;
   password: string;
   name: string;
-  birthdate: Dayjs;
+  birthdate: Temporal.PlainDate;
   gender: string;
   acceptTOS: boolean;
   optInToNewsletter: boolean;
@@ -142,7 +143,7 @@ export default function AccountForm() {
         flowToken: authState.flowState!.flowToken,
         username: lowercaseAndTrimField(username),
         password: password,
-        birthdate: birthdate.format().split("T")[0],
+        birthdate,
         gender,
         acceptTOS,
         optOutOfNewsletter: !optInToNewsletter,
@@ -173,7 +174,7 @@ export default function AccountForm() {
 
   const usernameInputRef = useRef<HTMLInputElement>(undefined);
 
-  const handleBirthdateChange = (newBirthdate: Dayjs) => {
+  const handleBirthdateChange = (newBirthdate: Temporal.PlainDate) => {
     setValue("birthdate", newBirthdate, {
       shouldDirty: true,
       shouldValidate: true,
@@ -289,9 +290,8 @@ export default function AccountForm() {
               return true; // Validation passes
             },
           }}
-          minDate={dayjs().subtract(120, "years")}
-          maxDate={dayjs().subtract(18, "years")}
-          defaultValue={null}
+          minValue={Temporal.Now.plainDateISO().add({ years: -120 })}
+          maxValue={Temporal.Now.plainDateISO().add({ years: -18 })}
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}

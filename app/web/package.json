@@ -30,6 +30,7 @@
     "@emotion/styled": "^11.14.1",
     "@growthbook/growthbook": "^1.6.5",
     "@growthbook/growthbook-react": "^1.6.5",
+    "@js-temporal/polyfill": "^0.5.1",
     "@mui/icons-material": "^7.3.9",
     "@mui/lab": "^7.0.0-beta.17",
     "@mui/material": "^7.3.9",
