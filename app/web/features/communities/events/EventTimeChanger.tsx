@@ -9,7 +9,6 @@ import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData } from "./EventForm";
@@ -36,10 +35,11 @@ interface EventTimeChangerProps
 function toPlainDateTime(
   timestamp: Timestamp.AsObject,
 ): Temporal.PlainDateTime {
+  const legacyDate = timestamp2Date(timestamp);
+  const instant = Temporal.Instant.fromEpochMilliseconds(legacyDate.getTime());
   // FIXME(#8064): Event times should be interpreted in their timezones.
-  return Temporal.PlainDateTime.from(
-    dayjs(timestamp2Date(timestamp)).format("YYYY-MM-DDTHH:mm"),
-  );
+  const zoned = instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+  return zoned.toPlainDateTime();
 }
 
 export default function EventTimeChanger({
@@ -92,7 +92,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={defaultStartDateTime}
+          defaultValue={defaultStartDateTime?.toPlainDate()}
           error={!!errors.startDate?.message}
           helperText={errors.startDate?.message}
           id="startDate"
@@ -121,7 +121,7 @@ export default function EventTimeChanger({
           control={control}
           name="startTime"
           onPostChange={handleStartTimeChange}
-          defaultValue={defaultStartDateTime}
+          defaultValue={defaultStartDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
             pattern: {
@@ -162,7 +162,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={defaultEndDateTime}
+          defaultValue={defaultEndDateTime?.toPlainDate()}
           error={!!errors.endDate?.message}
           helperText={errors.endDate?.message || ""}
           id="endDate"
@@ -196,7 +196,7 @@ export default function EventTimeChanger({
           control={control}
           name="endTime"
           onPostChange={handleEndTimeChange}
-          defaultValue={defaultEndDateTime}
+          defaultValue={defaultEndDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
             pattern: {
