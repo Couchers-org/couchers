@@ -7,7 +7,7 @@ import {
 } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { getMuiDateFormat,ISO8601_DATE_FORMAT } from "utils/date";
+import { getMuiDateFormat, ISO8601_DATE_FORMAT } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 interface DatepickerProps {
