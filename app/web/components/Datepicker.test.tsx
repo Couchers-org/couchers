@@ -70,8 +70,7 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).not.toBeNull();
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone US/Eastern", async () => {
@@ -86,7 +85,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone UTC", async () => {
@@ -103,7 +102,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Europe/London", async () => {
@@ -120,7 +119,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Brazil/East", async () => {
@@ -137,7 +136,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("selecting today works with timezone Australia/Adelaide", async () => {
@@ -154,7 +153,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toBe(Temporal.PlainDate.from("2021-03-20"));
+    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
   });
 
   it("typing should work in de's DD.MM.YYYY format", async () => {
@@ -174,7 +173,6 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).not.toBeNull();
     expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 
@@ -195,7 +193,6 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).not.toBeNull();
     expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 
@@ -216,7 +213,6 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).not.toBeNull();
     expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
   });
 

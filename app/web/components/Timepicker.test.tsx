@@ -58,8 +58,7 @@ describe("Timepicker", () => {
     await user.keyboard("2359");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time).toBe(Temporal.PlainTime.from("23:59"));
+    expect(time).toEqual(Temporal.PlainTime.from("23:59"));
   });
 
   it("accepts 12-hour time in 12-hour locale (en)", async () => {
@@ -76,8 +75,7 @@ describe("Timepicker", () => {
     await user.keyboard("1200 AM");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time).toBe(Temporal.PlainTime.from("00:00"));
+    expect(time).toEqual(Temporal.PlainTime.from("00:00"));
   });
 
   it("accepts 1:37 PM in 12-hour locale (en)", async () => {
@@ -94,8 +92,7 @@ describe("Timepicker", () => {
     await user.keyboard("0137 PM");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time).toBe(Temporal.PlainTime.from("13:37"));
+    expect(time).toEqual(Temporal.PlainTime.from("13:37"));
   });
 
   it("accepts 13:37 in 24-hour locale (fr)", async () => {
@@ -112,7 +109,6 @@ describe("Timepicker", () => {
     await user.keyboard("1337");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time).toBe(Temporal.PlainTime.from("13:37"));
+    expect(time).toEqual(Temporal.PlainTime.from("13:37"));
   });
 });

@@ -22,7 +22,6 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
-import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -40,7 +39,6 @@ import {
   lowercaseAndTrimField,
   usernameValidationPattern,
   validatePassword,
-  validatePastDate,
 } from "utils/validation";
 
 export type SignupAccountInputs = {

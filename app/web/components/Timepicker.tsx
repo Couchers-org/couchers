@@ -65,9 +65,10 @@ const Timepicker = ({
           label={label}
           value={field.value ? temporalToDayjs(field.value) : undefined}
           onChange={(valueDayjs: Dayjs | null) => {
-            const valueTemporal = valueDayjs
-              ? dayjsToTemporal(valueDayjs)
-              : null;
+            const valueTemporal =
+              valueDayjs && valueDayjs.isValid()
+                ? dayjsToTemporal(valueDayjs)
+                : null;
             field.onChange(valueTemporal);
             onPostChange?.(valueTemporal);
           }}
