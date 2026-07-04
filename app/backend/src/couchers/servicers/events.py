@@ -225,14 +225,14 @@ def _get_event_and_occurrence_one_or_none(
 
 def _check_location(location: events_pb2.EventLocation | None, context: CouchersContext) -> tuple[WKBElement, str]:
     # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-    if not (location and location.address and location.lat and location.lng):
+    if not location or not location.address:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
     if location.lat == 0 and location.lng == 0:
+        # No events allowed on Null Island
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-    geom = create_coordinate(location.lat, location.lng)
-    address = location.address
 
-    return (geom, address)
+    geom = create_coordinate(location.lat, location.lng)
+    return (geom, location.address)
 
 
 def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Session) -> ZoneInfo:
