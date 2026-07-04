@@ -21,15 +21,15 @@ import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { theme } from "theme";
-import { isSameOrFutureDate } from "utils/date";
+import { ISO8601_DATE_FORMAT, isSameOrFutureDate } from "utils/date";
 import dayjs from "utils/dayjs";
 
 const TYPING_GAP_CAP_MS = 3000;
 
 interface FormValuesSnapshot {
   text: string;
-  fromDate: dayjs.Dayjs | null;
-  toDate: dayjs.Dayjs | null;
+  fromDate: string | null;
+  toDate: string | null;
 }
 
 function isFormField(target: EventTarget | null): boolean {
@@ -122,8 +122,8 @@ function useHostRequestFormTracking({
         active_typing_ms: Math.round(activeTypingMs),
         keystroke_count: keystrokeCount,
         text_length: text.length,
-        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
-        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
+        from_date: fromDate,
+        to_date: toDate,
         ...referrerProps,
       });
     };
@@ -245,12 +245,16 @@ export default function NewHostRequest({
     !!watchFromDate && dayjs(watchFromDate).isBefore(hostToday);
 
   useEffect(() => {
+    const toDate = getValues("toDate");
     if (
       watchFromDate &&
-      getValues("toDate") &&
-      isSameOrFutureDate(watchFromDate, getValues("toDate"))
+      toDate &&
+      isSameOrFutureDate(dayjs(watchFromDate), dayjs(toDate))
     ) {
-      setValue("toDate", watchFromDate.add(1, "day"));
+      setValue(
+        "toDate",
+        dayjs(watchFromDate).add(1, "day").format(ISO8601_DATE_FORMAT),
+      );
     }
   });
 
@@ -277,8 +281,7 @@ export default function NewHostRequest({
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
-                defaultValue={null}
-                minDate={hostToday}
+                minValueISO8601={hostToday.format(ISO8601_DATE_FORMAT)}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
                   validate: {
@@ -305,9 +308,11 @@ export default function NewHostRequest({
                 helperText={errors?.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
-                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                minValueISO8601={(watchFromDate
+                  ? dayjs(watchFromDate).add(1, "day")
+                  : dayjs()
+                ).format(ISO8601_DATE_FORMAT)}
                 name="toDate"
-                defaultValue={null}
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
                   validate: (stringDate) => stringDate !== "",

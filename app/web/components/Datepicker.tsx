@@ -7,24 +7,24 @@ import {
 } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { getMuiDateFormat } from "utils/date";
+import { ISO8601_DATE_FORMAT, getMuiDateFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 interface DatepickerProps {
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
-  defaultValue?: Dayjs | null;
+  defaultValueISO8601?: string;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
   rules?: UseControllerProps["rules"];
   label?: string;
   name: string;
-  minDate?: Dayjs;
-  maxDate?: Dayjs;
+  minValueISO8601?: string;
+  maxValueISO8601?: string;
   openTo?: "year" | "month" | "day";
-  onPostChange?(date: Dayjs | null): void;
+  onPostChange?(valueISO8601: string | null): void;
   testId?: string;
   variant?: "standard" | "outlined" | "filled";
   inputProps?: InputProps;
@@ -89,17 +89,26 @@ const ReadOnlyDateField = ({
   );
 };
 
+// Convert between our API's ISO8601 strings and MUI's expected Dayjs values.
+function iso8601ToDayjs(value: string): Dayjs {
+  return dayjs(value, ISO8601_DATE_FORMAT);
+}
+
+function dayjsToISO8601(value: Dayjs): string {
+  return value.format(ISO8601_DATE_FORMAT);
+}
+
 const Datepicker = ({
   className,
   control,
-  defaultValue,
+  defaultValueISO8601,
   error,
   helperText,
   id,
   rules,
   label,
-  minDate = dayjs(),
-  maxDate,
+  minValueISO8601 = dayjsToISO8601(dayjs()),
+  maxValueISO8601,
   name,
   openTo = "day",
   onPostChange,
@@ -138,7 +147,7 @@ const Datepicker = ({
   return (
     <Controller
       control={control}
-      defaultValue={defaultValue}
+      defaultValue={defaultValueISO8601 ?? null}
       name={name}
       rules={rules}
       render={({ field }) => (
@@ -146,12 +155,17 @@ const Datepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value}
-          minDate={minDate}
-          maxDate={maxDate}
-          onChange={(date) => {
-            field.onChange(date);
-            onPostChange?.(date);
+          value={field.value ? iso8601ToDayjs(field.value) : undefined}
+          minDate={
+            minValueISO8601 ? iso8601ToDayjs(minValueISO8601) : undefined
+          }
+          maxDate={
+            maxValueISO8601 ? iso8601ToDayjs(maxValueISO8601) : undefined
+          }
+          onChange={(value: Dayjs | null) => {
+            const valueISO8601 = value ? dayjsToISO8601(value) : null;
+            field.onChange(valueISO8601);
+            onPostChange?.(valueISO8601);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}

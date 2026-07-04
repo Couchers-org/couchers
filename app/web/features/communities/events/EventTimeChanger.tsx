@@ -1,14 +1,19 @@
 import { styled } from "@mui/material";
 import Datepicker from "components/Datepicker";
 import Timepicker from "components/Timepicker";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
 import { theme } from "theme";
-import { isSameOrFutureDate, timestamp2Date } from "utils/date";
-import dayjs, { Dayjs } from "utils/dayjs";
+import {
+  ISO8601_DATE_FORMAT,
+  ISO8601_HOUR_MIN_FORMAT,
+  isSameOrFutureDate,
+  iso8601ToDayjs,
+  timestamp2Date,
+} from "utils/date";
+import dayjs from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData } from "./EventForm";
@@ -21,20 +26,6 @@ const StyledContainer = styled("div")(() => ({
     gridTemplateColumns: "1fr 1fr",
   },
 }));
-
-function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
-  date?: Dayjs;
-  time?: Dayjs;
-} {
-  if (timestamp) {
-    const dayjsDate = dayjs(timestamp2Date(timestamp));
-    return {
-      date: dayjsDate.startOf("day"),
-      time: dayjsDate,
-    };
-  }
-  return {};
-}
 
 interface EventTimeChangerProps
   extends Pick<
@@ -56,34 +47,36 @@ export default function EventTimeChanger({
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
-  const { date: eventStartDate, time: eventStartTime } =
-    splitTimestampToDateAndTime(event?.startTime);
-  const { date: eventEndDate, time: eventEndTime } =
-    splitTimestampToDateAndTime(event?.endTime);
+  const defaultStartDateTime = event?.startTime
+    ? dayjs(timestamp2Date(event.startTime))
+    : undefined;
+  const defaultEndDateTime = event?.endTime
+    ? dayjs(timestamp2Date(event.endTime))
+    : undefined;
 
-  const handleStartDateChange = (newStartDate: Dayjs) => {
-    setValue("startDate", newStartDate, {
+  const handleStartDateChange = (valueISO8601: string) => {
+    setValue("startDateISO8601", valueISO8601, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleEndDateChange = (newEndDate: Dayjs) => {
-    setValue("endDate", newEndDate, {
+  const handleEndDateChange = (valueISO8601: string) => {
+    setValue("endDateISO8601", valueISO8601, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleStartTimeChange = (newStartTime: Dayjs) => {
-    setValue("startTime", newStartTime, {
+  const handleStartTimeChange = (valueISO8601: string) => {
+    setValue("startTimeISO8601", valueISO8601, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleEndTimeChange = (newEndTime: Dayjs) => {
-    setValue("endTime", newEndTime, {
+  const handleEndTimeChange = (valueISO8601: string) => {
+    setValue("endTimeISO8601", valueISO8601, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -94,22 +87,24 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate ?? null}
-          error={!!errors.startDate?.message}
-          helperText={errors.startDate?.message}
+          defaultValueISO8601={defaultStartDateTime?.format(
+            ISO8601_DATE_FORMAT,
+          )}
+          error={!!errors.startDateISO8601?.message}
+          helperText={errors.startDateISO8601?.message}
           id="startDate"
           label={t("communities:start_date")}
-          name="startDate"
+          name="startDateISO8601"
           onPostChange={handleStartDateChange}
           rules={{
             required: t("communities:date_required"),
-            validate: (date: Dayjs) => {
+            validate: (valueISO8601: string) => {
               // Only disable validation temporarily if `event` exists/in the edit event context
-              if (event && !dirtyFields.startDate) {
+              if (event && !dirtyFields.startDateISO8601) {
                 return true;
               }
               return (
-                isSameOrFutureDate(date, dayjs()) ||
+                isSameOrFutureDate(dayjs(valueISO8601), dayjs()) ||
                 t("communities:past_date_error")
               );
             },
@@ -119,33 +114,36 @@ export default function EventTimeChanger({
 
         <Timepicker
           control={control}
-          name="startTime"
+          name="startTimeISO8601"
           onPostChange={handleStartTimeChange}
-          defaultValue={eventStartTime || null}
+          defaultValueISO8601={defaultStartDateTime?.format(
+            ISO8601_HOUR_MIN_FORMAT,
+          )}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time: Dayjs) => {
-              if (event && !dirtyFields.startTime) {
+            validate: (valueISO8601: string) => {
+              if (event && !dirtyFields.startTimeISO8601) {
                 return true;
               }
 
-              const startDate = getValues("startDate");
+              const startDateISO8601 = getValues("startDateISO8601");
 
-              if (!startDate) {
+              if (!startDateISO8601) {
                 return t("communities:date_required");
               }
 
-              if (!time) {
+              if (!valueISO8601) {
                 return t("communities:time_required");
               }
 
-              const startDateTime = startDate
-                .hour(time.hour())
-                .minute(time.minute());
+              const startDateTime = iso8601ToDayjs(
+                startDateISO8601,
+                valueISO8601,
+              );
 
               return (
                 startDateTime.isAfter(dayjs()) ||
@@ -155,35 +153,34 @@ export default function EventTimeChanger({
           }}
           id="startTime"
           label={t("communities:start_time")}
-          error={!!errors.startTime?.message}
-          helperText={errors.startTime?.message || ""}
+          error={!!errors.startTimeISO8601?.message}
+          helperText={errors.startTimeISO8601?.message || ""}
           testId="startTime"
         />
       </StyledContainer>
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate ?? null}
-          error={!!errors.endDate?.message}
-          helperText={errors.endDate?.message || ""}
+          defaultValueISO8601={defaultEndDateTime?.format(ISO8601_DATE_FORMAT)}
+          error={!!errors.endDateISO8601?.message}
+          helperText={errors.endDateISO8601?.message || ""}
           id="endDate"
           label={t("communities:end_date")}
-          name="endDate"
+          name="endDateISO8601"
           rules={{
             required: t("communities:date_required"),
-            validate: (date) => {
-              if (event && !dirtyFields.endDate) {
+            validate: (valueISO8601: string) => {
+              if (event && !dirtyFields.endDateISO8601) {
                 return true;
               }
 
-              const startDate = getValues("startDate");
-
-              if (date.isBefore(startDate)) {
+              const startDateISO8601 = getValues("startDateISO8601");
+              if (dayjs(valueISO8601).isBefore(dayjs(startDateISO8601))) {
                 return t("communities:end_date_error");
               }
 
               return (
-                isSameOrFutureDate(date, dayjs()) ||
+                isSameOrFutureDate(dayjs(valueISO8601), dayjs()) ||
                 t("communities:past_date_error")
               );
             },
@@ -194,39 +191,39 @@ export default function EventTimeChanger({
 
         <Timepicker
           control={control}
-          name="endTime"
+          name="endTimeISO8601"
           onPostChange={handleEndTimeChange}
-          defaultValue={eventEndTime || null}
+          defaultValueISO8601={defaultEndDateTime?.format(
+            ISO8601_HOUR_MIN_FORMAT,
+          )}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time: Dayjs) => {
-              if (event && !dirtyFields.endTime) {
+            validate: (valueISO8601: string) => {
+              if (event && !dirtyFields.endTimeISO8601) {
                 return true;
               }
 
-              const startTime = getValues("startTime");
-              const startDate = getValues("startDate");
-              const endDate = getValues("endDate");
+              const startTimeISO8601 = getValues("startTimeISO8601");
+              const startDateISO8601 = getValues("startDateISO8601");
+              const endDateISO8601 = getValues("endDateISO8601");
 
-              if (!startTime || !time) {
+              if (!startTimeISO8601 || !valueISO8601) {
                 return t("communities:time_required");
               }
 
-              if (!startDate || !endDate) {
+              if (!startDateISO8601 || !endDateISO8601) {
                 return t("communities:date_required");
               }
 
-              const startDateTime = startDate
-                .hour(startTime.hour())
-                .minute(startTime.minute());
-
-              const endDateTime = endDate
-                .hour(time.hour())
-                .minute(time.minute());
+              const startDateTime = iso8601ToDayjs(
+                startDateISO8601,
+                startTimeISO8601,
+              );
+              const endDateTime = iso8601ToDayjs(endDateISO8601, valueISO8601);
 
               if (!endDateTime.isAfter(startDateTime)) {
                 return t("communities:end_time_error");
@@ -239,8 +236,8 @@ export default function EventTimeChanger({
           }}
           id="endTime"
           label={t("communities:end_time")}
-          error={!!errors.endTime?.message}
-          helperText={errors.endTime?.message || ""}
+          error={!!errors.endTimeISO8601?.message}
+          helperText={errors.endTimeISO8601?.message || ""}
           testId="endTime"
         />
       </StyledContainer>

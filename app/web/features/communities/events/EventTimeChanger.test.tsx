@@ -429,8 +429,8 @@ describe("Event time changer", () => {
       const submittedData = onValidSubmit.mock.calls[0][0];
       expect(submittedData).toBeDefined();
       // The event fixture should have the original event data preserved
-      expect(submittedData.startDate).toBeDefined();
-      expect(submittedData.endDate).toBeDefined();
+      expect(submittedData.startDateISO8601).toBeDefined();
+      expect(submittedData.endDateISO8601).toBeDefined();
     });
   });
 
@@ -478,10 +478,10 @@ describe("Event time changer", () => {
       expect(onValidSubmit).toHaveBeenCalledTimes(1);
       const submittedData = onValidSubmit.mock.calls[0][0];
 
-      expect(submittedData.startDate.format("YYYY-MM-DD")).toBe("2021-08-05");
-      expect(submittedData.startTime.format("HH:mm")).toBe("14:00");
-      expect(submittedData.endDate.format("YYYY-MM-DD")).toBe("2021-08-06");
-      expect(submittedData.endTime.format("HH:mm")).toBe("15:00");
+      expect(submittedData.startDateISO8601).toBe("2021-08-05");
+      expect(submittedData.startTimeISO8601).toBe("14:00");
+      expect(submittedData.endDateISO8601).toBe("2021-08-06");
+      expect(submittedData.endTimeISO8601).toBe("15:00");
     });
   });
 });

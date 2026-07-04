@@ -21,7 +21,7 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -35,6 +35,7 @@ import { HostingStatus } from "proto/api_pb";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
+import { ISO8601_DATE_FORMAT } from "utils/date";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
@@ -46,7 +47,7 @@ export type SignupAccountInputs = {
   username: string;
   password: string;
   name: string;
-  birthdate: Dayjs;
+  birthdate: string;
   gender: string;
   acceptTOS: boolean;
   optInToNewsletter: boolean;
@@ -142,7 +143,7 @@ export default function AccountForm() {
         flowToken: authState.flowState!.flowToken,
         username: lowercaseAndTrimField(username),
         password: password,
-        birthdate: birthdate.format().split("T")[0],
+        birthdate,
         gender,
         acceptTOS,
         optOutOfNewsletter: !optInToNewsletter,
@@ -173,7 +174,7 @@ export default function AccountForm() {
 
   const usernameInputRef = useRef<HTMLInputElement>(undefined);
 
-  const handleBirthdateChange = (newBirthdate: Dayjs) => {
+  const handleBirthdateChange = (newBirthdate: string) => {
     setValue("birthdate", newBirthdate, {
       shouldDirty: true,
       shouldValidate: true,
@@ -289,9 +290,12 @@ export default function AccountForm() {
               return true; // Validation passes
             },
           }}
-          minDate={dayjs().subtract(120, "years")}
-          maxDate={dayjs().subtract(18, "years")}
-          defaultValue={null}
+          minValueISO8601={dayjs()
+            .subtract(120, "years")
+            .format(ISO8601_DATE_FORMAT)}
+          maxValueISO8601={dayjs()
+            .subtract(18, "years")
+            .format(ISO8601_DATE_FORMAT)}
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}

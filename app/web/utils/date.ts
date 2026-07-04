@@ -3,6 +3,10 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
+import dayjs from "./dayjs";
+
+export const ISO8601_DATE_FORMAT = "YYYY-MM-DD";
+export const ISO8601_HOUR_MIN_FORMAT = "HH:mm";
 
 // Creating Intl.Segmenter every time is slow, so cache one per locale.
 const segmenterCache = new Map<string, Intl.Segmenter>();
@@ -188,12 +192,10 @@ export function localizeMonthAbbreviation(
     : formatted;
 }
 
-const isoMuiDateFormat = "YYYY-MM-DD";
-
 /// Gets the date format for a locale using Material UI placeholders.
 export function getMuiDateFormat(locale: string): string {
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
-    return isoMuiDateFormat;
+    return ISO8601_DATE_FORMAT;
   }
 
   // Format dummy 3333-11-22 date to figure out how it gets laid out.
@@ -210,16 +212,14 @@ export function getMuiDateFormat(locale: string): string {
     .replace("22", "DD");
 
   // Sanity check: There should be no digits left
-  if (/[0-9]/.test(format)) return isoMuiDateFormat;
+  if (/[0-9]/.test(format)) return ISO8601_DATE_FORMAT;
   return format;
 }
-
-const defaultMuiTimeFormat = "HH:mm";
 
 /// Gets a localized time format string compatible with Material UI time pickers.
 export function getMuiTimeFormat(locale: string): string {
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
-    return defaultMuiTimeFormat;
+    return ISO8601_HOUR_MIN_FORMAT;
   }
 
   const intlFormat = new Intl.DateTimeFormat(locale, {
@@ -270,6 +270,12 @@ function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
 /** Compares whether date1 is equal to or in the future of date2 */
 function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
+}
+
+/// Parses an ISO8601 date string (YYYY-MM-DD), with optional time string (HH:mm:ss),
+/// into a dayjs object.
+export function iso8601ToDayjs(date: string, time?: string): Dayjs {
+  return dayjs(`${date}T${time ?? "00:00"}`);
 }
 
 /// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").

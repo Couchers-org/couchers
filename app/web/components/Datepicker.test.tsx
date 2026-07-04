@@ -5,10 +5,11 @@ import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
 import i18n from "test/i18n";
-import dayjs, { Dayjs } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
+import { ISO8601_DATE_FORMAT } from "../utils/date";
 
 const { t } = i18n;
 
@@ -20,7 +21,7 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
+const Form = ({ setDate }: { setDate: (date: string) => void }) => {
   const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
@@ -34,7 +35,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         testId="datepicker"
         label="Date field"
         name="datefield"
-        defaultValue={dayjs()}
+        defaultValueISO8601={dayjs().format(ISO8601_DATE_FORMAT)}
       />
       <input type="submit" name={t("submit")} />
     </form>
@@ -54,8 +55,8 @@ describe("DatePicker", () => {
   });
 
   it("should submit with proper date for clicking", async () => {
-    let date: Dayjs | undefined = undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined = undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -65,13 +66,13 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toBeDefined();
-    expect(date!.date).toEqual(dayjs("2021-03-23").date);
+    expect(dateISO8601).toBeDefined();
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone US/Eastern", async () => {
-    let date: Dayjs | undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -81,14 +82,14 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone UTC", async () => {
     dayjs.tz.setDefault("UTC");
 
-    let date: Dayjs | undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -98,14 +99,14 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Europe/London", async () => {
     dayjs.tz.setDefault("Europe/London");
 
-    let date: Dayjs | undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -115,14 +116,14 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Brazil/East", async () => {
     dayjs.tz.setDefault("Brazil/East");
 
-    let date: Dayjs | undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -132,14 +133,14 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Australia/Adelaide", async () => {
     dayjs.tz.setDefault("Australia/Adelaide");
 
-    let date: Dayjs | undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -149,14 +150,14 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
+    expect(dateISO8601).toBe("2021-03-20");
   });
 
   it("typing should work in de's DD.MM.YYYY format", async () => {
     i18n.changeLanguage("de");
 
-    let date: Dayjs | undefined = undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined = undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -169,16 +170,15 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(dateISO8601).toBeDefined();
+    expect(dateISO8601).toEqual("2021-03-21");
   });
 
   it("typing should work in en's MM/DD/YYYY format", async () => {
     i18n.changeLanguage("en");
 
-    let date: Dayjs | undefined = undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined = undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -191,16 +191,15 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(dateISO8601).toBeDefined();
+    expect(dateISO8601).toEqual("2021-03-21");
   });
 
   it("typing should work in zh-Hant's YYYY/MM/DD format", async () => {
     i18n.changeLanguage("zh-Hant");
 
-    let date: Dayjs | undefined = undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let dateISO8601: string | undefined = undefined;
+    render(<Form setDate={(d) => (dateISO8601 = d)} />, { wrapper });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -213,9 +212,8 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
+    expect(dateISO8601).toBeDefined();
+    expect(dateISO8601).toEqual("2021-03-21");
   });
 
   it("uses the locale date format when no format prop is given", async () => {
@@ -239,7 +237,7 @@ describe("DatePicker", () => {
           testId="datepicker"
           label="Date field"
           name="datefield"
-          defaultValue={dayjs("2021-03-20")}
+          defaultValueISO8601="2021-03-20"
           pickerInputOnly
         />
       );
@@ -265,7 +263,7 @@ describe("DatePicker", () => {
             testId="datepicker"
             label="Date field"
             name="datefield"
-            defaultValue={dayjs("1990-04-08")}
+            defaultValueISO8601="1990-04-08"
             pickerInputOnly
           />
         </LocalizationProvider>
@@ -292,7 +290,6 @@ describe("DatePicker", () => {
           testId="datepicker"
           label="Date field"
           name="datefield"
-          defaultValue={null}
           pickerInputOnly
         />
       );

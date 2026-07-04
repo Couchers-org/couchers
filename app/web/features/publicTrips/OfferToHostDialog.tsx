@@ -21,7 +21,8 @@ import { useForm } from "react-hook-form";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import dayjs, { Dayjs } from "utils/dayjs";
+import { ISO8601_DATE_FORMAT } from "utils/date";
+import dayjs from "utils/dayjs";
 
 // Must match the backend host request minimum (and normal host requests).
 const MESSAGE_MIN_LENGTH = 250;
@@ -29,8 +30,8 @@ const MESSAGE_MIN_LENGTH = 250;
 const DATE_FIELD_ID = "offer-to-host-dates";
 
 interface FormValues {
-  fromDate: Dayjs | null;
-  toDate: Dayjs | null;
+  fromDate: string | null;
+  toDate: string | null;
   text: string;
 }
 
@@ -87,7 +88,11 @@ export default function OfferToHostDialog({
     formState: { errors },
   } = useForm<FormValues>({
     mode: "onBlur",
-    defaultValues: { fromDate: tripFrom, toDate: tripTo, text: "" },
+    defaultValues: {
+      fromDate: tripFromDate,
+      toDate: tripToDate,
+      text: "",
+    },
   });
 
   const watchFromDate = watch("fromDate");
@@ -153,9 +158,9 @@ export default function OfferToHostDialog({
                 id={`${DATE_FIELD_ID}-from`}
                 label={t("publicTrips:from_date_label")}
                 name="fromDate"
-                defaultValue={tripFrom}
-                minDate={earliest}
-                maxDate={tripTo}
+                defaultValueISO8601={tripFromDate}
+                minValueISO8601={earliest.format(ISO8601_DATE_FORMAT)}
+                maxValueISO8601={tripToDate}
                 rules={{ required: t("publicTrips:from_date_required") }}
               />
               <Datepicker
@@ -165,9 +170,11 @@ export default function OfferToHostDialog({
                 id={`${DATE_FIELD_ID}-to`}
                 label={t("publicTrips:to_date_label")}
                 name="toDate"
-                defaultValue={tripTo}
-                minDate={watchFromDate ?? earliest}
-                maxDate={tripTo}
+                defaultValueISO8601={tripToDate}
+                minValueISO8601={
+                  watchFromDate ?? earliest.format(ISO8601_DATE_FORMAT)
+                }
+                maxValueISO8601={tripToDate}
                 rules={{ required: t("publicTrips:to_date_required") }}
               />
             </DateRow>

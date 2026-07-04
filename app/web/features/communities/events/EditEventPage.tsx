@@ -65,18 +65,8 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
+      const startDateTimeISO8601 = `${data.startDateISO8601}T${data.startTimeISO8601}`;
+      const endDateTimeISO8601 = `${data.endDateISO8601}T${data.endTimeISO8601}`;
 
       const updateEventInput: UpdateEventInput = {
         eventId,
@@ -84,12 +74,12 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         content: data.dirtyFields.content ? data.content : undefined,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
         startTime:
-          data.dirtyFields.startTime || data.dirtyFields.startDate
-            ? finalStartDate
+          data.dirtyFields.startTimeISO8601 || data.dirtyFields.startDateISO8601
+            ? dayjs(startDateTimeISO8601).toDate()
             : undefined,
         endTime:
-          data.dirtyFields.endTime || data.dirtyFields.endDate
-            ? finalEndDate
+          data.dirtyFields.endTimeISO8601 || data.dirtyFields.endDateISO8601
+            ? dayjs(endDateTimeISO8601).toDate()
             : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
         address: data.dirtyFields.location ? data.location.name : undefined,

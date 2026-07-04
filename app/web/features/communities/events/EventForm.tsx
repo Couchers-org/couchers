@@ -15,7 +15,6 @@ import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
 import { theme } from "theme";
-import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 
 import EventTimeChanger from "./EventTimeChanger";
@@ -54,10 +53,10 @@ const StyledEventDetailsContainer = styled("div")(() => ({
 interface EventData {
   content: string;
   title: string;
-  startDate: Dayjs;
-  endDate: Dayjs;
-  startTime: Dayjs;
-  endTime: Dayjs;
+  startDateISO8601: string;
+  endDateISO8601: string;
+  startTimeISO8601: string;
+  endTimeISO8601: string;
   shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;

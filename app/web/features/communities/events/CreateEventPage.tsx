@@ -23,6 +23,7 @@ import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
+import { iso8601ToDayjs } from "../../../utils/date";
 
 const StyledBackButton = styled(HeaderButton)(() => ({
   gridArea: "backButton",
@@ -72,19 +73,6 @@ export default function CreateEventPage() {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
-
       // Use uploaded photo, or reuse photo from event being duplicated
       const photoKey =
         data.eventImage || eventToDuplicate?.photoKey || undefined;
@@ -93,8 +81,14 @@ export default function CreateEventPage() {
         title: data.title,
         content: data.content,
         photoKey,
-        startTime: finalStartDate,
-        endTime: finalEndDate,
+        startTime: iso8601ToDayjs(
+          data.startDateISO8601,
+          data.startTimeISO8601,
+        ).toDate(),
+        endTime: iso8601ToDayjs(
+          data.endDateISO8601,
+          data.endTimeISO8601,
+        ).toDate(),
         address: data.location.name,
         lat: data.location.location.lat,
         lng: data.location.location.lng,

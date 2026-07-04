@@ -14,13 +14,14 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import dayjs, { Dayjs } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 
 import {
   PublicTrip,
   useCreatePublicTrip,
   useUpdatePublicTrip,
 } from "./useListPublicTrips";
+import { ISO8601_DATE_FORMAT } from "../../utils/date";
 
 const DATE_FIELD_ID = "public-trip-dates";
 // Must match backend (PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16)
@@ -41,8 +42,8 @@ const DateRow = styled("div")(({ theme }) => ({
 }));
 
 interface FormValues {
-  fromDate: Dayjs | null;
-  toDate: Dayjs | null;
+  fromDate: string | null;
+  toDate: string | null;
   description: string;
   sameGenderOnly: boolean;
 }
@@ -63,8 +64,8 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
   const getDefaults = (): FormValues =>
     props.mode === "edit"
       ? {
-          fromDate: props.trip.fromDate ? dayjs(props.trip.fromDate) : null,
-          toDate: props.trip.toDate ? dayjs(props.trip.toDate) : null,
+          fromDate: props.trip.fromDate ?? null,
+          toDate: props.trip.toDate ?? null,
           description: props.trip.description,
           sameGenderOnly: props.trip.sameGenderOnly ?? false,
         }
@@ -148,8 +149,8 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
     ({ fromDate, toDate, description, sameGenderOnly }) => {
       if (!fromDate || !toDate) return;
       const payload = {
-        fromDate: fromDate.format("YYYY-MM-DD"),
-        toDate: toDate.format("YYYY-MM-DD"),
+        fromDate,
+        toDate,
         description: description.trim(),
         sameGenderOnly,
       };
@@ -189,7 +190,6 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 id={`${DATE_FIELD_ID}-from`}
                 label={t("publicTrips:from_date_label")}
                 name="fromDate"
-                defaultValue={null}
                 rules={{
                   required: t("publicTrips:from_date_required"),
                 }}
@@ -201,8 +201,9 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 id={`${DATE_FIELD_ID}-to`}
                 label={t("publicTrips:to_date_label")}
                 name="toDate"
-                defaultValue={null}
-                minDate={watchFromDate ? watchFromDate : dayjs()}
+                minValueISO8601={
+                  watchFromDate ?? dayjs().format(ISO8601_DATE_FORMAT)
+                }
                 rules={{
                   required: t("publicTrips:to_date_required"),
                 }}
