@@ -24,7 +24,7 @@ from couchers.proto import (
     requests_pb2,
     search_pb2,
 )
-from couchers.utils import create_coordinate, datetime_to_iso8601_utc_local, now, today
+from couchers.utils import create_coordinate, datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -788,8 +788,8 @@ def test_event_created_event(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 

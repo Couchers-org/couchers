@@ -13,7 +13,7 @@ from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
-    datetime_to_iso8601_utc_local,
+    datetime_to_iso8601_local,
     millis_from_dt,
     now,
 )
@@ -419,8 +419,8 @@ def sample_event_data() -> dict[str, Any]:
         "content": "Dummy content.",
         "photo_key": None,
         "location": events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-        "start_datetime_iso8601_local": datetime_to_iso8601_utc_local(start_time),
-        "end_datetime_iso8601_local": datetime_to_iso8601_utc_local(end_time),
+        "start_datetime_iso8601_local": datetime_to_iso8601_local(start_time),
+        "end_datetime_iso8601_local": datetime_to_iso8601_local(end_time),
     }
 
 
@@ -479,18 +479,18 @@ def test_event_search_by_time(sample_community, create_event):
     with events_session(token) as api:
         event1 = create_event(
             api,
-            start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=1)),
-            end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=1)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
         )
         event2 = create_event(
             api,
-            start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=4)),
-            end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
         )
         event3 = create_event(
             api,
-            start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=7)),
-            end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=8)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=7)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=8)),
         )
 
     with search_session(token) as api:
@@ -586,10 +586,8 @@ def test_event_search_pagination(sample_community, create_event):
             create_event(
                 api,
                 title=f"Event {i + 1}",
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(
-                    anchor_time + timedelta(hours=i + 1, minutes=30)
-                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(anchor_time + timedelta(hours=i + 1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(anchor_time + timedelta(hours=i + 1, minutes=30)),
             )
 
     with search_session(token) as api:
@@ -635,10 +633,8 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
             create_event(
                 api,
                 title=f"Event {i + 1}",
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(anchor_time + timedelta(hours=i + 1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(
-                    anchor_time + timedelta(hours=i + 1, minutes=30)
-                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(anchor_time + timedelta(hours=i + 1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(anchor_time + timedelta(hours=i + 1, minutes=30)),
             )
 
     with search_session(token) as api:

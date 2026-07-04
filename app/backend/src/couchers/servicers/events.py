@@ -47,6 +47,7 @@ from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
+    datetime_to_iso8601_local,
     dt_from_millis,
     millis_from_dt,
     not_none,
@@ -248,10 +249,35 @@ def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Sess
 
 
 def _check_iso8601_local_datetime(value: str, timezone: ZoneInfo, context: CouchersContext) -> datetime:
-    try:
-        return datetime.fromisoformat(value).replace(tzinfo=timezone)
-    except ValueError:
+    if not value:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_start_end_datetime")
+
+    try:
+        naive_datetime = datetime.fromisoformat(value)
+    except ValueError:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_start_end_datetime")
+
+    if naive_datetime.tzinfo is not None:
+        # Expected a local datetime, otherwise we have two sources of timezones.
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_start_end_datetime")
+
+    return naive_datetime.replace(tzinfo=timezone).replace(second=0, microsecond=0)
+
+
+def _update_datetime(
+    new_iso8601_local: str | None,
+    new_timezone: ZoneInfo,
+    old_datetime: datetime,
+    old_timezone: ZoneInfo,
+    context: CouchersContext,
+) -> datetime:
+    if new_iso8601_local is None and new_timezone != old_timezone:
+        # Local time wasn't updated, but the timezone changed so the effective datetime/timestamp may have changed.
+        new_iso8601_local = datetime_to_iso8601_local(old_datetime.astimezone(old_timezone))
+    if new_iso8601_local is None:
+        return old_datetime  # No change
+    # New effective datetime/timestamp
+    return _check_iso8601_local_datetime(new_iso8601_local, new_timezone, context)
 
 
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
@@ -665,7 +691,8 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
-        timezone: ZoneInfo
+        old_timezone = ZoneInfo(occurrence.timezone)
+        timezone: ZoneInfo = old_timezone
         if request.HasField("location"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
             geom, address = _check_location(request.location, context)
@@ -673,28 +700,36 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence_update["geom"] = geom
             occurrence_update["address"] = address
             occurrence_update["timezone"] = timezone.key
-        else:
-            timezone = ZoneInfo(occurrence.timezone)
 
-        if request.HasField("start_datetime_iso8601_local") or request.HasField("end_datetime_iso8601_local"):
-            if request.update_all_future:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
-            if request.HasField("start_datetime_iso8601_local"):
-                notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME)
-                start_time = _check_iso8601_local_datetime(
-                    request.start_datetime_iso8601_local.value, timezone, context
-                )
-            else:
-                start_time = occurrence.start_time
-            if request.HasField("end_datetime_iso8601_local"):
-                notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
-                end_time = _check_iso8601_local_datetime(request.end_datetime_iso8601_local.value, timezone, context)
-            else:
-                end_time = occurrence.end_time
+        if timezone != old_timezone and request.update_all_future:
+            # Not implemented: We'd need to change and recheck the datetimes on all existing occurrences
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
 
-            _check_occurrence_time_validity(start_time, end_time, context)
+        # Determine the new start/end datetimes, which may have changed explicitly or because of a timezone change
+        start_datetime = _update_datetime(
+            request.start_datetime_iso8601_local.value if request.HasField("start_datetime_iso8601_local") else None,
+            timezone,
+            old_datetime=occurrence.start_time,
+            old_timezone=old_timezone,
+            context=context,
+        )
+        if start_datetime != occurrence.start_time:
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME)
 
-            during = TimestamptzRange(start_time, end_time)
+        end_datetime = _update_datetime(
+            request.end_datetime_iso8601_local.value if request.HasField("end_datetime_iso8601_local") else None,
+            timezone,
+            old_datetime=occurrence.end_time,
+            old_timezone=old_timezone,
+            context=context,
+        )
+        if end_datetime != occurrence.end_time:
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
+
+        if start_datetime != occurrence.start_time or end_datetime != occurrence.end_time:
+            _check_occurrence_time_validity(start_datetime, end_datetime, context)
+
+            during = TimestamptzRange(start_datetime, end_datetime)
 
             # && is the overlap operator for ranges
             if (

@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_utc_local, is_utc_or_gmt, now, to_aware_datetime
+from couchers.utils import datetime_to_iso8601_local, is_utc_or_gmt, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
@@ -71,8 +71,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -184,8 +184,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -202,8 +202,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -220,8 +220,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -235,8 +235,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     location=events_pb2.EventLocation(
                         address="Near Null Island",
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -251,8 +251,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.1,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -268,8 +268,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() - timedelta(hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() - timedelta(hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -285,8 +285,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -302,8 +302,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(days=500, hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(days=500, hours=5)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=5)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -319,8 +319,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(days=100)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=100)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -349,8 +349,8 @@ def test_CreateEvent_incomplete_profile(db):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -381,8 +381,8 @@ def test_ScheduleEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -398,8 +398,8 @@ def test_ScheduleEvent(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(new_start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(new_end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(new_start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(new_end_time),
             )
         )
 
@@ -453,8 +453,8 @@ def test_cannot_overlap_occurrences_schedule(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -468,8 +468,8 @@ def test_cannot_overlap_occurrences_schedule(db):
                         lat=0.3,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=6)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -495,8 +495,8 @@ def test_cannot_overlap_occurrences_update(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -509,8 +509,8 @@ def test_cannot_overlap_occurrences_update(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=4)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         ).event_id
 
@@ -519,10 +519,10 @@ def test_cannot_overlap_occurrences_update(db):
             events_pb2.UpdateEventReq(
                 event_id=event_id,
                 start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=5))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
                 ),
                 end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=6))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
                 ),
             )
         )
@@ -532,10 +532,10 @@ def test_cannot_overlap_occurrences_update(db):
                 events_pb2.UpdateEventReq(
                     event_id=event_id,
                     start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                        value=datetime_to_iso8601_utc_local(start + timedelta(hours=2))
+                        value=datetime_to_iso8601_local(start + timedelta(hours=2))
                     ),
                     end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                        value=datetime_to_iso8601_utc_local(start + timedelta(hours=4))
+                        value=datetime_to_iso8601_local(start + timedelta(hours=4))
                     ),
                 )
             )
@@ -577,8 +577,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -750,8 +750,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -782,8 +782,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time + timedelta(hours=2.5 + i)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2.5 + i)),
                 )
             )
 
@@ -855,8 +855,8 @@ def test_GetEvent(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -996,8 +996,8 @@ def test_CancelEvent(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -1113,8 +1113,8 @@ def test_ListEventAttendees(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1167,8 +1167,8 @@ def test_ListEventSubscribers(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1219,8 +1219,8 @@ def test_ListEventOrganizers(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1270,8 +1270,8 @@ def test_TransferEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1304,8 +1304,8 @@ def test_TransferEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1347,8 +1347,8 @@ def test_SetEventSubscription(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1379,8 +1379,8 @@ def test_SetEventAttendance(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1424,8 +1424,8 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1471,8 +1471,8 @@ def test_ListEventOccurrences(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1.5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
             )
         )
 
@@ -1488,8 +1488,8 @@ def test_ListEventOccurrences(db):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2.5 + i)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
                 )
             )
 
@@ -1545,8 +1545,8 @@ def test_ListMyEvents(db, moderator: Moderator):
                 lng=0.2,
             ),
             parent_community_id=community_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=hours_from_now)),
-            end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=hours_from_now + 0.5)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now + 0.5)),
         )
 
     with events_session(token1) as api:
@@ -1718,8 +1718,8 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
                 lng=0.2,
             ),
             parent_community_id=c_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=hours)),
-            end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=hours + 1)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours + 1)),
         )
 
     # user1 organizes e_own; user2 organizes e_attending and e_community_only
@@ -1789,8 +1789,8 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1899,8 +1899,8 @@ def test_ListEventAttendees_regression(db):
                     lng=0.2,
                 ),
                 parent_community_id=c_id,
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -1948,8 +1948,8 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         )
 
@@ -2015,8 +2015,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=5)),
             )
         )
 
@@ -2031,8 +2031,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
             )
         )
 
@@ -2046,8 +2046,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         )
 
@@ -2072,8 +2072,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -2087,8 +2087,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=7)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=8)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=7)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=8)),
             )
         )
 
@@ -2101,8 +2101,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=4)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         ).event_id
 
@@ -2111,10 +2111,10 @@ def test_can_overlap_other_events_update_regression(db):
             events_pb2.UpdateEventReq(
                 event_id=event_id,
                 start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=5))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
                 ),
                 end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=6))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
                 ),
             )
         )
@@ -2123,10 +2123,10 @@ def test_can_overlap_other_events_update_regression(db):
             events_pb2.UpdateEventReq(
                 event_id=event_id,
                 start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=2))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=2))
                 ),
                 end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_utc_local(start + timedelta(hours=4))
+                    value=datetime_to_iso8601_local(start + timedelta(hours=4))
                 ),
             )
         )
@@ -2152,8 +2152,8 @@ def test_list_past_events_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=4)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
             )
         )
 
@@ -2195,8 +2195,8 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(now() + timedelta(hours=4)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
             )
         )
         user_url = f"http://localhost:3000/user/{user1.username}"
@@ -2280,8 +2280,8 @@ def test_update_event_should_notify_queues_job():
                     lat=1.0,
                     lng=2.0,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         )
 
@@ -2297,7 +2297,7 @@ def test_update_event_should_notify_queues_job():
         events_pb2.UpdateEventReq(
             event_id=event_id,
             start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                value=datetime_to_iso8601_utc_local(start + timedelta(hours=4))
+                value=datetime_to_iso8601_local(start + timedelta(hours=4))
             ),
             should_notify=False,
         )
@@ -2312,7 +2312,7 @@ def test_update_event_should_notify_queues_job():
         events_pb2.UpdateEventReq(
             event_id=event_id,
             start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                value=datetime_to_iso8601_utc_local(start + timedelta(hours=4))
+                value=datetime_to_iso8601_local(start + timedelta(hours=4))
             ),
             should_notify=True,
         )
@@ -2352,8 +2352,8 @@ def test_event_photo_key(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -2371,8 +2371,8 @@ def test_event_photo_key(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time + timedelta(days=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time + timedelta(days=1)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(days=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time + timedelta(days=1)),
             )
         )
 
@@ -2407,8 +2407,8 @@ def test_event_timezone(db):
                 # timezone_areas.sql-fake has a region for Europe/Helsinki
                 location=events_pb2.EventLocation(address="Helsinki", lat=60.192059, lng=24.945831),
                 # Should result in YYYY-MM-DDT00:00 (midnight local time)
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -2427,12 +2427,13 @@ def test_event_timezone(db):
             )
         )
 
-        # The time of the event should not have changed, so it's still at midnight in Helsinki, not in New York.
+        # The user didn't touch the datetime components on the frontend,
+        # so they expect the event to be at the same local time (midnight),
+        # but now in the New York timezone.
         assert update_res.timezone == "America/New_York"
-        assert update_res.start_time == create_res.start_time
-        assert to_aware_datetime(update_res.start_time).hour != 0
-        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
-        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour != 0
+        assert update_res.start_time != create_res.start_time
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour != 0
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour == 0
 
         # Also validate GetEvent
         get_res: events_pb2.Event = api.GetEvent(
@@ -2465,8 +2466,8 @@ def test_event_created_with_shadowed_visibility(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2500,8 +2501,8 @@ def test_shadowed_event_visible_to_creator_only(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2539,8 +2540,8 @@ def test_event_visible_after_approval(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2581,8 +2582,8 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2633,8 +2634,8 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2686,8 +2687,8 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2746,8 +2747,8 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2799,8 +2800,8 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2852,8 +2853,8 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2910,8 +2911,8 @@ def test_event_reminder_not_sent_for_invisible_attendee(
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2959,8 +2960,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=1.5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
             )
         )
         event_a_ids.append(res.event_id)
@@ -2974,8 +2975,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=2.5 + i)),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
                 )
             )
             event_a_ids.append(res.event_id)
@@ -2993,8 +2994,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=10)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=10.5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10.5)),
             )
         )
         event_b_ids.append(res.event_id)
@@ -3007,8 +3008,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=11)),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(start + timedelta(hours=11.5)),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11.5)),
             )
         )
         event_b_ids.append(res.event_id)
@@ -3051,8 +3052,8 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -3108,8 +3109,8 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id

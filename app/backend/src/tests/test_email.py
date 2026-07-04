@@ -32,7 +32,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import datetime_to_iso8601_utc_local, now
+from couchers.utils import datetime_to_iso8601_local, now
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
@@ -516,8 +516,8 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id

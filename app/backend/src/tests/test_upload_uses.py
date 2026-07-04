@@ -9,7 +9,7 @@ from couchers.db import session_scope
 from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upload_uses_for_keys
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import events_pb2, pages_pb2
-from couchers.utils import datetime_to_iso8601_utc_local, now
+from couchers.utils import datetime_to_iso8601_local, now
 from tests.conftest import testconfig  # noqa
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import events_session, pages_session
@@ -79,8 +79,8 @@ def test_get_upload_uses_event(db):
                 content="content",
                 photo_key="event_key",
                 location=events_pb2.EventLocation(address="Null Island", lat=0.1, lng=0.2),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
     event_id = res.event_id

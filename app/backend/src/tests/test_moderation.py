@@ -31,7 +31,7 @@ from couchers.models import (
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_utc_local, now, today
+from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -2769,8 +2769,8 @@ def test_event_moderation_state_content(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2902,8 +2902,8 @@ def test_SetUserContentVisibility_event_occurrence(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         ).event_id
 

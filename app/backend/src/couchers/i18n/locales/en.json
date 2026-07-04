@@ -112,6 +112,7 @@
     "invalid_delivery_method": "Invalid delivery method.",
     "invalid_email": "Invalid email.",
     "invalid_endpoint": "Invalid push notification endpoint.",
+    "invalid_event_start_end_datetime": "Invalid event start or end date and time.",
     "invalid_guide_location": "You need to either supply an address and location or neither for a guide.",
     "invalid_host_request_status": "You can't set the host request status to that.",
     "invalid_public_trip_status": "You can't set the public trip status to that.",

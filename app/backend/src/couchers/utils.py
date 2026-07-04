@@ -136,14 +136,12 @@ def is_utc_or_gmt(timezone: str) -> bool:
     return timezone in ("Etc/UTC", "UTC", "Etc/GMT", "GMT")
 
 
-def datetime_to_iso8601_utc_local(value: datetime) -> str:
+def datetime_to_iso8601_local(value: datetime) -> str:
     """
-    Gets a local ISO 8601 representation of a datetime in UTC, without timezone information.
-    This loses information and requires parsers to assume UTC, so use with care.
+    Gets a local ISO 8601 representation of a datetime, without timezone information.
+    This loses information and requires parsers to assume a timezone, so use with care.
     """
-    if value.tzinfo is None:
-        raise ValueError("Cannot convert a naive datetime to a timezone.")
-    return value.astimezone(UTC).replace(tzinfo=None).isoformat()
+    return value.replace(tzinfo=None).isoformat()
 
 
 def now() -> datetime:

@@ -176,8 +176,8 @@ message ScheduleEventReq {
   string photo_key = 3;
   reserved 4; // Formerly online_information.
   EventLocation location = 5;
-  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS) without timezone specifier.
-  // The timezone is determined from the location of the event.
+  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS, no timezone specifier),
+  // local to the timezone at the event location.
   string start_datetime_iso8601_local = 11;
   string end_datetime_iso8601_local = 12;
   reserved 8, 9; // Formerly start_time, end_time. Problematic when the frontend doesn't know the timezone.
@@ -194,8 +194,8 @@ message UpdateEventReq {
   google.protobuf.StringValue photo_key = 5;
   reserved 6; // Formerly online_information.
   EventLocation location = 7;
-  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS) without timezone specifier.
-  // The timezone is determined from the location of the event.
+  // Start/end datetimes in ISO8601 format (YYYY-MM-DDTHH:MM:SS, no timezone specifier),
+  // local to the timezone at the event location.
   google.protobuf.StringValue start_datetime_iso8601_local = 13;
   google.protobuf.StringValue end_datetime_iso8601_local = 14;
   reserved 9, 10; // Formerly start_time, end_time. Problematic when the frontend doesn't know the timezone.
