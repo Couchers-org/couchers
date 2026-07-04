@@ -125,6 +125,7 @@ describe("Event time changer", () => {
 
   it("should show proper error if startDate is today but startTime is in the past", async () => {
     jest.setSystemTime(new Date("2021-08-01 23:00"));
+    expect(Temporal.Now.plainDateISO().toString() == "2021-08-01");
 
     render(<TestForm />, { wrapper });
 

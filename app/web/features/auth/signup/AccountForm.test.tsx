@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
@@ -149,7 +150,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,
@@ -190,7 +191,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,

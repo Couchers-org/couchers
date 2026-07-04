@@ -134,7 +134,6 @@ export default function EventTimeChanger({
               }
 
               const startDate = getValues("startDate");
-
               if (!startDate) {
                 return t("communities:date_required");
               }
@@ -145,9 +144,9 @@ export default function EventTimeChanger({
 
               const startDateTime = startDate.toPlainDateTime(startTime);
               return (
-                Temporal.PlainDate.compare(
+                Temporal.PlainDateTime.compare(
                   startDateTime,
-                  Temporal.Now.plainDateISO(),
+                  Temporal.Now.plainDateTimeISO(),
                 ) >= 0 || t("communities:past_time_error")
               );
             },
@@ -176,7 +175,10 @@ export default function EventTimeChanger({
               }
 
               const startDate = getValues("startDate");
-              if (Temporal.PlainDate.compare(endDate, startDate) < 0) {
+              if (
+                startDate &&
+                Temporal.PlainDate.compare(endDate, startDate) < 0
+              ) {
                 return t("communities:end_date_error");
               }
 
@@ -222,14 +224,16 @@ export default function EventTimeChanger({
 
               const startDateTime = startDate.toPlainDateTime(startTime);
               const endDateTime = endDate.toPlainDateTime(endTime);
-              if (Temporal.PlainDate.compare(endDateTime, startDateTime) < 0) {
+              if (
+                Temporal.PlainDateTime.compare(endDateTime, startDateTime) <= 0
+              ) {
                 return t("communities:end_time_error");
               }
 
               return (
-                Temporal.PlainDate.compare(
+                Temporal.PlainDateTime.compare(
                   endDateTime,
-                  Temporal.Now.plainDateISO(),
+                  Temporal.Now.plainDateTimeISO(),
                 ) >= 0 || t("communities:past_time_error")
               );
             },

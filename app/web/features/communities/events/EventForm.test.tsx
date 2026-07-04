@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { useMutation } from "@tanstack/react-query";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -272,14 +271,10 @@ describe("Event form", () => {
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startDate).toEqual(
-      Temporal.PlainDate.from("2021-08-01"),
-    );
-    expect(submittedData.startTime).toEqual(Temporal.PlainTime.from("01:00"));
-    expect(submittedData.endDate).toEqual(
-      Temporal.PlainDate.from("2021-08-01"),
-    );
-    expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("02:00"));
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -432,13 +427,9 @@ describe("Event form", () => {
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startDate).toEqual(
-      Temporal.PlainDate.from("2021-08-01"),
-    );
-    expect(submittedData.startTime).toEqual(Temporal.PlainTime.from("01:00"));
-    expect(submittedData.endDate).toEqual(
-      Temporal.PlainDate.from("2021-08-01"),
-    );
-    expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("02:00"));
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 });
