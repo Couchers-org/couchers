@@ -14,6 +14,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { ISO8601_DATE_FORMAT } from "utils/date";
 import dayjs from "utils/dayjs";
 
 import {
@@ -21,7 +22,6 @@ import {
   useCreatePublicTrip,
   useUpdatePublicTrip,
 } from "./useListPublicTrips";
-import { ISO8601_DATE_FORMAT } from "../../utils/date";
 
 const DATE_FIELD_ID = "public-trip-dates";
 // Must match backend (PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16)

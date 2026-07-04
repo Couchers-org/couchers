@@ -4,9 +4,9 @@ import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import {
+  getMuiTimeFormat,
   ISO8601_DATE_FORMAT,
   ISO8601_HOUR_MIN_FORMAT,
-  getMuiTimeFormat,
 } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 

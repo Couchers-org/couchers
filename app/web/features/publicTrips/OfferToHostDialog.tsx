@@ -73,7 +73,6 @@ export default function OfferToHostDialog({
   const queryClient = useQueryClient();
 
   const tripFrom = dayjs(tripFromDate);
-  const tripTo = dayjs(tripToDate);
   const today = dayjs().startOf("day");
   // The host can offer within the trip's window (shorten, not extend), and
   // never in the past. The backend enforces these too.

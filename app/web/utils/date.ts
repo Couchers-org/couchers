@@ -1,9 +1,8 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
-import daysjs, { Dayjs } from "./dayjs";
+import dayjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
-import dayjs from "./dayjs";
 
 export const ISO8601_DATE_FORMAT = "YYYY-MM-DD";
 export const ISO8601_HOUR_MIN_FORMAT = "HH:mm";
@@ -65,7 +64,7 @@ export function localizeDateTime(
   date: Date | Dayjs,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(date)) {
+  if (dayjs.isDayjs(date)) {
     date = date.toDate();
   }
   const format = getIntlDateTimeFormat(args);
@@ -101,10 +100,10 @@ export function localizeDateTimeRange(
   end: Date | Dayjs,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(start)) {
+  if (dayjs.isDayjs(start)) {
     start = start.toDate();
   }
-  if (daysjs.isDayjs(end)) {
+  if (dayjs.isDayjs(end)) {
     end = end.toDate();
   }
   const format = getIntlDateTimeFormat(args);
@@ -171,7 +170,7 @@ export function localizeMonthAbbreviation(
     capitalize?: boolean;
   },
 ): string {
-  if (daysjs.isDayjs(date)) {
+  if (dayjs.isDayjs(date)) {
     date = date.toDate();
   }
   const cacheKey = JSON.stringify(args, (_, v) =>

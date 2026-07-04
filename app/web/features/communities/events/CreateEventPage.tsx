@@ -16,14 +16,13 @@ import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
+import { iso8601ToDayjs } from "utils/date";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
-import { iso8601ToDayjs } from "../../../utils/date";
 
 const StyledBackButton = styled(HeaderButton)(() => ({
   gridArea: "backButton",
