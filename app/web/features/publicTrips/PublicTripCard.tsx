@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import {
   HourglassEmptyOutlined,
   PlaceOutlined,
@@ -224,8 +225,8 @@ export default function PublicTripCard({
           tripId={trip.tripId}
           hostUserId={user.userId}
           hostName={user.name}
-          tripFromDate={trip.fromDate}
-          tripToDate={trip.toDate}
+          tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
+          tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />
       )}
       {ownerView && (

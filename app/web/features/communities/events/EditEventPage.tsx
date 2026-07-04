@@ -74,7 +74,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
             ? data.startDate.toPlainDateTime(data.startTime)
             : undefined,
         endTime:
-          data.dirtyFields.endDate || data.dirtyFields.endDate
+          data.dirtyFields.endDate || data.dirtyFields.endTime
             ? data.endDate.toPlainDateTime(data.endTime)
             : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,

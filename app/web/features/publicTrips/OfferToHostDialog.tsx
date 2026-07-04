@@ -107,8 +107,8 @@ export default function OfferToHostDialog({
       service.requests.createHostRequest({
         hostUserId,
         // Both are required by the form, so non-null at submit time.
-        fromDate: fromDate!.toString(),
-        toDate: toDate!.toString(),
+        fromDate: fromDate!,
+        toDate: toDate!,
         text: text.trim(),
         publicTripId: tripId,
         stayType: 0,
