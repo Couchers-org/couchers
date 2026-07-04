@@ -1,4 +1,5 @@
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 import grpc
 import pytest
@@ -2384,6 +2385,64 @@ def test_event_photo_key(db):
         get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert get_res.photo_key == "test_event_photo_key_123"
         assert "test_event_photo_key_123" in get_res.photo_url
+
+
+def test_event_timezone(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    # Midnight future day, UTC timezone
+    start_time = (now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time = start_time + timedelta(days=1)
+
+    with events_session(token) as api:
+        create_res: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                photo_key=None,
+                parent_community_id=c_id,
+                # timezone_areas.sql-fake has a region for Europe/Helsinki
+                location=events_pb2.EventLocation(address="Helsinki", lat=60.192059, lng=24.945831),
+                # Should result in YYYY-MM-DDT00:00 (midnight local time)
+                start_datetime_iso8601_local=datetime_to_iso8601_utc_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_utc_local(end_time),
+            )
+        )
+
+        # Backend should have deduced the helsinki timezone when creating the event,
+        # so the datetime in Helsinki should be at midnight, but it shouldn't in UTC.
+        assert create_res.timezone == "Europe/Helsinki"
+        assert to_aware_datetime(create_res.start_time).hour != 0
+        assert create_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
+
+        # Now update its location such that it gets a new timezone
+        update_res: events_pb2.Event = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=create_res.event_id,
+                # timezone_areas.sql-fake has a region for America/New_York
+                location=events_pb2.EventLocation(address="New York", lat=40.712776, lng=-74.005974),
+            )
+        )
+
+        # The time of the event should not have changed, so it's still at midnight in Helsinki, not in New York.
+        assert update_res.timezone == "America/New_York"
+        assert update_res.start_time == create_res.start_time
+        assert to_aware_datetime(update_res.start_time).hour != 0
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour != 0
+
+        # Also validate GetEvent
+        get_res: events_pb2.Event = api.GetEvent(
+            events_pb2.GetEventReq(
+                event_id=create_res.event_id,
+            )
+        )
+
+        assert get_res.timezone == update_res.timezone
+        assert get_res.start_time == update_res.start_time
 
 
 def test_event_created_with_shadowed_visibility(db):
