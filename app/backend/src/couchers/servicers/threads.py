@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
 from couchers.db import session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
@@ -46,6 +47,18 @@ def pack_thread_id(database_id: int, depth: int) -> int:
 def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     """Returns (database_id, depth) tuple."""
     return divmod(thread_id, 10)
+
+
+def _is_event_thread(session: Session, database_id: int, depth: int) -> bool:
+    """Returns whether the given (database_id, depth) thread location belongs to an Event's thread."""
+    thread_db_id = (
+        database_id
+        if depth == 0
+        else session.execute(select(Comment.thread_id).where(Comment.id == database_id)).scalar_one_or_none()
+    )
+    if thread_db_id is None:
+        return False
+    return bool(session.execute(select(exists().where(Event.thread_id == thread_db_id))).scalar())
 
 
 def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
@@ -384,6 +397,13 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth not in (0, 1):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+
+        if _is_event_thread(session, database_id, depth):
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            if not has_completed_profile(session, user):
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_comment_on_event"
+                )
 
         object_to_add: Comment | Reply | None = None
 

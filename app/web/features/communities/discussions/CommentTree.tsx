@@ -2,6 +2,7 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { ProfileIncompleteAction } from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { theme } from "theme";
@@ -36,11 +37,13 @@ const COMMENT_REFETCH_INTERVAL_MS = 30_000;
 interface CommentTreeProps {
   threadId: number;
   discussionId?: number;
+  attemptedAction?: ProfileIncompleteAction;
 }
 
 export default function CommentTree({
   threadId,
   discussionId,
+  attemptedAction,
 }: CommentTreeProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
@@ -94,7 +97,11 @@ export default function CommentTree({
           </Typography>
         )
       )}
-      <CommentForm shown threadId={threadId} />
+      <CommentForm
+        shown
+        threadId={threadId}
+        attemptedAction={attemptedAction}
+      />
     </>
   );
 }

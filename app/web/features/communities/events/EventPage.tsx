@@ -438,7 +438,10 @@ export default function EventPage({
               <Typography variant="h2">
                 {t("communities:event_discussion")}
               </Typography>
-              <CommentTree threadId={event.thread!.threadId} />
+              <CommentTree
+                threadId={event.thread!.threadId}
+                attemptedAction="comment_on_event"
+              />
             </StyledDiscussionContainer>
           </>
         )

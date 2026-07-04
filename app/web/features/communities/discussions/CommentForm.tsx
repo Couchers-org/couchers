@@ -4,10 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
+import ProfileIncompleteDialog, {
+  ProfileIncompleteAction,
+} from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
@@ -33,6 +37,7 @@ const StyledButtonsContainer = styled("div")(() => ({
 }));
 
 interface CommentFormProps {
+  attemptedAction?: ProfileIncompleteAction;
   hideable?: boolean;
   onClose?(): void;
   shown?: boolean;
@@ -44,10 +49,23 @@ interface CommentData {
 }
 
 function InternalCommentForm(
-  { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
+  {
+    attemptedAction,
+    hideable = false,
+    onClose,
+    shown = false,
+    threadId,
+  }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { data: accountInfo } = useAccountInfo();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  // Opt-in gate: only enforced when a caller passes attemptedAction (currently
+  // only the event comment box). Discussions/groups/pages leave it undefined
+  // and are unaffected.
+  const profileIncomplete =
+    attemptedAction !== undefined && accountInfo?.profileComplete === false;
   const {
     control,
     handleSubmit,
@@ -75,6 +93,11 @@ function InternalCommentForm(
   });
 
   const onSubmit = handleSubmit((data) => {
+    if (profileIncomplete) {
+      setProfileDialogOpen(true);
+      return;
+    }
+
     const trimmedValue = data.content.trim();
     const newData = {
       content: trimmedValue,
@@ -85,6 +108,13 @@ function InternalCommentForm(
 
   return (
     <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
+      {attemptedAction && (
+        <ProfileIncompleteDialog
+          open={profileDialogOpen}
+          onClose={() => setProfileDialogOpen(false)}
+          attempted_action={attemptedAction}
+        />
+      )}
       <StyledForm onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <span style={visuallyHidden} id={`comment-${threadId}-reply-label`}>

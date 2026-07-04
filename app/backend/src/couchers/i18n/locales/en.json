@@ -95,6 +95,7 @@
     "host_request_too_short2_one": "Host request cannot be shorter than {{count}} character.",
     "host_request_too_short2_other": "Host request cannot be shorter than {{count}} characters.",
     "hosting_status_required": "Hosting status is required.",
+    "incomplete_profile_comment_on_event": "You have to complete your profile before you can comment on an event.",
     "incomplete_profile_create_discussion": "You have to complete your profile before you can start a discussion.",
     "incomplete_profile_create_event": "You have to complete your profile before you can create an event.",
     "incomplete_profile_create_public_trip": "You have to complete your profile before you can create a public trip.",
