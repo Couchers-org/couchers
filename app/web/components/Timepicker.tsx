@@ -25,11 +25,12 @@ interface TimepickerProps {
 // Convert between our API's Temporal.PlainTime and MUI's expected Dayjs values.
 // Use the browser timezone in case we compare to now, aka dayjs().
 function temporalToDayjs(value: Temporal.PlainTime): Dayjs {
-  return dayjs(value.toString({ smallestUnit: "minute" }), "HH:mm");
+  const timeString = value.toString({ smallestUnit: "minute" });
+  return dayjs(`1970-01-01T${timeString}`); // We don't care about the date, but dayjs needs one.
 }
 
 function dayjsToTemporal(value: Dayjs): Temporal.PlainTime {
-  return Temporal.PlainTime.from(value.format("YYYY-MM-DD"));
+  return Temporal.PlainTime.from(value.format("HH:mm"));
 }
 
 const Timepicker = ({
