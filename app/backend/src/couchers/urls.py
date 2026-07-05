@@ -160,3 +160,7 @@ def invite_code_link(*, code: str) -> str:
 
 def postal_verification_link(*, code: str) -> str:
     return f"{config.BASE_URL}/verify-postal?c={code}"
+
+
+def terms_of_service_url() -> str:
+    return f"{config.BASE_URL}/terms"

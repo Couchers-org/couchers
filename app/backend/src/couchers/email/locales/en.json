@@ -71,7 +71,7 @@
     "header": "You recently requested an API key for Couchers.org. We've issued you with the following API key:",
     "expiry": "The key expires on <b>{{ datetime }}</b>.",
     "usage_warning": "This API key is unique to your account; do not share it with anyone. It gives complete access to your account, and you are reponsible for any actions taken using this API key.",
-    "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
+    "policy_warning": "Please remember to abide by our <a href=\"{{terms_url}}\">Terms of Service</a>, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
   },
   "badges": {
     "added": {
