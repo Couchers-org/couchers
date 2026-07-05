@@ -50,7 +50,7 @@
     "geojson": "^0.5.0",
     "google-protobuf": "^3.21.4",
     "grpc-web": "2.0.2",
-    "i18next": "^25.8.18",
+    "i18next": "^26.3.4",
     "intersection-observer": "^0.12.2",
     "lottie-react": "^2.4.1",
     "luhn": "^2.4.1",
