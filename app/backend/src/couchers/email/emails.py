@@ -204,7 +204,7 @@ class APIKeyIssuedEmail(EmailBase):
         builder.quote(self.api_key, markdown=False)
         builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para(".usage_warning")
-        builder.para(".policy_warning", { "terms_url": urls.terms_of_service_url() })
+        builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
         return builder.build()
 
     @classmethod
