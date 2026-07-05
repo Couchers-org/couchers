@@ -70,7 +70,7 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone US/Eastern", async () => {
@@ -85,7 +85,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone UTC", async () => {
@@ -102,7 +102,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Europe/London", async () => {
@@ -119,7 +119,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Brazil/East", async () => {
@@ -136,7 +136,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("selecting today works with timezone Australia/Adelaide", async () => {
@@ -153,7 +153,7 @@ describe("DatePicker", () => {
 
     await user.click(submitButton);
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-20"));
+    expect(date!.toString()).toBe("2021-03-20");
   });
 
   it("typing should work in de's DD.MM.YYYY format", async () => {
@@ -173,7 +173,7 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
+    expect(date!.toString()).toBe("2021-03-21");
   });
 
   it("typing should work in en's MM/DD/YYYY format", async () => {
@@ -193,7 +193,7 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
+    expect(date!.toString()).toBe("2021-03-21");
   });
 
   it("typing should work in zh-Hant's YYYY/MM/DD format", async () => {
@@ -213,7 +213,7 @@ describe("DatePicker", () => {
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(date).toEqual(Temporal.PlainDate.from("2021-03-21"));
+    expect(date!.toString()).toBe("2021-03-21");
   });
 
   it("uses the locale date format when no format prop is given", async () => {
