@@ -43,7 +43,7 @@ def try_localize_language_name_from_iso639(code: str, locale: babel.Locale, stan
             # It is a no-op for scripts that don't have capital letters.
             name = name[:1].title() + name[1:]
         return name
-    except (ValueError, babel.UnknownLocaleError):
+    except ValueError, babel.UnknownLocaleError:
         return None
 
 
