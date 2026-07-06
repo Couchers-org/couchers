@@ -1,1210 +1,1206 @@
 [
   {
-    "code": "_tw",
-    "name": "Taiwanese"
-  },
-  {
-    "code": "aao",
+    "alpha3": "aao",
     "name": "Arabic (Algerian)"
   },
   {
-    "code": "aar",
+    "alpha3": "aar",
     "name": "Afar"
   },
   {
-    "code": "abk",
+    "alpha3": "abk",
     "name": "Abkhazian"
   },
   {
-    "code": "ace",
+    "alpha3": "ace",
     "name": "Achinese"
   },
   {
-    "code": "ach",
+    "alpha3": "ach",
     "name": "Acoli"
   },
   {
-    "code": "acm",
+    "alpha3": "acm",
     "name": "Arabic (Mesopotamian)"
   },
   {
-    "code": "acq",
+    "alpha3": "acq",
     "name": "Arabic (Ta'izzi-Adeni)"
   },
   {
-    "code": "acw",
+    "alpha3": "acw",
     "name": "Arabic (Hejazi)"
   },
   {
-    "code": "ada",
+    "alpha3": "ada",
     "name": "Adangme"
   },
   {
-    "code": "ady",
+    "alpha3": "ady",
     "name": "Adyghe"
   },
   {
-    "code": "aeb",
+    "alpha3": "aeb",
     "name": "Arabic (Tunisian)"
   },
   {
-    "code": "aec",
+    "alpha3": "aec",
     "name": "Arabic (Sa'idi)"
   },
   {
-    "code": "afr",
+    "alpha3": "afr",
     "name": "Afrikaans"
   },
   {
-    "code": "aka",
+    "alpha3": "aka",
     "name": "Akan"
   },
   {
-    "code": "amh",
+    "alpha3": "amh",
     "name": "Amharic"
   },
   {
-    "code": "anp",
+    "alpha3": "anp",
     "name": "Angika"
   },
   {
-    "code": "apc",
+    "alpha3": "apc",
     "name": "Arabic (Levantine North)"
   },
   {
-    "code": "apd",
+    "alpha3": "apd",
     "name": "Arabic (Sudanese)"
   },
   {
-    "code": "arb",
+    "alpha3": "arb",
     "name": "Arabic (Standard)"
   },
   {
-    "code": "ary",
+    "alpha3": "ary",
     "name": "Arabic (Moroccan)"
   },
   {
-    "code": "arz",
+    "alpha3": "arz",
     "name": "Arabic (Egyptian)"
   },
   {
-    "code": "ase",
+    "alpha3": "ase",
     "name": "Sign Language: American"
   },
   {
-    "code": "asf",
+    "alpha3": "asf",
     "name": "Sign Language: Auslan"
   },
   {
-    "code": "asm",
+    "alpha3": "asm",
     "name": "Assamese"
   },
   {
-    "code": "ava",
+    "alpha3": "ava",
     "name": "Avaric"
   },
   {
-    "code": "awa",
+    "alpha3": "awa",
     "name": "Awadhi"
   },
   {
-    "code": "aym",
+    "alpha3": "aym",
     "name": "Aymara"
   },
   {
-    "code": "ayn",
+    "alpha3": "ayn",
     "name": "Arabic (San'ani)"
   },
   {
-    "code": "aze",
+    "alpha3": "aze",
     "name": "Azerbaijani"
   },
   {
-    "code": "bak",
+    "alpha3": "bak",
     "name": "Bashkir"
   },
   {
-    "code": "bal",
+    "alpha3": "bal",
     "name": "Baluchi"
   },
   {
-    "code": "bam",
+    "alpha3": "bam",
     "name": "Bambara"
   },
   {
-    "code": "ban",
+    "alpha3": "ban",
     "name": "Balinese"
   },
   {
-    "code": "bar",
+    "alpha3": "bar",
     "name": "Bavarian"
   },
   {
-    "code": "bej",
+    "alpha3": "bej",
     "name": "Beja"
   },
   {
-    "code": "bel",
+    "alpha3": "bel",
     "name": "Belarusian"
   },
   {
-    "code": "bem",
+    "alpha3": "bem",
     "name": "Bemba"
   },
   {
-    "code": "ben",
+    "alpha3": "ben",
     "name": "Bengali"
   },
   {
-    "code": "bfi",
+    "alpha3": "bfi",
     "name": "Sign Language: British"
   },
   {
-    "code": "bgc",
+    "alpha3": "bgc",
     "name": "Haryanvi"
   },
   {
-    "code": "bho",
+    "alpha3": "bho",
     "name": "Bhojpuri"
   },
   {
-    "code": "bik",
+    "alpha3": "bik",
     "name": "Bikol"
   },
   {
-    "code": "bin",
+    "alpha3": "bin",
     "name": "Edo"
   },
   {
-    "code": "bod",
+    "alpha3": "bod",
     "name": "Tibetan"
   },
   {
-    "code": "bos",
+    "alpha3": "bos",
     "name": "Bosnian"
   },
   {
-    "code": "bra",
+    "alpha3": "bra",
     "name": "Braj"
   },
   {
-    "code": "bre",
+    "alpha3": "bre",
     "name": "Breton"
   },
   {
-    "code": "bug",
+    "alpha3": "bug",
     "name": "Buginese"
   },
   {
-    "code": "bul",
+    "alpha3": "bul",
     "name": "Bulgarian"
   },
   {
-    "code": "bzs",
+    "alpha3": "bzs",
     "name": "Sign Language: Brazilian"
   },
   {
-    "code": "cat",
+    "alpha3": "cat",
     "name": "Catalan"
   },
   {
-    "code": "cdo",
+    "alpha3": "cdo",
     "name": "Chinese (Eastern Min)"
   },
   {
-    "code": "ceb",
+    "alpha3": "ceb",
     "name": "Cebuano"
   },
   {
-    "code": "ces",
+    "alpha3": "ces",
     "name": "Czech"
   },
   {
-    "code": "che",
+    "alpha3": "che",
     "name": "Chechen"
   },
   {
-    "code": "chm",
+    "alpha3": "chm",
     "name": "Mari"
   },
   {
-    "code": "chv",
+    "alpha3": "chv",
     "name": "Chuvash"
   },
   {
-    "code": "cjy",
+    "alpha3": "cjy",
     "name": "Chinese (Jin)"
   },
   {
-    "code": "cmn",
+    "alpha3": "cmn",
     "name": "Chinese (Mandarin)"
   },
   {
-    "code": "cor",
+    "alpha3": "cor",
     "name": "Cornish"
   },
   {
-    "code": "crh",
+    "alpha3": "crh",
     "name": "Crimean Tatar"
   },
   {
-    "code": "ctg",
+    "alpha3": "ctg",
     "name": "Chittagonian"
   },
   {
-    "code": "cym",
+    "alpha3": "cym",
     "name": "Welsh"
   },
   {
-    "code": "dan",
+    "alpha3": "dan",
     "name": "Danish"
   },
   {
-    "code": "deu",
+    "alpha3": "deu",
     "name": "German"
   },
   {
-    "code": "dgr",
+    "alpha3": "dgr",
     "name": "Dogrib"
   },
   {
-    "code": "din",
+    "alpha3": "din",
     "name": "Dinka"
   },
   {
-    "code": "doi",
+    "alpha3": "doi",
     "name": "Dogri"
   },
   {
-    "code": "dsb",
+    "alpha3": "dsb",
     "name": "Lower Sorbian"
   },
   {
-    "code": "dse",
+    "alpha3": "dse",
     "name": "Sign Language: Dutch"
   },
   {
-    "code": "dyu",
+    "alpha3": "dyu",
     "name": "Dyula"
   },
   {
-    "code": "ell",
+    "alpha3": "ell",
     "name": "Greek"
   },
   {
-    "code": "eng",
+    "alpha3": "eng",
     "name": "English"
   },
   {
-    "code": "epo",
+    "alpha3": "epo",
     "name": "Esperanto"
   },
   {
-    "code": "esl",
+    "alpha3": "esl",
     "name": "Sign Language: Egyptian"
   },
   {
-    "code": "est",
+    "alpha3": "est",
     "name": "Estonian"
   },
   {
-    "code": "eus",
+    "alpha3": "eus",
     "name": "Basque"
   },
   {
-    "code": "ewe",
+    "alpha3": "ewe",
     "name": "Ewe"
   },
   {
-    "code": "ewo",
+    "alpha3": "ewo",
     "name": "Ewondo"
   },
   {
-    "code": "fan",
+    "alpha3": "fan",
     "name": "Fang"
   },
   {
-    "code": "fas",
+    "alpha3": "fas",
     "name": "Persian"
   },
   {
-    "code": "fat",
+    "alpha3": "fat",
     "name": "Fanti"
   },
   {
-    "code": "fil",
+    "alpha3": "fil",
     "name": "Filipino"
   },
   {
-    "code": "fin",
+    "alpha3": "fin",
     "name": "Finnish"
   },
   {
-    "code": "fon",
+    "alpha3": "fon",
     "name": "Fon"
   },
   {
-    "code": "fra",
+    "alpha3": "fra",
     "name": "French"
   },
   {
-    "code": "fry",
+    "alpha3": "fry",
     "name": "Frisian"
   },
   {
-    "code": "fsl",
+    "alpha3": "fsl",
     "name": "Sign Language: French"
   },
   {
-    "code": "ful",
+    "alpha3": "ful",
     "name": "Fulah"
   },
   {
-    "code": "gaa",
+    "alpha3": "gaa",
     "name": "Ga"
   },
   {
-    "code": "gan",
+    "alpha3": "gan",
     "name": "Chinese (Gan)"
   },
   {
-    "code": "gba",
+    "alpha3": "gba",
     "name": "Gbaya"
   },
   {
-    "code": "gla",
+    "alpha3": "gla",
     "name": "Scottish Gaelic"
   },
   {
-    "code": "gle",
+    "alpha3": "gle",
     "name": "Irish"
   },
   {
-    "code": "glg",
+    "alpha3": "glg",
     "name": "Galician"
   },
   {
-    "code": "glv",
+    "alpha3": "glv",
     "name": "Manx"
   },
   {
-    "code": "gon",
+    "alpha3": "gon",
     "name": "Gondi"
   },
   {
-    "code": "gor",
+    "alpha3": "gor",
     "name": "Gorontalo"
   },
   {
-    "code": "grn",
+    "alpha3": "grn",
     "name": "Guarani"
   },
   {
-    "code": "gsg",
+    "alpha3": "gsg",
     "name": "Sign Language: German"
   },
   {
-    "code": "gsw",
+    "alpha3": "gsw",
     "name": "Alemannic"
   },
   {
-    "code": "guj",
+    "alpha3": "guj",
     "name": "Gujarati"
   },
   {
-    "code": "hak",
+    "alpha3": "hak",
     "name": "Chinese (Hakka)"
   },
   {
-    "code": "hat",
+    "alpha3": "hat",
     "name": "Haitian"
   },
   {
-    "code": "hau",
+    "alpha3": "hau",
     "name": "Hausa"
   },
   {
-    "code": "heb",
+    "alpha3": "heb",
     "name": "Hebrew"
   },
   {
-    "code": "hil",
+    "alpha3": "hil",
     "name": "Hiligaynon"
   },
   {
-    "code": "hin",
+    "alpha3": "hin",
     "name": "Hindi"
   },
   {
-    "code": "hks",
+    "alpha3": "hks",
     "name": "Sign Language: Hong Kong"
   },
   {
-    "code": "hmn",
+    "alpha3": "hmn",
     "name": "Hmong"
   },
   {
-    "code": "hne",
+    "alpha3": "hne",
     "name": "Chhattisgarhi"
   },
   {
-    "code": "hrv",
+    "alpha3": "hrv",
     "name": "Croatian"
   },
   {
-    "code": "hsn",
+    "alpha3": "hsn",
     "name": "Chinese (Xiang)"
   },
   {
-    "code": "hun",
+    "alpha3": "hun",
     "name": "Hungarian"
   },
   {
-    "code": "hye",
+    "alpha3": "hye",
     "name": "Armenian"
   },
   {
-    "code": "iba",
+    "alpha3": "iba",
     "name": "Iban"
   },
   {
-    "code": "ibo",
+    "alpha3": "ibo",
     "name": "Igbo"
   },
   {
-    "code": "iii",
+    "alpha3": "iii",
     "name": "Nuosu"
   },
   {
-    "code": "ilo",
+    "alpha3": "ilo",
     "name": "Iloko"
   },
   {
-    "code": "ind",
+    "alpha3": "ind",
     "name": "Indonesian"
   },
   {
-    "code": "inh",
+    "alpha3": "inh",
     "name": "Ingush"
   },
   {
-    "code": "inl",
+    "alpha3": "inl",
     "name": "Sign Language: Indonesian"
   },
   {
-    "code": "ins",
+    "alpha3": "ins",
     "name": "Sign Language: Indo-Pakistani"
   },
   {
-    "code": "ise",
+    "alpha3": "ise",
     "name": "Sign Language: Italian"
   },
   {
-    "code": "isl",
+    "alpha3": "isl",
     "name": "Icelandic"
   },
   {
-    "code": "ita",
+    "alpha3": "ita",
     "name": "Italian"
   },
   {
-    "code": "jav",
+    "alpha3": "jav",
     "name": "Javanese"
   },
   {
-    "code": "jpn",
+    "alpha3": "jpn",
     "name": "Japanese"
   },
   {
-    "code": "jsl",
+    "alpha3": "jsl",
     "name": "Sign Language: Japanese"
   },
   {
-    "code": "kaa",
+    "alpha3": "kaa",
     "name": "Kara-Kalpak"
   },
   {
-    "code": "kab",
+    "alpha3": "kab",
     "name": "Kabyle"
   },
   {
-    "code": "kac",
+    "alpha3": "kac",
     "name": "Jingpho"
   },
   {
-    "code": "kam",
+    "alpha3": "kam",
     "name": "Kamba"
   },
   {
-    "code": "kan",
+    "alpha3": "kan",
     "name": "Kannada"
   },
   {
-    "code": "kas",
+    "alpha3": "kas",
     "name": "Kashmiri"
   },
   {
-    "code": "kat",
+    "alpha3": "kat",
     "name": "Georgian"
   },
   {
-    "code": "kau",
+    "alpha3": "kau",
     "name": "Kanuri"
   },
   {
-    "code": "kaz",
+    "alpha3": "kaz",
     "name": "Kazakh"
   },
   {
-    "code": "kbd",
+    "alpha3": "kbd",
     "name": "Kabardian"
   },
   {
-    "code": "kha",
+    "alpha3": "kha",
     "name": "Khasi"
   },
   {
-    "code": "khm",
+    "alpha3": "khm",
     "name": "Central Khmer"
   },
   {
-    "code": "kik",
+    "alpha3": "kik",
     "name": "Kikuyu"
   },
   {
-    "code": "kin",
+    "alpha3": "kin",
     "name": "Kinyarwanda"
   },
   {
-    "code": "kir",
+    "alpha3": "kir",
     "name": "Kyrgyz"
   },
   {
-    "code": "kmb",
+    "alpha3": "kmb",
     "name": "Kimbundu"
   },
   {
-    "code": "kok",
+    "alpha3": "kok",
     "name": "Konkani"
   },
   {
-    "code": "kom",
+    "alpha3": "kom",
     "name": "Komi"
   },
   {
-    "code": "kon",
+    "alpha3": "kon",
     "name": "Kongo"
   },
   {
-    "code": "kor",
+    "alpha3": "kor",
     "name": "Korean"
   },
   {
-    "code": "kpe",
+    "alpha3": "kpe",
     "name": "Kpelle"
   },
   {
-    "code": "kri",
+    "alpha3": "kri",
     "name": "Krio"
   },
   {
-    "code": "kru",
+    "alpha3": "kru",
     "name": "Kurukh"
   },
   {
-    "code": "kur",
+    "alpha3": "kur",
     "name": "Kurdish"
   },
   {
-    "code": "lah",
+    "alpha3": "lah",
     "name": "Lahnda"
   },
   {
-    "code": "lao",
+    "alpha3": "lao",
     "name": "Lao"
   },
   {
-    "code": "lat",
+    "alpha3": "lat",
     "name": "Latin"
   },
   {
-    "code": "lav",
+    "alpha3": "lav",
     "name": "Latvian"
   },
   {
-    "code": "lez",
+    "alpha3": "lez",
     "name": "Lezghian"
   },
   {
-    "code": "lim",
+    "alpha3": "lim",
     "name": "Limburgish"
   },
   {
-    "code": "lin",
+    "alpha3": "lin",
     "name": "Lingala"
   },
   {
-    "code": "lit",
+    "alpha3": "lit",
     "name": "Lithuanian"
   },
   {
-    "code": "lmo",
+    "alpha3": "lmo",
     "name": "Lombard"
   },
   {
-    "code": "loz",
+    "alpha3": "loz",
     "name": "Lozi"
   },
   {
-    "code": "ltz",
+    "alpha3": "ltz",
     "name": "Luxembourgish"
   },
   {
-    "code": "lua",
+    "alpha3": "lua",
     "name": "Luba-Lulua"
   },
   {
-    "code": "lub",
+    "alpha3": "lub",
     "name": "Luba-Katanga"
   },
   {
-    "code": "lug",
+    "alpha3": "lug",
     "name": "Ganda"
   },
   {
-    "code": "luo",
+    "alpha3": "luo",
     "name": "Luo"
   },
   {
-    "code": "lus",
+    "alpha3": "lus",
     "name": "Lushai"
   },
   {
-    "code": "mad",
+    "alpha3": "mad",
     "name": "Madurese"
   },
   {
-    "code": "mag",
+    "alpha3": "mag",
     "name": "Magahi"
   },
   {
-    "code": "mai",
+    "alpha3": "mai",
     "name": "Maithili"
   },
   {
-    "code": "mak",
+    "alpha3": "mak",
     "name": "Makasar"
   },
   {
-    "code": "mal",
+    "alpha3": "mal",
     "name": "Malayalam"
   },
   {
-    "code": "man",
+    "alpha3": "man",
     "name": "Mandingo"
   },
   {
-    "code": "mar",
+    "alpha3": "mar",
     "name": "Marathi"
   },
   {
-    "code": "mas",
+    "alpha3": "mas",
     "name": "Masai"
   },
   {
-    "code": "men",
+    "alpha3": "men",
     "name": "Mende"
   },
   {
-    "code": "mfs",
+    "alpha3": "mfs",
     "name": "Sign Language: Mexican"
   },
   {
-    "code": "min",
+    "alpha3": "min",
     "name": "Minangkabau"
   },
   {
-    "code": "mkd",
+    "alpha3": "mkd",
     "name": "Macedonian"
   },
   {
-    "code": "mlg",
+    "alpha3": "mlg",
     "name": "Malagasy"
   },
   {
-    "code": "mlt",
+    "alpha3": "mlt",
     "name": "Maltese"
   },
   {
-    "code": "mni",
+    "alpha3": "mni",
     "name": "Manipuri"
   },
   {
-    "code": "mnp",
+    "alpha3": "mnp",
     "name": "Chinese (Northern Min)"
   },
   {
-    "code": "mon",
+    "alpha3": "mon",
     "name": "Mongolian"
   },
   {
-    "code": "mos",
+    "alpha3": "mos",
     "name": "Mossi"
   },
   {
-    "code": "mri",
+    "alpha3": "mri",
     "name": "Māori"
   },
   {
-    "code": "msa",
+    "alpha3": "msa",
     "name": "Malay"
   },
   {
-    "code": "mwr",
+    "alpha3": "mwr",
     "name": "Marwari"
   },
   {
-    "code": "mya",
+    "alpha3": "mya",
     "name": "Burmese"
   },
   {
-    "code": "nan",
+    "alpha3": "nan",
     "name": "Chinese (Southern Min)"
   },
   {
-    "code": "nap",
+    "alpha3": "nap",
     "name": "Neapolitan"
   },
   {
-    "code": "nbl",
+    "alpha3": "nbl",
     "name": "Ndebele (South)"
   },
   {
-    "code": "nde",
+    "alpha3": "nde",
     "name": "Ndebele (North)"
   },
   {
-    "code": "ndo",
+    "alpha3": "ndo",
     "name": "Ndonga"
   },
   {
-    "code": "nds",
+    "alpha3": "nds",
     "name": "German (Low)"
   },
   {
-    "code": "nep",
+    "alpha3": "nep",
     "name": "Nepali"
   },
   {
-    "code": "new",
+    "alpha3": "new",
     "name": "Newari"
   },
   {
-    "code": "nia",
+    "alpha3": "nia",
     "name": "Nias"
   },
   {
-    "code": "nld",
+    "alpha3": "nld",
     "name": "Dutch"
   },
   {
-    "code": "nor",
+    "alpha3": "nor",
     "name": "Norwegian"
   },
   {
-    "code": "nso",
+    "alpha3": "nso",
     "name": "Sotho (Northern)"
   },
   {
-    "code": "nya",
+    "alpha3": "nya",
     "name": "Chewa"
   },
   {
-    "code": "nym",
+    "alpha3": "nym",
     "name": "Nyamwezi"
   },
   {
-    "code": "nyn",
+    "alpha3": "nyn",
     "name": "Nyankole"
   },
   {
-    "code": "nyo",
+    "alpha3": "nyo",
     "name": "Nyoro"
   },
   {
-    "code": "ori",
+    "alpha3": "ori",
     "name": "Oriya"
   },
   {
-    "code": "orm",
+    "alpha3": "orm",
     "name": "Oromo"
   },
   {
-    "code": "oss",
+    "alpha3": "oss",
     "name": "Ossetian"
   },
   {
-    "code": "pag",
+    "alpha3": "pag",
     "name": "Pangasinan"
   },
   {
-    "code": "pam",
+    "alpha3": "pam",
     "name": "Kapampangan"
   },
   {
-    "code": "pan",
+    "alpha3": "pan",
     "name": "Punjabi"
   },
   {
-    "code": "pms",
+    "alpha3": "pms",
     "name": "Piedmontese"
   },
   {
-    "code": "pol",
+    "alpha3": "pol",
     "name": "Polish"
   },
   {
-    "code": "por",
+    "alpha3": "por",
     "name": "Portuguese"
   },
   {
-    "code": "psc",
+    "alpha3": "psc",
     "name": "Sign Language: Persian"
   },
   {
-    "code": "pso",
+    "alpha3": "pso",
     "name": "Sign Language: Polish"
   },
   {
-    "code": "pus",
+    "alpha3": "pus",
     "name": "Pashto"
   },
   {
-    "code": "que",
+    "alpha3": "que",
     "name": "Quechua"
   },
   {
-    "code": "raj",
+    "alpha3": "raj",
     "name": "Rajasthani"
   },
   {
-    "code": "rom",
+    "alpha3": "rom",
     "name": "Romany"
   },
   {
-    "code": "ron",
+    "alpha3": "ron",
     "name": "Romanian"
   },
   {
-    "code": "rsl",
+    "alpha3": "rsl",
     "name": "Sign Language: Russian"
   },
   {
-    "code": "run",
+    "alpha3": "run",
     "name": "Rundi"
   },
   {
-    "code": "rus",
+    "alpha3": "rus",
     "name": "Russian"
   },
   {
-    "code": "san",
+    "alpha3": "san",
     "name": "Sanskrit"
   },
   {
-    "code": "sas",
+    "alpha3": "sas",
     "name": "Sasak"
   },
   {
-    "code": "sat",
+    "alpha3": "sat",
     "name": "Santali"
   },
   {
-    "code": "scn",
+    "alpha3": "scn",
     "name": "Sicilian"
   },
   {
-    "code": "shn",
+    "alpha3": "shn",
     "name": "Shan"
   },
   {
-    "code": "sid",
+    "alpha3": "sid",
     "name": "Sidamo"
   },
   {
-    "code": "sin",
+    "alpha3": "sin",
     "name": "Sinhala"
   },
   {
-    "code": "slk",
+    "alpha3": "slk",
     "name": "Slovak"
   },
   {
-    "code": "slv",
+    "alpha3": "slv",
     "name": "Slovenian"
   },
   {
-    "code": "smi",
+    "alpha3": "smi",
     "name": "Sámi"
   },
   {
-    "code": "smo",
+    "alpha3": "smo",
     "name": "Samoan"
   },
   {
-    "code": "sna",
+    "alpha3": "sna",
     "name": "Shona"
   },
   {
-    "code": "snd",
+    "alpha3": "snd",
     "name": "Sindhi"
   },
   {
-    "code": "snk",
+    "alpha3": "snk",
     "name": "Soninke"
   },
   {
-    "code": "som",
+    "alpha3": "som",
     "name": "Somali"
   },
   {
-    "code": "sot",
+    "alpha3": "sot",
     "name": "Sotho (Southern)"
   },
   {
-    "code": "spa",
+    "alpha3": "spa",
     "name": "Spanish"
   },
   {
-    "code": "sqi",
+    "alpha3": "sqi",
     "name": "Albanian"
   },
   {
-    "code": "srd",
+    "alpha3": "srd",
     "name": "Sardinian"
   },
   {
-    "code": "srp",
+    "alpha3": "srp",
     "name": "Serbian"
   },
   {
-    "code": "srr",
+    "alpha3": "srr",
     "name": "Serer"
   },
   {
-    "code": "ssp",
+    "alpha3": "ssp",
     "name": "Sign Language: Spanish"
   },
   {
-    "code": "ssw",
+    "alpha3": "ssw",
     "name": "Swati"
   },
   {
-    "code": "suk",
+    "alpha3": "suk",
     "name": "Sukuma"
   },
   {
-    "code": "sun",
+    "alpha3": "sun",
     "name": "Sundanese"
   },
   {
-    "code": "sus",
+    "alpha3": "sus",
     "name": "Susu"
   },
   {
-    "code": "swa",
+    "alpha3": "swa",
     "name": "Swahili"
   },
   {
-    "code": "swe",
+    "alpha3": "swe",
     "name": "Swedish"
   },
   {
-    "code": "syr",
+    "alpha3": "syr",
     "name": "Syriac"
   },
   {
-    "code": "tam",
+    "alpha3": "tam",
     "name": "Tamil"
   },
   {
-    "code": "tat",
+    "alpha3": "tat",
     "name": "Tatar"
   },
   {
-    "code": "tel",
+    "alpha3": "tel",
     "name": "Telugu"
   },
   {
-    "code": "tem",
+    "alpha3": "tem",
     "name": "Timne"
   },
   {
-    "code": "tet",
+    "alpha3": "tet",
     "name": "Tetum"
   },
   {
-    "code": "tgk",
+    "alpha3": "tgk",
     "name": "Tajik"
   },
   {
-    "code": "tgl",
+    "alpha3": "tgl",
     "name": "Tagalog"
   },
   {
-    "code": "tha",
+    "alpha3": "tha",
     "name": "Thai"
   },
   {
-    "code": "tig",
+    "alpha3": "tig",
     "name": "Tigre"
   },
   {
-    "code": "tir",
+    "alpha3": "tir",
     "name": "Tigrinya"
   },
   {
-    "code": "tiv",
+    "alpha3": "tiv",
     "name": "Tiv"
   },
   {
-    "code": "tmh",
+    "alpha3": "tmh",
     "name": "Tamashek"
   },
   {
-    "code": "tok",
+    "alpha3": "tok",
     "name": "Toki Pona"
   },
   {
-    "code": "tpi",
+    "alpha3": "tpi",
     "name": "Tok Pisin"
   },
   {
-    "code": "tsm",
+    "alpha3": "tsm",
     "name": "Sign Language: Turkish"
   },
   {
-    "code": "tsn",
+    "alpha3": "tsn",
     "name": "Tswana"
   },
   {
-    "code": "tso",
+    "alpha3": "tso",
     "name": "Tsonga"
   },
   {
-    "code": "tuk",
+    "alpha3": "tuk",
     "name": "Turkmen"
   },
   {
-    "code": "tum",
+    "alpha3": "tum",
     "name": "Tumbuka"
   },
   {
-    "code": "tur",
+    "alpha3": "tur",
     "name": "Turkish"
   },
   {
-    "code": "twi",
+    "alpha3": "twi",
     "name": "Twi"
   },
   {
-    "code": "ugy",
+    "alpha3": "ugy",
     "name": "Sign Language: Uruguayan"
   },
   {
-    "code": "uig",
+    "alpha3": "uig",
     "name": "Uyghur"
   },
   {
-    "code": "ukr",
+    "alpha3": "ukr",
     "name": "Ukrainian"
   },
   {
-    "code": "umb",
+    "alpha3": "umb",
     "name": "Umbundu"
   },
   {
-    "code": "urd",
+    "alpha3": "urd",
     "name": "Urdu"
   },
   {
-    "code": "uzb",
+    "alpha3": "uzb",
     "name": "Uzbek"
   },
   {
-    "code": "vec",
+    "alpha3": "vec",
     "name": "Venetian"
   },
   {
-    "code": "ven",
+    "alpha3": "ven",
     "name": "Venda"
   },
   {
-    "code": "vie",
+    "alpha3": "vie",
     "name": "Vietnamese"
   },
   {
-    "code": "wal",
+    "alpha3": "wal",
     "name": "Wolaitta; Wolaytta"
   },
   {
-    "code": "war",
+    "alpha3": "war",
     "name": "Waray"
   },
   {
-    "code": "wln",
+    "alpha3": "wln",
     "name": "Walloon"
   },
   {
-    "code": "wol",
+    "alpha3": "wol",
     "name": "Wolof"
   },
   {
-    "code": "wuu",
+    "alpha3": "wuu",
     "name": "Chinese (Wu)"
   },
   {
-    "code": "xho",
+    "alpha3": "xho",
     "name": "Xhosa"
   },
   {
-    "code": "xml",
+    "alpha3": "xml",
     "name": "Sign Language: Malaysian"
   },
   {
-    "code": "yao",
+    "alpha3": "yao",
     "name": "Yao"
   },
   {
-    "code": "yid",
+    "alpha3": "yid",
     "name": "Yiddish"
   },
   {
-    "code": "yor",
+    "alpha3": "yor",
     "name": "Yoruba"
   },
   {
-    "code": "ysl",
+    "alpha3": "ysl",
     "name": "Sign Language: Yugoslav"
   },
   {
-    "code": "yue",
+    "alpha3": "yue",
     "name": "Chinese (Cantonese/Yue)"
   },
   {
-    "code": "zgh",
+    "alpha3": "zgh",
     "name": "Berber"
   },
   {
-    "code": "zha",
+    "alpha3": "zha",
     "name": "Zhuang"
   },
   {
-    "code": "zul",
+    "alpha3": "zul",
     "name": "Zulu"
   },
   {
-    "code": "zza",
+    "alpha3": "zza",
     "name": "Zaza"
   }
 ]
