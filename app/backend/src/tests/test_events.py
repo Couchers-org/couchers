@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, is_utc_or_gmt, now, to_aware_datetime
+from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
@@ -36,6 +36,17 @@ from tests.test_communities import create_community, create_group
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+def to_event_time_granularity(value: datetime) -> datetime:
+    """Events are scheduled at the minute granularity."""
+    return value.replace(second=0, microsecond=0)
+
+
+def is_utc_or_gmt(timezone: str) -> bool:
+    # Our lightweight "timezone_areas.sql-fake" uses Etc/UTC, whereas the real file uses Etc/GMT.
+    # Tests should be agnostic to which one we're using.
+    return timezone in ("Etc/UTC", "Etc/GMT")
 
 
 def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
@@ -88,8 +99,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
@@ -124,8 +135,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -155,8 +166,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -417,8 +428,8 @@ def test_ScheduleEvent(db):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user.id
-        assert to_aware_datetime(res.start_time) == new_start_time
-        assert to_aware_datetime(res.end_time) == new_end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(new_start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(new_end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
@@ -621,8 +632,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
@@ -652,8 +663,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -683,8 +694,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -890,8 +901,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
@@ -921,8 +932,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -952,8 +963,8 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer

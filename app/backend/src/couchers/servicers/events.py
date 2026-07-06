@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Any, cast
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo
 
 import grpc
 from geoalchemy2 import WKBElement
@@ -242,10 +242,7 @@ def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Sess
     if not timezone_id:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_timezone_not_found")
 
-    try:
-        return ZoneInfo(timezone_id)
-    except ZoneInfoNotFoundError:
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_timezone_not_found")
+    return ZoneInfo(timezone_id)
 
 
 def _check_iso8601_local_datetime(value: str, timezone: ZoneInfo, context: CouchersContext) -> datetime:

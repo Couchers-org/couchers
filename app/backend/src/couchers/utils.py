@@ -130,12 +130,6 @@ def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
     return value.astimezone(timezone)
 
 
-def is_utc_or_gmt(timezone: str) -> bool:
-    # There are various interchangeable names for the UTC+0 timezone.
-    # Null island is at Etc/UTC with dummy timezone data used for local testing, but Etc/GMT with real timezone data.
-    return timezone in ("Etc/UTC", "UTC", "Etc/GMT", "GMT")
-
-
 def datetime_to_iso8601_local(value: datetime) -> str:
     """
     Gets a local ISO 8601 representation of a datetime, without timezone information.

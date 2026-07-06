@@ -580,7 +580,7 @@ def test_event_search_pagination(sample_community, create_event):
     """
     user, token = generate_user()
 
-    anchor_time = now()
+    anchor_time = now().replace(second=0, microsecond=0)  # Events are created at minute granularity
     with events_session(token) as api:
         for i in range(5):
             create_event(
