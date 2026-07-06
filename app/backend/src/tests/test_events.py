@@ -243,6 +243,18 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Missing event address or location."
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
                     location=events_pb2.EventLocation(
                         address="Near Null Island",
                     ),
@@ -251,7 +263,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event address or location."
+        assert e.value.details() == "Invalid coordinate."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateEvent(
