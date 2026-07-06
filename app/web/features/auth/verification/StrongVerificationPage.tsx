@@ -96,24 +96,13 @@ export default function StrongVerificationInstructions() {
             }}
           >
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.nfc_check">
-                Your phone must have <strong>NFC capability</strong> — most
-                phones do. Check your phone settings to make sure NFC is turned
-                on.
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.nfc_check" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.passport_check">
-                Your passport must be a <strong>biometric passport</strong> —
-                look for the gold chip symbol on the cover. Older passports
-                without this symbol won't work.
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.passport_check" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.remove_case">
-                <strong>Remove your phone case before starting</strong> — even
-                thin cases can block the NFC signal and cause the scan to fail.
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.before_you_start.remove_case" />
             </li>
           </Box>
         </Box>
@@ -134,19 +123,14 @@ export default function StrongVerificationInstructions() {
         >
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1" sx={{ marginBottom: 1 }}>
-              <Trans i18nKey="auth:strong_verification.instructions.step1">
-                Download the <strong>IRIS ID</strong> app
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.step1" />
             </Typography>
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{ marginTop: 1, marginBottom: 1 }}
             >
-              <Trans i18nKey="auth:strong_verification.instructions.step1_apple_note">
-                <strong>Apple users:</strong> You can skip the download and use
-                your browser instead. Just click "Open" when prompted.
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.step1_apple_note" />
             </Typography>
             <Box
               sx={{
@@ -187,10 +171,7 @@ export default function StrongVerificationInstructions() {
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
-              <Trans i18nKey="auth:strong_verification.instructions.step2">
-                Click <strong>"Start Strong Verification"</strong> below (opens
-                in new tab)
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.step2" />
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
@@ -205,9 +186,7 @@ export default function StrongVerificationInstructions() {
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
-              <Trans i18nKey="auth:strong_verification.instructions.step5">
-                Select <strong>Passport</strong> (ID cards not supported)
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.step5" />
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
@@ -217,11 +196,7 @@ export default function StrongVerificationInstructions() {
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
-              <Trans i18nKey="auth:strong_verification.instructions.step7">
-                Hold your phone against the passport page with the NFC chip and
-                <strong>keep completely still for at least 5 seconds</strong> —
-                moving too early is the most common cause of failure
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.step7" />
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
@@ -269,20 +244,13 @@ export default function StrongVerificationInstructions() {
             }}
           >
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.chip_location.us_germany_mexico">
-                <strong>US, Germany (2016), Mexico:</strong> Back page
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.us_germany_mexico" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.chip_location.finland_germany_new">
-                <strong>Finland, Germany (2017+):</strong> Picture page
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.finland_germany_new" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.chip_location.australia">
-                <strong>Australia:</strong> Middle page (marked with symbol +
-                "chip name")
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.chip_location.australia" />
             </li>
           </Box>
         </Box>
@@ -325,35 +293,19 @@ export default function StrongVerificationInstructions() {
             }}
           >
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.remove_case">
-                <strong>Remove your phone case</strong> — even thin cases can
-                block the NFC signal
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.remove_case" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.hold_still">
-                <strong>Hold your phone completely still</strong> for at least 5
-                seconds — moving too early is the most common cause of failure
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.hold_still" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.flat_surface">
-                <strong>Place your passport on a flat surface</strong> — don't
-                hold it in your hand
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.flat_surface" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.nfc_location">
-                <strong>Find your phone's NFC antenna</strong> — it's usually
-                near the top-center on the back of the phone. Try different
-                positions if it doesn't connect
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.nfc_location" />
             </li>
             <li>
-              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.no_metal">
-                <strong>Avoid metal surfaces</strong> — don't place your
-                passport on a metal table or laptop
-              </Trans>
+              <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.no_metal" />
             </li>
             <li>
               {t("auth:strong_verification.instructions.scanning_tips.retry")}
@@ -388,13 +340,14 @@ export default function StrongVerificationInstructions() {
             </li>
           </Box>
           <Typography variant="body1">
-            <Trans i18nKey="auth:strong_verification.instructions.didnt_work.contact">
-              If you're still having trouble,
-              <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help">
-                let us know
-              </StyledLink>
-              and we'll help.
-            </Trans>
+            <Trans
+              i18nKey="auth:strong_verification.instructions.didnt_work.contact"
+              components={{
+                1: (
+                  <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help" />
+                ),
+              }}
+            />
           </Typography>
         </Box>
 

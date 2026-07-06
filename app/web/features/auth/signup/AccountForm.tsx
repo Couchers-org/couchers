@@ -426,9 +426,10 @@ export default function AccountForm() {
           )}
         />
         <Typography variant="body1">
-          <Trans i18nKey="auth:account_form.tos_prompt">
-            To continue, please read and accept the <TOSLink />.
-          </Trans>
+          <Trans
+            i18nKey="auth:account_form.tos_prompt"
+            components={{ 1: <TOSLink /> }}
+          />
         </Typography>
         <FormControlLabel
           control={

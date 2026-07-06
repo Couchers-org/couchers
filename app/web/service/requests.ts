@@ -105,8 +105,8 @@ export async function getHostRequestMessages(
 
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
-  "toDate" | "fromDate"
-> & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
+  "toDate" | "fromDate" | "publicTripId"
+> & { toDate: Dayjs; fromDate: Dayjs; stayType: number; publicTripId?: number };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
@@ -117,6 +117,11 @@ export async function createHostRequest(data: CreateHostRequestWrapper) {
   req.setFromDate(data.fromDate.format().split("T")[0]);
   req.setToDate(data.toDate.format().split("T")[0]);
   req.setText(data.text);
+  // Set when this host request is an "offer to host" made in response to a
+  // public trip, so the backend links the offer back to the trip.
+  if (data.publicTripId) {
+    req.setPublicTripId(data.publicTripId);
+  }
 
   const response = await client.requests.createHostRequest(req);
 

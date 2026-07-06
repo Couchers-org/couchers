@@ -1,4 +1,9 @@
-import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
+import {
+  ArchiveOutlined,
+  Groups,
+  Person,
+  UnarchiveOutlined,
+} from "@mui/icons-material";
 import {
   ListItemAvatar,
   ListItemButton,
@@ -80,13 +85,10 @@ export default function GroupChatListItem({
     latestMessageAuthorId,
   ]);
 
-  //the avatar is of the latest message author (if it's not the logged in user),
-  //otherwise any user that's not the logged in user, otherwise logged in user
-  const avatarUserId =
-    latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
-      ? latestMessageAuthorId
-      : (groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
-        currentUserId);
+  const dmOtherMemberUserId = groupChat.memberUserIdsList.find(
+    (id) => id !== currentUserId,
+  );
+  const dmOtherMember = groupChatMembersQuery.data?.get(dmOtherMemberUserId);
   //title is the chat title, or all the member's names except current user joined together
   const title = groupChatTitleText(
     groupChat,
@@ -168,11 +170,14 @@ export default function GroupChatListItem({
         <ListItemAvatar>
           {groupChatMembersQuery.isLoading ? (
             <Skeleton />
+          ) : groupChat.isDm ? (
+            <Avatar user={dmOtherMember} isProfileLink={false}>
+              <Person />
+            </Avatar>
           ) : (
-            <Avatar
-              user={groupChatMembersQuery.data?.get(avatarUserId)}
-              isProfileLink={false}
-            />
+            <Avatar isProfileLink={false}>
+              <Groups />
+            </Avatar>
           )}
         </ListItemAvatar>
         <ListItemText

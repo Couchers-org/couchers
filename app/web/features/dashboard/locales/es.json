@@ -4,7 +4,6 @@
   "landing_text": "Estamos desarrollando nuevas <1>características</1> como eventos, guías locales, moderación y hangouts. Apreciamos tu pacciencia y <3>apoyo</3> mientras trabajamos en ello.",
   "please_complete_profile": "Por favor, completa tu perfil; así te asegurarás de aparecer en las búsquedas:",
   "upload_photo": "2. Sube una foto (pinchando en el avatar en la página de edición)",
-  "edit_profile_button_text": "Editar tu perfil",
   "your_communities_heading": "Tus comunidades",
   "all_communities_heading": "Todas las comunidades",
   "load_more": "Cargar más",
@@ -87,7 +86,6 @@
     "see_all_link": "Ver todos →",
     "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
     "community_header": "Eventos en tus comunidades",
-    "location_online_label": "En línea",
     "today_label": "Hoy"
   },
   "discussions": {

@@ -15,6 +15,7 @@ export { default as CalendarIcon } from "@mui/icons-material/EventOutlined";
 export { default as ChatBubbleIcon } from "@mui/icons-material/ChatBubble";
 export { default as CheckCircleIcon } from "@mui/icons-material/CheckCircle";
 export { default as CheckIcon } from "@mui/icons-material/CheckOutlined";
+export { default as ChevronRightIcon } from "@mui/icons-material/ChevronRightOutlined";
 export { default as ClockIcon } from "@mui/icons-material/ScheduleOutlined";
 export {
   default as CloseIcon,
@@ -26,6 +27,7 @@ export { default as CouchFilledIcon } from "@mui/icons-material/Weekend";
 export { default as CouchIcon } from "@mui/icons-material/HotelOutlined";
 export { default as DissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfiedOutlined";
 export { default as DoneAllIcon } from "@mui/icons-material/DoneAllOutlined";
+export { default as EditIcon } from "@mui/icons-material/EditOutlined";
 export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as ErrorIcon } from "@mui/icons-material/Error";
 export { default as ExpandLessIcon } from "@mui/icons-material/ExpandLessOutlined";
@@ -41,6 +43,7 @@ export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
 export { default as LocationIcon } from "@mui/icons-material/LocationOnOutlined";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as QuestionIcon } from "@mui/icons-material/MoreHorizOutlined";
+export { default as ReopenIcon } from "@mui/icons-material/AutorenewOutlined";
 export { default as MuteIcon } from "@mui/icons-material/VolumeOffOutlined";
 export { default as NotificationsActiveIcon } from "@mui/icons-material/NotificationsActive";
 export { default as OpenInNewIcon } from "@mui/icons-material/OpenInNew";
@@ -58,4 +61,5 @@ export { default as SlightlyDissatisfiedIcon } from "@mui/icons-material/Sentime
 export { default as SlightlySatisfiedIcon } from "@mui/icons-material/SentimentSatisfied";
 export { default as VeryDissatisfiedIcon } from "@mui/icons-material/MoodBadOutlined";
 export { default as VerySatisfiedIcon } from "@mui/icons-material/MoodOutlined";
+export { default as VisibilityIcon } from "@mui/icons-material/VisibilityOutlined";
 /* eslint-enable simple-import-sort/exports */

@@ -18,7 +18,7 @@
     "local_time": "Ortszeit",
     "occupation": "Beruf",
     "references": "Referenzen",
-    "who_section": "Wer Ich Bin",
+    "who_section": "Wer ich bin",
     "hobbies_section": "Was ich in meiner Freizeit mache",
     "additional_information_section": "Weitere Informationen",
     "travel_section": "Ich reiste nach",
@@ -28,8 +28,6 @@
   },
   "actions": {
     "message_label": "Chatten",
-    "accept_friend_label": "Annehmen",
-    "decline_friend_label": "Ablehnen",
     "request": "Anfragen",
     "back_to_dashboard": "Zurück zur Startseite",
     "add_friend": "Freund hinzufügen"
@@ -267,8 +265,6 @@
     "paid_onsite": "Kostenpflichtiges Parken vor Ort",
     "paid_offsite": "Bezahltes Parken vor dem Grundstück"
   },
-  "accept_friend_label": "Freundschaftsanfrage annehmen",
-  "decline_friend_label": "Freundschaftsanfrage ablehnen",
   "no_references": "Noch keine Referenzen dieser Art!",
   "see_more_references": "Weitere Referenzen anzeigen",
   "write_reference": "Referenz schreiben",
@@ -344,7 +340,9 @@
       "send_request": "Anfrage senden",
       "send_message": "Nachricht senden",
       "create_event": "Event erstellen",
-      "send_friend_request": "Freundschaftsanfrage senden"
+      "send_friend_request": "Freundschaftsanfrage senden",
+      "create_public_trip": "Erstelle einen öffentlichen Trip",
+      "create_discussion": "Erstelle einen Beitrag"
     },
     "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"

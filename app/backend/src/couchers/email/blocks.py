@@ -5,7 +5,7 @@ that can be rendered HTML and plaintext for any locale.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Self
+from typing import Self
 
 from markupsafe import Markup
 
@@ -13,6 +13,7 @@ from couchers import urls
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
+from couchers.markup import html_mailto_link
 from couchers.proto import api_pb2
 from couchers.utils import now
 
@@ -47,17 +48,22 @@ class EmailBase(ABC):
         self,
         loc_context: LocalizationContext,
         *,
-        standard_greeting: bool = True,
-        standard_closing: bool = True,
+        default_greeting: bool = True,
+        default_closing: bool = True,
         security_warning: bool = False,
     ) -> EmailBlocksBuilder:
-        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_base=self.string_key_base)
-        if standard_greeting:
+        builder = EmailBlocksBuilder(locales=loc_context.locale_list, string_key_base=self.string_key_base)
+        if default_greeting:
             builder.para("generic.greeting_line", {"name": self.user_name})
-        if standard_closing:
-            builder.para("generic.closing_line", epilogue=True)
         if security_warning:
-            builder.para("generic.security_warning_contact_support", epilogue=True)
+            # Not localizing the suggested subject line to encourage folks to use English if they can.
+            builder.para(
+                "generic.security_warning_contact_support",
+                {"email_link": html_mailto_link("support@couchers.org", subject="Action not initiated by me")},
+                epilogue=True,
+            )
+        if default_closing:
+            builder.para("generic.closing_lines.default", epilogue=True)
         return builder
 
     @classmethod
@@ -78,7 +84,7 @@ class EmailBase(ABC):
         self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
     ) -> str:
         key = full_string_key(key, relative_base=self.string_key_base)
-        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
+        return loc_context.localize_string(key, i18next=get_emails_i18next(), substitutions=substitutions)
 
 
 @dataclass
@@ -126,7 +132,7 @@ class UserInfo:
         return UserInfo(
             name="Bob",
             age=30,
-            city="Berlin",
+            city="Berlin, Germany",
             avatar_url="https://couchers.org/logo512.png",
             profile_url="https://couchers.org/user/bob",
         )
@@ -153,13 +159,13 @@ class EmailBlocksBuilder:
     Builder object for constructing a list of localized EmailBlock's to form the body of an email.
     """
 
-    _locale: str
+    _locales: list[str]
     _string_key_base: str
     _blocks: list[EmailBlock]
     _epilogue: list[EmailBlock]
 
-    def __init__(self, locale: str, string_key_base: str):
-        self._locale = locale
+    def __init__(self, locales: list[str], string_key_base: str):
+        self._locales = locales
         self._string_key_base = string_key_base
         self._blocks = []
         self._epilogue = []
@@ -194,11 +200,11 @@ class EmailBlocksBuilder:
 
     def _text(self, key: str, substitutions: SubstitutionDict | None = None) -> str:
         key = full_string_key(key, relative_base=self._string_key_base)
-        return get_emails_i18next().localize(key, self._locale, substitutions)
+        return get_emails_i18next().localize(key, self._locales, substitutions)
 
     def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         key = full_string_key(key, relative_base=self._string_key_base)
-        return get_emails_i18next().localize_with_markup(key, self._locale, substitutions)
+        return get_emails_i18next().localize_with_markup(key, self._locales, substitutions)
 
 
 @dataclass(kw_only=True)
@@ -207,18 +213,6 @@ class EmailFooter:
     copyright_year: int = now().year
     unsubscribe_info: UnsubscribeInfo | None
 
-    def to_template_args(self) -> dict[str, Any]:
-        args: dict[str, Any] = {
-            "footer_timezone_name": self.timezone_name,
-            "footer_copyright_year": self.copyright_year,
-            "footer_email_is_critical": self.unsubscribe_info is None,
-        }
-
-        if unsubscribe_info := self.unsubscribe_info:
-            args.update(unsubscribe_info.to_template_args())
-
-        return args
-
 
 @dataclass(kw_only=True)
 class UnsubscribeInfo:
@@ -226,20 +220,6 @@ class UnsubscribeInfo:
     do_not_email_url: str
     topic_action_link: UnsubscribeLink
     topic_key_link: UnsubscribeLink | None = None
-
-    def to_template_args(self) -> dict[str, Any]:
-        args: dict[str, Any] = {
-            "footer_manage_notifications_link": self.manage_notifications_url,
-            "footer_do_not_email_link": self.do_not_email_url,
-            "footer_notification_topic_action": self.topic_action_link.text,
-            "footer_notification_topic_action_link": self.topic_action_link.url,
-        }
-
-        if topic_key_link := self.topic_key_link:
-            args["footer_notification_topic_key"] = topic_key_link.text
-            args["footer_notification_topic_key_link"] = topic_key_link.url
-
-        return args
 
 
 @dataclass(kw_only=True)

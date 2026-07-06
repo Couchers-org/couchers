@@ -62,7 +62,7 @@ describe("MyEventsList", () => {
 
     render(<MyEventsList />, { wrapper });
 
-    expect(await screen.findByText(mockEvents[2].title)).toBeVisible();
+    expect(await screen.findByText(mockEvents[1].title)).toBeVisible();
     expect(await screen.findByText(mockEvents[3].title)).toBeVisible();
 
     expect(screen.getAllByTestId("event-item")).toHaveLength(2);

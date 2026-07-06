@@ -11,6 +11,7 @@ import "api.proto";
 
 enum AdminActionLevel {
   ADMIN_ACTION_LEVEL_UNSPECIFIED = 0;
+  ADMIN_ACTION_LEVEL_TRACE = 4;    // firehose, below debug
   ADMIN_ACTION_LEVEL_DEBUG = 1;    // low-importance chatter
   ADMIN_ACTION_LEVEL_NORMAL = 2;   // regular admin work
   ADMIN_ACTION_LEVEL_HIGH = 3;     // significant state changes

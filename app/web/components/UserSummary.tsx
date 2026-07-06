@@ -1,4 +1,5 @@
 import {
+  Box,
   ListItemAvatar,
   ListItemText,
   Skeleton,
@@ -16,6 +17,13 @@ import React, { useState } from "react";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
+
+// It could be BlockedUser.AsObject or LiteUser.AsObject and only LiteUser has hasStrongVerification
+function isLiteUser(
+  user: LiteUser.AsObject | BlockedUser.AsObject,
+): user is LiteUser.AsObject {
+  return "hasStrongVerification" in user;
+}
 
 const StyledWrapper = styled("div")({
   display: "flex",
@@ -125,16 +133,14 @@ export default function UserSummary({
             sx={{ maxWidth: 300 }}
           />
         ) : (
-          <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             {nameOnly
               ? nameValue
               : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
-            {user &&
-            "hasStrongVerification" in user &&
-            user.hasStrongVerification ? (
+            {isLiteUser(user) && user.hasStrongVerification && (
               <StrongVerificationBadge />
-            ) : null}
-          </>
+            )}
+          </Box>
         )}
       </Typography>
     </Tooltip>

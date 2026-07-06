@@ -82,6 +82,18 @@ def public_trip_to_pb(
             .where(HostRequest.public_trip_id == public_trip.id)
             .where(HostRequest.status != HostRequestStatus.cancelled)
         ).scalar_one()
+    else:
+        # The viewer's own existing offer on this trip (if any), so the client can
+        # show an "already offered" state and link to the thread.
+        pb.viewer_host_request_id = (
+            session.execute(
+                select(HostRequest.conversation_id)
+                .where(HostRequest.public_trip_id == public_trip.id)
+                .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.status != HostRequestStatus.cancelled)
+            ).scalar_one_or_none()
+            or 0
+        )
     return pb
 
 
@@ -89,6 +101,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def CreatePublicTrip(
         self, request: public_trips_pb2.CreatePublicTripReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.PublicTrip:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_public_trip")
@@ -174,6 +189,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def GetPublicTrip(
         self, request: public_trips_pb2.GetPublicTripReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.PublicTrip:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
         trip_node_id = session.execute(
             select(PublicTrip.node_id).where(PublicTrip.id == request.trip_id)
         ).scalar_one_or_none()
@@ -196,6 +214,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def ListPublicTrips(
         self, request: public_trips_pb2.ListPublicTripsReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.ListPublicTripsRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
 
@@ -227,6 +248,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def ListPublicTripsByUser(
         self, request: public_trips_pb2.ListPublicTripsByUserReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.ListPublicTripsByUserRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         cursor_date, cursor_id = _parse_page_token(request.page_token)
         ascending = request.ascending
@@ -299,6 +323,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def UpdatePublicTrip(
         self, request: public_trips_pb2.UpdatePublicTripReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.PublicTrip:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
         public_trip = session.execute(select(PublicTrip).where(PublicTrip.id == request.trip_id)).scalar_one_or_none()
 
         if not public_trip or public_trip.user_id != context.user_id:

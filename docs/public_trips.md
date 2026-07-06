@@ -98,7 +98,7 @@ A user cannot create overlapping active trips (same node, overlapping dates, bot
 
 **"Already offered" indicator**: derive from the user's sent host requests (which already carry `public_trip_id`) — no new backend field needed. Disable the button and show a label if a matching sent request exists.
 
-### Trip dashboard (`/my-public-trips`)
+### Trip dashboard (`/public-trips`)
 
 Single page for the surfer to manage all their trips across communities: view active trips, see offers received, edit/close trips.
 

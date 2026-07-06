@@ -118,12 +118,12 @@ const StyledFooter = styled("div")(({ theme }) => ({
 
 const StyledFlagButton = styled(FlagButton)(({ theme }) => ({
   padding: theme.spacing(0.25),
-  color: "var(--mui-palette-text-secondary)",
+  color: "var(--mui-palette-primary-main)",
   "& svg": {
     fontSize: "1rem",
   },
   "&:hover, &:focus-visible": {
-    color: "var(--mui-palette-primary-main)",
+    color: "var(--mui-palette-primary-dark)",
   },
 }));
 

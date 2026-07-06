@@ -286,7 +286,7 @@ def test_modnotes(db, email_collector: EmailCollector, push_collector: PushColle
         )
 
     email = email_collector.pop_for_recipient(user.email, last=True)
-    assert email.subject == "[TEST] You have received a mod note"
+    assert email.subject == "[TEST] You have received a moderator note"
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "New moderator note"

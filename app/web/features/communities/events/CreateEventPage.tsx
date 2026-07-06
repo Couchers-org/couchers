@@ -72,7 +72,6 @@ export default function CreateEventPage() {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      let createEventInput: CreateEventInput;
       const startTime = dayjs(data.startTime);
       const endTime = dayjs(data.endTime);
       const finalStartDate = data.startDate
@@ -90,32 +89,17 @@ export default function CreateEventPage() {
       const photoKey =
         data.eventImage || eventToDuplicate?.photoKey || undefined;
 
-      if (data.isOnline) {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          // TODO: not hardcode this and allow user to specify community ID?
-          parentCommunityId: 1,
-          link: data.link,
-        };
-      } else {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-          parentCommunityId: urlCommunityId,
-        };
-      }
+      const createEventInput: CreateEventInput = {
+        title: data.title,
+        content: data.content,
+        photoKey,
+        startTime: finalStartDate,
+        endTime: finalEndDate,
+        address: data.location.name,
+        lat: data.location.location.lat,
+        lng: data.location.location.lng,
+        parentCommunityId: urlCommunityId,
+      };
       return service.events.createEvent(createEventInput);
     },
 

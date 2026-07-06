@@ -119,7 +119,6 @@
     "not_in_group": "O grubun içinde değilsin.",
     "not_in_community": "O topluluğun içinde değilsin.",
     "notification_not_found": "Bildirim bulunamadı.",
-    "online_event_requires_link": "Yalnızca çevrimiçi olan bir etkinlik için bir bağlantı(link) gerekli.",
     "only_admin_can_edit": "Sohbeti yalnızca yöneticiler düzenleyebilir.",
     "only_admin_can_remove_admin": "Yalnızca yöneticiler diğer yöneticileri çıkarabilir.",
     "only_admin_can_remove_user": "Yalnızca yöneticiler kullanıcıları çıkarabilir.",

@@ -296,14 +296,15 @@ export default function MarkdownPage({
               <Trans
                 i18nKey="blog.byline_with_author"
                 values={{ date: frontmatter.date }}
-              >
-                {"Written by "}
-                <AuthorList
-                  author={frontmatter.author}
-                  authorUsername={frontmatter.author_username}
-                />
-                {". Published on {{date}}."}
-              </Trans>
+                components={{
+                  1: (
+                    <AuthorList
+                      author={frontmatter.author}
+                      authorUsername={frontmatter.author_username}
+                    />
+                  ),
+                }}
+              />
             ) : (
               t("blog.byline_without_author", { date: frontmatter.date })
             )}
@@ -314,13 +315,13 @@ export default function MarkdownPage({
             variant="body1"
             sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
           >
-            <Trans i18nKey="blog.cta_message">
-              {"Want to help write our blog or volunteer? "}
-              <Link href="/volunteer">Sign up</Link>
-              {" and let us know. Volunteers and "}
-              <Link href="/donate">donations</Link>
-              {" are what make Couchers.org possible!"}
-            </Trans>
+            <Trans
+              i18nKey="blog.cta_message"
+              components={{
+                1: <Link href="/volunteer" />,
+                3: <Link href="/donate" />,
+              }}
+            />
           </Typography>
         )}
         {frontmatter.is_blog_post && (

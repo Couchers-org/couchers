@@ -278,8 +278,8 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
+  const { regions } = useRegions();
+  const { languages } = useLanguages();
 
   const initialFormValues =
     user && languages && regions
@@ -292,14 +292,10 @@ export default function EditProfileForm() {
           hostingStatus: user.hostingStatus,
           meetupStatus: user.meetupStatus,
           fluentLanguages: user.languageAbilitiesList
-            .map((ability) => languages[ability.code] || "")
+            .map((ability) => ability.code)
             .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          regionsLived: user.regionsLivedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
+          regionsVisited: user.regionsVisitedList,
+          regionsLived: user.regionsLivedList,
           aboutMe: user.aboutMe,
           thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
           additionalInformation: user.additionalInformation,
@@ -378,15 +374,11 @@ export default function EditProfileForm() {
           profileData: {
             ...location,
             ...restData,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region],
-            ),
+            regionsVisited,
+            regionsLived,
             languageAbilities: {
               valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
+                code: language,
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
@@ -458,13 +450,17 @@ export default function EditProfileForm() {
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
@@ -848,7 +844,7 @@ export default function EditProfileForm() {
                   <Controller
                     control={control}
                     defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
+                      (ability) => ability.code,
                     )}
                     name="fluentLanguages"
                     render={({ field }) => (
@@ -856,7 +852,7 @@ export default function EditProfileForm() {
                         inputFieldProps={field}
                         onChange={(_, value) => field.onChange(value)}
                         value={field.value}
-                        options={Object.values(languages)}
+                        options={languages}
                         label={t(
                           "profile:edit_profile_headings.languages_spoken",
                         )}
@@ -991,16 +987,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsVisitedList}
                     name="regionsVisited"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t(
                           "profile:edit_profile_headings.regions_visited",
                         )}
@@ -1013,16 +1007,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsLivedList}
                     name="regionsLived"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t("profile:edit_profile_headings.regions_lived")}
                         id="regions-lived"
                       />

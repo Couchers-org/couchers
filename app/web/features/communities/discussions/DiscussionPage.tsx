@@ -172,7 +172,7 @@ export default function DiscussionPage({
           },
         ] as EllipsisMenuItem[])
       : []),
-    ...((discussion?.canEdit || discussion?.canModerate) && !discussion?.deleted
+    ...(discussion?.canEdit && !discussion?.deleted
       ? ([
           {
             icon: DeleteOutlined,

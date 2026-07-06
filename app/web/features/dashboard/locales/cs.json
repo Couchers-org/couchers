@@ -8,7 +8,6 @@
   "please_complete_profile": "Dokonči prosím svůj profil a ujisti se, že se zobrazuje ve vyhledávání:",
   "fill_in_who_i_am": "1. Vyplň sekci \"Kdo jsem\" několika větami o sobě",
   "upload_photo": "2. Nahraj fotografii (kliknutím na avatar na stránce úprav)",
-  "edit_profile_button_text": "Upravit svůj profil",
   "your_communities_heading": "Tvé komunity",
   "all_communities_heading": "Všechny komunity",
   "no_community": "Momentálně nejsi v žádné komunitě.",
@@ -59,7 +58,10 @@
       "title": "Napsat referenci"
     }
   },
-  "events": {
-    "location_online_label": "Online"
+  "public_trips": {
+    "when_tomorrow": "Zítra",
+    "when_today": "Dnes",
+    "manage_link": "Spravovat",
+    "when_now": "Nyní"
   }
 }
