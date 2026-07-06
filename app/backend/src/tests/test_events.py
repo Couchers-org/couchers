@@ -2323,7 +2323,7 @@ def test_update_event_should_notify_queues_job():
         events_pb2.UpdateEventReq(
             event_id=event_id,
             start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                value=datetime_to_iso8601_local(start + timedelta(hours=4))
+                value=datetime_to_iso8601_local(start + timedelta(hours=5))
             ),
             should_notify=True,
         )
