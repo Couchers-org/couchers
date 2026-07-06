@@ -170,9 +170,11 @@ def copy_resources_to_database(session: Session) -> None:
     with open(resources_folder / "regions.json", "r") as f:
         regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
 
-    with open(resources_folder / "languages-iso639.json", "r") as f1:
-        with open(resources_folder / "languages-custom.json", "r") as f2:
-            languages = [(language["alpha3"], language["name"]) for language in (json.load(f1) + json.load(f2))]
+    with (
+        open(resources_folder / "languages-iso639.json", "r") as f1,
+        open(resources_folder / "languages-custom.json", "r") as f2,
+    ):
+        languages = [(language["alpha3"], language["name"]) for language in (json.load(f1) + json.load(f2))]
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
