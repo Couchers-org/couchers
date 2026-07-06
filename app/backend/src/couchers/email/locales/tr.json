@@ -1,1 +1,21 @@
-{}
+{
+  "generic": {
+    "greeting_line": "Hoşgeldin {{name}},",
+    "do_not_reply_request": "Bu e-postayı yanıtlamayın. Bu isteği yanıtlamak için yukarıdaki butonlardan birini kullanın.",
+    "thanks": "Teşekkürler!",
+    "closing_lines": {
+      "default": "En iyi dileklerimizle,<br>Couchers.org Ekibi",
+      "founders": "Aapeli ve Itsi,<br>Couchers.org Kurucuları",
+      "emily": "Couchers.org'dan Emily<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Bu e-postayı Couchers.org'a kaydolduğunuz için alıyorsunuz.",
+      "contact_support": "Destek ekibimize {{ email_link }} adresinden ulaşabilirsiniz.",
+      "timezone_note": "Tüm saatler, profil konumunuza göre {{ timezone }} cinsindendir.",
+      "donate_link": "Bağış Yap",
+      "volunteer_link": "Gönüllü Ol",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
+    }
+  }
+}
