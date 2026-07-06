@@ -1,10 +1,10 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import i18n from "test/i18n";
 import dayjs from "utils/dayjs";
 

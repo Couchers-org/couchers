@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import {
   HourglassEmptyOutlined,
   PlaceOutlined,
@@ -39,6 +38,7 @@ import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";

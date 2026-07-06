@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
@@ -6,6 +5,7 @@ import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";

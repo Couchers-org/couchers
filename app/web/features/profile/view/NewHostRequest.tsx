@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { CardActions, Skeleton, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -21,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 
 const TYPING_GAP_CAP_MS = 3000;

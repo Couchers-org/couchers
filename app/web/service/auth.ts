@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
@@ -14,6 +13,7 @@ import {
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 

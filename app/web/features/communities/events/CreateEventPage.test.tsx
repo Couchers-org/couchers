@@ -1,9 +1,9 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";

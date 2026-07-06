@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
 import { UseMutateFunction } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -15,6 +14,7 @@ import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import type { GeocodeResult } from "utils/hooks";
 

@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -15,6 +14,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 
 import {
   PublicTrip,

@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -21,6 +20,7 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 
 // Must match the backend host request minimum (and normal host requests).

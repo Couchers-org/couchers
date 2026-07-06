@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { HostRequestStatus } from "proto/conversations_pb";
 import {
   CreateHostRequestReq,
@@ -14,6 +13,7 @@ import {
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 

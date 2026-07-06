@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   Int64Value,
@@ -21,6 +20,7 @@ import {
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 

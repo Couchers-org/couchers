@@ -1,7 +1,7 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import i18n from "test/i18n";
 
 import wrapper from "../test/hookWrapper";
