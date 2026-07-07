@@ -17,8 +17,6 @@ import { Community, NodeType } from "proto/communities_pb";
 import { KeyboardEvent, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
 
-// The trigger button's label depends on which level of the community tree its children sit at.
-// All children of a node share the same nodeType, so this only needs to be keyed by that.
 const NODE_TYPE_LABEL_KEYS: Partial<Record<NodeType, string>> = {
   [NodeType.NODE_TYPE_MACROREGION]: "communities:select_macroregion",
   [NodeType.NODE_TYPE_REGION]: "communities:select_region",
@@ -33,9 +31,6 @@ const StyledSearchBox = styled("li")(({ theme }) => ({
 
 const menuId = "sub-communities-menu";
 
-// Presentational: the parent (CommunityPageSubHeader) owns the query and only renders this when
-// there is at least one sub-community, so `subCommunities` is guaranteed non-empty here. It also
-// arrives already ordered by name from ListCommunities, so no client-side sort is needed.
 export default function SubCommunitiesDropdown({
   subCommunities,
 }: {
@@ -65,9 +60,7 @@ export default function SubCommunitiesDropdown({
     handleClose();
   };
 
-  // MUI Menu's own arrow-key/typeahead handling would otherwise hijack keystrokes (including
-  // space and arrow keys) meant for the search input, so stop them from reaching the Menu.
-  // Escape must still bubble, otherwise the Menu can't close while the search input has focus.
+  // MUI Menu hijacks typeahead/arrow keys meant for the search input; Escape must still bubble to close.
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Escape") {
       event.stopPropagation();
@@ -96,7 +89,10 @@ export default function SubCommunitiesDropdown({
         disableAutoFocusItem
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
-        slotProps={{ paper: { sx: { maxHeight: 288, minWidth: 250 } } }}
+        // fixed width so the Paper doesn't reflow as results filter
+        slotProps={{
+          paper: { sx: { width: 300, maxWidth: "90vw", maxHeight: 288 } },
+        }}
       >
         <StyledSearchBox>
           <TextField

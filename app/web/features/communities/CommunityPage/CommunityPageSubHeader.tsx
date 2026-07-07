@@ -15,13 +15,19 @@ import { CommunityTab, routeToCommunity } from "routes";
 import JoinCommunityButton from "./JoinCommunityButton";
 import SubCommunitiesDropdown from "./SubCommunitiesDropdown";
 
-const StyledBreadcrumbsContainer = styled("div")(() => ({
+const StyledBreadcrumbsContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  gap: theme.spacing(1),
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
 }));
 
 const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
+  minWidth: 0,
   "& ol": {
     justifyContent: "flex-start",
   },
@@ -39,18 +45,14 @@ export default function CommunityPageSubHeader({
 
   const router = useRouter();
 
-  // MUI's Breadcrumbs inserts a separator per child element regardless of what that child
-  // renders to, so a leaf `SubCommunitiesDropdown` (which itself returns null) would still leave
-  // a dangling separator. Read the same (cached, deduped) query here to omit the element
-  // entirely when there's nothing to drill into.
+  // Read the children query here (not in the dropdown) so the whole breadcrumb element can be
+  // omitted on leaves — MUI Breadcrumbs renders a dangling separator for a child that returns null.
   const {
     data: subCommunitiesData,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
   } = useListSubCommunities(community.communityId);
-  // Fetch every page so the dropdown's client-side search sees all children, not just page one.
-  // Child counts are bounded (tens), so this is cheap.
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();

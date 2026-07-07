@@ -166,6 +166,6 @@
   "select_locality": "Select city",
   "select_sublocality": "Select neighborhood",
   "select_sub_community": "Select community",
-  "sub_community_search_placeholder": "Search by city or country name…",
+  "sub_community_search_placeholder": "Location",
   "sub_community_dropdown_a11y": "Browse more specific communities"
 }
