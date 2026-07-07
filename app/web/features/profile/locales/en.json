@@ -89,7 +89,7 @@
     "meetup_status": "Meetup status",
     "hosting_status": "Hosting status",
     "name": "Name",
-    "pronouns": "Pronouns",
+    "pronouns": "Pronouns (optional)",
     "hometown": "Grew up in",
     "occupation": "Occupation",
     "education": "Education",
@@ -105,6 +105,7 @@
     "location_subtitle": "Approximate location of your home"
   },
   "edit_profile_name_required": "Name required",
+  "edit_profile_pronouns_placeholder": "e.g. she/her",
   "edit_home_questions": {
     "accept_drinking": "Okay with people drinking",
     "accept_pets": "Hosts people with pets",

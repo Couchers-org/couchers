@@ -543,6 +543,16 @@ export default function EditProfileForm() {
               </FieldGroup>
 
               <FieldGroup>
+                <StyledProfileTextInput
+                  id="pronouns"
+                  {...register("pronouns")}
+                  label={t("profile:edit_profile_headings.pronouns")}
+                  defaultValue={user.pronouns}
+                  placeholder={t("profile:edit_profile_pronouns_placeholder")}
+                />
+              </FieldGroup>
+
+              <FieldGroup>
                 <SectionSubtitle>
                   {t("profile:edit_profile_headings.location_subtitle")}
                 </SectionSubtitle>
@@ -760,15 +770,6 @@ export default function EditProfileForm() {
                   "profile:edit_profile_headings.personal_information_subtitle",
                 )}
               </SectionSubtitle>
-
-              <FieldGroup>
-                <StyledProfileTextInput
-                  id="pronouns"
-                  {...register("pronouns")}
-                  label={t("profile:edit_profile_headings.pronouns")}
-                  defaultValue={user.pronouns}
-                />
-              </FieldGroup>
 
               {languages && (
                 <FieldGroup>
