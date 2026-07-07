@@ -22,21 +22,14 @@ import { useEffect, useMemo, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
 import { listAllCommunities, searchCommunities } from "service/communities";
 
-// The visible name is what we rank/filter on (issue #9129). We only read the
-// fields both ListAllCommunities (CommunitySummary) and SearchCommunities
-// (Community) responses share.
 type CommunityOption = Pick<
   Community.AsObject,
   "communityId" | "name" | "slug" | "parentsList"
 >;
 
-// Backend SearchCommunities requires >= 3 chars; below that we browse/filter the
-// full list client-side. 400 ms debounce mirrors the confirmed #8837 decision.
 const MIN_SEARCH_LENGTH = 3;
 const COMMUNITY_SEARCH_DEBOUNCE_MS = 400;
 
-// parentsList is ordered root -> ... -> immediate parent -> self (the node itself
-// is the last entry), so the region context is the second-to-last entry.
 const regionOf = (option: CommunityOption): string => {
   const parents = option.parentsList;
   if (!parents || parents.length < 2) return "";
@@ -69,8 +62,6 @@ export default function CommunitySearch() {
   const query = debouncedInput.trim();
   const isSearching = query.length >= MIN_SEARCH_LENGTH;
 
-  // Server-side, name-ranked, typo-tolerant search (pg_trgm). react-query caches
-  // by query string, so re-typing/backspacing hits the cache, not the network.
   const { data: searchData, isLoading: searchLoading } = useQuery<
     SearchCommunitiesRes.AsObject,
     RpcError
@@ -80,7 +71,6 @@ export default function CommunitySearch() {
     enabled: isSearching,
   });
 
-  // Full list for the browse / short-query state (dropdown opened, < 3 chars).
   const { data: browseData, isLoading: browseLoading } = useQuery<
     ListAllCommunitiesRes.AsObject,
     RpcError
@@ -90,9 +80,6 @@ export default function CommunitySearch() {
     enabled: !isSearching,
   });
 
-  // Ranked search results are used verbatim (no client re-sort). Browse results
-  // are filtered by visible name and ordered region -> name so region groups stay
-  // contiguous. Neither path uses the hidden hierarchical path (the #9129 bug).
   const options = useMemo<CommunityOption[]>(() => {
     if (isSearching) {
       return searchData?.communitiesList ?? [];
@@ -141,8 +128,7 @@ export default function CommunitySearch() {
       onInputChange={handleInputChange}
       onChange={handleChange}
       getOptionLabel={(option) => option.name}
-      // Server results are already ranked (and typo-tolerant); browse results are
-      // pre-filtered. Disable MUI's built-in filter so it can't drop/reorder them.
+      // don't let MUI re-filter: it would drop the typo-tolerant server results
       filterOptions={(x) => x}
       groupBy={isSearching ? undefined : (option) => regionOf(option)}
       renderOption={(props, option) => {

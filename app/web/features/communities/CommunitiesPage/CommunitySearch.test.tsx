@@ -21,8 +21,7 @@ jest.mock("next/router", () => ({
   }),
 }));
 
-// platform/sentry pulls in @sentry/nextjs, which crashes under jsdom; the test
-// wrapper imports it transitively via AuthProvider, so it must be mocked.
+// mock required: the wrapper pulls in @sentry/nextjs via AuthProvider, which crashes under jsdom.
 jest.mock("platform/sentry", () => {
   const mockCaptureException = jest.fn();
   return {
@@ -52,8 +51,6 @@ const parentedCommunity = (
   communityId,
   name,
   slug,
-  // Ordered root -> immediate parent -> self (the node itself is the last entry,
-  // matching the backend's get_node_parents_recursively output).
   parentsList: [
     {
       community: {
@@ -160,13 +157,11 @@ describe("CommunitySearch", () => {
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.type(input, "da");
 
-    // Wait for the debounce to apply the filter (Berlin doesn't contain "da").
     await waitFor(() => {
       expect(screen.queryByText("Berlin")).not.toBeInTheDocument();
     });
     expect(screen.getByText("Amsterdam")).toBeInTheDocument();
     expect(screen.getByText("Rotterdam")).toBeInTheDocument();
-    // Short queries must not hit the server (backend requires >= 3 chars)
     expect(mockSearchCommunities).not.toHaveBeenCalled();
   });
 
@@ -192,9 +187,6 @@ describe("CommunitySearch", () => {
   });
 
   it("renders server results in the returned order, not the hidden hierarchy path (issue #9129)", async () => {
-    // Server ranks Pyongyang first. A hidden-path sort would instead put Sydney
-    // first ("Australia" < "North Korea"), so DOM order proves we honor the
-    // server's name-relevance ranking and never re-sort by the parent path.
     mockSearchCommunities.mockResolvedValue(
       searchRes([
         parentedCommunity(5, "Pyongyang", "pyongyang", "North Korea"),
@@ -208,7 +200,6 @@ describe("CommunitySearch", () => {
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.type(input, "yan");
 
-    // Wait for the debounce + server results to replace the browse list.
     await waitFor(() => {
       expect(screen.getAllByRole("option")).toHaveLength(2);
     });
@@ -282,7 +273,6 @@ describe("CommunitySearch", () => {
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.type(input, "boom");
 
-    // No crash; the empty-results affordance is shown instead.
     await waitFor(() => {
       expect(
         screen.getByRole("link", { name: "Request this community!" }),
