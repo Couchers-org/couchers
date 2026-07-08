@@ -5,8 +5,8 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
-
 import { profileAboutMeMinLength } from "utils/validation";
+
 import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
