@@ -353,8 +353,8 @@ export default function PublicTripCard({
               <MetaItem>
                 <CalendarIcon />
                 {localizeDateTimeRange(
-                  new Date(trip.fromDate + "T00:00:00"),
-                  new Date(trip.toDate + "T00:00:00"),
+                  Temporal.PlainDateTime.from(trip.fromDate),
+                  Temporal.PlainDateTime.from(trip.toDate),
                   {
                     locale,
                     includeTime: false,
