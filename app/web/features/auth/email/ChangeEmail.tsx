@@ -79,11 +79,8 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
           <Trans
             i18nKey="auth:change_email_form.current_email_message"
             values={{ email }}
-          >
-            {`Your email address is currently `}
-            <strong>{email}</strong>
-            {`.`}
-          </Trans>
+            components={{ 1: <strong /> }}
+          />
         </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>

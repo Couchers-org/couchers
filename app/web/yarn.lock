@@ -1248,10 +1248,10 @@
   dependencies:
     "@tybys/wasm-util" "^0.10.1"
 
-"@next/bundle-analyzer@^16.2.9":
-  version "16.2.9"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-16.2.9.tgz#38f64a55bb76a3650c990dd7972a4d06f0ddbd6c"
-  integrity sha512-yGWyLbC8MMn+hk9j6l6GammpbUz5S3yZzl3lpoWfVXhIpJfh6kAWG7JwF4WoG3f0VnYRY959yo1QQEI8mV/+jg==
+"@next/bundle-analyzer@^16.2.10":
+  version "16.2.10"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-16.2.10.tgz#13e60ed3700099a540d2a49ae5acdd84b5de8a5d"
+  integrity sha512-KcepWhb3IVniZgm00GSSCQDEUQqZXuXtuXRh8J6e3Un342TcQ77iK4DedeEkct+fcx7yFEDL2J6z4Jeho5JDAw==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
@@ -2279,10 +2279,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@stripe/stripe-js@^9.3.1":
-  version "9.3.1"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-9.3.1.tgz#2c71b9d62f2a74cd661f46e691a55a13340d5136"
-  integrity sha512-oWpAEENuVg8aw4W2OUAM9WxRDtIV2YTLr2nr6qHT+D8tHPW7bya61ufinPpUespyRNUVXqesnHo+jQdUNsGywA==
+"@stripe/stripe-js@^9.9.0":
+  version "9.9.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-9.9.0.tgz#47cbf1cab003e52b3fe2acfecc703090fcd00bda"
+  integrity sha512-Vwqe6Q5cU4i82tPyAv2BpaW/fQSNdOSO4/J8EeDLPp5/oIZiMmdB+Hgh863zFH+rtoxpuWGvD1L7QPh8k1Rdvw==
 
 "@swc/helpers@0.5.15":
   version "0.5.15"
@@ -4548,10 +4548,10 @@ eslint-plugin-react@^7.37.0:
     string.prototype.matchall "^4.0.12"
     string.prototype.repeat "^1.0.0"
 
-eslint-plugin-simple-import-sort@^12.1.1:
-  version "12.1.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-simple-import-sort/-/eslint-plugin-simple-import-sort-12.1.1.tgz#e64bfdaf91c5b98a298619aa634a9f7aa43b709e"
-  integrity sha512-6nuzu4xwQtE3332Uz0to+TxDQYRLTKRESSc2hefVT48Zc8JthmN23Gx9lnYhu0FtkRSL1oxny3kJ2aveVhmOVA==
+eslint-plugin-simple-import-sort@^13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-simple-import-sort/-/eslint-plugin-simple-import-sort-13.0.0.tgz#93936354367d8bb42c1b9b4c13c92eb29fffd2a5"
+  integrity sha512-McAc+/Nlvcg4byY/CABGH8kqnefWBj8s3JA2okEtz8ixbECQgU46p0HkTUKa4YS7wvgGceimlc34p1nXqbWqtA==
 
 eslint-plugin-unused-imports@^4.4.1:
   version "4.4.1"
@@ -5280,12 +5280,10 @@ i18next-fs-backend@^2.6.0:
   resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.1.tgz#bb352278136f47599783308df29f0a1b6a0d08b6"
   integrity sha512-eYWTX7QT7kJ0sZyCPK6x1q+R63zvNKv2D6UdbMf15A8vNb2ZLyw4NNNZxPFwXlIv/U+oUtg8SakW6ZgJZcoqHQ==
 
-i18next@^25.8.18:
-  version "25.8.18"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-25.8.18.tgz#51863b65bc42e3525271f2680ebbf7d150ff53cc"
-  integrity sha512-lzY5X83BiL5AP77+9DydbrqkQHFN9hUzWGjqjLpPcp5ZOzuu1aSoKaU3xbBLSjWx9dAzW431y+d+aogxOZaKRA==
-  dependencies:
-    "@babel/runtime" "^7.28.6"
+i18next@^26.3.4:
+  version "26.3.4"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.3.4.tgz#a2e8540b0a1a6004eba525c05faa89c256fb57c8"
+  integrity sha512-pa7m0d7pBDqGHZxljT+WPFeyFgQ7P7SciPPo1tTqYuO0z4sqADYhwnBESmmGp/wEof1inwdls/k8ZgTg8rxFHA==
 
 iconv-lite@0.6.3:
   version "0.6.3"

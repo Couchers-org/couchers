@@ -74,7 +74,7 @@
     "invalid_email": "Geçersiz e-posta.",
     "invalid_date": "Geçersiz tarih.",
     "invalid_delivery_method": "Geçersiz teslimat yöntemi.",
-    "invalid_password": "Hatalı parola.",
+    "invalid_password": "Hatalı şifre.",
     "invalid_guide_location": "Bir rehber için ya bir adres ve konum sağlamalı ya da ikisini de vermemelisiniz.",
     "invalid_host_request_status": "Ev sahipliği istek durumunu ona ayarlayamazsın.",
     "invalid_invite_code": "Davet kodu geçersiz veya süresi dolmuş.",

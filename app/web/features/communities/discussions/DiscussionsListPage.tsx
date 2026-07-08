@@ -3,7 +3,9 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import TextBody from "components/TextBody";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { SectionTitle } from "features/communities/CommunityPage";
 import { useListDiscussions } from "features/communities/hooks";
 import { useTranslation } from "i18n";
@@ -62,10 +64,13 @@ export default function DiscussionsListPage({
 }) {
   const { t } = useTranslation([COMMUNITIES]);
 
+  const { data: accountInfo } = useAccountInfo();
   const hash = typeof window !== "undefined" ? window.location.hash : "";
+  // Intent to create a post, set by both the #new hash and the "New post" button.
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(
     hash.includes("new"),
   );
+
   const {
     isLoading: isDiscussionsLoading,
     isFetching: isDiscussionsFetching,
@@ -78,8 +83,22 @@ export default function DiscussionsListPage({
   // loading is false when refetched since there's old data in cache already
   const isRefetching = !isDiscussionsLoading && isDiscussionsFetching;
 
+  // Derive form/dialog visibility during render so both entry points share the
+  // same gate: show the form only once the profile is known to be complete,
+  // otherwise show the dialog.
+  const profileIncomplete =
+    accountInfo !== undefined && !accountInfo.profileComplete;
+  const showCreateForm =
+    isCreatingNewPost && accountInfo?.profileComplete === true;
+  const profileDialogOpen = isCreatingNewPost && profileIncomplete;
+
   return (
     <>
+      <ProfileIncompleteDialog
+        open={profileDialogOpen}
+        onClose={() => setIsCreatingNewPost(false)}
+        attempted_action="create_discussion"
+      />
       <StyledDiscussionsHeader>
         <SectionTitle icon={<EmailIcon />}>
           {t("communities:discussions_title")}
@@ -88,7 +107,7 @@ export default function DiscussionsListPage({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Collapse in={!isCreatingNewPost}>
+      <Collapse in={!showCreateForm}>
         <StyledNewPostButtonContainer>
           <StyledCreateResourceButton
             onClick={() => setIsCreatingNewPost(true)}
@@ -98,7 +117,7 @@ export default function DiscussionsListPage({
           {isRefetching && <CenteredSpinner />}
         </StyledNewPostButtonContainer>
       </Collapse>
-      <Collapse in={isCreatingNewPost}>
+      <Collapse in={showCreateForm}>
         <CreateDiscussionForm
           communityId={community.communityId}
           onCancel={() => setIsCreatingNewPost(false)}

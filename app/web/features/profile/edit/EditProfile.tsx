@@ -450,13 +450,17 @@ export default function EditProfileForm() {
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
