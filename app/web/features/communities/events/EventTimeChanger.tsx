@@ -6,9 +6,9 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { isSameOrFutureDate, timestamp2Date } from "utils/date";
-import dayjs, { Dayjs } from "utils/dayjs";
+import { timestamp2Date } from "utils/date";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData } from "./EventForm";
@@ -22,20 +22,6 @@ const StyledContainer = styled("div")(() => ({
   },
 }));
 
-function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
-  date?: Dayjs;
-  time?: Dayjs;
-} {
-  if (timestamp) {
-    const dayjsDate = dayjs(timestamp2Date(timestamp));
-    return {
-      date: dayjsDate.startOf("day"),
-      time: dayjsDate,
-    };
-  }
-  return {};
-}
-
 interface EventTimeChangerProps
   extends Pick<
     UseFormReturn<CreateEventData>,
@@ -44,6 +30,16 @@ interface EventTimeChangerProps
   dirtyFields: UseFormReturn<CreateEventData>["formState"]["dirtyFields"];
   event?: Event.AsObject;
   errors: UseFormReturn<CreateEventData>["formState"]["errors"];
+}
+
+function toPlainDateTime(
+  timestamp: Timestamp.AsObject,
+): Temporal.PlainDateTime {
+  const legacyDate = timestamp2Date(timestamp);
+  const instant = Temporal.Instant.fromEpochMilliseconds(legacyDate.getTime());
+  // FIXME(#8064): Event times should be interpreted in their timezones.
+  const zoned = instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+  return zoned.toPlainDateTime();
 }
 
 export default function EventTimeChanger({
@@ -56,34 +52,36 @@ export default function EventTimeChanger({
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
-  const { date: eventStartDate, time: eventStartTime } =
-    splitTimestampToDateAndTime(event?.startTime);
-  const { date: eventEndDate, time: eventEndTime } =
-    splitTimestampToDateAndTime(event?.endTime);
+  const defaultStartDateTime = event?.startTime
+    ? toPlainDateTime(event.startTime)
+    : undefined;
+  const defaultEndDateTime = event?.endTime
+    ? toPlainDateTime(event.endTime)
+    : undefined;
 
-  const handleStartDateChange = (newStartDate: Dayjs) => {
-    setValue("startDate", newStartDate, {
+  const handleStartDateChange = (value: Temporal.PlainDate) => {
+    setValue("startDate", value, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleEndDateChange = (newEndDate: Dayjs) => {
-    setValue("endDate", newEndDate, {
+  const handleEndDateChange = (value: Temporal.PlainDate) => {
+    setValue("endDate", value, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleStartTimeChange = (newStartTime: Dayjs) => {
-    setValue("startTime", newStartTime, {
+  const handleStartTimeChange = (value: Temporal.PlainTime) => {
+    setValue("startTime", value, {
       shouldDirty: true,
       shouldValidate: true,
     });
   };
 
-  const handleEndTimeChange = (newEndTime: Dayjs) => {
-    setValue("endTime", newEndTime, {
+  const handleEndTimeChange = (value: Temporal.PlainTime) => {
+    setValue("endTime", value, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -94,7 +92,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate ?? null}
+          defaultValue={defaultStartDateTime?.toPlainDate()}
           error={!!errors.startDate?.message}
           helperText={errors.startDate?.message}
           id="startDate"
@@ -103,14 +101,16 @@ export default function EventTimeChanger({
           onPostChange={handleStartDateChange}
           rules={{
             required: t("communities:date_required"),
-            validate: (date: Dayjs) => {
+            validate: (startDate: Temporal.PlainDate) => {
               // Only disable validation temporarily if `event` exists/in the edit event context
               if (event && !dirtyFields.startDate) {
                 return true;
               }
               return (
-                isSameOrFutureDate(date, dayjs()) ||
-                t("communities:past_date_error")
+                Temporal.PlainDate.compare(
+                  startDate,
+                  Temporal.Now.plainDateISO(),
+                ) >= 0 || t("communities:past_date_error")
               );
             },
           }}
@@ -121,35 +121,33 @@ export default function EventTimeChanger({
           control={control}
           name="startTime"
           onPostChange={handleStartTimeChange}
-          defaultValue={eventStartTime || null}
+          defaultValue={defaultStartDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time: Dayjs) => {
+            validate: (startTime: Temporal.PlainTime) => {
               if (event && !dirtyFields.startTime) {
                 return true;
               }
 
               const startDate = getValues("startDate");
-
               if (!startDate) {
                 return t("communities:date_required");
               }
 
-              if (!time) {
+              if (!startTime) {
                 return t("communities:time_required");
               }
 
-              const startDateTime = startDate
-                .hour(time.hour())
-                .minute(time.minute());
-
+              const startDateTime = startDate.toPlainDateTime(startTime);
               return (
-                startDateTime.isAfter(dayjs()) ||
-                t("communities:past_time_error")
+                Temporal.PlainDateTime.compare(
+                  startDateTime,
+                  Temporal.Now.plainDateTimeISO(),
+                ) >= 0 || t("communities:past_time_error")
               );
             },
           }}
@@ -163,7 +161,7 @@ export default function EventTimeChanger({
       <StyledContainer>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate ?? null}
+          defaultValue={defaultEndDateTime?.toPlainDate()}
           error={!!errors.endDate?.message}
           helperText={errors.endDate?.message || ""}
           id="endDate"
@@ -171,20 +169,24 @@ export default function EventTimeChanger({
           name="endDate"
           rules={{
             required: t("communities:date_required"),
-            validate: (date) => {
+            validate: (endDate: Temporal.PlainDate) => {
               if (event && !dirtyFields.endDate) {
                 return true;
               }
 
               const startDate = getValues("startDate");
-
-              if (date.isBefore(startDate)) {
+              if (
+                startDate &&
+                Temporal.PlainDate.compare(endDate, startDate) < 0
+              ) {
                 return t("communities:end_date_error");
               }
 
               return (
-                isSameOrFutureDate(date, dayjs()) ||
-                t("communities:past_date_error")
+                Temporal.PlainDate.compare(
+                  endDate,
+                  Temporal.Now.plainDateISO(),
+                ) >= 0 || t("communities:past_date_error")
               );
             },
           }}
@@ -196,14 +198,14 @@ export default function EventTimeChanger({
           control={control}
           name="endTime"
           onPostChange={handleEndTimeChange}
-          defaultValue={eventEndTime || null}
+          defaultValue={defaultEndDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time: Dayjs) => {
+            validate: (endTime: Temporal.PlainTime) => {
               if (event && !dirtyFields.endTime) {
                 return true;
               }
@@ -212,7 +214,7 @@ export default function EventTimeChanger({
               const startDate = getValues("startDate");
               const endDate = getValues("endDate");
 
-              if (!startTime || !time) {
+              if (!startTime || !endTime) {
                 return t("communities:time_required");
               }
 
@@ -220,20 +222,19 @@ export default function EventTimeChanger({
                 return t("communities:date_required");
               }
 
-              const startDateTime = startDate
-                .hour(startTime.hour())
-                .minute(startTime.minute());
-
-              const endDateTime = endDate
-                .hour(time.hour())
-                .minute(time.minute());
-
-              if (!endDateTime.isAfter(startDateTime)) {
+              const startDateTime = startDate.toPlainDateTime(startTime);
+              const endDateTime = endDate.toPlainDateTime(endTime);
+              if (
+                Temporal.PlainDateTime.compare(endDateTime, startDateTime) <= 0
+              ) {
                 return t("communities:end_time_error");
               }
 
               return (
-                endDateTime.isAfter(dayjs()) || t("communities:past_time_error")
+                Temporal.PlainDateTime.compare(
+                  endDateTime,
+                  Temporal.Now.plainDateTimeISO(),
+                ) >= 0 || t("communities:past_time_error")
               );
             },
           }}

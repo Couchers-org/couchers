@@ -8404,6 +8404,24 @@ symbol-tree@^3.2.4:
   dependencies:
     "@pkgr/core" "^0.2.9"
 
+temporal-polyfill@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/temporal-polyfill/-/temporal-polyfill-1.0.1.tgz#95677df8fa5671a798e8aab3b58f459491880d9f"
+  integrity sha512-N2SoI9olnW7BUsU8RosDphZQl9s+WJ8O7PoJMFCr/e5/1rFkVI4GNOWaSeySG+UoP04foPYsnLWbJmbXOiShZg==
+  dependencies:
+    temporal-spec "1.0.0"
+    temporal-utils "1.0.1"
+
+temporal-spec@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/temporal-spec/-/temporal-spec-1.0.0.tgz#81ea77940b009a7759fd21f447dc0f2b7547c1ca"
+  integrity sha512-00Ahj1e1ifaERTMOIIGpOCdOo9IEk2m6GGSMedsn9a2SIsGLdOTbmME1Htv6IM82b6VHrzSUTIVc7YHy6hdhFQ==
+
+temporal-utils@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/temporal-utils/-/temporal-utils-1.0.1.tgz#faf276e216512ccd1575a4705a58d73a091aeb82"
+  integrity sha512-HAixuesxFQIUaQk3ptX2jhfO/FsOkgVkDDMawvp6n/fkB1q6BKfs3lURw9I+pK/2e2e/q/vrLrxmeqauBoyGMQ==
+
 test-exclude@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/test-exclude/-/test-exclude-6.0.0.tgz#04a8698661d805ea6fa293b6cb9e63ac044ef15e"

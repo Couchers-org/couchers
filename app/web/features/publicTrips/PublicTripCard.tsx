@@ -38,6 +38,7 @@ import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -224,8 +225,8 @@ export default function PublicTripCard({
           tripId={trip.tripId}
           hostUserId={user.userId}
           hostName={user.name}
-          tripFromDate={trip.fromDate}
-          tripToDate={trip.toDate}
+          tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
+          tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />
       )}
       {ownerView && (

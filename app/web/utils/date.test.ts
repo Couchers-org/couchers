@@ -1,15 +1,10 @@
 import {
   getMuiDateFormat,
   getMuiTimeFormat,
-  isSameOrFutureDate,
   localizeDateTime,
   UTC_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
-
-const FUTURE = dayjs("2025-02-15");
-const PAST = dayjs("1991-10-05");
-const TODAY = dayjs("2021-03-25");
 
 describe("localizeDateTime", () => {
   it("excludes dates when specified", () => {
@@ -222,19 +217,5 @@ describe("getMuiTimeFormat", () => {
 
   it("returns a default value for unsupported locales", () => {
     expect(getMuiTimeFormat("xx")).toEqual("HH:mm");
-  });
-});
-
-describe("isSameOrFutureDate", () => {
-  it("returns true when is same date", () => {
-    expect(isSameOrFutureDate(TODAY, TODAY)).toEqual(true);
-  });
-
-  it("returns true when date is in future", () => {
-    expect(isSameOrFutureDate(FUTURE, TODAY)).toEqual(true);
-  });
-
-  it("returns false when second date is in past", () => {
-    expect(isSameOrFutureDate(PAST, TODAY)).toEqual(false);
   });
 });
