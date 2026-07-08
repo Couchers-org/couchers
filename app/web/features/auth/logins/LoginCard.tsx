@@ -49,7 +49,7 @@ export default function LoginsPage({
     locale,
   });
   const createdDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.created!, { timezone: undefined }),
+    timestampToPlainDateTime(session.created!),
     {
       locale,
       includeSeconds: true,
@@ -57,7 +57,7 @@ export default function LoginsPage({
     },
   );
   const expiryDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.expiry!, { timezone: undefined }),
+    timestampToPlainDateTime(session.expiry!),
     {
       locale,
       includeTime: false,

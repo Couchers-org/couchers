@@ -282,9 +282,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         text={
           user.joined
             ? localizeYearMonth(
-                timestampToPlainDateTime(user.joined, {
-                  timezone: undefined,
-                }).toPlainDate(),
+                timestampToPlainDateTime(user.joined).toPlainDate(),
                 {
                   locale,
                   abbreviate: true,
@@ -297,9 +295,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
       <LabelAndText
         label={t("profile:heading.local_time")}
         text={localizeDateTime(
-          Temporal.Now.zonedDateTimeISO(
-            user.timezone || UTC_TIMEZONE,
-          ).toPlainDateTime(),
+          Temporal.Now.plainDateTimeISO(user.timezone || UTC_TIMEZONE),
           {
             locale,
             includeDate: false,

@@ -173,11 +173,9 @@ export default function EventListRow({ event }: EventListRowProps) {
   } = useTranslation([DASHBOARD]);
 
   const now = Temporal.Now.plainDateTimeISO();
-  const startDate = timestampToPlainDateTime(event.startTime!, {
-    timezone: undefined,
-  });
+  const startDate = timestampToPlainDateTime(event.startTime!);
   const endDate = event.endTime
-    ? timestampToPlainDateTime(event.endTime, { timezone: undefined })
+    ? timestampToPlainDateTime(event.endTime)
     : null;
   const isOngoing =
     endDate !== null &&

@@ -293,7 +293,6 @@ export default function DiscussionPage({
                                   dateOnly: localizeDateTime(
                                     timestampToPlainDateTime(
                                       discussion.created!,
-                                      { timezone: undefined },
                                     ),
                                     {
                                       locale,

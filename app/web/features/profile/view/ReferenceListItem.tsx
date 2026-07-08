@@ -64,9 +64,7 @@ export default function ReferenceListItem({
           {reference.writtenTime && (
             <Pill variant="rounded">
               {localizeYearMonth(
-                timestampToPlainDateTime(reference.writtenTime, {
-                  timezone: undefined,
-                }).toPlainDate(),
+                timestampToPlainDateTime(reference.writtenTime).toPlainDate(),
                 {
                   locale,
                   abbreviate: true,

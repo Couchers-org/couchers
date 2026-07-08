@@ -43,10 +43,10 @@ export default function EventTimeChanger({
 
   // FIXME(#8064): Event times should be interpreted in their timezones.
   const defaultStartDateTime = event?.startTime
-    ? timestampToPlainDateTime(event.startTime, { timezone: undefined })
+    ? timestampToPlainDateTime(event.startTime)
     : undefined;
   const defaultEndDateTime = event?.endTime
-    ? timestampToPlainDateTime(event.endTime, { timezone: undefined })
+    ? timestampToPlainDateTime(event.endTime)
     : undefined;
 
   const handleStartDateChange = (value: Temporal.PlainDate) => {

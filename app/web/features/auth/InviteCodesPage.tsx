@@ -164,9 +164,7 @@ export default function InviteCodesPage() {
                         <>
                           {t("global:invites.created_datetime", {
                             datetime: localizeDateTime(
-                              timestampToPlainDateTime(c.created, {
-                                timezone: undefined,
-                              }),
+                              timestampToPlainDateTime(c.created),
                               {
                                 locale: locale,
                                 abbreviate: true,
@@ -180,9 +178,7 @@ export default function InviteCodesPage() {
                           {" • "}
                           {t("global:invites.disabled_datetime", {
                             datetime: localizeDateTime(
-                              timestampToPlainDateTime(c.disabled, {
-                                timezone: undefined,
-                              }),
+                              timestampToPlainDateTime(c.disabled),
                               {
                                 locale,
                                 abbreviate: true,

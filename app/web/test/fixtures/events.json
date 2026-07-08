@@ -30,7 +30,7 @@
     "photoKey": "",
     "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "weekly-meetup",
-    "startTime": { "nanos": 0, "seconds": 1624934247.732 },
+    "startTime": { "nanos": 732000000, "seconds": 1624934247 },
     "endTime": { "nanos": 0, "seconds": 1624937847 },
     "title": "Weekly Meetup",
     "timezone": "Europe/Amsterdam"

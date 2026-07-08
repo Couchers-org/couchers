@@ -247,28 +247,30 @@ export function getMuiTimeFormat(locale: string): string {
 export function timestampToInstant(
   timestamp: Timestamp.AsObject,
 ): Temporal.Instant {
+  // By protobuf, seconds and nanos should be integers.
+  // Just in case, drop decimals otherwise BigInt will blow up.
   const nanos =
-    BigInt(timestamp.nanos) + BigInt(timestamp.seconds) * 1_000_000_000n;
+    BigInt(Math.floor(timestamp.nanos)) +
+    BigInt(Math.floor(timestamp.seconds)) * 1_000_000_000n;
   return new Temporal.Instant(nanos);
 }
 
 /// Converts a Temporal Instant to a PlainDateTime in the browser's timezone.
 export function instantToPlainDateTime(
   instant: Temporal.Instant,
-  // Require callers to explicitly specify the timezone or undefined for clarity.
-  options: { timezone: string | undefined },
+  timezone?: string,
 ): Temporal.PlainDateTime {
   return instant
-    .toZonedDateTimeISO(options.timezone ?? Temporal.Now.timeZoneId())
+    .toZonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId())
     .toPlainDateTime();
 }
 
 /// Converts a protobuf Timestamp to a PlainDateTime in the browser's timezone.
 export function timestampToPlainDateTime(
   timestamp: Timestamp.AsObject,
-  options: { timezone: string | undefined },
+  timezone?: string,
 ): Temporal.PlainDateTime {
-  return instantToPlainDateTime(timestampToInstant(timestamp), options);
+  return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
 }
 
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
