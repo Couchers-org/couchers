@@ -6,7 +6,7 @@ import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 
-import { ABOUT_ME_MIN_LENGTH } from "./constants";
+import { profileAboutMeMinLength } from "utils/validation";
 import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
@@ -220,7 +220,7 @@ describe("Edit profile", () => {
   it("should reject names with invalid characters like !@#$", async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
-      aboutMe: "a".repeat(ABOUT_ME_MIN_LENGTH),
+      aboutMe: "a".repeat(profileAboutMeMinLength),
     }));
 
     await renderPage();
