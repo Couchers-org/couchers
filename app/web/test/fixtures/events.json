@@ -30,8 +30,8 @@
     "photoKey": "",
     "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "weekly-meetup",
-    "startTime": { "nanos": 732000000, "seconds": 1624934247 },
-    "endTime": { "nanos": 0, "seconds": 1624937847 },
+    "startTime": { "nanos": 0, "seconds": 1624934220 },
+    "endTime": { "nanos": 0, "seconds": 1624937820 },
     "title": "Weekly Meetup",
     "timezone": "Europe/Amsterdam"
   },
@@ -66,7 +66,7 @@
     "photoKey": "",
     "photoUrl": "",
     "slug": "cherry-blossom-bike-ride",
-    "startTime": { "nanos": 0, "seconds": 1625000420 },
+    "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
     "title": "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
     "timezone": "Europe/Amsterdam"
@@ -102,7 +102,7 @@
     "photoKey": "",
     "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "planting-season-meetup",
-    "startTime": { "nanos": 0, "seconds": 1625000420 },
+    "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625004020 },
     "title": "Planting Season Meetup",
     "timezone": "Europe/Amsterdam"
@@ -138,7 +138,7 @@
     "photoKey": "",
     "photoUrl": "",
     "slug": "cherry-blossom-bike-ride",
-    "startTime": { "nanos": 0, "seconds": 1625000420 },
+    "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
     "title": "A cancelled event",
     "timezone": "Europe/Amsterdam"
