@@ -14,7 +14,7 @@ import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { myPublicTripsRoute, routeToCommunity } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTimeRange, localizeRelativeDays } from "utils/date";
+import { localizeDateTimeRange, localizeRelativeTimeUnit } from "utils/date";
 import dayjs from "utils/dayjs";
 
 export const CARD_WIDTH = 220;
@@ -120,7 +120,7 @@ function WhenChip({
   if (isOngoing) {
     label = t("dashboard:public_trips.when_now");
   } else if (daysUntil === 0 || daysUntil === 1) {
-    label = localizeRelativeDays(daysUntil, locale);
+    label = localizeRelativeTimeUnit(daysUntil, "days", locale);
   }
 
   if (!label) return null;

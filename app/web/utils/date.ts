@@ -274,41 +274,44 @@ export function timestampToPlainDateTime(
   return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
 }
 
+export interface LocalizeRelativeTimeOptions {
+  style?: Intl.RelativeTimeFormatStyle;
+  /// We override the default to "auto"
+  numeric?: Intl.RelativeTimeFormatNumeric;
+  /// If true, capitalize if the script supports it.
+  standalone?: boolean;
+}
+
+// Creating Intl objects every time is slow, so cache them.
 const relativeTimeFormatCache = new Map<string, Intl.RelativeTimeFormat>();
 
 export function localizeRelativeTimeUnit(
   value: number,
   unit: Intl.RelativeTimeFormatUnit,
   locale: string,
-  options?: {
-    style?: Intl.RelativeTimeFormatStyle;
-    numeric?: Intl.RelativeTimeFormatNumeric;
-  },
+  options?: LocalizeRelativeTimeOptions,
 ): string {
-  const cacheKey = JSON.stringify({ locale, ...options });
+  const intlOptions = {
+    style: options?.style ?? "long",
+    numeric: options?.numeric ?? "auto",
+  };
+  const cacheKey = JSON.stringify({ locale, ...intlOptions });
   let formatter = relativeTimeFormatCache.get(cacheKey);
   if (!formatter) {
-    formatter = new Intl.RelativeTimeFormat(locale, options);
+    formatter = new Intl.RelativeTimeFormat(locale, intlOptions);
     relativeTimeFormatCache.set(cacheKey, formatter);
   }
-  return formatter.format(value, unit);
-}
-
-/// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
-export function localizeRelativeDays(days: number, locale: string): string {
-  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
-    days,
-    "day",
-  );
+  let result = formatter.format(value, unit);
+  if (options?.standalone === true)
+    result = capitalizeFirstLetter(result, locale);
+  return result;
 }
 
 /// Localizes a duration (positive or negative)'s largest unit (e.g. "4 days" ignoring minutes).
 export function localizeDurationLargestUnit(
   delta: Temporal.Duration,
   locale: string,
-  options?: {
-    style?: Intl.RelativeTimeFormatStyle;
-    numeric?: Intl.RelativeTimeFormatNumeric;
+  options?: LocalizeRelativeTimeOptions & {
     smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
     t?: TFunction<"global", undefined>;
   },
@@ -351,10 +354,8 @@ export function localizeDurationLargestUnit(
 export function localizeRelativeInstant(
   instant: Temporal.Instant | Timestamp.AsObject,
   locale: string,
-  options?: {
+  options?: LocalizeRelativeTimeOptions & {
     relativeTo?: Temporal.Instant;
-    style?: Intl.RelativeTimeFormatStyle;
-    numeric?: Intl.RelativeTimeFormatNumeric;
     smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
     t?: TFunction<"global", undefined>;
   },

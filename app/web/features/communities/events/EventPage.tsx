@@ -239,7 +239,7 @@ export default function EventPage({
     ? Temporal.Instant.compare(
         timestampToInstant(event.endTime),
         Temporal.Now.instant(),
-      ) >= 0
+      ) < 0
     : false;
 
   const isCreator = currentUserId === event?.creatorUserId;
