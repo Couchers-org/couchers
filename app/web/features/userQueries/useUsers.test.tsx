@@ -207,7 +207,7 @@ describe("cached data", () => {
         }),
       ),
     );
-    await waitFor(() => expect(getUserMock).toBeCalledTimes(3));
+    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
@@ -290,7 +290,7 @@ describe("cached data", () => {
     getUserMock.mockClear();
     act(() => result.current.setIds([1, 2]));
 
-    expect(getUserMock).toBeCalledTimes(2);
+    expect(getUserMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns isRefetching as true when new IDs are being added", async () => {

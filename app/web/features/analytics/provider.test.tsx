@@ -13,8 +13,8 @@ jest.mock("./eventCollector", () => ({
   initializeCollector: () => mockInitializeCollector(),
 }));
 
-let eventOnSpy: jest.SpyInstance;
-let eventOffSpy: jest.SpyInstance;
+let eventOnSpy: jest.Spied<typeof mockRouter.events.on>;
+let eventOffSpy: jest.Spied<typeof mockRouter.events.off>;
 
 beforeEach(() => {
   mockLogEvent.mockReset();
