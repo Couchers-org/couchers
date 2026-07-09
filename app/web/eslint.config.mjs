@@ -25,6 +25,11 @@ const config = [
       "proto/**",
     ],
   },
+  // eslint 9 flipped this default to "warn"; keep the 8.x behavior so stale
+  // disable directives in the tree don't fail --max-warnings=0
+  {
+    linterOptions: { reportUnusedDisableDirectives: "off" },
+  },
   // both legacy extends must go through the same FlatCompat instance so the
   // @typescript-eslint plugin resolves to one module object ("Cannot redefine
   // plugin" otherwise)
