@@ -16,8 +16,7 @@ import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { localizeRelativeInstant } from "utils/date";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
@@ -152,11 +151,7 @@ const NotificationItem = ({
           }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          {timeAgo({
-            since: timestamp2Date(notification.created!),
-            t,
-            locale,
-          })}
+          {localizeRelativeInstant(notification.created!, locale)}
         </Typography>
         <LinesEllipsis
           text={notification.body}

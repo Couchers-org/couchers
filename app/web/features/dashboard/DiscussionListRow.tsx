@@ -11,8 +11,7 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { routeToDiscussion } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { localizeRelativeInstant } from "utils/date";
 
 type DiscussionSummary = Pick<
   Discussion.AsObject,
@@ -118,11 +117,9 @@ export default function DiscussionListRow({
     i18n: { language: locale },
   } = useTranslation([DASHBOARD, GLOBAL]);
 
-  const createdDate = discussion.created
-    ? timestamp2Date(discussion.created)
-    : new Date();
-
-  const timeStr = timeAgo({ since: createdDate, t, locale });
+  const timeStr = discussion.created
+    ? localizeRelativeInstant(discussion.created, locale)
+    : "";
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
     originalContent: discussion.content?.replace(/\n/g, " "),

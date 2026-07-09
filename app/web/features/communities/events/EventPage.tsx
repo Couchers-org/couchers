@@ -32,13 +32,13 @@ import {
   routeToEvent,
 } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTimeRange,
-  timestamp2Date,
+  timestampToInstant,
   timestampToPlainDateTime,
 } from "utils/date";
-import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -236,7 +236,10 @@ export default function EventPage({
   };
 
   const isPastEvent = event?.endTime
-    ? dayjs().isAfter(timestamp2Date(event.endTime))
+    ? Temporal.Instant.compare(
+        timestampToInstant(event.endTime),
+        Temporal.Now.instant(),
+      ) >= 0
     : false;
 
   const isCreator = currentUserId === event?.creatorUserId;

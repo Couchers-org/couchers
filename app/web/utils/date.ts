@@ -1,8 +1,7 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
-
-import { dayMillis } from "./timeAgo";
 
 // Creating Intl.Segmenter every time is slow, so cache one per locale.
 const segmenterCache = new Map<string, Intl.Segmenter>();
@@ -22,6 +21,8 @@ function capitalizeFirstLetter(value: string, locale: string): string {
   if (!first) return value;
   return first.toLocaleUpperCase(locale) + value.slice(first.length);
 }
+
+const dayMillis = Temporal.Duration.from({ hours: 24 }).total("milliseconds");
 
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
@@ -273,8 +274,24 @@ export function timestampToPlainDateTime(
   return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
 }
 
-function timestamp2Date(timestamp: Timestamp.AsObject): Date {
-  return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
+const relativeTimeFormatCache = new Map<string, Intl.RelativeTimeFormat>();
+
+export function localizeRelativeTimeUnit(
+  value: number,
+  unit: Intl.RelativeTimeFormatUnit,
+  locale: string,
+  options?: {
+    style?: Intl.RelativeTimeFormatStyle;
+    numeric?: Intl.RelativeTimeFormatNumeric;
+  },
+): string {
+  const cacheKey = JSON.stringify({ locale, ...options });
+  let formatter = relativeTimeFormatCache.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.RelativeTimeFormat(locale, options);
+    relativeTimeFormatCache.set(cacheKey, formatter);
+  }
+  return formatter.format(value, unit);
 }
 
 /// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
@@ -285,4 +302,102 @@ export function localizeRelativeDays(days: number, locale: string): string {
   );
 }
 
-export { numNights, timestamp2Date };
+/// Localizes a duration (positive or negative)'s largest unit (e.g. "4 days" ignoring minutes).
+export function localizeDurationLargestUnit(
+  delta: Temporal.Duration,
+  locale: string,
+  options?: {
+    style?: Intl.RelativeTimeFormatStyle;
+    numeric?: Intl.RelativeTimeFormatNumeric;
+    smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
+    t?: TFunction<"global", undefined>;
+  },
+) {
+  if (delta.years != 0)
+    return localizeRelativeTimeUnit(delta.years, "years", locale, options);
+  if (delta.months != 0)
+    return localizeRelativeTimeUnit(delta.months, "months", locale, options);
+  if (delta.weeks != 0)
+    return localizeRelativeTimeUnit(delta.weeks, "weeks", locale, options);
+  if (delta.days != 0)
+    return localizeRelativeTimeUnit(delta.days, "days", locale, options);
+
+  // Support "less than one hour ago"
+  if (
+    delta.hours != 0 ||
+    options?.smallestUnit == "hour" ||
+    options?.smallestUnit == "hours"
+  ) {
+    if (delta.hours == 0 && delta.sign <= 0 && options?.t)
+      return options.t("global:relative_time.less_than_one_hour_ago");
+    return localizeRelativeTimeUnit(delta.hours, "hours", locale, options);
+  }
+
+  // Support "less than one minute ago"
+  if (
+    delta.minutes != 0 ||
+    options?.smallestUnit == "minute" ||
+    options?.smallestUnit == "minutes"
+  ) {
+    if (delta.minutes == 0 && delta.sign <= 0 && options?.t)
+      return options.t("global:relative_time.less_than_a_minute_ago");
+    return localizeRelativeTimeUnit(delta.minutes, "minutes", locale, options);
+  }
+
+  return localizeRelativeTimeUnit(delta.seconds, "seconds", locale, options);
+}
+
+/// Localizes an instant in time relative to some other instant (by default, now).
+export function localizeRelativeInstant(
+  instant: Temporal.Instant | Timestamp.AsObject,
+  locale: string,
+  options?: {
+    relativeTo?: Temporal.Instant;
+    style?: Intl.RelativeTimeFormatStyle;
+    numeric?: Intl.RelativeTimeFormatNumeric;
+    smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
+    t?: TFunction<"global", undefined>;
+  },
+) {
+  if (!(instant instanceof Temporal.Instant)) {
+    instant = timestampToInstant(instant);
+  }
+
+  let duration = instant.since(options?.relativeTo ?? Temporal.Now.instant(), {
+    largestUnit: "hours", // Only supports time units, no date units.
+  });
+
+  // Approximate date units above 24 hours.
+  if (duration.hours >= 24 || duration.hours <= -24) {
+    // Manipulate the absolute value for modulo operations
+    const isPositive = duration.sign >= 0;
+    duration = duration.abs();
+
+    duration = duration.with({
+      days: Math.floor(duration.hours / 24),
+      hours: duration.hours % 24,
+    });
+
+    if (duration.days >= 365) {
+      duration = duration.with({
+        years: Math.floor(duration.days / 365),
+        days: duration.days % 365,
+      });
+    } else if (duration.days >= 30) {
+      duration = duration.with({
+        months: Math.floor(duration.days / 30),
+        days: duration.days % 30,
+      });
+    } else if (duration.days >= 7) {
+      duration = duration.with({
+        weeks: Math.floor(duration.days / 7),
+        days: duration.days % 7,
+      });
+    }
+
+    if (!isPositive) duration = duration.negated();
+  }
+  return localizeDurationLargestUnit(duration, locale, options);
+}
+
+export { numNights };
