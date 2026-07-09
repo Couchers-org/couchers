@@ -69,7 +69,7 @@
     "header": "Your account details",
     "username": {
       "field_label": "Username",
-      "helper_text": "This is your unique login ID, not your display name.",
+      "helper_text": "This is your public username.",
       "required_error": "Enter your username",
       "username_taken_error": "This username is taken.",
       "validation_error": "Username can only have numbers or _, and should start with a letter."
@@ -107,6 +107,7 @@
   "basic_form": {
     "name": {
       "field_label": "Name",
+      "helper_text": "This is the name on your profile.",
       "required_error": "This field can't be empty",
       "invalid_characters_error": "Name can only contain letters, spaces, hyphens, and apostrophes",
       "min_length_error": "Name must be at least 2 characters",
