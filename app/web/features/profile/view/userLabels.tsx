@@ -285,6 +285,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
                 timestampToPlainDateTime(user.joined).toPlainDate(),
                 {
                   locale,
+                  abbreviate: true,
                   capitalize: true,
                 },
               )
