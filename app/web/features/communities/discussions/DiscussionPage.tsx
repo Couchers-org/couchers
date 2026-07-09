@@ -26,7 +26,7 @@ import { service } from "service";
 import { theme } from "theme";
 import {
   localizeDateTime,
-  localizeRelativeInstant,
+  localizeRelativeTime,
   timestampToPlainDateTime,
 } from "utils/date";
 
@@ -304,7 +304,7 @@ export default function DiscussionPage({
                             {discussion.lastEdited && (
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
-                                  timeAgo: localizeRelativeInstant(
+                                  timeAgo: localizeRelativeTime(
                                     discussion.lastEdited,
                                     locale,
                                   ),

@@ -16,7 +16,7 @@ import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
-import { localizeRelativeInstant } from "utils/date";
+import { localizeRelativeTime } from "utils/date";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
@@ -151,7 +151,7 @@ const NotificationItem = ({
           }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          {localizeRelativeInstant(notification.created!, locale)}
+          {localizeRelativeTime(notification.created!, locale)}
         </Typography>
         <LinesEllipsis
           text={notification.body}

@@ -11,7 +11,7 @@ import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";
-import { localizeRelativeInstant } from "utils/date";
+import { localizeRelativeTime } from "utils/date";
 
 import getContentSummary from "../getContentSummary";
 
@@ -78,7 +78,7 @@ export default function DiscussionCard({
   );
 
   const postedTime = discussion.created
-    ? localizeRelativeInstant(discussion.created, locale)
+    ? localizeRelativeTime(discussion.created, locale)
     : null;
   const truncatedContent = useMemo(
     () =>

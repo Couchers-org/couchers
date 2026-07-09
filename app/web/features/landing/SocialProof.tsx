@@ -11,8 +11,7 @@ import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-
-import { localizeRelativeInstant } from "../../utils/date";
+import { localizeRelativeTime } from "utils/date";
 
 interface SignupInfo {
   userCount: string;
@@ -166,10 +165,8 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: localizeRelativeInstant(
-                    Temporal.ZonedDateTime.from(
-                      signupInfo.lastSignup,
-                    ).toInstant(),
+                  timeAgo: localizeRelativeTime(
+                    Temporal.Instant.from(signupInfo.lastSignup),
                     locale,
                   ),
                 })}

@@ -11,7 +11,7 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { routeToDiscussion } from "routes";
-import { localizeRelativeInstant } from "utils/date";
+import { localizeRelativeTime } from "utils/date";
 
 type DiscussionSummary = Pick<
   Discussion.AsObject,
@@ -118,7 +118,7 @@ export default function DiscussionListRow({
   } = useTranslation([DASHBOARD, GLOBAL]);
 
   const timeStr = discussion.created
-    ? localizeRelativeInstant(discussion.created, locale)
+    ? localizeRelativeTime(discussion.created, locale)
     : "";
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({

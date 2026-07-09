@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeRelativeInstant } from "utils/date";
+import { localizeRelativeTime } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { useThread } from "../hooks";
@@ -218,7 +218,7 @@ export default function Comment({
   };
 
   const postedTime = comment.createdTime
-    ? localizeRelativeInstant(comment.createdTime, locale)
+    ? localizeRelativeTime(comment.createdTime, locale)
     : "";
 
   const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
@@ -282,7 +282,7 @@ export default function Comment({
                       {" "}
                       {"•"}{" "}
                       {t("communities:comment_edited_date", {
-                        timeAgo: localizeRelativeInstant(
+                        timeAgo: localizeRelativeTime(
                           comment.lastEdited,
                           locale,
                         ),

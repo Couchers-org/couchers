@@ -5,7 +5,7 @@ import {
   getMuiTimeFormat,
   localizeDateTime,
   localizeDurationLargestUnit,
-  localizeRelativeInstant,
+  localizeRelativeTime,
 } from "utils/date";
 
 const janFirst2000 = Temporal.PlainDateTime.from("2000-01-01");
@@ -338,7 +338,7 @@ describe("localizeDurationLargestUnit", () => {
   });
 });
 
-describe("localizeRelativeInstant", () => {
+describe("localizeRelativeTime", () => {
   const instantZero = new Temporal.Instant(0n);
   const nanosecondsPerHour = instantZero.add(
     Temporal.Duration.from({ hours: 1 }),
@@ -347,14 +347,14 @@ describe("localizeRelativeInstant", () => {
 
   it("handles time units", () => {
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerHour * 5n),
         "en",
         { relativeTo: instantZero },
       ),
     ).toBe("in 5 hours");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerHour * -5n),
         "en",
         { relativeTo: instantZero },
@@ -364,24 +364,18 @@ describe("localizeRelativeInstant", () => {
 
   it("handles date units", () => {
     expect(
-      localizeRelativeInstant(
-        new Temporal.Instant(nanosecondsPerDay * 6n),
-        "en",
-        { relativeTo: instantZero },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 6n), "en", {
+        relativeTo: instantZero,
+      }),
     ).toBe("in 6 days");
     expect(
-      localizeRelativeInstant(
-        new Temporal.Instant(nanosecondsPerDay * 7n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 7n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("in 1 week");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 13n),
         "en",
         {
@@ -391,21 +385,21 @@ describe("localizeRelativeInstant", () => {
       ),
     ).toBe("in 1 week");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 14n),
         "en",
         { relativeTo: instantZero },
       ),
     ).toBe("in 2 weeks");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 29n),
         "en",
         { relativeTo: instantZero },
       ),
     ).toBe("in 4 weeks");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 30n),
         "en",
         {
@@ -415,14 +409,14 @@ describe("localizeRelativeInstant", () => {
       ),
     ).toBe("in 1 month");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 364n),
         "en",
         { relativeTo: instantZero },
       ),
     ).toBe("in 12 months"); // We approximate months as 30 days
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * 365n),
         "en",
         {
@@ -435,7 +429,7 @@ describe("localizeRelativeInstant", () => {
 
   it("handles date units with negative durations", () => {
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * -13n),
         "en",
         {
@@ -445,7 +439,7 @@ describe("localizeRelativeInstant", () => {
       ),
     ).toBe("1 week ago");
     expect(
-      localizeRelativeInstant(
+      localizeRelativeTime(
         new Temporal.Instant(nanosecondsPerDay * -14n),
         "en",
         {

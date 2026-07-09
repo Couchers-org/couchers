@@ -13,7 +13,7 @@ import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTime,
-  localizeRelativeInstant,
+  localizeRelativeTime,
   localizeYearMonth,
   timestampToPlainDateTime,
   UTC_TIMEZONE,
@@ -39,7 +39,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
         label={t("heading.last_active")}
         text={
           user.lastActive
-            ? localizeRelativeInstant(user.lastActive, locale, {
+            ? localizeRelativeTime(user.lastActive, locale, {
                 smallestUnit: "hours",
                 t,
               })

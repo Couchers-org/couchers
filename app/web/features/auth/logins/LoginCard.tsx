@@ -23,7 +23,7 @@ import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
 import {
   localizeDateTime,
-  localizeRelativeInstant,
+  localizeRelativeTime,
   timestampToPlainDateTime,
 } from "utils/date";
 
@@ -42,7 +42,7 @@ export default function LoginsPage({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = localizeRelativeInstant(session.lastSeen!, locale);
+  const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
   const createdDisplay = localizeDateTime(
     timestampToPlainDateTime(session.created!),
     {

@@ -20,7 +20,7 @@ import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
-import { localizeRelativeInstant, timestampToInstant } from "utils/date";
+import { localizeRelativeTime, timestampToInstant } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 
@@ -341,7 +341,7 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive
                 ? `${t("profile:active")}: ` +
-                  localizeRelativeInstant(user.lastActive, locale, {
+                  localizeRelativeTime(user.lastActive, locale, {
                     smallestUnit: "hours",
                     t,
                   })

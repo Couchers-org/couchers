@@ -3,8 +3,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { Temporal } from "temporal-polyfill";
-
-import { localizeRelativeInstant } from "../../../utils/date";
+import { localizeRelativeTime } from "utils/date";
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem", // 12px
@@ -25,7 +24,7 @@ export default function TimeInterval({
 
   return (
     <StyledTypography className={className} variant="caption">
-      {localizeRelativeInstant(instant, locale)}
+      {localizeRelativeTime(instant, locale)}
     </StyledTypography>
   );
 }

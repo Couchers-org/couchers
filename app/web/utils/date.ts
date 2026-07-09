@@ -350,8 +350,8 @@ export function localizeDurationLargestUnit(
   return localizeRelativeTimeUnit(delta.seconds, "seconds", locale, options);
 }
 
-/// Localizes an instant in time relative to some other instant (by default, now).
-export function localizeRelativeInstant(
+/// Localizes a point in time as a duration relative to some other point in time (by default, now).
+export function localizeRelativeTime(
   instant: Temporal.Instant | Timestamp.AsObject,
   locale: string,
   options?: LocalizeRelativeTimeOptions & {
