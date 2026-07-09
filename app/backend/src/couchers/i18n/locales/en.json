@@ -196,7 +196,6 @@
     "postal_verification_rate_limited": "You cannot start a new postal verification attempt yet. Please wait.",
     "postal_verification_wrong_state": "This postal verification attempt is not in the correct state for this action.",
     "push_notifications_disabled": "Push notifications are currently disabled.",
-    "query_too_short": "Query must be at least 3 characters long.",
     "reference_already_given": "Reference already given.",
     "reference_invalid_rating": "The rating must be between 0 and 1, inclusive.",
     "reference_no_text": "The text of a reference must not be empty",

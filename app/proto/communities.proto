@@ -301,7 +301,9 @@ message SearchCommunitiesReq {
 }
 
 message SearchCommunitiesRes {
-  repeated Community communities = 1;
+  reserved 1;
+  reserved "communities";
+  repeated CommunitySummary results = 2;
 }
 
 message CommunitySummary {

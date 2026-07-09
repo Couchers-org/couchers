@@ -13,21 +13,13 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import {
-  Community,
-  ListAllCommunitiesRes,
-  SearchCommunitiesRes,
-} from "proto/communities_pb";
+import { CommunitySummary, SearchCommunitiesRes } from "proto/communities_pb";
 import { useEffect, useMemo, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
-import { listAllCommunities, searchCommunities } from "service/communities";
+import { searchCommunities } from "service/communities";
 
-type CommunityOption = Pick<
-  Community.AsObject,
-  "communityId" | "name" | "slug" | "parentsList"
->;
+type CommunityOption = CommunitySummary.AsObject;
 
-const MIN_SEARCH_LENGTH = 3;
 const COMMUNITY_SEARCH_DEBOUNCE_MS = 400;
 
 const regionOf = (option: CommunityOption): string => {
@@ -53,48 +45,18 @@ const OptionRegion = styled("span")(({ theme }) => ({
 }));
 
 export default function CommunitySearch() {
-  const { t, i18n } = useTranslation(COMMUNITIES);
+  const { t } = useTranslation(COMMUNITIES);
   const router = useRouter();
   const { data: accountInfo } = useAccountInfo();
   const [inputValue, setInputValue] = useState("");
   const [debouncedInput, setDebouncedInput] = useState("");
 
-  const query = debouncedInput.trim();
-  const isSearching = query.length >= MIN_SEARCH_LENGTH;
-
-  const { data: searchData, isLoading: searchLoading } = useQuery<
-    SearchCommunitiesRes.AsObject,
-    RpcError
-  >({
-    queryKey: ["searchCommunities", query],
-    queryFn: () => searchCommunities(query),
-    enabled: isSearching,
-  });
-
-  const { data: browseData, isLoading: browseLoading } = useQuery<
-    ListAllCommunitiesRes.AsObject,
-    RpcError
-  >({
-    queryKey: ["listAllCommunities"],
-    queryFn: listAllCommunities,
-    enabled: !isSearching,
-  });
-
-  const options = useMemo<CommunityOption[]>(() => {
-    if (isSearching) {
-      return searchData?.communitiesList ?? [];
-    }
-    const all = browseData?.communitiesList ?? [];
-    const lowercase = query.toLowerCase();
-    const filtered = lowercase
-      ? all.filter((c) => c.name.toLowerCase().includes(lowercase))
-      : all;
-    return [...filtered].sort(
-      (a, b) =>
-        regionOf(a).localeCompare(regionOf(b), i18n.language) ||
-        a.name.localeCompare(b.name, i18n.language),
-    );
-  }, [isSearching, searchData, browseData, query, i18n.language]);
+  const { data, isLoading } = useQuery<SearchCommunitiesRes.AsObject, RpcError>(
+    {
+      queryKey: ["searchCommunities", debouncedInput.trim()],
+      queryFn: () => searchCommunities(debouncedInput.trim()),
+    },
+  );
 
   const debouncedSetInput = useMemo(
     () =>
@@ -122,22 +84,21 @@ export default function CommunitySearch() {
 
   return (
     <StyledAutocomplete
-      options={options}
-      loading={isSearching ? searchLoading : browseLoading}
+      options={data?.resultsList ?? []}
+      loading={isLoading}
       inputValue={inputValue}
       onInputChange={handleInputChange}
       onChange={handleChange}
       getOptionLabel={(option) => option.name}
-      // don't let MUI re-filter: it would drop the typo-tolerant server results
+      // keep backend order; don't let MUI re-filter
       filterOptions={(x) => x}
-      groupBy={isSearching ? undefined : (option) => regionOf(option)}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
         const region = regionOf(option);
         return (
           <li key={key} {...optionProps}>
             {option.name}
-            {isSearching && region && <OptionRegion>{region}</OptionRegion>}
+            {region && <OptionRegion>{region}</OptionRegion>}
           </li>
         );
       }}

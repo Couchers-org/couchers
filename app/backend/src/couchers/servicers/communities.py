@@ -65,6 +65,21 @@ def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
     ]
 
 
+def _community_summary_to_pb(
+    session: Session, node: Node, cluster: Cluster, member_count: int | None, user_subscription: int | None
+) -> communities_pb2.CommunitySummary:
+    return communities_pb2.CommunitySummary(
+        community_id=node.id,
+        name=cluster.name,
+        slug=cluster.slug,
+        member=user_subscription is not None,
+        member_count=member_count or 1,
+        parents=_parents_to_pb(session, node.id),
+        created=Timestamp_from_datetime(node.created),
+        node_type=nodetype2api[node.node_type],
+    )
+
+
 def communities_to_pb(
     session: Session, nodes: Sequence[Node], context: CouchersContext
 ) -> list[communities_pb2.Community]:
@@ -173,25 +188,51 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.SearchCommunitiesRes:
         raw_query = request.query.strip()
-        if len(raw_query) < 3:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "query_too_short")
-
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
-        word_similarity_score = func.word_similarity(func.unaccent(raw_query), func.immutable_unaccent(Cluster.name))
-
         query = (
-            select(Node)
+            select(
+                Node,
+                Cluster,
+                ClusterSubscriptionCount.count,
+                ClusterSubscription.cluster_id.label("user_subscription"),
+            )
             .join(Cluster, Cluster.parent_node_id == Node.id)
+            .outerjoin(ClusterSubscriptionCount, ClusterSubscriptionCount.cluster_id == Cluster.id)
+            .outerjoin(
+                ClusterSubscription,
+                (ClusterSubscription.cluster_id == Cluster.id) & (ClusterSubscription.user_id == context.user_id),
+            )
             .where(Cluster.is_official_cluster)
-            .where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
-            .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
-            .limit(page_size)
         )
 
-        rows = session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
+        if not raw_query:
+            query = query.order_by(Cluster.name.asc(), Node.id.asc())
+        elif len(raw_query) < 3:
+            # < 3 chars is too short for a trigram match; prefix-match instead (still uses the trgm index)
+            query = (
+                query.where(func.immutable_unaccent(Cluster.name).ilike(func.unaccent(raw_query).concat("%")))
+                .order_by(Cluster.name.asc(), Node.id.asc())
+                .limit(page_size)
+            )
+        else:
+            word_similarity_score = func.word_similarity(
+                func.unaccent(raw_query), func.immutable_unaccent(Cluster.name)
+            )
+            query = (
+                query.where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
+                .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
+                .limit(page_size)
+            )
 
-        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
+        rows = session.execute(query).all()
+
+        return communities_pb2.SearchCommunitiesRes(
+            results=[
+                _community_summary_to_pb(session, node, cluster, member_count, user_subscription)
+                for node, cluster, member_count, user_subscription in rows
+            ]
+        )
 
     def ListRecentCommunities(
         self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
@@ -620,16 +661,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.ListAllCommunitiesRes(
             communities=[
-                communities_pb2.CommunitySummary(
-                    community_id=node.id,
-                    name=cluster.name,
-                    slug=cluster.slug,
-                    member=user_subscription is not None,
-                    member_count=member_count or 1,
-                    parents=_parents_to_pb(session, node.id),
-                    created=Timestamp_from_datetime(node.created),
-                    node_type=nodetype2api[node.node_type],
-                )
+                _community_summary_to_pb(session, node, cluster, member_count, user_subscription)
                 for node, cluster, member_count, user_subscription in results
             ],
         )

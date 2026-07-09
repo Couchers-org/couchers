@@ -881,29 +881,36 @@ class TestCommunities:
             assert not res.next_page_token
 
     @staticmethod
-    def test_empty_query_aborts(testing_communities):
+    def test_empty_query_returns_all_alphabetically(testing_communities):
+        """
+        An empty query is the browse case: return every official community, name-ordered.
+        """
         with session_scope() as session:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
-                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
+            names = [c.name for c in res.results]
+            assert len(names) == 10
+            assert names == sorted(names)
 
     @staticmethod
-    def test_min_length_lt_3_aborts(testing_communities):
+    def test_short_query_prefix_matches(testing_communities):
         """
-        len(query) < 3 → return INVALID_ARGUMENT: query_too_short
+        A 1-2 char query is too short for trigram similarity, so it prefix-matches.
         """
         with session_scope() as session:
             _, token = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
-                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Co", page_size=25))
+            names = [c.name for c in res.results]
+            ids = [c.community_id for c in res.results]
+            assert names
+            assert all(name.lower().startswith("co") for name in names)
+            assert c1_id in ids
+            assert "Global" not in names
 
     @staticmethod
     def test_typo_matches_existing_name(testing_communities):
@@ -916,7 +923,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Coutri 1", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
             assert c1_id in ids
 
     @staticmethod
@@ -930,7 +937,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="city", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
             assert city1_id in ids
 
     @staticmethod
@@ -947,7 +954,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Country 1, Region", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
 
             assert region_id in ids
             assert city_id in ids
@@ -963,7 +970,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="qwertyuiopasdf", page_size=5))
-            assert res.communities == []
+            assert res.results == []
 
     @staticmethod
     def test_ListAllCommunities(testing_communities):

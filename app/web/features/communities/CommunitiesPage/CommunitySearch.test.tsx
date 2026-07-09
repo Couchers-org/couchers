@@ -21,7 +21,7 @@ jest.mock("next/router", () => ({
   }),
 }));
 
-// mock required: the wrapper pulls in @sentry/nextjs via AuthProvider, which crashes under jsdom.
+// AuthProvider pulls in @sentry/nextjs, which crashes under jsdom
 jest.mock("platform/sentry", () => {
   const mockCaptureException = jest.fn();
   return {
@@ -33,10 +33,6 @@ jest.mock("platform/sentry", () => {
 });
 
 jest.mock("service/communities");
-const mockListAllCommunities =
-  communitiesService.listAllCommunities as jest.MockedFunction<
-    typeof communitiesService.listAllCommunities
-  >;
 const mockSearchCommunities =
   communitiesService.searchCommunities as jest.MockedFunction<
     typeof communitiesService.searchCommunities
@@ -84,15 +80,12 @@ const mockCommunities: CommunitySummary.AsObject[] = [
 const searchRes = (
   communities: CommunitySummary.AsObject[],
 ): SearchCommunitiesRes.AsObject =>
-  ({ communitiesList: communities }) as SearchCommunitiesRes.AsObject;
+  ({ resultsList: communities }) as SearchCommunitiesRes.AsObject;
 
 describe("CommunitySearch", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockListAllCommunities.mockResolvedValue({
-      communitiesList: mockCommunities,
-    });
-    mockSearchCommunities.mockResolvedValue(searchRes([]));
+    mockSearchCommunities.mockResolvedValue(searchRes(mockCommunities));
   });
 
   it("renders the search input field", async () => {
@@ -117,22 +110,18 @@ describe("CommunitySearch", () => {
     });
   });
 
-  it("fetches all communities on mount for the browse state", async () => {
+  it("queries the backend with an empty query on mount (browse)", async () => {
     render(<CommunitySearch />, { wrapper });
 
     await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalledTimes(1);
+      expect(mockSearchCommunities).toHaveBeenCalledWith("");
     });
   });
 
-  it("displays all communities grouped by region when opening dropdown", async () => {
+  it("shows the communities the backend returns when opening the dropdown", async () => {
     render(<CommunitySearch />, { wrapper });
 
     const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.click(input);
@@ -141,31 +130,10 @@ describe("CommunitySearch", () => {
       expect(screen.getByText("Amsterdam")).toBeInTheDocument();
       expect(screen.getByText("Rotterdam")).toBeInTheDocument();
       expect(screen.getByText("Berlin")).toBeInTheDocument();
-      expect(screen.getByText("Europe")).toBeInTheDocument();
     });
   });
 
-  it("filters the browse list client-side for short queries (< 3 chars)", async () => {
-    render(<CommunitySearch />, { wrapper });
-
-    const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
-
-    const input = screen.getByLabelText(t("communities:search_communities"));
-    await user.type(input, "da");
-
-    await waitFor(() => {
-      expect(screen.queryByText("Berlin")).not.toBeInTheDocument();
-    });
-    expect(screen.getByText("Amsterdam")).toBeInTheDocument();
-    expect(screen.getByText("Rotterdam")).toBeInTheDocument();
-    expect(mockSearchCommunities).not.toHaveBeenCalled();
-  });
-
-  it("uses the server-side ranked search for queries >= 3 chars", async () => {
+  it("queries the backend as the user types", async () => {
     mockSearchCommunities.mockResolvedValue(
       searchRes([
         parentedCommunity(2, "Amsterdam", "amsterdam", "Europe"),
@@ -180,13 +148,12 @@ describe("CommunitySearch", () => {
     await user.type(input, "dam");
 
     expect(await screen.findByText("Amsterdam")).toBeInTheDocument();
-    expect(screen.getByText("Rotterdam")).toBeInTheDocument();
     await waitFor(() => {
       expect(mockSearchCommunities).toHaveBeenCalledWith("dam");
     });
   });
 
-  it("renders server results in the returned order, not the hidden hierarchy path (issue #9129)", async () => {
+  it("renders results in the backend-provided order (issue #9129)", async () => {
     mockSearchCommunities.mockResolvedValue(
       searchRes([
         parentedCommunity(5, "Pyongyang", "pyongyang", "North Korea"),
@@ -208,7 +175,7 @@ describe("CommunitySearch", () => {
     expect(options[1]).toHaveTextContent("Sydney");
   });
 
-  it("shows the region as context on each search result", async () => {
+  it("shows the region as context on each result", async () => {
     mockSearchCommunities.mockResolvedValue(
       searchRes([parentedCommunity(6, "Sydney", "sydney", "Australia")]),
     );
@@ -229,10 +196,6 @@ describe("CommunitySearch", () => {
 
     const user = userEvent.setup();
 
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
-
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.click(input);
 
@@ -248,6 +211,8 @@ describe("CommunitySearch", () => {
   });
 
   it("shows no results message when the search returns empty", async () => {
+    mockSearchCommunities.mockResolvedValue(searchRes([]));
+
     render(<CommunitySearch />, { wrapper });
 
     const user = userEvent.setup();
@@ -257,7 +222,6 @@ describe("CommunitySearch", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/No communities found\./)).toBeInTheDocument();
-
       expect(
         screen.getByRole("link", { name: "Request this community!" }),
       ).toBeInTheDocument();
