@@ -78,6 +78,10 @@ export default function SubCommunitiesDropdown({
         aria-controls={open ? menuId : undefined}
         aria-label={t("communities:sub_community_dropdown_a11y")}
         onClick={(event) => setAnchorEl(event.currentTarget)}
+        sx={{
+          minWidth: { xs: 0, sm: 64 },
+          pl: { xs: 0, sm: 1 },
+        }}
       >
         {t(labelKey)}
       </Button>

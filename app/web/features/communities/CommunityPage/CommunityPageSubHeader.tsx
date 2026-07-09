@@ -26,10 +26,29 @@ const StyledBreadcrumbsContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
+const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   minWidth: 0,
   "& ol": {
     justifyContent: "flex-start",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    fontSize: theme.typography.body2.fontSize,
+    "& .MuiTypography-root, & .MuiLink-root, & .MuiButton-root": {
+      fontSize: "inherit",
+    },
+    // Keep the whole chain on one line; scroll horizontally instead of wrapping
+    // when it's wider than the screen (fits without scrolling at typical widths).
+    "& ol": {
+      flexWrap: "nowrap",
+      overflowX: "auto",
+      scrollbarWidth: "none",
+      "&::-webkit-scrollbar": { display: "none" },
+    },
+    "& li": {
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+    },
   },
 }));
 

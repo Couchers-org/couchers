@@ -72,7 +72,11 @@ export default function JoinCommunityButton({
         loading={isLoading}
         variant={community.member ? "outlined" : "contained"}
         onClick={() => (community.member ? leave.mutate() : join.mutate())}
-        sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+        sx={{
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+          alignSelf: { xs: "center", sm: "auto" },
+        }}
       >
         {community.member
           ? t("communities:leave_community")
