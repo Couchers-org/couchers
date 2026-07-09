@@ -449,7 +449,10 @@ describe("GroupChatView", () => {
     screen.getByText(t("messages:chat_view.mute.unmute_button_label")).click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, unmute: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        unmute: true,
+      });
       expect(muteIcon).not.toBeVisible();
     });
   });
@@ -482,7 +485,10 @@ describe("GroupChatView", () => {
       .click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, forever: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        forever: true,
+      });
     });
 
     // Manually update the query data to reflect the muted state
