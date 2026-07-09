@@ -97,7 +97,7 @@
     "babel-jest": "^30.4.1",
     "cross-env": "^10.1.0",
     "css-mediaquery": "^0.1.2",
-    "eslint": "9.0.0",
+    "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.7",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsonc": "^2.21.1",
