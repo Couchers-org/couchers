@@ -32,19 +32,11 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
     justifyContent: "flex-start",
   },
   [theme.breakpoints.down("sm")]: {
-    width: "100%",
     fontSize: theme.typography.body2.fontSize,
     "& .MuiTypography-root, & .MuiLink-root, & .MuiButton-root": {
       fontSize: "inherit",
     },
-    // Keep the whole chain on one line; scroll horizontally instead of wrapping
-    // when it's wider than the screen (fits without scrolling at typical widths).
-    "& ol": {
-      flexWrap: "nowrap",
-      overflowX: "auto",
-      scrollbarWidth: "none",
-      "&::-webkit-scrollbar": { display: "none" },
-    },
+    // Wrap a whole crumb to the next line instead of truncating a name.
     "& li": {
       flexShrink: 0,
       whiteSpace: "nowrap",
