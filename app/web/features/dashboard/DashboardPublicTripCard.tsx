@@ -13,6 +13,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { myPublicTripsRoute, routeToCommunity } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTimeRange, localizeRelativeDays } from "utils/date";
 import dayjs from "utils/dayjs";
 
@@ -202,8 +203,8 @@ export function DashboardPublicTripCard({
   );
 
   const dateRange = localizeDateTimeRange(
-    new Date(trip.fromDate + "T00:00:00"),
-    new Date(trip.toDate + "T00:00:00"),
+    Temporal.PlainDateTime.from(trip.fromDate),
+    Temporal.PlainDateTime.from(trip.toDate),
     { locale, includeTime: false, abbreviate: true },
   );
 

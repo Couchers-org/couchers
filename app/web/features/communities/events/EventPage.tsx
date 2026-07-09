@@ -34,9 +34,9 @@ import {
 import { service } from "service";
 import { theme } from "theme";
 import {
-  BROWSER_TIMEZONE,
   localizeDateTimeRange,
   timestamp2Date,
+  timestampToPlainDateTime,
 } from "utils/date";
 import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
@@ -411,11 +411,10 @@ export default function EventPage({
                 <StyledCalendarIcon />
                 <Typography variant="body1">
                   {localizeDateTimeRange(
-                    dayjs(timestamp2Date(event.startTime!)),
-                    dayjs(timestamp2Date(event.endTime!)),
+                    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+                    timestampToPlainDateTime(event.startTime!),
+                    timestampToPlainDateTime(event.endTime!),
                     {
-                      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-                      timezone: BROWSER_TIMEZONE,
                       locale,
                       includeDayOfWeek: true,
                       capitalize: true,
