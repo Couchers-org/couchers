@@ -57,12 +57,15 @@ If you are motivated, really want to contribute, and you have the seniority and 
 
 Want to help but don't see anything listed for you? [Fill out this form](/volunteer/form)
 
-### Core Team
+### Global Team
 
 #### Community
 
 - [Community Builder Program Manager](./volunteer/community-builder-program-manager)
+- [Community Builder](.volunteer/community-builder)
 - [Event Organizer](./volunteer/event-organizer)
+
+### Core Team
 
 #### Development
 
@@ -89,12 +92,6 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 #### Support
 
 - Nothing right now. Do you have specific skills in this area and want to help out? [Fill out this form and let us know how!](/volunteer/form)
-
-### Community Building
-
-One of the best ways to get involved is to become a Community Builder for your local Couchers community. You can even do this in addition to volunteering in a different role. A Community Builder is an ambassador to the community who helps support, moderate, and grow the community. Learn more [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder). If this sounds like something you're interested in, fill out the form here:
-
-#### [Community Builder application form](/community-builder-form)
 
 ### [Our Plan](/plan) and [Our Mission & Values](/mission)
 
