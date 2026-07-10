@@ -63,5 +63,22 @@
     "when_today": "Dnes",
     "manage_link": "Spravovat",
     "when_now": "Nyní"
+  },
+  "prev_page_button_a11y": "Předchozí stránka",
+  "next_page_button_a11y": "Následující stránka",
+  "now_label": "Teď",
+  "discussions": {
+    "community_header": "Diskuze v tvých komunitách",
+    "community_empty_message": "Žádné diskuze ve tvých komunitách.",
+    "replies_count_label_one": "{{count}} odpověď",
+    "replies_count_label_few": "{{count}} odpovědi",
+    "replies_count_label_other": "{{count}} odpovědí"
+  },
+  "events": {
+    "your_upcoming_header": "Tvoje nadcházející události",
+    "see_all_link": "Zobrazit vše →",
+    "your_upcoming_empty_message": "Žádné události v tento moment. Co tak jednu <0>založit</0> ✨?",
+    "community_header": "Události v tvých komunitách",
+    "today_label": "Dnes"
   }
 }
