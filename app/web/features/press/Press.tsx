@@ -1,6 +1,7 @@
 import { Box, Divider, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { PRESS } from "i18n/namespaces";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import SocialMediaLinks from "../../components/SocialMediaLinks";
 import { useListVolunteers } from "../communities/hooks";
@@ -25,18 +26,19 @@ const StyledContainer = styled(Box)(({ theme }) => ({
 
 const StyledSocialMediaContainer = styled("div")(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "repeat(3, 2.5rem)",
-  gap: "2.5rem",
+  gridTemplateColumns: "repeat(6, 2.5rem)",
+  gap: "1rem",
   paddingBottom: "1rem",
 
-  [theme.breakpoints.up("sm")]: {
-    gridTemplateColumns: "repeat(6, 2.5rem)",
+  [theme.breakpoints.up("md")]: {
+    gap: "2.5rem",
   },
 }));
 
 export default function Press() {
   const { t } = useTranslation([PRESS]);
   const volunteers = useListVolunteers();
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   return (
     <StyledContainer>
@@ -61,7 +63,7 @@ export default function Press() {
       <SectionWrapper sx={{ alignItems: "center" }}>
         <SectionHeading>{t("social_media_subheading")}</SectionHeading>
         <StyledSocialMediaContainer>
-          <SocialMediaLinks iconSize="2.5rem" />
+          <SocialMediaLinks iconSize={isMobile ? "2rem" : "2.5rem"} />
         </StyledSocialMediaContainer>
       </SectionWrapper>
       <Divider />
