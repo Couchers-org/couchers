@@ -53,7 +53,6 @@ export default function LoginsPage({
     {
       locale,
       includeSeconds: true,
-      abbreviate: true,
     },
   );
   const expiryDisplay = localizeDateTime(
@@ -61,7 +60,6 @@ export default function LoginsPage({
     {
       locale,
       includeTime: false,
-      abbreviate: true,
     },
   );
   const queryClient = useQueryClient();
