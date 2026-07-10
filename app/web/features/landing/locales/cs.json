@@ -45,5 +45,8 @@
   "open_source_why": "Chceme, aby z nástrojů, které vytváříme, ostatní těžili v co největší míře. Jejich volné šíření dává naší komunitě silnější záruku, že to, co společně vytvoříme, bude využitelné i v budoucnu.",
   "non_transactional_title": "Netransakční",
   "non_transactional_description": "Lidé si za účast na aktivitách ani v komunitě navzájem neplatí penězi, protislužbou, ani jinak. Tím, že surfuješ, na tebe nevzniká žádná povinnost v budoucnu někoho ubytovat.",
-  "non_transactional_why": "Je to ze své podstaty neslučitelné s autentickými mezilidskými kontakty. Je zdravé jen dávat nebo jen přijímat a měli bychom se naučit být s tím více v pohodě."
+  "non_transactional_why": "Je to ze své podstaty neslučitelné s autentickými mezilidskými kontakty. Je zdravé jen dávat nebo jen přijímat a měli bychom se naučit být s tím více v pohodě.",
+  "why": "Proč?",
+  "map_section_title": "Objev naši globální komunitu",
+  "last_signup": "Poslední registrace {{timeAgo}}"
 }
