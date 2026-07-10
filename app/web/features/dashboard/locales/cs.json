@@ -63,5 +63,11 @@
     "when_today": "Dnes",
     "manage_link": "Spravovat",
     "when_now": "Nyní"
+  },
+  "prev_page_button_a11y": "Předchozí stránka",
+  "next_page_button_a11y": "Následující stránka",
+  "now_label": "Teď",
+  "discussions": {
+    "community_header": "Diskuze v komunitách"
   }
 }
