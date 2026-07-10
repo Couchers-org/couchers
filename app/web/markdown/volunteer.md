@@ -59,10 +59,12 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 ### Global Team
 
-#### Community
+One of the best ways to get involved is to become an Event Organizer or Community Builder (CB) for your local Couchers community. You can even do this in addition to volunteering in a different role. A Community Builder is an ambassador to the community who helps support, moderate, and grow the community. [Learn more](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder).
+
+#### Community Building
 
 - [Community Builder Program Manager](./volunteer/community-builder-program-manager)
-- [Community Builder](.volunteer/community-builder)
+- [Community Builder](./volunteer/community-builder)
 - [Event Organizer](./volunteer/event-organizer)
 
 ### Core Team
