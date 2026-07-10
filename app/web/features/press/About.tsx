@@ -55,12 +55,20 @@ const StyledCard = styled("div")(({ theme }) => ({
 
 const StyledHeading = styled("h3")(({ theme }) => ({
   fontSize: "1.25rem",
-  fontWeight: "400",
+  fontWeight: "500",
   marginTop: 0,
   marginBottom: 0,
 
   [theme.breakpoints.up("md")]: {
     fontSize: "1.5rem",
+  },
+}));
+
+const StyledReadMoreLink = styled(StyledLink)(({ theme }) => ({
+  justifySelf: "center",
+
+  [theme.breakpoints.up("sm")]: {
+    justifySelf: "start",
   },
 }));
 
@@ -75,12 +83,12 @@ export default function About() {
           <StyledCard key={heading}>
             <StyledHeading>{t(heading)}</StyledHeading>
             <Typography>{t(text)}</Typography>
-            <StyledLink
+            <StyledReadMoreLink
               href={href}
               aria-label={`${t("read_more")}: ${t(heading)}`}
             >
               {t("read_more")}
-            </StyledLink>
+            </StyledReadMoreLink>
           </StyledCard>
         ))}
       </StyledContainer>

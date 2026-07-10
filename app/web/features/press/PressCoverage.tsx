@@ -80,6 +80,14 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+const StyledLink = styled(Link)(({ theme }) => ({
+  justifySelf: "center",
+
+  [theme.breakpoints.up("sm")]: {
+    justifySelf: "start",
+  },
+}));
+
 export default function PressCoverage() {
   const { t } = useTranslation([PRESS]);
 
@@ -116,14 +124,14 @@ export default function PressCoverage() {
                 {publishedDate}
               </Typography>
               <Typography fontSize="1.25rem">"{headline}"</Typography>
-              <Link
+              <StyledLink
                 href={href}
                 aria-label={`${t("read_more")}: ${headline} ${t("opens_in_a_new_tab")}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 {t("read_more")}
-              </Link>
+              </StyledLink>
             </StyledCard>
           ),
         )}
