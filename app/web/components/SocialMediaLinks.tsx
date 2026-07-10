@@ -1,7 +1,14 @@
 import { Facebook, GitHub, Instagram, Reddit } from "@mui/icons-material";
 import { Link } from "@mui/material";
 import { BlueSkyIcon, TikTokIcon } from "components/Icons";
-import { facebookURL, githubURL, instagramURL, redditURL } from "routes";
+import {
+  blueskyURL,
+  facebookURL,
+  githubURL,
+  instagramURL,
+  redditURL,
+  tiktokURL,
+} from "routes";
 
 const socialLinks = [
   {
@@ -21,12 +28,12 @@ const socialLinks = [
   },
   {
     label: "BlueSky",
-    href: "https://bsky.app/profile/couchers.bsky.social",
+    href: blueskyURL,
     icon: <BlueSkyIcon fontSize="inherit" />,
   },
   {
     label: "TikTok",
-    href: "https://www.tiktok.com/@couchersorg",
+    href: tiktokURL,
     icon: <TikTokIcon fontSize="inherit" />,
   },
   {

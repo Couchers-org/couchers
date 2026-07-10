@@ -1,5 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { facebookURL, githubURL, instagramURL, redditURL } from "routes";
+import {
+  blueskyURL,
+  facebookURL,
+  githubURL,
+  instagramURL,
+  redditURL,
+  tiktokURL,
+} from "routes";
 import wrapper from "test/hookWrapper";
 
 import SocialMediaLinks from "./SocialMediaLinks";
@@ -8,8 +15,8 @@ const socialLinks = [
   { label: "GitHub", href: githubURL },
   { label: "Instagram", href: instagramURL },
   { label: "Reddit", href: redditURL },
-  { label: "BlueSky", href: "https://bsky.app/profile/couchers.bsky.social" },
-  { label: "TikTok", href: "https://www.tiktok.com/@couchersorg" },
+  { label: "BlueSky", href: blueskyURL },
+  { label: "TikTok", href: tiktokURL },
   { label: "Facebook", href: facebookURL },
 ];
 

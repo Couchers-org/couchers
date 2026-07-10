@@ -13,6 +13,8 @@ export const githubURL = "https://github.com/Couchers-org/couchers";
 export const instagramURL = "https://www.instagram.com/couchersorg";
 export const redditURL = "https://www.reddit.com/r/couchers/";
 export const facebookURL = "https://www.facebook.com/Couchers.org";
+export const blueskyURL = "https://bsky.app/profile/couchers.bsky.social";
+export const tiktokURL = "https://www.tiktok.com/@couchersorg";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
   "https://github.com/Couchers-org/couchers/commits/develop";
