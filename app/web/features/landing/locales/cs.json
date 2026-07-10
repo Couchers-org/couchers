@@ -36,5 +36,14 @@
   "nonprofit_why": "Couchsurfing přináší společenskou a mezilidskou hodnotu, ne peněžní zisk, protože stojí na opravdových vztazích mezi lidmi. Tuto hodnotu nelze proměnit v profit, aniž by tím nevznikl střet zájmů mezi organizací a komunitou. Abychom mohli naši misi dlouhodobě naplňovat, musíme fungovat jako nezisková organizace.",
   "safer_stronger_description": "Důvěru a bezpečnost jsme posunuli na novou úroveň díky lepším referencím, ověřování a zodpovědnosti – takže se můžeš s ostatními potkávat bez obav.",
   "community_led_title": "Vedeno komunitou",
-  "open_source_title": "Open source"
+  "open_source_title": "Open source",
+  "authentic_description": "Snažíme se vytvářet efektivní nástroje, které ti pomohou prožívat opravdové zážitky v reálném světě a strávit přitom minimum času jejich hledáním ve světě digitálním. Nevyvíjíme proto, abychom zvyšovali prázdnou angažovanost.",
+  "authentic_why": "Jsme přesvědčeni, že přenášení lidské zkušenosti do digitálního světa a její odtržení od skutečného lidského spojení je nezdravé a škodlivé. Aktivně usilujeme o pocit opravdového společenství a sounáležitosti ve světě, který se ubírá opačným směrem.",
+  "community_led_description": "Lidé, kteří rozhodují a pomáhají jako dobrovolníci, by měli být součástí komunity a pocházet z ní; rozhodnutí by měla být přijímána transparentně a ve spolupráci s komunitou; a organizace by měla aktivně naslouchat zpětné vazbě. Péče o platformu by měla být věcí komunity.",
+  "community_led_why": "Udržet zdravou organizaci a platformu vyžaduje aktivní zapojení komunity, které sloužíme – a odtržení komunity od zbytku projektu nám brání skutečně tvořit pro naše lidi. Komunita se může zapojit jen tehdy, pokud vidí, co se v organizaci děje.",
+  "open_source_description": "Platforma a nástroje, které vytváříme, jsou volně dostupné k použití, úpravám a šíření – nadace nemá na ně žádná výlučná práva. Snažíme se přispívat zpět do open source komunity.",
+  "open_source_why": "Chceme, aby z nástrojů, které vytváříme, ostatní těžili v co největší míře. Jejich volné šíření dává naší komunitě silnější záruku, že to, co společně vytvoříme, bude využitelné i v budoucnu.",
+  "non_transactional_title": "Netransakční",
+  "non_transactional_description": "Lidé si za účast na aktivitách ani v komunitě navzájem neplatí penězi, protislužbou, ani jinak. Tím, že surfuješ, na tebe nevzniká žádná povinnost v budoucnu hostit.",
+  "non_transactional_why": "Je to ze své podstaty neslučitelné s autentickými mezilidskými kontakty. Je zdravé jen dávat nebo jen přijímat a měli bychom se naučit to přijímat přirozeněji."
 }
