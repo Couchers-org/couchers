@@ -9,9 +9,9 @@ description: "Apply to become a Community Builder for Couchers.org"
 
 **This is a local position**
 
-We are recruiting Community Builders (CBs) around the world to help grow, nurture, and support local Couchers.org communities through active engagement. As a Community Builder, you will serve as an ambassador for Couchers.org. You will not only engage with members in your area, but also communicate with and represent your local community to other CBs.
+One of the best ways to get involved is to become a Community Builder (CBs) for your local Couchers community. You can even do this in addition to volunteering in a different role. We are recruiting Community Builders around the world to help grow, nurture, and support local Couchers.org communities through active engagement. As a Community Builder, you will serve as an ambassador for Couchers.org. You will not only engage with members in your area, but also communicate with and represent your local community to other CBs. [**Learn more**](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder).
 
-This is a volunteer position where you will work closely with the Community Builder Program Managers (CBPMs).
+This is an unpaid volunteer position where you will work closely with the Community Builder Program Managers (CBPMs).
 
 ### Duties
 
@@ -45,7 +45,7 @@ An ideal candidate would have the following skills:
 
 ### Apply
 
-1. [Fill out this form](https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1).
+1. Fill out the [Commnutiy Builder Form](/community-builder-form).
 
 2. We'll review and get back to you as soon as possible.
 
