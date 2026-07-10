@@ -9,7 +9,7 @@ description: "Apply to become a Community Builder for Couchers.org"
 
 **This is a local position**
 
-We are recruiting Community Builders (CBs) around the world to help grow, nurture, and support local Couchers.org communities through active engagement. As a Community Builder, you will serve as an ambassador for Couchers.org. You will not only engage with members in your area, but also communicate with and represent your local community to other CBs. [**Learn more**](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder).
+We are recruiting Community Builders (CBs) around the world to help grow, nurture, and support local Couchers.org communities through active engagement. As a Community Builder, you will serve as an ambassador for Couchers.org. You will not only engage with members in your area, but also communicate with and represent your local community to other CBs.
 
 This is an unpaid volunteer position where you will work closely with the Community Builder Program Managers (CBPMs).
 
@@ -32,7 +32,7 @@ All applicants must meet the following baseline criteria **before** applying. To
 
 An ideal candidate would have the following skills:
 - **Couch Surfing Experience:** Passion for hospitality exchange and a solid understanding of the couch surfing community and culture;
-- **Community Mindset:** Experience (or a strong interest) as an event organizer, local guide, host, or community advocate;
+- **Community Mindset:** Experience (or a strong interest) as an [Event Organizer](./event-organizer), Local Guide, Host, or Community Advocate;
 - **Event Planning:** Ability to organize and execute engaging get-togethers, meetups, or events;
 
 ### Expectations/Commitment
