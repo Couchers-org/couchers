@@ -78,7 +78,10 @@ describe("Edit profile", () => {
 
     await user.clear(aboutMeInput);
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
-    await user.type(aboutMeInput, aboutMeText);
+    // Use paste instead of type for large text - much faster, avoids a
+    // re-render of the whole form per keystroke
+    await user.click(aboutMeInput);
+    await user.paste(aboutMeText);
 
     const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
