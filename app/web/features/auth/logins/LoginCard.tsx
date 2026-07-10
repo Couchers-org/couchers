@@ -52,14 +52,14 @@ export default function LoginsPage({
     timestampToPlainDateTime(session.created!),
     {
       locale,
-      includeSeconds: true
+      includeSeconds: true,
     },
   );
   const expiryDisplay = localizeDateTime(
     timestampToPlainDateTime(session.expiry!),
     {
       locale,
-      includeTime: false
+      includeTime: false,
     },
   );
   const queryClient = useQueryClient();
