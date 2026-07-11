@@ -15,6 +15,7 @@ import Autocomplete, {
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import { getLocalizedListComparer } from "i18n/sorting";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { theme } from "theme";
@@ -34,18 +35,6 @@ interface ProfileTagInputProps {
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputFieldProps?: ControllerRenderProps<any, string>;
-}
-
-export function getLabelSortLocales(language: string): string[] {
-  if (language === "zh-Hans" || language.startsWith("zh-Hans-")) {
-    return ["zh-Hans-u-co-pinyin", "zh-CN-u-co-pinyin", "zh-u-co-pinyin"];
-  }
-
-  if (language === "zh-Hant" || language.startsWith("zh-Hant-")) {
-    return ["zh-Hant-u-co-stroke", "zh-TW-u-co-stroke", "zh-u-co-stroke"];
-  }
-
-  return [language];
 }
 
 const StyledButtonBase = styled(ButtonBase)(() => ({
@@ -166,7 +155,7 @@ export default function ProfileTagInput({
   inputFieldProps,
 }: ProfileTagInputProps) {
   const { t, i18n } = useTranslation(PROFILE);
-  const labelCollator = new Intl.Collator(getLabelSortLocales(i18n.language));
+  const compareLocalizedLabels = getLocalizedListComparer(i18n.language);
 
   // In case some value doesn't map to an option, add a fake option for it.
   // For example if value is [en, xx] and options is { en: "English", fr: "French" },
@@ -285,7 +274,7 @@ export default function ProfileTagInput({
             disablePortal
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
-              .sort((a, b) => labelCollator.compare(a.label, b.label))}
+              .sort((a, b) => compareLocalizedLabels(a.label, b.label))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
