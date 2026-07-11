@@ -36,6 +36,18 @@ interface ProfileTagInputProps {
   inputFieldProps?: ControllerRenderProps<any, string>;
 }
 
+export function getLabelSortLocales(language: string): string[] {
+  if (language === "zh-Hans" || language.startsWith("zh-Hans-")) {
+    return ["zh-Hans-u-co-pinyin", "zh-CN-u-co-pinyin", "zh-u-co-pinyin"];
+  }
+
+  if (language === "zh-Hant" || language.startsWith("zh-Hant-")) {
+    return ["zh-Hant-u-co-stroke", "zh-TW-u-co-stroke", "zh-u-co-stroke"];
+  }
+
+  return [language];
+}
+
 const StyledButtonBase = styled(ButtonBase)(() => ({
   "&:focus": {
     boxShadow: `0 0 0 2px var(--mui-palette-primary-main)`,
@@ -154,6 +166,7 @@ export default function ProfileTagInput({
   inputFieldProps,
 }: ProfileTagInputProps) {
   const { t, i18n } = useTranslation(PROFILE);
+  const labelCollator = new Intl.Collator(getLabelSortLocales(i18n.language));
 
   // In case some value doesn't map to an option, add a fake option for it.
   // For example if value is [en, xx] and options is { en: "English", fr: "French" },
@@ -272,7 +285,7 @@ export default function ProfileTagInput({
             disablePortal
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
-              .sort((a, b) => a.label.localeCompare(b.label, i18n.language))}
+              .sort((a, b) => labelCollator.compare(a.label, b.label))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
