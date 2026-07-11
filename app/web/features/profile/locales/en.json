@@ -343,7 +343,7 @@
       "create_event": "create an event",
       "create_public_trip": "create a public trip",
       "create_discussion": "create a discussion",
-      "comment_on_event": "comment on this event"
+      "post_comment": "post a comment"
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"

@@ -49,18 +49,6 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     return divmod(thread_id, 10)
 
 
-def _is_event_thread(session: Session, database_id: int, depth: int) -> bool:
-    """Returns whether the given (database_id, depth) thread location belongs to an Event's thread."""
-    thread_db_id = (
-        database_id
-        if depth == 0
-        else session.execute(select(Comment.thread_id).where(Comment.id == database_id)).scalar_one_or_none()
-    )
-    if thread_db_id is None:
-        return False
-    return bool(session.execute(select(exists().where(Event.thread_id == thread_db_id))).scalar())
-
-
 def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
     """Return the total number of visible, non-deleted comments and replies to the thread with
     database id database_id.
@@ -398,12 +386,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         if depth not in (0, 1):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
-        if _is_event_thread(session, database_id, depth):
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            if not has_completed_profile(session, user):
-                context.abort_with_error_code(
-                    grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_comment_on_event"
-                )
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_post_comment")
 
         object_to_add: Comment | Reply | None = None
 

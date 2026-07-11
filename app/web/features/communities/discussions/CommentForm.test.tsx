@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import type { ComponentProps } from "react";
 import { discussionBaseRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -22,19 +21,15 @@ const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
 
-function renderCommentForm(
-  props: Partial<ComponentProps<typeof CommentForm>> = {},
-) {
+function renderCommentForm() {
   mockRouter.setCurrentUrl(
     `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
   );
-  render(<CommentForm threadId={999} shown={true} {...props} />, { wrapper });
+  render(<CommentForm threadId={999} shown={true} />, { wrapper });
 }
 
 beforeEach(() => {
-  // CommentForm always reads accountInfo (to gate submission when an
-  // attemptedAction is set); give it a default so tests that don't care
-  // about the gate don't hit an unmocked query.
+  // Default to a complete profile so non-gate tests don't trip the incomplete-profile dialog.
   getAccountInfoMock.mockImplementation(getAccountInfo);
 });
 
@@ -111,7 +106,7 @@ describe("Comment form", () => {
   });
 });
 
-describe("Comment form with attemptedAction (event comment gate)", () => {
+describe("Comment form profile-completeness gate", () => {
   beforeAll(() => {
     // The "Comment form" describe above leaves fake timers active; restore
     // real timers so `await user.type`/`user.click` resolve normally here.
@@ -127,7 +122,7 @@ describe("Comment form with attemptedAction (event comment gate)", () => {
       ...(await getAccountInfo()),
       profileComplete: false,
     }));
-    renderCommentForm({ attemptedAction: "comment_on_event" });
+    renderCommentForm();
 
     const user = userEvent.setup();
 
@@ -147,7 +142,7 @@ describe("Comment form with attemptedAction (event comment gate)", () => {
   });
 
   it("posts the comment as usual when the profile is complete", async () => {
-    renderCommentForm({ attemptedAction: "comment_on_event" });
+    renderCommentForm();
 
     const user = userEvent.setup();
 

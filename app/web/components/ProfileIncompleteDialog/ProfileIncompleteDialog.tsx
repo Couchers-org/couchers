@@ -20,7 +20,7 @@ export type ProfileIncompleteAction =
   | "create_public_trip"
   | "send_friend_request"
   | "create_discussion"
-  | "comment_on_event";
+  | "post_comment";
 
 interface ProfileIncompleteDialogProps {
   open: boolean;

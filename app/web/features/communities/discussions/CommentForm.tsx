@@ -4,9 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
-import ProfileIncompleteDialog, {
-  ProfileIncompleteAction,
-} from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -37,7 +35,6 @@ const StyledButtonsContainer = styled("div")(() => ({
 }));
 
 interface CommentFormProps {
-  attemptedAction?: ProfileIncompleteAction;
   hideable?: boolean;
   onClose?(): void;
   shown?: boolean;
@@ -49,23 +46,13 @@ interface CommentData {
 }
 
 function InternalCommentForm(
-  {
-    attemptedAction,
-    hideable = false,
-    onClose,
-    shown = false,
-    threadId,
-  }: CommentFormProps,
+  { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: accountInfo } = useAccountInfo();
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  // Opt-in gate: only enforced when a caller passes attemptedAction (currently
-  // only the event comment box). Discussions/groups/pages leave it undefined
-  // and are unaffected.
-  const profileIncomplete =
-    attemptedAction !== undefined && accountInfo?.profileComplete === false;
+  const profileIncomplete = accountInfo?.profileComplete === false;
   const {
     control,
     handleSubmit,
@@ -108,13 +95,11 @@ function InternalCommentForm(
 
   return (
     <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
-      {attemptedAction && (
-        <ProfileIncompleteDialog
-          open={profileDialogOpen}
-          onClose={() => setProfileDialogOpen(false)}
-          attempted_action={attemptedAction}
-        />
-      )}
+      <ProfileIncompleteDialog
+        open={profileDialogOpen}
+        onClose={() => setProfileDialogOpen(false)}
+        attempted_action="post_comment"
+      />
       <StyledForm onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <span style={visuallyHidden} id={`comment-${threadId}-reply-label`}>

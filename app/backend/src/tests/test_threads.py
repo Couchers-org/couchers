@@ -612,9 +612,8 @@ def test_post_reply_complete_profile_allowed_on_event_comment(db):
     assert comment_thread_id
 
 
-def test_post_reply_incomplete_profile_allowed_on_non_event_thread(db):
-    """An incomplete-profile user can still comment on a non-event thread (e.g. a discussion's thread),
-    proving the gate is scoped to events only."""
+def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
+    """An incomplete-profile user cannot post a comment on a discussion thread."""
     admin, admin_token = generate_user()
     _commenter, commenter_token = generate_user(complete_profile=False)
 
@@ -632,10 +631,9 @@ def test_post_reply_incomplete_profile_allowed_on_non_event_thread(db):
         discussion_thread_id = discussion.thread.thread_id
 
     with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello")
-        ).thread_id
-    assert comment_thread_id
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_edit_comment_multiple_edits_creates_multiple_version_records(db):
