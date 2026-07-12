@@ -570,10 +570,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        try:
-            offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
-        except Exception:
-            offset = 0
+        offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
         user_id = request.user_id or context.user_id
 
         user_geom = select(User.geom).where(User.id == user_id).scalar_subquery()

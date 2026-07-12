@@ -24,6 +24,7 @@ import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
+import SectionCountBadge from "./SectionCountBadge";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
 
 interface UpcomingStaysWidgetProps {
@@ -103,21 +104,7 @@ function UpcomingStaysWidget({
           {icon}
           {title}
           {!isLoading && requests.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {requests.length}
-            </Box>
+            <SectionCountBadge count={requests.length} />
           )}
         </Typography>
         <div>

@@ -10,6 +10,8 @@ import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 
+import SectionCountBadge from "./SectionCountBadge";
+
 const CARD_GAP = 12;
 
 const SectionHeader = styled("div")({
@@ -105,21 +107,7 @@ export default function CommunitiesList() {
           />
           {t("dashboard:your_communities_heading")}
           {!isPending && communities.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {communities.length}
-            </Box>
+            <SectionCountBadge count={communities.length} />
           )}
         </Typography>
         <div>
