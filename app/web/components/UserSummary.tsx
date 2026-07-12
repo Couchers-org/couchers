@@ -164,7 +164,6 @@ export default function UserSummary({
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "flex-start",
               }}
             >
               {title}
