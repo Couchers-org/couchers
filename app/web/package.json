@@ -63,7 +63,7 @@
     "react-dom": "^19.2.6",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^7.54.0",
-    "react-i18next": "^16.6.5",
+    "react-i18next": "^17.0.9",
     "react-intersection-observer": "^10.0.3",
     "react-lines-ellipsis": "^0.16.1",
     "react-map-gl": "^8.1.1",
