@@ -7,6 +7,7 @@
   "notification_translations_enabled": true,
   "postal_verification_enabled": false,
   "public_trips_enabled": true,
+  "show_moderator_badge": true,
   "sms_enabled": false,
   "strong_verification_enabled": false,
   "test_growthbook_integration": true
