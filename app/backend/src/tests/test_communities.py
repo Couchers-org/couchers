@@ -517,16 +517,19 @@ class TestCommunities:
             c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
 
         # Fetch user2's communities from user2's account
+        # Ordering is: locality/sublocality first, then subregion, region, macroregion, world; within
+        # each rank the user's home community (geographically containing them) comes first, then
+        # alphabetically. user2 is located inside c1r1c1 and c1r1, so those sort first in their ranks.
         with communities_session(token2) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
 
     @staticmethod
@@ -546,13 +549,13 @@ class TestCommunities:
         with communities_session(token1) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
 
     @staticmethod
@@ -1248,6 +1251,60 @@ def test_LeaveCommunity_regression(db):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
 
+def test_ListUserCommunities_orders_locality_first_then_home_then_name(db):
+    """
+    See issue #9221: "Your communities" should list more-local communities first (locality before
+    subregion/region/macroregion/world), and within each rank the user's home community (the one
+    geographically containing them) first, then the rest alphabetically.
+    """
+    user, token = generate_user(username="orderuser", geom=create_1d_point(20), geom_radius=0.1)
+    # admin of the intermediate state/province cluster only, so `user` isn't a member of it and it
+    # doesn't show up in the results we're asserting on
+    other_admin, _ = generate_user(username="orderuser_stateadmin")
+
+    with session_scope() as session:
+        world = create_community(session, 0, 100, "World", [user], [], None)
+        continent = create_community(session, 0, 90, "Continent", [user], [], world)
+        home_country = create_community(session, 10, 50, "Zzz Home Country", [user], [], continent)
+        other_country = create_community(session, 60, 80, "Aaa Country", [user], [], continent)
+        state = create_community(session, 15, 30, "State", [other_admin], [], home_country)
+        # home_city contains user (x=20); other_city, alphabetically earlier, does not
+        home_city = create_community(session, 18, 22, "Zzz Home City", [user], [], state)
+        other_city = create_community(session, 23, 26, "Aaa City", [user], [], state)
+
+        world_id = world.id
+        continent_id = continent.id
+        home_country_id = home_country.id
+        other_country_id = other_country.id
+        home_city_id = home_city.id
+        other_city_id = other_city.id
+
+    with communities_session(token) as api:
+        res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
+        assert [c.community_id for c in res.communities] == [
+            # (a) home city before an alphabetically-earlier non-home city
+            home_city_id,
+            other_city_id,
+            # (b) home country before other (alphabetically-earlier) countries
+            home_country_id,
+            other_country_id,
+            # (c) locality always precedes region regardless of name; larger regions come last
+            continent_id,
+            world_id,
+        ]
+
+        # (d) pagination across a rank boundary (locality -> region) returns the correct next slice
+        res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=3))
+        assert [c.community_id for c in res.communities] == [home_city_id, other_city_id, home_country_id]
+        assert res.next_page_token
+
+        res = api.ListUserCommunities(
+            communities_pb2.ListUserCommunitiesReq(page_size=3, page_token=res.next_page_token)
+        )
+        assert [c.community_id for c in res.communities] == [other_country_id, continent_id, world_id]
+        assert not res.next_page_token
+
+
 def test_enforce_community_memberships_for_user(testing_communities):
     """
     Make sure the user is added to the right communities on signup
@@ -1293,7 +1350,8 @@ def test_enforce_community_memberships_for_user(testing_communities):
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
-        assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c2_id]
+        # frodo is located inside c1r1c2, so the most local community they're in sorts first
+        assert [c.community_id for c in res.communities] == [c1r1c2_id, c1r1_id, c1_id, w_id]
 
 
 # TODO: requires transferring of content

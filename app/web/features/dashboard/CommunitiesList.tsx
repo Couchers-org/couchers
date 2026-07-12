@@ -39,8 +39,9 @@ const CommunityCard = styled(StyledLink)(({ theme }) => ({
   flexDirection: "column",
   height: "100%",
   padding: theme.spacing(1.5),
-  border: `1px solid var(--mui-palette-grey-300)`,
-  borderRadius: theme.spacing(1),
+  border: "1px solid var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-background-paper)",
   transition: "border-color 0.2s, box-shadow 0.2s",
   "&:hover": {
     borderColor: "var(--mui-palette-primary-main)",
@@ -51,8 +52,9 @@ const CommunityCard = styled(StyledLink)(({ theme }) => ({
 const SkeletonCard = styled("div")(({ theme }) => ({
   height: "100%",
   padding: theme.spacing(1.5),
-  border: `1px solid var(--mui-palette-grey-300)`,
-  borderRadius: theme.spacing(1),
+  border: "1px solid var(--mui-palette-divider)",
+  borderRadius: 10,
+  background: "var(--mui-palette-background-paper)",
 }));
 
 const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
@@ -102,6 +104,23 @@ export default function CommunitiesList() {
             sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
           />
           {t("dashboard:your_communities_heading")}
+          {!isPending && communities.length > 0 && (
+            <Box
+              component="span"
+              sx={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--mui-palette-text-secondary)",
+                background: "var(--mui-palette-grey-50)",
+                borderRadius: 999,
+                px: 1.125,
+                lineHeight: "20px",
+                display: "inline-block",
+              }}
+            >
+              {communities.length}
+            </Box>
+          )}
         </Typography>
         <div>
           <IconButton

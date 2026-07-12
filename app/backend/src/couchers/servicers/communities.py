@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import delete, func, or_
 
@@ -570,8 +570,26 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_node_id = int(request.page_token) if request.page_token else 0
+        try:
+            offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
+        except Exception:
+            # Pre-migration clients may still send a stale plaintext node-id token; treat it as
+            # the start of the list rather than failing the request.
+            offset = 0
         user_id = request.user_id or context.user_id
+
+        user_geom = select(User.geom).where(User.id == user_id).scalar_subquery()
+        type_rank = case(
+            (Node.node_type == NodeType.locality, 0),
+            (Node.node_type == NodeType.sublocality, 1),
+            (Node.node_type == NodeType.subregion, 2),
+            (Node.node_type == NodeType.region, 3),
+            (Node.node_type == NodeType.macroregion, 4),
+            (Node.node_type == NodeType.world, 5),
+            else_=6,
+        )
+        is_home = func.ST_Contains(Node.geom, user_geom)
+
         nodes = (
             session.execute(
                 select(Node)
@@ -579,9 +597,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
-                .where(Node.id >= next_node_id)
-                .order_by(Node.id)
+                .order_by(type_rank, is_home.desc(), Cluster.name.asc(), Node.id.asc())
                 .limit(page_size + 1)
+                .offset(offset)
                 .options(selectinload(Node.official_cluster))
             )
             .scalars()
@@ -590,7 +608,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
-            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
 
     def ListAllCommunities(
