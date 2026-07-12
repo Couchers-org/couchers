@@ -258,7 +258,7 @@ const FilterDialog = ({
           : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
       <IconButton
-        aria-label="close"
+        aria-label={t("global:close_button_a11y")}
         onClick={onCloseDialog}
         sx={(theme) => ({
           position: "absolute",

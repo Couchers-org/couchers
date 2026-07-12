@@ -11,6 +11,7 @@ import "api.proto";
 
 enum AdminActionLevel {
   ADMIN_ACTION_LEVEL_UNSPECIFIED = 0;
+  ADMIN_ACTION_LEVEL_TRACE = 4;    // firehose, below debug
   ADMIN_ACTION_LEVEL_DEBUG = 1;    // low-importance chatter
   ADMIN_ACTION_LEVEL_NORMAL = 2;   // regular admin work
   ADMIN_ACTION_LEVEL_HIGH = 3;     // significant state changes
@@ -78,7 +79,11 @@ service Admin {
 
   rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
 
+  rpc GetNonvisibleUserAccessLog(GetNonvisibleUserAccessLogReq) returns (GetNonvisibleUserAccessLogRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
+
+  rpc DeleteDiscussion(AdminDeleteDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
 
@@ -107,6 +112,18 @@ service Admin {
   rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
 
   rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
+
+  rpc CreateOTAPackage(CreateOTAPackageReq) returns (OTAPackage) {
+    // Register a published Expo OTA bundle so the backend serves it to compatible native builds
+  }
+
+  rpc ListOTAPackages(ListOTAPackagesReq) returns (ListOTAPackagesRes) {}
+
+  rpc BanOTAPackage(BanOTAPackageReq) returns (OTAPackage) {
+    // Ban a package so it's no longer served; a matching client falls back to the next-newest
+    // non-banned package (i.e. a rollback), or to no update if none remain. Irreversible — to undo
+    // an accidental ban, republish the bundle as a new package (rolling forward).
+  }
 }
 
 message AdminActionLog {
@@ -151,6 +168,7 @@ message UserDetails {
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count = 17;
+  google.protobuf.Timestamp last_mod_note_acknowledged = 22;
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
@@ -451,10 +469,48 @@ message GetFriendRequestsRes {
   repeated AdminFriendRequest received = 2;
 }
 
+enum NonvisibleUserAccessType {
+  NONVISIBLE_USER_ACCESS_TYPE_UNSPECIFIED = 0;
+  NONVISIBLE_USER_ACCESS_TYPE_LOGIN_ATTEMPT = 1;
+  NONVISIBLE_USER_ACCESS_TYPE_PROFILE_VIEW = 2;
+  NONVISIBLE_USER_ACCESS_TYPE_GHOST_SERVED = 3;
+}
+
+enum NonvisibleUserState {
+  NONVISIBLE_USER_STATE_UNSPECIFIED = 0;
+  NONVISIBLE_USER_STATE_BANNED = 1;
+  NONVISIBLE_USER_STATE_SHADOWED = 2;
+  NONVISIBLE_USER_STATE_DELETED = 3;
+}
+
+message GetNonvisibleUserAccessLogReq {
+  string user = 1;
+}
+
+message NonvisibleUserAccessLogEntry {
+  google.protobuf.Timestamp time = 1;
+  NonvisibleUserAccessType access_type = 2;
+  NonvisibleUserState target_state = 3;
+  int64 target_user_id = 4;
+  google.protobuf.Int64Value actor_user_id = 5;
+  string actor_username = 6;
+  string ip_address = 7;
+  string user_agent = 8;
+  string sofa = 9;
+}
+
+message GetNonvisibleUserAccessLogRes {
+  repeated NonvisibleUserAccessLogEntry entries = 1;
+}
+
 message EditDiscussionReq {
   int64 discussion_id = 1;
   string new_title = 2;
   string new_content = 3;
+}
+
+message AdminDeleteDiscussionReq {
+  int64 discussion_id = 1;
 }
 
 message EditReplyReq {
@@ -587,6 +643,26 @@ message ListUserUploadsReq {
   string page_token = 3;
 }
 
+enum UploadUseType {
+  UPLOAD_USE_TYPE_UNSPECIFIED = 0;
+  UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO = 1;
+  UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR = 2;
+  UPLOAD_USE_TYPE_EVENT = 3;
+  UPLOAD_USE_TYPE_PAGE = 4;
+}
+
+message UploadUse {
+  UploadUseType type = 1;
+  // whether this use is the one currently shown (vs. a superseded page version or deleted occurrence)
+  bool is_current = 2;
+  // only the identifier relevant to the type is set
+  int64 user_id = 3;
+  int64 event_id = 4;
+  int64 page_id = 5;
+  // link to the use (user profile, event, community page); not set for places/guides (no frontend route yet)
+  string url = 6;
+}
+
 message UserUpload {
   string key = 1;
   string filename = 2;
@@ -594,9 +670,66 @@ message UserUpload {
   string thumbnail_url = 4;
   string credit = 5;
   google.protobuf.Timestamp created = 6;
+  repeated UploadUse uses = 7;
 }
 
 message ListUserUploadsRes {
   repeated UserUpload uploads = 1;
   string next_page_token = 2;
+}
+
+enum OTAPlatform {
+  OTA_PLATFORM_UNSPECIFIED = 0;
+  OTA_PLATFORM_IOS = 1;
+  OTA_PLATFORM_ANDROID = 2;
+}
+
+message OTAPackage {
+  int64 ota_package_id = 1;
+  google.protobuf.Timestamp created = 2;
+  int64 creator_user_id = 3;
+  OTAPlatform platform = 4;
+  // The Expo build fingerprint this bundle is compatible with (the manifest's runtimeVersion).
+  string fingerprint = 5;
+  // The immutable CDN path component the signed manifest is published under (e.g. v1.3.<commit>.<sha>).
+  string version = 6;
+  // The manifest's createdAt: the publish/stamp time used to order rollouts (a rollback re-stamps a
+  // newer one). The newest per fingerprint is served.
+  google.protobuf.Timestamp manifest_created_at = 7;
+  // The manifest's own id (uuid), for reference.
+  string manifest_id = 8;
+  bool banned = 9;
+  google.protobuf.Timestamp banned_at = 10;
+  int64 banned_by_user_id = 11;
+  string banned_reason = 12;
+  // True if this is the package currently served to a matching client: the newest non-banned
+  // package for its platform + fingerprint.
+  bool live = 13;
+}
+
+message CreateOTAPackageReq {
+  OTAPlatform platform = 1;
+  // The immutable CDN path component the signed manifest was published under (e.g.
+  // v1.3.<commit>.<sha>). The backend fetches {cdn_root}/{version}/{platform}/manifest and reads
+  // runtimeVersion / createdAt / id out of the manifest it's about to serve.
+  string version = 2;
+}
+
+message ListOTAPackagesReq {
+  // Optional: only return packages for this platform.
+  OTAPlatform platform = 1;
+  // Optional: only return packages with this fingerprint (the build's runtimeVersion).
+  string fingerprint = 2;
+  // Include banned packages too (default only non-banned).
+  bool include_banned = 3;
+}
+
+message ListOTAPackagesRes {
+  // Newest first.
+  repeated OTAPackage packages = 1;
+}
+
+message BanOTAPackageReq {
+  int64 ota_package_id = 1;
+  string reason = 2;
 }

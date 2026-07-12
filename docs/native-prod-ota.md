@@ -13,7 +13,7 @@ the per-branch Dev Tool OTA (`docs/mobile-dev-tool-ota.md`). The Dev Tool is a
 dev client and loads branches through the dev launcher's deep-link path; the
 production app is a release build and uses `expo-updates` proper, which is a
 different mechanism (see §2). This doc reuses the Dev Tool's static publish
-pipeline (`ota-stage.mjs`, the S3 layout, the CloudFront/Lambda infra) and adds
+pipeline (`ota-bundle.mjs`, the S3 layout, the CloudFront/Lambda infra) and adds
 the three things production needs: a **backend manifest endpoint**, **per-user
 rollouts**, and **code signing**.
 
@@ -261,7 +261,7 @@ Servicer logic (`src/couchers/servicers/bugs.py`):
 6. **Build the response:** fetch the (unsigned) `manifest.json` object for that
    `update_id`/platform from the CDN (cache by `update_id`, immutable), sign it
    (§7), and frame it as protocol-v1 `multipart/mixed`
-   (`manifest` part + `extensions` part), exactly as `ota-stage.mjs` already
+   (`manifest` part + `extensions` part), exactly as `ota-bundle.mjs` already
    does for the Dev Tool. Return
    `HttpBody(content_type="multipart/mixed; boundary=…", data=<framed bytes>)`
    and ensure the `expo-protocol-version: 1` response header is set (§3).
@@ -366,14 +366,14 @@ Per platform (`ios`, `android`) for a release:
    the `runtime_version` (must match the store build; mind the same
    `.fingerprintignore` / `google-services.json` trap the Dev Tool hit —
    `docs/mobile-dev-tool-ota.md` §8).
-3. **Stage** with `app/mobile/scripts/ota-stage.mjs` — content-addressed asset
+3. **Bundle** with `app/mobile/scripts/ota-bundle.mjs` — content-addressed asset
    keys, `manifest.json`, asset/bundle files. Point `--base-url` at the
-   production OTA CDN host. (The Dev Tool's multipart framing / `open.html` / QR
-   bits aren't needed here; the backend does the framing + signing.)
+   production OTA CDN host. (The static multipart `manifest` isn't used here;
+   the backend does the framing + signing.)
 4. **Upload** bundle + assets + `manifest.json` to the production CDN path
    `ota/prod/<update_id>/<platform>/` (immutable per `update_id`, so cache
    forever, no invalidation). `update_id` is the content-addressed manifest id
-   `ota-stage.mjs` already derives.
+   `ota-bundle.mjs` already derives.
 5. **Flip the registry:** write/patch `releases.json` so the desired track(s)
    point at the new `update_id` for this `(runtime_version, platform)`.
 
@@ -500,7 +500,7 @@ our backend. So:
   `app/proxy/envoy.yaml`, `app/proxy/Dockerfile`, `app/generate_protos.sh`
 - Bugs servicer (open, catch-all): `app/proto/bugs.proto`,
   `src/couchers/servicers/bugs.py`
-- Publish/stage script: `app/mobile/scripts/ota-stage.mjs`
+- Bundle script: `app/mobile/scripts/ota-bundle.mjs`
 - App config / variants / current EAS Update URL: `app/mobile/app.config.js`,
   `app/mobile/eas.json`
 - Override API source: `app/mobile/node_modules/expo-updates/src/Updates.ts`

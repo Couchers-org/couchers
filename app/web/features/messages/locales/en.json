@@ -191,13 +191,13 @@
     "host_status": {
       "accepted": "You have accepted this request",
       "accepted_waiting": "You have accepted this request — waiting for the surfer to confirm.",
-      "cancelled": "You have cancelled this request",
+      "cancelled": "The surfer has cancelled this request",
       "confirmed": "Have fun! You have accepted and the surfer has confirmed this request.",
       "rejected": "You have declined this request"
     },
     "surfer_status": {
       "accepted": "Have fun! {{name}} has accepted the request.",
-      "cancelled": "Your request was cancelled",
+      "cancelled": "You have cancelled this request",
       "confirmed": "Have fun! {{name}} accepted and you confirmed this request.",
       "rejected": "Your request was declined"
     }
@@ -210,5 +210,6 @@
     "request_duration_one": "{{count}} night",
     "request_duration_other": "{{count}} nights"
   },
-  "unknown_user": "Unknown user"
+  "unknown_user": "Unknown user",
+  "show_more_actions_button_a11y": "Show more actions"
 }

@@ -9,7 +9,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -149,6 +149,16 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         )
     ).scalar_one()
 
+    location: events_pb2.EventLocation
+    if occurrence.geom:
+        location = events_pb2.EventLocation(
+            lat=not_none(occurrence.coordinates)[0], lng=not_none(occurrence.coordinates)[1], address=occurrence.address
+        )
+    else:
+        # Backcompat: Surface legacy online events as offline events.
+        # They'll appear at null island, but there are so few we're ok with this.
+        location = events_pb2.EventLocation(address=occurrence.link, lat=0, lng=0)
+
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
@@ -159,22 +169,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
         photo_key=occurrence.photo_key or "",
-        online_information=(
-            events_pb2.OnlineEventInformation(
-                link=occurrence.link,
-            )
-            if occurrence.link
-            else None
-        ),
-        offline_information=(
-            events_pb2.OfflineEventInformation(
-                lat=not_none(occurrence.coordinates)[0],
-                lng=not_none(occurrence.coordinates)[1],
-                address=occurrence.address,
-            )
-            if occurrence.geom
-            else None
-        ),
+        location=location,
         created=Timestamp_from_datetime(occurrence.created),
         last_edited=Timestamp_from_datetime(occurrence.last_edited),
         creator_user_id=occurrence.creator_user_id,
@@ -294,7 +289,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         for user in users:
             if is_not_visible(session, user.id, creator.id):
                 continue
-            context = make_background_user_context(user_id=user.id)
+            context = make_notification_user_context(user_id=user.id)
             topic_action = (
                 NotificationTopicAction.event__create_approved
                 if payload.approved
@@ -327,7 +322,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, updating_user.id):
                 continue
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -336,7 +331,11 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
-                    updated_items=payload.updated_items,
+                    # TODO(#9117): Remove update_str_items once known unused.
+                    updated_str_items=payload.updated_str_items,
+                    updated_enum_items=(
+                        notification_data_pb2.EventUpdateItem.ValueType(value) for value in payload.updated_enum_items
+                    ),
                 ),
                 moderation_state_id=occurrence.moderation_state_id,
             )
@@ -354,7 +353,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         for user_id in set(subscribed_user_ids + attending_user_ids):
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -378,7 +377,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -402,29 +401,16 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
-        if request.HasField("online_information"):
-            online = True
-            geom = None
-            address = None
-            if not request.online_information.link:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            online = False
-            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
+
+        # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
+        if not (
+            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+        if request.location.lat == 0 and request.location.lng == 0:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+        geom = create_coordinate(request.location.lat, request.location.lng)
+        address = request.location.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -439,8 +425,6 @@ class Events(events_pb2_grpc.EventsServicer):
             if not parent_node or not parent_node.official_cluster.small_community_features_enabled:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
-            if online:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_missing_parent_community")
             # parent community computed from geom
             parent_node = get_parent_node_at_location(session, not_none(geom))
 
@@ -476,7 +460,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=TimestamptzRange(start_time, end_time),
@@ -529,7 +513,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 "occurrence_id": occurrence.id,
                 "parent_community_id": parent_node.id,
                 "parent_community_name": parent_node.official_cluster.name,
-                "online": online,
             },
         )
 
@@ -551,24 +534,14 @@ class Events(events_pb2_grpc.EventsServicer):
     ) -> events_pb2.Event:
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
-        if request.HasField("online_information"):
-            geom = None
-            address = None
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
+        if not (
+            request.HasField("location") and request.location.address and request.location.lat and request.location.lng
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+        if request.location.lat == 0 and request.location.lng == 0:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+        geom = create_coordinate(request.location.lat, request.location.lng)
+        address = request.location.address
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -618,7 +591,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=during,
@@ -666,7 +639,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         # the things that were updated and need to be notified about
-        notify_updated = []
+        notify_updated: list[notification_data_pb2.EventUpdateItem.ValueType] = []
 
         if occurrence.is_cancelled:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
@@ -674,43 +647,34 @@ class Events(events_pb2_grpc.EventsServicer):
         occurrence_update: dict[str, Any] = {"last_edited": now()}
 
         if request.HasField("title"):
-            notify_updated.append("title")
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE)
             event.title = request.title.value
 
         if request.HasField("content"):
-            notify_updated.append("content")
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT)
             occurrence_update["content"] = request.content.value
 
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
-        if request.HasField("online_information"):
-            notify_updated.append("location")
-            if not request.online_information.link:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
-            occurrence_update["link"] = request.online_information.link
-            occurrence_update["geom"] = None
-            occurrence_update["address"] = None
-        elif request.HasField("offline_information"):
-            notify_updated.append("location")
+        if request.HasField("location"):
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
             occurrence_update["link"] = None
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+            if request.location.lat == 0 and request.location.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            occurrence_update["geom"] = create_coordinate(
-                request.offline_information.lat, request.offline_information.lng
-            )
-            occurrence_update["address"] = request.offline_information.address
+            occurrence_update["geom"] = create_coordinate(request.location.lat, request.location.lng)
+            occurrence_update["address"] = request.location.address
 
         if request.HasField("start_time") or request.HasField("end_time"):
             if request.update_all_future:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
             if request.HasField("start_time"):
-                notify_updated.append("start time")
+                notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME)
                 start_time = to_aware_datetime(request.start_time)
             else:
                 start_time = occurrence.start_time
             if request.HasField("end_time"):
-                notify_updated.append("end time")
+                notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
                 end_time = to_aware_datetime(request.end_time)
             else:
                 end_time = occurrence.end_time
@@ -766,8 +730,9 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
+            items_str = ",".join(notification_data_pb2.EventUpdateItem.Name(item) for item in notify_updated)
             if request.should_notify:
-                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+                logger.info(f"Items {items_str} updated in event {event.id=}, notifying")
 
                 queue_job(
                     session,
@@ -775,13 +740,11 @@ class Events(events_pb2_grpc.EventsServicer):
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
                         occurrence_id=occurrence.id,
-                        updated_items=notify_updated,
+                        updated_enum_items=notify_updated,
                     ),
                 )
             else:
-                logger.info(
-                    f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications"
-                )
+                logger.info(f"Items {items_str} updated in event {event.id=}, but skipping notifications")
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)
@@ -1165,6 +1128,11 @@ class Events(events_pb2_grpc.EventsServicer):
         include_attending = request.attending or include_all
         include_my_communities = request.my_communities or include_all
 
+        if include_attending and request.exclude_attending:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "cannot_combine_attending_and_exclude_attending"
+            )
+
         where_ = []
 
         if include_subscribed:
@@ -1178,7 +1146,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
             )
             where_.append(EventOrganizer.user_id != None)
-        if include_attending:
+        if include_attending or request.exclude_attending:
             query = query.outerjoin(
                 EventOccurrenceAttendee,
                 and_(
@@ -1186,7 +1154,15 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurrenceAttendee.user_id == context.user_id,
                 ),
             )
-            where_.append(EventOccurrenceAttendee.user_id != None)
+            if include_attending:
+                where_.append(EventOccurrenceAttendee.user_id != None)
+            elif request.exclude_attending:
+                if not include_organizing:
+                    query = query.outerjoin(
+                        EventOrganizer,
+                        and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
+                    )
+                query = query.where(EventOccurrenceAttendee.user_id == None, EventOrganizer.user_id == None)
         if include_my_communities:
             my_communities = (
                 session.execute(
@@ -1289,7 +1265,7 @@ class Events(events_pb2_grpc.EventsServicer):
         )
         session.flush()
 
-        other_user_context = make_background_user_context(user_id=request.user_id)
+        other_user_context = make_notification_user_context(user_id=request.user_id)
 
         notify(
             session,

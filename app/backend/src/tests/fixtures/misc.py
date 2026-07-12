@@ -51,10 +51,10 @@ class EmailCollector:
         return len(self.by_recipient.get(recipient, []))
 
     def count_for_mods(self) -> int:
-        return self.count_for_recipient(config["MODS_EMAIL_RECIPIENT"])
+        return self.count_for_recipient(config.MODS_EMAIL_RECIPIENT)
 
     def count_for_reports(self) -> int:
-        return self.count_for_recipient(config["REPORTS_EMAIL_RECIPIENT"])
+        return self.count_for_recipient(config.REPORTS_EMAIL_RECIPIENT)
 
     def pop_for_recipient(self, recipient: str, *, last: bool = False) -> jobs_pb2.SendEmailPayload:
         """
@@ -69,10 +69,10 @@ class EmailCollector:
         return emails.pop(0)
 
     def pop_for_mods(self, *, last: bool = False) -> jobs_pb2.SendEmailPayload:
-        return self.pop_for_recipient(config["MODS_EMAIL_RECIPIENT"], last=last)
+        return self.pop_for_recipient(config.MODS_EMAIL_RECIPIENT, last=last)
 
     def pop_for_reports(self, *, last: bool = False) -> jobs_pb2.SendEmailPayload:
-        return self.pop_for_recipient(config["REPORTS_EMAIL_RECIPIENT"], last=last)
+        return self.pop_for_recipient(config.REPORTS_EMAIL_RECIPIENT, last=last)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -159,6 +159,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -183,6 +184,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -207,6 +209,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -231,6 +234,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -249,6 +253,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -267,6 +272,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -285,6 +291,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
@@ -303,6 +310,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 

@@ -2,7 +2,6 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { useIsNativeEmbed } from "utils/nativeLink";
 
 import useMessageUser from "./useMessageUser";
 
@@ -13,10 +12,6 @@ jest.mock("next/router", () => ({
   default: {
     events: { on: jest.fn(), off: jest.fn() },
   },
-}));
-
-jest.mock("utils/nativeLink", () => ({
-  useIsNativeEmbed: jest.fn(),
 }));
 
 jest.mock("features/profile/ProfileSheetContext", () => ({
@@ -42,8 +37,15 @@ describe("useMessageUser", () => {
     });
   });
 
-  it("opens group chat in sheet on native when thread exists", async () => {
-    (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
+  it("opens group chat in sheet when sheet is open and thread exists", async () => {
+    (useProfileSheet as jest.Mock).mockReturnValue({
+      openGroupChat: mockOpenGroupChat,
+      openProfileSheet: jest.fn(),
+      closeProfileSheet: jest.fn(),
+      openProfileUserId: 1,
+      openGroupChatId: null,
+      closeGroupChat: jest.fn(),
+    });
     (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
       123,
     );
@@ -63,8 +65,7 @@ describe("useMessageUser", () => {
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it("navigates to group chat route on web when thread exists", async () => {
-    (useIsNativeEmbed as jest.Mock).mockReturnValue(false);
+  it("navigates to group chat route when sheet is not open and thread exists", async () => {
     (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
       123,
     );
@@ -85,7 +86,6 @@ describe("useMessageUser", () => {
   });
 
   it("opens inline compose form when no thread exists", async () => {
-    (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
     (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
       false,
     );

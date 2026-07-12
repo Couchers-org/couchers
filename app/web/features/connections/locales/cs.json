@@ -2,7 +2,6 @@
   "accept": "Přijmout",
   "my_connections": "Moje kontakty",
   "add_friend": "Přidat přítele",
-  "decline": "Odmítnout",
   "blocked_list_title": "Zablokovaní uživatelé",
   "block_user": "Zablokovat uživatele",
   "block_user_confirmation_dialog": {
@@ -30,5 +29,13 @@
     "title": "Opravdu chceš odblokovat uživatele {{name}}?",
     "message": "Po odblokování uvidí tvůj profil a budou ti moct posílat žádosti. Pokud jste byli dříve přátelé, znovu se objeví v seznamu přátel. O odblokování se nedozví.",
     "confirm": "Odblokovat"
-  }
+  },
+  "friend_request_no_longer_available": "Tato žádost o přátelství už není k dispozici.",
+  "cancel_request_button_a11y": "Zrušit žádost",
+  "add_friend_confirmation_dialog": {
+    "title": "Znáš tuto osobu?",
+    "confirm": "Ano, znám ji. Odeslat žádost!",
+    "message": "Žádosti o přátelství prosím posílej pouze lidem, které už znáš dříve nebo které znáš z tvých cest – většina lidí se raději propojuje až po osobním setkání. <helpCenterLink>Přečti si o žádostech o přátelství v našem Centru nápovědy.</helpCenterLink>"
+  },
+  "friend_requests_dismiss_button": "Zamítnout"
 }

@@ -16,6 +16,8 @@ import { service } from "service";
 import {
   emailValidationPattern,
   lowercaseAndTrimField,
+  nameMaxLength,
+  nameMinLength,
   nameValidationPattern,
 } from "utils/validation";
 
@@ -89,23 +91,16 @@ export default function BasicForm({
           {...register("name", {
             required: t("auth:basic_form.name.required_error"),
             minLength: {
-              value: 2,
+              value: nameMinLength,
               message: t("auth:basic_form.name.min_length_error"),
             },
             maxLength: {
-              value: 100,
+              value: nameMaxLength,
               message: t("auth:basic_form.name.max_length_error"),
             },
             pattern: {
               message: t("auth:basic_form.name.invalid_characters_error"),
               value: nameValidationPattern,
-            },
-            validate: (value) => {
-              const trimmed = value.trim();
-              if (trimmed.length < 2) {
-                return t("auth:basic_form.name.min_length_error");
-              }
-              return true;
             },
           })}
           fullWidth

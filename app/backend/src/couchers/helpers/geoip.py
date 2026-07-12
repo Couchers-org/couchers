@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 
 def geoip_approximate_location(ip_address: str | None) -> str | None:
-    if config["GEOLITE2_CITY_MMDB_FILE_LOCATION"] == "":
+    if config.GEOLITE2_CITY_MMDB_FILE_LOCATION == "":
         return None
     if ip_address is None:
         return None
     try:
-        with geoip2.database.Reader(config["GEOLITE2_CITY_MMDB_FILE_LOCATION"]) as reader:
+        with geoip2.database.Reader(config.GEOLITE2_CITY_MMDB_FILE_LOCATION) as reader:
             response = reader.city(ip_address)
             city = response.city.name
             country = response.country.name
@@ -28,12 +28,12 @@ def geoip_approximate_location(ip_address: str | None) -> str | None:
 
 
 def geoip_asn(ip_address: str | None) -> tuple[int, str, IPv4Network | IPv6Network] | None:
-    if config["GEOLITE2_ASN_MMDB_FILE_LOCATION"] == "":
+    if config.GEOLITE2_ASN_MMDB_FILE_LOCATION == "":
         return None
     if ip_address is None:
         return None
     try:
-        with geoip2.database.Reader(config["GEOLITE2_ASN_MMDB_FILE_LOCATION"]) as reader:
+        with geoip2.database.Reader(config.GEOLITE2_ASN_MMDB_FILE_LOCATION) as reader:
             response = reader.asn(ip_address)
             asn_number = response.autonomous_system_number
             asn_org = response.autonomous_system_organization

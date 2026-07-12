@@ -4,10 +4,10 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 
-const StyledSpan = styled("span")(({ theme }) => ({
-  display: "inline-block",
+const StyledSpan = styled("span")(() => ({
+  display: "inline-flex",
+  alignItems: "center",
   verticalAlign: "middle",
-  marginLeft: theme.spacing(0.5),
 }));
 
 export default function StrongVerificationBadge() {

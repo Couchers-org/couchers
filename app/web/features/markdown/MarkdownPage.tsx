@@ -12,6 +12,8 @@ import markdown from "markdown-it";
 import Head from "next/head";
 import { theme } from "theme";
 
+import { COMMUNITIES } from "../../i18n/namespaces";
+
 const mkd = new markdown();
 
 interface MarkdownPageFrontmatter {
@@ -222,7 +224,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation([COMMUNITIES]);
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -231,7 +233,6 @@ export default function MarkdownPage({
     : null;
 
   const crumbs = createBreadcrumbs({ slug, frontmatter });
-
   return (
     <>
       <HtmlMeta
@@ -254,7 +255,9 @@ export default function MarkdownPage({
         maxWidth="md"
         sx={{ marginTop: theme.spacing(3) }}
       >
-        <StyledBreadcrumbs aria-label="breadcrumb">
+        <StyledBreadcrumbs
+          aria-label={t("communities:community_breadcrumb_a11y")}
+        >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (
@@ -293,14 +296,15 @@ export default function MarkdownPage({
               <Trans
                 i18nKey="blog.byline_with_author"
                 values={{ date: frontmatter.date }}
-              >
-                {"Written by "}
-                <AuthorList
-                  author={frontmatter.author}
-                  authorUsername={frontmatter.author_username}
-                />
-                {". Published on {{date}}."}
-              </Trans>
+                components={{
+                  1: (
+                    <AuthorList
+                      author={frontmatter.author}
+                      authorUsername={frontmatter.author_username}
+                    />
+                  ),
+                }}
+              />
             ) : (
               t("blog.byline_without_author", { date: frontmatter.date })
             )}
@@ -311,13 +315,13 @@ export default function MarkdownPage({
             variant="body1"
             sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
           >
-            <Trans i18nKey="blog.cta_message">
-              {"Want to help write our blog or volunteer? "}
-              <Link href="/volunteer">Sign up</Link>
-              {" and let us know. Volunteers and "}
-              <Link href="/donate">donations</Link>
-              {" are what make Couchers.org possible!"}
-            </Trans>
+            <Trans
+              i18nKey="blog.cta_message"
+              components={{
+                1: <Link href="/volunteer" />,
+                3: <Link href="/donate" />,
+              }}
+            />
           </Typography>
         )}
         {frontmatter.is_blog_post && (

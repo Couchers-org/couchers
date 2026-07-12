@@ -18,6 +18,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Comment,
     Discussion,
     Event,
     EventOccurrence,
@@ -32,7 +33,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_moderated_content_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -465,19 +466,46 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_page_id = int(request.page_token) if request.page_token else 0
+        next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
-        query = (
-            select(Discussion)
-            .where(Discussion.owner_cluster_id == node.official_cluster.id)
-            .where(or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0)))
+        has_visible_comments = (
+            where_moderated_content_visible(
+                where_users_column_visible(
+                    select(func.count())
+                    .select_from(Comment)
+                    .where(Comment.thread_id == Discussion.thread_id)
+                    .where(Comment.deleted == None),
+                    context,
+                    Comment.author_user_id,
+                ),
+                context,
+                Comment,
+                is_list_operation=True,
+            )
+            .correlate(Discussion)
+            .scalar_subquery()
         )
-        query = where_moderated_content_visible(query, context, Discussion, is_list_operation=True)
-        discussions = session.execute(query.order_by(Discussion.id.desc()).limit(page_size + 1)).scalars().all()
+        discussions = (
+            session.execute(
+                where_moderated_content_visible(
+                    select(Discussion)
+                    .where(Discussion.owner_cluster_id == node.official_cluster.id)
+                    .where((Discussion.deleted == None) | (has_visible_comments > 0))
+                    .where(Discussion.id <= next_page_id)
+                    .order_by(Discussion.id.desc())
+                    .limit(page_size + 1),
+                    context,
+                    Discussion,
+                    is_list_operation=True,
+                )
+            )
+            .scalars()
+            .all()
+        )
         return communities_pb2.ListDiscussionsRes(
             discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,

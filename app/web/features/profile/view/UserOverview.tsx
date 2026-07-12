@@ -126,11 +126,9 @@ export default function UserOverview({
       )}
 
       <StyledWrapper>
-        <StyledIntro variant="h1">
-          <span>
-            {user.name}
-            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-          </span>
+        <StyledIntro variant="h1" gap={0.5}>
+          {user.name}
+          {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
         <StyledLink
           href={routeToUser(user.username)}

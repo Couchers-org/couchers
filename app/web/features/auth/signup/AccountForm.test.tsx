@@ -1,11 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
-import dayjs from "dayjs";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
@@ -44,6 +44,26 @@ jest.mock("components/EditLocationMap", () => ({
     />
   ),
 }));
+
+// The birthdate field is picker-only (read-only, no text entry): set it by
+// opening the calendar and navigating year -> month -> day. minDate/maxDate on
+// the picker (18-120 years ago) make out-of-range dates unselectable, so the
+// too-young / too-old paths can't be reached through the UI.
+async function selectBirthdate(
+  user: ReturnType<typeof userEvent.setup>,
+  { year, month, day }: { year: string; month: string; day: string },
+) {
+  const field = await screen.findByRole("textbox", {
+    name: t("global:components.datepicker.change_date"),
+  });
+  await user.click(field);
+  const dialog = await screen.findByRole("dialog");
+  // Use findByRole (async) so the year/month/day views have time to render
+  // under load — getByRole would miss them right after the dialog opens.
+  await user.click(await within(dialog).findByRole("radio", { name: year }));
+  await user.click(await within(dialog).findByRole("radio", { name: month }));
+  await user.click(await within(dialog).findByRole("gridcell", { name: day }));
+}
 
 describe("AccountForm", () => {
   beforeEach(() => {
@@ -89,13 +109,7 @@ describe("AccountForm", () => {
         ),
         "a very insecure password",
       );
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("01011990");
+      await selectBirthdate(user, { year: "1990", month: "January", day: "1" });
 
       await user.type(
         screen.getByTestId("edit-location-map"),
@@ -136,7 +150,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,
@@ -147,6 +161,16 @@ describe("AccountForm", () => {
           radius: 5,
         });
       });
+    });
+
+    it("displays the birthdate in the localized LL format", async () => {
+      // beforeEach selects 1 January 1990; the read-only field renders it as the
+      // localized long date ("LL"), with no editable mask/placeholder.
+      const field = await screen.findByRole("textbox", {
+        name: t("global:components.datepicker.change_date"),
+      });
+
+      expect(field).toHaveValue("January 1, 1990");
     });
 
     it("lowercases the username before submitting", async () => {
@@ -167,7 +191,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,
@@ -206,77 +230,6 @@ describe("AccountForm", () => {
         await screen.findByText(
           t("auth:account_form.username.validation_error"),
         ),
-      ).toBeVisible();
-      expect(signupFlowAccountMock).not.toHaveBeenCalled();
-    });
-
-    it("Fails on birthdate older than 120", async () => {
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      const user = userEvent.setup();
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("01/01/1750");
-
-      await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") }),
-      );
-
-      expect(
-        await screen.findByText(
-          t("auth:account_form.birthday.not_real_date_error"),
-        ),
-      ).toBeVisible();
-      expect(signupFlowAccountMock).not.toHaveBeenCalled();
-    });
-
-    it("Fails on birthdate younger than 18", async () => {
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      const user = userEvent.setup();
-
-      const seventeenYearsAgoDate = dayjs()
-        .subtract(17, "year")
-        .format("MM/DD/YYYY");
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard(seventeenYearsAgoDate);
-
-      await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") }),
-      );
-
-      expect(
-        await screen.findByText(
-          t("auth:account_form.birthday.too_young_error"),
-        ),
-      ).toBeVisible();
-      expect(signupFlowAccountMock).not.toHaveBeenCalled();
-    });
-
-    it("Fails on blank birthdate", async () => {
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      const user = userEvent.setup();
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("{Backspace}");
-
-      await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") }),
-      );
-
-      expect(
-        await screen.findByText(t("auth:account_form.birthday.required_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
@@ -459,13 +412,7 @@ describe("AccountForm", () => {
         ),
         "a very insecure password",
       );
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("01/01/1990");
+      await selectBirthdate(user, { year: "1990", month: "January", day: "1" });
 
       await user.type(
         screen.getByTestId("edit-location-map"),
@@ -494,6 +441,74 @@ describe("AccountForm", () => {
         await screen.findByText(t("auth:account_form.gender.required_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
+    });
+  });
+
+  // The birthdate field can't be cleared once set (it's picker-only), so the
+  // blank-birthdate case uses its own setup that fills everything else.
+  describe("blank birthdate", () => {
+    it("fails when no birthdate is selected", async () => {
+      window.localStorage.setItem(
+        "auth.flowState",
+        JSON.stringify({
+          flowToken: "token",
+          needBasic: false,
+          needAccount: true,
+          needFeedback: false,
+          needVerifyEmail: false,
+          needMotivations: false,
+          needAcceptCommunityGuidelines: true,
+        }),
+      );
+      render(<AccountForm />, { wrapper });
+
+      const user = userEvent.setup();
+
+      await user.type(
+        await screen.findByLabelText(
+          t("auth:account_form.username.field_label"),
+        ),
+        "test",
+      );
+      await user.type(
+        await screen.findByLabelText(
+          t("auth:account_form.password.field_label"),
+        ),
+        "a very insecure password",
+      );
+
+      await user.type(
+        screen.getByTestId("edit-location-map"),
+        "test city, test country",
+      );
+
+      const hostingStatusItem = await screen.findByText(
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
+      );
+      await user.selectOptions(
+        screen.getByLabelText(
+          t("auth:account_form.hosting_status.field_label"),
+        ),
+        hostingStatusItem,
+      );
+
+      await user.click(
+        screen.getByLabelText(t("auth:account_form.gender.woman")),
+      );
+      await user.click(
+        screen.getByLabelText(t("auth:account_form.tos_accept_label")),
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: t("global:sign_up") }),
+      );
+
+      expect(
+        await screen.findByText(t("auth:account_form.birthday.required_error")),
+      ).toBeVisible();
+      expect(signupFlowAccountMock).not.toHaveBeenCalled();
+
+      window.localStorage.clear();
     });
   });
 });

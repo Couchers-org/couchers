@@ -1,7 +1,4 @@
 {
-  "attendees_count_one": "{{count}} assistent",
-  "attendees_count_many": "{{count}} d'assistants",
-  "attendees_count_other": "{{count}} assistents",
   "make_co_organizer": {
     "title": "Fes coorganitzador",
     "dialog_title": "Fes {{name}} coorganitzador",
@@ -82,7 +79,6 @@
   "local_info_title": "Sobre {{name}}",
   "more_replies": "Més respostes...",
   "more_tips": "Més consells i informació",
-  "online": "En línia",
   "my_communities": "Les meves comunitats",
   "overview_label": "Resum",
   "page_content_field_label": "Contingut de la pàgina",
@@ -133,10 +129,6 @@
   "start_date": "Data d'inici",
   "title_required": "Proporciona un títol per a l'esdeveniment.",
   "total_members": "membres en total",
-  "virtual_event": "Esdeveniment virtual",
-  "virtual_event_link": "Enllaç de l'esdeveniment",
-  "virtual_event_location_placeholder": "Mira els detalls per a l'enllaç",
-  "virtual_events_subtext": "Els esdeveniments virtuals s'afegiran a la comunitat global.",
   "past": "Passat",
   "upcoming": "Pròximament",
   "your_events": "Els teus esdeveniments",

@@ -1,5 +1,5 @@
 import type { Config } from "jest";
-import nextJest from "next/jest";
+import nextJest from "next/jest.js";
 
 // Providing the path to your Next.js app which will enable loading next.config.js and .env files
 const createJestConfig = nextJest({ dir: "./" });
@@ -30,6 +30,7 @@ const customJestConfig: Config = {
   // @TODO(NA) ^^ Fixed in react-query v4, but we are still on v3. Remove this when we upgrade.
   moduleDirectories: ["node_modules", "<rootDir>"],
   reporters: ["default", "jest-junit"],
+  resolver: "<rootDir>/jest.resolver.js",
   setupFilesAfterEnv: ["./test/setupTests.ts"],
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
   testEnvironment: "jsdom",
@@ -38,7 +39,6 @@ const customJestConfig: Config = {
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
   },
-  transformIgnorePatterns: ["/node_modules/"],
   resetMocks: true,
 };
 

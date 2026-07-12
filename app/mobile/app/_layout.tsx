@@ -14,6 +14,7 @@ import {
   Ubuntu_700Bold_Italic,
   useFonts,
 } from "@expo-google-fonts/ubuntu";
+import { useGrowthBook } from "@growthbook/growthbook-react";
 import {
   DarkTheme,
   DefaultTheme,
@@ -33,6 +34,7 @@ import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
+import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
@@ -69,14 +71,15 @@ SplashScreen.preventAutoHideAsync();
 
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
+  const featuresReady = useGrowthBook().ready;
 
   useEffect(() => {
-    if (fontsLoaded && checkedAuthStatus) {
+    if (fontsLoaded && checkedAuthStatus && featuresReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, checkedAuthStatus]);
+  }, [fontsLoaded, checkedAuthStatus, featuresReady]);
 
-  if (!fontsLoaded || !checkedAuthStatus) {
+  if (!fontsLoaded || !checkedAuthStatus || !featuresReady) {
     return null;
   }
 
@@ -137,9 +140,11 @@ function RootLayout() {
         {/* Set status bar style based on theme: dark icons for light mode, light icons for dark mode */}
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthProvider>
-          <PushNotificationsRegistrar />
-          <RootNavigator fontsLoaded={fontsLoaded} />
-          <DevSettingsButton />
+          <FeatureFlagProvider>
+            <PushNotificationsRegistrar />
+            <RootNavigator fontsLoaded={fontsLoaded} />
+            <DevSettingsButton />
+          </FeatureFlagProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

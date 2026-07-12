@@ -1,0 +1,1206 @@
+[
+  {
+    "alpha3": "aao",
+    "name": "Arabic (Algerian)"
+  },
+  {
+    "alpha3": "aar",
+    "name": "Afar"
+  },
+  {
+    "alpha3": "abk",
+    "name": "Abkhazian"
+  },
+  {
+    "alpha3": "ace",
+    "name": "Achinese"
+  },
+  {
+    "alpha3": "ach",
+    "name": "Acoli"
+  },
+  {
+    "alpha3": "acm",
+    "name": "Arabic (Mesopotamian)"
+  },
+  {
+    "alpha3": "acq",
+    "name": "Arabic (Ta'izzi-Adeni)"
+  },
+  {
+    "alpha3": "acw",
+    "name": "Arabic (Hejazi)"
+  },
+  {
+    "alpha3": "ada",
+    "name": "Adangme"
+  },
+  {
+    "alpha3": "ady",
+    "name": "Adyghe"
+  },
+  {
+    "alpha3": "aeb",
+    "name": "Arabic (Tunisian)"
+  },
+  {
+    "alpha3": "aec",
+    "name": "Arabic (Sa'idi)"
+  },
+  {
+    "alpha3": "afr",
+    "name": "Afrikaans"
+  },
+  {
+    "alpha3": "aka",
+    "name": "Akan"
+  },
+  {
+    "alpha3": "amh",
+    "name": "Amharic"
+  },
+  {
+    "alpha3": "anp",
+    "name": "Angika"
+  },
+  {
+    "alpha3": "apc",
+    "name": "Arabic (Levantine North)"
+  },
+  {
+    "alpha3": "apd",
+    "name": "Arabic (Sudanese)"
+  },
+  {
+    "alpha3": "arb",
+    "name": "Arabic (Standard)"
+  },
+  {
+    "alpha3": "ary",
+    "name": "Arabic (Moroccan)"
+  },
+  {
+    "alpha3": "arz",
+    "name": "Arabic (Egyptian)"
+  },
+  {
+    "alpha3": "ase",
+    "name": "Sign Language: American"
+  },
+  {
+    "alpha3": "asf",
+    "name": "Sign Language: Auslan"
+  },
+  {
+    "alpha3": "asm",
+    "name": "Assamese"
+  },
+  {
+    "alpha3": "ava",
+    "name": "Avaric"
+  },
+  {
+    "alpha3": "awa",
+    "name": "Awadhi"
+  },
+  {
+    "alpha3": "aym",
+    "name": "Aymara"
+  },
+  {
+    "alpha3": "ayn",
+    "name": "Arabic (San'ani)"
+  },
+  {
+    "alpha3": "aze",
+    "name": "Azerbaijani"
+  },
+  {
+    "alpha3": "bak",
+    "name": "Bashkir"
+  },
+  {
+    "alpha3": "bal",
+    "name": "Baluchi"
+  },
+  {
+    "alpha3": "bam",
+    "name": "Bambara"
+  },
+  {
+    "alpha3": "ban",
+    "name": "Balinese"
+  },
+  {
+    "alpha3": "bar",
+    "name": "Bavarian"
+  },
+  {
+    "alpha3": "bej",
+    "name": "Beja"
+  },
+  {
+    "alpha3": "bel",
+    "name": "Belarusian"
+  },
+  {
+    "alpha3": "bem",
+    "name": "Bemba"
+  },
+  {
+    "alpha3": "ben",
+    "name": "Bengali"
+  },
+  {
+    "alpha3": "bfi",
+    "name": "Sign Language: British"
+  },
+  {
+    "alpha3": "bgc",
+    "name": "Haryanvi"
+  },
+  {
+    "alpha3": "bho",
+    "name": "Bhojpuri"
+  },
+  {
+    "alpha3": "bik",
+    "name": "Bikol"
+  },
+  {
+    "alpha3": "bin",
+    "name": "Edo"
+  },
+  {
+    "alpha3": "bod",
+    "name": "Tibetan"
+  },
+  {
+    "alpha3": "bos",
+    "name": "Bosnian"
+  },
+  {
+    "alpha3": "bra",
+    "name": "Braj"
+  },
+  {
+    "alpha3": "bre",
+    "name": "Breton"
+  },
+  {
+    "alpha3": "bug",
+    "name": "Buginese"
+  },
+  {
+    "alpha3": "bul",
+    "name": "Bulgarian"
+  },
+  {
+    "alpha3": "bzs",
+    "name": "Sign Language: Brazilian"
+  },
+  {
+    "alpha3": "cat",
+    "name": "Catalan"
+  },
+  {
+    "alpha3": "cdo",
+    "name": "Chinese (Eastern Min)"
+  },
+  {
+    "alpha3": "ceb",
+    "name": "Cebuano"
+  },
+  {
+    "alpha3": "ces",
+    "name": "Czech"
+  },
+  {
+    "alpha3": "che",
+    "name": "Chechen"
+  },
+  {
+    "alpha3": "chm",
+    "name": "Mari"
+  },
+  {
+    "alpha3": "chv",
+    "name": "Chuvash"
+  },
+  {
+    "alpha3": "cjy",
+    "name": "Chinese (Jin)"
+  },
+  {
+    "alpha3": "cmn",
+    "name": "Chinese (Mandarin)"
+  },
+  {
+    "alpha3": "cor",
+    "name": "Cornish"
+  },
+  {
+    "alpha3": "crh",
+    "name": "Crimean Tatar"
+  },
+  {
+    "alpha3": "ctg",
+    "name": "Chittagonian"
+  },
+  {
+    "alpha3": "cym",
+    "name": "Welsh"
+  },
+  {
+    "alpha3": "dan",
+    "name": "Danish"
+  },
+  {
+    "alpha3": "deu",
+    "name": "German"
+  },
+  {
+    "alpha3": "dgr",
+    "name": "Dogrib"
+  },
+  {
+    "alpha3": "din",
+    "name": "Dinka"
+  },
+  {
+    "alpha3": "doi",
+    "name": "Dogri"
+  },
+  {
+    "alpha3": "dsb",
+    "name": "Lower Sorbian"
+  },
+  {
+    "alpha3": "dse",
+    "name": "Sign Language: Dutch"
+  },
+  {
+    "alpha3": "dyu",
+    "name": "Dyula"
+  },
+  {
+    "alpha3": "ell",
+    "name": "Greek"
+  },
+  {
+    "alpha3": "eng",
+    "name": "English"
+  },
+  {
+    "alpha3": "epo",
+    "name": "Esperanto"
+  },
+  {
+    "alpha3": "esl",
+    "name": "Sign Language: Egyptian"
+  },
+  {
+    "alpha3": "est",
+    "name": "Estonian"
+  },
+  {
+    "alpha3": "eus",
+    "name": "Basque"
+  },
+  {
+    "alpha3": "ewe",
+    "name": "Ewe"
+  },
+  {
+    "alpha3": "ewo",
+    "name": "Ewondo"
+  },
+  {
+    "alpha3": "fan",
+    "name": "Fang"
+  },
+  {
+    "alpha3": "fas",
+    "name": "Persian"
+  },
+  {
+    "alpha3": "fat",
+    "name": "Fanti"
+  },
+  {
+    "alpha3": "fil",
+    "name": "Filipino"
+  },
+  {
+    "alpha3": "fin",
+    "name": "Finnish"
+  },
+  {
+    "alpha3": "fon",
+    "name": "Fon"
+  },
+  {
+    "alpha3": "fra",
+    "name": "French"
+  },
+  {
+    "alpha3": "fry",
+    "name": "Frisian"
+  },
+  {
+    "alpha3": "fsl",
+    "name": "Sign Language: French"
+  },
+  {
+    "alpha3": "ful",
+    "name": "Fulah"
+  },
+  {
+    "alpha3": "gaa",
+    "name": "Ga"
+  },
+  {
+    "alpha3": "gan",
+    "name": "Chinese (Gan)"
+  },
+  {
+    "alpha3": "gba",
+    "name": "Gbaya"
+  },
+  {
+    "alpha3": "gla",
+    "name": "Scottish Gaelic"
+  },
+  {
+    "alpha3": "gle",
+    "name": "Irish"
+  },
+  {
+    "alpha3": "glg",
+    "name": "Galician"
+  },
+  {
+    "alpha3": "glv",
+    "name": "Manx"
+  },
+  {
+    "alpha3": "gon",
+    "name": "Gondi"
+  },
+  {
+    "alpha3": "gor",
+    "name": "Gorontalo"
+  },
+  {
+    "alpha3": "grn",
+    "name": "Guarani"
+  },
+  {
+    "alpha3": "gsg",
+    "name": "Sign Language: German"
+  },
+  {
+    "alpha3": "gsw",
+    "name": "Alemannic"
+  },
+  {
+    "alpha3": "guj",
+    "name": "Gujarati"
+  },
+  {
+    "alpha3": "hak",
+    "name": "Chinese (Hakka)"
+  },
+  {
+    "alpha3": "hat",
+    "name": "Haitian"
+  },
+  {
+    "alpha3": "hau",
+    "name": "Hausa"
+  },
+  {
+    "alpha3": "heb",
+    "name": "Hebrew"
+  },
+  {
+    "alpha3": "hil",
+    "name": "Hiligaynon"
+  },
+  {
+    "alpha3": "hin",
+    "name": "Hindi"
+  },
+  {
+    "alpha3": "hks",
+    "name": "Sign Language: Hong Kong"
+  },
+  {
+    "alpha3": "hmn",
+    "name": "Hmong"
+  },
+  {
+    "alpha3": "hne",
+    "name": "Chhattisgarhi"
+  },
+  {
+    "alpha3": "hrv",
+    "name": "Croatian"
+  },
+  {
+    "alpha3": "hsn",
+    "name": "Chinese (Xiang)"
+  },
+  {
+    "alpha3": "hun",
+    "name": "Hungarian"
+  },
+  {
+    "alpha3": "hye",
+    "name": "Armenian"
+  },
+  {
+    "alpha3": "iba",
+    "name": "Iban"
+  },
+  {
+    "alpha3": "ibo",
+    "name": "Igbo"
+  },
+  {
+    "alpha3": "iii",
+    "name": "Nuosu"
+  },
+  {
+    "alpha3": "ilo",
+    "name": "Iloko"
+  },
+  {
+    "alpha3": "ind",
+    "name": "Indonesian"
+  },
+  {
+    "alpha3": "inh",
+    "name": "Ingush"
+  },
+  {
+    "alpha3": "inl",
+    "name": "Sign Language: Indonesian"
+  },
+  {
+    "alpha3": "ins",
+    "name": "Sign Language: Indo-Pakistani"
+  },
+  {
+    "alpha3": "ise",
+    "name": "Sign Language: Italian"
+  },
+  {
+    "alpha3": "isl",
+    "name": "Icelandic"
+  },
+  {
+    "alpha3": "ita",
+    "name": "Italian"
+  },
+  {
+    "alpha3": "jav",
+    "name": "Javanese"
+  },
+  {
+    "alpha3": "jpn",
+    "name": "Japanese"
+  },
+  {
+    "alpha3": "jsl",
+    "name": "Sign Language: Japanese"
+  },
+  {
+    "alpha3": "kaa",
+    "name": "Kara-Kalpak"
+  },
+  {
+    "alpha3": "kab",
+    "name": "Kabyle"
+  },
+  {
+    "alpha3": "kac",
+    "name": "Jingpho"
+  },
+  {
+    "alpha3": "kam",
+    "name": "Kamba"
+  },
+  {
+    "alpha3": "kan",
+    "name": "Kannada"
+  },
+  {
+    "alpha3": "kas",
+    "name": "Kashmiri"
+  },
+  {
+    "alpha3": "kat",
+    "name": "Georgian"
+  },
+  {
+    "alpha3": "kau",
+    "name": "Kanuri"
+  },
+  {
+    "alpha3": "kaz",
+    "name": "Kazakh"
+  },
+  {
+    "alpha3": "kbd",
+    "name": "Kabardian"
+  },
+  {
+    "alpha3": "kha",
+    "name": "Khasi"
+  },
+  {
+    "alpha3": "khm",
+    "name": "Central Khmer"
+  },
+  {
+    "alpha3": "kik",
+    "name": "Kikuyu"
+  },
+  {
+    "alpha3": "kin",
+    "name": "Kinyarwanda"
+  },
+  {
+    "alpha3": "kir",
+    "name": "Kyrgyz"
+  },
+  {
+    "alpha3": "kmb",
+    "name": "Kimbundu"
+  },
+  {
+    "alpha3": "kok",
+    "name": "Konkani"
+  },
+  {
+    "alpha3": "kom",
+    "name": "Komi"
+  },
+  {
+    "alpha3": "kon",
+    "name": "Kongo"
+  },
+  {
+    "alpha3": "kor",
+    "name": "Korean"
+  },
+  {
+    "alpha3": "kpe",
+    "name": "Kpelle"
+  },
+  {
+    "alpha3": "kri",
+    "name": "Krio"
+  },
+  {
+    "alpha3": "kru",
+    "name": "Kurukh"
+  },
+  {
+    "alpha3": "kur",
+    "name": "Kurdish"
+  },
+  {
+    "alpha3": "lah",
+    "name": "Lahnda"
+  },
+  {
+    "alpha3": "lao",
+    "name": "Lao"
+  },
+  {
+    "alpha3": "lat",
+    "name": "Latin"
+  },
+  {
+    "alpha3": "lav",
+    "name": "Latvian"
+  },
+  {
+    "alpha3": "lez",
+    "name": "Lezghian"
+  },
+  {
+    "alpha3": "lim",
+    "name": "Limburgish"
+  },
+  {
+    "alpha3": "lin",
+    "name": "Lingala"
+  },
+  {
+    "alpha3": "lit",
+    "name": "Lithuanian"
+  },
+  {
+    "alpha3": "lmo",
+    "name": "Lombard"
+  },
+  {
+    "alpha3": "loz",
+    "name": "Lozi"
+  },
+  {
+    "alpha3": "ltz",
+    "name": "Luxembourgish"
+  },
+  {
+    "alpha3": "lua",
+    "name": "Luba-Lulua"
+  },
+  {
+    "alpha3": "lub",
+    "name": "Luba-Katanga"
+  },
+  {
+    "alpha3": "lug",
+    "name": "Ganda"
+  },
+  {
+    "alpha3": "luo",
+    "name": "Luo"
+  },
+  {
+    "alpha3": "lus",
+    "name": "Lushai"
+  },
+  {
+    "alpha3": "mad",
+    "name": "Madurese"
+  },
+  {
+    "alpha3": "mag",
+    "name": "Magahi"
+  },
+  {
+    "alpha3": "mai",
+    "name": "Maithili"
+  },
+  {
+    "alpha3": "mak",
+    "name": "Makasar"
+  },
+  {
+    "alpha3": "mal",
+    "name": "Malayalam"
+  },
+  {
+    "alpha3": "man",
+    "name": "Mandingo"
+  },
+  {
+    "alpha3": "mar",
+    "name": "Marathi"
+  },
+  {
+    "alpha3": "mas",
+    "name": "Masai"
+  },
+  {
+    "alpha3": "men",
+    "name": "Mende"
+  },
+  {
+    "alpha3": "mfs",
+    "name": "Sign Language: Mexican"
+  },
+  {
+    "alpha3": "min",
+    "name": "Minangkabau"
+  },
+  {
+    "alpha3": "mkd",
+    "name": "Macedonian"
+  },
+  {
+    "alpha3": "mlg",
+    "name": "Malagasy"
+  },
+  {
+    "alpha3": "mlt",
+    "name": "Maltese"
+  },
+  {
+    "alpha3": "mni",
+    "name": "Manipuri"
+  },
+  {
+    "alpha3": "mnp",
+    "name": "Chinese (Northern Min)"
+  },
+  {
+    "alpha3": "mon",
+    "name": "Mongolian"
+  },
+  {
+    "alpha3": "mos",
+    "name": "Mossi"
+  },
+  {
+    "alpha3": "mri",
+    "name": "Māori"
+  },
+  {
+    "alpha3": "msa",
+    "name": "Malay"
+  },
+  {
+    "alpha3": "mwr",
+    "name": "Marwari"
+  },
+  {
+    "alpha3": "mya",
+    "name": "Burmese"
+  },
+  {
+    "alpha3": "nan",
+    "name": "Chinese (Southern Min)"
+  },
+  {
+    "alpha3": "nap",
+    "name": "Neapolitan"
+  },
+  {
+    "alpha3": "nbl",
+    "name": "Ndebele (South)"
+  },
+  {
+    "alpha3": "nde",
+    "name": "Ndebele (North)"
+  },
+  {
+    "alpha3": "ndo",
+    "name": "Ndonga"
+  },
+  {
+    "alpha3": "nds",
+    "name": "German (Low)"
+  },
+  {
+    "alpha3": "nep",
+    "name": "Nepali"
+  },
+  {
+    "alpha3": "new",
+    "name": "Newari"
+  },
+  {
+    "alpha3": "nia",
+    "name": "Nias"
+  },
+  {
+    "alpha3": "nld",
+    "name": "Dutch"
+  },
+  {
+    "alpha3": "nor",
+    "name": "Norwegian"
+  },
+  {
+    "alpha3": "nso",
+    "name": "Sotho (Northern)"
+  },
+  {
+    "alpha3": "nya",
+    "name": "Chewa"
+  },
+  {
+    "alpha3": "nym",
+    "name": "Nyamwezi"
+  },
+  {
+    "alpha3": "nyn",
+    "name": "Nyankole"
+  },
+  {
+    "alpha3": "nyo",
+    "name": "Nyoro"
+  },
+  {
+    "alpha3": "ori",
+    "name": "Oriya"
+  },
+  {
+    "alpha3": "orm",
+    "name": "Oromo"
+  },
+  {
+    "alpha3": "oss",
+    "name": "Ossetian"
+  },
+  {
+    "alpha3": "pag",
+    "name": "Pangasinan"
+  },
+  {
+    "alpha3": "pam",
+    "name": "Kapampangan"
+  },
+  {
+    "alpha3": "pan",
+    "name": "Punjabi"
+  },
+  {
+    "alpha3": "pms",
+    "name": "Piedmontese"
+  },
+  {
+    "alpha3": "pol",
+    "name": "Polish"
+  },
+  {
+    "alpha3": "por",
+    "name": "Portuguese"
+  },
+  {
+    "alpha3": "psc",
+    "name": "Sign Language: Persian"
+  },
+  {
+    "alpha3": "pso",
+    "name": "Sign Language: Polish"
+  },
+  {
+    "alpha3": "pus",
+    "name": "Pashto"
+  },
+  {
+    "alpha3": "que",
+    "name": "Quechua"
+  },
+  {
+    "alpha3": "raj",
+    "name": "Rajasthani"
+  },
+  {
+    "alpha3": "rom",
+    "name": "Romany"
+  },
+  {
+    "alpha3": "ron",
+    "name": "Romanian"
+  },
+  {
+    "alpha3": "rsl",
+    "name": "Sign Language: Russian"
+  },
+  {
+    "alpha3": "run",
+    "name": "Rundi"
+  },
+  {
+    "alpha3": "rus",
+    "name": "Russian"
+  },
+  {
+    "alpha3": "san",
+    "name": "Sanskrit"
+  },
+  {
+    "alpha3": "sas",
+    "name": "Sasak"
+  },
+  {
+    "alpha3": "sat",
+    "name": "Santali"
+  },
+  {
+    "alpha3": "scn",
+    "name": "Sicilian"
+  },
+  {
+    "alpha3": "shn",
+    "name": "Shan"
+  },
+  {
+    "alpha3": "sid",
+    "name": "Sidamo"
+  },
+  {
+    "alpha3": "sin",
+    "name": "Sinhala"
+  },
+  {
+    "alpha3": "slk",
+    "name": "Slovak"
+  },
+  {
+    "alpha3": "slv",
+    "name": "Slovenian"
+  },
+  {
+    "alpha3": "smi",
+    "name": "Sámi"
+  },
+  {
+    "alpha3": "smo",
+    "name": "Samoan"
+  },
+  {
+    "alpha3": "sna",
+    "name": "Shona"
+  },
+  {
+    "alpha3": "snd",
+    "name": "Sindhi"
+  },
+  {
+    "alpha3": "snk",
+    "name": "Soninke"
+  },
+  {
+    "alpha3": "som",
+    "name": "Somali"
+  },
+  {
+    "alpha3": "sot",
+    "name": "Sotho (Southern)"
+  },
+  {
+    "alpha3": "spa",
+    "name": "Spanish"
+  },
+  {
+    "alpha3": "sqi",
+    "name": "Albanian"
+  },
+  {
+    "alpha3": "srd",
+    "name": "Sardinian"
+  },
+  {
+    "alpha3": "srp",
+    "name": "Serbian"
+  },
+  {
+    "alpha3": "srr",
+    "name": "Serer"
+  },
+  {
+    "alpha3": "ssp",
+    "name": "Sign Language: Spanish"
+  },
+  {
+    "alpha3": "ssw",
+    "name": "Swati"
+  },
+  {
+    "alpha3": "suk",
+    "name": "Sukuma"
+  },
+  {
+    "alpha3": "sun",
+    "name": "Sundanese"
+  },
+  {
+    "alpha3": "sus",
+    "name": "Susu"
+  },
+  {
+    "alpha3": "swa",
+    "name": "Swahili"
+  },
+  {
+    "alpha3": "swe",
+    "name": "Swedish"
+  },
+  {
+    "alpha3": "syr",
+    "name": "Syriac"
+  },
+  {
+    "alpha3": "tam",
+    "name": "Tamil"
+  },
+  {
+    "alpha3": "tat",
+    "name": "Tatar"
+  },
+  {
+    "alpha3": "tel",
+    "name": "Telugu"
+  },
+  {
+    "alpha3": "tem",
+    "name": "Timne"
+  },
+  {
+    "alpha3": "tet",
+    "name": "Tetum"
+  },
+  {
+    "alpha3": "tgk",
+    "name": "Tajik"
+  },
+  {
+    "alpha3": "tgl",
+    "name": "Tagalog"
+  },
+  {
+    "alpha3": "tha",
+    "name": "Thai"
+  },
+  {
+    "alpha3": "tig",
+    "name": "Tigre"
+  },
+  {
+    "alpha3": "tir",
+    "name": "Tigrinya"
+  },
+  {
+    "alpha3": "tiv",
+    "name": "Tiv"
+  },
+  {
+    "alpha3": "tmh",
+    "name": "Tamashek"
+  },
+  {
+    "alpha3": "tok",
+    "name": "Toki Pona"
+  },
+  {
+    "alpha3": "tpi",
+    "name": "Tok Pisin"
+  },
+  {
+    "alpha3": "tsm",
+    "name": "Sign Language: Turkish"
+  },
+  {
+    "alpha3": "tsn",
+    "name": "Tswana"
+  },
+  {
+    "alpha3": "tso",
+    "name": "Tsonga"
+  },
+  {
+    "alpha3": "tuk",
+    "name": "Turkmen"
+  },
+  {
+    "alpha3": "tum",
+    "name": "Tumbuka"
+  },
+  {
+    "alpha3": "tur",
+    "name": "Turkish"
+  },
+  {
+    "alpha3": "twi",
+    "name": "Twi"
+  },
+  {
+    "alpha3": "ugy",
+    "name": "Sign Language: Uruguayan"
+  },
+  {
+    "alpha3": "uig",
+    "name": "Uyghur"
+  },
+  {
+    "alpha3": "ukr",
+    "name": "Ukrainian"
+  },
+  {
+    "alpha3": "umb",
+    "name": "Umbundu"
+  },
+  {
+    "alpha3": "urd",
+    "name": "Urdu"
+  },
+  {
+    "alpha3": "uzb",
+    "name": "Uzbek"
+  },
+  {
+    "alpha3": "vec",
+    "name": "Venetian"
+  },
+  {
+    "alpha3": "ven",
+    "name": "Venda"
+  },
+  {
+    "alpha3": "vie",
+    "name": "Vietnamese"
+  },
+  {
+    "alpha3": "wal",
+    "name": "Wolaitta; Wolaytta"
+  },
+  {
+    "alpha3": "war",
+    "name": "Waray"
+  },
+  {
+    "alpha3": "wln",
+    "name": "Walloon"
+  },
+  {
+    "alpha3": "wol",
+    "name": "Wolof"
+  },
+  {
+    "alpha3": "wuu",
+    "name": "Chinese (Wu)"
+  },
+  {
+    "alpha3": "xho",
+    "name": "Xhosa"
+  },
+  {
+    "alpha3": "xml",
+    "name": "Sign Language: Malaysian"
+  },
+  {
+    "alpha3": "yao",
+    "name": "Yao"
+  },
+  {
+    "alpha3": "yid",
+    "name": "Yiddish"
+  },
+  {
+    "alpha3": "yor",
+    "name": "Yoruba"
+  },
+  {
+    "alpha3": "ysl",
+    "name": "Sign Language: Yugoslav"
+  },
+  {
+    "alpha3": "yue",
+    "name": "Chinese (Cantonese/Yue)"
+  },
+  {
+    "alpha3": "zgh",
+    "name": "Berber"
+  },
+  {
+    "alpha3": "zha",
+    "name": "Zhuang"
+  },
+  {
+    "alpha3": "zul",
+    "name": "Zulu"
+  },
+  {
+    "alpha3": "zza",
+    "name": "Zaza"
+  }
+]

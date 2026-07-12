@@ -8,7 +8,7 @@ import {
 } from "components/Dialog";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import React from "react";
 import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
@@ -20,7 +20,9 @@ interface ProfileIncompleteDialogProps {
     | "create_event"
     | "send_message"
     | "send_request"
-    | "send_friend_request";
+    | "create_public_trip"
+    | "send_friend_request"
+    | "create_discussion";
 }
 
 export default function ProfileIncompleteDialog({
@@ -28,10 +30,10 @@ export default function ProfileIncompleteDialog({
   onClose,
   attempted_action,
 }: ProfileIncompleteDialogProps) {
-  const { t } = useTranslation([DASHBOARD]);
+  const { t } = useTranslation([PROFILE]);
 
   const action_text = t(
-    `dashboard:complete_profile_dialog.actions.${attempted_action}`,
+    `profile:complete_profile_dialog.actions.${attempted_action}`,
   );
 
   return (
@@ -41,33 +43,37 @@ export default function ProfileIncompleteDialog({
       onClose={onClose}
     >
       <DialogTitle id="profile-incomplete-dialog-title">
-        {t("dashboard:complete_profile_dialog.title")}
+        {t("profile:complete_profile_dialog.title")}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Trans i18nKey="dashboard:complete_profile_dialog.description_1">
-            Before you can {{ action_name: action_text }}, you must{" "}
-            <strong>write a bit about yourself</strong> in your profile and{" "}
-            <strong>upload a profile photo</strong>.
-          </Trans>
+          <Trans
+            i18nKey="profile:complete_profile_dialog.description_1"
+            values={{ action_name: action_text }}
+            components={{ 4: <strong />, 7: <strong /> }}
+          />
         </DialogContentText>
         <DialogContentText>
-          <Trans i18nKey="dashboard:complete_profile_dialog.description_2">
-            This helps build a trusted community and reduce spam. For more
-            information,{" "}
-            <StyledLink href={howToCompleteProfileUrl}>
-              please refer to this help page
-            </StyledLink>
-            . Thank you for your help!
-          </Trans>
+          <Trans
+            i18nKey="profile:complete_profile_dialog.description_2"
+            components={{ 2: <StyledLink href={howToCompleteProfileUrl} /> }}
+          />
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button component={Link} href={routeToEditProfile()}>
-          {t("dashboard:complete_profile_dialog.edit_profile_button")}
+        <Button
+          variant="outlined"
+          onClick={onClose}
+          sx={{ textAlign: "center" }}
+        >
+          {t("profile:complete_profile_dialog.cancel_button")}
         </Button>
-        <Button onClick={onClose}>
-          {t("dashboard:complete_profile_dialog.cancel_button")}
+        <Button
+          component={Link}
+          href={routeToEditProfile()}
+          sx={{ textAlign: "center" }}
+        >
+          {t("profile:complete_profile_dialog.edit_profile_button")}
         </Button>
       </DialogActions>
     </Dialog>

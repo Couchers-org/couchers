@@ -1,16 +1,14 @@
 import logging
 from datetime import datetime, timedelta
-from typing import cast
 
 import grpc
-import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
-from couchers.config import config
+from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
@@ -18,13 +16,17 @@ from couchers.event_log import log_event
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
+    antibot_score_histogram,
+    antibots_assessed_counter,
     logins_counter,
     password_reset_completions_counter,
     password_reset_initiations_counter,
-    recaptcha_score_histogram,
-    recaptchas_assessed_counter,
+    signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_verified_counter,
+    signup_guidelines_accepted_counter,
     signup_initiations_counter,
+    signup_motivations_filled_counter,
     signup_time_histogram,
 )
 from couchers.models import (
@@ -32,6 +34,7 @@ from couchers.models import (
     AntiBotLog,
     ContributorForm,
     InviteCode,
+    NonvisibleUserAccessType,
     PasswordResetToken,
     PhotoGallery,
     SignupFlow,
@@ -41,10 +44,11 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
-from couchers.notifications.quick_links import respond_quick_link
+from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
+from couchers.servicers.auth_unsubscribe import handle_unsubscribe
 from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
@@ -95,6 +99,13 @@ def create_session(
     token, expiry = create_session(...)
     ```
     """
+    maybe_log_nonvisible_user_access(
+        context,
+        user,
+        access_type=NonvisibleUserAccessType.login_attempt,
+        actor_user_id=user.id,
+    )
+
     if user.banned_at is not None:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
@@ -107,8 +118,8 @@ def create_session(
         token=token,
         user_id=user.id,
         long_lived=long_lived,
-        ip_address=cast(str | None, context.headers.get("x-couchers-real-ip")),
-        user_agent=cast(str | None, context.headers.get("user-agent")),
+        ip_address=context.get_header("x-couchers-real-ip"),
+        user_agent=context.get_header("user-agent"),
         is_api_key=is_api_key,
     )
     if duration:
@@ -189,6 +200,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.email_token_expiry = None
 
                 session.flush()
+                signup_email_verified_counter.inc()
             else:
                 # just try to find the flow by flow token, no verification is done
                 flow = session.execute(
@@ -215,7 +227,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_flow:
-                    send_signup_email(session, existing_flow)
+                    send_signup_email(context, session, existing_flow)
                     session.commit()
                     context.abort_with_error_code(
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
@@ -298,6 +310,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.accepted_tos = TOS_VERSION
                 flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
                 session.flush()
+                signup_account_filled_counter.inc()
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
@@ -321,16 +334,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.heard_about_couchers = request.motivations.heard_about_couchers or None
                 flow.signup_motivations = list(request.motivations.motivations)
                 session.flush()
+                signup_motivations_filled_counter.inc()
 
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
+                if flow.accepted_community_guidelines < GUIDELINES_VERSION:
+                    signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
 
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
-                send_signup_email(session, flow)
+                send_signup_email(context, session, flow)
 
             session.flush()
 
@@ -472,7 +488,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
-                send_signup_email(session, signup_flow)
+                send_signup_email(context, session, signup_flow)
                 session.commit()
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup")
             logger.debug("Didn't find user")
@@ -705,31 +721,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def Unsubscribe(
         self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
     ) -> auth_pb2.UnsubscribeRes:
-        return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
+        payload = decode_quick_link(request.payload, request.sig, context)
+        return auth_pb2.UnsubscribeRes(response=handle_unsubscribe(payload, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not context.get_boolean_value("recaptcha_enabled", default=False):
+        if not context.get_boolean_value("antibot_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
-        ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
-        user_agent = cast(str | None, context.headers.get("user-agent"))
+        ip_address = context.get_header("x-couchers-real-ip")
+        user_agent = context.get_header("user-agent")
         user_id = context.user_id if context.is_logged_in() else None
-
-        resp = requests.post(
-            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config['RECAPTHCA_PROJECT_ID']}/assessments?key={config['RECAPTHCA_API_KEY']}",
-            json={
-                "event": {
-                    "token": request.token,
-                    "siteKey": config["RECAPTHCA_SITE_KEY"],
-                    "userAgent": user_agent,
-                    "userIpAddress": ip_address,
-                    "expectedAction": request.action,
-                    "userInfo": {"accountId": str(user_id) if user_id else None},
-                }
-            },
-        )
-
-        resp.raise_for_status()
 
         log = AntiBotLog(
             token=request.token,
@@ -737,15 +738,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ip_address=ip_address,
             action=request.action,
             user_id=user_id,
-            score=resp.json()["riskAnalysis"]["score"],
-            provider_data=resp.json(),
+            # placeholders: there is currently no provider assessing requests
+            score=0.0,
+            provider_data={},
         )
 
         session.add(log)
         session.flush()
 
-        recaptchas_assessed_counter.labels(log.action).inc()
-        recaptcha_score_histogram.labels(log.action).observe(log.score)
+        antibots_assessed_counter.labels(log.action).inc()
+        antibot_score_histogram.labels(log.action).observe(log.score)
 
         if context.is_logged_in():
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -756,7 +758,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if context.get_boolean_value("recaptcha_enabled", default=False):
+        if context.get_boolean_value("antibot_enabled", default=False):
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:

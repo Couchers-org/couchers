@@ -117,6 +117,9 @@ def add_dummy_users() -> None:
                 def headers(self) -> dict[str, str]:
                     return {}
 
+                def get_header(self, name: str) -> str | None:
+                    return None
+
             ctx = cast(CouchersContext, _MockCouchersContext())
             if user.get("make_api_key", False):
                 token, _ = create_session(

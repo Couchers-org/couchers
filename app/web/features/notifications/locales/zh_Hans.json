@@ -20,7 +20,11 @@
         "other_notifications": "其他通知"
       },
       "expand_all": "全部展开",
-      "collapse_all": "全部折叠"
+      "collapse_all": "全部折叠",
+      "channels": {
+        "email_label": "电子邮件",
+        "push_label": "推送"
+      }
     },
     "push_notifications": {
       "title": "推送通知",
@@ -34,13 +38,13 @@
         "platform_settings_description": "启用浏览器通知后仍有问题？您可能需要调整设备的通知权限设置。",
         "instructions": {
           "chrome": "您已屏蔽通知。请在浏览器设置中启用通知。在Chrome中，点击URL栏中的锁图标，然后调整“通知”设置。",
-          "firefox": "您已屏蔽通知。请在浏览器设置中启用通知。在Firefox中，进入设置 > 隐私与安全 > 权限 > 通知，修改相关网站权限。",
-          "safari": "您已屏蔽通知。请在Safari的偏好设置 > 网站 > 通知中调整权限。",
+          "firefox": "您已屏蔽通知。请在浏览器设置中启用通知。在Firefox中，进入设置>隐私与安全>权限>通知，修改相关网站权限。",
+          "safari": "您已屏蔽通知。请在Safari的偏好设置>网站>通知中调整权限。",
           "generic": "您已屏蔽通知。请在浏览器设置中启用通知。",
-          "macos": "在 macOS 中，前往 系统设置 > 通知，并修改应用的权限。",
-          "windows": "在 Windows 中，前往 设置 > 系统 > 通知和操作，调整应用或网站的权限。",
+          "macos": "在macOS中，前往 系统设置>通知，并修改应用的权限。",
+          "windows": "在Windows中，前往 设置>系统>通知和操作，调整应用或网站的权限。",
           "linux": {
-            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。"
+            "gnome": "在GNOME中，前往 设置>通知，调整应用的权限。"
           },
           "mobile": {
             "browser": "在您的移动浏览器设置中，调整此网站的通知权限。",

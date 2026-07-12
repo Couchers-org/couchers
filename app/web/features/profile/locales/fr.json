@@ -1,9 +1,7 @@
 {
   "actions": {
-    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
-    "accept_friend_label": "Accepter",
     "request": "Envoyer une demande"
   },
   "heading": {
@@ -248,8 +246,6 @@
     "friend": "Par des ami(e)s",
     "given": "Donnée aux autres"
   },
-  "accept_friend_label": "Accepter la demande d'ami",
-  "decline_friend_label": "Refuser la demande d’ami",
   "response_time_text_most": "Normalement de {{p33}} à {{p66}}",
   "response_time_text_almost_all": "Normalement de {{p33}} à {{p66}}",
   "no_references": "Aucune référence de ce type pour le moment !",
@@ -318,5 +314,18 @@
     "select_photo": "Sélectionner une photo",
     "profile_photos_description": "Ajouter des photos de vous pour aider les autres à mieux vous connaître. Faites glisser et déposez pour réorganiser.",
     "report_photo": "Signaler cette photo"
+  },
+  "complete_profile_dialog": {
+    "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
+    "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
+    "actions": {
+      "send_request": "demander une demande à séjourner",
+      "send_message": "envoyer un message",
+      "create_event": "créer un événement",
+      "send_friend_request": "send a friend request"
+    },
+    "edit_profile_button": "Modifier votre profil",
+    "cancel_button": "Qu'à cela ne tienne !",
+    "description_2": "Cela contribue à bâtir une communauté de confiance et à réduire le spam. Pour plus d'informations, <2>veuillez consulter cette page d'aide</2>. Merci pour votre aide !"
   }
 }

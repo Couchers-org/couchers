@@ -16,6 +16,11 @@ import { timeAgo } from "utils/timeAgo";
 
 import getContentSummary from "../getContentSummary";
 
+const StyledDeletedTitle = styled(Typography)(() => ({
+  color: "var(--mui-palette-text-secondary)",
+  fontStyle: "italic",
+}));
+
 const StyledCard = styled(Card)(({ theme }) => ({
   "&:hover": {
     backgroundColor: "var(--mui-palette-grey-50)",
@@ -46,6 +51,7 @@ const StyledDiscussionSummary = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
+  justifyContent: "space-between",
   marginInlineStart: theme.spacing(2),
 }));
 
@@ -68,7 +74,9 @@ export default function DiscussionCard({
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
-  const { data: creator } = useLiteUser(discussion.creatorUserId);
+  const { data: creator } = useLiteUser(
+    discussion.deleted ? undefined : discussion.creatorUserId,
+  );
 
   const date = discussion.created
     ? timestamp2Date(discussion.created)
@@ -101,30 +109,38 @@ export default function DiscussionCard({
             />
           </StyledAvatarFlagContainer>
           <StyledDiscussionSummary>
-            <Typography
-              variant="body2"
-              component="p"
-              sx={{ marginBottom: theme.spacing(0.5) }}
-            >
-              {creator ? (
-                t("communities:by_creator", { name: creator.name })
-              ) : (
-                <Skeleton sx={{ display: "inline-block", width: 80 }} />
-              )}{" "}
-              {postedTime && `• ${postedTime}`}
-              <ModVisibleComponent>
-                {" "}
-                •{" "}
-                <code>
-                  discussionId:
-                  <CopyOnClick text={discussion.discussionId.toString()} />
-                </code>
-              </ModVisibleComponent>
-            </Typography>
-            <Typography variant="h2" component="h3">
-              {discussion.title}
-            </Typography>
-            <Typography variant="body1">{truncatedContent}</Typography>
+            {discussion.deleted ? (
+              <StyledDeletedTitle variant="body1">
+                {t("communities:discussion_deleted")}
+              </StyledDeletedTitle>
+            ) : (
+              <>
+                <Typography
+                  variant="body2"
+                  component="p"
+                  sx={{ marginBottom: theme.spacing(0.5) }}
+                >
+                  {creator ? (
+                    t("communities:by_creator", { name: creator.name })
+                  ) : (
+                    <Skeleton sx={{ display: "inline-block", width: 80 }} />
+                  )}{" "}
+                  {postedTime && `• ${postedTime}`}
+                  <ModVisibleComponent>
+                    {" "}
+                    •{" "}
+                    <code>
+                      discussionId:
+                      <CopyOnClick text={discussion.discussionId.toString()} />
+                    </code>
+                  </ModVisibleComponent>
+                </Typography>
+                <Typography variant="h2" component="h3">
+                  {discussion.title}
+                </Typography>
+                <Typography variant="body1">{truncatedContent}</Typography>
+              </>
+            )}
             <StyledCommentsCount variant="body1">
               {t("communities:comments_count", {
                 count: discussion.thread?.numResponses,

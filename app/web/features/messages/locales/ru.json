@@ -8,7 +8,8 @@
     "tabs": {
       "chats": "Чаты",
       "hosting": "Гости",
-      "surfing": "Хосты"
+      "surfing": "Хосты",
+      "unread": "Непрочитанные"
     }
   },
   "chat_view": {
@@ -61,7 +62,11 @@
       "accepted": "{{user}} принял(а) запрос",
       "cancelled": "{{user}} отменил(а) запрос",
       "confirmed": "{{user}} подтвердил(а) запрос",
-      "rejected": "{{user}} отклонил(а) запрос"
+      "rejected": "{{user}} отклонил(а) запрос",
+      "accepted_self": "Вы приняли запрос",
+      "cancelled_self": "Вы отклонили запрос",
+      "confirmed_self": "Вы подтвердили запрос",
+      "rejected_self": "Вы отклонили запрос"
     }
   },
   "host_request_status": {
@@ -170,5 +175,39 @@
     "filter": {
       "all": "Все"
     }
-  }
+  },
+  "reference_card": {
+    "title": "Написать отзыв",
+    "description": "Поделитесь своим опытом, чтобы помочь сообществу."
+  },
+  "respond_box_title": "Отправить ответ",
+  "respond_box_description": "Выберите ответ, чтобы {{name}} сразу узнал. Вы можете дополнить его сообщением.",
+  "status_bar_edit_button": "Редактировать",
+  "status_bar_cancel_edit_button": "Отменить",
+  "status_bar_close_button": "Закрыть",
+  "cancel_request_button": "Отменить запрос",
+  "cancel_request_dialog_title": "Отменить запрос?",
+  "cancel_request_dialog_message": "Вы уверены, что хотите отменить свой запрос? Это действие нельзя будет отменить.",
+  "cancel_request_dialog_confirm_button": "Да, отменить",
+  "cancel_request_dialog_dismiss_button": "Нет",
+  "private_feedback_card": {
+    "title": "Отзыв на этот запрос",
+    "quality_label": "Оцените этот запрос приватно (необязательно):",
+    "quality_high": "Высокое качество",
+    "quality_okay": "Окей",
+    "quality_low": "Низкое качество",
+    "reason_didnt_read_profile": "Не ознакомились с моим профилем",
+    "reason_dont_want_to_host": "Я не хочу принимать этого человека у себя",
+    "reason_other_placeholder": "Расскажите нам подробнее...",
+    "privacy_notice": "Ваши ответы являются конфиденциальными и не будут переданы пользователю. Мы можем использовать их в обобщённой и анонимной форме в сочетании со многими другими для улучшения обратной связи для всех пользователей.",
+    "skip_button": "Пропустить",
+    "next_button": "Продолжить",
+    "back_button": "Назад",
+    "submit_button": "Отправить",
+    "decline_reason_label": "Почему вы отказали?",
+    "reason_not_available": "Не могу принять в эти даты"
+  },
+  "surfer_confirm_box_title": "{{name}} принял ваш запрос!",
+  "surfer_bar_pending": "Вы отправили запрос хосту — ожидаем ответа от {{name}}.",
+  "show_more_actions_button_a11y": "Показать больше действий"
 }

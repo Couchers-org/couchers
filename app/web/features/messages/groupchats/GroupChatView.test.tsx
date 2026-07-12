@@ -132,6 +132,9 @@ describe("GroupChatView", () => {
       expect(messageElement.getByText(/ago$/)).toBeVisible();
 
       if (message.text?.text) {
+        // the current user's own messages are covered in a dedicated test
+        if (message.authorUserId === defaultUser.userId) continue;
+
         // non-control text message assertions
         const user = await getLiteUser(message.authorUserId.toString());
 
@@ -162,6 +165,17 @@ describe("GroupChatView", () => {
     expect(getGroupChatMock).toHaveBeenCalledWith(1);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
     expect(getGroupChatMessagesMock).toHaveBeenCalledWith(1, undefined);
+  });
+
+  it("does not show the author name or avatar for the current user's own messages", async () => {
+    renderGroupChatView();
+
+    const ownMessage = within(await screen.findByTestId("message-4"));
+
+    expect(ownMessage.getByText("Sure what time?")).toBeVisible();
+    expect(ownMessage.getByText(/ago$/)).toBeVisible();
+    expect(ownMessage.queryByRole("heading")).not.toBeInTheDocument();
+    expect(ownMessage.queryByRole("img")).not.toBeInTheDocument();
   });
 
   describe("when there are new messages due to come in", () => {
@@ -435,7 +449,10 @@ describe("GroupChatView", () => {
     screen.getByText(t("messages:chat_view.mute.unmute_button_label")).click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, unmute: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        unmute: true,
+      });
       expect(muteIcon).not.toBeVisible();
     });
   });
@@ -468,7 +485,10 @@ describe("GroupChatView", () => {
       .click();
 
     await waitFor(() => {
-      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, forever: true });
+      expect(muteChatMock).toHaveBeenCalledWith({
+        groupChatId: 1,
+        forever: true,
+      });
     });
 
     // Manually update the query data to reflect the muted state

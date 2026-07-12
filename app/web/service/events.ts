@@ -8,19 +8,19 @@ import {
   AttendanceState,
   CancelEventReq,
   CreateEventReq,
+  EventLocation,
   GetEventReq,
   InviteEventOrganizerReq,
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   ListMyEventsReq,
-  OfflineEventInformation,
-  OnlineEventInformation,
   RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -119,70 +119,54 @@ interface EventInput {
   content: string;
   photoKey?: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
-}
-
-interface OnlineEventInput extends EventInput {
-  isOnline: true;
-  parentCommunityId: number;
-  link: string;
-}
-
-interface OfflineEventInput extends EventInput {
-  isOnline: false;
+  startTime: Temporal.PlainDateTime;
+  endTime: Temporal.PlainDateTime;
   address: string;
   lat: number;
   lng: number;
   parentCommunityId?: number;
 }
 
-export type CreateEventInput = OnlineEventInput | OfflineEventInput;
+export type CreateEventInput = EventInput;
+
+function toTimestamp(dateTime: Temporal.PlainDateTime): Timestamp {
+  // FIXME(#8064): Events should be created in their location's timezone
+  const zoned = dateTime.toZonedDateTime(Temporal.Now.timeZoneId());
+  const legacyDate = new Date(zoned.epochMilliseconds);
+  return Timestamp.fromDate(legacyDate);
+}
 
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+
+  req.setStartTime(toTimestamp(input.startTime));
+  req.setEndTime(toTimestamp(input.endTime));
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
   }
 
-  if (input.isOnline) {
-    const onlineEventInfo = new OnlineEventInformation();
-    onlineEventInfo.setLink(input.link);
-    req.setParentCommunityId(input.parentCommunityId);
-    req.setOnlineInformation(onlineEventInfo);
-  } else {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  const location = new EventLocation();
+  location.setAddress(input.address);
+  location.setLat(input.lat);
+  location.setLng(input.lng);
+  req.setLocation(location);
 
-    if (input.parentCommunityId) {
-      req.setParentCommunityId(input.parentCommunityId);
-    }
+  if (input.parentCommunityId) {
+    req.setParentCommunityId(input.parentCommunityId);
   }
 
   const res = await client.events.createEvent(req);
   return res.toObject();
 }
 
-export interface UpdateOnlineEventInput
-  extends Partial<Omit<OnlineEventInput, "parentCommunityId">> {
-  isOnline: true;
+export interface UpdateEventInput
+  extends Partial<Omit<EventInput, "parentCommunityId">> {
+  eventId: number;
+  shouldNotify: boolean;
 }
-export interface UpdateOfflineEventInput
-  extends Partial<Omit<OfflineEventInput, "parentCommunityId">> {
-  isOnline: false;
-}
-export type UpdateEventInput = (
-  | UpdateOnlineEventInput
-  | UpdateOfflineEventInput
-) & { eventId: number; shouldNotify: boolean };
 
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
@@ -194,28 +178,22 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartTime(Timestamp.fromDate(input.startTime));
+    req.setStartTime(toTimestamp(input.startTime));
   }
   if (input.endTime) {
-    req.setEndTime(Timestamp.fromDate(input.endTime));
+    req.setEndTime(toTimestamp(input.endTime));
   }
 
   if (input.photoKey) {
     req.setPhotoKey(new StringValue().setValue(input.photoKey));
   }
 
-  if (input.isOnline) {
-    if (input.link) {
-      const onlineEventInfo = new OnlineEventInformation();
-      onlineEventInfo.setLink(input.link);
-      req.setOnlineInformation(onlineEventInfo);
-    }
-  } else if (input.address && input.lat && input.lng) {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  if (input.address && input.lat && input.lng) {
+    const location = new EventLocation();
+    location.setAddress(input.address);
+    location.setLat(input.lat);
+    location.setLng(input.lng);
+    req.setLocation(location);
   }
 
   if (input.shouldNotify) {
@@ -259,6 +237,7 @@ export async function listAllEvents({
 }
 
 export interface ListMyEventsInput {
+  excludeAttending?: boolean;
   myCommunities?: boolean;
   myCommunitiesExcludeGlobal?: boolean;
   pageNumber?: number;
@@ -269,6 +248,7 @@ export interface ListMyEventsInput {
 }
 
 export async function listMyEvents({
+  excludeAttending,
   myCommunities,
   myCommunitiesExcludeGlobal,
   pageNumber,
@@ -278,8 +258,13 @@ export async function listMyEvents({
   showCancelled,
 }: ListMyEventsInput) {
   const req = new ListMyEventsReq();
-  req.setAttending(true);
-  req.setOrganizing(true);
+
+  if (excludeAttending) {
+    req.setExcludeAttending(true);
+  } else {
+    req.setAttending(true);
+    req.setOrganizing(true);
+  }
 
   if (myCommunities !== undefined) {
     req.setMyCommunities(myCommunities);

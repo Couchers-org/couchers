@@ -45,7 +45,7 @@
   "language_preference": {
     "translation_progress": {
       "view_progress": "Zobrazit stav překladů",
-      "title": "Průběh Překladu",
+      "title": "Průběh překladu",
       "help_translate": "Pomoc s překladem Couchers do tvého jazyka",
       "complete": "Hotovo",
       "loading": "Načítám stav překladů...",
@@ -326,7 +326,7 @@
     "a11y": "Kopírovat",
     "copied_tooltip": "Zkopírováno do schránky"
   },
-  "google_play_badge_a11y": "Rozjeďte to Google Play",
+  "google_play_badge_a11y": "Stáhnout v Google Play",
   "app_store_badge_a11y": "Stáhnout v App Store",
   "image_input": {
     "select_button_a11y": "Vyber obrázek",
@@ -335,5 +335,9 @@
   "blog": {
     "byline_without_author": "Publikováno {{date}}.",
     "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <1>Zaregistruj se</1> a dej nám vědět. Dobrovolníci a <3>dary</3> jsou to, co dělá Couchers.org možným!"
-  }
+  },
+  "bar": {
+    "help_button_a11y": "Nápověda"
+  },
+  "close_button_a11y": "Zavřít"
 }

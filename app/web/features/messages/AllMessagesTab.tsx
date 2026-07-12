@@ -130,11 +130,16 @@ export default function AllMessagesTab() {
     : "all";
 
   const showArchived = filter === "archived";
+  const requestType =
+    filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
 
   // Navigate to the appropriate route when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
     router.push(`/messages/${newFilter}`);
   };
+
+  const shouldFetchChats = filter !== "hosting" && filter !== "surfing";
+  const shouldFetchRequests = filter !== "chats";
 
   // Fetch group chats
   const {
@@ -153,8 +158,11 @@ export default function AllMessagesTab() {
         showArchived,
       ),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+      lastPage.noMore || !lastPage.lastMessageId
+        ? undefined
+        : lastPage.lastMessageId,
     initialPageParam: undefined,
+    enabled: shouldFetchChats,
   });
 
   // Fetch host requests
@@ -168,17 +176,20 @@ export default function AllMessagesTab() {
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({
       onlyArchived: showArchived,
-      type: "all",
+      type: requestType,
     }),
-    queryFn: ({ pageParam: lastRequestId }) =>
+    queryFn: ({ pageParam: pageToken }) =>
       service.requests.listHostRequests({
-        lastRequestId: lastRequestId as number | undefined,
+        pageToken: pageToken as string | undefined,
         onlyArchived: showArchived,
-        type: "all",
+        type: requestType,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastRequestId,
+      lastPage.noMore || !lastPage.nextPageToken
+        ? undefined
+        : lastPage.nextPageToken,
     initialPageParam: undefined,
+    enabled: shouldFetchRequests,
   });
 
   const isLoading = chatsLoading || requestsLoading;
@@ -251,13 +262,19 @@ export default function AllMessagesTab() {
     return allMessages;
   }, [allMessages, filter, currentUser?.userId]);
 
-  const hasMoreMessages = chatsHasNextPage || requestsHasNextPage;
-  const isFetchingMore = chatsIsFetchingNextPage || requestsIsFetchingNextPage;
+  const hasMoreMessages =
+    (shouldFetchChats && chatsHasNextPage) ||
+    (shouldFetchRequests && requestsHasNextPage);
+  const isFetchingMore =
+    (shouldFetchChats && chatsIsFetchingNextPage) ||
+    (shouldFetchRequests && requestsIsFetchingNextPage);
 
   const loadMoreMessages = async () => {
     const promises = [];
-    if (chatsHasNextPage) promises.push(chatsFetchNextPage());
-    if (requestsHasNextPage) promises.push(requestsFetchNextPage());
+    if (shouldFetchChats && chatsHasNextPage)
+      promises.push(chatsFetchNextPage());
+    if (shouldFetchRequests && requestsHasNextPage)
+      promises.push(requestsFetchNextPage());
     await Promise.all(promises);
   };
 

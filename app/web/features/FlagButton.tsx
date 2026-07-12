@@ -1,6 +1,7 @@
 import {
   FormControl,
   IconButton,
+  IconButtonProps,
   InputLabel,
   Portal,
   Select,
@@ -32,6 +33,7 @@ interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;
+  size?: IconButtonProps["size"];
   renderButton?: (
     onClick: (event: React.MouseEvent) => void,
   ) => React.ReactNode;
@@ -41,6 +43,7 @@ export default function FlagButton({
   contentRef,
   authorUser,
   className,
+  size = "large",
   renderButton,
 }: FlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
@@ -157,7 +160,7 @@ export default function FlagButton({
           className={className}
           onClick={handleButtonClick}
           color="primary"
-          size="large"
+          size={size}
         >
           <FlagIcon />
         </IconButton>

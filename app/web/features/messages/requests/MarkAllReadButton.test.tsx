@@ -56,14 +56,17 @@ describe("MarkAllReadButton", () => {
       },
     );
     listHostRequestsMock.mockImplementation(
-      async ({ lastRequestId = 0, count = 1 }) => {
+      async ({ pageToken = "", count = 1 }) => {
+        const offset = pageToken ? parseInt(pageToken) : 0;
         const requests = [
-          ...mutableStore.requests.slice(lastRequestId, lastRequestId + count),
+          ...mutableStore.requests.slice(offset, offset + count),
         ];
         return {
           hostRequestsList: requests,
-          lastRequestId: requests[requests.length - 1].latestMessage!.messageId,
-          noMore: lastRequestId + 1 === mutableStore.requests.length,
+          nextPageToken: String(
+            requests[requests.length - 1].latestMessage!.messageId,
+          ),
+          noMore: offset + 1 === mutableStore.requests.length,
         };
       },
     );
@@ -90,8 +93,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastSeenGroupChatMock).toBeCalledTimes(1);
-      expect(markLastSeenGroupChatMock).toBeCalledWith(2, 2);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         chats: [
           { lastSeenMessageId: 1 },
@@ -112,8 +115,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastRequestSeenMock).toBeCalledTimes(1);
-      expect(markLastRequestSeenMock).toBeCalledWith(2, 2);
+      expect(markLastRequestSeenMock).toHaveBeenCalledTimes(1);
+      expect(markLastRequestSeenMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         requests: [
           { lastSeenMessageId: 1 },

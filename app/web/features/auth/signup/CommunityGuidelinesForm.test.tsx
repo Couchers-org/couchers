@@ -69,14 +69,14 @@ describe("community guidelines signup form", () => {
 
     checkboxes.forEach(async (checkbox) => {
       expect(button).toBeDisabled();
-      expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
+      expect(signupFlowCommunityGuidelinesMock).not.toHaveBeenCalled();
       await user.click(checkbox);
     });
     await waitFor(() => expect(button).not.toBeDisabled());
     await user.click(button);
 
     await waitFor(() => {
-      expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
+      expect(signupFlowCommunityGuidelinesMock).toHaveBeenCalledWith(
         "dummy-token",
         true,
       );

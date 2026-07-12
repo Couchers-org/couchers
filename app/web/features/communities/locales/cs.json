@@ -5,9 +5,6 @@
     "open": "Pozvat komunitu"
   },
   "location": "Poloha",
-  "attendees_count_one": "{{count}} účastník",
-  "attendees_count_few": "{{count}} účastníci",
-  "attendees_count_other": "{{count}} účastníků",
   "by_creator": "Od {{name}}",
   "cancelled": "Zrušeno",
   "cancel_event": "Zrušit událost",
@@ -36,5 +33,9 @@
   "discussion_creation_date": "Vytvořeno dne {{dateOnly}}",
   "create_new_discussion_title": "Vytvořit nový příspěvek",
   "discussions_empty_state": "Žádné diskuze v tuto chvíli.",
-  "discussions_label": "Diskuze"
+  "discussions_label": "Diskuze",
+  "comment_deleted": "Tento komentář byl smazán.",
+  "edit_comment": "Upravit komentář",
+  "delete_comment": "Smazat komentář",
+  "comment_edited_date": "Upraveno {{timeAgo}}"
 }

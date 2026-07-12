@@ -301,5 +301,8 @@
   "reply": "Cevap Ver",
   "yes": "Evet",
   "no": "Hayır",
-  "ok": "Tamam"
+  "ok": "Tamam",
+  "close_button_a11y": "Kapat",
+  "app_store_badge_a11y": "App Store'dan İndirin",
+  "google_play_badge_a11y": "İndirin Google Play"
 }

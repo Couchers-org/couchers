@@ -80,9 +80,8 @@
   "actions": {
     "back_to_dashboard": "Zpět na přehled",
     "message_label": "Zpráva",
-    "accept_friend_label": "Přijmout",
-    "decline_friend_label": "Zamítnout",
-    "request": "Žádost"
+    "request": "Žádost",
+    "add_friend": "Přidat přítele"
   },
   "active": "Aktivní",
   "section_tabs_a11y_label": "záložky pro uživatelské údaje",
@@ -139,7 +138,7 @@
   "what_options_mean": "Co tyto možnosti znamenají",
   "sleeping_arrangement": {
     "private_short": "Soukromý prostor",
-    "common_short": "Společenská místnost",
+    "common_short": "Společná místnost",
     "shared_room_short": "Sdílený pokoj",
     "private": "např. vlastní pokoj nebo podobné",
     "common": "např. pohovka v obývacím pokoji",
@@ -169,5 +168,19 @@
     "request_chars_remaining_few": "Napiš ještě alespoň {{count}} znaky, aby bylo možné odeslat žádost o ubytování.",
     "request_chars_remaining_other": "Napiš ještě alespoň {{count}} znaků, aby bylo možné odeslat žádost o ubytování."
   },
-  "do_not_email_error_link": "Uprav si nastavení e-mailů, pro reaktivaci."
+  "do_not_email_error_link": "Uprav si nastavení e-mailů, pro reaktivaci.",
+  "complete_profile_dialog": {
+    "actions": {
+      "send_request": "odeslat žádost",
+      "send_message": "poslat zprávu",
+      "create_event": "vytvořit událost",
+      "send_friend_request": "send a friend request",
+      "create_discussion": "vytvořit diskuzi"
+    },
+    "title": "Už jsme skoro hotoví: prosím, dokonči svůj profil, abychom mohli pokračovat!",
+    "description_2": "Pomáhá nám to budovat důvěryhodnou komunitu a snižovat množství spamu. Pro více informací <2>se podívej na tuto stránku nápovědy</2>. Děkujeme za tvou pomoc!",
+    "edit_profile_button": "Uprav si svůj profil nyní",
+    "cancel_button": "To nevadí",
+    "description_1": "Než budeš moci {{action_name}}, musíš ve svém profilu <4>napsat něco o sobě</4> a <7>nahrát profilovou fotografii</7>."
+  }
 }

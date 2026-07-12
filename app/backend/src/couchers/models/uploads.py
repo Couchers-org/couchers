@@ -39,6 +39,9 @@ class InitiatedUpload(Base, kw_only=True):
 class Upload(Base, kw_only=True):
     """
     Completed uploads.
+
+    When adding a new foreign key to uploads.key, also update the reverse lookup in
+    couchers/helpers/upload_uses.py.
     """
 
     __tablename__ = "uploads"

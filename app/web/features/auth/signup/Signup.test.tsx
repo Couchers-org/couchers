@@ -1,4 +1,10 @@
-import { render, renderHook, screen, waitFor } from "@testing-library/react";
+import {
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import useAuthStore from "features/auth/useAuthStore";
@@ -23,6 +29,24 @@ jest.mock("@mui/x-date-pickers", () => {
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
   };
 });
+
+// The birthdate field is picker-only (read-only, no text entry): set it by
+// opening the calendar and navigating year -> month -> day.
+async function selectBirthdate(
+  user: ReturnType<typeof userEvent.setup>,
+  { year, month, day }: { year: string; month: string; day: string },
+) {
+  const field = await screen.findByRole("textbox", {
+    name: t("global:components.datepicker.change_date"),
+  });
+  await user.click(field);
+  const dialog = await screen.findByRole("dialog");
+  // Use findByRole (async) so the year/month/day views have time to render
+  // under load — getByRole would miss them right after the dialog opens.
+  await user.click(await within(dialog).findByRole("radio", { name: year }));
+  await user.click(await within(dialog).findByRole("radio", { name: month }));
+  await user.click(await within(dialog).findByRole("gridcell", { name: day }));
+}
 
 const startSignupMock = service.auth.startSignup as MockedService<
   typeof service.auth.startSignup
@@ -190,13 +214,7 @@ describe("Signup", () => {
         ),
         "a very insecure password",
       );
-      const birthdayGroup = await screen.findByRole("group", {
-        name: t("global:components.datepicker.change_date"),
-      });
-
-      await user.click(birthdayGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("01/01/1990");
+      await selectBirthdate(user, { year: "1990", month: "January", day: "1" });
 
       await user.type(
         screen.getByTestId("edit-location-map"),
@@ -576,7 +594,7 @@ describe("Signup", () => {
     expect(
       await screen.findByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
-    expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
+    expect(signupFlowEmailTokenMock).toHaveBeenCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);
   });

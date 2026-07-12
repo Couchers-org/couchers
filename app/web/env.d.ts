@@ -15,7 +15,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED?: "true";
     NEXT_PUBLIC_STRIPE_KEY: string;
     NEXT_PUBLIC_GLOBAL_MESSAGE_URL: string;
-    NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string;
     SENTRY_RELEASE: string;
   }
 }

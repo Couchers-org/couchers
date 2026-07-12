@@ -1,28 +1,43 @@
-import { Skeleton, styled, Typography } from "@mui/material";
+import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
+import { Box, IconButton, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
+import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
-import { useListSubCommunities } from "features/communities/hooks";
-import useUserCommunities from "features/userQueries/useUserCommunities";
-import { useTranslation } from "i18n";
+import TextBody from "components/TextBody";
+import { useListUserCommunities } from "features/communities/hooks";
+import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-const GridContainer = styled("div")(({ theme }) => ({
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: theme.spacing(1.5),
-  marginBottom: theme.spacing(2),
+const CARD_GAP = 12;
+
+const SectionHeader = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: "8px",
+});
+
+// 3 cards per view on desktop, 2 on mobile (mirrors the old grid); the rest scroll.
+const CardSlot = styled(Box)(({ theme }) => ({
+  flex: `0 0 calc((100% - ${2 * CARD_GAP}px) / 3)`,
+  minWidth: 0,
+  scrollSnapAlign: "start",
   [theme.breakpoints.down("sm")]: {
-    gridTemplateColumns: "repeat(2, 1fr)",
+    flex: `0 0 calc((100% - ${CARD_GAP}px) / 2)`,
   },
 }));
+
+// trailing pad so the last card's border doesn't clip at scroll end; SCROLL_END_TOL covers
+// this pad + sub-pixel rounding so the right arrow disables once the last card is fully shown.
+const TRACK_END_PAD = 4;
+const SCROLL_END_TOL = 6;
 
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  height: "100%",
   padding: theme.spacing(1.5),
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: theme.spacing(1),
@@ -34,70 +49,139 @@ const CommunityCard = styled(StyledLink)(({ theme }) => ({
 }));
 
 const SkeletonCard = styled("div")(({ theme }) => ({
+  height: "100%",
   padding: theme.spacing(1.5),
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: theme.spacing(1),
 }));
 
-export default function CommunitiesList({ all = false }: { all?: boolean }) {
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
+}));
+
+export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
-  const userCommunities = useUserCommunities({ pageSize: 6 });
-  const allCommunities = useListSubCommunities(0);
-  const communities = all ? allCommunities : userCommunities;
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const { data, isPending, error } = useListUserCommunities();
+
+  const communities = (data?.pages ?? []).flatMap(
+    (page) => page.communitiesList,
+  );
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(
+      Math.round(el.scrollLeft) <
+        el.scrollWidth - el.clientWidth - SCROLL_END_TOL,
+    );
+  };
+
+  useEffect(() => {
+    updateScrollState();
+  }, [communities.length, isPending]);
+
+  const scroll = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+  };
 
   return (
     <div>
-      {communities.error?.message && (
-        <Alert severity="error">{communities.error.message}</Alert>
-      )}
-      {communities.isLoading ? (
-        <GridContainer>
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <SkeletonCard key={i}>
-              <Skeleton width="60%" height={24} />
-              <Skeleton width="40%" height={20} />
-            </SkeletonCard>
-          ))}
-        </GridContainer>
-      ) : communities.data &&
-        hasAtLeastOnePage(communities.data, "communitiesList") ? (
-        <>
-          <GridContainer>
-            {communities.data.pages
-              .flatMap((page) => page.communitiesList)
-              .map((community) => (
-                <CommunityCard
-                  key={`community-${community.communityId}`}
-                  href={routeToCommunity(community.communityId, community.slug)}
-                >
-                  <Typography
-                    variant="subtitle2"
-                    component="span"
-                    fontWeight={600}
-                  >
-                    {community.name}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {t("dashboard:member_count", {
-                      count: community.memberCount,
-                    })}
-                  </Typography>
-                </CommunityCard>
-              ))}
-          </GridContainer>
-          {communities.hasNextPage && (
-            <Button
-              onClick={() => communities.fetchNextPage()}
-              loading={communities.isFetching}
-            >
-              {t("dashboard:load_more")}
-            </Button>
-          )}
-        </>
-      ) : (
-        <Typography variant="body1" color="textSecondary">
-          {t("dashboard:no_community")}
+      <SectionHeader>
+        <Typography
+          variant="h2"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          <Groups
+            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
+          />
+          {t("dashboard:your_communities_heading")}
         </Typography>
+        <div>
+          <IconButton
+            size="small"
+            onClick={() => scroll(-1)}
+            disabled={!canScrollLeft}
+            color={canScrollLeft ? "primary" : "default"}
+            aria-label={t("dashboard:prev_page_button_a11y")}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => scroll(1)}
+            disabled={!canScrollRight}
+            color={canScrollRight ? "primary" : "default"}
+            aria-label={t("dashboard:next_page_button_a11y")}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
+      </SectionHeader>
+      <Typography
+        variant="body1"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
+        <Trans
+          i18nKey="dashboard:your_communities_helper_text"
+          components={{
+            1: (
+              <StyledBrowseCommunitiesLink
+                href="/communities"
+                underline="hover"
+              />
+            ),
+          }}
+        />
+      </Typography>
+      {error?.message && <Alert severity="error">{error.message}</Alert>}
+      {isPending ? (
+        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
+          {[0, 1, 2].map((i) => (
+            <CardSlot key={i}>
+              <SkeletonCard />
+            </CardSlot>
+          ))}
+        </FadingScrollTrack>
+      ) : communities.length > 0 ? (
+        <FadingScrollTrack
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          $gap={CARD_GAP}
+          $snapType="x proximity"
+          sx={{ pr: `${TRACK_END_PAD}px` }}
+        >
+          {communities.map((community) => (
+            <CardSlot key={`community-${community.communityId}`}>
+              <CommunityCard
+                href={routeToCommunity(community.communityId, community.slug)}
+              >
+                <Typography
+                  variant="subtitle2"
+                  component="span"
+                  fontWeight={600}
+                >
+                  {community.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {t("dashboard:member_count", {
+                    count: community.memberCount,
+                  })}
+                </Typography>
+              </CommunityCard>
+            </CardSlot>
+          ))}
+        </FadingScrollTrack>
+      ) : (
+        <TextBody>{t("dashboard:no_community")}</TextBody>
       )}
     </div>
   );

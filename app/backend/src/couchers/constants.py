@@ -6,7 +6,18 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
+# When updating this, also update the "activeness_probe" notification strings in
+# src/couchers/email/locales/en.json
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
+
+# Must match the frontend values in app/web/utils/validation.ts
+VALID_NAME_MIN_LENGTH = 2
+VALID_NAME_MAX_LENGTH = 100
+
+# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
+VALID_NAME_REGEX = r"""^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$"""
 
 BANNED_USERNAME_PHRASES = [
     "admin",
@@ -120,3 +131,5 @@ COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
+
+MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000

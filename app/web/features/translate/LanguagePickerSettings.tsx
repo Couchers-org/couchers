@@ -1,6 +1,5 @@
 import { Checkbox, FormControlLabel, Link, Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { translateJobURL, translateRoute } from "routes";
@@ -16,10 +15,9 @@ interface ChangeLanguageProps {
 export default function LanguagePickerSettings({
   className,
 }: ChangeLanguageProps) {
-  const { t } = useTranslation([GLOBAL]);
+  const { t, i18n } = useTranslation([GLOBAL]);
   const router = useRouter();
-  const { locale } = router;
-  const languageName = LANGUAGE_MAP[locale || "en"]?.name;
+  const languageName = t(`global:language_names.${i18n.language}`);
   const { isAvailable, showAllLanguages, setShowAllLanguages } =
     useShowAllLanguages();
 

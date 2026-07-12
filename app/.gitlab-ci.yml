@@ -1,3 +1,11 @@
+# suppress external PR pipelines: they duplicate the branch pipeline per PR
+# push (job rules key on CI_COMMIT_BRANCH, which is unset there yet matches)
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: never
+    - when: always
+
 stages:
   - protos
   - build
@@ -14,7 +22,6 @@ variables:
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
-  DEVTOOL_BUILD_BRANCH: develop
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
@@ -341,7 +348,7 @@ test:backend:
     - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/test_artifacts
-    - cp /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
+    - cp -r /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
   artifacts:
     reports:
       junit: junit-$CI_NODE_INDEX.xml
@@ -613,6 +620,25 @@ test:mobile-expo-doctor:
         - app/mobile/package.json
         - app/mobile/package-lock.json
 
+# Checks app/mobile/fingerprints (the runtimeVersion) and fingerprints.full (the
+# review tripwire) against the computed fingerprints.
+test:mobile-fingerprints:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run fingerprints:check
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -711,6 +737,11 @@ preview:backend:
   inherit:
     # no docker login
     default: false
+  # serialize comment writes within a PR (see preview:pr-comment-stub)
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    # aws-base has no python; needed for the schema diff and the PR comment
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     # Create cleaned schema.sql with git hash header (only if schema file exists)
     - |
@@ -725,6 +756,12 @@ preview:backend:
             | grep -v 'ALTER .* OWNER TO postgres;' \
             | cat -s
         } > artifacts/schema_dumps/schema.sql
+      fi
+    # Render a highlighted HTML diff of this branch's schema against develop's
+    - |
+      if [ -f "artifacts/schema_dumps/schema.sql" ]; then
+        curl -fsSL "https://develop--schema.$PREVIEW_DOMAIN/schema.sql" -o develop-schema.sql || true
+        python3 app/scripts/schema_diff_html.py develop-schema.sql artifacts/schema_dumps/schema.sql artifacts/schema_dumps/diff.html
       fi
     # Upload coverage report to S3
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
@@ -744,6 +781,9 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
     - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
+    - echo "Sample emails index at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/emails/index.html and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/emails/index.html"
+    # write the backend items into the sticky PR comment (no-op off a PR)
+    - python3 app/scripts/pr_preview_comment.py --items schema,schema-diff,emails,bcov
   artifacts:
     paths:
       - artifacts/schema_dumps
@@ -803,12 +843,16 @@ preview:wcov:
   inherit:
     # no docker login
     default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
+    - python3 app/scripts/pr_preview_comment.py --items wcov
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -870,12 +914,19 @@ build:mobile-ota-devtool:
     - npm ci
     - npx expo config --type public --json > ota-expo-config.json
     - |
+      # develop's preview keeps the build default (staging web)
+      WEB_BASE_URL=""
+      if [ "$CI_COMMIT_BRANCH" != "$RELEASE_BRANCH" ]; then
+        WEB_BASE_URL=$(node scripts/vercel-preview-url.mjs --branch "$CI_COMMIT_BRANCH" --sha "$CI_COMMIT_SHA")
+      fi
+      echo "web base url: ${WEB_BASE_URL:-(build default)}"
       for P in $OTA_PLATFORMS; do
         rm -rf dist
         npx expo export --platform "$P"
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN" --dist dist --out ota-out --expo-config ota-expo-config.json ${WEB_BASE_URL:+--web-base-url "$WEB_BASE_URL"}
+        node scripts/ota-open-page.mjs --manifest-url "https://$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN/$P/manifest" --out "ota-out/$P/open.html"
         npx --yes qrcode -o "ota-out/$P/qr.png" "couchers-devtool://expo-development-client/?url=https%3A%2F%2F$CI_COMMIT_SHORT_SHA--ota.$PREVIEW_DOMAIN%2F$P%2Fmanifest" < /dev/null
       done
   artifacts:
@@ -920,26 +971,57 @@ preview:mobile-ota-devtool:
         - app/mobile/**/*
         - app/scripts/**/*
 
-preview:pr-comment:
+# posts the comment placeholder within seconds of the push
+preview:pr-comment-stub:
+  needs: []
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  # serialize all writes to one PR's comment; different PRs don't contend
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  script:
+    - python app/scripts/pr_preview_comment.py --stub
+  rules:
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+
+preview:pr-comment-mobile:
   needs:
+    - job: preview:pr-comment-stub
+      artifacts: false
     - job: preview:mobile-ota-devtool
       artifacts: false
   stage: preview
-  image: python:3.12-slim
+  image: python:3.14-slim
   inherit:
     default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
   variables:
     OTA_PLATFORMS: "ios android"
   script:
-    - pip install --quiet --no-cache-dir requests
-    - python app/scripts/pr_preview_comment.py
+    - python app/scripts/pr_preview_comment.py --items mobile
+  # mirror preview:mobile-ota-devtool so this runs exactly when the OTA upload does
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/mobile/**/*
         - app/scripts/**/*
+
+# Vercel owns the web deploy, so this resolves the preview URL from its API
+preview:pr-comment-web:
+  needs:
+    - job: preview:pr-comment-stub
+      artifacts: false
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  script:
+    - python app/scripts/pr_preview_comment.py --items web
+  rules:
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
 
 build:mobile-native-devtool:
   needs: ["protos"]
@@ -949,6 +1031,8 @@ build:mobile-native-devtool:
     default: false
   variables:
     APP_VARIANT: devtool
+    GIT_DEPTH: 0
+  resource_group: mobile-eas-devtool
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
   script:
@@ -956,12 +1040,11 @@ build:mobile-native-devtool:
     - npm ci
     - npm install -g eas-cli
     - bash scripts/devtool-build.sh ios
+    - bash scripts/devtool-build.sh ios-sim
     - bash scripts/devtool-build.sh android
+    - bash scripts/devtool-build.sh index
   rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $DEVTOOL_BUILD_BRANCH)
-      changes:
-        - app/proto/**/*
-        - app/mobile/**/*
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 build:mobile-ota-staging:
   needs: ["protos"]
@@ -982,7 +1065,7 @@ build:mobile-ota-staging:
     - cd app/mobile
     - npm ci
     - npx expo config --type public --json > ota-expo-config.json
-    - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}"
+    - OTA_VERSION="$(cat ../version).${COMMIT_NUMBER}.${CI_COMMIT_SHORT_SHA}.$(date -u -d "$CI_COMMIT_TIMESTAMP" +%Y%m%dZ%H%M).r$(date -u +%Y%m%dZ%H%M%S)"
     - OTA_CDN_BASE="https://next-static.couchershq.org/native/ota/$OTA_VERSION"
     - echo "$STAGING_OTA_PRIVATE_KEY" | base64 -d > ota-staging-private-key.pem
     - |
@@ -992,11 +1075,10 @@ build:mobile-ota-staging:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url "$OTA_CDN_BASE" --dist dist --out ota-staging-out --expo-config ota-expo-config.json
         node scripts/ota-sign.mjs --dir "ota-staging-out/$P" --key-file ota-staging-private-key.pem --key-id staging
       done
     - rm -f ota-staging-private-key.pem
-    - node scripts/ota-growthbook-flag.mjs --out ota-staging-out --platforms "$OTA_PLATFORMS" | tee ota-staging-out/native_ota_bundles.json
     - echo "OTA_VERSION=$OTA_VERSION" > ota-staging.env
   artifacts:
     reports:
@@ -1007,9 +1089,9 @@ build:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-deploy:mobile-ota-staging:
+preview:mobile-ota-staging:
   needs: ["build:mobile-ota-staging"]
-  stage: deploy
+  stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
@@ -1029,12 +1111,24 @@ deploy:mobile-ota-staging:
         fi
         echo "Published signed $P OTA: https://next-static.couchershq.org/native/ota/$OTA_VERSION/$P/manifest"
       done
-    - echo "Set the staging GrowthBook 'native_ota_bundles' flag (native_ota_cdn_root = https://next-static.couchershq.org/native/ota):"
-    - cat app/mobile/ota-staging-out/native_ota_bundles.json
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-.mobile-native-prod:
+deploy:mobile-ota-staging:
+  needs: ["build:mobile-ota-staging", "preview:mobile-ota-staging"]
+  stage: deploy
+  image: python:3.14-slim
+  inherit:
+    default: false
+  variables:
+    BACKEND_SERVER_ADDRESS: "dev-api.couchershq.org:8443"
+  script:
+    - pip install --quiet --no-cache-dir couchers
+    - python3 app/mobile/scripts/ota_create_package.py
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+
+.mobile-native:
   image: node:22
   inherit:
     default: false
@@ -1043,69 +1137,123 @@ deploy:mobile-ota-staging:
   rules:
     - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
-build:mobile-native-prod-ios:
-  extends: .mobile-native-prod
+.mobile-native-build:
+  extends: .mobile-native
   needs: ["protos"]
   stage: build
   variables:
-    APP_VARIANT: production
     GIT_DEPTH: 0
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
     - !reference [.compute-display-version, before_script]
+
+.mobile-native-submit:
+  extends: .mobile-native
+  stage: deploy
+
+build:mobile-native-prod-ios:
+  extends: .mobile-native-build
+  resource_group: mobile-eas-prod-ios
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-build.sh ios
+    - bash scripts/native-build.sh ios
   artifacts:
     reports:
       dotenv: app/mobile/native-build-ios.env
 
 build:mobile-native-prod-android:
-  extends: .mobile-native-prod
-  needs: ["protos"]
-  stage: build
+  extends: .mobile-native-build
+  resource_group: mobile-eas-prod-android
   variables:
     APP_VARIANT: production
-    GIT_DEPTH: 0
-  before_script:
-    - apt-get update -qq && apt-get install -y --no-install-recommends awscli curl
-    - !reference [.compute-display-version, before_script]
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-build.sh android
+    - bash scripts/native-build.sh android
   artifacts:
     reports:
       dotenv: app/mobile/native-build-android.env
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
 
 deploy:mobile-native-prod-ios:
-  extends: .mobile-native-prod
+  extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-ios"]
-  stage: deploy
+  resource_group: mobile-eas-prod-ios
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-submit.sh ios
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - bash scripts/native-submit.sh ios
 
 deploy:mobile-native-prod-android:
-  extends: .mobile-native-prod
+  extends: .mobile-native-submit
   needs: ["build:mobile-native-prod-android"]
-  stage: deploy
+  resource_group: mobile-eas-prod-android
+  variables:
+    APP_VARIANT: production
   script:
     - cd app/mobile
     - npm ci
     - npm install -g eas-cli
-    - bash scripts/production-submit.sh android
-  rules:
-    - if: ($BUILD_MOBILE == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - bash scripts/native-submit.sh android
+
+build:mobile-native-staging-ios:
+  extends: .mobile-native-build
+  resource_group: mobile-eas-staging-ios
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-build.sh ios
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-ios.env
+
+build:mobile-native-staging-android:
+  extends: .mobile-native-build
+  resource_group: mobile-eas-staging-android
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-build.sh android
+  artifacts:
+    reports:
+      dotenv: app/mobile/native-build-android.env
+
+deploy:mobile-native-staging-ios:
+  extends: .mobile-native-submit
+  needs: ["build:mobile-native-staging-ios"]
+  resource_group: mobile-eas-staging-ios
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-submit.sh ios
+
+deploy:mobile-native-staging-android:
+  extends: .mobile-native-submit
+  needs: ["build:mobile-native-staging-android"]
+  resource_group: mobile-eas-staging-android
+  variables:
+    APP_VARIANT: staging
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm install -g eas-cli
+    - bash scripts/native-submit.sh android
 
 build:mobile-ota-prod:
   needs: ["protos"]
@@ -1134,7 +1282,7 @@ build:mobile-ota-prod:
         npx sentry-expo-upload-sourcemaps dist
         RV=$(npx expo-updates fingerprint:generate --platform "$P" 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).hash))')
         echo "fingerprint($P) = $RV"
-        node scripts/ota-stage.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
+        node scripts/ota-bundle.mjs --platform "$P" --runtime-version "$RV" --base-url '__OTA_BUNDLE_BASE__' --dist dist --out ota-prod-out --expo-config ota-expo-config.json
         tar -C ota-prod-out/"$P" -czf "native-ota-dist/native-ota-$P-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz" .
       done
   artifacts:
@@ -1192,6 +1340,9 @@ preview:protos:
   inherit:
     # no docker login
     default: false
+  resource_group: preview-comment-$CI_COMMIT_REF_SLUG
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
     - python_sum=$(sha256sum app/proto/gen/python.tar.gz | head -c 64)
     - ts_sum=$(sha256sum app/proto/gen/ts.tar.gz | head -c 64)
@@ -1221,6 +1372,7 @@ preview:protos:
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
+    - python3 app/scripts/pr_preview_comment.py --items protos
 
 # Having this here frees us from having to list out all the needs in each release below.
 # List out all that need to be waited for until releasing a new version
@@ -1296,6 +1448,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-fingerprints
       artifacts: false
       optional: true
 
@@ -1428,6 +1583,7 @@ deploy:staging:
   inherit:
     # no docker login
     default: false
+  resource_group: staging-deploy
   script:
     - apt-get update && apt install -y git wget openssh-client
     - export rev=$(git rev-parse @ | cut -c-8)

@@ -1,4 +1,3 @@
-import { Dayjs } from "dayjs";
 import { HostRequestStatus } from "proto/conversations_pb";
 import {
   CreateHostRequestReq,
@@ -6,6 +5,7 @@ import {
   GetHostRequestReq,
   GetResponseRateReq,
   HostRequestQuality,
+  HostRequestSortBy,
   ListHostRequestsReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
@@ -13,33 +13,45 @@ import {
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
 export async function listHostRequests({
-  lastRequestId = 0,
+  pageToken = "",
   count = 10,
   type = "all",
   onlyActive,
   onlyArchived,
+  statusIn,
+  sortBy,
 }: {
-  lastRequestId?: number;
+  pageToken?: string;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
   onlyArchived?: boolean;
+  statusIn?: HostRequestStatus[];
+  sortBy?: HostRequestSortBy;
 }) {
   const req = new ListHostRequestsReq();
   if (onlyActive !== undefined) {
     req.setOnlyActive(onlyActive);
   }
-  req.setOnlyReceived(type === "hosting");
-  req.setOnlySent(type === "surfing");
-  req.setLastRequestId(lastRequestId);
-  req.setNumber(count);
   if (onlyArchived !== undefined) {
     req.setOnlyArchived(onlyArchived);
   }
+  if (statusIn !== undefined) {
+    req.setStatusInList(statusIn);
+  }
+  if (sortBy !== undefined) {
+    req.setSortBy(sortBy);
+  }
+
+  req.setOnlyReceived(type === "hosting");
+  req.setOnlySent(type === "surfing");
+  req.setPageToken(pageToken);
+  req.setNumber(count);
 
   const response = await client.requests.listHostRequests(req);
 
@@ -93,18 +105,25 @@ export async function getHostRequestMessages(
 
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
-  "toDate" | "fromDate"
-> & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
+  "toDate" | "fromDate" | "publicTripId"
+> & {
+  toDate: Temporal.PlainDate;
+  fromDate: Temporal.PlainDate;
+  stayType: number;
+  publicTripId?: number;
+};
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setHostUserId(data.hostUserId);
-  // Dayjs.format() uses the browser timezone,
-  // which matches the timezone we used to create the
-  // Dayjs object from the year/month/date input fields.
-  req.setFromDate(data.fromDate.format().split("T")[0]);
-  req.setToDate(data.toDate.format().split("T")[0]);
+  req.setFromDate(data.fromDate.toString());
+  req.setToDate(data.toDate.toString());
   req.setText(data.text);
+  // Set when this host request is an "offer to host" made in response to a
+  // public trip, so the backend links the offer back to the trip.
+  if (data.publicTripId) {
+    req.setPublicTripId(data.publicTripId);
+  }
 
   const response = await client.requests.createHostRequest(req);
 

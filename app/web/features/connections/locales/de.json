@@ -30,10 +30,12 @@
     "confirm": "Entsperren"
   },
   "accept": "Annehmen",
-  "decline": "Ablehnen",
   "add_friend_confirmation_dialog": {
     "title": "Kennst du diese Person?",
     "message": "Bitte sende Freundschaftsanfragen nur an Personen, die du bereits kennst oder auf deinen Reisen getroffen hast — die meisten Leute verbinden sich lieber, nachdem sie sich persönlich kennengelernt haben. <helpCenterLink>Lies mehr über Freundschaftsanfragen in unserem Hilfezentrum.</helpCenterLink>",
     "confirm": "Ja, ich kenne sie. Anfrage senden!"
-  }
+  },
+  "friend_request_no_longer_available": "Diese Freundschaftsanfrage ist nicht mehr verfügbar.",
+  "cancel_request_button_a11y": "Anfrage abbrechen",
+  "friend_requests_dismiss_button": "Ignorieren"
 }

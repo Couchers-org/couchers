@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
+import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
@@ -411,7 +412,7 @@ def sample_event_data() -> dict[str, Any]:
         "title": "Dummy Title",
         "content": "Dummy content.",
         "photo_key": None,
-        "offline_information": events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
+        "location": events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
         "start_time": Timestamp_from_datetime(start_time),
         "end_time": Timestamp_from_datetime(end_time),
         "timezone": "UTC",
@@ -516,7 +517,7 @@ def test_event_search_by_circle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Inside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
             )
 
         outside_pts = [(1, 0.1), (0.1, 1), (10, 1)]
@@ -524,7 +525,7 @@ def test_event_search_by_circle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Outside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
             )
 
     with search_session(token) as api:
@@ -543,7 +544,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Inside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
             )
 
         outside_pts = [(-1, 0.1), (0.1, 0.01), (-0.01, 0.01), (0.1, 1.2), (10, 1)]
@@ -551,7 +552,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
             create_event(
                 api,
                 title=f"Outside area {i}",
-                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+                location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
             )
 
     with search_session(token) as api:
@@ -653,33 +654,6 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
         assert res.total_items == 5
 
 
-def test_event_search_online_status(sample_community, create_event):
-    """Test that EventSearch respects only_online and only_offline filters and by default returns both."""
-    user, token = generate_user()
-
-    with events_session(token) as api:
-        create_event(api, title="Offline event")
-
-        create_event(
-            api,
-            title="Online event",
-            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
-            parent_community_id=sample_community,
-            offline_information=events_pb2.OfflineEventInformation(),
-        )
-
-    with search_session(token) as api:
-        res = api.EventSearch(search_pb2.EventSearchReq())
-        assert len(res.events) == 2
-        assert {event.title for event in res.events} == {"Offline event", "Online event"}
-
-        res = api.EventSearch(search_pb2.EventSearchReq(only_online=True))
-        assert {event.title for event in res.events} == {"Online event"}
-
-        res = api.EventSearch(search_pb2.EventSearchReq(only_offline=True))
-        assert {event.title for event in res.events} == {"Offline event"}
-
-
 def test_event_search_filter_subscription_attendance_organizing_my_communities(
     sample_community, create_event, moderator: Moderator
 ):
@@ -702,7 +676,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(
         create_event(
             api,
             title="Other community event",
-            offline_information=events_pb2.OfflineEventInformation(lat=58, lng=1, address="Somewhere"),
+            location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
         )
 
     # Approve all events so they're visible to other users
@@ -749,6 +723,62 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(
 
         res = api.EventSearch(search_pb2.EventSearchReq(subscribed=True, attending=True))
         assert {event.title for event in res.events} == {"Subscribed event", "Attending event", "Organized event"}
+
+
+def test_event_search_exclude_attending(sample_community, create_event, moderator: Moderator):
+    """Test that exclude_attending removes events the user is attending or organizing."""
+    user, token = generate_user()
+    other_user, other_token = generate_user()
+
+    with communities_session(token) as api:
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+
+    with session_scope() as session:
+        create_community(session, 55, 60, "Other community", [other_user], [], None)
+
+    with events_session(other_token) as api:
+        e_attending = create_event(api, title="Attending event")
+        e_community_only = create_event(api, title="Community only event")
+        create_event(
+            api,
+            title="Other community event",
+            location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
+        )
+
+    with session_scope() as session:
+        occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
+    for oid in occurrence_ids:
+        moderator.approve_event_occurrence(oid)
+
+    with events_session(token) as api:
+        e_organized = create_event(api, title="Organized event")
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(
+                event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+            )
+        )
+
+    with search_session(token) as api:
+        # baseline: my_communities returns all community events including attended/organized
+        res = api.EventSearch(search_pb2.EventSearchReq(my_communities=True))
+        assert {event.title for event in res.events} == {
+            "Attending event",
+            "Community only event",
+            "Organized event",
+        }
+
+        # my_communities + exclude_attending: drops attended and organized events
+        res = api.EventSearch(search_pb2.EventSearchReq(my_communities=True, exclude_attending=True))
+        assert {event.title for event in res.events} == {"Community only event"}
+
+        # exclude_attending alone (no other filter = all events): drops attended and organized
+        res = api.EventSearch(search_pb2.EventSearchReq(exclude_attending=True))
+        assert {event.title for event in res.events} == {"Community only event", "Other community event"}
+
+        # attending + exclude_attending is invalid
+        with pytest.raises(grpc.RpcError) as e:
+            api.EventSearch(search_pb2.EventSearchReq(attending=True, exclude_attending=True))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_regression_search_multiple_pages(db):

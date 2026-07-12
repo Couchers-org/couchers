@@ -32,8 +32,6 @@ import { theme } from "theme";
 import { useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
-
 interface HostingPreferenceCheckboxProps {
   className?: string;
   name: string;
@@ -122,7 +120,7 @@ const StickySaveBar = styled(Box, {
 
   return {
     position: "fixed",
-    bottom: 0,
+    bottom: "var(--cookie-banner-height, 0px)",
     left: 0,
     right: 0,
     backgroundColor: "var(--mui-palette-background-paper)",
@@ -136,7 +134,7 @@ const StickySaveBar = styled(Box, {
     gap: theme.spacing(2),
 
     [theme.breakpoints.down("md")]: {
-      bottom: bottomNavHeight,
+      bottom: `calc(${bottomNavHeight}px + var(--cookie-banner-height, 0px))`,
       padding: theme.spacing(1),
       paddingBottom: safePadding,
     },
@@ -315,12 +313,7 @@ export default function HostingPreferenceForm({
     resetUpdate();
     updateHostingPreferences(
       {
-        preferenceData: {
-          ...data,
-          aboutPlace: DEFAULT_ABOUT_HOME_HEADINGS.includes(data.aboutPlace)
-            ? ""
-            : data.aboutPlace,
-        },
+        preferenceData: data,
         setMutationError: setErrorMessage,
       },
       {
@@ -437,7 +430,7 @@ export default function HostingPreferenceForm({
               label={t("profile:home_info_headings.about_home")}
               name="aboutPlace"
               control={control}
-              defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
+              defaultValue={user.aboutPlace}
             />
           </FieldGroup>
 

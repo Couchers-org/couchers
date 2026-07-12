@@ -1,13 +1,13 @@
 from email.headerregistry import Address
 
-from ics import Calendar, Event  # type: ignore[import-untyped]
+from ics import Calendar, Event
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
 from couchers.config import config
-from couchers.email.rendering import get_emails_i18next
+from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
-from couchers.proto.internal.jobs_pb2 import EmailAttachmentV2
+from couchers.proto.internal.jobs_pb2 import EmailPart
 from couchers.proto.requests_pb2 import HostRequest
 
 HOST_REQUEST_ICS_FILENAME = "host_request.ics"
@@ -15,7 +15,7 @@ HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
 def create_host_request_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> EmailAttachmentV2:
+) -> EmailPart:
     calendar = create_host_request_calendar(host_request, other_name, hosting, loc_context)
     return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
@@ -42,12 +42,14 @@ def create_host_request_event(
     event.extra.append(ContentLine(name="SEQUENCE", value=str(sequence)))
 
     if hosting:
-        event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_host", loc_context.locale, {"name": other_name}
+        event.name = loc_context.localize_string(
+            "calendar_events.host_requests.title_host", i18next=get_emails_i18next(), substitutions={"name": other_name}
         )
     else:
-        event.name = get_emails_i18next().localize(
-            "calendar_events.host_requests.title_surfer", loc_context.locale, {"name": other_name}
+        event.name = loc_context.localize_string(
+            "calendar_events.host_requests.title_surfer",
+            i18next=get_emails_i18next(),
+            substitutions={"name": other_name},
         )
 
     # Our to_date is inclusive, iCalendar's DTEND is exclusive (for full-day events)
@@ -67,7 +69,7 @@ def create_host_request_event(
 
 def create_host_request_cancellation_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> EmailAttachmentV2:
+) -> EmailPart:
     calendar = create_host_request_cancellation_calendar(host_request, other_name, hosting, loc_context)
     return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
@@ -76,8 +78,8 @@ def create_host_request_cancellation_calendar(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> Calendar:
     event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
-    event.name = get_emails_i18next().localize(
-        "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
+    event.name = loc_context.localize_string(
+        "calendar_events.title_cancelled", i18next=get_emails_i18next(), substitutions={"title": event.name}
     )
     event.status = "CANCELLED"
 
@@ -96,7 +98,7 @@ def event_to_calendar(event: Event, method: str | None, loc_context: Localizatio
     return calendar
 
 
-def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailAttachmentV2:
+def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailPart:
     data = calendar.serialize().encode("utf-8")
     content_disposition = f'attachment; filename="{filename}"'
     content_type = 'text/calendar; charset="utf-8"'
@@ -105,9 +107,9 @@ def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailAttachment
         # AI recommends avoiding quotes on this parameter for backwards compatibility with old email clients.
         content_type += f"; method={calendar.method}"
 
-    return EmailAttachmentV2(data=data, content_disposition=content_disposition, content_type=content_type)
+    return EmailPart(data=data, content_disposition=content_disposition, content_type=content_type)
 
 
 def get_host_request_event_uid(host_request_id: int) -> str:
-    uid_domain = Address(addr_spec=config["NOTIFICATION_EMAIL_ADDRESS"]).domain
+    uid_domain = Address(addr_spec=config.NOTIFICATION_EMAIL_ADDRESS).domain
     return f"host_request.{host_request_id}@{uid_domain}"

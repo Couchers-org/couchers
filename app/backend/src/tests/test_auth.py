@@ -1,5 +1,6 @@
 import http.cookies
 from typing import cast
+from unittest.mock import DEFAULT, patch
 
 import grpc
 import pytest
@@ -14,6 +15,9 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     LoginToken,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     PasswordResetToken,
     SignupFlow,
     User,
@@ -226,6 +230,85 @@ def test_signup_incremental(db):
         assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
 
 
+def test_signup_funnel_counters(db):
+    """Each per-step signup funnel counter should fire exactly once across an incremental signup."""
+    with patch.multiple(
+        "couchers.servicers.auth",
+        signup_initiations_counter=DEFAULT,
+        signup_account_filled_counter=DEFAULT,
+        signup_email_verified_counter=DEFAULT,
+        signup_guidelines_accepted_counter=DEFAULT,
+        signup_motivations_filled_counter=DEFAULT,
+        signup_completions_counter=DEFAULT,
+    ) as counters:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                )
+            )
+        flow_token = res.flow_token
+        counters["signup_initiations_counter"].inc.assert_called_once()
+
+        with session_scope() as session:
+            email_token = (
+                session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+            )
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        counters["signup_account_filled_counter"].inc.assert_called_once()
+
+        # accept the guidelines twice; the counter must still only fire once
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        counters["signup_guidelines_accepted_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+                )
+            )
+        counters["signup_motivations_filled_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token, email_token=email_token))
+        counters["signup_email_verified_counter"].inc.assert_called_once()
+
+        assert res.HasField("auth_res")
+        counters["signup_completions_counter"].labels.assert_called_once_with("Bot")
+
+
 def _quick_signup() -> int:
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
@@ -391,7 +474,7 @@ def test_login_part_signed_up_not_verified_email(db):
 
 
 def test_banned_user(db):
-    _quick_signup()
+    user_id = _quick_signup()
 
     with session_scope() as session:
         session.execute(select(User)).scalar_one().banned_at = now()
@@ -401,6 +484,30 @@ def test_banned_user(db):
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "Your account is suspended."
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.banned
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
+
+
+def test_shadowed_user_login_logged(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().shadowed_at = now()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.shadowed
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
 
 
 def test_deleted_user(db):

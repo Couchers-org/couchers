@@ -7,6 +7,7 @@ import {
   SwipeableDrawer,
 } from "@mui/material";
 import Snackbar from "components/Snackbar";
+import BadgeDetail from "features/badges/BadgeDetail";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
@@ -97,8 +98,12 @@ export default function ProfileSheet() {
   const {
     openProfileUserId,
     closeProfileSheet,
+    goBackProfile,
+    profileHistory,
     openGroupChatId,
     closeGroupChat,
+    selectedBadgeId,
+    closeBadge,
   } = useProfileSheet();
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
@@ -107,14 +112,12 @@ export default function ProfileSheet() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
   const [isMessaging, setIsMessaging] = useState(false);
-  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
 
   useEffect(() => {
     setTab("about");
     setIsRequesting(false);
     setIsSuccessRequest(false);
     setIsMessaging(false);
-    setIsSuccessMessage(false);
   }, [openProfileUserId]);
 
   useEffect(() => {
@@ -132,24 +135,60 @@ export default function ProfileSheet() {
   }, [router.events, closeProfileSheet]);
 
   // On Android, the hardware back gesture triggers webview.goBack() in the native
-  // layer. Push a history entry when the sheet opens so goBack() fires popstate
-  // here instead of routing to the previous page.
+  // layer. Push a history entry when the sheet opens (and another for each deeper
+  // profile navigation) so goBack() fires popstate here instead of routing away.
+  // We track how many entries we pushed so cleanup removes them all at once.
+  const isSheetOpen = openProfileUserId !== null;
+  const pushedCountRef = useRef(0);
+  const prevProfileHistoryLengthRef = useRef(0);
+
   useEffect(() => {
-    if (!isMobile || openProfileUserId === null) return;
-
+    if (!isMobile || !isSheetOpen) return;
     window.history.pushState({ profileSheetOpen: true }, "");
-
-    const handlePopState = () => closeProfileSheet();
-    window.addEventListener("popstate", handlePopState);
-
+    pushedCountRef.current = 1;
+    prevProfileHistoryLengthRef.current = 0;
     return () => {
-      window.removeEventListener("popstate", handlePopState);
-      // Sheet closed via button — our pushed state is still on top, pop it.
-      if (window.history.state?.profileSheetOpen) {
-        window.history.back();
+      const count = pushedCountRef.current;
+      pushedCountRef.current = 0;
+      // The route-change handler replaces the current entry with null before
+      // calling closeProfileSheet, so the check fails there and we don't fight
+      // the incoming navigation. For explicit closes (tap-outside, programmatic)
+      // the state is still ours and we go back the full stack depth.
+      if (count > 0 && window.history.state?.profileSheetOpen) {
+        window.history.go(-count);
       }
     };
-  }, [openProfileUserId, closeProfileSheet, isMobile]);
+  }, [isSheetOpen, isMobile]);
+
+  // Push an extra history entry each time the user navigates deeper so every
+  // back press has a matching popstate to intercept.
+  useEffect(() => {
+    if (!isMobile || !isSheetOpen) return;
+    const currentLength = profileHistory.length;
+    if (currentLength > prevProfileHistoryLengthRef.current) {
+      window.history.pushState({ profileSheetOpen: true }, "");
+      pushedCountRef.current++;
+    }
+    prevProfileHistoryLengthRef.current = currentLength;
+  }, [isMobile, isSheetOpen, profileHistory.length]);
+
+  // Keep a ref so the popstate handler always has the latest back/close logic
+  // without re-registering the listener on every profile navigation.
+  const goBackOrCloseRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    goBackOrCloseRef.current =
+      profileHistory.length > 0 ? goBackProfile : closeProfileSheet;
+  }, [profileHistory, goBackProfile, closeProfileSheet]);
+
+  useEffect(() => {
+    if (!isMobile || !isSheetOpen) return;
+    const handlePopState = () => {
+      pushedCountRef.current = Math.max(0, pushedCountRef.current - 1);
+      goBackOrCloseRef.current();
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isSheetOpen, isMobile]);
 
   useLayoutEffect(() => {
     if (isRequesting || isMessaging) {
@@ -172,9 +211,13 @@ export default function ProfileSheet() {
     >
       <SheetHeader>
         <Puller />
-        {openGroupChatId && (
+        {(openGroupChatId || selectedBadgeId || profileHistory.length > 0) && (
           <IconButton
-            onClick={closeGroupChat}
+            onClick={() => {
+              if (selectedBadgeId) closeBadge();
+              else if (openGroupChatId) closeGroupChat();
+              else goBackProfile();
+            }}
             aria-label={t("global:back")}
             size="small"
           >
@@ -184,16 +227,15 @@ export default function ProfileSheet() {
       </SheetHeader>
       {openGroupChatId ? (
         <GroupChatView chatId={openGroupChatId} embedded />
+      ) : selectedBadgeId ? (
+        <ScrollContent sx={{ p: 2 }}>
+          <BadgeDetail badgeId={selectedBadgeId} />
+        </ScrollContent>
       ) : (
         <ScrollContent ref={scrollRef}>
           {isSuccessRequest && (
             <Snackbar severity="success">
               {t("profile:request_form.success")}
-            </Snackbar>
-          )}
-          {isSuccessMessage && (
-            <Snackbar severity="success">
-              {t("profile:message_form.success")}
             </Snackbar>
           )}
           {isLoading && <ProfileSheetSkeleton />}
@@ -217,10 +259,7 @@ export default function ProfileSheet() {
                       />
                     </Collapse>
                     <Collapse in={isMessaging}>
-                      <NewMessage
-                        setIsMessaging={setIsMessaging}
-                        setIsMessageSuccess={setIsSuccessMessage}
-                      />
+                      <NewMessage setIsMessaging={setIsMessaging} />
                     </Collapse>
                   </>
                 }

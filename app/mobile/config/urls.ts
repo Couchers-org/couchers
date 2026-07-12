@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import * as Updates from "expo-updates";
 
 const STORAGE_KEY = "@couchers/devUrlOverrides";
 
@@ -18,6 +20,14 @@ export type UrlOverrides = {
   apiBaseUrl: string | null;
   webBaseUrl: string | null;
 };
+
+// An override is bound to the bundle it was set on, so loading a different
+// bundle drops it rather than reusing it. "none" buckets all local Metro dev.
+type StoredOverrides = UrlOverrides & { bundleId?: string };
+
+function currentBundleId(): string {
+  return Updates.updateId ?? "none";
+}
 
 export type Preset = {
   label: string;
@@ -60,11 +70,24 @@ function normalize(url: string | null | undefined): string | null {
   return trimmed.replace(/\/+$/, "");
 }
 
+// Branch-preview OTA manifests carry their branch's web preview URL (injected
+// by scripts/ota-bundle.mjs --web-base-url); it acts as the update's default.
+function getManifestWebBaseUrl(): string | null {
+  const value = Constants.expoConfig?.extra?.otaWebBaseUrl;
+  return typeof value === "string" ? normalize(value) : null;
+}
+
 export function getDefaultApiBaseUrl(): string {
   return DEFAULT_API_BASE_URL;
 }
 
 export function getDefaultWebBaseUrl(): string {
+  if (isDevUrlOverrideEnabled()) {
+    const fromManifest = getManifestWebBaseUrl();
+    if (fromManifest) {
+      return fromManifest;
+    }
+  }
   return DEFAULT_WEB_BASE_URL;
 }
 
@@ -79,7 +102,7 @@ export function getWebBaseUrl(): string {
   if (isDevUrlOverrideEnabled() && cache.webBaseUrl) {
     return cache.webBaseUrl;
   }
-  return DEFAULT_WEB_BASE_URL;
+  return getDefaultWebBaseUrl();
 }
 
 export function getUrlOverrides(): UrlOverrides {
@@ -95,7 +118,12 @@ export async function hydrateUrlOverrides(): Promise<void> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as Partial<UrlOverrides>;
+      const parsed = JSON.parse(raw) as Partial<StoredOverrides>;
+      if (parsed.bundleId !== currentBundleId()) {
+        cache = { apiBaseUrl: null, webBaseUrl: null };
+        await AsyncStorage.removeItem(STORAGE_KEY);
+        return;
+      }
       cache = {
         apiBaseUrl: normalize(parsed.apiBaseUrl),
         webBaseUrl: normalize(parsed.webBaseUrl),
@@ -111,7 +139,8 @@ export async function setUrlOverrides(overrides: UrlOverrides): Promise<void> {
     apiBaseUrl: normalize(overrides.apiBaseUrl),
     webBaseUrl: normalize(overrides.webBaseUrl),
   };
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+  const stored: StoredOverrides = { ...cache, bundleId: currentBundleId() };
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
   await addToHistory(cache);
 }
 

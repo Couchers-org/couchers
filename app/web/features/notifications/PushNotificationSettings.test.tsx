@@ -20,7 +20,7 @@ jest.mock("platform/sentry", () => ({
 
 jest.mock("i18n", () => ({
   useTranslation: jest.fn(),
-  Trans: ({ children }: { children: React.ReactNode }) => children, // Mock the Trans component to return its children
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey, // Mock the Trans component to return loc keys
 }));
 
 jest.mock("service/notifications", () => ({
@@ -52,7 +52,6 @@ const mockServiceWorker = {
 
 describe("PushNotificationSettings Component", () => {
   const originalNavigator = global.navigator;
-  const originalWindow = global.window;
 
   const mNotification = jest.fn();
   Object.defineProperty(global, "Notification", {
@@ -71,10 +70,6 @@ describe("PushNotificationSettings Component", () => {
     // Restore the original navigator and window objects after each test
     Object.defineProperty(global, "navigator", {
       value: originalNavigator,
-      configurable: true,
-    });
-    Object.defineProperty(global, "window", {
-      value: originalWindow,
       configurable: true,
     });
 
@@ -111,7 +106,11 @@ describe("PushNotificationSettings Component", () => {
     render(<PushNotificationSettings />, { wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText("enabled")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "notifications:notification_settings.push_notifications.enabled_message",
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -136,7 +135,11 @@ describe("PushNotificationSettings Component", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("disabled")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "notifications:notification_settings.push_notifications.disabled_message",
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -159,7 +162,11 @@ describe("PushNotificationSettings Component", () => {
     render(<PushNotificationSettings />, { wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText("disabled")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "notifications:notification_settings.push_notifications.disabled_message",
+        ),
+      ).toBeInTheDocument();
     });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
@@ -241,7 +248,11 @@ describe("PushNotificationSettings Component", () => {
     render(<PushNotificationSettings />, { wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText("enabled")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "notifications:notification_settings.push_notifications.enabled_message",
+        ),
+      ).toBeInTheDocument();
     });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
@@ -334,7 +345,11 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(checkPushEnabled).toHaveBeenCalled();
-      expect(screen.getByText("enabled")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "notifications:notification_settings.push_notifications.enabled_message",
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

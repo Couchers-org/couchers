@@ -38,8 +38,9 @@ from couchers.constants import (
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
+    MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
-from couchers.context import make_background_user_context
+from couchers.context import make_background_user_context, make_notification_user_context
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
     asym_encrypt,
@@ -138,7 +139,7 @@ logger = logging.getLogger(__name__)
 def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
-    sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
+    sender = send_smtp_email if config.ENABLE_EMAIL else print_dev_email
     # the sender must return a models.Email object that can be added to the database
     email = sender(payload)
     with session_scope() as session:
@@ -202,7 +203,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
         )
 
         for user in users:
-            context = make_background_user_context(user_id=user.id)
+            context = make_notification_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 where_users_column_visible(
@@ -265,7 +266,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             ),
                             text=message.text,
                             group_chat_id=message.conversation_id,
-                            group_chat_title=group_chat.title,
+                            group_chat_title=group_chat.title or None,
                             unseen_count=unseen_count,
                         )
                         for group_chat, message, unseen_count in unseen_messages
@@ -307,7 +308,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
         candidate_user_ids = session.execute(union_all(surfer_ids, host_ids)).scalars().unique().all()
 
         for user_id in candidate_user_ids:
-            context = make_background_user_context(user_id=user_id)
+            context = make_notification_user_context(user_id=user_id)
 
             # requests where this user is surfing
             surfing_reqs = session.execute(
@@ -537,7 +538,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
             for surfed, host_request, user, other_user in reference_reminders:
                 # visibility and blocking already checked in sql
                 assert user.is_visible
-                context = make_background_user_context(user_id=user.id)
+                context = make_notification_user_context(user_id=user.id)
                 topic_action = (
                     NotificationTopicAction.reference__reminder_surfed
                     if surfed
@@ -592,7 +593,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
             host_request.recipient_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = now()
 
-            context = make_background_user_context(user_id=host_request.recipient_user_id)
+            context = make_notification_user_context(user_id=host_request.recipient_user_id)
             notify(
                 session,
                 user_id=host_request.recipient_user_id,
@@ -614,15 +615,15 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
         return
 
     sess = requests.Session()
-    sess.auth = (config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"])
+    sess.auth = (config.LISTMONK_API_USERNAME, config.LISTMONK_API_KEY)
 
     def sync_subscriber(user: User, status: str) -> None:
         r = sess.post(
-            config["LISTMONK_BASE_URL"] + "/api/subscribers",
+            config.LISTMONK_BASE_URL + "/api/subscribers",
             json={
                 "email": user.email,
                 "name": user.name,
-                "lists": [config["LISTMONK_LIST_ID"]],
+                "lists": [config.LISTMONK_LIST_ID],
                 "preconfirm_subscriptions": True,
                 "attribs": {"couchers_user_id": user.id},
                 "status": status,
@@ -917,7 +918,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         ).scalar_one()
         response = requests.post(
             "https://passportreader.app/api/v1/session.get",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.IRIS_ID_PUBKEY, config.IRIS_ID_SECRET),
             json={"id": verification_attempt.iris_session_id},
             timeout=10,
             verify="/etc/ssl/certs/ca-certificates.crt",
@@ -984,7 +985,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
 
         verification_attempt.has_full_data = True
         verification_attempt.passport_encrypted_data = asym_encrypt(
-            config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
+            config.VERIFICATION_DATA_PUBLIC_KEY, response.text.encode("utf8")
         )
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
@@ -1025,7 +1026,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
-        if config["ACTIVENESS_PROBES_ENABLED"]:
+        if config.ACTIVENESS_PROBES_ENABLED:
             # current activeness probes
             subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
 
@@ -1076,7 +1077,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = make_background_user_context(user_id=probe.user.id)
+                context = make_notification_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,
@@ -1171,10 +1172,12 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                 .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
                 .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
                 .where(EventOccurrenceAttendee.reminder_sent == False)
+                .where(User.is_visible)
+                .where(~User.is_shadowed)
             ).all()
 
             for user, attendee in results:
-                context = make_background_user_context(user_id=user.id)
+                context = make_notification_user_context(user_id=user.id)
 
                 notify(
                     session,
@@ -1518,7 +1521,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # Ensure auto-approve deadline isn't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
-        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
         if deadline_seconds > 0:
             grace_period = timedelta(minutes=5)
             stale_initial_review_items = session.execute(
@@ -1542,15 +1545,17 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
 def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     """
-    Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
-    Items explicitly actioned by moderators are left alone.
+    Dead man's switch: approves unresolved INITIAL_REVIEW content older than the deadline to VISIBLE, then
+    re-flags it as a high-priority MACHINE_FLAG superseding only the INITIAL_REVIEW item. The switch only fires
+    when moderators are behind, so every auto-approved item stays in the queue for a human to check. Other open
+    flags are untouched, and items already actioned by moderators are left alone.
     """
-    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
     if deadline_seconds <= 0:
         return
 
     with session_scope() as session:
-        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+        ctx = make_background_user_context(user_id=config.MODERATION_BOT_USER_ID)
 
         items = (
             Moderation()
@@ -1576,13 +1581,27 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
             return
 
         logger.info(f"Auto-approving {len(approvable)} moderation queue items")
+        reason = f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded."
         for item in approvable:
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=item.moderation_state_id,
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
+                    reason=reason,
+                    clear_flags=False,
+                ),
+                context=ctx,
+                session=session,
+            )
+            Moderation().ModerateContent(
+                request=moderation_pb2.ModerateContentReq(
+                    moderation_state_id=item.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                    priority=MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
+                    reason=reason,
+                    supersede_queue_item_id=item.queue_item_id,
                 ),
                 context=ctx,
                 session=session,

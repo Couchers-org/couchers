@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
@@ -62,13 +63,13 @@ def to_supported_locale(locale: str) -> str:
     return DEFAULT_LOCALE
 
 
-def get_locale_fallbacks(locale: str) -> list[str]:
-    """Gets the list of locales to which to fallback to if the given one is unavailable."""
+def get_locale_chain(locale: str) -> list[str]:
+    """Gets the ordered list of locales to try when looking up a string, starting with the given locale."""
     if fallback := _LOCALE_FALLBACKS.get(locale):
-        return [fallback, DEFAULT_LOCALE]
+        return [locale, fallback, DEFAULT_LOCALE]
     if locale == DEFAULT_LOCALE:
-        return []
-    return [DEFAULT_LOCALE]
+        return [locale]
+    return [locale, DEFAULT_LOCALE]
 
 
 def get_babel_locale(locale: str) -> babel.Locale:
@@ -98,12 +99,6 @@ def load_locales(directory: Path) -> I18Next:
     default_translation = i18next.translations_by_locale.get(DEFAULT_LOCALE)
     if default_translation is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.default_translation = default_translation
-
-    # Apply fallbacks
-    for translation in i18next.translations_by_locale.values():
-        for fallback_locale in get_locale_fallbacks(translation.locale):
-            translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next
 
@@ -112,3 +107,22 @@ def load_locales(directory: Path) -> I18Next:
 def get_main_i18next() -> I18Next:
     """Gets the I18Next instance for the main locales files."""
     return load_locales(Path(__file__).parent / "locales")
+
+
+@lru_cache(maxsize=1)
+def get_admin_i18next() -> I18Next:
+    """Gets the I18Next instance for the admin/editor locales files (English only)."""
+    return load_locales(Path(__file__).parent / "admin_locales")
+
+
+# Maps a translation component name to the I18Next instance that holds its strings. Servicers select
+# the component when localizing (e.g. admin/editor errors live in their own English-only component).
+_TRANSLATION_COMPONENTS: dict[str, Callable[[], I18Next]] = {
+    "main": get_main_i18next,
+    "admin": get_admin_i18next,
+}
+
+
+def get_translation_component(component: str) -> I18Next:
+    """Gets the I18Next instance for a named translation component."""
+    return _TRANSLATION_COMPONENTS[component]()

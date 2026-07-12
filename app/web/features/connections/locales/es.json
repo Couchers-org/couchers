@@ -27,8 +27,14 @@
   "no_friend_requests": "Sin solicitudes de amistad pendientes",
   "blocked_list_title": "Usuarios bloqueados",
   "accept": "Aceptar",
-  "decline": "Rechazar",
   "no_friend_requests_sent": "Sin solicitudes de amistad pendientes",
   "remove_friend": "Eliminar amistad",
-  "unblock_user": "Desbloquear usuario"
+  "unblock_user": "Desbloquear usuario",
+  "add_friend_confirmation_dialog": {
+    "title": "¿Conoces a esta persona?",
+    "message": "Por favor, envía solicitudes de amistad solo a personas que ya conozcas o que hayas conocido durante tus viajes; la mayoría de las personas prefieren conectarse después de conocerse en persona. <helpCenterLink>Lee sobre las solicitudes de amistad en nuestro Centro de Ayuda.</helpCenterLink>",
+    "confirm": "Sí, lo conozco. ¡Envía la solicitud!"
+  },
+  "friend_request_no_longer_available": "Esta solicitud de amistad ya no está disponible.",
+  "cancel_request_button_a11y": "Cancelar solicitud"
 }

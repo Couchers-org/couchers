@@ -2,7 +2,12 @@ import { appGetLayout } from "components/AppRoute";
 import CommunityPageComponent from "features/communities/CommunityPage";
 import NotFoundPage from "features/NotFoundPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import {
+  COMMUNITIES,
+  GLOBAL,
+  NOTIFICATIONS,
+  PUBLIC_TRIPS,
+} from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { communityTabs } from "routes";
@@ -19,6 +24,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
       GLOBAL,
       COMMUNITIES,
       NOTIFICATIONS,
+      PUBLIC_TRIPS,
     ])),
   },
 });

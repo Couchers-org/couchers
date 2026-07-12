@@ -1,9 +1,11 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import grpc
 from google.protobuf import empty_pb2
+from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
@@ -15,6 +17,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
+from couchers.helpers.upload_uses import UploadUseType, get_upload_uses_for_keys
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionToken,
@@ -35,12 +38,23 @@ from couchers.models import (
     ModerationUserList,
     ModerationVisibility,
     ModNote,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
+    OTAPackage,
+    OTAPlatform,
     Reference,
     Reply,
     User,
     UserActivity,
     UserAdminTag,
     UserBadge,
+)
+from couchers.models.discussions import (
+    CommentVersion,
+    ContentChangeType,
+    DiscussionVersion,
+    ReplyVersion,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import Upload, has_avatar_photo_expression
@@ -50,6 +64,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
+from couchers.servicers.bugs import _fetch_signed_manifest, _native_ota_manifest_url
 from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
@@ -62,15 +77,51 @@ MAX_PAGINATION_LENGTH = 250
 
 
 adminactionlevel2api = {
+    AdminActionLevel.trace: admin_pb2.ADMIN_ACTION_LEVEL_TRACE,
     AdminActionLevel.debug: admin_pb2.ADMIN_ACTION_LEVEL_DEBUG,
     AdminActionLevel.normal: admin_pb2.ADMIN_ACTION_LEVEL_NORMAL,
     AdminActionLevel.high: admin_pb2.ADMIN_ACTION_LEVEL_HIGH,
 }
 
 api2adminactionlevel = {
+    admin_pb2.ADMIN_ACTION_LEVEL_TRACE: AdminActionLevel.trace,
     admin_pb2.ADMIN_ACTION_LEVEL_DEBUG: AdminActionLevel.debug,
     admin_pb2.ADMIN_ACTION_LEVEL_NORMAL: AdminActionLevel.normal,
     admin_pb2.ADMIN_ACTION_LEVEL_HIGH: AdminActionLevel.high,
+}
+
+uploadusetype2api = {
+    None: admin_pb2.UPLOAD_USE_TYPE_UNSPECIFIED,
+    UploadUseType.profile_gallery_photo: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO,
+    UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
+    UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
+    UploadUseType.page: admin_pb2.UPLOAD_USE_TYPE_PAGE,
+}
+
+otaplatform2api = {
+    None: admin_pb2.OTA_PLATFORM_UNSPECIFIED,
+    OTAPlatform.ios: admin_pb2.OTA_PLATFORM_IOS,
+    OTAPlatform.android: admin_pb2.OTA_PLATFORM_ANDROID,
+}
+
+api2otaplatform = {
+    admin_pb2.OTA_PLATFORM_UNSPECIFIED: None,
+    admin_pb2.OTA_PLATFORM_IOS: OTAPlatform.ios,
+    admin_pb2.OTA_PLATFORM_ANDROID: OTAPlatform.android,
+}
+
+nonvisibleuseraccesstype2api = {
+    None: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_UNSPECIFIED,
+    NonvisibleUserAccessType.login_attempt: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_LOGIN_ATTEMPT,
+    NonvisibleUserAccessType.profile_view: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_PROFILE_VIEW,
+    NonvisibleUserAccessType.ghost_served: admin_pb2.NONVISIBLE_USER_ACCESS_TYPE_GHOST_SERVED,
+}
+
+nonvisibleuserstate2api = {
+    None: admin_pb2.NONVISIBLE_USER_STATE_UNSPECIFIED,
+    NonvisibleUserState.banned: admin_pb2.NONVISIBLE_USER_STATE_BANNED,
+    NonvisibleUserState.shadowed: admin_pb2.NONVISIBLE_USER_STATE_SHADOWED,
+    NonvisibleUserState.deleted: admin_pb2.NONVISIBLE_USER_STATE_DELETED,
 }
 
 
@@ -96,6 +147,61 @@ def log_admin_action(
     session.add(action)
     session.flush()
     return action
+
+
+def _live_ota_package_ids(session: Session) -> set[int]:
+    # The live package per (platform, fingerprint) is the newest non-banned one by manifest_created_at,
+    # matching what GetNativeUpdateManifest resolves. DISTINCT ON picks the row with the leading ORDER BY
+    # value per (platform, fingerprint) group in a single index-friendly query.
+    return set(
+        session.scalars(
+            select(OTAPackage.id)
+            .where(OTAPackage.banned_at.is_(None))
+            .distinct(OTAPackage.platform, OTAPackage.fingerprint)
+            .order_by(
+                OTAPackage.platform,
+                OTAPackage.fingerprint,
+                OTAPackage.manifest_created_at.desc(),
+                OTAPackage.id.desc(),
+            )
+        )
+    )
+
+
+def _extract_ota_manifest(body: bytes) -> dict[str, Any] | None:
+    # The manifest object is the JSON in the "manifest" part of the signed multipart/mixed body.
+    marker = body.find(b'name="manifest"')
+    if marker == -1:
+        return None
+    body_start = body.find(b"\r\n\r\n", marker)
+    if body_start == -1:
+        return None
+    body_end = body.find(b"\r\n--", body_start + 4)
+    if body_end == -1:
+        return None
+    try:
+        manifest = json.loads(body[body_start + 4 : body_end])
+    except json.JSONDecodeError:
+        return None
+    return manifest if isinstance(manifest, dict) else None
+
+
+def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTAPackage:
+    return admin_pb2.OTAPackage(
+        ota_package_id=package.id,
+        created=Timestamp_from_datetime(package.created),
+        creator_user_id=package.creator_user_id,
+        platform=otaplatform2api[package.platform],
+        fingerprint=package.fingerprint,
+        version=package.version,
+        manifest_created_at=Timestamp_from_datetime(package.manifest_created_at),
+        manifest_id=package.manifest_id,
+        banned=package.banned_at is not None,
+        banned_at=Timestamp_from_datetime(package.banned_at) if package.banned_at else None,
+        banned_by_user_id=package.banned_by_user_id or 0,
+        banned_reason=package.banned_reason or "",
+        live=package.id in live_ids,
+    )
 
 
 def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
@@ -137,6 +243,10 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         .all()
     )
 
+    last_mod_note_acknowledged = session.execute(
+        select(func.max(ModNote.acknowledged)).where(ModNote.user_id == user.id)
+    ).scalar()
+
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
@@ -153,6 +263,9 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         pending_mod_notes_count=user.mod_notes.where(ModNote.is_pending).count(),
         acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
+        last_mod_note_acknowledged=(
+            Timestamp_from_datetime(last_mod_note_acknowledged) if last_mod_note_acknowledged else None
+        ),
         admin_actions=action_pbs,
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
@@ -344,10 +457,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         if not badge.admin_editable:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:cannot_edit_badge")
 
         if badge.id in [b.badge_id for b in user.badges]:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_badge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_already_has_badge")
 
         user_add_badge(session, user.id, request.badge_id)
         log_admin_action(session, context, user, "add_badge", note=f"Added badge {request.badge_id}")
@@ -366,13 +479,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         if not badge.admin_editable:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:cannot_edit_badge")
 
         user_badge = session.execute(
             select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge.id)
         ).scalar_one_or_none()
         if not user_badge:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_badge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_does_not_have_badge")
 
         user_remove_badge(session, user.id, request.badge_id)
         log_admin_action(session, context, user, "remove_badge", note=f"Removed badge {request.badge_id}")
@@ -403,7 +516,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = now()
         return _user_to_details(session, user)
@@ -415,7 +528,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = None
         return _user_to_details(session, user)
@@ -427,7 +540,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = now()
         # Bulk-shadow all UMS-governed content authored by this user so existing visible content is hidden too
@@ -447,10 +560,18 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.admin_note.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = None
-        # Existing UMS content remains where moderators left it; admins can manually re-approve as appropriate
+        # Sweep content shadowed by the cascade back to visible; leave hidden/unlisted content where moderators put it
+        bulk_set_user_content_visibility(
+            session=session,
+            user=user,
+            new_visibility=ModerationVisibility.visible,
+            moderator_user_id=context.user_id,
+            from_visibilities={ModerationVisibility.shadowed},
+            reason=f"User {user.id} unshadowed: {request.admin_note}",
+        )
         return _user_to_details(session, user)
 
     def AddAdminNote(
@@ -463,14 +584,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
         has_data = bool(request.data.strip())
         if has_note == has_data:
             context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT, "admin_note_requires_exactly_one_of_note_or_data"
+                grpc.StatusCode.INVALID_ARGUMENT, "admin:note_requires_exactly_one_of_note_or_data"
             )
         data = None
         if has_data:
             try:
                 data = json.loads(request.data)
             except json.JSONDecodeError:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_data_must_be_valid_json")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_data_must_be_valid_json")
         level = api2adminactionlevel.get(request.level, AdminActionLevel.normal)
         log_admin_action(
             session,
@@ -490,7 +611,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             select(ContentReport).where(ContentReport.id == request.content_report_id)
         ).scalar_one_or_none()
         if not content_report:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "content_report_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:content_report_not_found")
         return admin_pb2.GetContentReportRes(
             content_report=_content_report_to_pb(content_report),
         )
@@ -787,7 +908,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
 
         if reference is None:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "reference_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:reference_not_found")
 
         if not request.new_text.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
@@ -801,10 +922,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def DeleteReference(
         self, request: admin_pb2.DeleteReferenceReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        context.abort_with_error_code(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "deletereference_deprecated_use_ums",
-        )
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:deletereference_deprecated_use_ums")
 
     def GetUserReferences(
         self, request: admin_pb2.GetUserReferencesReq, context: CouchersContext, session: Session
@@ -887,6 +1005,39 @@ class Admin(admin_pb2_grpc.AdminServicer):
             received=[friend_request_to_pb(rel) for rel in received],
         )
 
+    def GetNonvisibleUserAccessLog(
+        self, request: admin_pb2.GetNonvisibleUserAccessLogReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetNonvisibleUserAccessLogRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        actor = aliased(User)
+        rows = session.execute(
+            select(NonvisibleUserAccess, actor.username)
+            .outerjoin(actor, NonvisibleUserAccess.actor_user_id == actor.id)
+            .where(NonvisibleUserAccess.target_user_id == user.id)
+            .order_by(NonvisibleUserAccess.time.desc())
+            .limit(MAX_PAGINATION_LENGTH)
+        ).all()
+
+        return admin_pb2.GetNonvisibleUserAccessLogRes(
+            entries=[
+                admin_pb2.NonvisibleUserAccessLogEntry(
+                    time=Timestamp_from_datetime(access.time),
+                    access_type=nonvisibleuseraccesstype2api[access.access_type],
+                    target_state=nonvisibleuserstate2api[access.target_state],
+                    target_user_id=access.target_user_id,
+                    actor_user_id=Int64Value(value=access.actor_user_id) if access.actor_user_id is not None else None,
+                    actor_username=actor_username or "",
+                    ip_address=access.ip_address or "",
+                    user_agent=access.user_agent or "",
+                    sofa=access.sofa or "",
+                )
+                for access, actor_username in rows
+            ]
+        )
+
     def EditDiscussion(
         self, request: admin_pb2.EditDiscussionReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
@@ -901,6 +1052,30 @@ class Admin(admin_pb2_grpc.AdminServicer):
             discussion.content = request.new_content.strip()
         return empty_pb2.Empty()
 
+    def DeleteDiscussion(
+        self, request: admin_pb2.AdminDeleteDiscussionReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            return empty_pb2.Empty()
+        session.add(
+            DiscussionVersion(
+                discussion_id=discussion.id,
+                editor_user_id=context.user_id,
+                change_type=ContentChangeType.delete,
+                old_title=discussion.title,
+                new_title=None,
+                old_content=discussion.content,
+                new_content=None,
+            )
+        )
+        discussion.deleted = now()
+        return empty_pb2.Empty()
+
     def EditReply(self, request: admin_pb2.EditReplyReq, context: CouchersContext, session: Session) -> empty_pb2.Empty:
         database_id, depth = unpack_thread_id(request.reply_id)
         if depth == 1:
@@ -913,8 +1088,30 @@ class Admin(admin_pb2_grpc.AdminServicer):
             obj = None
 
         if not obj:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "object_not_found")
-        obj.content = request.new_content.strip()
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:object_not_found")
+        old_content = obj.content
+        new_content = request.new_content.strip()
+        if depth == 1:
+            session.add(
+                CommentVersion(
+                    comment_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=new_content,
+                )
+            )
+        else:
+            session.add(
+                ReplyVersion(
+                    reply_id=database_id,
+                    editor_user_id=context.user_id,
+                    change_type=ContentChangeType.edit,
+                    old_content=old_content,
+                    new_content=new_content,
+                )
+            )
+        obj.content = new_content
         return empty_pb2.Empty()
 
     def AddUsersToModerationUserList(
@@ -934,7 +1131,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.moderation_list_id:
             moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
             if not moderation_user_list:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_user_list_not_found")
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:moderation_user_list_not_found")
         # Create a new moderation user list if no one is provided
         else:
             moderation_user_list = ModerationUserList()
@@ -974,13 +1171,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         if not request.moderation_list_id:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_moderation_user_list_id")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:missing_moderation_user_list_id")
 
         moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
         if not moderation_user_list:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_user_list_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:moderation_user_list_not_found")
         if user not in moderation_user_list.users:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_not_in_the_moderation_user_list")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "admin:user_not_in_the_moderation_user_list"
+            )
 
         moderation_user_list.users.remove(user)
         log_admin_action(session, context, user, "remove_from_moderation_list")
@@ -1076,10 +1275,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.CreateAdminTagReq, context: CouchersContext, session: Session
     ) -> admin_pb2.AdminTagInfo:
         if not request.tag.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_tag_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:tag_cant_be_empty")
         existing = session.execute(select(AdminTag).where(AdminTag.tag == request.tag.strip())).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "admin_tag_already_exists")
+            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "admin:tag_already_exists")
         admin_tag = AdminTag(tag=request.tag.strip())
         session.add(admin_tag)
         session.flush()
@@ -1101,12 +1300,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:tag_not_found")
         existing = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_admin_tag")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_already_has_admin_tag")
         session.add(UserAdminTag(user_id=user.id, admin_tag_id=admin_tag.id))
         session.flush()
         log_admin_action(session, context, user, "add_tag", tag=request.tag)
@@ -1120,12 +1319,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:tag_not_found")
         user_admin_tag = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if not user_admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_admin_tag")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_does_not_have_admin_tag")
         session.delete(user_admin_tag)
         session.flush()
         log_admin_action(session, context, user, "remove_tag", tag=request.tag)
@@ -1210,6 +1409,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             .all()
         )
 
+        page = uploads[:page_size]
+        uses_by_key = get_upload_uses_for_keys(session, [upload.key for upload in page])
+
         return admin_pb2.ListUserUploadsRes(
             uploads=[
                 admin_pb2.UserUpload(
@@ -1219,8 +1421,115 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     thumbnail_url=upload.thumbnail_url,
                     credit=upload.credit or "",
                     created=Timestamp_from_datetime(upload.created),
+                    uses=[
+                        admin_pb2.UploadUse(
+                            type=uploadusetype2api[use.use_type],
+                            is_current=use.is_current,
+                            user_id=use.user_id,
+                            event_id=use.event_id,
+                            page_id=use.page_id,
+                            url=use.url,
+                        )
+                        for use in uses_by_key.get(upload.key, [])
+                    ],
                 )
-                for upload in uploads[:page_size]
+                for upload in page
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
         )
+
+    def CreateOTAPackage(
+        self, request: admin_pb2.CreateOTAPackageReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.OTAPackage:
+        platform = api2otaplatform.get(request.platform)
+        if platform is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_ota_platform")
+
+        if not request.version:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_ota_version")
+
+        existing = session.execute(
+            select(OTAPackage.id).where(OTAPackage.platform == platform).where(OTAPackage.version == request.version)
+        ).scalar_one_or_none()
+        if existing is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:ota_package_already_exists")
+
+        # Read the keying/ordering fields out of the manifest we're about to serve, so the row can't
+        # disagree with the bytes on the CDN.
+        cdn_root = context.get_string_value("native_ota_cdn_root", "https://cdn.couchers.org/native/ota")
+        _content_type, body = _fetch_signed_manifest(
+            _native_ota_manifest_url(cdn_root=cdn_root, version=request.version, platform=platform.name)
+        )
+        manifest = _extract_ota_manifest(body)
+        fingerprint = manifest.get("runtimeVersion") if manifest else None
+        manifest_id = manifest.get("id") if manifest else None
+        created_at_raw = manifest.get("createdAt") if manifest else None
+        if (
+            manifest is None
+            or not isinstance(fingerprint, str)
+            or not fingerprint
+            or not isinstance(manifest_id, str)
+            or not manifest_id
+            or not isinstance(created_at_raw, str)
+            or not created_at_raw
+        ):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_ota_manifest")
+        try:
+            manifest_created_at = datetime.fromisoformat(created_at_raw)
+        except ValueError:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_ota_manifest")
+        if manifest_created_at.tzinfo is None:
+            manifest_created_at = manifest_created_at.replace(tzinfo=UTC)
+
+        package = OTAPackage(
+            creator_user_id=context.user_id,
+            platform=platform,
+            fingerprint=fingerprint,
+            version=request.version,
+            manifest_created_at=manifest_created_at,
+            manifest_id=manifest_id,
+        )
+        session.add(package)
+        session.flush()
+
+        return _ota_package_to_pb(package, _live_ota_package_ids(session))
+
+    def ListOTAPackages(
+        self, request: admin_pb2.ListOTAPackagesReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListOTAPackagesRes:
+        statement = select(OTAPackage).order_by(OTAPackage.manifest_created_at.desc(), OTAPackage.id.desc())
+        if request.platform != admin_pb2.OTA_PLATFORM_UNSPECIFIED:
+            platform = api2otaplatform.get(request.platform)
+            if platform is None:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_ota_platform")
+            statement = statement.where(OTAPackage.platform == platform)
+        if request.fingerprint:
+            statement = statement.where(OTAPackage.fingerprint == request.fingerprint)
+        if not request.include_banned:
+            statement = statement.where(OTAPackage.banned_at.is_(None))
+
+        packages = session.execute(statement).scalars().all()
+        live_ids = _live_ota_package_ids(session)
+        return admin_pb2.ListOTAPackagesRes(packages=[_ota_package_to_pb(package, live_ids) for package in packages])
+
+    def BanOTAPackage(
+        self, request: admin_pb2.BanOTAPackageReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.OTAPackage:
+        # Bans are irreversible — to roll back an accidental ban, republish the bundle as a new
+        # package — so a reason is required for the audit trail.
+        if not request.reason.strip():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:ota_ban_reason_required")
+
+        package = session.execute(
+            select(OTAPackage).where(OTAPackage.id == request.ota_package_id)
+        ).scalar_one_or_none()
+        if package is None:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:ota_package_not_found")
+
+        if package.banned_at is None:
+            package.banned_at = now()
+            package.banned_by_user_id = context.user_id
+            package.banned_reason = request.reason
+        session.flush()
+
+        return _ota_package_to_pb(package, _live_ota_package_ids(session))

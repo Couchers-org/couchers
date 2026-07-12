@@ -1,22 +1,9 @@
 {
-  "complete_profile_dialog": {
-    "title": "Neredeyse vardın: devam etmek için lütfen profilini tamamla!",
-    "actions": {
-      "send_message": "Bir mesaj gönder",
-      "create_event": "bir etkinlik oluştur",
-      "send_request": "Bir istek gönder"
-    },
-    "edit_profile_button": "Profilini şimdi düzenle",
-    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
-    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli.",
-    "cancel_button": "Boş ver"
-  },
   "complete_profile_explanation": "Diğer platformların hiçbir bilgi olmayan boş ''hayalet'' profillere sahip olmasından rahatsız olmuyor musun? Lütfen bize hayaletlik yapma!👻👻👻",
   "dashboard": "Gösterge",
   "please_complete_profile": "Aramalarda gözüktüğüne emin olmak için lütfen profilini tamamla:",
   "fill_in_who_i_am": "1. Kendine ait ''Ben kimim'' alanını kendin hakkında birkaç cümleyle doldur",
   "upload_photo": "2. Bir fotoğraf yükle (Düzenle sayfasından avatarına tıklayarak)",
-  "edit_profile_button_text": "Profilini düzenle",
   "load_more": "Daha fazla yükle",
   "welcome": "Couchers.org a hoşgeldin!",
   "community_builder_form_text": "Kendi yerel topluluğunu başlat",

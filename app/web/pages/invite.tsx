@@ -22,5 +22,5 @@ export default function InvitePage() {
 InvitePage.getLayout = appGetLayout({
   isPrivate: false,
   noFooter: true,
-  variant: "full-screen",
+  variant: "full-width",
 });

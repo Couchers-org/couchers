@@ -35,14 +35,15 @@ describe("Community events", () => {
         name: t("dashboard:events.community_header"),
       }),
     ).toBeVisible();
-    // 3 event rows + "Browse all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(4);
-    expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageToken: undefined,
-      pageSize: 5,
-      myCommunities: true,
-      myCommunitiesExcludeGlobal: true,
-    });
+    // 3 event row links (no "Browse all" link — navigation uses arrow buttons)
+    expect(screen.getAllByRole("link")).toHaveLength(3);
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageSize: 3,
+        myCommunities: true,
+        myCommunitiesExcludeGlobal: true,
+      }),
+    );
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -54,7 +55,15 @@ describe("Community events", () => {
     render(<CommunityEvents />, { wrapper });
 
     expect(
-      await screen.findByText(t("dashboard:events.community_empty_message")),
+      await screen.findByText(
+        (_content, element) => {
+          return (
+            element?.textContent ===
+            "No events at the moment. Why don't you create one ✨?"
+          );
+        },
+        { selector: "p" },
+      ),
     ).toBeVisible();
   });
 
@@ -67,31 +76,37 @@ describe("Community events", () => {
     await assertErrorAlert(errorMessage);
   });
 
-  it("loads more events when the load more button is clicked", async () => {
+  it("navigates to the next page when the next arrow is clicked", async () => {
+    const firstPage = nonCancelledEvents.slice(0, 2);
+    const secondPage = nonCancelledEvents.slice(2);
+
     listMyEventsMock.mockImplementation(async ({ pageToken }) => ({
-      eventsList: pageToken
-        ? nonCancelledEvents.slice(2)
-        : nonCancelledEvents.slice(0, 2),
-      nextPageToken: pageToken ? "" : "2",
-      totalItems: nonCancelledEvents.length,
+      eventsList: pageToken ? secondPage : firstPage,
+      nextPageToken: pageToken ? "" : "page2_token",
+      totalItems: firstPage.length + secondPage.length,
     }));
 
     render(<CommunityEvents />, { wrapper });
 
-    await screen.findByText(nonCancelledEvents[0].title);
-    // 2 event rows + "Browse all →" link
-    expect(screen.getAllByRole("link")).toHaveLength(3);
+    await screen.findByText(firstPage[0].title);
+    expect(screen.getByText(firstPage[1].title)).toBeVisible();
+    expect(screen.queryByText(secondPage[0].title)).not.toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(
-      screen.getByRole("button", { name: t("dashboard:load_more") }),
+      screen.getByRole("button", {
+        name: t("dashboard:next_page_button_a11y"),
+      }),
     );
 
-    // 3 event rows + "Browse all →" link
-    expect(await screen.findAllByRole("link")).toHaveLength(4);
-    expect(
-      screen.queryByRole("button", { name: t("dashboard:load_more") }),
-    ).not.toBeInTheDocument();
-    expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+    await screen.findByText(secondPage[0].title);
+    expect(screen.queryByText(firstPage[0].title)).not.toBeInTheDocument();
+    expect(listMyEventsMock).toHaveBeenCalledWith({
+      pageToken: "page2_token",
+      pageSize: 3,
+      myCommunities: true,
+      myCommunitiesExcludeGlobal: true,
+      excludeAttending: true,
+    });
   });
 });

@@ -593,10 +593,8 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
-        uq_str1 = b"An email change to the email"
-        uq_str2 = (
-            b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
-        )
+        uq_str1 = b"Email address change initiated"
+        uq_str2 = b"You requested that your email be changed from"
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
@@ -651,7 +649,7 @@ def test_DeleteAccount_start(db, email_collector: EmailCollector):
     with account_session(token) as account:
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         email = email_collector.pop_for_recipient(user.email, last=True)
-        assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+        assert email.subject == "[TEST] Confirm your account deletion"
 
     with session_scope() as session:
         deletion_token: AccountDeletionToken = session.execute(
@@ -690,10 +688,10 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
     email = email_collector.pop_for_recipient(user.email, last=True)
-    assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert email.subject == "[TEST] Confirm your account deletion"
     assert email.recipient == user.email
     assert "account deletion" in email.subject.lower()
-    unique_string = "You requested that we delete your account from Couchers.org."
+    unique_string = "You requested that we delete your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "support@couchers.org" in email.plain
@@ -729,7 +727,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     email = email_collector.pop_for_recipient(user.email, last=True)
     assert email.recipient == user.email
     assert "account has been deleted" in email.subject.lower()
-    unique_string = "You have successfully deleted your account from Couchers.org."
+    unique_string = "You have successfully deleted your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "7 days" in email.plain
@@ -766,7 +764,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     email = email_collector.pop_for_recipient(user.email, last=True)
     assert email.recipient == user.email
     assert "account has been recovered" in email.subject.lower()
-    unique_string = "Your account on Couchers.org has been successfully recovered!"
+    unique_string = "Your Couchers.org account has been successfully recovered."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "support@couchers.org" in email.plain
@@ -1125,6 +1123,55 @@ def test_reminders(db, moderator):
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_confirm_host_request_reminder(db, moderator):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_10 = (today() + timedelta(days=10)).isoformat()
+    today_plus_12 = (today() + timedelta(days=12)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_10,
+                to_date=today_plus_12,
+                text=valid_request_text("Please host me"),
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["confirm_host_request_reminder"]
+        assert reminders[0].confirm_host_request_reminder.host_request_id == host_request_id
+        assert reminders[0].confirm_host_request_reminder.host_user.user_id == host.id
+
+    # after surfer confirms, reminder should clear
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(surfer_token) as account:
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
 
 def test_my_home_reminder(db):

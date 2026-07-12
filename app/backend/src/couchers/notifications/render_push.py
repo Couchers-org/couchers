@@ -195,7 +195,7 @@ def _get_string(
         full_key = f"{string_group.topic}.{string_group.action}.push.{key}"
     else:
         full_key = f"{string_group}.{key}"
-    return get_notifs_i18next().localize(full_key, loc_context.locale, substitutions)
+    return get_notifs_i18next().localize(full_key, loc_context.locale_list, substitutions)
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:
@@ -476,7 +476,7 @@ def _render_friend_request__create(
         loc_context,
         substitutions={"from_user": data.other_user.name},
         icon_user=data.other_user,
-        action_url=urls.friend_requests_link(),
+        action_url=urls.friend_requests_link(from_user_id=data.other_user.user_id),
     )
 
 

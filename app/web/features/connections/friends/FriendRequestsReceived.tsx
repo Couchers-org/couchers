@@ -1,8 +1,11 @@
 import { Stack } from "@mui/material";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
+import { useEffect, useRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 import type { SetMutationError } from ".";
@@ -33,7 +36,7 @@ function RespondToFriendRequestAction({
   return (
     <Stack direction="row" spacing={1}>
       <Button
-        aria-label={t("connections:decline")}
+        aria-label={t("connections:friend_requests_dismiss_button")}
         onClick={() => {
           reset();
           respondToFriendRequest({
@@ -45,7 +48,7 @@ function RespondToFriendRequestAction({
         variant="outlined"
         loading={isLoading}
       >
-        {t("connections:decline")}
+        {t("connections:friend_requests_dismiss_button")}
       </Button>
       <Button
         aria-label={t("connections:accept")}
@@ -70,30 +73,61 @@ function FriendRequestsReceived() {
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("received");
   const { t } = useTranslation([CONNECTIONS]);
+  const router = useRouter();
+
+  const fromUserId = router.query.from ? Number(router.query.from) : null;
+  const requestNotFound =
+    fromUserId !== null &&
+    !isLoading &&
+    data !== undefined &&
+    !data.some((req) => req.userId === fromUserId);
+
+  // Scroll to the user id from the URL parameter
+  const highlightedCardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (highlightedCardRef.current) {
+      highlightedCardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [fromUserId, data]);
 
   return (
-    <FriendTile
-      title={t("connections:friend_requests")}
-      errorMessage={
-        isError ? errors.join("\n") : mutationError ? mutationError : null
-      }
-      isLoading={isLoading}
-      hasData={!!data?.length}
-      noDataMessage={t("connections:no_friend_requests")}
-    >
-      {data &&
-        data.map((friendRequest) => (
-          <FriendSummaryView
-            key={friendRequest.friendRequestId}
-            friend={friendRequest.friend}
-          >
-            <RespondToFriendRequestAction
-              friendRequest={friendRequest}
-              setMutationError={setMutationError}
-            />
-          </FriendSummaryView>
-        ))}
-    </FriendTile>
+    <>
+      {requestNotFound && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t("connections:friend_request_no_longer_available")}
+        </Alert>
+      )}
+      <FriendTile
+        title={t("connections:friend_requests")}
+        errorMessage={
+          isError ? errors.join("\n") : mutationError ? mutationError : null
+        }
+        isLoading={isLoading}
+        hasData={!!data?.length}
+        noDataMessage={t("connections:no_friend_requests")}
+      >
+        {data &&
+          data.map((friendRequest) => (
+            <FriendSummaryView
+              key={friendRequest.friendRequestId}
+              friend={friendRequest.friend}
+              cardRef={
+                friendRequest.userId === fromUserId
+                  ? highlightedCardRef
+                  : undefined
+              }
+            >
+              <RespondToFriendRequestAction
+                friendRequest={friendRequest}
+                setMutationError={setMutationError}
+              />
+            </FriendSummaryView>
+          ))}
+      </FriendTile>
+    </>
   );
 }
 

@@ -14,7 +14,6 @@ import { Event } from "proto/events_pb";
 import { useMemo, useState } from "react";
 import { service } from "service";
 
-import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
 import { useEventAttendees, useEventOrganizers } from "./hooks";
 
@@ -81,8 +80,6 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const [userToPromote, setUserToPromote] = useState<
     undefined | LiteUser.AsObject
   >();
@@ -131,7 +128,6 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
-        onSeeAllClick={() => setIsDialogOpen(true)}
         userIds={currentPage?.attendeeUserIdsList}
         title={t("communities:attendees")}
         layout="grid"
@@ -145,11 +141,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         getUserMenuItems={
           isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
         }
-      />
-      <EventAttendeesDialog
-        eventId={event.eventId}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        attendeeCount={event.goingCount}
       />
       <MakeCoOrganizerDialog
         username={userToPromote?.name ?? ""}

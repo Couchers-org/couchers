@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
-import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetSignupPageInfoRes } from "proto/public_pb";
@@ -82,19 +81,19 @@ export default function SignupFormContent({
           submitText={t("global:create_account")}
         />
         <Typography variant="caption">
-          <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
-            By continuing, you agree to our{" "}
-            <StyledLink
-              href={tosRoute}
-              target={isNativeEmbed ? undefined : "_blank"}
-              variant="caption"
-              sx={{ fontWeight: 700 }}
-            >
-              Terms of Service
-            </StyledLink>
-            , including our cookie, email, and data handling policies.
-          </Trans>{" "}
-          <AntibotNote />
+          <Trans
+            i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer"
+            components={{
+              2: (
+                <StyledLink
+                  href={tosRoute}
+                  target={isNativeEmbed ? undefined : "_blank"}
+                  variant="caption"
+                  sx={{ fontWeight: 700 }}
+                />
+              ),
+            }}
+          />
         </Typography>
       </>
     );

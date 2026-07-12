@@ -1,6 +1,8 @@
 import { styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
+import PublicTripsOverview from "features/publicTrips/PublicTripsOverview";
+import PublicTripsSection from "features/publicTrips/PublicTripsSection";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { CommunityTab } from "routes";
@@ -30,6 +32,7 @@ export default function CommunityPage({
   edit: boolean | undefined;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
+  const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
   return (
     <CommunityBase communityId={communityId}>
@@ -48,11 +51,16 @@ export default function CommunityPage({
                 <InfoPageSection community={community} />
                 {community.smallCommunityFeaturesEnabled && (
                   <>
+                    {isPublicTripsEnabled && (
+                      <PublicTripsOverview community={community} />
+                    )}
                     <EventsSection community={community} />
                     <DiscussionsSection community={community} />
                   </>
                 )}
               </>
+            ) : tab === "public-trips" && isPublicTripsEnabled ? (
+              <PublicTripsSection community={community} />
             ) : tab === "info" ? (
               edit ? (
                 <EditCommunityPage communityId={community.communityId} />

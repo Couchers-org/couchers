@@ -19,7 +19,9 @@
         "APP_VARIANT": "staging",
         "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
-        "EXPO_PUBLIC_COUCHERS_ENV": "preview"
+        "EXPO_PUBLIC_COUCHERS_ENV": "preview",
+        "EXPO_PUBLIC_GROWTHBOOK_API_HOST": "https://next-static.couchershq.org",
+        "EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY": "express.json"
       }
     },
     "production": {
@@ -29,7 +31,9 @@
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
-        "EXPO_PUBLIC_COUCHERS_ENV": "prod"
+        "EXPO_PUBLIC_COUCHERS_ENV": "prod",
+        "EXPO_PUBLIC_GROWTHBOOK_API_HOST": "https://cdn.couchers.org",
+        "EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY": "express.json"
       }
     },
     "devtool": {
@@ -42,7 +46,9 @@
         "APP_VARIANT": "devtool",
         "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
-        "EXPO_PUBLIC_COUCHERS_ENV": "devtool"
+        "EXPO_PUBLIC_COUCHERS_ENV": "devtool",
+        "EXPO_PUBLIC_GROWTHBOOK_API_HOST": "https://gbapi.couchershq.org",
+        "EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY": "sdk-f8lwseEODN02p"
       }
     },
     "devtool-apk": {
@@ -50,6 +56,13 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      }
+    },
+    "devtool-simulator": {
+      "extends": "devtool",
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
       }
     }
   },

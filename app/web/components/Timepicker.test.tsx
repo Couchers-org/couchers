@@ -1,8 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import i18n from "test/i18n";
-import { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Timepicker from "./Timepicker";
@@ -15,7 +15,11 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
+const Form = ({
+  setTime,
+}: {
+  setTime: (time: Temporal.PlainTime | null) => void;
+}) => {
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setTime(data.timefield));
   return (
@@ -28,7 +32,6 @@ const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
         testId="timepicker"
         label="Time field"
         name="timefield"
-        defaultValue={null}
       />
       <input type="submit" value="Submit" />
     </form>
@@ -43,7 +46,7 @@ describe("Timepicker", () => {
 
   it("accepts 24-hour time in 24-hour locale (de)", async () => {
     i18n.changeLanguage("de");
-    let time: Dayjs | null = null;
+    let time: Temporal.PlainTime | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
     const user = userEvent.setup();
@@ -55,14 +58,12 @@ describe("Timepicker", () => {
     await user.keyboard("2359");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time!.hour()).toBe(23);
-    expect(time!.minute()).toBe(59);
+    expect(time!.toString()).toBe("23:59:00");
   });
 
   it("accepts 12-hour time in 12-hour locale (en)", async () => {
     i18n.changeLanguage("en");
-    let time: Dayjs | null = null;
+    let time: Temporal.PlainTime | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
     const user = userEvent.setup();
@@ -74,14 +75,12 @@ describe("Timepicker", () => {
     await user.keyboard("1200 AM");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time!.hour()).toBe(0);
-    expect(time!.minute()).toBe(0);
+    expect(time!.toString()).toBe("00:00:00");
   });
 
   it("accepts 1:37 PM in 12-hour locale (en)", async () => {
     i18n.changeLanguage("en");
-    let time: Dayjs | null = null;
+    let time: Temporal.PlainTime | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
     const user = userEvent.setup();
@@ -93,14 +92,12 @@ describe("Timepicker", () => {
     await user.keyboard("0137 PM");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time!.hour()).toBe(13);
-    expect(time!.minute()).toBe(37);
+    expect(time!.toString()).toBe("13:37:00");
   });
 
   it("accepts 13:37 in 24-hour locale (fr)", async () => {
     i18n.changeLanguage("fr");
-    let time: Dayjs | null = null;
+    let time: Temporal.PlainTime | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
     const user = userEvent.setup();
@@ -112,8 +109,6 @@ describe("Timepicker", () => {
     await user.keyboard("1337");
 
     await user.click(screen.getByRole("button", { name: "Submit" }));
-    expect(time).toBeDefined();
-    expect(time!.hour()).toBe(13);
-    expect(time!.minute()).toBe(37);
+    expect(time!.toString()).toBe("13:37:00");
   });
 });

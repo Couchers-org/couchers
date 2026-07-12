@@ -45,12 +45,13 @@ import {
   useUnsavedChangesWarning,
 } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
-
 import {
-  ABOUT_ME_MIN_LENGTH,
-  DEFAULT_ABOUT_ME_HEADINGS,
-  DEFAULT_HOBBIES_HEADINGS,
-} from "./constants";
+  nameMaxLength,
+  nameMinLength,
+  nameValidationPattern,
+  profileAboutMeMinLength,
+} from "utils/validation";
+
 import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
@@ -273,6 +274,35 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
+  const { regions } = useRegions();
+  const { languages } = useLanguages();
+
+  const initialFormValues =
+    user && languages && regions
+      ? {
+          name: user.name,
+          pronouns: user.pronouns,
+          hometown: user.hometown,
+          occupation: user.occupation,
+          education: user.education,
+          hostingStatus: user.hostingStatus,
+          meetupStatus: user.meetupStatus,
+          fluentLanguages: user.languageAbilitiesList
+            .map((ability) => ability.code)
+            .filter(Boolean),
+          regionsVisited: user.regionsVisitedList,
+          regionsLived: user.regionsLivedList,
+          aboutMe: user.aboutMe,
+          thingsILike: user.thingsILike,
+          additionalInformation: user.additionalInformation,
+          location: {
+            city: user.city,
+            lat: user.lat,
+            lng: user.lng,
+            radius: user.radius,
+          },
+        }
+      : undefined;
 
   const {
     control,
@@ -285,73 +315,10 @@ export default function EditProfileForm() {
     getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
+    mode: "onBlur",
+    values: initialFormValues,
+    resetOptions: { keepDirty: true },
   });
-
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
-
-  // Reset form with user data when user and data are loaded
-  // This allows only showing save bar once something changes
-  useEffect(() => {
-    if (user && languages && regions) {
-      reset(
-        {
-          name: user.name,
-          pronouns: user.pronouns,
-          hometown: user.hometown,
-          occupation: user.occupation,
-          education: user.education,
-          hostingStatus: user.hostingStatus,
-          meetupStatus: user.meetupStatus,
-          fluentLanguages: user.languageAbilitiesList
-            .map((ability) => languages[ability.code] || "")
-            .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          regionsLived: user.regionsLivedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: user.additionalInformation,
-          location: {
-            city: user.city,
-            lat: user.lat,
-            lng: user.lng,
-            radius: user.radius,
-          },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    } else {
-      // Initialize with empty arrays to prevent undefined errors
-      reset(
-        {
-          name: "",
-          pronouns: "",
-          hometown: "",
-          occupation: "",
-          education: "",
-          hostingStatus: user?.hostingStatus,
-          meetupStatus: user?.meetupStatus,
-          fluentLanguages: [],
-          regionsVisited: [],
-          regionsLived: [],
-          aboutMe: "",
-          thingsILike: DEFAULT_HOBBIES_HEADINGS,
-          additionalInformation: "",
-          location: {
-            city: user?.city || "",
-            lat: user?.lat || 0,
-            lng: user?.lng || 0,
-            radius: user?.radius || 0,
-          },
-        },
-        { keepDirty: false, keepErrors: false },
-      );
-    }
-  }, [user, reset, languages, regions]);
 
   // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
   useEffect(() => {
@@ -403,21 +370,14 @@ export default function EditProfileForm() {
           profileData: {
             ...location,
             ...restData,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region],
-            ),
+            regionsVisited,
+            regionsLived,
             languageAbilities: {
               valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
+                code: language,
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
-              ? ""
-              : data.thingsILike,
           },
           setMutationError: setErrorMessage,
           onSuccess: () => {
@@ -444,7 +404,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeField.length < profileAboutMeMinLength || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -483,13 +443,17 @@ export default function EditProfileForm() {
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
@@ -568,13 +532,27 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <StyledProfileTextInput
                   id="name"
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: t("auth:basic_form.name.required_error"),
+                    minLength: {
+                      value: nameMinLength,
+                      message: t("auth:basic_form.name.min_length_error"),
+                    },
+                    maxLength: {
+                      value: nameMaxLength,
+                      message: t("auth:basic_form.name.max_length_error"),
+                    },
+                    pattern: {
+                      value: nameValidationPattern,
+                      message: t(
+                        "auth:basic_form.name.invalid_characters_error",
+                      ),
+                    },
+                  })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
-                  error={!!errors.name}
-                  helperText={
-                    errors.name ? t("profile:edit_profile_name_required") : ""
-                  }
+                  error={!!errors?.name?.message}
+                  helperText={errors?.name?.message ?? " "}
                 />
               </FieldGroup>
 
@@ -626,7 +604,7 @@ export default function EditProfileForm() {
             </ProfileSection>
 
             {/* Preferences Section */}
-            <ProfileSection>
+            <ProfileSection id="preferences">
               <SectionTitle>
                 {t("profile:edit_profile_headings.preferences")}
               </SectionTitle>
@@ -859,7 +837,7 @@ export default function EditProfileForm() {
                   <Controller
                     control={control}
                     defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
+                      (ability) => ability.code,
                     )}
                     name="fluentLanguages"
                     render={({ field }) => (
@@ -867,7 +845,7 @@ export default function EditProfileForm() {
                         inputFieldProps={field}
                         onChange={(_, value) => field.onChange(value)}
                         value={field.value}
-                        options={Object.values(languages)}
+                        options={languages}
                         label={t(
                           "profile:edit_profile_headings.languages_spoken",
                         )}
@@ -930,15 +908,15 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={t("profile:about_me_textbox_placeholder")}
                   defaultValue={user.aboutMe}
                   control={control}
-                  warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
+                  warning={aboutMeField.length < profileAboutMeMinLength}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: ABOUT_ME_MIN_LENGTH - aboutMeField.length,
+                        count: profileAboutMeMinLength - aboutMeField.length,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -971,7 +949,8 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={user.thingsILike}
+                  placeholder={t("profile:hobbies_textbox_placeholder")}
                   control={control}
                 />
               </FieldGroup>
@@ -1002,16 +981,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsVisitedList}
                     name="regionsVisited"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t(
                           "profile:edit_profile_headings.regions_visited",
                         )}
@@ -1024,16 +1001,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsLivedList}
                     name="regionsLived"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t("profile:edit_profile_headings.regions_lived")}
                         id="regions-lived"
                       />
@@ -1089,7 +1064,7 @@ export default function EditProfileForm() {
                 >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeField.length < profileAboutMeMinLength && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>

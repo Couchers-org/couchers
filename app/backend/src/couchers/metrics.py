@@ -37,6 +37,8 @@ from couchers.models import (
     Message,
     Node,
     NodeType,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
     Reference,
     User,
     UserActivity,
@@ -110,8 +112,8 @@ commit_timestamp_gauge: Gauge = Gauge(
     multiprocess_mode="max",
 )
 # left at its default of 0 when COMMIT_TIMESTAMP is empty (i.e. not a CI build)
-if config["COMMIT_TIMESTAMP"]:
-    commit_timestamp_gauge.set(datetime.fromisoformat(config["COMMIT_TIMESTAMP"]).timestamp())
+if config.COMMIT_TIMESTAMP:
+    commit_timestamp_gauge.set(datetime.fromisoformat(config.COMMIT_TIMESTAMP).timestamp())
 
 jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
@@ -622,6 +624,25 @@ signup_completions_counter: Counter = Counter(
     "Number of completed signups",
     labelnames=["gender"],
 )
+# Per-step signup funnel counters. Each fires once, the first time a signup flow satisfies the given gate, so
+# that step_total/initiations_total gives the fraction of signups that reached that step. Unlabeled to match
+# signup_initiations_counter for clean ratios.
+signup_account_filled_counter: Counter = Counter(
+    "couchers_signup_account_filled_total",
+    "Number of signup flows that filled in their account details",
+)
+signup_email_verified_counter: Counter = Counter(
+    "couchers_signup_email_verified_total",
+    "Number of signup flows that verified their email address",
+)
+signup_guidelines_accepted_counter: Counter = Counter(
+    "couchers_signup_guidelines_accepted_total",
+    "Number of signup flows that accepted the community guidelines",
+)
+signup_motivations_filled_counter: Counter = Counter(
+    "couchers_signup_motivations_filled_total",
+    "Number of signup flows that filled in their motivations",
+)
 signup_time_histogram: Histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",
@@ -704,15 +725,27 @@ emails_counter: Counter = Counter(
 )
 
 
-recaptchas_assessed_counter: Counter = Counter(
-    "couchers_recaptchas_assessed_total",
-    "Number of times a recaptcha assessment is created",
+# Revenue from successful Stripe charges, in cents, split by source (donation vs merch).
+revenue_cents_counter: Counter = Counter(
+    "couchers_revenue_cents_total",
+    "Revenue from successful Stripe charges, in cents",
+    labelnames=["type"],
+)
+
+
+def observe_revenue(revenue_type: str, amount_cents: int) -> None:
+    revenue_cents_counter.labels(revenue_type).inc(amount_cents)
+
+
+antibots_assessed_counter: Counter = Counter(
+    "couchers_antibots_assessed_total",
+    "Number of times an antibot assessment is created",
     labelnames=["action"],
 )
 
-recaptcha_score_histogram: Histogram = Histogram(
-    "couchers_recaptcha_score",
-    "Score of recaptcha assessments",
+antibot_score_histogram: Histogram = Histogram(
+    "couchers_antibot_score",
+    "Score of antibot assessments",
     labelnames=["action"],
     buckets=tuple(x / 20 for x in range(0, 21)),
 )
@@ -927,11 +960,147 @@ def observe_moderation_queue_resolution_time(
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
 
 
+nonvisible_user_access_counter: Counter = Counter(
+    "couchers_nonvisible_user_access_total",
+    "Number of access events involving nonvisible (banned/shadowed/deleted) users",
+    labelnames=["access_type", "target_state"],
+)
+
+
+def observe_nonvisible_user_access(access_type: NonvisibleUserAccessType, target_state: NonvisibleUserState) -> None:
+    nonvisible_user_access_counter.labels(access_type.name, target_state.name).inc()
+
+
 postcards_sent_counter: Counter = Counter(
     "couchers_postcards_sent_total",
     "Number of postcards sent via MyPostcard",
     labelnames=["country_code"],
 )
+
+
+# Native app / OTA update metrics. Bucket layout is minute-resolution at the low end (watch an OTA
+# rolling out), dense around the OTA (~28d) and store (~91d) windows, and sparse past it for stragglers.
+_NATIVE_AGE_BUCKETS: tuple[float, ...] = (
+    60,
+    5 * 60,
+    15 * 60,
+    30 * 60,
+    3_600,
+    2 * 3_600,
+    6 * 3_600,
+    12 * 3_600,
+    86_400,
+    2 * 86_400,
+    3 * 86_400,
+    5 * 86_400,
+    7 * 86_400,
+    10 * 86_400,
+    14 * 86_400,
+    21 * 86_400,
+    28 * 86_400,
+    35 * 86_400,
+    45 * 86_400,
+    60 * 86_400,
+    75 * 86_400,
+    91 * 86_400,
+    120 * 86_400,
+    150 * 86_400,
+    180 * 86_400,
+    270 * 86_400,
+    365 * 86_400,
+    730 * 86_400,
+    _INF,
+)
+
+native_bundle_age_histogram: Histogram = Histogram(
+    "couchers_native_bundle_age_seconds",
+    "Age of the OTA bundle reported by the client at CheckNativeStatus, by platform and launch source",
+    labelnames=["platform", "is_ota_launch"],
+    buckets=_NATIVE_AGE_BUCKETS,
+)
+
+
+def observe_native_bundle_age(platform: str, is_ota_launch: bool, age_s: float) -> None:
+    native_bundle_age_histogram.labels(platform or "unknown", "true" if is_ota_launch else "false").observe(age_s)
+
+
+native_binary_age_histogram: Histogram = Histogram(
+    "couchers_native_binary_age_seconds",
+    "Age of the embedded native binary reported by the client at CheckNativeStatus, by platform",
+    labelnames=["platform"],
+    buckets=_NATIVE_AGE_BUCKETS,
+)
+
+
+def observe_native_binary_age(platform: str, age_s: float) -> None:
+    native_binary_age_histogram.labels(platform or "unknown").observe(age_s)
+
+
+native_update_decisions_counter: Counter = Counter(
+    "couchers_native_update_decisions_total",
+    "CheckNativeStatus decisions, by platform / action / severity",
+    labelnames=["platform", "action", "severity"],
+)
+
+
+def observe_native_update_decision(platform: str, action: str, severity: str) -> None:
+    native_update_decisions_counter.labels(platform or "unknown", action, severity).inc()
+
+
+native_banned_bundle_hits_counter: Counter = Counter(
+    "couchers_native_banned_bundle_hits_total",
+    "CheckNativeStatus calls from a device running a banned OTA bundle, by platform",
+    labelnames=["platform"],
+)
+
+
+def observe_native_banned_bundle_hit(platform: str) -> None:
+    native_banned_bundle_hits_counter.labels(platform or "unknown").inc()
+
+
+native_ota_manifest_requests_counter: Counter = Counter(
+    "couchers_native_ota_manifest_requests_total",
+    "GetNativeUpdateManifest requests, by platform and result (served, no_update, no_match)",
+    labelnames=["platform", "result"],
+)
+
+
+def observe_native_ota_manifest_request(platform: str, result: str) -> None:
+    native_ota_manifest_requests_counter.labels(platform or "unknown", result).inc()
+
+
+# One increment per CheckNativeStatus, labeled by build/bundle identity, to see the live mix of
+# versions and bundles running in the fleet.
+native_client_checkins_counter: Counter = Counter(
+    "couchers_native_client_checkins_total",
+    "CheckNativeStatus calls, labeled by build/bundle identity",
+    labelnames=[
+        "platform",
+        "is_ota_launch",
+        "embedded_display_version",
+        "embedded_runtime_version",
+        "ota_display_version",
+        "ota_update_id",
+    ],
+)
+
+
+def observe_native_client_checkin(
+    platform: str,
+    is_ota_launch: bool,
+    embedded_display_version: str,
+    embedded_runtime_version: str,
+    ota_display_version: str,
+    ota_update_id: str,
+) -> None:
+    native_client_checkins_counter.labels(
+        platform or "unknown",
+        "true" if is_ota_launch else "false",
+        embedded_display_version or "unknown",
+        embedded_runtime_version or "unknown",
+        ota_display_version or "none",
+        ota_update_id or "none",
+    ).inc()
 
 
 # Recomputed at scrape time via the hacky-gauge mechanism, so it reflects live age. 0 when disabled
@@ -946,6 +1115,30 @@ feature_flags_staleness_gauge: Gauge = Gauge(
     multiprocess_mode="mostrecent",
 )
 _set_hacky_gauges_funcs.append((feature_flags_staleness_gauge, _feature_flags_staleness_seconds))
+
+
+feature_flag_evaluations_counter: Counter = Counter(
+    "couchers_feature_flag_evaluations_total",
+    "Number of feature flag evaluations, by flag key, evaluation source, and resolved value",
+    labelnames=["flag_key", "source", "value"],
+)
+
+_MAX_FLAG_VALUE_LABEL_LEN = 32
+
+
+def _stringify_flag_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        s = str(value)
+        return s if len(s) <= _MAX_FLAG_VALUE_LABEL_LEN else f"<{type(value).__name__}>"
+    if value is None:
+        return "None"
+    return f"<{type(value).__name__}>"
+
+
+def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> None:
+    feature_flag_evaluations_counter.labels(flag_key, source, _stringify_flag_value(value)).inc()
 
 
 def create_prometheus_server(port: int) -> Any:

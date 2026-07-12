@@ -91,7 +91,7 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
 
 def test_activeness_probes_disabled(db, push_collector: PushCollector):
     new_config = config.copy()
-    new_config["ACTIVENESS_PROBES_ENABLED"] = False
+    new_config.ACTIVENESS_PROBES_ENABLED = False
 
     with patch("couchers.jobs.handlers.config", new_config):
         user, token = generate_user(
