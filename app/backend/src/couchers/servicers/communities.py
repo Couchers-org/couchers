@@ -573,8 +573,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         try:
             offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
         except Exception:
-            # Pre-migration clients may still send a stale plaintext node-id token; treat it as
-            # the start of the list rather than failing the request.
             offset = 0
         user_id = request.user_id or context.user_id
 
