@@ -85,7 +85,8 @@
     "offers_count_one": "{{count}} предложение",
     "offers_count_few": "{{count}} предложения",
     "offers_count_many": "{{count}} предложений",
-    "no_offers": "Пока нет предложений"
+    "no_offers": "Пока нет предложений",
+    "my_trips_header": "Ваши публичные поездки"
   },
   "stays": {
     "upcoming_trips_header": "Ваши предстоящие поездки",
