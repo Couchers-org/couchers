@@ -42,7 +42,7 @@ When fingerprints change, we must publish a new version via app stores, and user
 
 ### On the client
 
-I keep saying OTA updates give us "flexibility", but not full control.
+OTA updates give us "flexibility", but not full control.
 
 In order to update the app, the app needs to download a signed bundle of Hermes compiled JavaScript code. It then needs to **restart the app** in order to apply that code update. In practice you want to always apply a new code bundle at startup, not interrupt a session. You could feasibly download the bundle on app load, then apply it immediately. The Expo default will try to download bundles in the background, then apply them the next moment the user puts the app away and/or restarts it in the foreground.
 
@@ -54,11 +54,11 @@ In order to find out about a new update, Expo uses the "Expo Updates Protocol v1
 
 Our backend serves the update protocol in `Bugs.GetNativeUpdateManifest`, which the client loads from `https://api.couchers.org/native/ota/manifest`. This endpoint decides which update to serve, depending on various logic.
 
-The backend generally picks the newest non-banned OTA update for the combination of platform and fingerprint available from teh database, then serves pre-signed manifest bytes that are fetched from the CDN. (Banning is a mechanism to quickly stop us from distributing botched updates.)
+The backend generally picks the newest non-banned OTA update for the combination of platform and fingerprint available from the database, then serves pre-signed manifest bytes that are fetched from the CDN. (Banning is a mechanism to quickly stop us from distributing botched updates.)
 
 ### Publishing new updates
 
-The publishing flow involes basically taking a full Expo bundle (generated via `ota-bundle.mjs`), stamping it with a new publish timestamp, signing it, producing a manifest file, and telling the backend about it.
+The publishing flow involves taking a full Expo bundle (generated via `ota-bundle.mjs`), stamping it with a new publish timestamp, signing it, producing a manifest file, and telling the backend about it.
 
 You can see how this works by tracing the staging OTA update flow (from `.gitlab-ci.yml`), where we build a new update on every push to `develop`. For prod the flow is the same, but we have a magic button in a magic place to trigger it.
 

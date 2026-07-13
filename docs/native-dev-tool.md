@@ -1,6 +1,6 @@
 # Couchers Dev Tool
 
-The Couchers Dev Tool is a simple app that uses the Expo development client, along with OTA updates, to allow devs and non-devs to easily develop and QA the native app.
+The Couchers Dev Tool is a simple app that uses the Expo development client, along with OTA (over-the-air) updates, to allow devs and non-devs to easily develop and QA the native app.
 
 It supports:
 
@@ -14,7 +14,7 @@ The point is that you only need to do full builds if you're changing native modu
 * **iOS**: via TestFlight, ask a native dev lead to be added.
 * **Android**: download the APK from [the dev tool builds page](https://develop--devtool-builds.preview.couchershq.org/).
 
-It's a dev build, so we can't distribute it through the app stores proper. The Dev Tool coexists with the staging and production apps on the same device (it has its own bundle ID), and points at the staging backend by default.
+It's a dev build, so we can't distribute it through the app stores proper. The Dev Tool coexists with the staging and production apps on the same device (it has its own bundle ID), and points at the staging frontend (web) and backend by default.
 
 ## Workflow 1: local development
 

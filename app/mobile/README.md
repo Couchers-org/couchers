@@ -51,11 +51,11 @@ npm run start:devtool
 
 You should now see the mobile app on your phone.
 
-This setup will point at your local version of the React Native app, but it will point at the staging web app and backend. You probably want to follow the instructions on local dev below to run the full stack locally.
+This setup will point at your local version of the React Native app with the staging web app and backend. If you change any code within the web or backend folders, you will need to run the full stack locally to see your changes. Follow the instructions on local dev below.
 
 ## 2. Full local development setup
 
-To actually do full local development, you will want to run the entire stack on your dev machine, and point the dev tool at that instead of the staging environment.
+To run the mobile, frontend and backend environments fully locally, you need to run the entire stack on your dev machine, and point the dev tool at that instead of the staging environment.
 
 First, run the following script which patches environment variables to point the app at your local running versions of the frontend and backend. It auto-detects your IP and updates all config files at once:
 
@@ -69,12 +69,13 @@ Now run everything from the repo root, each in a separate terminal:
 
 ```bash
 # Terminal 1: backend (requires Docker)
+
 docker compose up --build
 
 # Terminal 2: web frontend
 cd app/web && yarn install && yarn start
 
-# Terminal 3: Expo
+# Terminal 3: Expo (Mobile)
 cd app/mobile && npm run start:devtool
 ```
 
@@ -180,7 +181,9 @@ All release builds (Dev Tool, Stage, Prod) are done in CI ([`app/.gitlab-ci.yml`
 
 Releasing to users is then a manual process:
 
-**Staging** builds are for internal testing and are available as soon as CI submits them (TestFlight after Apple's automated processing; Play internal testing immediately). Optionally add release notes in [App Store Connect](https://appstoreconnect.apple.com) (Couchers (Staging) → TestFlight → build → "What to Test") or the [Google Play Console](https://play.google.com/console) (Couchers (Staging) → Testing → Internal testing → release notes).
+**Staging** builds are for internal testing and are available as soon as CI submits them (TestFlight after Apple's automated processing; Play internal testing immediately). Ideally add release notes in [App Store Connect](https://appstoreconnect.apple.com) (Couchers (Staging) → TestFlight → build → "What to Test") or the [Google Play Console](https://play.google.com/console) (Couchers (Staging) → Testing → Internal testing → release notes) so testers know what to look for.
+
+Update `RELEASE_NOTES.md` as you code to keep track of changes then copy/paste this after building.
 
 **Production** releases should be coordinated with the team, after the changes have been tested in staging:
 
