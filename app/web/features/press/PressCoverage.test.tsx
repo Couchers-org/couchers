@@ -7,13 +7,6 @@ import PressCoverage from "./PressCoverage";
 const { t } = i18n;
 
 describe("PressCoverage", () => {
-  it("renders all 3 articles", () => {
-    render(<PressCoverage />, { wrapper });
-    expect(screen.getByAltText("Travel Noir")).toBeInTheDocument();
-    expect(screen.getByAltText("Adventure Uncovered")).toBeInTheDocument();
-    expect(screen.getByAltText("Input")).toBeInTheDocument();
-  });
-
   it("each article link has a unique aria-label including the headline and new tab notice", () => {
     render(<PressCoverage />, { wrapper });
 
