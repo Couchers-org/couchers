@@ -1,0 +1,13 @@
+{
+  "antibot_enabled": false,
+  "donations_enabled": false,
+  "email_ics_attachments_enabled": true,
+  "listmonk_enabled": false,
+  "log_native_ota_requests": true,
+  "notification_translations_enabled": true,
+  "postal_verification_enabled": false,
+  "public_trips_enabled": true,
+  "sms_enabled": false,
+  "strong_verification_enabled": false,
+  "test_growthbook_integration": true
+}

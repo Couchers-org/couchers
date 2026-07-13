@@ -24,8 +24,6 @@ services:
       - "./backend/src:/app/src"
       - "./backend/resources:/app/resources"
       - "./backend/templates:/app/templates"
-      # backend root is /app, so ../feature-flags in FEATURE_FLAGS_FILE_OVERRIDE_PATH lands here
-      - "./feature-flags:/feature-flags"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
     restart: unless-stopped
