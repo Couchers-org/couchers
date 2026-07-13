@@ -144,5 +144,20 @@
   "search_communities_helper": "Klik op een community om naar de pagina te gaan",
   "no_results_found_with_link": "Geen communities gevonden. <0>Doe een verzoek voor een nieuwe community!</0>",
   "copy_link": "Kopieer link",
-  "copy_link_success": "Link gekopieerd naar klembord"
+  "copy_link_success": "Link gekopieerd naar klembord",
+  "comment_deleted": "Deze reactie is verwijderd.",
+  "edit_comment": "Reactie bewerken",
+  "delete_comment": "Reactie verwijderen",
+  "comment_edited_date": "Bewerkt {{timeAgo}}",
+  "discussion_edited_date": "Bewerkt {{timeAgo}}",
+  "discussion_deleted": "Deze discussie is verwijderd.",
+  "delete_discussion": "Verwijder discussie",
+  "delete_discussion_dialog": {
+    "title": "Verwijder discussie",
+    "message": "Weet je zeker dat je deze discussie wilt verwijderen? De reacties blijven wel zichtbaar.",
+    "confirm": "Verwijderen",
+    "cancel": "Annuleren"
+  },
+  "edit_discussion": "Discussie bewerken",
+  "community_breadcrumb_a11y": "Huidige community"
 }
