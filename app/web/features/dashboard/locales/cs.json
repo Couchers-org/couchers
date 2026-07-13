@@ -57,7 +57,7 @@
     },
     "write_reference": {
       "title": "Napsat referenci",
-      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}."
+      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}"
     }
   },
   "public_trips": {
@@ -89,6 +89,6 @@
     "night_count_one": "{{count}} noc",
     "night_count_few": "{{count}} noci",
     "night_count_other": "{{count}} nocí",
-    "no_upcoming_guests": "Žádní nadcházející hosté."
+    "no_upcoming_guests": "Zatím žádní nadcházející hosté."
   }
 }
