@@ -26,15 +26,13 @@ npm run start:devtool
 
 Then open the Dev Tool and connect to your Metro server (same network), or scan the QR code that Metro prints. JS/TS changes hot-reload like any normal Expo development setup.
 
-[TODO] You still need to mess with URLs to point the app at a local backend/web frontend; `npm run setup:local` handles part of this. Document the full flow once it's smoothed out.
-
 ## Workflow 2: PR branch previews
 
 Every PR gets a sticky bot comment: a "previews are building" placeholder appears within seconds of the push, and is replaced with the live previews once they're built. Point your phone camera at the QR and the branch opens in your installed Dev Tool.
 
 This is meant for reviewing PRs and for non-devs (QA, product) to test branches.
 
-### The two axes: native shell vs web
+### Native shell vs web
 
 Remember the app is mostly a web view wrapper (see [native-ota-updates.md](native-ota-updates.md) for the three-layer anatomy). A branch preview via QR loads the branch's *native shell* (the React Native JavaScript). The *web frontend* inside the WebView is a separate axis, but for branch previews it's handled for you: the branch's Vercel web preview URL is baked into the OTA bundle, so the WebView points at the branch's web code with no extra taps. You can still manually repoint the web/API URLs via the in-app dev settings, which wins over the baked-in default.
 

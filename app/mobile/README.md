@@ -47,7 +47,7 @@ npm run build:protos
 npm run start:devtool
 ```
 
-**Open the Dev Tool app and scan the QR code** (your phone and computer must be on the same network). TypeScript changes hot-reload automatically.
+**Make sure you have the Dev Tool app installed, then scan the provided QR code with your phone camera which will open the Dev Tool** (your phone and computer must be on the same network). TypeScript changes hot-reload automatically.
 
 You should now see the mobile app on your phone.
 
@@ -72,7 +72,7 @@ Now run everything from the repo root, each in a separate terminal:
 docker compose up --build
 
 # Terminal 2: web frontend
-cd app/web && yarn start
+cd app/web && yarn install && yarn start
 
 # Terminal 3: Expo
 cd app/mobile && npm run start:devtool
@@ -94,13 +94,14 @@ Run these before pushing (CI runs them too):
 npm run format    # auto-fix lint errors + format code
 npm run lint      # check for remaining lint errors
 npm test          # run tests
+npx expo-doctor   # verify build configuration
 ```
 
 To review a PR: every PR gets a bot comment with QR codes that open that branch directly in the Dev Tool, with the branch's web preview wired in. See [docs/native-dev-tool.md](../../docs/native-dev-tool.md) for how it all works.
 
 ## 3. Local native builds
 
-Only needed when developing native changes (when Expo fingerprints would change).
+Only needed when developing native changes (when Expo fingerprints would change), e.g. when updating Expo itself, or adding new native modules (that is, those that modify non-TS code).
 
 **All developers:**
 ```bash
@@ -148,7 +149,7 @@ Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes wi
 
 Local builds default to the `devtool` variant, so set it explicitly if you want staging/prod versions.
 
-If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there.
+If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there, see [the Expo docs on this](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md).
 
 ### Testing on Emulators
 
@@ -173,7 +174,7 @@ See [Expo Android emulator docs](https://docs.expo.dev/workflow/android-studio-e
 
 All release builds (Dev Tool, Stage, Prod) are done in CI ([`app/.gitlab-ci.yml`](../.gitlab-ci.yml)) on every push to `develop`, for both staging and production:
 
-- **Native fingerprint changed** → CI builds a fresh store build on EAS and submits it: iOS to TestFlight, Android to the Play internal testing track. (Set `FORCE_NATIVE_BUILD_AND_SUBMIT=true` on a pipeline to force a build when the fingerprint is unchanged.)
+- **Native fingerprint changed** → CI builds a fresh store build on EAS and submits it: iOS to TestFlight, Android to the Play internal testing track. (Set `FORCE_NATIVE_BUILD_AND_SUBMIT=true` on a pipeline to force a build when the fingerprint is unchanged. You can do this by going to going to "New pipeline" in Gitlab [direct link](https://gitlab.com/couchers/couchers/-/pipelines/new), then setting "Variable key" to `FORCE_NATIVE_BUILD_AND_SUBMIT`, and "Variable value" to `true`, and running it.)
 - **Fingerprint unchanged** (JS/TS-only changes) → CI ships the changes as a signed [over-the-air update](../../docs/native-ota-updates.md) instead — no store build needed.
 - The Dev Tool is rebuilt on fingerprint changes the same way.
 
@@ -209,7 +210,7 @@ Mobile dependencies are **not** managed by Dependabot. Expo requires specific co
 npx expo install --check
 
 # Auto-fix to Expo-compatible versions
-npx expo install --fix
+npx expo-doctor
 ```
 
 When upgrading the Expo SDK itself, follow the [Expo upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/). Note that an Expo upgrade breaks OTA forwards compatibility and requires everyone to re-download a new app version from the app stores.

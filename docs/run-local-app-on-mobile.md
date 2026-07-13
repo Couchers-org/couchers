@@ -9,7 +9,7 @@ npm run setup:local
 Or pass your IP explicitly if auto-detection picks the wrong interface:
 
 ```bash
-npm run setup:local -- 192.168.x.x
+npm run setup:local -- [[YOUR_IP_ADDRESS_HERE]]
 ```
 
 (The npm script just runs `app/scripts/dev-mobile-setup.py`, which you can also invoke directly from the repo root.)
