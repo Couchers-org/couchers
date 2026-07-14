@@ -64,14 +64,14 @@
     "instructions_days_other": "Um deinen \"Kann-Hosten\"-Status zu behalten, melde dich bitte innerhalb der nächsten <b>{{count}} Tage</b> wieder an. Andernfalls ändern wir deinen Hosting-Status auf \"Kann nicht hosten.\"",
     "login_action": "Melde dich wieder an",
     "encouragement": "Diese Check-ins helfen Surfern, aktive Hosts leichter zu finden und halten die Antwortzeiten korrekt.",
-    "latest_release": "Falls du es verpasst hast: Wir haben kürzlich Version {{version}} veröffentlicht. Zu den neuesten Updates gehören eine neue App für iOS und Android, ein verbessertes Dashboard, überarbeitete Nachrichten und neue Event-Funktionen. Lies mehr im <a href=\"{{blog_url}}\">Couchers.org Blog</a>."
+    "latest_release": "Falls du es verpasst hast: Wir haben kürzlich Version {{version}} veröffentlicht. Zu den neuesten Updates gehören: mobile Apps für iOS und Android, ein verbessertes Dashboard, überarbeitete Nachrichten und neue Event-Funktionen. Lies mehr im <a href=\"{{blog_url}}\">Couchers.org Blog</a>."
   },
   "api_key_issued": {
     "subject": "Dein API-Schlüssel für Couchers.org",
     "header": "Du hast kürzlich einen API-Schlüssel für Couchers.org angefordert. Wir haben dir den folgenden API-Schlüssel ausgestellt:",
     "expiry": "Der Schlüssel läuft am <b>{{ datetime }}</b> ab.",
     "usage_warning": "Dieser API-Schlüssel ist einzigartig für dein Konto; teile ihn mit niemandem. Er gewährt vollständigen Zugriff auf dein Konto, und du bist für alle Aktionen verantwortlich, die mit diesem API-Schlüssel durchgeführt werden.",
-    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere Nutzungsbedingungen, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
+    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
   },
   "badges": {
     "added": {

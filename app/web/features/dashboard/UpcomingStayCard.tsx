@@ -10,6 +10,7 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
+import { Temporal } from "temporal-polyfill";
 import {
   localizeDateTimeRange,
   localizeRelativeDays,
@@ -156,12 +157,15 @@ export default function UpcomingStayCard({
     return label.charAt(0).toUpperCase() + label.slice(1);
   })();
 
-  const dateRange = localizeDateTimeRange(fromDate, toDate, {
-    timezone: UTC_TIMEZONE,
-    locale,
-    includeTime: false,
-    abbreviate: true,
-  });
+  const dateRange = localizeDateTimeRange(
+    Temporal.PlainDateTime.from(hostRequest.fromDate),
+    Temporal.PlainDateTime.from(hostRequest.toDate),
+    {
+      locale,
+      includeTime: false,
+      abbreviate: true,
+    },
+  );
 
   const primary = isLoading ? (
     <Skeleton width={80} />

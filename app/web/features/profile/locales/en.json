@@ -49,6 +49,8 @@
     "save_anyway": "Save anyway?",
     "continue_editing": "Continue editing"
   },
+  "about_me_textbox_placeholder": "e.g. Current mission, why you use Couchers.org, favorite travel story...",
+  "hobbies_textbox_placeholder": "e.g. Activities, books, movies, music...",
   "home_info_headings": {
     "about_home": "About my home",
     "general": "General",

@@ -1,14 +1,13 @@
 import { styled } from "@mui/material";
 import Datepicker from "components/Datepicker";
 import Timepicker from "components/Timepicker";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData } from "./EventForm";
@@ -32,16 +31,6 @@ interface EventTimeChangerProps
   errors: UseFormReturn<CreateEventData>["formState"]["errors"];
 }
 
-function toPlainDateTime(
-  timestamp: Timestamp.AsObject,
-): Temporal.PlainDateTime {
-  const legacyDate = timestamp2Date(timestamp);
-  const instant = Temporal.Instant.fromEpochMilliseconds(legacyDate.getTime());
-  // FIXME(#8064): Event times should be interpreted in their timezones.
-  const zoned = instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
-  return zoned.toPlainDateTime();
-}
-
 export default function EventTimeChanger({
   control,
   dirtyFields,
@@ -52,11 +41,12 @@ export default function EventTimeChanger({
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
+  // FIXME(#8064): Event times should be interpreted in their timezones.
   const defaultStartDateTime = event?.startTime
-    ? toPlainDateTime(event.startTime)
+    ? timestampToPlainDateTime(event.startTime)
     : undefined;
   const defaultEndDateTime = event?.endTime
-    ? toPlainDateTime(event.endTime)
+    ? timestampToPlainDateTime(event.endTime)
     : undefined;
 
   const handleStartDateChange = (value: Temporal.PlainDate) => {
