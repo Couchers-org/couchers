@@ -91,17 +91,19 @@ const CommunitiesPage = () => {
         <Trans i18nKey="dashboard:communities_intro" />
       </StyledTypography>
       <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:community_builder">
-          {`Want to be an ambassador for your community and help it grow? Become a `}
-          <MuiLink
-            href={helpCenterCommunityBuilderURL}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
-            Community Builder!
-          </MuiLink>
-        </Trans>
+        <Trans
+          i18nKey="dashboard:community_builder"
+          components={{
+            1: (
+              <MuiLink
+                href={helpCenterCommunityBuilderURL}
+                target="_blank"
+                rel="noreferrer noopener"
+                underline="hover"
+              />
+            ),
+          }}
+        />
       </StyledTypography>
 
       <MainTitle variant="h1">
@@ -112,17 +114,19 @@ const CommunitiesPage = () => {
       <MainTitle variant="h1">{t("dashboard:find_your_community")}</MainTitle>
 
       <StyledTypography variant="body1" paragraph>
-        <Trans i18nKey="dashboard:find_your_community_intro_simplified">
-          {`Search for your community or browse below. `}
-          <MuiLink
-            href={communityCreationFormURL(accountInfo?.username)}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
-            Don't see yours? Request it!
-          </MuiLink>
-        </Trans>
+        <Trans
+          i18nKey="dashboard:find_your_community_intro_simplified"
+          components={{
+            1: (
+              <MuiLink
+                href={communityCreationFormURL(accountInfo?.username)}
+                target="_blank"
+                rel="noreferrer noopener"
+                underline="hover"
+              />
+            ),
+          }}
+        />
       </StyledTypography>
 
       <NewCommunities />

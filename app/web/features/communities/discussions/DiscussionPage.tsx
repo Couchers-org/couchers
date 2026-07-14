@@ -24,7 +24,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestamp2Date } from "utils/date";
+import {
+  localizeDateTime,
+  timestamp2Date,
+  timestampToPlainDateTime,
+} from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
@@ -287,7 +291,9 @@ export default function DiscussionPage({
                               <Typography variant="body2">
                                 {t("communities:discussion_creation_date", {
                                   dateOnly: localizeDateTime(
-                                    timestamp2Date(discussion.created!),
+                                    timestampToPlainDateTime(
+                                      discussion.created!,
+                                    ),
                                     {
                                       locale,
                                       includeTime: false,

@@ -5,6 +5,7 @@ import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
@@ -149,7 +150,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,
@@ -190,7 +191,7 @@ describe("AccountForm", () => {
           flowToken: "token",
           username: "test",
           password: "a very insecure password",
-          birthdate: "1990-01-01",
+          birthdate: Temporal.PlainDate.from("1990-01-01"),
           gender: "Woman",
           acceptTOS: true,
           optOutOfNewsletter: false,

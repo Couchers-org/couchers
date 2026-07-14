@@ -49,6 +49,8 @@
     "save_anyway": "Save anyway?",
     "continue_editing": "Continue editing"
   },
+  "about_me_textbox_placeholder": "e.g. Current mission, why you use Couchers.org, favorite travel story...",
+  "hobbies_textbox_placeholder": "e.g. Activities, books, movies, music...",
   "home_info_headings": {
     "about_home": "About my home",
     "general": "General",
@@ -341,7 +343,8 @@
       "send_message": "send a message",
       "send_friend_request": "send a friend request",
       "create_event": "create an event",
-      "create_public_trip": "create a public trip"
+      "create_public_trip": "create a public trip",
+      "create_discussion": "create a discussion"
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"

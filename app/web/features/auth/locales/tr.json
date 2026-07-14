@@ -4,7 +4,9 @@
     "current_email_message": "Email adresiniz şu anda <1>{{email}}</1>.",
     "success_message": "Email değişiklik isteğiniz alındı. Değişimi tamamlamak için yeni mailinizi kontrol edin.",
     "current_password": "Şimdiki şifre",
-    "new_email": "Yeni email"
+    "new_email": "Yeni email",
+    "hide_current_password": "Mevcut şifreyi gizle",
+    "show_current_password": "Mevcut şifreyi göster"
   },
   "change_email_confirmation": {
     "change_in_progress": "Email değişikliği ilerleme altında…",

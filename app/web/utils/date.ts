@@ -1,7 +1,7 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { Temporal } from "temporal-polyfill";
 
-import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
 // Creating Intl.Segmenter every time is slow, so cache one per locale.
@@ -29,15 +29,22 @@ const numNights = (date1: string, date2: string) => {
   return diffDays;
 };
 
-/// Allow call sites to explicitly reference the browser's timezone (clearer than "undefined").
-export const BROWSER_TIMEZONE: unique symbol = Symbol("browser-timezone");
+/// Converts a Temporal.PlainDate[Time] to a Date, interpreting it in UTC timezone.
+function toUTCDate(
+  temporal: Temporal.PlainDate | Temporal.PlainDateTime,
+): Date {
+  if (temporal instanceof Temporal.PlainDate) {
+    temporal = temporal.toPlainDateTime();
+  }
+  const zoned = temporal.toZonedDateTime("Etc/UTC");
+  return new Date(zoned.epochMilliseconds);
+}
+
 export const UTC_TIMEZONE: string = "Etc/UTC";
 
 interface LocalizeDateTimeParams {
   /// The locale to localize in.
   locale: string;
-  /// The timezone to be used to figure the date components (defaults to the browser's).
-  timezone?: string | typeof BROWSER_TIMEZONE;
   /// Whether to include the date (defaults to true).
   includeDate?: boolean;
   /// If including the date, whether to include the day (defaults to true).
@@ -58,14 +65,11 @@ interface LocalizeDateTimeParams {
 
 /// Localizes a date and time, optionally with the day of the week.
 export function localizeDateTime(
-  date: Date | Dayjs,
+  date: Temporal.PlainDateTime,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(date)) {
-    date = date.toDate();
-  }
-  const format = getIntlDateTimeFormat(args);
-  const formatted = format.format(date);
+  const format = getIntlDateTimeFormatUTC(args);
+  const formatted = format.format(toUTCDate(date));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -73,16 +77,14 @@ export function localizeDateTime(
 
 /// Localizes only the year and month of a date.
 export function localizeYearMonth(
-  date: Date | Dayjs,
+  date: Temporal.PlainDate,
   args: {
-    timezone?: string | typeof BROWSER_TIMEZONE;
     locale: string;
     abbreviate?: boolean;
     capitalize?: boolean;
   },
 ): string {
-  return localizeDateTime(date, {
-    timezone: args.timezone,
+  return localizeDateTime(date.toPlainDateTime(), {
     locale: args.locale,
     abbreviate: args.abbreviate,
     capitalize: args.capitalize,
@@ -93,18 +95,12 @@ export function localizeYearMonth(
 
 /// Localizes a range of date and times as a string.
 export function localizeDateTimeRange(
-  start: Date | Dayjs,
-  end: Date | Dayjs,
+  start: Temporal.PlainDateTime,
+  end: Temporal.PlainDateTime,
   args: LocalizeDateTimeParams,
 ): string {
-  if (daysjs.isDayjs(start)) {
-    start = start.toDate();
-  }
-  if (daysjs.isDayjs(end)) {
-    end = end.toDate();
-  }
-  const format = getIntlDateTimeFormat(args);
-  const formatted = format.formatRange(start, end);
+  const format = getIntlDateTimeFormatUTC(args);
+  const formatted = format.formatRange(toUTCDate(start), toUTCDate(end));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -114,7 +110,7 @@ export function localizeDateTimeRange(
 const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
 
 /// Gets an Intl.DateTimeFormat based on params.
-function getIntlDateTimeFormat(
+function getIntlDateTimeFormatUTC(
   args: LocalizeDateTimeParams,
 ): Intl.DateTimeFormat {
   // We can't use args as the Map key as it uses reference equality.
@@ -125,13 +121,13 @@ function getIntlDateTimeFormat(
   const cached = intlDateTimeFormatCache.get(cacheKey);
   if (cached) return cached;
 
-  const format = createIntlDateTimeFormat(args);
+  const format = createIntlDateTimeFormatUTC(args);
   intlDateTimeFormatCache.set(cacheKey, format);
   return format;
 }
 
 /// Creates a new Intl.DateTimeFormat object based on params.
-function createIntlDateTimeFormat(
+function createIntlDateTimeFormatUTC(
   args: LocalizeDateTimeParams,
 ): Intl.DateTimeFormat {
   const options: Intl.DateTimeFormatOptions = {};
@@ -152,37 +148,29 @@ function createIntlDateTimeFormat(
       options.second = "numeric";
     }
   }
-  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
-    options.timeZone = args.timezone;
-  }
+  options.timeZone = "Etc/UTC";
   return Intl.DateTimeFormat(args.locale, options);
 }
 
 /// Localizes just the abbreviated month name of a date (e.g. "Jan", "Mai" in German).
 export function localizeMonthAbbreviation(
-  date: Date | Dayjs,
+  date: Temporal.PlainDate,
   args: {
     locale: string;
-    timezone?: string | typeof BROWSER_TIMEZONE;
     capitalize?: boolean;
   },
 ): string {
-  if (daysjs.isDayjs(date)) {
-    date = date.toDate();
-  }
   const cacheKey = JSON.stringify(args, (_, v) =>
     typeof v === "symbol" ? v.toString() : v,
   );
   let format = intlDateTimeFormatCache.get(cacheKey);
   if (!format) {
     const options: Intl.DateTimeFormatOptions = { month: "short" };
-    if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
-      options.timeZone = args.timezone;
-    }
+    options.timeZone = "Etc/UTC";
     format = Intl.DateTimeFormat(args.locale, options);
     intlDateTimeFormatCache.set(cacheKey, format);
   }
-  const formatted = format.format(date);
+  const formatted = format.format(toUTCDate(date));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -255,21 +243,38 @@ export function getMuiTimeFormat(locale: string): string {
   return format;
 }
 
+/// Converts a protobuf Timestamp to a Temporal.Instant value (timezone-agnostic).
+export function timestampToInstant(
+  timestamp: Timestamp.AsObject,
+): Temporal.Instant {
+  // By protobuf, seconds and nanos should be integers.
+  // Just in case, drop decimals otherwise BigInt will blow up.
+  const nanos =
+    BigInt(Math.floor(timestamp.nanos)) +
+    BigInt(Math.floor(timestamp.seconds)) * 1_000_000_000n;
+  return new Temporal.Instant(nanos);
+}
+
+/// Converts a Temporal Instant to a PlainDateTime in the browser's timezone.
+export function instantToPlainDateTime(
+  instant: Temporal.Instant,
+  timezone?: string,
+): Temporal.PlainDateTime {
+  return instant
+    .toZonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId())
+    .toPlainDateTime();
+}
+
+/// Converts a protobuf Timestamp to a PlainDateTime in the browser's timezone.
+export function timestampToPlainDateTime(
+  timestamp: Timestamp.AsObject,
+  timezone?: string,
+): Temporal.PlainDateTime {
+  return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
+}
+
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
-}
-
-function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
-  return (
-    date1.month() === date2.month() &&
-    date1.year() === date2.year() &&
-    date1.date() === date2.date()
-  );
-}
-
-/** Compares whether date1 is equal to or in the future of date2 */
-function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
-  return isSameDate(date1, date2) || date1.isAfter(date2);
 }
 
 /// Localizes a number of days as a relative time string (e.g. "today", "tomorrow", "in 3 days").
@@ -280,4 +285,4 @@ export function localizeRelativeDays(days: number, locale: string): string {
   );
 }
 
-export { isSameOrFutureDate, numNights, timestamp2Date };
+export { numNights, timestamp2Date };

@@ -49,13 +49,9 @@ import {
   nameMaxLength,
   nameMinLength,
   nameValidationPattern,
+  profileAboutMeMinLength,
 } from "utils/validation";
 
-import {
-  ABOUT_ME_MIN_LENGTH,
-  DEFAULT_ABOUT_ME_HEADINGS,
-  DEFAULT_HOBBIES_HEADINGS,
-} from "./constants";
 import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
@@ -297,7 +293,7 @@ export default function EditProfileForm() {
           regionsVisited: user.regionsVisitedList,
           regionsLived: user.regionsLivedList,
           aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          thingsILike: user.thingsILike,
           additionalInformation: user.additionalInformation,
           location: {
             city: user.city,
@@ -382,9 +378,6 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
-              ? ""
-              : data.thingsILike,
           },
           setMutationError: setErrorMessage,
           onSuccess: () => {
@@ -411,7 +404,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeField.length < profileAboutMeMinLength || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -450,13 +443,17 @@ export default function EditProfileForm() {
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
@@ -911,15 +908,15 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={t("profile:about_me_textbox_placeholder")}
                   defaultValue={user.aboutMe}
                   control={control}
-                  warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
+                  warning={aboutMeField.length < profileAboutMeMinLength}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: ABOUT_ME_MIN_LENGTH - aboutMeField.length,
+                        count: profileAboutMeMinLength - aboutMeField.length,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -952,7 +949,8 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={user.thingsILike}
+                  placeholder={t("profile:hobbies_textbox_placeholder")}
                   control={control}
                 />
               </FieldGroup>
@@ -1066,7 +1064,7 @@ export default function EditProfileForm() {
                 >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeField.length < profileAboutMeMinLength && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>
