@@ -107,7 +107,6 @@
   "basic_form": {
     "name": {
       "field_label": "Name",
-      "helper_text": "This is your profile name.",
       "required_error": "This field can't be empty",
       "invalid_characters_error": "Name can only contain letters, spaces, hyphens, and apostrophes",
       "min_length_error": "Name must be at least 2 characters",
