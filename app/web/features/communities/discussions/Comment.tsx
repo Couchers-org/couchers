@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Skeleton,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +28,11 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import {
+  localizeDateTime,
+  timestamp2Date,
+  timestampToPlainDateTime,
+} from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import { timeAgo } from "utils/timeAgo";
 
@@ -218,11 +223,6 @@ export default function Comment({
     setIsEditing(false);
   };
 
-  const replyDate = comment.createdTime
-    ? timestamp2Date(comment.createdTime)
-    : undefined;
-  const postedTime = replyDate ? timeAgo({ since: replyDate, t, locale }) : "";
-
   const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
     ? [
         {
@@ -278,18 +278,45 @@ export default function Comment({
                   {t("communities:by_creator", {
                     name: user?.name ?? t("communities:unknown_user"),
                   })}
-                  {postedTime && ` • ${postedTime}`}
+                  {comment.createdTime && (
+                    <>
+                      {" • "}
+                      <Tooltip
+                        placement="top"
+                        title={localizeDateTime(
+                          timestampToPlainDateTime(comment.createdTime),
+                          { locale },
+                        )}
+                      >
+                        <span>
+                          {timeAgo({
+                            since: timestamp2Date(comment.createdTime),
+                            t,
+                            locale,
+                          })}
+                        </span>
+                      </Tooltip>
+                    </>
+                  )}
                   {comment.lastEdited && (
                     <>
-                      {" "}
-                      {"•"}{" "}
-                      {t("communities:comment_edited_date", {
-                        timeAgo: timeAgo({
-                          since: timestamp2Date(comment.lastEdited),
-                          t,
-                          locale,
-                        }),
-                      })}
+                      {" • "}
+                      <Tooltip
+                        title={localizeDateTime(
+                          timestampToPlainDateTime(comment.lastEdited),
+                          { locale },
+                        )}
+                      >
+                        <span>
+                          {t("communities:comment_edited_date", {
+                            timeAgo: timeAgo({
+                              since: timestamp2Date(comment.lastEdited),
+                              t,
+                              locale,
+                            }),
+                          })}
+                        </span>
+                      </Tooltip>
                     </>
                   )}
                   <ModVisibleComponent>

@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
-import { Skeleton, styled, Typography } from "@mui/material";
+import { Skeleton, styled, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
@@ -303,17 +303,28 @@ export default function DiscussionPage({
                               </Typography>
                             )}
                             {discussion.lastEdited && (
-                              <Typography variant="body2">
-                                {t("communities:discussion_edited_date", {
-                                  timeAgo: timeAgo({
-                                    since: timestamp2Date(
-                                      discussion.lastEdited,
-                                    ),
-                                    t,
+                              <Tooltip
+                                title={localizeDateTime(
+                                  timestampToPlainDateTime(
+                                    discussion.lastEdited,
+                                  ),
+                                  {
                                     locale,
-                                  }),
-                                })}
-                              </Typography>
+                                  },
+                                )}
+                              >
+                                <Typography variant="body2">
+                                  {t("communities:discussion_edited_date", {
+                                    timeAgo: timeAgo({
+                                      since: timestamp2Date(
+                                        discussion.lastEdited,
+                                      ),
+                                      t,
+                                      locale,
+                                    }),
+                                  })}
+                                </Typography>
+                              </Tooltip>
                             )}
                           </StyledCreatorDetailsContainer>
                         </StyledCreatorRow>
