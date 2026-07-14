@@ -4,7 +4,7 @@ title: Couchers.org Community Builder Guide
 
 Welcome to the Couchers.org team! It's an exciting time here, and you're coming on as one of our first Community Builders to help achieve a critical mass of users.
 
-Community Builders (CBs) are more than just ambassadors, as the Couchers.org platform is centred around the communities that they manage. They are the volunteers responsible for growing and populating the platform itself through local outreach while moderating, running events, and organizing in other ways. Simply put, we would like you to **build a thriving local community**.
+Community Builders (CBs) are more than just ambassadors, as the Couchers.org platform is centered around the communities that they manage. They are the volunteers responsible for growing and populating the platform itself through local outreach while moderating, running events, and organizing in other ways. Simply put, we would like you to **build a thriving local community**.
 
 Our core growth strategy is to grow a network of Community Builders around the world, each connecting us with other couch surfing community organizers in their network, bringing their own local communities on board, and facilitating activity on the platform. With this core foundation built on trust, we will be able to expand the userbase sustainably, open communication channels, and create a platform that reunites the global couch surfing community.
 
