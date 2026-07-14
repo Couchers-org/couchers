@@ -182,5 +182,6 @@
     "edit_profile_button": "Uprav si svůj profil nyní",
     "cancel_button": "To nevadí",
     "description_1": "Než budeš moci {{action_name}}, musíš ve svém profilu <4>napsat něco o sobě</4> a <7>nahrát profilovou fotografii</7>."
-  }
+  },
+  "hobbies_textbox_placeholder": "např. aktivity, knihy, filmy, hudba…"
 }
