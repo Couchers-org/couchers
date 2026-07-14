@@ -220,7 +220,8 @@
     "discussion_delete_permission_denied": "Вы не можете удалить это обсуждение.",
     "reply_delete_permission_denied": "Вы не можете удалить этот комментарий.",
     "reply_edit_permission_denied": "Вы не можете редактировать этот комментарий.",
-    "cannot_combine_attending_and_exclude_attending": "Ваши фильтры не могут одновременно включать и исключать мероприятия, которые вы посещаете."
+    "cannot_combine_attending_and_exclude_attending": "Ваши фильтры не могут одновременно включать и исключать мероприятия, которые вы посещаете.",
+    "event_community_invite_not_found": "Не удалось найти приглашение в сообщество этого мероприятия."
   },
   "quick_links": {
     "topic_action": "Вы были отписаны от уведомлений по электронной почте этого типа.",
