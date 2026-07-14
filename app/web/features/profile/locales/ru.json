@@ -342,11 +342,14 @@
       "send_message": "отправить сообщение",
       "send_friend_request": "отправить запрос в друзья",
       "create_event": "создать мероприятие",
-      "create_public_trip": "создать публичную поездку"
+      "create_public_trip": "создать публичную поездку",
+      "create_discussion": "создать обсуждение"
     },
     "edit_profile_button": "Отредактируйте свой профиль сейчас",
     "cancel_button": "Неважно"
   },
   "do_not_email_error_link": "Обновите настройки электронной почты, чтобы снова включить это.",
-  "open_full_profile": "Открыть полный профиль"
+  "open_full_profile": "Открыть полный профиль",
+  "about_me_textbox_placeholder": "Например: текущая цель, почему вы пользуетесь Couchers.org, любимая история о путешествии...",
+  "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка..."
 }
