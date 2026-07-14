@@ -25,5 +25,10 @@ function getLocalizedListSortLocales(language: string): string[] {
 export function getLocalizedListComparer(
   language: string,
 ): Intl.Collator["compare"] {
-  return new Intl.Collator(getLocalizedListSortLocales(language)).compare;
+  return getLocaleCollator(language).compare;
+}
+
+export function getLocaleCollator(language: string): Intl.Collator {
+  // Intl.Collator compares strings according to locale-specific sorting rules.
+  return new Intl.Collator(getLocalizedListSortLocales(language));
 }
