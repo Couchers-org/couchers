@@ -229,7 +229,8 @@
     "reply_edit_permission_denied": "Du darfst diesen Kommentar nicht bearbeiten.",
     "cannot_combine_attending_and_exclude_attending": "Deine Filter können Events, an denen du teilnimmst, nicht gleichzeitig einschließen und ausschließen.",
     "event_community_invite_not_found": "Die Event-Einladung für die Community konnte nicht gefunden werden.",
-    "public_trips_disabled": "Öffentliche Trips sind derzeit deaktiviert."
+    "public_trips_disabled": "Öffentliche Trips sind derzeit deaktiviert.",
+    "incomplete_profile_create_discussion": "Du musst dein Profil vervollständigen, bevor du einen Beitrag starten kannst."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

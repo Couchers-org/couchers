@@ -1,27 +1,21 @@
+import { Temporal } from "temporal-polyfill";
 import {
   getMuiDateFormat,
   getMuiTimeFormat,
-  isSameOrFutureDate,
   localizeDateTime,
-  UTC_TIMEZONE,
 } from "utils/date";
-import dayjs from "utils/dayjs";
 
-const FUTURE = dayjs("2025-02-15");
-const PAST = dayjs("1991-10-05");
-const TODAY = dayjs("2021-03-25");
+const janFirst2000 = Temporal.PlainDateTime.from("2000-01-01");
 
 describe("localizeDateTime", () => {
   it("excludes dates when specified", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
       }),
     ).toContain("2000");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
         includeDate: false,
       }),
@@ -30,14 +24,12 @@ describe("localizeDateTime", () => {
 
   it("honors abbreviated month names", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
       }),
     ).toContain("January");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
         abbreviate: true,
       }),
@@ -46,22 +38,19 @@ describe("localizeDateTime", () => {
 
   it("includes the day of week when specified", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
         includeDayOfWeek: false,
       }),
     ).not.toContain("Sat");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
         includeDayOfWeek: true,
       }),
     ).toContain("Saturday");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
         includeDayOfWeek: true,
         abbreviate: true,
@@ -71,14 +60,12 @@ describe("localizeDateTime", () => {
 
   it("excludes times when specified", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000.add({ hours: 11 }), {
         locale: "en",
       }),
     ).toContain("11");
     expect(
-      localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000.add({ hours: 11 }), {
         locale: "en",
         includeTime: false,
       }),
@@ -87,15 +74,13 @@ describe("localizeDateTime", () => {
 
   it("includes seconds when specified", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01").add(42, "seconds"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
         locale: "en",
         includeSeconds: false,
       }),
     ).not.toContain("42");
     expect(
-      localizeDateTime(dayjs("2000-01-01").add(42, "seconds"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
         locale: "en",
         includeSeconds: true,
       }),
@@ -104,50 +89,42 @@ describe("localizeDateTime", () => {
 
   it("honors the locale", () => {
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en",
       }),
     ).toContain("January");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "en-US",
       }),
     ).toContain("January");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "es",
       }),
     ).toContain("enero");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "de",
       }),
     ).toContain("Januar");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "pt-BR",
       }),
     ).toContain("janeiro");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "ca",
       }),
     ).toContain("gener");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "zh-Hans",
       }),
     ).toContain("1月");
     expect(
-      localizeDateTime(dayjs("2000-01-01"), {
-        timezone: UTC_TIMEZONE,
+      localizeDateTime(janFirst2000, {
         locale: "zh-Hant",
       }),
     ).toContain("1月");
@@ -155,8 +132,7 @@ describe("localizeDateTime", () => {
 
   it("does not capitalize day/month names by default (assumed mid-sentence)", () => {
     // Spanish weekday + month stay lowercase when the date may be part of a sentence.
-    const formatted = localizeDateTime(dayjs("2000-01-01"), {
-      timezone: UTC_TIMEZONE,
+    const formatted = localizeDateTime(janFirst2000, {
       locale: "es",
       includeDayOfWeek: true,
       includeTime: false,
@@ -166,8 +142,7 @@ describe("localizeDateTime", () => {
   });
 
   it("capitalizes only the first letter when capitalize is set (standalone date)", () => {
-    const formatted = localizeDateTime(dayjs("2000-01-01"), {
-      timezone: UTC_TIMEZONE,
+    const formatted = localizeDateTime(janFirst2000, {
       locale: "es",
       includeDayOfWeek: true,
       includeTime: false,
@@ -180,8 +155,7 @@ describe("localizeDateTime", () => {
 
   it("leaves a non-letter first grapheme unchanged when capitalize is set", () => {
     // Spanish dates without a weekday start with the day number.
-    const formatted = localizeDateTime(dayjs("2000-01-01"), {
-      timezone: UTC_TIMEZONE,
+    const formatted = localizeDateTime(janFirst2000, {
       locale: "es",
       includeTime: false,
       capitalize: true,
@@ -222,19 +196,5 @@ describe("getMuiTimeFormat", () => {
 
   it("returns a default value for unsupported locales", () => {
     expect(getMuiTimeFormat("xx")).toEqual("HH:mm");
-  });
-});
-
-describe("isSameOrFutureDate", () => {
-  it("returns true when is same date", () => {
-    expect(isSameOrFutureDate(TODAY, TODAY)).toEqual(true);
-  });
-
-  it("returns true when date is in future", () => {
-    expect(isSameOrFutureDate(FUTURE, TODAY)).toEqual(true);
-  });
-
-  it("returns false when second date is in past", () => {
-    expect(isSameOrFutureDate(PAST, TODAY)).toEqual(false);
   });
 });

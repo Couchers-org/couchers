@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -158,8 +159,8 @@ describe("Create event page", () => {
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,
-      startTime: new Date("2021-08-01 01:00 AM"),
-      endTime: new Date("2021-08-01 02:00 AM"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
+      endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
     });
   });
 
@@ -250,8 +251,8 @@ describe("Create event page", () => {
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,
-      startTime: new Date("2021-08-01 01:00 AM"),
-      endTime: new Date("2021-08-01 02:00 AM"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
+      endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
       parentCommunityId: 99,
     });
   });
