@@ -18,9 +18,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Drop mutually exclusive constraints (raw DDL operations, naming convention doesn't apply)
-    op.drop_constraint("ck_event_occurrences_geom_iff_address", "event_occurrences", type_="check")
-    op.drop_constraint("ck_event_occurrences_link_or_geom", "event_occurrences", type_="check")
+    # Drop mutually exclusive constraints
+    op.drop_constraint(op.f("ck_event_occurrences_geom_iff_address"), "event_occurrences", type_="check")
+    op.drop_constraint(op.f("ck_event_occurrences_link_or_geom"), "event_occurrences", type_="check")
     # Migrate link to dummy geom+address
     op.execute(
         """
@@ -63,10 +63,10 @@ def downgrade() -> None:
         ),
         nullable=True,
     )
-    # Add back mutually exclusive constraints (raw DDL operations, naming convention doesn't apply)
+    # Add back mutually exclusive constraints
     op.create_check_constraint(
-        "ck_event_occurrences_geom_iff_address", "event_occurrences", "(geom IS NULL) = (address IS NULL)"
+        op.f("ck_event_occurrences_geom_iff_address"), "event_occurrences", "(geom IS NULL) = (address IS NULL)"
     )
     op.create_check_constraint(
-        "ck_event_occurrences_link_or_geom", "event_occurrences", "(geom IS NULL) <> (link IS NULL)"
+        op.f("ck_event_occurrences_link_or_geom"), "event_occurrences", "(geom IS NULL) <> (link IS NULL)"
     )
