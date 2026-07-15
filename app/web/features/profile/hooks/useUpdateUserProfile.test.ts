@@ -44,7 +44,7 @@ describe("updateUserProfile action", () => {
       pronouns,
       thingsILike,
     } = defaultUser;
-    /* eslint-disable sort-keys */
+     
     const newUserProfileData: UpdateUserProfileData = {
       // Unchanged data
       aboutMe,
@@ -82,7 +82,7 @@ describe("updateUserProfile action", () => {
         ],
       },
     };
-    /* eslint-enable sort-keys */
+     
     updateProfileMock.mockResolvedValue(new Empty());
 
     const { result } = renderHook(() => useUpdateUserProfile(), {

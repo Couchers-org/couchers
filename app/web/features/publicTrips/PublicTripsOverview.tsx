@@ -77,7 +77,7 @@ export default function PublicTripsOverview({
 
   useEffect(() => {
     updateScrollState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [trips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
