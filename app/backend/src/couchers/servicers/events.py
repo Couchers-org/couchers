@@ -149,16 +149,6 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         )
     ).scalar_one()
 
-    location: events_pb2.EventLocation
-    if occurrence.geom:
-        location = events_pb2.EventLocation(
-            lat=not_none(occurrence.coordinates)[0], lng=not_none(occurrence.coordinates)[1], address=occurrence.address
-        )
-    else:
-        # Backcompat: Surface legacy online events as offline events.
-        # They'll appear at null island, but there are so few we're ok with this.
-        location = events_pb2.EventLocation(address=occurrence.link, lat=0, lng=0)
-
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
@@ -169,7 +159,9 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
         photo_key=occurrence.photo_key or "",
-        location=location,
+        location=events_pb2.EventLocation(
+            lat=occurrence.coordinates[0], lng=occurrence.coordinates[1], address=occurrence.address
+        ),
         created=Timestamp_from_datetime(occurrence.created),
         last_edited=Timestamp_from_datetime(occurrence.last_edited),
         creator_user_id=occurrence.creator_user_id,
@@ -460,7 +452,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=TimestamptzRange(start_time, end_time),
@@ -591,7 +582,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=None,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
                 during=during,

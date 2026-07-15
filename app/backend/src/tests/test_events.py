@@ -729,52 +729,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.location.lng == 0.02
 
 
-def test_GetEvent_online(db, moderator: Moderator):
-    """Validate that legacy online events are surfaced as offline events through the API."""
-    user1, token1 = generate_user()
-
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
-
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    # Create as an offline event since the API doesn't support online events anymore.
-    with events_session(token1) as api:
-        create_res: events_pb2.Event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
-            )
-        )
-
-    event_id = create_res.event_id
-
-    moderator.approve_event_occurrence(event_id)
-
-    # Tweak the DB object to turn it into a legacy online event
-    with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
-        occurrence.geom = None
-        occurrence.address = None
-        occurrence.link = "https://couchers.org/meet/"
-
-    # Backend should surface it as an offline event
-    with events_session(token1) as api:
-        get_res: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert get_res.title == "Dummy Title"
-        assert get_res.HasField("location")
-        assert get_res.location.address == "https://couchers.org/meet/"
-        assert get_res.location.lng == 0
-        assert get_res.location.lat == 0
-
-
 def test_UpdateEvent_all(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
