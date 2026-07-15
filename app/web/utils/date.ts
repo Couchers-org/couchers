@@ -357,7 +357,7 @@ export function approxDateDuration(
 
 export function durationToProtobuf(duration: Temporal.Duration): DurationPb {
   const pb = new DurationPb();
-  pb.setSeconds(duration.total("seconds"));
+  pb.setSeconds(Math.floor(duration.total("seconds")));
   pb.setNanos(duration.milliseconds * 1000 + duration.nanoseconds);
   return pb;
 }
