@@ -2,11 +2,8 @@ import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   DialogContent,
-  FormControlLabel,
   List,
   ListItem,
-  Radio,
-  RadioGroup,
   styled,
   Tooltip,
   Typography,
@@ -20,7 +17,6 @@ import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -96,14 +92,6 @@ const SectionSubtitle = styled(Typography)(({ theme }) => ({
 
 const FieldGroup = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-}));
-
-const RadioGroupContainer = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  "& .MuiFormControlLabel-root": {
-    marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 const HelpTextContainer = styled(Box)(({ theme }) => ({
@@ -243,15 +231,6 @@ const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledProfileTextInput = styledField(ProfileTextInput);
 
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
-
-const StyledRadioGroup = styled(RadioGroup)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-  },
-}));
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
@@ -557,6 +536,16 @@ export default function EditProfileForm() {
               </FieldGroup>
 
               <FieldGroup>
+                <StyledProfileTextInput
+                  id="pronouns"
+                  {...register("pronouns")}
+                  label={t("profile:edit_profile_headings.pronouns")}
+                  defaultValue={user.pronouns}
+                  placeholder={t("profile:edit_profile_pronouns_placeholder")}
+                />
+              </FieldGroup>
+
+              <FieldGroup>
                 <SectionSubtitle>
                   {t("profile:edit_profile_headings.location_subtitle")}
                 </SectionSubtitle>
@@ -774,63 +763,6 @@ export default function EditProfileForm() {
                   "profile:edit_profile_headings.personal_information_subtitle",
                 )}
               </SectionSubtitle>
-
-              <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.pronouns")}
-                </Typography>
-                <Controller
-                  control={control}
-                  defaultValue={user.pronouns}
-                  name="pronouns"
-                  render={({ field }) => {
-                    const other =
-                      field.value === t("profile:pronouns.woman") ||
-                      field.value === t("profile:pronouns.man")
-                        ? ""
-                        : field.value;
-                    return (
-                      <RadioGroupContainer>
-                        <StyledRadioGroup
-                          {...field}
-                          row
-                          aria-label={t(
-                            "profile:edit_profile_headings.pronouns",
-                          )}
-                          name="pronouns"
-                          value={field.value}
-                          onChange={(_, value) => field.onChange(value)}
-                        >
-                          <FormControlLabel
-                            value={t("profile:pronouns.woman")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.woman")}
-                          />
-                          <FormControlLabel
-                            value={t("profile:pronouns.man")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.man")}
-                          />
-                          <FormControlLabel
-                            value={other}
-                            control={<Radio />}
-                            label={
-                              <TextField
-                                id="pronouns-other"
-                                variant="standard"
-                                onChange={(event) =>
-                                  field.onChange(event.target.value)
-                                }
-                                value={other}
-                              />
-                            }
-                          />
-                        </StyledRadioGroup>
-                      </RadioGroupContainer>
-                    );
-                  }}
-                />
-              </FieldGroup>
 
               {languages && (
                 <FieldGroup>
