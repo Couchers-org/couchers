@@ -134,10 +134,6 @@
     "paid_onsite": "Betaald parkeren bij huis",
     "paid_offsite": "Betaald parkeren in de buurt"
   },
-  "pronouns": {
-    "man": "hij / hem",
-    "woman": "zij / haar"
-  },
   "edit_profile_name_required": "Naam verplicht",
   "reference_amounts": {
     "count_references_one": "{{count}} referentie",

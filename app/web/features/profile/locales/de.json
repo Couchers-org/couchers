@@ -123,10 +123,6 @@
     "woman": "Frau",
     "man": "Mann"
   },
-  "pronouns": {
-    "woman": "sie / ihr",
-    "man": "er / ihm"
-  },
   "edit_profile_tab_bar_a11y_label": "tabs zum Bearbeiten verschiedener Teile deines Profils",
   "info_unanswered": "Frag mich",
   "connection_pending": "Ausstehend",
