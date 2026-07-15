@@ -332,7 +332,7 @@ describe("localizeDurationLargestUnit", () => {
       localizeDurationLargestUnit(
         Temporal.Duration.from({ seconds: 1 }),
         "en",
-        { standalone: true },
+        { capitalize: true },
       ),
     ).toBe("In 1 second");
   });

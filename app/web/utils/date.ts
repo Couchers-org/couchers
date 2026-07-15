@@ -278,8 +278,8 @@ export interface LocalizeRelativeTimeOptions {
   style?: Intl.RelativeTimeFormatStyle;
   /// We override the default to "auto"
   numeric?: Intl.RelativeTimeFormatNumeric;
-  /// If true, capitalize if the script supports it.
-  standalone?: boolean;
+  /// If true, capitalize if the script supports it. By default uses running text capitalization.
+  capitalize?: boolean;
 }
 
 // Creating Intl objects every time is slow, so cache them.
@@ -302,7 +302,7 @@ export function localizeRelativeTimeUnit(
     relativeTimeFormatCache.set(cacheKey, formatter);
   }
   let result = formatter.format(value, unit);
-  if (options?.standalone === true)
+  if (options?.capitalize === true)
     result = capitalizeFirstLetter(result, locale);
   return result;
 }

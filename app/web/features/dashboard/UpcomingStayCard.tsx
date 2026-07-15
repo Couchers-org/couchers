@@ -156,7 +156,7 @@ export default function UpcomingStayCard({
     daysUntil,
     "days",
     locale,
-    { standalone: true },
+    { capitalize: true },
   );
 
   const dateRange = localizeDateTimeRange(
