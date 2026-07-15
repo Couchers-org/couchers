@@ -25,14 +25,17 @@ const config = [
       "proto/**",
     ],
   },
-  // eslint 9 flipped this default to "warn"; keep the 8.x behavior so stale
-  // disable directives in the tree don't fail --max-warnings=0
+  // eslint 9 flipped this default to "warn";
   {
-    linterOptions: { reportUnusedDisableDirectives: "off" },
+    linterOptions: { reportUnusedDisableDirectives: "on" },
   },
+
+
   // both legacy extends must go through the same FlatCompat instance so the
   // @typescript-eslint plugin resolves to one module object ("Cannot redefine
   // plugin" otherwise)
+
+  // Come back to this after we upgrade next.js https://github.com/Couchers-org/couchers/issues/9280
   ...compat.extends(
     "plugin:@typescript-eslint/recommended",
     "next/core-web-vitals",
@@ -75,7 +78,7 @@ const config = [
       "@typescript-eslint/no-empty-function": "off",
       //not using this right now
       "@next/next/no-img-element": "off",
-      //this is ugly
+
       "react/no-unescaped-entities": "off",
       // Prefer inferred types so that the code is as close to JS as possible
       "@typescript-eslint/explicit-module-boundary-types": "off",
