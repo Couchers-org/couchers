@@ -106,10 +106,10 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 declare global {
-    // Disable the rule for this block
+  // Disable the rule for this block
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-    // Re-enable the rule
+  // Re-enable the rule
 }
 
 function createWebStorageMock() {

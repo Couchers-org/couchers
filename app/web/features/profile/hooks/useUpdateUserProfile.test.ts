@@ -44,7 +44,7 @@ describe("updateUserProfile action", () => {
       pronouns,
       thingsILike,
     } = defaultUser;
-     
+
     const newUserProfileData: UpdateUserProfileData = {
       // Unchanged data
       aboutMe,
@@ -82,7 +82,7 @@ describe("updateUserProfile action", () => {
         ],
       },
     };
-     
+
     updateProfileMock.mockResolvedValue(new Empty());
 
     const { result } = renderHook(() => useUpdateUserProfile(), {

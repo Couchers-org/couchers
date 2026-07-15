@@ -77,7 +77,6 @@ export default function PublicTripsOverview({
 
   useEffect(() => {
     updateScrollState();
-     
   }, [trips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {

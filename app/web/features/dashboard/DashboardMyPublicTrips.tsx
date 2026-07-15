@@ -72,7 +72,6 @@ export default function DashboardMyPublicTrips() {
 
   useEffect(() => {
     updateScrollState();
-     
   }, [activeTrips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
