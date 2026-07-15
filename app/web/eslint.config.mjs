@@ -27,9 +27,8 @@ const config = [
   },
   // eslint 9 flipped this default to "warn";
   {
-    linterOptions: { reportUnusedDisableDirectives: "on" },
+    linterOptions: { reportUnusedDisableDirectives: "warn" },
   },
-
 
   // both legacy extends must go through the same FlatCompat instance so the
   // @typescript-eslint plugin resolves to one module object ("Cannot redefine
