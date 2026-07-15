@@ -272,10 +272,6 @@
     "man": "Мужчина",
     "woman": "Женщина"
   },
-  "pronouns": {
-    "man": "он / его",
-    "woman": "она / её"
-  },
   "info_unanswered": "Спроси меня",
   "connection_pending": "В ожидании",
   "more_profile_actions": "...",

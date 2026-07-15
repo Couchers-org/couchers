@@ -118,7 +118,11 @@
       "accepted": "{{user}} heeft het verzoek geaccepteerd",
       "cancelled": "{{user}} heeft het verzoek geannuleerd",
       "confirmed": "{{user}} heeft het verzoek bevestigd",
-      "rejected": "{{user}} heeft het verzoek afgewezen"
+      "rejected": "{{user}} heeft het verzoek afgewezen",
+      "accepted_self": "Je hebt het verzoek geaccepteerd",
+      "cancelled_self": "Je hebt het verzoek geannuleerd",
+      "confirmed_self": "Je hebt het verzoek bevestigd",
+      "rejected_self": "Je hebt het verzoek afgewezen"
     }
   },
   "host_request_status": {
@@ -136,11 +140,12 @@
       "accepted": "Je hebt dit verzoek geaccepteerd",
       "confirmed": "Veel plezier! Je hebt geaccepteerd en de surfer heeft dit verzoek bevestigd.",
       "rejected": "Je hebt dit verzoek geweigerd",
-      "cancelled": "Je hebt dit verzoek geannuleerd"
+      "cancelled": "De surfer heeft dit verzoek geannuleerd",
+      "accepted_waiting": "Je hebt dit verzoek geaccepteerd — we wachten op de bevestiging van je surfer."
     },
     "surfer_status": {
       "accepted": "Veel plezier! {{name}} heeft het verzoek geaccepteerd.",
-      "cancelled": "Je verzoek was geannuleerd",
+      "cancelled": "Je hebt dit verzoek geannuleerd",
       "confirmed": "Veel plezier! {{name}} heeft geaccepteerd en jij hebt dit verzoek bevestigd.",
       "rejected": "Je verzoek was afgewezen"
     }
@@ -174,5 +179,36 @@
   "reference_card": {
     "title": "Schrijf een referentie",
     "description": "Deel je ervaring om de community te helpen."
-  }
+  },
+  "respond_box_title": "Stuur een reactie",
+  "respond_box_description": "Selecteer een reactie om het {{name}} meteen te laten weten. Je kan daarna ook een berichtje sturen.",
+  "status_bar_edit_button": "Bewerken",
+  "status_bar_cancel_edit_button": "Annuleren",
+  "status_bar_close_button": "Sluiten",
+  "surfer_bar_pending": "Je hebt een hostverzoek gestuurd — wacht op een reactie van {{name}}.",
+  "cancel_request_button": "Verzoek annuleren",
+  "cancel_request_dialog_title": "Verzoek annuleren?",
+  "cancel_request_dialog_message": "Weet je zeker dat je je verzoek wilt annuleren? Dit kan je niet meer ongedaan maken.",
+  "cancel_request_dialog_confirm_button": "Ja, annuleren",
+  "cancel_request_dialog_dismiss_button": "Nee",
+  "private_feedback_card": {
+    "title": "Feedback over dit verzoek",
+    "quality_label": "Beoordeel dit verzoek privé (optioneel):",
+    "quality_high": "Hoge kwaliteit",
+    "quality_okay": "Oké",
+    "quality_low": "Lage kwaliteit",
+    "decline_reason_label": "Waarom heb je het afgewezen?",
+    "reason_didnt_read_profile": "Heeft mijn profiel niet gelezen",
+    "reason_dont_want_to_host": "Ik wil deze persoon niet hosten",
+    "reason_not_available": "Ik kan dan niet hosten",
+    "reason_other_placeholder": "Vertel ons alsjeblieft wat meer...",
+    "privacy_notice": "Je reacties zijn privé en worden niet gedeeld met de gebruiker. We kunnen ze geanonimiseerd, samen met andere reacties, gebruiken om de feedback voor iedereen te verbeteren.",
+    "skip_button": "Overslaan",
+    "next_button": "Volgende",
+    "back_button": "Terug",
+    "submit_button": "Sturen"
+  },
+  "surfer_confirm_box_title": "{{name}} heeft je verzoek geaccepteerd!",
+  "surfer_confirm_box_description": "Bevestig je verzoek om het vast te leggen, of annuleer als je plannen zijn veranderd.",
+  "show_more_actions_button_a11y": "Meer acties weergeven"
 }
