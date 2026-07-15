@@ -649,7 +649,6 @@ class Events(events_pb2_grpc.EventsServicer):
 
         if request.HasField("location"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
-            occurrence_update["link"] = None
             if request.location.lat == 0 and request.location.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             occurrence_update["geom"] = create_coordinate(request.location.lat, request.location.lng)

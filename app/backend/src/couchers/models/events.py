@@ -168,7 +168,7 @@ class EventOccurrence(Base, kw_only=True):
     )
 
     @property
-    def coordinates(self) -> tuple[float, float] | None:
+    def coordinates(self) -> tuple[float, float]:
         # returns (lat, lng) or None
         return get_coordinates(self.geom)
 
