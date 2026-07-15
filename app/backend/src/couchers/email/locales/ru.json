@@ -12,5 +12,15 @@
       "subject_days_few": "У тебя есть {{count}} дня, чтобы написать отзыв для {{name}}",
       "subject_days_many": "У тебя есть {{count}} дней, чтобы написать отзыв для {{name}}"
     }
+  },
+  "generic": {
+    "greeting_line": "Привет, {{name}},",
+    "security_warning_contact_support": "Если вы не инициировали это действие, пожалуйста, свяжитесь с нами по адресу {{ email_link }}, чтобы мы могли решить эту проблему как можно скорее.",
+    "do_not_reply_request": "Не отвечайте на это письмо. Используйте одну из кнопок выше, чтобы ответить на этот запрос.",
+    "thanks": "Спасибо!",
+    "closing_lines": {
+      "default": "С уважением,<br>Команда Couchers.org",
+      "aapeli": "Аапели<br>Соучредитель Couchers.org<br>{{ profile_link }}"
+    }
   }
 }
