@@ -154,10 +154,6 @@
     "man": "Muž",
     "woman": "Žena"
   },
-  "pronouns": {
-    "man": "on / jeho",
-    "woman": "ona / jí"
-  },
   "edit_profile_tab_bar_a11y_label": "záložky pro úpravu různých částí tvého profilu",
   "info_unanswered": "Zeptej se mě",
   "my_connections": "Moje kontakty",
