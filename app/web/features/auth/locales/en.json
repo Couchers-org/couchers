@@ -69,7 +69,7 @@
     "header": "Your account details",
     "username": {
       "field_label": "Username",
-      "helper_text": "This is your unique login ID, not your display name.",
+      "helper_text": "This is your public username, not your profile name.",
       "required_error": "Enter your username",
       "username_taken_error": "This username is taken.",
       "validation_error": "Username can only have numbers or _, and should start with a letter."
