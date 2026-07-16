@@ -137,8 +137,8 @@ const HostRequestUserSummarySection = ({
               (
               {t("host_request_view.request_duration", {
                 count: daysBetween(
-                  Temporal.PlainDate.from(hostRequest.toDate),
                   Temporal.PlainDate.from(hostRequest.fromDate),
+                  Temporal.PlainDate.from(hostRequest.toDate),
                 ),
               })}
               )
