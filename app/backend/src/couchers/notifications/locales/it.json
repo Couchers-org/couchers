@@ -11,5 +11,13 @@
         "body": "Usa il link che ti abbiamo inviato via email per confermare."
       }
     }
+  },
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Notifiche push abilitate",
+        "body": "Da adesso riceverai le notifiche su questo dispositivo."
+      }
+    }
   }
 }

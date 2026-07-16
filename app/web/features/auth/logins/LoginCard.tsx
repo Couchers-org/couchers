@@ -23,10 +23,9 @@ import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
 import {
   localizeDateTime,
-  timestamp2Date,
+  localizeRelativeTime,
   timestampToPlainDateTime,
 } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(1),
@@ -43,17 +42,12 @@ export default function LoginsPage({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = timeAgo({
-    since: timestamp2Date(session.lastSeen!),
-    t,
-    locale,
-  });
+  const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
   const createdDisplay = localizeDateTime(
     timestampToPlainDateTime(session.created!),
     {
       locale,
       includeSeconds: true,
-      abbreviate: true,
     },
   );
   const expiryDisplay = localizeDateTime(
@@ -61,7 +55,6 @@ export default function LoginsPage({
     {
       locale,
       includeTime: false,
-      abbreviate: true,
     },
   );
   const queryClient = useQueryClient();

@@ -195,7 +195,9 @@ export default function HostRequestFeedbackCard({
                   onChange={() => toggleReason(reason)}
                 />
               }
-              label={t(`private_feedback_card.reason_${reason}`)}
+              label={t(
+                `private_feedback_card.decline_reason_options.${reason}`,
+              )}
             />
           ))}
         </FormGroup>

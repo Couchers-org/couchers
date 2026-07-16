@@ -43,8 +43,9 @@ import {
   tosRoute,
   volunteerRoute,
 } from "routes";
+import { Temporal } from "temporal-polyfill";
+import { localizeRelativeTime } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { timeAgo } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
   ({ bottomMargin }) => ({
@@ -172,11 +173,13 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
   const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
-    ? timeAgo({
-        since: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
-        t,
+    ? localizeRelativeTime(
+        Temporal.Instant.fromEpochMilliseconds(
+          // Parse with new Date() for backcompat with environment var format
+          new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP).getTime(),
+        ),
         locale,
-      })
+      )
     : "unknown";
   const updated_ago_link = githubUpdatesURL;
 

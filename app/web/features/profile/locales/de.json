@@ -123,10 +123,6 @@
     "woman": "Frau",
     "man": "Mann"
   },
-  "pronouns": {
-    "woman": "sie / ihr",
-    "man": "er / ihm"
-  },
   "edit_profile_tab_bar_a11y_label": "tabs zum Bearbeiten verschiedener Teile deines Profils",
   "info_unanswered": "Frag mich",
   "connection_pending": "Ausstehend",
@@ -346,5 +342,7 @@
     },
     "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"
-  }
+  },
+  "about_me_textbox_placeholder": "z. B. Aktuelle Mission, warum du Couchers.org nutzt, deine liebste Reisegeschichte...",
+  "hobbies_textbox_placeholder": "z. B. Aktivitäten, Bücher, Filme, Musik..."
 }

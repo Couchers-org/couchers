@@ -50,11 +50,13 @@
       "description": "Ověř svoji identitu pro bezpečnější komunitu"
     },
     "respond_to_host_request": {
-      "description": "Nezapomeň odpovědět {{name}} ohledně jejich pobytu.",
-      "button": "Zobrazit požadavek"
+      "description": "Nezapomeň odpovědět na žádost o ubytování od {{name}}.",
+      "button": "Zobrazit požadavek",
+      "title": "Odpovědět {{name}}"
     },
     "write_reference": {
-      "title": "Napsat referenci"
+      "title": "Napsat referenci",
+      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}"
     }
   },
   "public_trips": {
@@ -62,5 +64,30 @@
     "when_today": "Dnes",
     "manage_link": "Spravovat",
     "when_now": "Nyní"
+  },
+  "prev_page_button_a11y": "Předchozí stránka",
+  "next_page_button_a11y": "Následující stránka",
+  "now_label": "Teď",
+  "discussions": {
+    "community_header": "Diskuze v tvých komunitách",
+    "community_empty_message": "Žádné diskuze ve tvých komunitách.",
+    "replies_count_label_one": "{{count}} odpověď",
+    "replies_count_label_few": "{{count}} odpovědi",
+    "replies_count_label_other": "{{count}} odpovědí"
+  },
+  "events": {
+    "your_upcoming_header": "Tvoje nadcházející události",
+    "see_all_link": "Zobrazit vše →",
+    "your_upcoming_empty_message": "Žádné události v tento moment. Co tak jednu <0>založit</0> ✨?",
+    "community_header": "Události v tvých komunitách",
+    "today_label": "Dnes"
+  },
+  "stays": {
+    "upcoming_trips_header": "Tvoje nadcházející ubytování",
+    "upcoming_guests_header": "Tvoji nadcházející hosté",
+    "night_count_one": "{{count}} noc",
+    "night_count_few": "{{count}} noci",
+    "night_count_other": "{{count}} nocí",
+    "no_upcoming_guests": "Zatím žádní nadcházející hosté."
   }
 }

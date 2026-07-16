@@ -85,7 +85,7 @@
     "meetup_status": "Meetup status",
     "hosting_status": "Hosting status",
     "name": "Naam",
-    "pronouns": "Voornaamwoorden",
+    "pronouns": "Voornaamwoorden (optioneel)",
     "hometown": "Opgegroeid in",
     "occupation": "Beroep",
     "education": "Opleiding",
@@ -133,10 +133,6 @@
     "free_offsite": "Gratis parkeren in de buurt",
     "paid_onsite": "Betaald parkeren bij huis",
     "paid_offsite": "Betaald parkeren in de buurt"
-  },
-  "pronouns": {
-    "man": "hij / hem",
-    "woman": "zij / haar"
   },
   "edit_profile_name_required": "Naam verplicht",
   "reference_amounts": {
@@ -334,15 +330,20 @@
   "complete_profile_dialog": {
     "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",
     "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
-    "description_2": "Dit helpt om een vertrouwde community op te bouwen en spam te verminderen. Voor meer informatie, <2>kijk op deze hulppagina</2>. Bedankt voor je hulp!",
+    "description_2": "Dit helpt om een betrouwbare community op te bouwen en spam te verminderen. Voor meer informatie, <2>kijk op deze hulppagina</2>. Bedankt voor je hulp!",
     "actions": {
-      "send_request": "een verzoek doen",
-      "send_message": "een bericht sturen",
+      "send_request": "doe een verzoek",
+      "send_message": "stuur een bericht",
       "send_friend_request": "stuur een vriendschapsverzoek",
-      "create_event": "een event aanmaken"
+      "create_event": "een event aanmaken",
+      "create_public_trip": "een openbare trip aanmaken",
+      "create_discussion": "start een discussie"
     },
     "edit_profile_button": "Bewerk nu je profiel",
     "cancel_button": "Laat maar"
   },
-  "open_full_profile": "Volledig profiel openen"
+  "open_full_profile": "Volledig profiel openen",
+  "about_me_textbox_placeholder": "bijv. Je huidige missie, waarom je Couchers.org gebruikt, je beste reisverhaal...",
+  "hobbies_textbox_placeholder": "bijv. Hobby's, boeken, films, muziek...",
+  "edit_profile_pronouns_placeholder": "bijv. zij/haar"
 }

@@ -2,5 +2,6 @@
   "notification_settings": {
     "title": "Impostazioni notifiche"
   },
-  "all": "Tutti"
+  "all": "Tutti",
+  "error_loading": "Errore di caricamento notifiche"
 }

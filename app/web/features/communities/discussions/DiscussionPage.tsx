@@ -26,10 +26,9 @@ import { service } from "service";
 import { theme } from "theme";
 import {
   localizeDateTime,
-  timestamp2Date,
+  localizeRelativeTime,
   timestampToPlainDateTime,
 } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
@@ -305,13 +304,10 @@ export default function DiscussionPage({
                             {discussion.lastEdited && (
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
-                                  timeAgo: timeAgo({
-                                    since: timestamp2Date(
-                                      discussion.lastEdited,
-                                    ),
-                                    t,
+                                  timeAgo: localizeRelativeTime(
+                                    discussion.lastEdited,
                                     locale,
-                                  }),
+                                  ),
                                 })}
                               </Typography>
                             )}
