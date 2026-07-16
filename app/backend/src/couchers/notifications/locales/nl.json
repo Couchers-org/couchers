@@ -291,42 +291,92 @@
       "event_description": "Iemand heeft je hostingverzoek afgewezen",
       "push": {
         "title": "{{user}} heeft je hostverzoek afgewezen",
-        "ios_title": "{{user}}"
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hostverzoek afgewezen",
+        "body": "{{user}} heeft je hostverzoek voor {{date}} afgewezen."
       }
     },
     "reminder": {
-      "event_description": "Je hebt nog niet gereageerd op een hostingverzoek"
+      "event_description": "Je hebt nog niet gereageerd op een hostingverzoek",
+      "push": {
+        "title": "Openstaand verzoek van {{user}}",
+        "ios_title": "Hostverzoek in behandeling",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} wacht op je reactie, accepteer het verzoek of wijs het af."
+      }
     }
   },
   "onboarding": {
     "reminder": {
-      "event_description": "Vergeet niet na het aanmelden om je profiel verder in te vullen"
+      "event_description": "Vergeet niet na het aanmelden om je profiel verder in te vullen",
+      "push": {
+        "first": {
+          "title": "Welkom bij Couchers!",
+          "ios_title": "Welkom bij Couchers!",
+          "body": "Vul je profiel aan met een foto en een korte tekst over jezelf."
+        },
+        "subsequent": {
+          "title": "Vergeet niet om je profiel te voltooien",
+          "ios_title": "Profiel-herinnering",
+          "body": "Vul je profiel aan met een foto en een korte tekst over jezelf."
+        }
+      }
     }
   },
   "password": {
     "change": {
-      "event_description": "Je wachtwoord is aangepast"
+      "event_description": "Je wachtwoord is aangepast",
+      "push": {
+        "title": "Wachtwoord gewijzigd",
+        "ios_title": "Wachtwoord gewijzigd",
+        "body": "Je wachtwoord is gewijzigd."
+      }
     }
   },
   "password_reset": {
     "complete": {
-      "event_description": "Wachtwoord is gereset"
+      "event_description": "Wachtwoord is gereset",
+      "push": {
+        "title": "Wachtwoord opnieuw ingesteld",
+        "ios_title": "Wachtwoord opnieuw ingesteld",
+        "body": "Je wachtwoord is opnieuw ingesteld."
+      }
     },
     "start": {
-      "event_description": "Wachtwoordreset is begonnen"
+      "event_description": "Wachtwoordreset is begonnen",
+      "push": {
+        "title": "Wachtwoord-reset aangevraagd",
+        "ios_title": "Wachtwoord-reset aangevraagd",
+        "body": "Gebruik de link die we je gemaild hebben om het proces af te maken."
+      }
     }
   },
   "phone_number": {
     "change": {
-      "event_description": "Je telefoonnummer is gewijzigd"
+      "event_description": "Je telefoonnummer is gewijzigd",
+      "push": {
+        "title": "Telefoonverificatie gestart",
+        "ios_title": "Telefoonverificatie gestart",
+        "body": "Je bent begonnen met de verificatie van je telefoonnummer met het nummer {{phone_number}}."
+      }
     },
     "verify": {
-      "event_description": "Je telefoonnummer is geverifieerd"
+      "event_description": "Je telefoonnummer is geverifieerd",
+      "push": {
+        "title": "Telefoonnummerverificatie voltooid",
+        "ios_title": "Telefoonnummerverificatie voltooid",
+        "body": "Je telefoonnummer {{phone_number}} is succesvol geverifieerd."
+      }
     }
   },
   "reference": {
     "receive_friend": {
-      "event_description": "Je hebt een referentie gekregen van een vriend"
+      "event_description": "Je hebt een referentie gekregen van een vriend",
+      "push": {
+        "title": "Nieuwe vriendreferentie van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nieuwe vriendreferentie"
+      }
     },
     "receive_hosted": {
       "event_description": "Je krijgt een referentie van iemand die je gehost heeft"
@@ -343,13 +393,29 @@
     "_reminder_any": {
       "push": {
         "body_one": "Je hebt nog {{count}} dag om een referentie voor {{user}} te schrijven.",
-        "body_other": "Je hebt nog {{count}} dagen om een referentie voor {{user}} te schrijven."
+        "body_other": "Je hebt nog {{count}} dagen om een referentie voor {{user}} te schrijven.",
+        "title": "Schrijf je referentie voor {{user}}",
+        "ios_title": "Schrijf je referentie",
+        "ios_subtitle": "{{user}}"
+      }
+    },
+    "_receive_any": {
+      "push": {
+        "title": "Nieuwe referentie van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nieuwe referentie",
+        "body_must_write_yours": "{{user}} heeft een referentie voor je achtergelaten, nu is het jouw beurt om eentje te schrijven!"
       }
     }
   },
   "thread": {
     "reply": {
-      "event_description": "Iemand reageert op jouw comment"
+      "event_description": "Iemand reageert op jouw comment",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "_adhoc": {
@@ -368,6 +434,64 @@
         "title": "Wil je nog steeds hosten?",
         "ios_title": "Wil je nog steeds hosten?",
         "body": "Meld je aan om je hosting-status te bevestigen."
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Een moderator heeft je een bericht gestuurd",
+      "push": {
+        "title": "Nieuw bericht van moderator",
+        "ios_title": "Nieuw bericht van moderator",
+        "body": "Je hebt een bericht van een moderator ontvangen. Lees en bevestig het als je dit platform wilt blijven gebruiken."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Je adresverificatie is mislukt",
+      "push": {
+        "title": "Adresverificatie mislukt",
+        "ios_title": "Adresverificatie mislukt",
+        "body_code_expired": "Je verificatiecode is verlopen. Codes zijn 90 dagen geldig nadat de briefkaart is verzonden. Je kunt een nieuwe briefkaart aanvragen.",
+        "body_too_many_attempts": "Te veel foute pogingen om de code in te voeren. Je kunt een nieuwe briefkaart aanvragen.",
+        "body_generic": "Je adresverificatie is mislukt. Je kunt een nieuwe briefkaart aanvragen."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Je briefkaart voor verificatie is verzonden",
+      "push": {
+        "title": "Adresverificatie gestart",
+        "ios_title": "Adresverificatie gestart",
+        "body": "Je briefkaart is onderweg naar {{city}}, {{country}}. Je kunt hem binnen 1 tot 3 weken verwachten."
+      }
+    },
+    "success": {
+      "event_description": "Je adresverificatie is gelukt",
+      "push": {
+        "title": "Adresverificatie voltooid",
+        "ios_title": "Adresverificatie voltooid",
+        "body": "Je adres is nu geverifieerd."
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "Je sterke verificatie is mislukt",
+      "push": {
+        "title": "Sterke verificatie mislukt",
+        "ios_title": "Sterke verificatie mislukt",
+        "body_wrong_birthdate_gender": "De geboortedatum of gender op je profiel komt niet overeen met de geboortedatum of gender op je paspoort. Neem contact op met onze helpdesk om je geboortedatum of gender bij te werken, of als je gender op je paspoort niet overeenkomt met je genderidentiteit.",
+        "body_not_a_passport": "Je hebt een ander document dan een paspoort gebruikt. Je kunt alleen een paspoort gebruiken voor sterke verificatie.",
+        "body_duplicate": "Je hebt een paspoort gebruikt dat al eerder is gebruikt voor verificatie. Gebruik een ander paspoort."
+      }
+    },
+    "sv_success": {
+      "event_description": "Je sterke verificatie is geslaagd",
+      "push": {
+        "title": "Sterke verificatie voltooid",
+        "ios_title": "Sterke verificatie voltooid",
+        "body": "Je bent geverifieerd met sterke verificatie."
       }
     }
   }

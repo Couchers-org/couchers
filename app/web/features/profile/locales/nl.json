@@ -85,7 +85,7 @@
     "meetup_status": "Meetup status",
     "hosting_status": "Hosting status",
     "name": "Naam",
-    "pronouns": "Voornaamwoorden",
+    "pronouns": "Voornaamwoorden (optioneel)",
     "hometown": "Opgegroeid in",
     "occupation": "Beroep",
     "education": "Opleiding",
@@ -344,5 +344,6 @@
   },
   "open_full_profile": "Volledig profiel openen",
   "about_me_textbox_placeholder": "bijv. Je huidige missie, waarom je Couchers.org gebruikt, je beste reisverhaal...",
-  "hobbies_textbox_placeholder": "bijv. Hobby's, boeken, films, muziek..."
+  "hobbies_textbox_placeholder": "bijv. Hobby's, boeken, films, muziek...",
+  "edit_profile_pronouns_placeholder": "bijv. zij/haar"
 }

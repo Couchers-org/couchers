@@ -203,7 +203,13 @@
     "skip_button": "Overslaan",
     "next_button": "Volgende",
     "back_button": "Terug",
-    "submit_button": "Sturen"
+    "submit_button": "Sturen",
+    "decline_reason_options": {
+      "didnt_read_profile": "Heeft mijn profiel niet gelezen",
+      "dont_want_to_host": "Ik wil deze persoon niet hosten",
+      "not_available": "Ik kan dan niet hosten",
+      "other": "Anders"
+    }
   },
   "surfer_confirm_box_title": "{{name}} heeft je verzoek geaccepteerd!",
   "surfer_confirm_box_description": "Bevestig je verzoek om het vast te leggen, of annuleer als je plannen zijn veranderd.",
