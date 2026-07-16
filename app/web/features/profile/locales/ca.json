@@ -189,10 +189,6 @@
     "free_offsite": "Aparcament gratuït a prop",
     "paid_onsite": "Aparcament de pagament al lloc"
   },
-  "pronouns": {
-    "man": "ell / li",
-    "woman": "ella / li"
-  },
   "edit_profile_tab_bar_a11y_label": "pestanyes per editar les diferents parts del teu perfil",
   "info_unanswered": "Pregunta'm",
   "connection_pending": "Pendent",

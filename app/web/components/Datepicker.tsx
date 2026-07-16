@@ -7,6 +7,7 @@ import {
 } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { getMuiDateFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
@@ -14,17 +15,17 @@ interface DatepickerProps {
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
-  defaultValue?: Dayjs | null;
+  defaultValue?: Temporal.PlainDate;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
   rules?: UseControllerProps["rules"];
   label?: string;
   name: string;
-  minDate?: Dayjs;
-  maxDate?: Dayjs;
+  minValue?: Temporal.PlainDate;
+  maxValue?: Temporal.PlainDate;
   openTo?: "year" | "month" | "day";
-  onPostChange?(date: Dayjs | null): void;
+  onPostChange?(value: Temporal.PlainDate | null): void;
   testId?: string;
   variant?: "standard" | "outlined" | "filled";
   inputProps?: InputProps;
@@ -89,6 +90,16 @@ const ReadOnlyDateField = ({
   );
 };
 
+// Convert between our API's Temporal.PlainDate and MUI's expected Dayjs values.
+// Use the browser timezone in case we compare to now, aka dayjs().
+function temporalToDayjs(value: Temporal.PlainDate): Dayjs {
+  return dayjs(value.toString(), "YYYY-MM-DD");
+}
+
+function dayjsToTemporal(value: Dayjs): Temporal.PlainDate {
+  return Temporal.PlainDate.from(value.format("YYYY-MM-DD"));
+}
+
 const Datepicker = ({
   className,
   control,
@@ -98,8 +109,8 @@ const Datepicker = ({
   id,
   rules,
   label,
-  minDate = dayjs(),
-  maxDate,
+  minValue = dayjsToTemporal(dayjs()),
+  maxValue,
   name,
   openTo = "day",
   onPostChange,
@@ -138,7 +149,7 @@ const Datepicker = ({
   return (
     <Controller
       control={control}
-      defaultValue={defaultValue}
+      defaultValue={defaultValue ?? null}
       name={name}
       rules={rules}
       render={({ field }) => (
@@ -146,12 +157,16 @@ const Datepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value}
-          minDate={minDate}
-          maxDate={maxDate}
-          onChange={(date) => {
-            field.onChange(date);
-            onPostChange?.(date);
+          value={field.value ? temporalToDayjs(field.value) : null}
+          minDate={minValue ? temporalToDayjs(minValue) : undefined}
+          maxDate={maxValue ? temporalToDayjs(maxValue) : undefined}
+          onChange={(valueDayjs: Dayjs | null) => {
+            const valueTemporal =
+              valueDayjs && valueDayjs.isValid()
+                ? dayjsToTemporal(valueDayjs)
+                : null;
+            field.onChange(valueTemporal);
+            onPostChange?.(valueTemporal);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}

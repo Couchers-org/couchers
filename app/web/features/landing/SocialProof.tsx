@@ -9,12 +9,14 @@ import {
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { timeAgo } from "utils/timeAgo";
+import { localizeRelativeTime } from "utils/date";
 
 interface SignupInfo {
   userCount: string;
-  lastSignup: string | Date;
+  /// ISO8601 datetime
+  lastSignup: string;
   lastLocation: string;
 }
 
@@ -163,11 +165,10 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: timeAgo({
-                    since: new Date(signupInfo.lastSignup),
-                    t,
+                  timeAgo: localizeRelativeTime(
+                    Temporal.Instant.from(signupInfo.lastSignup),
                     locale,
-                  }),
+                  ),
                 })}
               </Typography>
             )

@@ -26,7 +26,7 @@ def test_verbatim_attachment_headers():
         ],
     )
 
-    email_message, _ = email_proto_to_message(send_email_payload, couchers_id="42")
+    email_message = email_proto_to_message(send_email_payload, couchers_id="42")
     smtp_str = email_message.as_string()
 
     expected_snippet = """

@@ -1,6 +1,7 @@
 {
   "errors": {
     "check_connection": "Controlla la tua connessione Internet e riprova.",
-    "try_again": "Riprova"
+    "try_again": "Riprova",
+    "failed_to_load": "Errore di caricamento"
   }
 }

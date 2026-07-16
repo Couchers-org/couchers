@@ -20,6 +20,7 @@ import {
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -118,8 +119,8 @@ interface EventInput {
   content: string;
   photoKey?: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: Temporal.PlainDateTime;
+  endTime: Temporal.PlainDateTime;
   address: string;
   lat: number;
   lng: number;
@@ -128,12 +129,20 @@ interface EventInput {
 
 export type CreateEventInput = EventInput;
 
+function toTimestamp(dateTime: Temporal.PlainDateTime): Timestamp {
+  // FIXME(#8064): Events should be created in their location's timezone
+  const zoned = dateTime.toZonedDateTime(Temporal.Now.timeZoneId());
+  const legacyDate = new Date(zoned.epochMilliseconds);
+  return Timestamp.fromDate(legacyDate);
+}
+
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+
+  req.setStartTime(toTimestamp(input.startTime));
+  req.setEndTime(toTimestamp(input.endTime));
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
@@ -169,10 +178,10 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartTime(Timestamp.fromDate(input.startTime));
+    req.setStartTime(toTimestamp(input.startTime));
   }
   if (input.endTime) {
-    req.setEndTime(Timestamp.fromDate(input.endTime));
+    req.setEndTime(toTimestamp(input.endTime));
   }
 
   if (input.photoKey) {

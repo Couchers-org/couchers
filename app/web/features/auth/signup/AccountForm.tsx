@@ -21,7 +21,6 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
-import dayjs, { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -35,18 +34,18 @@ import { HostingStatus } from "proto/api_pb";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
   validatePassword,
-  validatePastDate,
 } from "utils/validation";
 
 export type SignupAccountInputs = {
   username: string;
   password: string;
   name: string;
-  birthdate: Dayjs;
+  birthdate: Temporal.PlainDate;
   gender: string;
   acceptTOS: boolean;
   optInToNewsletter: boolean;
@@ -142,7 +141,7 @@ export default function AccountForm() {
         flowToken: authState.flowState!.flowToken,
         username: lowercaseAndTrimField(username),
         password: password,
-        birthdate: birthdate.format().split("T")[0],
+        birthdate,
         gender,
         acceptTOS,
         optOutOfNewsletter: !optInToNewsletter,
@@ -173,7 +172,7 @@ export default function AccountForm() {
 
   const usernameInputRef = useRef<HTMLInputElement>(undefined);
 
-  const handleBirthdateChange = (newBirthdate: Dayjs) => {
+  const handleBirthdateChange = (newBirthdate: Temporal.PlainDate) => {
     setValue("birthdate", newBirthdate, {
       shouldDirty: true,
       shouldValidate: true,
@@ -270,9 +269,11 @@ export default function AccountForm() {
           variant="outlined"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
-            validate: (stringBirthDate: string) => {
-              const birthDate = dayjs(stringBirthDate);
-              const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctyly by counting months and days
+            validate: (birthDate: Temporal.PlainDate) => {
+              const age = Temporal.Now.plainDateISO().since(birthDate, {
+                smallestUnit: "year",
+                roundingMode: "floor",
+              }).years;
 
               if (age < 18) {
                 return t("auth:account_form.birthday.too_young_error");
@@ -282,16 +283,20 @@ export default function AccountForm() {
                 return t("auth:account_form.birthday.not_real_date_error");
               }
 
-              if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
+              if (
+                Temporal.PlainDate.compare(
+                  birthDate,
+                  Temporal.Now.plainDateISO(),
+                ) >= 0
+              ) {
                 return t("auth:account_form.birthday.validation_error");
               }
 
               return true; // Validation passes
             },
           }}
-          minDate={dayjs().subtract(120, "years")}
-          maxDate={dayjs().subtract(18, "years")}
-          defaultValue={null}
+          minValue={Temporal.Now.plainDateISO().add({ years: -120 })}
+          maxValue={Temporal.Now.plainDateISO().add({ years: -18 })}
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
@@ -426,9 +431,10 @@ export default function AccountForm() {
           )}
         />
         <Typography variant="body1">
-          <Trans i18nKey="auth:account_form.tos_prompt">
-            To continue, please read and accept the <TOSLink />.
-          </Trans>
+          <Trans
+            i18nKey="auth:account_form.tos_prompt"
+            components={{ 1: <TOSLink /> }}
+          />
         </Typography>
         <FormControlLabel
           control={

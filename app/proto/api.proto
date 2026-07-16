@@ -159,9 +159,10 @@ message LanguageAbility {
     FLUENCY_CONVERSATIONAL = 2;
     FLUENCY_FLUENT = 3;
   }
-  // ISO639-3 language code, only a subset is accepted, see the languages.json in the source tree
-  // frontends are responsible for translation between language name and code
-  // backend will double check the code is allowed
+  // ISO639-3 language code, with some extensions
+  // Only a subset is accepted, see the see languages-iso639.json/languages-custom.json in the source tree.
+  // Frontends are responsible for translation between language name and code.
+  // Backend will double check the code is allowed.
   string code = 1;
   Fluency fluency = 2;
 }
@@ -436,8 +437,9 @@ message UpdateProfileReq {
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120; // CommonMark without images
   NullableBoolValue camping_ok = 121;
-  // replaces the current language abilities with a new list
-  // only a subset of language codes can be used, see languages.json for that list
+  // Replaces the current language abilities with a new list
+  // Only a subset of language codes can be used.
+  // See languages-iso639.json and languages-custom.json for that list.
   RepeatedLanguageAbilityValue language_abilities = 26;
 }
 

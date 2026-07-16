@@ -20,8 +20,8 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import dayjs, { Dayjs } from "utils/dayjs";
 
 // Must match the backend host request minimum (and normal host requests).
 const MESSAGE_MIN_LENGTH = 250;
@@ -29,8 +29,8 @@ const MESSAGE_MIN_LENGTH = 250;
 const DATE_FIELD_ID = "offer-to-host-dates";
 
 interface FormValues {
-  fromDate: Dayjs | null;
-  toDate: Dayjs | null;
+  fromDate: Temporal.PlainDate | null;
+  toDate: Temporal.PlainDate | null;
   text: string;
 }
 
@@ -40,8 +40,8 @@ interface OfferToHostDialogProps {
   tripId: number;
   hostUserId: number;
   hostName: string;
-  tripFromDate: string;
-  tripToDate: string;
+  tripFromDate: Temporal.PlainDate;
+  tripToDate: Temporal.PlainDate;
 }
 
 const FieldStack = styled("div")(({ theme }) => ({
@@ -71,12 +71,11 @@ export default function OfferToHostDialog({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const tripFrom = dayjs(tripFromDate);
-  const tripTo = dayjs(tripToDate);
-  const today = dayjs().startOf("day");
+  const today = Temporal.Now.plainDateISO();
   // The host can offer within the trip's window (shorten, not extend), and
   // never in the past. The backend enforces these too.
-  const earliest = tripFrom.isAfter(today) ? tripFrom : today;
+  const earliest =
+    Temporal.PlainDate.compare(tripFromDate, today) > 0 ? tripFromDate : today;
 
   const {
     control,
@@ -87,7 +86,11 @@ export default function OfferToHostDialog({
     formState: { errors },
   } = useForm<FormValues>({
     mode: "onBlur",
-    defaultValues: { fromDate: tripFrom, toDate: tripTo, text: "" },
+    defaultValues: {
+      fromDate: tripFromDate,
+      toDate: tripToDate,
+      text: "",
+    },
   });
 
   const watchFromDate = watch("fromDate");
@@ -153,9 +156,9 @@ export default function OfferToHostDialog({
                 id={`${DATE_FIELD_ID}-from`}
                 label={t("publicTrips:from_date_label")}
                 name="fromDate"
-                defaultValue={tripFrom}
-                minDate={earliest}
-                maxDate={tripTo}
+                defaultValue={tripFromDate}
+                minValue={earliest}
+                maxValue={tripToDate}
                 rules={{ required: t("publicTrips:from_date_required") }}
               />
               <Datepicker
@@ -165,9 +168,9 @@ export default function OfferToHostDialog({
                 id={`${DATE_FIELD_ID}-to`}
                 label={t("publicTrips:to_date_label")}
                 name="toDate"
-                defaultValue={tripTo}
-                minDate={watchFromDate ?? earliest}
-                maxDate={tripTo}
+                defaultValue={tripToDate}
+                minValue={watchFromDate ?? earliest}
+                maxValue={tripToDate}
                 rules={{ required: t("publicTrips:to_date_required") }}
               />
             </DateRow>

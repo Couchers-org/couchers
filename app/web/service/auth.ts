@@ -13,6 +13,7 @@ import {
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -47,7 +48,7 @@ interface AccountSignupData {
   flowToken: string;
   username: string;
   password?: string;
-  birthdate: string;
+  birthdate: Temporal.PlainDate;
   gender: string;
   acceptTOS: boolean;
   optOutOfNewsletter: boolean;
@@ -76,7 +77,7 @@ export async function signupFlowAccount({
   req.setFlowToken(flowToken);
   const account = new SignupAccount();
   account.setUsername(username);
-  account.setBirthdate(birthdate);
+  account.setBirthdate(birthdate.toString());
   account.setGender(gender);
   account.setAcceptTos(acceptTOS);
   account.setOptOutOfNewsletter(optOutOfNewsletter);

@@ -10,7 +10,7 @@ import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getLiteUser } from "test/serviceMockDefaults";
+import { getAccountInfo, getLiteUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
@@ -23,6 +23,9 @@ jest.mock("components/MarkdownInput");
 const getLiteUserMock = service.user.getLiteUser as MockedService<
   typeof service.user.getLiteUser
 >;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
+>;
 const createDiscussionMock = service.discussions
   .createDiscussion as MockedService<
   typeof service.discussions.createDiscussion
@@ -33,6 +36,7 @@ const listDiscussionsMock = service.communities
 describe("DiscussionsListPage", () => {
   beforeEach(() => {
     getLiteUserMock.mockImplementation(getLiteUser);
+    getAccountInfoMock.mockImplementation(getAccountInfo);
     listDiscussionsMock.mockResolvedValue({
       discussionsList: discussions,
       nextPageToken: "",
