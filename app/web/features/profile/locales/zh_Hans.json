@@ -119,10 +119,6 @@
     "man": "男性",
     "woman": "女性"
   },
-  "pronouns": {
-    "man": "他/他",
-    "woman": "她/她"
-  },
   "edit_profile_tab_bar_a11y_label": "编辑个人资料的标签",
   "info_unanswered": "问我",
   "my_connections": "我的联系人",

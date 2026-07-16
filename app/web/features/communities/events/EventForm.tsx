@@ -14,8 +14,8 @@ import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 
 import EventTimeChanger from "./EventTimeChanger";
@@ -54,10 +54,10 @@ const StyledEventDetailsContainer = styled("div")(() => ({
 interface EventData {
   content: string;
   title: string;
-  startDate: Dayjs;
-  endDate: Dayjs;
-  startTime: Dayjs;
-  endTime: Dayjs;
+  startDate: Temporal.PlainDate;
+  endDate: Temporal.PlainDate;
+  startTime: Temporal.PlainTime;
+  endTime: Temporal.PlainTime;
   shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;

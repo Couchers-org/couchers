@@ -1026,8 +1026,8 @@ def test_list_public_trips_by_user_offer_tally_owner(db):
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.HasField("offer_tally")
         assert trip.offer_tally.pending == 1
-        # accepted bucket includes confirmed
-        assert trip.offer_tally.accepted == 2
+        assert trip.offer_tally.accepted == 1
+        assert trip.offer_tally.confirmed == 1
         assert trip.offer_tally.declined == 1
         # cancelled is excluded from offers_count and the tally
         assert trip.offers_count == 4

@@ -30,8 +30,9 @@ import { MESSAGES } from "i18n/namespaces";
 import { HostRequestThread } from "proto/conversations_pb";
 import React, { useState } from "react";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
+import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
@@ -106,10 +107,12 @@ export default function HostRequestListItem({
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  // viewerIsHost is role-correct from the backend (handles public-trip offers,
-  // where the roles are reversed relative to initiator/recipient).
-  const isHost = hostRequest.viewerIsHost;
-  const isOffer = hostRequest.isPublicTripOffer;
+  // surferUserId/hostUserId are role-based from the backend (handles public-trip
+  // offers, where the roles are reversed relative to initiator/recipient), so the
+  // viewer is the host iff their own id is the host id. An offer is a thread with
+  // a linked public trip (publicTripId present).
+  const isHost = hostRequest.hostUserId === authState.userId;
+  const isOffer = hostRequest.publicTripId !== undefined;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
@@ -246,12 +249,9 @@ export default function HostRequestListItem({
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
                   {localizeDateTimeRange(
-                    // Host request are plain dates (no time),
-                    // just make sure to parse and format them in the same timezone.
-                    dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-                    dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                    Temporal.PlainDateTime.from(hostRequest.fromDate),
+                    Temporal.PlainDateTime.from(hostRequest.toDate),
                     {
-                      timezone: UTC_TIMEZONE,
                       locale,
                       includeTime: false,
                     },

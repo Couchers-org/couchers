@@ -80,7 +80,7 @@ describe("LocationAutocomplete component", () => {
     const submitButton = await screen.findByRole("button", { name: "submit" });
     await user.click(submitButton);
     await waitFor(() => {
-      expect(submitAction).toBeCalledWith(
+      expect(submitAction).toHaveBeenCalledWith(
         expect.objectContaining({
           location: {
             name: "test city, test county, test country",
@@ -171,7 +171,7 @@ describe("LocationAutocomplete component", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(submitAction).toBeCalledWith(
+      expect(submitAction).toHaveBeenCalledWith(
         expect.objectContaining({
           location: "",
         }),
@@ -239,6 +239,6 @@ describe("LocationAutocomplete component", () => {
     expect(
       await screen.findByText(t("global:location_autocomplete.more_specific")),
     ).toBeVisible();
-    expect(submitAction).not.toBeCalled();
+    expect(submitAction).not.toHaveBeenCalled();
   });
 });

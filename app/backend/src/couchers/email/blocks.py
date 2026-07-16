@@ -13,6 +13,7 @@ from couchers import urls
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
+from couchers.markup import html_mailto_link
 from couchers.proto import api_pb2
 from couchers.utils import now
 
@@ -47,17 +48,22 @@ class EmailBase(ABC):
         self,
         loc_context: LocalizationContext,
         *,
-        standard_greeting: bool = True,
-        standard_closing: bool = True,
+        default_greeting: bool = True,
+        default_closing: bool = True,
         security_warning: bool = False,
     ) -> EmailBlocksBuilder:
         builder = EmailBlocksBuilder(locales=loc_context.locale_list, string_key_base=self.string_key_base)
-        if standard_greeting:
+        if default_greeting:
             builder.para("generic.greeting_line", {"name": self.user_name})
-        if standard_closing:
-            builder.para("generic.closing_line", epilogue=True)
         if security_warning:
-            builder.para("generic.security_warning_contact_support", epilogue=True)
+            # Not localizing the suggested subject line to encourage folks to use English if they can.
+            builder.para(
+                "generic.security_warning_contact_support",
+                {"email_link": html_mailto_link("support@couchers.org", subject="Action not initiated by me")},
+                epilogue=True,
+            )
+        if default_closing:
+            builder.para("generic.closing_lines.default", epilogue=True)
         return builder
 
     @classmethod
@@ -126,7 +132,7 @@ class UserInfo:
         return UserInfo(
             name="Bob",
             age=30,
-            city="Berlin",
+            city="Berlin, Germany",
             avatar_url="https://couchers.org/logo512.png",
             profile_url="https://couchers.org/user/bob",
         )

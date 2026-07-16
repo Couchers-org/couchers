@@ -66,7 +66,7 @@ export async function listMessageThreads({
     req.setPageToken(pageToken);
   }
   if (count !== undefined) {
-    req.setNumber(count);
+    req.setPageSize(count);
   }
 
   const response = await client.conversations.listMessageThreads(req);

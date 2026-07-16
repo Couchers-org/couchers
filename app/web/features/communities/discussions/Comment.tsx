@@ -27,9 +27,8 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { localizeRelativeTime } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import { timeAgo } from "utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
@@ -218,10 +217,9 @@ export default function Comment({
     setIsEditing(false);
   };
 
-  const replyDate = comment.createdTime
-    ? timestamp2Date(comment.createdTime)
-    : undefined;
-  const postedTime = replyDate ? timeAgo({ since: replyDate, t, locale }) : "";
+  const postedTime = comment.createdTime
+    ? localizeRelativeTime(comment.createdTime, locale)
+    : "";
 
   const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
     ? [
@@ -284,11 +282,10 @@ export default function Comment({
                       {" "}
                       {"•"}{" "}
                       {t("communities:comment_edited_date", {
-                        timeAgo: timeAgo({
-                          since: timestamp2Date(comment.lastEdited),
-                          t,
+                        timeAgo: localizeRelativeTime(
+                          comment.lastEdited,
                           locale,
-                        }),
+                        ),
                       })}
                     </>
                   )}

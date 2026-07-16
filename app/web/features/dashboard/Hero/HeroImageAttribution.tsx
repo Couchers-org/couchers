@@ -38,28 +38,29 @@ export default function HeroImageAttribution() {
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={heroBackgroundTheme}>
         <StyledAttribution color="textPrimary" variant="body2">
-          <Trans i18nKey="dashboard:hero_image_attribution">
-            {`Photo by `}
-            <MuiLink
-              href={authorUrl}
-              variant="inherit"
-              rel="noreferrer noopener"
-              target="_blank"
-              underline="hover"
-            >
-              Mesut Kaya
-            </MuiLink>
-            {` on `}
-            <MuiLink
-              href={unsplashUrl}
-              variant="inherit"
-              rel="noreferrer noopener"
-              target="_blank"
-              underline="hover"
-            >
-              Unsplash
-            </MuiLink>
-          </Trans>
+          <Trans
+            i18nKey="dashboard:hero_image_attribution"
+            components={{
+              1: (
+                <MuiLink
+                  href={authorUrl}
+                  variant="inherit"
+                  rel="noreferrer noopener"
+                  target="_blank"
+                  underline="hover"
+                />
+              ),
+              3: (
+                <MuiLink
+                  href={unsplashUrl}
+                  variant="inherit"
+                  rel="noreferrer noopener"
+                  target="_blank"
+                  underline="hover"
+                />
+              ),
+            }}
+          />
         </StyledAttribution>
       </ThemeProvider>
     </StyledEngineProvider>

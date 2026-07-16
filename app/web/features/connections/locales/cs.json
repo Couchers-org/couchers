@@ -34,7 +34,8 @@
   "cancel_request_button_a11y": "Zrušit žádost",
   "add_friend_confirmation_dialog": {
     "title": "Znáš tuto osobu?",
-    "confirm": "Ano, znám ji. Odeslat žádost!"
+    "confirm": "Ano, znám ji. Odeslat žádost!",
+    "message": "Žádosti o přátelství prosím posílej pouze lidem, které už znáš dříve nebo které znáš z tvých cest – většina lidí se raději propojuje až po osobním setkání. <helpCenterLink>Přečti si o žádostech o přátelství v našem Centru nápovědy.</helpCenterLink>"
   },
   "friend_requests_dismiss_button": "Zamítnout"
 }

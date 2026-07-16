@@ -93,7 +93,7 @@ describe("ImageInput component", () => {
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(onSuccessMock).toBeCalledWith({
+    expect(onSuccessMock).toHaveBeenCalledWith({
       file: MOCK_FILE,
       filename: MOCK_FILE.name,
       key: MOCK_KEY,

@@ -45,8 +45,8 @@ import {
   routeToPublicTripOffers,
   routeToUser,
 } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTimeRange } from "utils/date";
-import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import OfferToHostDialog from "./OfferToHostDialog";
@@ -200,7 +200,11 @@ export default function PublicTripCard({
   const handleMenuClose = () => setMenuAnchorEl(null);
 
   const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
-  const isPast = dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
+  const isPast =
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(trip.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
   const isDimmed = isClosed || isPast;
   const showOwnMarker = isOwnTrip && !ownerView;
 
@@ -232,8 +236,8 @@ export default function PublicTripCard({
           tripId={trip.tripId}
           hostUserId={user.userId}
           hostName={user.name}
-          tripFromDate={trip.fromDate}
-          tripToDate={trip.toDate}
+          tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
+          tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />
       )}
       {ownerView && (
@@ -370,8 +374,8 @@ export default function PublicTripCard({
               <MetaItem>
                 <CalendarIcon />
                 {localizeDateTimeRange(
-                  new Date(trip.fromDate + "T00:00:00"),
-                  new Date(trip.toDate + "T00:00:00"),
+                  Temporal.PlainDateTime.from(trip.fromDate),
+                  Temporal.PlainDateTime.from(trip.toDate),
                   {
                     locale,
                     includeTime: false,

@@ -266,10 +266,6 @@
     "paid_onsite": "Aparcamiento de pago en el lugar",
     "paid_offsite": "Aparcamiento de pago fuera del lugar"
   },
-  "pronouns": {
-    "man": "él",
-    "woman": "ella"
-  },
   "edit_profile_tab_bar_a11y_label": "pestañas para editar diferentes partes del perfil",
   "info_unanswered": "Pregúntame",
   "more_profile_actions_a11y_text": "Más acciones del perfil",

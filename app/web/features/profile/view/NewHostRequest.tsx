@@ -20,16 +20,15 @@ import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { isSameOrFutureDate } from "utils/date";
-import dayjs from "utils/dayjs";
 
 const TYPING_GAP_CAP_MS = 3000;
 
 interface FormValuesSnapshot {
   text: string;
-  fromDate: dayjs.Dayjs | null;
-  toDate: dayjs.Dayjs | null;
+  fromDate: Temporal.PlainDate | null;
+  toDate: Temporal.PlainDate | null;
 }
 
 function isFormField(target: EventTarget | null): boolean {
@@ -122,8 +121,8 @@ function useHostRequestFormTracking({
         active_typing_ms: Math.round(activeTypingMs),
         keystroke_count: keystrokeCount,
         text_length: text.length,
-        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
-        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
+        from_date: fromDate?.toString(),
+        to_date: toDate?.toString(),
         ...referrerProps,
       });
     };
@@ -236,21 +235,20 @@ export default function NewHostRequest({
     mutate(data);
   });
 
-  const hostToday = user.timezone
-    ? dayjs().tz(user.timezone).startOf("day")
-    : dayjs().startOf("day");
+  const hostToday = Temporal.Now.plainDateISO(user.timezone);
 
   const watchFromDate = watch("fromDate", undefined);
   const arrivalBeforeHostToday =
-    !!watchFromDate && dayjs(watchFromDate).isBefore(hostToday);
+    !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;
 
   useEffect(() => {
+    const toDate = getValues("toDate");
     if (
       watchFromDate &&
-      getValues("toDate") &&
-      isSameOrFutureDate(watchFromDate, getValues("toDate"))
+      toDate &&
+      Temporal.PlainDate.compare(watchFromDate, toDate) >= 0
     ) {
-      setValue("toDate", watchFromDate.add(1, "day"));
+      setValue("toDate", watchFromDate.add({ days: 1 }));
     }
   });
 
@@ -277,15 +275,17 @@ export default function NewHostRequest({
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
-                defaultValue={null}
-                minDate={hostToday}
+                minValue={hostToday}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
                   validate: {
                     notEmpty: (date) => !date || date !== "",
                     notBeforeHostToday: (date) =>
                       !date ||
-                      !dayjs(date).isBefore(hostToday) ||
+                      Temporal.PlainDate.compare(
+                        Temporal.PlainDate.from(date),
+                        hostToday,
+                      ) >= 0 ||
                       t("profile:request_form.arrival_date_before_host_today", {
                         name: user.name,
                       }),
@@ -305,9 +305,12 @@ export default function NewHostRequest({
                 helperText={errors?.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
-                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                minValue={
+                  watchFromDate
+                    ? watchFromDate.add({ days: 1 })
+                    : Temporal.Now.plainDateISO()
+                }
                 name="toDate"
-                defaultValue={null}
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
                   validate: (stringDate) => stringDate !== "",
@@ -316,12 +319,17 @@ export default function NewHostRequest({
             </StyledDateRow>
           </StyledRequestRow>
           <StyledHelpText variant="body1">
-            <Trans i18nKey="profile:request_form.guide_link_help_text">
-              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
-                Read our guide
-              </StyledLink>{" "}
-              on how to write a request that will get accepted.
-            </Trans>
+            <Trans
+              i18nKey="profile:request_form.guide_link_help_text"
+              components={{
+                0: (
+                  <StyledLink
+                    variant="body1"
+                    href={howToWriteRequestGuideUrl}
+                  />
+                ),
+              }}
+            />
           </StyledHelpText>
 
           <StyledRequestField

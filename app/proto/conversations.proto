@@ -198,12 +198,13 @@ message ListGroupChatsRes {
 }
 
 enum MessageThreadFilter {
-  MESSAGE_THREAD_FILTER_ALL = 0;
-  MESSAGE_THREAD_FILTER_UNREAD = 1;
-  MESSAGE_THREAD_FILTER_CHATS = 2; // group chats + DMs only
-  MESSAGE_THREAD_FILTER_HOSTING = 3; // role-based: I am the host of the stay
-  MESSAGE_THREAD_FILTER_SURFING = 4; // role-based: I am the guest/traveller
-  MESSAGE_THREAD_FILTER_PUBLIC_TRIPS = 5; // my incoming public-trip offers (I'm the traveller)
+  MESSAGE_THREAD_FILTER_UNSPECIFIED = 0;
+  MESSAGE_THREAD_FILTER_ALL = 1;
+  MESSAGE_THREAD_FILTER_UNREAD = 2;
+  MESSAGE_THREAD_FILTER_CHATS = 3; // group chats + DMs only
+  MESSAGE_THREAD_FILTER_HOSTING = 4; // role-based: I am the host of the stay
+  MESSAGE_THREAD_FILTER_SURFING = 5; // role-based: I am the guest/traveller
+  MESSAGE_THREAD_FILTER_PUBLIC_TRIPS = 6; // my incoming public-trip offers (I'm the traveller)
 }
 
 // A host request (or public-trip offer) shaped for the unified thread list.
@@ -222,12 +223,11 @@ message HostRequestThread {
   Message latest_message = 9;
   string hosting_city = 10;
   bool is_archived = 11;
-  // true if this thread is a public-trip offer (public_trip_id is set)
-  bool is_public_trip_offer = 12;
-  // true if the viewer is the host of the stay
-  bool viewer_is_host = 13;
-  optional uint64 public_trip_id = 14;
-  uint32 unseen_message_count = 15;
+  // Set iff this thread is a public-trip offer; presence is the "is offer" flag,
+  // and the value links to the trip. The viewer's role is derived client-side:
+  // the viewer is the host iff host_user_id is their own user id.
+  optional uint64 public_trip_id = 12;
+  uint32 unseen_message_count = 13;
 }
 
 message MessageThread {
@@ -241,8 +241,8 @@ message ListMessageThreadsReq {
   MessageThreadFilter filter = 1;
   // orthogonal: when present, restrict to archived (true) or non-archived (false)
   optional bool only_archived = 2;
-  uint32 number = 3;
-  // opaque cursor; the Message.id high-water mark
+  uint32 page_size = 3;
+  // pagination cursor; pass back the next_page_token from the previous response, or empty for the first page
   string page_token = 4;
 }
 

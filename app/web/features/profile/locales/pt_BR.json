@@ -139,10 +139,6 @@
     "man": "Homem",
     "woman": "Mulher"
   },
-  "pronouns": {
-    "man": "ele",
-    "woman": "ela"
-  },
   "edit_profile_tab_bar_a11y_label": "abas para editar diferentes partes do seu perfil",
   "info_unanswered": "Pergunte para mim",
   "connection_pending": "Pendente",

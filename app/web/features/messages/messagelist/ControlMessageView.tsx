@@ -6,8 +6,8 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
 import { theme } from "theme";
+import { timestampToInstant } from "utils/date";
 
-import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import { controlMessage, messageTargetId } from "../utils";
@@ -55,7 +55,7 @@ export default function ControlMessageView({
       id={messageElementId(message.messageId)}
     >
       <StyledTimestamp>
-        <TimeInterval date={timestamp2Date(message.time!)} />
+        <TimeInterval instant={timestampToInstant(message.time!)} />
       </StyledTimestamp>
 
       <StyledBodyWrapper>

@@ -24,8 +24,8 @@ import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
 import React, { useCallback, useEffect, useState } from "react";
 import { myPublicTripsRoute, routeToHostRequest } from "routes";
 import { service } from "service";
-import { localizeDateTimeRange, numNights, UTC_TIMEZONE } from "utils/date";
-import dayjs from "utils/dayjs";
+import { Temporal } from "temporal-polyfill";
+import { localizeDateTimeRange, numNights } from "utils/date";
 
 const OFFERS_PAGE_SIZE = 50;
 
@@ -225,7 +225,10 @@ export default function MyPublicTripsMessages() {
         // Dim closed/past trips, matching how past host requests are shown.
         const isDimmed =
           trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED ||
-          dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
+          Temporal.PlainDate.compare(
+            Temporal.PlainDate.from(trip.toDate),
+            Temporal.Now.plainDateISO(),
+          ) < 0;
         return (
           <StyledGroupContainer
             key={trip.tripId}
@@ -267,9 +270,9 @@ export default function MyPublicTripsMessages() {
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   {localizeDateTimeRange(
-                    dayjs.tz(trip.fromDate, UTC_TIMEZONE),
-                    dayjs.tz(trip.toDate, UTC_TIMEZONE),
-                    { timezone: UTC_TIMEZONE, locale, includeTime: false },
+                    Temporal.PlainDateTime.from(trip.fromDate),
+                    Temporal.PlainDateTime.from(trip.toDate),
+                    { locale, includeTime: false },
                   )}
                   {" · "}
                   {t("my_public_trips.nights", {
