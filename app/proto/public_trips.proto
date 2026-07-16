@@ -74,8 +74,9 @@ message PublicTrip {
 
 message PublicTripOfferTally {
   int32 pending = 1;
-  int32 accepted = 2; // accepted + confirmed
-  int32 declined = 3; // rejected
+  int32 accepted = 2;
+  int32 confirmed = 3;
+  int32 declined = 4; // rejected
 }
 
 message CreatePublicTripReq {

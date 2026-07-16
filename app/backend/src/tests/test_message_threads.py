@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import grpc
 import pytest
 
 from couchers.db import session_scope
@@ -146,7 +147,7 @@ def test_list_message_threads_single_cursor_pagination_across_kinds(db, moderato
         with conversations_session(token1) as c:
             res = c.ListMessageThreads(
                 conversations_pb2.ListMessageThreadsReq(
-                    filter=conversations_pb2.MESSAGE_THREAD_FILTER_ALL, number=3, page_token=page_token
+                    filter=conversations_pb2.MESSAGE_THREAD_FILTER_ALL, page_size=3, page_token=page_token
                 )
             )
         for t in res.threads:
@@ -181,6 +182,23 @@ def test_list_message_threads_chats_filter_excludes_host_requests(db, moderator)
 
     assert [t.WhichOneof("thread") for t in res.threads] == ["group_chat"]
     assert res.threads[0].group_chat.group_chat_id == chat_id
+
+
+def test_message_threads_reject_unspecified_filter(db):
+    user1, token1 = generate_user()
+
+    with conversations_session(token1) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.ListMessageThreads(
+                conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED)
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        with pytest.raises(grpc.RpcError) as e:
+            c.MarkAllThreadsSeen(
+                conversations_pb2.MarkAllThreadsSeenReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED)
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_list_message_threads_unread_filter(db, moderator):
@@ -251,11 +269,11 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         assert len(res.threads) == 1
         hr = res.threads[0].host_request
         assert hr.host_request_id == request_id
-        assert hr.is_public_trip_offer
+        assert hr.HasField("public_trip_id")
         assert hr.public_trip_id == trip_id
+        # viewer is the offering host: host_user_id == own id (viewer_is_host derived client-side)
         assert hr.host_user_id == host.id
         assert hr.surfer_user_id == traveler.id
-        assert hr.viewer_is_host
 
         # not under SURFING for the host
         res = c.ListMessageThreads(
@@ -270,8 +288,9 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         )
         assert [t.host_request.host_request_id for t in res.threads] == [request_id]
         assert res.threads[0].host_request.surfer_user_id == traveler.id
+        # viewer is the traveller, not the host: host_user_id != own id
         assert res.threads[0].host_request.host_user_id == host.id
-        assert not res.threads[0].host_request.viewer_is_host
+        assert res.threads[0].host_request.host_user_id != traveler.id
 
         res = c.ListMessageThreads(
             conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS)

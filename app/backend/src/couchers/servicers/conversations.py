@@ -406,8 +406,7 @@ def _host_request_thread_to_pb(
     public-trip offer the roles are reversed relative to initiator/recipient
     (initiator = offering host, recipient = traveller).
     """
-    is_public_trip_offer = host_request.public_trip_id is not None
-    if is_public_trip_offer:
+    if host_request.public_trip_id is not None:
         surfer_user_id = host_request.recipient_user_id
         host_user_id = host_request.initiator_user_id
     else:
@@ -429,8 +428,6 @@ def _host_request_thread_to_pb(
             if host_request.initiator_user_id == user_id
             else host_request.is_recipient_archived
         ),
-        is_public_trip_offer=is_public_trip_offer,
-        viewer_is_host=(host_user_id == user_id),
         public_trip_id=host_request.public_trip_id,
         unseen_message_count=unseen_message_count,
     )
@@ -724,12 +721,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     ) -> conversations_pb2.ListMessageThreadsRes:
         thread_filter = request.filter
 
+        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_filter")
+
         if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS and not context.get_boolean_value(
             "public_trips_enabled", False
         ):
             return conversations_pb2.ListMessageThreadsRes(threads=[], no_more=True)
 
-        page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+        page_size = request.page_size if request.page_size != 0 else DEFAULT_PAGINATION_LENGTH
         page_size = min(page_size, MAX_PAGE_SIZE)
         only_archived = request.only_archived if request.HasField("only_archived") else None
         unread = thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_UNREAD
@@ -806,6 +806,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         self, request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         thread_filter = request.filter
+
+        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_filter")
 
         if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS and not context.get_boolean_value(
             "public_trips_enabled", False
