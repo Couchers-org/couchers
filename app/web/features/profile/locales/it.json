@@ -7,8 +7,8 @@
   },
   "do_not_email_error_link": "Aggiorna le tue impostazioni mail per ri-attivarlo.",
   "heading": {
-    "about_me": "Chi sono",
-    "age_gender": "Età/Genere",
+    "about_me": "Su di me",
+    "age_gender": "Età / Genere",
     "edit": "Modifica",
     "edit_profile": "Modifica il profilo",
     "education": "Educazione",
@@ -25,30 +25,33 @@
     "lived_section": "Ho vissuto in",
     "map_section": "Mappa dei viaggi",
     "photos_section": "Foto",
-    "age_verification_verified": "Questo utente ha la propria data di nascita verificata",
-    "age_verification_mismatch": "La data di nascita indicata non corrisponde a quella verificata",
-    "gender_verification_verified": "Questo utente ha il proprio genere verificato",
-    "gender_verification_mismatch": "Il genere indicato non corrisponde a quello verificato"
+    "age_verification_verified": "Questo utente ha verificato la propria data di nascita",
+    "age_verification_mismatch": "La data di nascita indicata dall'utente non corrisponde a quella verificata",
+    "gender_verification_verified": "Questo utente ha verificato il proprio genere",
+    "gender_verification_mismatch": "Il genere indicato dall'utente non corrisponde a quello verificato",
+    "hometown": "Città natale",
+    "languages_fluent": "Lingue conosciute"
   },
   "edit": "Modifica il profilo",
   "helper_text": {
-    "missing_profile_photo": "Aggiungi una foto per completare il tuo profilo"
+    "missing_profile_photo": "Aggiungi una foto per completare il tuo profilo."
   },
   "incomplete_dialog": {
     "title": "Profilo incompleto",
-    "description": "Non potrai inviare richieste, messaggio o creare eventi fino a quando tu:",
-    "about_me_message": "Fai in modo che la sezione \"Chi sono\" contenga almeno 150 caratteri.",
-    "missing_photo_message": "Aggiungi una foto al profilo",
-    "continue_editing": "Continua la modifica"
+    "description": "Non potrai inviare richieste, messaggi o creare eventi finché non:",
+    "about_me_message": "Scrivi almeno 150 caratteri nella sezione \"Chi sono\".",
+    "missing_photo_message": "Aggiungi una foto profilo.",
+    "continue_editing": "Continua la modifica",
+    "save_anyway": "Salvare comunque?"
   },
   "home_info_headings": {
     "about_home": "La mia casa",
     "general": "Generale",
-    "has_housemates": "Ha dei coinquilini",
+    "has_housemates": "Ci sono coinquilini",
     "has_kids": "Ci sono bambini",
     "has_pets": "Ci sono animali domestici",
     "hosting_preferences": "Preferenze di ospitalità",
-    "house_rules": "Regole di casa",
+    "house_rules": "Regole della casa",
     "housemate_details": "Dettagli dei coinquilini",
     "kid_details": "Dettagli dei bambini",
     "last_minute": "Accetto richieste last-minute",
@@ -63,13 +66,13 @@
   "edit_profile_headings": {
     "regions_visited": "Regioni che ho visitato",
     "regions_lived": "Regioni in cui ho vissuto",
-    "languages_spoken": "Lingue che parlo correntemente",
+    "languages_spoken": "Lingue che parlo fluentemente",
     "name": "Nome",
-    "hometown": "Cresciuto in",
+    "hometown": "Città natale",
     "occupation": "Occupazione",
     "education": "Educazione",
     "basic_information": "Informazioni di base",
-    "basic_information_subtitle": "Inizia fornendo una tua foto, nome e posizione",
+    "basic_information_subtitle": "Inizia caricando una foto, il tuo nome e la tua posizione",
     "preferences": "Preferenze",
     "personal_information": "Informazioni personali",
     "travel_experience": "Esperienze di viaggio",
@@ -105,15 +108,22 @@
   "cancel": "Cancella",
   "more_profile_actions": "...",
   "report_details": "Dettagli",
-  "report_reason": "Ragioni",
+  "report_reason": "Motivo",
   "report_user": "Segnala questo utente",
   "leave_reference": {
-    "appropriate_question": "Ti sei sentita/o sicura/o con il comportamento di questa persona?",
+    "appropriate_question": "Ti sei sentito/a sicuro/a con il comportamento di questa persona?",
     "did_stay_confirmation": {
-      "title_hosted": "Conferma che {{name}} non è rimasto",
-      "title_surfed": "Conferma che non sei stato con {{name}}"
+      "title_hosted": "Conferma di non aver ospitato {{name}}",
+      "title_surfed": "Conferma di non aver alloggiato da {{name}}"
     },
-    "previous_step": "Punto precedente",
-    "reference_form_heading_friend": "Ti sei incontrato con {{name}}"
+    "previous_step": "Passaggio precedente",
+    "reference_form_heading_friend": "Hai incontrato {{name}}",
+    "reference_form_heading_did_stay_surfed": "Hai alloggiato da {{name}}?"
+  },
+  "actions": {
+    "add_friend": "Aggiungi un amico",
+    "back_to_dashboard": "Ritorna alla pagina principale",
+    "message_label": "Invia un messaggio",
+    "request": "Invia richiesta"
   }
 }
