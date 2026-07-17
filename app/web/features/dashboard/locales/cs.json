@@ -46,10 +46,13 @@
   "reminder": {
     "complete_profile": {
       "button": "Upravit svůj profil",
-      "title": "Dokonči svůj profil"
+      "title": "Dokonči svůj profil",
+      "description": "Vyplň svojí sekci \"Kdo jsem\" a nahraj profilovou fotku"
     },
     "strong_verification": {
-      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+      "description": "Ověř svoji identitu pro bezpečnější komunitu",
+      "title": "Silné ověření",
+      "button": "Ověř svůj účet"
     },
     "respond_to_host_request": {
       "description": "Nezapomeň odpovědět na žádost o ubytování od {{name}}.",
@@ -59,7 +62,8 @@
     "write_reference": {
       "title": "Napsat referenci",
       "description_surfed": "Zanech referenci na svůj pobyt u {{name}}",
-      "button": "Napiš referenci"
+      "button": "Napiš referenci",
+      "description_hosted": "Zanech referenci na pobyt {{name}} u tebe"
     },
     "complete_my_home": {
       "title": "Dokonči sekci \"Můj domov\" ve svém profilu",
@@ -70,13 +74,23 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Posunout doleva",
       "right_arrow_a11y": "Posunout doprava"
+    },
+    "confirm_host_request": {
+      "title": "Potvrď svůj pobyt u {{name}}",
+      "button": "Potvrď pobyt"
     }
   },
   "public_trips": {
     "when_tomorrow": "Zítra",
     "when_today": "Dnes",
     "manage_link": "Spravovat",
-    "when_now": "Nyní"
+    "when_now": "Nyní",
+    "empty_description": "Chystáš se někam? Zveřejni veřejnou cestu v komunitě a získej tak nabídky od hostitelů v okolí.",
+    "same_gender_only_indicator": "Stejné pohlaví",
+    "offers_count_one": "{{count}} nabídka",
+    "offers_count_few": "{{count}} nabídky",
+    "offers_count_other": "{{count}} nabídek",
+    "no_offers": "Zatím žádné nabídky"
   },
   "prev_page_button_a11y": "Předchozí stránka",
   "next_page_button_a11y": "Následující stránka",
@@ -101,6 +115,7 @@
     "night_count_one": "{{count}} noc",
     "night_count_few": "{{count}} noci",
     "night_count_other": "{{count}} nocí",
-    "no_upcoming_guests": "Zatím žádní nadcházející hosté."
+    "no_upcoming_guests": "Zatím žádní nadcházející hosté.",
+    "no_upcoming_trips": "Žádné nadcházející cesty. Připraveni objevovat?"
   }
 }
