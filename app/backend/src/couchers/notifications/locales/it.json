@@ -16,7 +16,8 @@
     "push_enabled": {
       "push": {
         "title": "Notifiche push abilitate",
-        "body": "Da adesso riceverai le notifiche su questo dispositivo."
+        "body": "Da adesso riceverai le notifiche su questo dispositivo.",
+        "ios_title": "Notifiche push abilitate"
       }
     }
   }

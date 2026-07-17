@@ -3,15 +3,19 @@
   "cancel_event": "Cancella evento",
   "show_cancelled_events": "Mostra gli eventi cancellati",
   "cancel_event_dialog": {
-    "message": "Sei sicuro di voler cancellare questo evento?"
+    "message": "Sei sicuro di voler cancellare questo evento?",
+    "title": "Cancellare evento?"
   },
   "invite_community_dialog": {
     "toast_success": "Grazie, la richiesta è stata inoltrata",
-    "link": "Altre informazioni su questa funzionalità"
+    "link": "Altre informazioni su questa funzionalità",
+    "title": "Richiedi un invito alla community per questo evento"
   },
   "invite_community_dialog_buttons": {
     "confirm": "Conferma",
     "close": "Cancella"
   },
-  "comment": "Commento"
+  "comment": "Commenta",
+  "cancelled": "Cancellato",
+  "cancel_event_success_message": "L'evento è stato cancellato correttamente."
 }
