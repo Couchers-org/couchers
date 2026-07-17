@@ -1,7 +1,14 @@
 {
   "notification_settings": {
-    "title": "Impostazioni notifiche"
+    "title": "Impostazioni notifiche",
+    "go_to_button": "Gestisci le impostazioni di notifica",
+    "edit_preferences": {
+      "title": "Impostazioni di notifica",
+      "expand_all": "Espandi tutto",
+      "error_loading": "Errore nel caricamento delle impostazioni di notifica"
+    }
   },
   "all": "Tutti",
-  "error_loading": "Errore di caricamento notifiche"
+  "error_loading": "Errore di caricamento notifiche",
+  "no_new_notifications": "Nessuna nuova notifica"
 }
