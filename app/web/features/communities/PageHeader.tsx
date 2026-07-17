@@ -21,7 +21,6 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
   [theme.breakpoints.up("md")]: {
     height: "16rem",
-    marginTop: theme.spacing(-2),
   },
 }));
 
