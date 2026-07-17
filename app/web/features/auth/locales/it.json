@@ -4,7 +4,9 @@
     "current_password": "Password attuale",
     "new_email": "Nuova e-mail",
     "title": "Modificare e-mail",
-    "success_message": "La tua modifica e-mail è stata ricevuta. Controlla la tua nuova e-mail per completare la modifica."
+    "success_message": "La tua modifica e-mail è stata ricevuta. Controlla la tua nuova e-mail per completare la modifica.",
+    "show_current_password": "Mostra la password attuale",
+    "hide_current_password": "Nascondi la password attuale"
   },
   "change_email_confirmation": {
     "success_message": "La tua e-mail è stata modificate correttamente!",
@@ -19,9 +21,10 @@
     "new_password": "Nuova password",
     "password_mismatch_error": "Le password non corrispondono.",
     "reset_password_success": "La tua password è stata modificata con successo!",
-    "subtitle": "Usa questo form per resettare la tua password.",
+    "subtitle": "Usa questo form per ripristinare la tua password.",
     "user_logged_error": "Non puoi resettare la tua password se hai effettuato l'accesso. Puoi cambiare la tua password nelle impostazioni o uscire dal tuo account per resettarla.",
-    "token_error": "C'è stato un'errore nella gestione della tua richiesta di reset della password. Per favore, prova a riaprire il link dall'email."
+    "token_error": "Si è verificato un errore durante il caricamento del token. Per favore, prova a riaprire il link dell'email.",
+    "reset_password_error": "Errore durante il ripristino della password: {{message}}"
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -30,7 +33,7 @@
   "login_page": {
     "title": "Accesso",
     "header": "Bentornato/a!",
-    "no_account_prompt": "Non hai ancora un'utenza? <2>Iscriviti</2>",
+    "no_account_prompt": "Non hai ancora un account? <2>Unisciti a noi</2>",
     "form": {
       "username_field_label": "E-mail/Nome utente",
       "password_field_label": "Password",
@@ -65,7 +68,7 @@
       "field_label": "Data di nascita",
       "required_error": "Inserisci la tua data di nascita",
       "validation_error": "Deve trattarsi di una data valida nel passato.",
-      "not_real_date_error": "Per favore, inserisci una data di nascita reale"
+      "not_real_date_error": "Inserire una data di nascita reale"
     },
     "hosting_status": {
       "field_label": "Stato ospitalità",
@@ -137,7 +140,7 @@
       "description": "I moderatori ti hanno inviato questo avviso. Leggilo attentamente e conferma di averlo letto e compreso prima di continuare."
     },
     "activeness_probe": {
-      "title": "Sei tuttora disponibile ad ospitare?",
+      "title": "Sei ancora disponibile ad ospitare?",
       "description": "Abbiamo notato che è da un po' che non ti colleghi e volevamo verificare se sei ancora disponibile ad ospitare.",
       "still_hosting": "Sono ancora disponibile ad ospitare!",
       "not_hosting": "Non ho più la possibilità di ospitare.",
@@ -251,7 +254,9 @@
       "no_emails_disabled_message": "Le email sono attualmente <1>abilitate</1> per il tuo account."
     },
     "action_button": {
-      "no_emails_disable_text": "Riattiva le email"
-    }
+      "no_emails_disable_text": "Riattiva le email",
+      "no_emails_enable_text": "Non voglio ricevere email"
+    },
+    "title": "Non voglio ricevere email"
   }
 }
