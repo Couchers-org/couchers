@@ -1,7 +1,7 @@
 {
   "errors": {
-    "account_not_found": "未找到使用该用户名或邮箱的账户。",
-    "account_suspended": "您的账户已被停用。",
+    "account_not_found": "未找到使用该用户名或邮箱的账号。",
+    "account_suspended": "您的账号已被暂停使用。",
     "address_line_1_required": "必须填写地址第1行。",
     "already_admin": "该用户已经是管理员。",
     "already_have_dm": "您已经和该用户有私信聊天。",
