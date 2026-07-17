@@ -3,8 +3,6 @@
   "actions": {
     "back_to_dashboard": "Voltar ao painel principal",
     "message_label": "Enviar mensagem",
-    "accept_friend_label": "Aceitar",
-    "decline_friend_label": "Recusar",
     "request": "Solicitar"
   },
   "active": "Ativo",
@@ -141,10 +139,6 @@
     "man": "Homem",
     "woman": "Mulher"
   },
-  "pronouns": {
-    "man": "ele",
-    "woman": "ela"
-  },
   "edit_profile_tab_bar_a11y_label": "abas para editar diferentes partes do seu perfil",
   "info_unanswered": "Pergunte para mim",
   "connection_pending": "Pendente",
@@ -248,8 +242,6 @@
     "hosted": "Hospedados",
     "surfed": "Hóspedes"
   },
-  "accept_friend_label": "Aceitar solicitação de amizade",
-  "decline_friend_label": "Recusar solicitação de amizade",
   "no_references": "Nenhuma referência desse tipo ainda!",
   "references_filter_a11y_label": "Mostrar referências: ",
   "see_more_references": "Ver mais referências",

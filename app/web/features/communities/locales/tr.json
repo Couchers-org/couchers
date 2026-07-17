@@ -64,5 +64,6 @@
   "load_more_attendees": "Daha fazla katılımcı yükle",
   "invalid_time": "Saat 24 saat formatında SS:DD olmalıdır.",
   "load_more_organizers": "Daha fazla organizatör yükle",
-  "location": "Konum"
+  "location": "Konum",
+  "delete_comment": "Yorumu sil"
 }

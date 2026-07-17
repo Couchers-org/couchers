@@ -73,7 +73,7 @@ export default function LanguagePickerSelect({
   const isAuthenticated = authState.authenticated;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { t } = useTranslation([GLOBAL]);
+  const { t, i18n } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
   const { showAllLanguages } = useShowAllLanguages();
@@ -124,7 +124,11 @@ export default function LanguagePickerSelect({
 
   // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
   // Languages with < 80% translated are greyed out
-  const availableLanguages = getAvailableLanguages(languages, showAllLanguages);
+  const availableLanguages = getAvailableLanguages(
+    languages,
+    showAllLanguages,
+    i18n.language,
+  );
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []

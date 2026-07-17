@@ -72,7 +72,6 @@ export default function DashboardMyPublicTrips() {
 
   useEffect(() => {
     updateScrollState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTrips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {

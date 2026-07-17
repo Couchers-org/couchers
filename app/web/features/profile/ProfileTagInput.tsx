@@ -19,13 +19,18 @@ import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { theme } from "theme";
 
+interface ProfileTagOption {
+  key: string;
+  label: string;
+}
+
 interface ProfileTagInputProps {
   onChange: (_: unknown, value: string[]) => void;
   value: string[];
-  options: string[];
+  // Possible options keys and their labels
+  options: Record<string, string>;
   label: string;
   id: string;
-  allowCsv?: boolean;
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputFieldProps?: ControllerRenderProps<any, string>;
@@ -148,7 +153,16 @@ export default function ProfileTagInput({
   className,
   inputFieldProps,
 }: ProfileTagInputProps) {
-  const { t } = useTranslation(PROFILE);
+  const { t, i18n } = useTranslation(PROFILE);
+
+  // In case some value doesn't map to an option, add a fake option for it.
+  // For example if value is [en, xx] and options is { en: "English", fr: "French" },
+  // then we extend to { en: "English", fr: "French", xx: "xx" },
+  // so the all values can be displayed.
+  const effectiveOptions: Record<string, string> = {
+    ...Object.fromEntries(value.map((k) => [k, k])),
+    ...options,
+  };
 
   const [open, setOpen] = useState<boolean>(false);
   const anchorEl = useRef<null | HTMLButtonElement>(null);
@@ -170,10 +184,10 @@ export default function ProfileTagInput({
     setOpen(false);
   };
 
-  const handleRemove = (tag: string) => {
+  const handleRemove = (key: string) => {
     onChange(
       null,
-      value.filter((v) => v !== tag),
+      value.filter((v) => v !== key),
     );
   };
 
@@ -191,29 +205,32 @@ export default function ProfileTagInput({
         <ExpandMoreIcon />
       </StyledButtonBase>
       <StyledTagsContainer>
-        {value.map((tag) => (
-          <StyledTagWrapper key={tag}>
-            <IconButton
-              aria-label={t("profile_tag_input.remove_button_a11y_text", {
-                tag,
-              })}
-              edge="start"
-              onClick={() => handleRemove(tag)}
-              size="small"
-              sx={{
-                color: "var(--mui-palette-common-white)",
-                padding: 0.5,
-                "&:hover": {
-                  backgroundColor: "var(--mui-palette-primary-dark)",
+        {value.map((key) => {
+          const label = effectiveOptions[key];
+          return (
+            <StyledTagWrapper key={key}>
+              <IconButton
+                aria-label={t("profile_tag_input.remove_button_a11y_text", {
+                  tag: label,
+                })}
+                edge="start"
+                onClick={() => handleRemove(key)}
+                size="small"
+                sx={{
                   color: "var(--mui-palette-common-white)",
-                },
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-            <StyledTagLabel>{tag}</StyledTagLabel>
-          </StyledTagWrapper>
-        ))}
+                  padding: 0.5,
+                  "&:hover": {
+                    backgroundColor: "var(--mui-palette-primary-dark)",
+                    color: "var(--mui-palette-common-white)",
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+              <StyledTagLabel>{label}</StyledTagLabel>
+            </StyledTagWrapper>
+          );
+        })}
       </StyledTagsContainer>
       {open && anchorEl.current && (
         <StyledPopper
@@ -222,28 +239,28 @@ export default function ProfileTagInput({
           anchorEl={anchorEl.current}
           placement="bottom-start"
         >
-          <Autocomplete
+          <Autocomplete<ProfileTagOption, true>
             {...inputFieldProps}
             open
             onClose={handleClose}
             multiple
             onChange={(_, newValue) => {
-              let uniqueValues: Set<string>;
               if (Array.isArray(newValue) && newValue.length) {
                 // For some reason I came across situations when there were undefined values in this array.
                 newValue = newValue.filter((element) => element !== undefined);
-
-                uniqueValues = new Set(newValue);
+                setPendingValue(
+                  Array.from(new Set(newValue.map((o) => o.key))),
+                );
               } else {
-                uniqueValues = new Set([]);
+                setPendingValue([]);
               }
-              setPendingValue(
-                Array.from(uniqueValues).filter(
-                  (value) => !/^\s*$/.test(value),
-                ),
-              );
             }}
-            value={pendingValue}
+            value={pendingValue.map((key) => ({
+              key,
+              label: effectiveOptions[key],
+            }))}
+            isOptionEqualToValue={(option, val) => option.key === val.key}
+            getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <StyledInputBase
                 ref={params.InputProps.ref}
@@ -253,9 +270,9 @@ export default function ProfileTagInput({
             )}
             disableCloseOnSelect
             disablePortal
-            options={options
-              .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
-              .sort((a, b) => -b.localeCompare(a))}
+            options={Object.entries(effectiveOptions)
+              .map(([key, label]) => ({ key, label }))
+              .sort((a, b) => a.label.localeCompare(b.label, i18n.language))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
@@ -267,7 +284,7 @@ export default function ProfileTagInput({
                     checked={selected}
                   />
 
-                  {option}
+                  {option.label}
                 </StyledAutocompleteOption>
               );
             }}

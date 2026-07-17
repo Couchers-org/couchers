@@ -1,9 +1,7 @@
 {
   "actions": {
-    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
-    "accept_friend_label": "Accepter",
     "request": "Envoyer une demande"
   },
   "heading": {
@@ -205,10 +203,6 @@
   "edit_profile_name_required": "Prénom requis",
   "unspecified_info": "-",
   "cancel": "Annuler",
-  "pronouns": {
-    "man": "il / lui",
-    "woman": "elle / elle"
-  },
   "my_connections": "Mes connexions",
   "connection_pending": "En attente",
   "more_profile_actions": "...",
@@ -248,8 +242,6 @@
     "friend": "Par des ami(e)s",
     "given": "Donnée aux autres"
   },
-  "accept_friend_label": "Accepter la demande d'ami",
-  "decline_friend_label": "Refuser la demande d’ami",
   "response_time_text_most": "Normalement de {{p33}} à {{p66}}",
   "response_time_text_almost_all": "Normalement de {{p33}} à {{p66}}",
   "no_references": "Aucune référence de ce type pour le moment !",

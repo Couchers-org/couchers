@@ -3,7 +3,6 @@
   "please_complete_profile": "請完善您的個人資料，並確保它會顯示在搜尋結果中：",
   "fill_in_who_i_am": "1.填寫您的\"我是誰\"部分，介紹一下自己",
   "upload_photo": "2.上傳照片（點擊編輯頁面上的頭像）",
-  "edit_profile_button_text": "編輯個人資料",
   "complete_profile_explanation": "您是不是也討厭其他平台上那些空白、沒有內容的「幽靈」資料？請別讓自己也變成其中之一！👻👻👻",
   "your_communities_heading": "您的社群",
   "all_communities_heading": "所有社群",
@@ -41,14 +40,12 @@
   "all_communities_intro": "以下是目前已存在的所有社群頁面。<strong>點擊社群名稱即可查看其底下的其他社群。</strong>",
   "community_missing": "您的國家或城市不在列表中嗎？請使用<1>此表格</1>進行申請！",
   "browse_communities_text": "點擊區域名稱即可在下方查看該區域內的其他社群。點擊連結可進入該城市或區域的社群頁面。",
-  "member_count_one": "{{count}}位成員",
   "member_count_other": "{{count}}位成員",
   "events": {
     "your_upcoming_header": "您即將參加的活動",
     "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前沒有活動。何不<0>建立</0>一個✨？",
-    "community_header": "您所在社群的活動",
-    "location_online_label": "線上"
+    "community_header": "您所在社群的活動"
   },
   "reminder": {
     "respond_to_host_request": {

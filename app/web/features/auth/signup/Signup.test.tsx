@@ -594,7 +594,7 @@ describe("Signup", () => {
     expect(
       await screen.findByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
-    expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
+    expect(signupFlowEmailTokenMock).toHaveBeenCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);
   });

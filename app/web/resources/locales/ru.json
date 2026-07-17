@@ -164,7 +164,10 @@
     "merch_shop": "Магазин мерча",
     "switch_to_light_mode": "Переключиться на светлую тему",
     "switch_to_dark_mode": "Переключиться на тёмную тему",
-    "home": "Главная"
+    "home": "Главная",
+    "close_menu_a11y": "Закрыть меню",
+    "open_drawer_a11y": "Открыть меню",
+    "close_drawer_a11y": "Закрыть меню"
   },
   "team": {
     "title": "Команда",
@@ -339,5 +342,11 @@
     "byline_with_author": "Написано <1/>. Опубликовано {{date}}.",
     "byline_without_author": "Опубликовано {{date}}.",
     "cta_message": "Хотите помочь писать для нашего блога или стать волонтёром? <1>Зарегистрируйтесь</1> и сообщите нам. Волонтёры и <3>пожертвования</3> — это то, благодаря чему Couchers.org существует!"
+  },
+  "close_button_a11y": "Закрыть",
+  "app_store_badge_a11y": "Скачать в App Store",
+  "google_play_badge_a11y": "Скачать в Google Play",
+  "bar": {
+    "help_button_a11y": "Помощь"
   }
 }

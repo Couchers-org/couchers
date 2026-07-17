@@ -60,5 +60,26 @@
     "unarchive_button": "Vrátit z archivu",
     "no_archived_requests": "Žádné archivované požadavky",
     "no_archived_messages": "Žádné archivované zprávy"
+  },
+  "reference_card": {
+    "title": "Napiš referenci",
+    "description": "Nasdílej svou zkušenost a pomoz komunitě."
+  },
+  "respond_box_title": "Odeslat odpověď",
+  "respond_box_description": "Vyber odpověď a dej {{name}} hned vědět. Klidně pak připoj i zprávu.",
+  "status_bar_edit_button": "Upravit",
+  "status_bar_cancel_edit_button": "Zrušit",
+  "status_bar_close_button": "Zavřít",
+  "surfer_bar_pending": "Tvá žádost o ubytování byla odeslána – čeká se na odpověď od {{name}}.",
+  "cancel_request_button": "Zrušit žádost",
+  "cancel_request_dialog_title": "Zrušit žádost?",
+  "cancel_request_dialog_message": "Opravdu chceš zrušit svou žádost? Tuto akci nelze vrátit zpět.",
+  "cancel_request_dialog_confirm_button": "Ano, zrušit",
+  "cancel_request_dialog_dismiss_button": "Ne",
+  "private_feedback_card": {
+    "title": "Hodnocení této žádosti",
+    "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
+    "quality_high": "Kvalitní",
+    "quality_okay": "Dobrá"
   }
 }

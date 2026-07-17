@@ -109,10 +109,6 @@ describe("Event form", () => {
       screen.getByLabelText(t("communities:location")),
       "",
     );
-    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
-    expect(
-      screen.getByLabelText(t("communities:virtual_event")),
-    ).not.toBeChecked();
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
     expect(
       screen.getByRole("button", { name: t("global:create") }),
@@ -152,9 +148,6 @@ describe("Event form", () => {
       screen.getByLabelText(t("communities:location")),
       "Concertgebouw",
     );
-    expect(
-      screen.getByLabelText(t("communities:virtual_event")),
-    ).not.toBeChecked();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:event_details")),
       "*Be there* or be square!",
@@ -165,31 +158,13 @@ describe("Event form", () => {
   });
 
   it("renders the image input for an event with no photo correctly", async () => {
-    renderForm(events[2], true);
+    renderForm(events[1], true);
 
     expect(
       await screen.findByRole("img", {
         name: t("communities:event_image_input_alt"),
       }),
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
-  });
-
-  it("should hide the location field when the virtual event checkbox is ticked", async () => {
-    renderForm();
-
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    );
-
-    await user.click(virtualEventCheckbox);
-
-    expect(screen.getByLabelText(t("communities:virtual_event"))).toBeChecked();
-    expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
-    expect(
-      screen.queryByLabelText(t("communities:location")),
-    ).not.toBeInTheDocument();
   });
 
   it("should not submit if the title is missing", async () => {
@@ -204,7 +179,7 @@ describe("Event form", () => {
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
-  it("should not submit if location is missing for an offline event", async () => {
+  it("should not submit if location is missing for an event", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -221,37 +196,6 @@ describe("Event form", () => {
     expect(
       await screen.findByText(t("communities:location_required")),
     ).toBeVisible();
-    expect(serviceFn).not.toHaveBeenCalled();
-  });
-
-  it("should not submit if an event meeting link is missing for an online event", async () => {
-    renderForm();
-
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
-
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
-
-    await user.click(virtualEventCheckbox);
-
-    expect(virtualEventCheckbox.checked).toBe(true);
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
-
-    const linkRequiredHelperText = await screen.findByText(
-      t("communities:link_required"),
-    );
-
-    expect(linkRequiredHelperText).toBeVisible();
-
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -296,21 +240,14 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
-
-    await user.click(virtualEventCheckbox);
-
-    expect(virtualEventCheckbox.checked).toBe(true);
-
-    const eventLinkInput = await screen.findByLabelText(
-      t("communities:event_link"),
+    const locationInput = await screen.getByLabelText(
+      t("communities:location"),
     );
-
-    await user.type(eventLinkInput, "https://couchers.org/social");
-
-    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
+    await user.type(locationInput, "tes{enter}");
+    expect(locationInput).toHaveValue("tes");
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
     await user.type(
       screen.getByLabelText(t("communities:event_details")),
@@ -328,17 +265,16 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(true);
-    expect(submittedData.link).toBe("https://couchers.org/social");
+    expect(submittedData.location.name).toBe(
+      "test city, test county, test country",
+    );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -387,15 +323,16 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    await user.click(screen.getByLabelText(t("communities:virtual_event")));
-
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
+    const locationInput = (await screen.findByLabelText(
+      t("communities:location"),
     )) as HTMLInputElement;
 
-    await user.type(eventLinkInput, "https://couchers.org/social");
+    await user.type(locationInput, "tes{enter}");
+    expect(locationInput).toHaveValue("tes");
 
-    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
+    await user.click(
+      await screen.findByText("test city, test county, test country"),
+    );
 
     await user.type(
       screen.getByLabelText(t("communities:event_details")),
@@ -414,7 +351,7 @@ describe("Event form", () => {
     await assertErrorAlert(errorMessage);
   });
 
-  it("should submit an offline event successfully", async () => {
+  it("should submit an event successfully", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -484,18 +421,15 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(false);
     expect(submittedData.location.name).toBe(
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 });

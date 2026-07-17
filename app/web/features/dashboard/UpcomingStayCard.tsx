@@ -10,9 +10,10 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
+import { Temporal } from "temporal-polyfill";
 import {
   localizeDateTimeRange,
-  localizeRelativeDays,
+  localizeRelativeTimeUnit,
   UTC_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
@@ -151,17 +152,22 @@ export default function UpcomingStayCard({
   const daysUntilEnd = toDate.diff(today, "day");
   const isOngoing = daysUntil <= 0 && daysUntilEnd >= 0;
   const isImminent = daysUntil <= 3;
-  const relativeDaysLabel = (() => {
-    const label = localizeRelativeDays(daysUntil, locale);
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  })();
-
-  const dateRange = localizeDateTimeRange(fromDate, toDate, {
-    timezone: UTC_TIMEZONE,
+  const relativeDaysLabel = localizeRelativeTimeUnit(
+    daysUntil,
+    "days",
     locale,
-    includeTime: false,
-    abbreviate: true,
-  });
+    { capitalize: true },
+  );
+
+  const dateRange = localizeDateTimeRange(
+    Temporal.PlainDateTime.from(hostRequest.fromDate),
+    Temporal.PlainDateTime.from(hostRequest.toDate),
+    {
+      locale,
+      includeTime: false,
+      abbreviate: true,
+    },
+  );
 
   const primary = isLoading ? (
     <Skeleton width={80} />

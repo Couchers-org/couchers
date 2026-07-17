@@ -16,7 +16,6 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
@@ -33,13 +32,13 @@ import {
   routeToEvent,
 } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
-  BROWSER_TIMEZONE,
   localizeDateTimeRange,
-  timestamp2Date,
+  timestampToInstant,
+  timestampToPlainDateTime,
 } from "utils/date";
-import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -80,13 +79,6 @@ const StyledBackButton = styled(HeaderButton)(() => ({
 
 const StyledTitle = styled("div")(() => ({
   gridArea: "eventTitle",
-}));
-
-const StyledOnlineInfoContainer = styled("div")(() => ({
-  display: "grid",
-  columnGap: theme.spacing(2),
-  gridAutoFlow: "column",
-  gridTemplateColumns: "max-content max-content",
 }));
 
 const StyledEventTypeText = styled(Typography)(() => ({
@@ -244,7 +236,10 @@ export default function EventPage({
   };
 
   const isPastEvent = event?.endTime
-    ? dayjs().isAfter(timestamp2Date(event.endTime))
+    ? Temporal.Instant.compare(
+        timestampToInstant(event.endTime),
+        Temporal.Now.instant(),
+      ) < 0
     : false;
 
   const isCreator = currentUserId === event?.creatorUserId;
@@ -351,24 +346,9 @@ export default function EventPage({
               </StyledBackButton>
               <StyledTitle>
                 <Typography variant="h1">{event.title}</Typography>
-                {event.onlineInformation ? (
-                  <StyledOnlineInfoContainer>
-                    <StyledEventTypeText variant="body1">
-                      {t("communities:virtual_event")}
-                    </StyledEventTypeText>
-                    <StyledLink
-                      href={event.onlineInformation.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t("communities:event_link")}
-                    </StyledLink>
-                  </StyledOnlineInfoContainer>
-                ) : (
-                  <StyledEventTypeText variant="body1">
-                    {event.offlineInformation?.address}
-                  </StyledEventTypeText>
-                )}
+                <StyledEventTypeText variant="body1">
+                  {event.location?.address}
+                </StyledEventTypeText>
                 {event.isCancelled && (
                   <StyledCancelledChip label={t("communities:cancelled")} />
                 )}
@@ -434,11 +414,10 @@ export default function EventPage({
                 <StyledCalendarIcon />
                 <Typography variant="body1">
                   {localizeDateTimeRange(
-                    dayjs(timestamp2Date(event.startTime!)),
-                    dayjs(timestamp2Date(event.endTime!)),
+                    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+                    timestampToPlainDateTime(event.startTime!),
+                    timestampToPlainDateTime(event.endTime!),
                     {
-                      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-                      timezone: BROWSER_TIMEZONE,
                       locale,
                       includeDayOfWeek: true,
                       capitalize: true,

@@ -135,14 +135,14 @@
     "pending": "Diese Anfrage ist noch ausstehend",
     "host_status": {
       "accepted": "Du hast diese Anfrage angenommen",
-      "cancelled": "Du hast diese Anfrage storniert",
+      "cancelled": "Der Surfer hat diese Anfrage storniert",
       "confirmed": "Viel Spaß! Du hast diese Anfrage angenommen und der Surfer hat sie bestätigt.",
       "rejected": "Du hast diese Anfrage abgelehnt",
       "accepted_waiting": "Du hast diese Anfrage angenommen — warte auf die Bestätigung des Surfers."
     },
     "surfer_status": {
       "accepted": "Viel Spaß! {{name}} hat die Anfrage angenommen.",
-      "cancelled": "Deine Anfrage wurde storniert",
+      "cancelled": "Du hast diese Anfrage storniert",
       "confirmed": "Viel Spaß! {{name}} hat diese Anfrage angenommen und du hast sie bestätigt.",
       "rejected": "Deine Anfrage wurde abgelehnt"
     },
@@ -198,11 +198,6 @@
     "quality_okay": "Ok",
     "quality_low": "Niedrige Qualität",
     "decline_reason_label": "Warum hast du abgelehnt?",
-    "reason_didnt_read_profile": "Hat mein Profil nicht gelesen",
-    "reason_dont_want_to_host": "Ich will diese Person nicht hosten",
-    "reason_not_available": "Ich kann dann nicht hosten",
-    "reason_one": "Sonstiges",
-    "reason_other": "Sonstiges",
     "reason_other_placeholder": "Bitte erzähle uns mehr...",
     "privacy_notice": "Deine Antworten sind privat und werden nicht mit dem Nutzer geteilt. Wir können sie in aggregierter und anonymer Form — zusammen mit vielen anderen — verwenden, um das Feedback für alle Nutzer zu verbessern.",
     "skip_button": "Überspringen",

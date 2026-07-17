@@ -16,10 +16,9 @@ import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
@@ -72,50 +71,21 @@ export default function CreateEventPage() {
     { parentCommunityId?: number }
   >({
     mutationFn: (data) => {
-      let createEventInput: CreateEventInput;
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
-
       // Use uploaded photo, or reuse photo from event being duplicated
       const photoKey =
         data.eventImage || eventToDuplicate?.photoKey || undefined;
 
-      if (data.isOnline) {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          // TODO: not hardcode this and allow user to specify community ID?
-          parentCommunityId: 1,
-          link: data.link,
-        };
-      } else {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-          parentCommunityId: urlCommunityId,
-        };
-      }
+      const createEventInput: CreateEventInput = {
+        title: data.title,
+        content: data.content,
+        photoKey,
+        startTime: data.startDate.toPlainDateTime(data.startTime),
+        endTime: data.endDate.toPlainDateTime(data.endTime),
+        address: data.location.name,
+        lat: data.location.location.lat,
+        lng: data.location.location.lng,
+        parentCommunityId: urlCommunityId,
+      };
       return service.events.createEvent(createEventInput);
     },
 

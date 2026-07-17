@@ -755,7 +755,7 @@ def test_DeleteEvent(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

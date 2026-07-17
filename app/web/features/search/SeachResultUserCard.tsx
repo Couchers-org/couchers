@@ -3,6 +3,7 @@ import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
+import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
@@ -19,10 +20,9 @@ import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { localizeRelativeTime, timestampToInstant } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
-import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -46,7 +46,7 @@ function displayedAttributes(
   user: SearchUser.AsObject,
 ): Record<string, unknown> {
   const lastActive = user.lastActive
-    ? timestamp2Date(user.lastActive).getTime()
+    ? timestampToInstant(user.lastActive).epochMilliseconds
     : null;
   return {
     has_avatar: user.avatarUrl.length > 0,
@@ -293,6 +293,7 @@ const SearchResultUserCard = ({
                   {user.name}
                 </Typography>
               </ProfileLink>
+              {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
             {!isNativeEmbed && !isMobile && (
               <StyledLink
@@ -340,11 +341,9 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive
                 ? `${t("profile:active")}: ` +
-                  timeAgo({
-                    since: timestamp2Date(user.lastActive),
+                  localizeRelativeTime(user.lastActive, locale, {
+                    smallestUnit: "hours",
                     t,
-                    locale,
-                    minimumUnit: TimeUnit.Hours,
                   })
                 : t("last_active_false")}
             </Typography>

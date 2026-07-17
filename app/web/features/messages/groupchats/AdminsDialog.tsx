@@ -176,7 +176,7 @@ export default function AdminsDialog({
   groupChat,
   ...props
 }: AdminsDialogProps) {
-  const { t } = useTranslation([GLOBAL, MESSAGES]);
+  const { t, i18n } = useTranslation([GLOBAL, MESSAGES]);
   const [error, setError] = useState("");
 
   const nonAdminIds = groupChat?.memberUserIdsList.filter(
@@ -213,7 +213,10 @@ export default function AdminsDialog({
             <CenteredSpinner />
           ) : (
             Array.from(admins.data?.values() ?? [])
-              .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)
+              .sort(
+                (a, b) =>
+                  b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0,
+              )
               .map((user) =>
                 user ? (
                   <AdminListItem
@@ -242,7 +245,10 @@ export default function AdminsDialog({
                 <CenteredSpinner />
               ) : (
                 Array.from(nonAdmins.data?.values() ?? [])
-                  .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)
+                  .sort(
+                    (a, b) =>
+                      b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0,
+                  )
                   .map((user) =>
                     user ? (
                       <AdminListItem

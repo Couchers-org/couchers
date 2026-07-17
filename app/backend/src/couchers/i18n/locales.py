@@ -63,13 +63,13 @@ def to_supported_locale(locale: str) -> str:
     return DEFAULT_LOCALE
 
 
-def get_locale_fallbacks(locale: str) -> list[str]:
-    """Gets the list of locales to which to fallback to if the given one is unavailable."""
+def get_locale_chain(locale: str) -> list[str]:
+    """Gets the ordered list of locales to try when looking up a string, starting with the given locale."""
     if fallback := _LOCALE_FALLBACKS.get(locale):
-        return [fallback, DEFAULT_LOCALE]
+        return [locale, fallback, DEFAULT_LOCALE]
     if locale == DEFAULT_LOCALE:
-        return []
-    return [DEFAULT_LOCALE]
+        return [locale]
+    return [locale, DEFAULT_LOCALE]
 
 
 def get_babel_locale(locale: str) -> babel.Locale:
@@ -99,12 +99,6 @@ def load_locales(directory: Path) -> I18Next:
     default_translation = i18next.translations_by_locale.get(DEFAULT_LOCALE)
     if default_translation is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.default_translation = default_translation
-
-    # Apply fallbacks
-    for translation in i18next.translations_by_locale.values():
-        for fallback_locale in get_locale_fallbacks(translation.locale):
-            translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next
 

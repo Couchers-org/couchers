@@ -1,29 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { regionsKey } from "features/queryKeys";
+import { useTranslation } from "i18n";
 import { service } from "service";
 
 export const useRegions = () => {
-  const { data, ...rest } = useQuery({
-    queryKey: [regionsKey],
+  const locale = useTranslation().i18n.language;
+  const { data: regions, ...rest } = useQuery({
+    queryKey: [regionsKey, locale],
     queryFn: () =>
-      service.resources.getRegions().then((result) =>
-        result.regionsList.reduce(
-          (regionsResult, { alpha3, name }) => {
-            regionsResult.regions[alpha3] = name;
-            regionsResult.regionsLookup[name] = alpha3;
-            return regionsResult;
-          },
-          {
-            regions: {} as { [code: string]: string },
-            regionsLookup: {} as { [name: string]: string },
-          },
+      service.resources
+        .getRegions()
+        .then((result) =>
+          Object.fromEntries(
+            result.regionsList.map(({ alpha3, name }) => [alpha3, name]),
+          ),
         ),
-      ),
   });
 
-  return {
-    regions: data?.regions,
-    regionsLookup: data?.regionsLookup,
-    ...rest,
-  };
+  return { regions, ...rest };
 };

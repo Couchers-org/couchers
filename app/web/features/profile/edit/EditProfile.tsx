@@ -2,11 +2,8 @@ import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   DialogContent,
-  FormControlLabel,
   List,
   ListItem,
-  Radio,
-  RadioGroup,
   styled,
   Tooltip,
   Typography,
@@ -20,7 +17,6 @@ import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -49,13 +45,9 @@ import {
   nameMaxLength,
   nameMinLength,
   nameValidationPattern,
+  profileAboutMeMinLength,
 } from "utils/validation";
 
-import {
-  ABOUT_ME_MIN_LENGTH,
-  DEFAULT_ABOUT_ME_HEADINGS,
-  DEFAULT_HOBBIES_HEADINGS,
-} from "./constants";
 import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
@@ -100,14 +92,6 @@ const SectionSubtitle = styled(Typography)(({ theme }) => ({
 
 const FieldGroup = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-}));
-
-const RadioGroupContainer = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  "& .MuiFormControlLabel-root": {
-    marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 const HelpTextContainer = styled(Box)(({ theme }) => ({
@@ -248,15 +232,6 @@ const StyledProfileTextInput = styledField(ProfileTextInput);
 
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
-const StyledRadioGroup = styled(RadioGroup)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-  },
-}));
-
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const router = useRouter();
@@ -278,8 +253,8 @@ export default function EditProfileForm() {
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
+  const { regions } = useRegions();
+  const { languages } = useLanguages();
 
   const initialFormValues =
     user && languages && regions
@@ -292,16 +267,12 @@ export default function EditProfileForm() {
           hostingStatus: user.hostingStatus,
           meetupStatus: user.meetupStatus,
           fluentLanguages: user.languageAbilitiesList
-            .map((ability) => languages[ability.code] || "")
+            .map((ability) => ability.code)
             .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          regionsLived: user.regionsLivedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
+          regionsVisited: user.regionsVisitedList,
+          regionsLived: user.regionsLivedList,
           aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          thingsILike: user.thingsILike,
           additionalInformation: user.additionalInformation,
           location: {
             city: user.city,
@@ -378,21 +349,14 @@ export default function EditProfileForm() {
           profileData: {
             ...location,
             ...restData,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region],
-            ),
+            regionsVisited,
+            regionsLived,
             languageAbilities: {
               valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
+                code: language,
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
-              ? ""
-              : data.thingsILike,
           },
           setMutationError: setErrorMessage,
           onSuccess: () => {
@@ -419,7 +383,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeField.length < profileAboutMeMinLength || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -458,13 +422,17 @@ export default function EditProfileForm() {
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  2: (
+                    <StyledLink
+                      variant="body1"
+                      href={howToMakeGreatProfileUrl}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
@@ -564,6 +532,16 @@ export default function EditProfileForm() {
                   defaultValue={user.name}
                   error={!!errors?.name?.message}
                   helperText={errors?.name?.message ?? " "}
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <StyledProfileTextInput
+                  id="pronouns"
+                  {...register("pronouns")}
+                  label={t("profile:edit_profile_headings.pronouns")}
+                  defaultValue={user.pronouns}
+                  placeholder={t("profile:edit_profile_pronouns_placeholder")}
                 />
               </FieldGroup>
 
@@ -786,69 +764,12 @@ export default function EditProfileForm() {
                 )}
               </SectionSubtitle>
 
-              <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.pronouns")}
-                </Typography>
-                <Controller
-                  control={control}
-                  defaultValue={user.pronouns}
-                  name="pronouns"
-                  render={({ field }) => {
-                    const other =
-                      field.value === t("profile:pronouns.woman") ||
-                      field.value === t("profile:pronouns.man")
-                        ? ""
-                        : field.value;
-                    return (
-                      <RadioGroupContainer>
-                        <StyledRadioGroup
-                          {...field}
-                          row
-                          aria-label={t(
-                            "profile:edit_profile_headings.pronouns",
-                          )}
-                          name="pronouns"
-                          value={field.value}
-                          onChange={(_, value) => field.onChange(value)}
-                        >
-                          <FormControlLabel
-                            value={t("profile:pronouns.woman")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.woman")}
-                          />
-                          <FormControlLabel
-                            value={t("profile:pronouns.man")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.man")}
-                          />
-                          <FormControlLabel
-                            value={other}
-                            control={<Radio />}
-                            label={
-                              <TextField
-                                id="pronouns-other"
-                                variant="standard"
-                                onChange={(event) =>
-                                  field.onChange(event.target.value)
-                                }
-                                value={other}
-                              />
-                            }
-                          />
-                        </StyledRadioGroup>
-                      </RadioGroupContainer>
-                    );
-                  }}
-                />
-              </FieldGroup>
-
               {languages && (
                 <FieldGroup>
                   <Controller
                     control={control}
                     defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
+                      (ability) => ability.code,
                     )}
                     name="fluentLanguages"
                     render={({ field }) => (
@@ -856,7 +777,7 @@ export default function EditProfileForm() {
                         inputFieldProps={field}
                         onChange={(_, value) => field.onChange(value)}
                         value={field.value}
-                        options={Object.values(languages)}
+                        options={languages}
                         label={t(
                           "profile:edit_profile_headings.languages_spoken",
                         )}
@@ -919,15 +840,15 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={t("profile:about_me_textbox_placeholder")}
                   defaultValue={user.aboutMe}
                   control={control}
-                  warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
+                  warning={aboutMeField.length < profileAboutMeMinLength}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: ABOUT_ME_MIN_LENGTH - aboutMeField.length,
+                        count: profileAboutMeMinLength - aboutMeField.length,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -960,7 +881,8 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={user.thingsILike}
+                  placeholder={t("profile:hobbies_textbox_placeholder")}
                   control={control}
                 />
               </FieldGroup>
@@ -991,16 +913,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsVisitedList}
                     name="regionsVisited"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t(
                           "profile:edit_profile_headings.regions_visited",
                         )}
@@ -1013,16 +933,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsLivedList}
                     name="regionsLived"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t("profile:edit_profile_headings.regions_lived")}
                         id="regions-lived"
                       />
@@ -1078,7 +996,7 @@ export default function EditProfileForm() {
                 >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeField.length < profileAboutMeMinLength && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>

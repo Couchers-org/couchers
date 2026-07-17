@@ -983,3 +983,46 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 1
         assert not res.public_trips[0].HasField("offers_count")
+
+
+def test_viewer_host_request_id_reflects_viewers_own_offer(db):
+    traveler, _ = generate_user()
+    host, host_token = generate_user()
+    _, other_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # Before offering, the host sees 0.
+    with public_trips_session(host_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == 0
+
+    # The host makes an offer on the trip.
+    with requests_session(host_token) as api:
+        create_res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveler.id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=_valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+    host_request_id = create_res.host_request_id
+
+    with public_trips_session(host_token) as api:
+        # The offering host now sees their own host request id (List and Get).
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == host_request_id
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert get_res.viewer_host_request_id == host_request_id
+
+    # A different viewer who hasn't offered still sees 0.
+    with public_trips_session(other_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == 0

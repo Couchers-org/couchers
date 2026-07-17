@@ -1,0 +1,28 @@
+{
+  "strong_verification": {
+    "succeeded": {
+      "donate_action": "Přispěj na podporu Couchers.org",
+      "donation_request": "Pokud můžeš, zvaž prosím dar, který pomůže udržet Couchers.org v provozu a podpoří jeho další růst.",
+      "subject": "Silné ověření proběhlo úspěšně"
+    }
+  },
+  "signup": {
+    "continue": {
+      "purpose": "Prosím dokonči registraci na Couchers.org. Pokračuj kliknutím na tento odkaz:",
+      "continue_action": "Dokonči registraci"
+    },
+    "subject": "Dokonči registraci na Couchers.org",
+    "closing": "Uvidíme se za chvíli :)",
+    "verify": {
+      "thanks": "Děkujeme, že jste se zaregistrovali na Couchers.org!",
+      "instructions": "Chceš-li dokončit nastavení svého účtu, klikni prosím na následující odkaz:",
+      "confirm_action": "Potvrď svou e-mailovou adresu"
+    }
+  },
+  "references": {
+    "write_action": "Napiš referenci pro {{name}}"
+  },
+  "generic": {
+    "greeting_line": "Ahoj {{name}},"
+  }
+}

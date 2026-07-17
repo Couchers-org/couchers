@@ -40,6 +40,7 @@ export function isLanguageProductionReady(
 export function getAvailableLanguages(
   languages: WeblateLanguage[] | undefined,
   showAll = false,
+  locale?: string,
 ): WeblateLanguage[] {
   if (!languages) {
     return [];
@@ -63,6 +64,6 @@ export function getAvailableLanguages(
         b.translated_percent >= ALMOST_DONE_CUTOFF
       )
         return 1;
-      return a.code.localeCompare(b.code);
+      return a.code.localeCompare(b.code, locale);
     });
 }

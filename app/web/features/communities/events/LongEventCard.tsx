@@ -15,12 +15,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
-import dayjs from "utils/dayjs";
+import { localizeDateTimeRange, timestampToPlainDateTime } from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: 0,
@@ -137,11 +132,10 @@ const LongEventCard = ({
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    dayjs(timestamp2Date(event.startTime!)),
-    dayjs(timestamp2Date(event.endTime!)),
+    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+    timestampToPlainDateTime(event.startTime!),
+    timestampToPlainDateTime(event.endTime!),
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
       includeTime: true,
@@ -150,7 +144,6 @@ const LongEventCard = ({
   );
 
   const isCreatedByMe = event.creatorUserId === userId;
-  const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;
 
   return (
@@ -182,9 +175,6 @@ const LongEventCard = ({
               {isCreatedByMe && (
                 <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
               )}
-              {isOnline && (
-                <Pill variant="rounded">{t("communities:online")}</Pill>
-              )}
               {isCancelled && (
                 <CancelledPill variant="rounded">
                   {t("communities:cancelled")}
@@ -195,9 +185,7 @@ const LongEventCard = ({
 
           <Row>
             <EventInfo>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
+              {event.location?.address}
               <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>

@@ -71,9 +71,6 @@ describe("DiscoverEventsList", () => {
       await screen.findByText(t("communities:my_communities")),
     ).toBeInTheDocument();
     expect(
-      await screen.findByText(t("communities:online")),
-    ).toBeInTheDocument();
-    expect(
       await screen.findByTestId("location-autocomplete"),
     ).toBeInTheDocument();
     expect(
@@ -87,6 +84,22 @@ describe("DiscoverEventsList", () => {
     ).toBeInTheDocument();
     // Check that there's a link to create a new event
     expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
+  });
+
+  it("Excludes events the user is already attending or organizing", async () => {
+    mockEventSearch.mockResolvedValue({
+      eventsList: [],
+      totalItems: 0,
+      nextPageToken: "",
+    });
+
+    render(<DiscoverEventsList />, { wrapper });
+
+    await waitFor(() => {
+      expect(mockEventSearch).toHaveBeenCalledWith(
+        expect.objectContaining({ excludeAttending: true }),
+      );
+    });
   });
 
   it("Renders error message when there is an error", async () => {
@@ -122,7 +135,7 @@ describe("DiscoverEventsList", () => {
     await user.click(paginationButton);
   });
 
-  it("Handles communities and online filter clicks correctly", async () => {
+  it("Handles communities filter", async () => {
     mockEventSearch.mockImplementation(getEvents);
 
     render(<DiscoverEventsList />, { wrapper });
@@ -130,21 +143,13 @@ describe("DiscoverEventsList", () => {
     const communitiesFilter = await screen.getByText(
       t("communities:my_communities"),
     );
-    const onlineFilter = await screen.getByText(t("communities:online"));
     expect(communitiesFilter).toBeInTheDocument();
-    expect(onlineFilter).toBeInTheDocument();
 
     const user = userEvent.setup();
 
     await user.click(communitiesFilter);
 
     expect(communitiesFilter).toHaveStyle({
-      backgroundColor: theme.palette.secondary.main,
-    });
-
-    await user.click(onlineFilter);
-
-    expect(onlineFilter).toHaveStyle({
       backgroundColor: theme.palette.secondary.main,
     });
   });

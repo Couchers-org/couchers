@@ -302,7 +302,9 @@
                                   <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                     <tr>
                                       <td style="width: 100px;">
-                                        <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}">
+                                        <a href="{{ profile_url }}" style="color: #00a398;">
+                                          <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}">
+                                        </a>
                                       </td>
                                       <td>
                                         <b>{{ name }}</b>, {{ age }}<br>
@@ -378,18 +380,21 @@
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">You're receiving this email because you signed up for Couchers.org.<br> You can reach our support team at <a href="mailto:support@couchers.org" style="color: #00a398;">support@couchers.org</a>.<br> All times are in {{ footer_timezone_name }}, based on your profile location.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">{{ received_because }}<br>
+                                    {{ contact_support }}<br>
+                                    {{ timezone_note }}
+                                  </div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:1;text-align:center;color:#333333;"><a href="https://couchers.org/donate" style="color: #00a398;">Donate</a> | <a href="https://github.com/Couchers-org/couchers" style="color: #00a398;">GitHub</a> | <a href="https://couchers.org/volunteer" style="color: #00a398;">Volunteer</a> | <a href="https://couchers.org/blog" style="color: #00a398;">Blog</a></div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:1;text-align:center;color:#333333;"><a href="https://couchers.org/donate" style="color: #00a398;">{{ donate_link }}</a> | <a href="https://github.com/Couchers-org/couchers" style="color: #00a398;">GitHub</a> | <a href="https://couchers.org/volunteer" style="color: #00a398;">{{ volunteer_link }}</a> | <a href="https://couchers.org/blog" style="color: #00a398;">{{ blog_link }}</a></div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ footer_copyright_year }} Couchers, Inc.<br> 1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br>
-                                    <i>Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.</i>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ copyright_year }} Couchers, Inc.<br> 1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br>
+                                    <i>{{ nonprofit_note }}</i>
                                   </div>
                                 </td>
                               </tr>
@@ -420,8 +425,8 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if footer_email_is_critical %} This is a security email, you cannot unsubscribe from it. {% else %} <a href="{{footer_manage_notifications_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>. {% if footer_notification_topic_action or footer_notification_topic_key %} <br> Turn off emails for: {% if footer_notification_topic_action %} <a href="{{footer_notification_topic_action_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_action}}</a> {% endif %} {% if footer_notification_topic_key %} {% if footer_notification_topic_action %} / {% endif %} <a href="{{footer_notification_topic_key_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_key}}</a> {% endif %} {% endif %} <br>
-                          <a href="{{footer_do_not_email_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>. {% endif %}
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if is_critical %} {{ security_email_note }} {% else %} <a href="{{ manage_notifications_url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ notification_settings_link }}</a>. {% if topic_action_description or topic_key_description %} <br> Turn off emails for: {% if topic_action_description %} <a href="{{ unsubscribe_topic_action_url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ topic_action_description }}</a> {% endif %} {% if topic_key_description %} {% if topic_action_description %} / {% endif %} <a href="{{ unsubscribe_topic_key_url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ topic_key_description }}</a> {% endif %} {% endif %} <br>
+                          <a href="{{ do_not_email_url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ do_not_email_link }}</a>. {% endif %}
                         </div>
                       </td>
                     </tr>
@@ -440,7 +445,7 @@
                     </tr>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:16px;text-align:center;color:#777777;">The happy Couchers couch hopes you have a great rest of the day.</div>
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:16px;text-align:center;color:#777777;">{{ happy_couch_icon_caption }}</div>
                       </td>
                     </tr>
                   </tbody>

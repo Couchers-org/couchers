@@ -9,6 +9,7 @@ import {
   CardContent,
   Chip,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Avatar from "components/Avatar";
@@ -18,6 +19,7 @@ import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import {
   CalendarIcon,
   CheckCircleIcon,
+  ChevronRightIcon,
   CouchIcon,
   EditIcon,
   ExpandLessIcon,
@@ -32,13 +34,16 @@ import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
+import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
-import { routeToCommunity, routeToUser } from "routes";
+import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTimeRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
+import OfferToHostDialog from "./OfferToHostDialog";
 import PublicTripDialog from "./PublicTripDialog";
 import { PublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
 
@@ -166,6 +171,7 @@ export default function PublicTripCard({
     }
   }, []);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
@@ -175,6 +181,10 @@ export default function PublicTripCard({
   const isNativeEmbed = useIsNativeEmbed();
   const { mutate: updateTrip } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
+
+  // The backend sets viewerHostRequestId to the viewer's own existing offer on
+  // this trip (0 if none), scoped per-trip so it's correct at any scale.
+  const alreadyOffered = trip.viewerHostRequestId > 0;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -191,7 +201,7 @@ export default function PublicTripCard({
     if (!accountInfo?.profileComplete) {
       setShowIncompleteDialog(true);
     } else {
-      // TODO: create host request with public_trip_id linked
+      setShowOfferDialog(true);
     }
   };
 
@@ -206,6 +216,17 @@ export default function PublicTripCard({
           open
           onClose={() => setShowIncompleteDialog(false)}
           attempted_action="send_request"
+        />
+      )}
+      {!ownerView && user && (
+        <OfferToHostDialog
+          open={showOfferDialog}
+          onClose={() => setShowOfferDialog(false)}
+          tripId={trip.tripId}
+          hostUserId={user.userId}
+          hostName={user.name}
+          tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
+          tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />
       )}
       {ownerView && (
@@ -332,8 +353,8 @@ export default function PublicTripCard({
               <MetaItem>
                 <CalendarIcon />
                 {localizeDateTimeRange(
-                  new Date(trip.fromDate + "T00:00:00"),
-                  new Date(trip.toDate + "T00:00:00"),
+                  Temporal.PlainDateTime.from(trip.fromDate),
+                  Temporal.PlainDateTime.from(trip.toDate),
                   {
                     locale,
                     includeTime: false,
@@ -461,12 +482,37 @@ export default function PublicTripCard({
                         contentRef={`public_trip/${trip.tripId}`}
                         authorUser={user.userId}
                       />
-                      <Button
-                        startIcon={<CouchIcon />}
-                        onClick={handleOfferToHost}
-                      >
-                        {t("publicTrips:offer_to_host")}
-                      </Button>
+                      {alreadyOffered ? (
+                        // Link to the existing offer thread.
+                        <Button
+                          component={Link}
+                          href={routeToHostRequest(trip.viewerHostRequestId)}
+                          endIcon={<ChevronRightIcon />}
+                          sx={{ whiteSpace: "nowrap" }}
+                        >
+                          {t("publicTrips:already_offered")}
+                        </Button>
+                      ) : isDimmed ? (
+                        // Closed/past trips can't be offered on (the backend
+                        // rejects it). These shouldn't normally reach this list,
+                        // but guard against the trip closing/expiring while the
+                        // card is on screen. Tooltip needs a wrapper since
+                        // disabled buttons don't emit hover events.
+                        <Tooltip title={t("publicTrips:offer_unavailable")}>
+                          <span>
+                            <Button startIcon={<CouchIcon />} disabled>
+                              {t("publicTrips:offer_to_host")}
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        <Button
+                          startIcon={<CouchIcon />}
+                          onClick={handleOfferToHost}
+                        >
+                          {t("publicTrips:offer_to_host")}
+                        </Button>
+                      )}
                     </Box>
                   </>
                 )}

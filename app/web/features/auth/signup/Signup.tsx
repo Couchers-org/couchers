@@ -180,10 +180,10 @@ export default function Signup() {
             <SignupFormContent inviteCode={inviteCode || undefined} />
           )}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
-            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-              Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
-            </Trans>
+            <Trans
+              i18nKey="auth:basic_sign_up_form.existing_user_prompt"
+              components={{ 2: <StyledLink href={loginRoute} /> }}
+            />
           </Typography>
         </StyledFormWrapper>
       </PageContainer>

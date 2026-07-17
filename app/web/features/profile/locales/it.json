@@ -4,5 +4,127 @@
   "complete_profile_dialog": {
     "title": "Quasi ci siamo: completa il tuo profilo per continuare!",
     "description_2": "Questo aiuta a costruire una comunità affidabile e riduce lo spam. Per ulteriori informazioni <2>consulta questa pagina di aiuto</2>. Grazie per il tuo aiuto!"
+  },
+  "do_not_email_error_link": "Aggiorna le tue impostazioni mail per ri-attivarlo.",
+  "heading": {
+    "about_me": "Su di me",
+    "age_gender": "Età / Genere",
+    "edit": "Modifica",
+    "edit_profile": "Modifica il profilo",
+    "education": "Educazione",
+    "home": "La mia casa",
+    "joined": "Coucher dal",
+    "local_time": "Ora locale",
+    "occupation": "Occupazione",
+    "references": "Referenze",
+    "overview_section": "Panoramica",
+    "who_section": "Chi sono",
+    "hobbies_section": "Cosa faccio nel mio tempo libero",
+    "additional_information_section": "Informazioni aggiuntive",
+    "travel_section": "Ho viaggiato in",
+    "lived_section": "Ho vissuto in",
+    "map_section": "Mappa dei viaggi",
+    "photos_section": "Foto",
+    "age_verification_verified": "Questo utente ha verificato la propria data di nascita",
+    "age_verification_mismatch": "La data di nascita indicata dall'utente non corrisponde a quella verificata",
+    "gender_verification_verified": "Questo utente ha verificato il proprio genere",
+    "gender_verification_mismatch": "Il genere indicato dall'utente non corrisponde a quello verificato",
+    "hometown": "Città natale",
+    "languages_fluent": "Lingue conosciute"
+  },
+  "edit": "Modifica il profilo",
+  "helper_text": {
+    "missing_profile_photo": "Aggiungi una foto per completare il tuo profilo."
+  },
+  "incomplete_dialog": {
+    "title": "Profilo incompleto",
+    "description": "Non potrai inviare richieste, messaggi o creare eventi finché non:",
+    "about_me_message": "Scrivi almeno 150 caratteri nella sezione \"Chi sono\".",
+    "missing_photo_message": "Aggiungi una foto profilo.",
+    "continue_editing": "Continua la modifica",
+    "save_anyway": "Salvare comunque?"
+  },
+  "home_info_headings": {
+    "about_home": "La mia casa",
+    "general": "Generale",
+    "has_housemates": "Ci sono coinquilini",
+    "has_kids": "Ci sono bambini",
+    "has_pets": "Ci sono animali domestici",
+    "hosting_preferences": "Preferenze di ospitalità",
+    "house_rules": "Regole della casa",
+    "housemate_details": "Dettagli dei coinquilini",
+    "kid_details": "Dettagli dei bambini",
+    "last_minute": "Accetto richieste last-minute",
+    "max_guests": "Numero massimo di ospiti",
+    "my_home": "La mia casa",
+    "parking": "Parcheggio disponibile",
+    "parking_details": "Dettagli sul parcheggio",
+    "pet_details": "Dettagli sugli animali domestici",
+    "wheelchair": "Accessibile per sedie a rotelle",
+    "other_info": "Informazioni aggiuntive"
+  },
+  "edit_profile_headings": {
+    "regions_visited": "Regioni che ho visitato",
+    "regions_lived": "Regioni in cui ho vissuto",
+    "languages_spoken": "Lingue che parlo fluentemente",
+    "name": "Nome",
+    "hometown": "Città natale",
+    "occupation": "Occupazione",
+    "education": "Educazione",
+    "basic_information": "Informazioni di base",
+    "basic_information_subtitle": "Inizia caricando una foto, il tuo nome e la tua posizione",
+    "preferences": "Preferenze",
+    "personal_information": "Informazioni personali",
+    "travel_experience": "Esperienze di viaggio",
+    "location_subtitle": "Posizione approssimativa di casa tua"
+  },
+  "edit_profile_name_required": "Il nome è necessario",
+  "edit_home_questions": {
+    "accept_pets": "Ospita persone con animali domestici",
+    "accept_kids": "Ospita persone con bambini",
+    "accept_camping": "Spazio per la tenda disponibile"
+  },
+  "smoking_location": {
+    "no": "No",
+    "window": "Finestra",
+    "yes": "Sì"
+  },
+  "what_options_mean": "Cosa significano queste opzioni",
+  "sleeping_arrangement": {
+    "private_short": "Spazio privato",
+    "common_short": "Stanza comune",
+    "shared_room_short": "Stanza condivisa"
+  },
+  "parking_details": {
+    "free_onsite": "Parcheggio gratuito",
+    "paid_onsite": "Parcheggio a pagamento"
+  },
+  "gender": {
+    "man": "Uomo",
+    "woman": "Donna"
+  },
+  "info_unanswered": "Chiedimi",
+  "connection_pending": "In attesa",
+  "cancel": "Cancella",
+  "more_profile_actions": "...",
+  "report_details": "Dettagli",
+  "report_reason": "Motivo",
+  "report_user": "Segnala questo utente",
+  "leave_reference": {
+    "appropriate_question": "Ti sei sentito/a sicuro/a con il comportamento di questa persona?",
+    "did_stay_confirmation": {
+      "title_hosted": "Conferma di non aver ospitato {{name}}",
+      "title_surfed": "Conferma di non aver alloggiato da {{name}}"
+    },
+    "previous_step": "Passaggio precedente",
+    "reference_form_heading_friend": "Hai incontrato {{name}}",
+    "reference_form_heading_did_stay_surfed": "Hai alloggiato da {{name}}?",
+    "reference_form_heading_hosted": "Hai ospitato {{name}}"
+  },
+  "actions": {
+    "add_friend": "Aggiungi un amico",
+    "back_to_dashboard": "Ritorna alla pagina principale",
+    "message_label": "Invia un messaggio",
+    "request": "Invia richiesta"
   }
 }

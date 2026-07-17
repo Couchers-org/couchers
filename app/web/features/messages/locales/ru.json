@@ -8,7 +8,8 @@
     "tabs": {
       "chats": "Чаты",
       "hosting": "Гости",
-      "surfing": "Хосты"
+      "surfing": "Хосты",
+      "unread": "Непрочитанные"
     }
   },
   "chat_view": {
@@ -61,7 +62,11 @@
       "accepted": "{{user}} принял(а) запрос",
       "cancelled": "{{user}} отменил(а) запрос",
       "confirmed": "{{user}} подтвердил(а) запрос",
-      "rejected": "{{user}} отклонил(а) запрос"
+      "rejected": "{{user}} отклонил(а) запрос",
+      "accepted_self": "Вы приняли запрос",
+      "cancelled_self": "Вы отклонили запрос",
+      "confirmed_self": "Вы подтвердили запрос",
+      "rejected_self": "Вы отклонили запрос"
     }
   },
   "host_request_status": {
@@ -88,16 +93,17 @@
   },
   "host_request_item": {
     "surfer_status": {
-      "confirmed": "Ваш запрос был подтверждён",
-      "accepted": "Ваш запрос был принят",
-      "cancelled": "Ваш запрос был отменён",
+      "confirmed": "Хорошо проведите время! {{name}} принял(а) запрос, а вы его подтвердили.",
+      "accepted": "Хорошо проведите время! {{name}} принял(а) запрос.",
+      "cancelled": "Вы отменили этот запрос",
       "rejected": "Ваш запрос был отклонён"
     },
     "host_status": {
       "accepted": "Вы приняли этот запрос",
-      "cancelled": "Вы отменили этот запрос",
-      "confirmed": "Вы подтвердили этот запрос",
-      "rejected": "Вы отклонили этот запрос"
+      "cancelled": "Серфер отменил этот запрос",
+      "confirmed": "Приятного отдыха! Вы приняли запрос, и сёрфер подтвердил его.",
+      "rejected": "Вы отклонили этот запрос",
+      "accepted_waiting": "Вы приняли этот запрос — ждём подтверждения от сёрфера."
     },
     "expired": "Этот запрос истёк",
     "pending": "Этот запрос все еще находится в ожидании"
@@ -170,5 +176,37 @@
     "filter": {
       "all": "Все"
     }
-  }
+  },
+  "reference_card": {
+    "title": "Написать отзыв",
+    "description": "Поделитесь своим опытом, чтобы помочь сообществу."
+  },
+  "respond_box_title": "Отправить ответ",
+  "respond_box_description": "Выберите ответ, чтобы {{name}} сразу узнал. Вы можете дополнить его сообщением.",
+  "status_bar_edit_button": "Редактировать",
+  "status_bar_cancel_edit_button": "Отменить",
+  "status_bar_close_button": "Закрыть",
+  "cancel_request_button": "Отменить запрос",
+  "cancel_request_dialog_title": "Отменить запрос?",
+  "cancel_request_dialog_message": "Вы уверены, что хотите отменить свой запрос? Это действие нельзя будет отменить.",
+  "cancel_request_dialog_confirm_button": "Да, отменить",
+  "cancel_request_dialog_dismiss_button": "Нет",
+  "private_feedback_card": {
+    "title": "Отзыв на этот запрос",
+    "quality_label": "Оцените этот запрос приватно (необязательно):",
+    "quality_high": "Высокое качество",
+    "quality_okay": "Окей",
+    "quality_low": "Низкое качество",
+    "reason_other_placeholder": "Расскажите нам подробнее...",
+    "privacy_notice": "Ваши ответы являются конфиденциальными и не будут переданы пользователю. Мы можем использовать их в обобщённой и анонимной форме в сочетании со многими другими для улучшения обратной связи для всех пользователей.",
+    "skip_button": "Пропустить",
+    "next_button": "Продолжить",
+    "back_button": "Назад",
+    "submit_button": "Отправить",
+    "decline_reason_label": "Почему вы отказали?"
+  },
+  "surfer_confirm_box_title": "{{name}} принял ваш запрос!",
+  "surfer_bar_pending": "Вы отправили запрос хосту — ожидаем ответа от {{name}}.",
+  "show_more_actions_button_a11y": "Показать больше действий",
+  "surfer_confirm_box_description": "Подтвердите поездку, чтобы закрепить её за собой, или отмените запрос, если ваши планы изменились."
 }

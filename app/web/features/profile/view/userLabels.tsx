@@ -9,15 +9,16 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTime,
+  localizeRelativeTime,
   localizeYearMonth,
-  timestamp2Date,
+  timestampToPlainDateTime,
   UTC_TIMEZONE,
 } from "utils/date";
 import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
-import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -38,11 +39,9 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
         label={t("heading.last_active")}
         text={
           user.lastActive
-            ? timeAgo({
-                since: timestamp2Date(user.lastActive),
+            ? localizeRelativeTime(user.lastActive, locale, {
+                smallestUnit: "hours",
                 t,
-                locale,
-                minimumUnit: TimeUnit.Hours,
               })
             : t("last_active_false")
         }
@@ -279,21 +278,25 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? localizeYearMonth(timestamp2Date(user.joined), {
-                locale,
-                abbreviate: true,
-                capitalize: true,
-              })
+            ? localizeYearMonth(
+                timestampToPlainDateTime(user.joined).toPlainDate(),
+                {
+                  locale,
+                  capitalize: true,
+                },
+              )
             : ""
         }
       />
       <LabelAndText
         label={t("profile:heading.local_time")}
-        text={localizeDateTime(dayjs(), {
-          timezone: user.timezone || UTC_TIMEZONE,
-          locale,
-          includeDate: false,
-        })}
+        text={localizeDateTime(
+          Temporal.Now.plainDateTimeISO(user.timezone || UTC_TIMEZONE),
+          {
+            locale,
+            includeDate: false,
+          },
+        )}
       />
     </>
   );

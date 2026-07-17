@@ -5,8 +5,6 @@
     "add_friend": "Add friend",
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
-    "accept_friend_label": "Accept",
-    "decline_friend_label": "Decline",
     "request": "Request"
   },
   "heading": {
@@ -51,6 +49,8 @@
     "save_anyway": "Save anyway?",
     "continue_editing": "Continue editing"
   },
+  "about_me_textbox_placeholder": "e.g. Current mission, why you use Couchers.org, favorite travel story...",
+  "hobbies_textbox_placeholder": "e.g. Activities, books, movies, music...",
   "home_info_headings": {
     "about_home": "About my home",
     "general": "General",
@@ -91,7 +91,7 @@
     "meetup_status": "Meetup status",
     "hosting_status": "Hosting status",
     "name": "Name",
-    "pronouns": "Pronouns",
+    "pronouns": "Pronouns (optional)",
     "hometown": "Grew up in",
     "occupation": "Occupation",
     "education": "Education",
@@ -107,6 +107,7 @@
     "location_subtitle": "Approximate location of your home"
   },
   "edit_profile_name_required": "Name required",
+  "edit_profile_pronouns_placeholder": "e.g. she/her",
   "edit_home_questions": {
     "accept_drinking": "Okay with people drinking",
     "accept_pets": "Hosts people with pets",
@@ -139,10 +140,6 @@
   "gender": {
     "man": "Man",
     "woman": "Woman"
-  },
-  "pronouns": {
-    "man": "he / him",
-    "woman": "she / her"
   },
   "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
   "info_unanswered": "Ask me",
@@ -256,8 +253,6 @@
     "hosted": "Hosted",
     "surfed": "Guest"
   },
-  "accept_friend_label": "Accept friend request",
-  "decline_friend_label": "Decline friend request",
   "no_references": "No references of this kind yet!",
   "references_filter_a11y_label": "Show references: ",
   "see_more_references": "See more references",
@@ -345,7 +340,9 @@
       "send_message": "send a message",
       "send_friend_request": "send a friend request",
       "create_event": "create an event",
-      "create_public_trip": "create a public trip"
+      "create_public_trip": "create a public trip",
+      "create_discussion": "create a discussion",
+      "post_comment": "post a comment"
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"

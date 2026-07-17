@@ -17,6 +17,6 @@ def can_notify_deleted_user(topic_action: NotificationTopicAction) -> bool:
     return topic_action in _DELETED_USER_NOTIFICATIONS
 
 
-def get_topic_action_description(topic_action: NotificationTopicAction, locale: str) -> str:
+def get_topic_action_description(topic_action: NotificationTopicAction, locales: list[str]) -> str:
     description_key = f"{topic_action.topic}.{topic_action.action}.event_description"
-    return get_notifs_i18next().localize(description_key, locale)
+    return get_notifs_i18next().localize(description_key, locales)

@@ -1,6 +1,7 @@
 import functools
 import json
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -36,12 +37,24 @@ def get_icon(name: str) -> str:
 
 
 @functools.cache
-def get_region_dict() -> dict[str, str]:
+def get_region_dict() -> Mapping[str, str]:
     """
     Get a list of allowed regions as a dictionary of {alpha3: name}.
     """
     with session_scope() as session:
         return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
+
+
+@functools.cache
+def get_region_code_iso3166_alpha3_to_alpha2() -> Mapping[str, str]:
+    """
+    Gets a best-effort mapping table from ISO-3166 alpha3 to alpha2 codes.
+    The alpha3 keys of get_region_dict() are not guaranteed to be present in this table.
+    Valid region codes, this mapping, and localized strings are all versioned separately (database / repo / CLDR).
+    """
+    with open(resources_folder / "regions.json", "r") as f:
+        json_regions = json.load(f)
+    return {region["alpha3"]: region["alpha2"] for region in json_regions if "alpha2" in region}
 
 
 def region_is_allowed(code: str) -> bool:
@@ -52,7 +65,7 @@ def region_is_allowed(code: str) -> bool:
 
 
 @functools.cache
-def get_language_dict() -> dict[str, str]:
+def get_language_dict() -> Mapping[str, str]:
     """
     Get a list of allowed languages as a dictionary of {code: name}.
     """
@@ -61,7 +74,7 @@ def get_language_dict() -> dict[str, str]:
 
 
 @functools.cache
-def get_badge_data() -> dict[str, Any]:
+def get_badge_data() -> Mapping[str, Any]:
     """
     Get a list of profile badges in form {id: Badge}
     """
@@ -83,7 +96,7 @@ class Badge:
 
 
 @functools.cache
-def get_badge_dict() -> dict[str, Badge]:
+def get_badge_dict() -> Mapping[str, Badge]:
     """
     Get a list of profile badges in form {id: Badge}
     """
@@ -92,7 +105,7 @@ def get_badge_dict() -> dict[str, Badge]:
 
 
 @functools.cache
-def get_static_badge_dict() -> dict[str, list[int]]:
+def get_static_badge_dict() -> Mapping[str, list[int]]:
     """
     Get a list of static badges in form {id: list(user_ids)}
     """
@@ -124,7 +137,7 @@ def get_postcard_font() -> bytes:
 
 
 @functools.cache
-def get_postcard_metadata() -> dict[str, Any]:
+def get_postcard_metadata() -> Mapping[str, Any]:
     """
     Returns the postcard metadata (coordinates, sizes, etc.) from postcard-metadata.json.
     """
@@ -157,8 +170,11 @@ def copy_resources_to_database(session: Session) -> None:
     with open(resources_folder / "regions.json", "r") as f:
         regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
 
-    with open(resources_folder / "languages.json", "r") as f:
-        languages = [(language["code"], language["name"]) for language in json.load(f)]
+    with (
+        open(resources_folder / "languages-iso639.json", "r") as f1,
+        open(resources_folder / "languages-custom.json", "r") as f2,
+    ):
+        languages = [(language["alpha3"], language["name"]) for language in (json.load(f1) + json.load(f2))]
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
