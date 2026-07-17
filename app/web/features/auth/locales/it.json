@@ -68,7 +68,8 @@
       "field_label": "Data di nascita",
       "required_error": "Inserisci la tua data di nascita",
       "validation_error": "Deve trattarsi di una data valida nel passato.",
-      "not_real_date_error": "Inserire una data di nascita reale"
+      "not_real_date_error": "Inserire una data di nascita reale",
+      "too_young_error": "Devi avere almeno 18 anni per utilizzare Couchers"
     },
     "hosting_status": {
       "field_label": "Stato ospitalità",
