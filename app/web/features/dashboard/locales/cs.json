@@ -57,7 +57,11 @@
     },
     "write_reference": {
       "title": "Napsat referenci",
-      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}"
+      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}",
+      "button": "Napiš referenci"
+    },
+    "complete_my_home": {
+      "title": "Dokonči sekci \"Můj domov\" ve svém profilu."
     }
   },
   "public_trips": {
