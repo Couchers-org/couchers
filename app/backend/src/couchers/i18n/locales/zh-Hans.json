@@ -18,7 +18,7 @@
     "cannot_leave_containing_community": "您的个人资料位置位于该社区内，因此您不能退出。不过，您可以在账户设置中调整通知。",
     "cant_add_self": "您不能把自己加入群聊。",
     "cant_block_self": "您不能屏蔽自己。",
-    "cant_friend_self": "您不能和自己成为好友！",
+    "cant_friend_self": "您无法将自己添加为好友！",
     "cant_invite_self": "您不能邀请自己进入聊天。",
     "cant_invite_to_dm": "您不能邀请其他用户加入私信聊天。",
     "can_only_refer_friends": "您只能为已确认的好友写评语。",
