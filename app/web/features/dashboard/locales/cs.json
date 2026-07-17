@@ -61,7 +61,8 @@
       "button": "Napiš referenci"
     },
     "complete_my_home": {
-      "title": "Dokonči sekci \"Můj domov\" ve svém profilu."
+      "title": "Dokonči sekci \"Můj domov\" ve svém profilu",
+      "description": "Vyplň informace o uspořádání spaní, domácí řád a popis vašeho ubytování"
     }
   },
   "public_trips": {
