@@ -1,4 +1,9 @@
 {
-  "mark_all_read_button_text": "Segna tutte come lette",
-  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette"
+  "mark_all_read_button_text": "Segna tutti come letti",
+  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette",
+  "messages_page": {
+    "tabs": {
+      "unread": "Non letti"
+    }
+  }
 }

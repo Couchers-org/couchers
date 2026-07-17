@@ -9,7 +9,7 @@
       "success_message": "感谢您对Couchers.org的捐赠，衷心感谢您的支持！您将很快收到一封邮件。",
       "warning_message": "您的付款已取消。"
     },
-    "helper_text": "您将被跳转至我们的支付处理方Stripe以完成捐赠。如需随时取消或更新现有捐赠,请<2>点击此处前往捐赠管理页面</2>。",
+    "helper_text": "您将被重定向至我们的支付处理平台 Stripe，以完成捐赠。如需取消或更新现有捐赠，可随时<2>点击此处前往捐赠管理页面</2>。",
     "monthly_button_label": "每月",
     "one_time_button_label": "一次性",
     "amount_validation_error": "请仅输入整数。"
@@ -23,11 +23,11 @@
     "body": "您可以共同打造沙发冲浪的未来"
   },
   "donations_text2": "您的捐赠会被用在Couchers.org的日常运营上，包括租赁服务器以保证网页的运作、法律支持、政策开支以及攒钱买平台搭建的其他工具。\n\n多出来的钱，我们会用在其他非赢利的方面，包括全力提升我们的社区建设、提高服务能力以让Couchers.org服务更多的人、加快发展迭代步伐、完善安全保障政策、将沙发冲浪文化带给世界上的更多人。",
-  "donations_recurrence_explainer": "每月捐款有助于我们提前规划，并在稳定的基础上持续运营。",
+  "donations_recurrence_explainer": "每月捐款会帮助我们稳定运营服务，并提前做出规划。",
   "donations_info": "您会捐赠给<1>{{ legal_name }}</1>，它是一个U.S. 501(c)(3)指定的非盈利机构，Couchers.org的服务和项目的支持由它提供。捐赠在美国是免税的，我们的雇主身份识别号码（EIN）是87-1734577。",
   "donations_use_explainer": "查看我们在{{ year }}的财务状况。",
   "settings_fragment": {
-    "title": "管理您的捐款",
+    "title": "管理您的捐赠",
     "description": "点击下方按钮以更新或取消您的定期捐赠，或查看历史账单。",
     "button_text": "进入捐赠管理中心"
   }

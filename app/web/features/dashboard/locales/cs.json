@@ -45,7 +45,8 @@
   "hero_image_attribution": "Foto: <1>Mesut Kaya</1> na <3>Unsplash</3>",
   "reminder": {
     "complete_profile": {
-      "button": "Upravit svůj profil"
+      "button": "Upravit svůj profil",
+      "title": "Dokonči svůj profil"
     },
     "strong_verification": {
       "description": "Ověř svoji identitu pro bezpečnější komunitu"
@@ -57,7 +58,18 @@
     },
     "write_reference": {
       "title": "Napsat referenci",
-      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}"
+      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}",
+      "button": "Napiš referenci"
+    },
+    "complete_my_home": {
+      "title": "Dokonči sekci \"Můj domov\" ve svém profilu",
+      "description": "Vyplň informace o uspořádání spaní, domácí řád a popis vašeho ubytování",
+      "button": "Uprav svůj domov"
+    },
+    "carousel_dismiss_button_a11y": "Zavřít upozornění",
+    "carousel_scroller": {
+      "left_arrow_a11y": "Posunout doleva",
+      "right_arrow_a11y": "Posunout doprava"
     }
   },
   "public_trips": {
