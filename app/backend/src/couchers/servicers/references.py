@@ -16,6 +16,7 @@ from sqlalchemy.sql import and_, literal, or_, union_all
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
 from couchers.event_log import log_event
+from couchers.helpers.references import where_references_not_hidden_by_reciprocity
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, ModerationObjectType, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
@@ -23,12 +24,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import (
-    reference_publicly_visible,
-    users_visible,
-    where_moderated_content_visible,
-    where_users_column_visible,
-)
+from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -218,8 +214,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         # 2. Both references have been written
         # 3. It has been over 2 weeks since the host request ended
         # This must stay in sync with the reference count (get_num_references); both use the
-        # shared reference_publicly_visible() helper.
-        statement = statement.where(reference_publicly_visible())
+        # shared where_references_not_hidden_by_reciprocity() helper.
+        statement = where_references_not_hidden_by_reciprocity(statement)
 
         statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
         references = session.execute(statement).scalars().all()

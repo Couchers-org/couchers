@@ -2,14 +2,11 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import ColumnElement, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
-from sqlalchemy.sql import Select, exists, func, union
+from sqlalchemy.sql import Select, exists, union
 
 from couchers.models import (
-    HostRequest,
     ModerationState,
     ModerationVisibility,
-    Reference,
-    ReferenceType,
     SignupFlow,
     User,
     UserBlock,
@@ -259,37 +256,3 @@ def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:
 
 def to_bool(value: bool) -> ColumnElement[bool]:
     return true() if value else false()
-
-
-def reference_publicly_visible() -> ColumnElement[bool]:
-    """
-    Condition for whether a Reference is visible based on the reciprocal-reference rule.
-
-    A host/surf reference is hidden until either the recipient has written their reciprocal
-    reference or the 2-week window to write one has closed; friend references are always visible.
-
-    Both the reference list (ReferencesServicer.ListReferences) and the reference count
-    (get_num_references) must apply this, otherwise the count includes a reference that the list
-    hides — leaking the existence of a still-hidden reference and producing a count that doesn't
-    match what's shown.
-
-    This correlates against the outer Reference, so apply it with `.where(...)` on any query that
-    selects from Reference.
-    """
-    other_reference = aliased(Reference)
-    reciprocal_written = exists(
-        select(other_reference.id)
-        .where(other_reference.host_request_id == Reference.host_request_id)
-        .where(other_reference.from_user_id == Reference.to_user_id)
-        .where(other_reference.reference_type != ReferenceType.friend)
-    )
-    window_closed = exists(
-        select(HostRequest.conversation_id)
-        .where(HostRequest.conversation_id == Reference.host_request_id)
-        .where(HostRequest.end_time_to_write_reference < func.now())
-    )
-    return or_(
-        Reference.reference_type == ReferenceType.friend,
-        reciprocal_written,
-        window_closed,
-    )

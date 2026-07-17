@@ -18,6 +18,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.references import where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -58,7 +59,6 @@ from couchers.resources import get_badge_dict, language_is_allowed, region_is_al
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import (
     moderation_state_column_visible,
-    reference_publicly_visible,
     username_or_id,
     users_visible,
     where_moderated_content_visible,
@@ -1026,12 +1026,12 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     query = where_moderated_content_visible(
         select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
     )
+    # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
+    query = where_references_not_hidden_by_reciprocity(query)
     query = (
         query.where(Reference.to_user_id.in_(user_ids))
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
-        # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
-        .where(reference_publicly_visible())
         .group_by(Reference.to_user_id)
     )
     return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
