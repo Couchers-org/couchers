@@ -46,10 +46,13 @@
   "reminder": {
     "complete_profile": {
       "button": "Upravit svůj profil",
-      "title": "Dokonči svůj profil"
+      "title": "Dokonči svůj profil",
+      "description": "Vyplň svojí sekci \"Kdo jsem\" a nahraj profilovou fotku"
     },
     "strong_verification": {
-      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+      "description": "Ověř svoji identitu pro bezpečnější komunitu",
+      "title": "Silné ověření",
+      "button": "Ověř svůj profil"
     },
     "respond_to_host_request": {
       "description": "Nezapomeň odpovědět na žádost o ubytování od {{name}}.",
@@ -59,7 +62,8 @@
     "write_reference": {
       "title": "Napsat referenci",
       "description_surfed": "Zanech referenci na svůj pobyt u {{name}}",
-      "button": "Napiš referenci"
+      "button": "Napiš referenci",
+      "description_hosted": "Zanech referenci na pobyt {{name}} u tebe."
     },
     "complete_my_home": {
       "title": "Dokonči sekci \"Můj domov\" ve svém profilu",
@@ -70,6 +74,10 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Posunout doleva",
       "right_arrow_a11y": "Posunout doprava"
+    },
+    "confirm_host_request": {
+      "title": "Potvrď svůj pobyt u {{name}}",
+      "button": "Potvrď pobyt"
     }
   },
   "public_trips": {
