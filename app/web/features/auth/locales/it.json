@@ -254,7 +254,7 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "nothing": "<1>Nothing</1>: nascondimi completamente"
+      "nothing": "<1>Nessuno</1>: nascondimi completamente"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
