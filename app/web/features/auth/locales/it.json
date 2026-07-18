@@ -260,8 +260,8 @@
       "nothing": "<1>Nessuna</1>: nascondimi completamente",
       "map_only": "<1>Solo mappa</1>: Mostra una punto casuale e anonimo sulla mappa, senza ulteriori informazioni",
       "limited": "<1>Limitata</1>: mostra il mio nome, posizione, stato di ospitalità/incontri, badge, numero di referenze e da quanto tempo sono un Coucher",
-      "most": "<1>Most</1>: mostra l'intera sezione \"Su di me\" eccetto \"Ulteriori informazioni\"",
-      "full_profile": "<1>Full profile</1>: mostra il mio intero profilo (eccetto le referenze)"
+      "most": "<1>Maggior parte</1>: mostra l'intera sezione \"Su di me\" eccetto \"Ulteriori informazioni\"",
+      "full_profile": "<1>Profilo completo</1>: mostra il mio intero profilo (eccetto le referenze)"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
