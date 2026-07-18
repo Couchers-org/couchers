@@ -259,7 +259,7 @@
     "visiblility_options": {
       "nothing": "<1>Nessuna</1>: nascondimi completamente",
       "map_only": "<1>Solo mappa</1>: Mostra una punto casuale e anonimo sulla mappa, senza ulteriori informazioni",
-      "limited": "<1>Limited</1>: mostra nome, posizione, stato di ospitalità, badge, numero di referenze e da quanto tempo sono un Coucher"
+      "limited": "<1>Limitata</1>: mostra il mio nome, posizione, stato di ospitalità/incontri, badge, numero di referenze e da quanto tempo sono un Coucher"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"

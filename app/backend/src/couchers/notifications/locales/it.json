@@ -3,7 +3,10 @@
     "complete": {
       "push": {
         "title": "Account cancellato",
-        "ios_title": "Account eliminato"
+        "ios_title": "Account eliminato",
+        "body_one": "Puoi recuperarlo entro {{count}} giorno usando il link che ti abbiamo inviato.",
+        "body_many": "Puoi recuperarlo entro {{count}} di giorni usando il link che ti abbiamo inviato.",
+        "body_other": "Puoi recuperarlo entro {{count}} giorni usando il link che ti abbiamo inviato."
       },
       "event_description": "Il tuo account è stato eliminato"
     },
@@ -14,7 +17,7 @@
       }
     },
     "recovered": {
-      "event_description": "Il tuo account è stato ripristinato"
+      "event_description": "Il tuo account è stato ripristinato (non è stato cancellato)"
     }
   },
   "_adhoc": {
