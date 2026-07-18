@@ -28,6 +28,7 @@
   "donations_use_explainer": "Consulta i nostri dati finanziari del {{ year }}.",
   "settings_fragment": {
     "title": "Gestisci le tue donazioni",
-    "description": "Clicca sul pulsante sotto per modificare o cancellare la tua donazione ricorrente, oppure per visualizzare le fatture precedenti."
+    "description": "Clicca sul pulsante sotto per modificare o cancellare la tua donazione ricorrente, oppure per visualizzare le fatture precedenti.",
+    "button_text": "Vai al portale per la gestione delle donazioni"
   }
 }

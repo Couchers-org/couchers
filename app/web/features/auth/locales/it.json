@@ -233,12 +233,24 @@
     "delete_my_data_button": "Elimina i miei dati",
     "delete_success": "I dati del tuo passaporto sono stati eliminati.",
     "donation_title": "Grazie per avere effettuato la verifica, ci stai aiutando a rendere Couchers.org più sicuro per tutti.",
-    "donate_button": "Fai una donazione per supportare Couchers.org"
+    "donate_button": "Fai una donazione per supportare Couchers.org",
+    "learn_more": "Leggi riguardo a Strong Verification <a>here</a>.",
+    "status": {
+      "disabled_message": "Tu <1>non sei</1> attualmente verificato con la Strong Verification"
+    },
+    "start_button": "Inizia la Strong Verification",
+    "complete_title": "Stiamo elaborando il tuo tentativo di Strong Verification",
+    "complete_message2": "La Strong Verification scade con il tuo passaporto e dovrai completare la verifica ancora una volta con il nuovo passaporto.",
+    "delete_data_title": "Elimina i dati del tuo passaporto Strong Verification",
+    "delete_information": "Puoi eliminare i dati della tua Strong Verification (eccetto la nazione di emissione, la data di scadenza e gli ultimi tre caratteri del numero di documento) dai nostri sever in qualsiasi momento.",
+    "delete_information_text2": "Se elimini i tuoi dati, non potrai usare lo stesso passaporto per una nuova Strong Verification.",
+    "delete_button": "Elimina i miei dati della Strong Verification"
   },
   "quick_links": {
     "title": "Azione rapida da email",
     "error_message": "Errore: {{message}}",
-    "missing_payload_or_sig": "URL non valido"
+    "missing_payload_or_sig": "URL non valido",
+    "button_text": "Conferma l'azione"
   },
   "profile_visibility": {
     "visiblility_options": {
