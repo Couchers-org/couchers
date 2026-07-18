@@ -20,14 +20,16 @@
   },
   "add_friend_confirmation_dialog": {
     "title": "Conosci questa persona?",
-    "message": "Per favore, invia richieste di amicizia solo a persone che conosci già o che hai conosciuto durante i tuoi viaggi — la maggior parte delle persone preferisce mantenere un contatto dopo essersi conosciute di persona. <helpCenterLink>Leggi di più sulle richieste di amicizia nel nostro Help Center.</helpCenterLink>"
+    "message": "Per favore, invia richieste di amicizia solo a persone che conosci già o che hai conosciuto durante i tuoi viaggi — la maggior parte delle persone preferisce mantenere un contatto dopo essersi conosciute di persona. <helpCenterLink>Leggi di più sulle richieste di amicizia nel nostro Help Center.</helpCenterLink>",
+    "confirm": "Si, la conosco. Invia la richiesta!"
   },
   "accept": "Accetta",
-  "block_user": "Blocca l'utente",
-  "no_blocked_users": "Utenti non bloccati",
-  "remove_friend": "Elimina amico",
+  "block_user": "Blocca utente",
+  "no_blocked_users": "Non ci sono utenti bloccati",
+  "remove_friend": "Rimuovi amico",
   "remove_friend_confirmation_dialog": {
-    "title": "Elimina amico",
-    "message": "Sei sicuro di voler rimuovere {{name}}? Questa azione non può essere annullata"
-  }
+    "title": "Rimuovi amico",
+    "message": "Rimuovere {{name}}? Questa azione non può essere annullata."
+  },
+  "friend_requests_dismiss_button": "Rifiuta"
 }

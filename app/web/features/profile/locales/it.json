@@ -111,7 +111,7 @@
   "report_reason": "Motivo",
   "report_user": "Segnala questo utente",
   "leave_reference": {
-    "appropriate_question": "Ti sei sentito/a sicuro/a con il comportamento di questa persona?",
+    "appropriate_question": "Il comportamento di questa persona è stato appropriato?",
     "did_stay_confirmation": {
       "title_hosted": "Conferma di non aver ospitato {{name}}",
       "title_surfed": "Conferma di non aver alloggiato da {{name}}"
