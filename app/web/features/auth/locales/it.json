@@ -254,7 +254,8 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "nothing": "<1>Nessuno</1>: nascondimi completamente"
+      "nothing": "<1>Nessuno</1>: nascondimi completamente",
+      "map_only": "<1>Map only</1>: Mostra una puntina casuale e anonima, senza ulteriori informazioni"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
