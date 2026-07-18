@@ -19,6 +19,7 @@
     "date_to_after_one_year": "Non puoi chiedere di essere ospitato per più di un anno.",
     "discussion_not_found": "Discussione non trovata.",
     "account_not_found": "Non è stato trovato alcun account con questo username o email.",
-    "address_line_1_required": "La linea 1 dell'indirizzo è obbligatoria."
+    "address_line_1_required": "La linea 1 dell'indirizzo è obbligatoria.",
+    "city_required": "La Città é obbligatoria."
   }
 }

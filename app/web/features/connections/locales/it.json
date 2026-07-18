@@ -16,7 +16,8 @@
   "pending": "In attesa",
   "unblock_user_confirmation_dialog": {
     "title": "Sei sicuro di voler sbloccare {{name}}?",
-    "message": "Sbloccando permetterai loro di vedere il tuo profilo ed inviarti richieste. Se eravate amici, loro rientreranno nella tua lista di amici. Non saranno avvertiti."
+    "message": "Sbloccando permetterai loro di vedere il tuo profilo ed inviarti richieste. Se eravate amici, loro rientreranno nella tua lista di amici. Non saranno avvertiti.",
+    "confirm": "Sblocca"
   },
   "add_friend_confirmation_dialog": {
     "title": "Conosci questa persona?",
@@ -29,7 +30,9 @@
   "remove_friend": "Rimuovi amico",
   "remove_friend_confirmation_dialog": {
     "title": "Rimuovi amico",
-    "message": "Rimuovere {{name}}? Questa azione non può essere annullata."
+    "message": "Rimuovere {{name}}? Questa azione non può essere annullata.",
+    "confirm": "Rimuovi"
   },
-  "friend_requests_dismiss_button": "Rifiuta"
+  "friend_requests_dismiss_button": "Rifiuta",
+  "unblock_user": "Sblocca utente"
 }
