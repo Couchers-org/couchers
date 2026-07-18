@@ -13,11 +13,18 @@
     "start": {
       "push": {
         "ios_title": "E' stata richiesta la cancellazione dell'account",
-        "body": "Usa il link che ti abbiamo inviato via email per confermare."
-      }
+        "body": "Usa il link che ti abbiamo inviato via email per confermare.",
+        "title": "Eliminazione account richiesta"
+      },
+      "event_description": "Hai iniziato l'eliminazione dell'account"
     },
     "recovered": {
-      "event_description": "Il tuo account è stato ripristinato (non è stato cancellato)"
+      "event_description": "Il tuo account è stato ripristinato (non è stato cancellato)",
+      "push": {
+        "title": "Account ripristinato",
+        "ios_title": "Accout ripristinato",
+        "body": "Bentornato!"
+      }
     }
   },
   "_adhoc": {
