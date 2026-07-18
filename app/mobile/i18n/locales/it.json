@@ -2,6 +2,22 @@
   "errors": {
     "check_connection": "Controlla la tua connessione Internet e riprova.",
     "try_again": "Riprova",
-    "failed_to_load": "Errore di caricamento"
+    "failed_to_load": "Errore di caricamento",
+    "camera_permission_denied": "Per fare le foto è necessario fornire l'autorizzazione della fotocamera.",
+    "camera_permission_required": "Permesso fotocamera richiesto",
+    "camera_permission_explanation": "Questa applicazione ha bisogno dell'accesso alla fotocamera per fare le foto. Per favore concedere il permesso quando richiesto.",
+    "camera_permission_denied_permanently": "L'accesso alla fotocamera è stato negato. Per fare le foto dovrai abilitare il permesso della fotocamera nelle impostazioni del tuo dispositivo."
+  },
+  "not_found": {
+    "title": "Oops!",
+    "go_home": "Vai alla schermata iniziale!"
+  },
+  "tabs": {
+    "messages": "Messaggi",
+    "search": "Cerca",
+    "events": "Eventi"
+  },
+  "common": {
+    "cancel": "Cancella"
   }
 }

@@ -118,7 +118,7 @@
       "title": "Nessuna caratteristica disponibile per l'anteprima",
       "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
     },
-    "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto e potrebbero cambiare rapidamente mentre le sviluppiamo. Facci conoscere la tua opinione nel nostro forum. Per favore, segnala ogni errore!"
+    "disclaimer": "Per favore, ricorda che queste funzioni sono sperimentali. Potrebbero non funzionare come voluto e potrebbero cambiare rapidamente mentre le sviluppiamo. Puoi utilizzare il pulsante \"Segnala un problema\" per farci sapere di qualsiasi bug!"
   },
   "jail": {
     "title": "Sono necessarie più informazioni",
@@ -138,7 +138,8 @@
     "mod_note_section": {
       "note_title": "Nota del moderatore ricevuta il {{time}}:",
       "title": "Hai ricevuto un avviso dai moderatori",
-      "description": "I moderatori ti hanno inviato questo avviso. Leggilo attentamente e conferma di averlo letto e compreso prima di continuare."
+      "description": "I moderatori ti hanno inviato questo avviso. Leggilo attentamente e conferma di averlo letto e compreso prima di continuare.",
+      "acknowledge": "Conferma lettura"
     },
     "activeness_probe": {
       "title": "Sei ancora disponibile ad ospitare?",
@@ -233,16 +234,34 @@
     "delete_my_data_button": "Elimina i miei dati",
     "delete_success": "I dati del tuo passaporto sono stati eliminati.",
     "donation_title": "Grazie per avere effettuato la verifica, ci stai aiutando a rendere Couchers.org più sicuro per tutti.",
-    "donate_button": "Fai una donazione per supportare Couchers.org"
+    "donate_button": "Fai una donazione per supportare Couchers.org",
+    "learn_more": "Scopri di più sulla verifica robusta <a>qui</a>.",
+    "status": {
+      "disabled_message": "Attualmente <1>non hai completato</1> la verifica robusta.",
+      "enabled_message": "Attualmente <1>hai completato</1> la verifica robusta."
+    },
+    "start_button": "Inizia la verifica robusta",
+    "complete_title": "Stiamo elaborando il tuo tentativo di verifica robusta",
+    "complete_message2": "La verifica robusta scade con la scadenza del tuo passaporto, e dovrai ripetere la verifica con il nuovo passaporto.",
+    "delete_data_title": "Elimina i dati del passaporto della tua verifica robusta",
+    "delete_information": "Puoi eliminare i dati della tua verifica robusta (eccetto la nazione di emissione, la data di scadenza e gli ultimi tre caratteri del numero di documento) dai nostri sever in qualsiasi momento.",
+    "delete_information_text2": "Se elimini i tuoi dati, non potrai usare lo stesso passaporto per una nuova verifica robusta.",
+    "delete_button": "Elimina i miei dati della verifica robusta",
+    "title": "Verifica robusta"
   },
   "quick_links": {
     "title": "Azione rapida da email",
     "error_message": "Errore: {{message}}",
-    "missing_payload_or_sig": "URL non valido"
+    "missing_payload_or_sig": "URL non valido",
+    "button_text": "Conferma azione"
   },
   "profile_visibility": {
     "visiblility_options": {
-      "nothing": "<1>Nothing</1>: nascondimi completamente"
+      "nothing": "<1>Nessuna</1>: nascondimi completamente",
+      "map_only": "<1>Solo mappa</1>: Mostra una punto casuale e anonimo sulla mappa, senza ulteriori informazioni",
+      "limited": "<1>Limitata</1>: mostra il mio nome, posizione, stato di ospitalità/incontri, badge, numero di referenze e da quanto tempo sono un Coucher",
+      "most": "<1>Maggior parte</1>: mostra l'intera sezione \"Su di me\" eccetto \"Ulteriori informazioni\"",
+      "full_profile": "<1>Profilo completo</1>: mostra il mio intero profilo (eccetto le referenze)"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
