@@ -12,5 +12,6 @@
   "signup_description_no_link2_one": "Viaggia, ospita e connettiti con {{count}} utente.",
   "signup_description_no_link2_many": "Viaggia, ospita e connettiti con {{count}} di utenti.",
   "signup_description_no_link2_other": "Viaggia, ospita e connettiti con {{count}} utenti.",
-  "signup_continue": "Completa l'iscrizione"
+  "signup_continue": "Completa l'iscrizione",
+  "why_couchers_title": "Perchè Couchers.org?"
 }

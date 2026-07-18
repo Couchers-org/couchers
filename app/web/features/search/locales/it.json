@@ -1,4 +1,19 @@
 {
   "any": "Qualsiasi",
-  "choose_search_criteria": "Scrivi una località o applica un filtro per cercare."
+  "choose_search_criteria": "Scrivi una località o applica un filtro per cercare.",
+  "filter_dialog": {
+    "desktop_title": "Filtri",
+    "mobile_title": "Cerca"
+  },
+  "last_active_options": {
+    "last_3_months": "Gli ultimi 3 mesi",
+    "last_6_months": "Gli ultimi 6 mesi",
+    "last_year": "L'ultimo anno"
+  },
+  "form": {
+    "location_field_label": "Località vicina",
+    "keywords": {
+      "field_label": "Nome, parola chiave o username"
+    }
+  }
 }
