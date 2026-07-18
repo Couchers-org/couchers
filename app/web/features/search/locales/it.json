@@ -15,8 +15,12 @@
   "form": {
     "location_field_label": "Località vicina",
     "keywords": {
-      "field_label": "Nome, parole chiave o username"
-    }
+      "field_label": "Nome, parole chiave o username",
+      "clear_field_action_a11y_label": "Cancella la ricerca",
+      "search_this_keyword_a11y_label": "Cerca questa parola chiave"
+    },
+    "by_location_filter_label": "Per località",
+    "by_keyword_filter_label": "Per parola chiave o nome"
   },
   "error_loading_users": "Errore di caricamento utenti"
 }

@@ -3,7 +3,8 @@
   "blocked_list_title": "Utenti bloccati",
   "block_user_confirmation_dialog": {
     "title": "Sei sicura di voler bloccare {{name}}?",
-    "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati."
+    "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati.",
+    "confirm": "Blocca"
   },
   "my_connections": "I miei contatti",
   "friends": "Amici",
@@ -21,5 +22,12 @@
     "title": "Conosci questa persona?",
     "message": "Per favore, invia richieste di amicizia solo a persone che conosci già o che hai conosciuto durante i tuoi viaggi — la maggior parte delle persone preferisce mantenere un contatto dopo essersi conosciute di persona. <helpCenterLink>Leggi di più sulle richieste di amicizia nel nostro Help Center.</helpCenterLink>"
   },
-  "accept": "Accetta"
+  "accept": "Accetta",
+  "block_user": "Blocca l'utente",
+  "no_blocked_users": "Utenti non bloccati",
+  "remove_friend": "Elimina amico",
+  "remove_friend_confirmation_dialog": {
+    "title": "Elimina amico",
+    "message": "Sei sicuro di voler rimuovere {{name}}? Questa azione non può essere annullata"
+  }
 }
