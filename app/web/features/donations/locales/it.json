@@ -30,5 +30,12 @@
     "title": "Gestisci le tue donazioni",
     "description": "Clicca sul pulsante sotto per modificare o cancellare la tua donazione ricorrente, oppure per visualizzare le fatture precedenti.",
     "button_text": "Vai al portale per la gestione delle donazioni"
+  },
+  "logged_out": {
+    "title": "Ammontare donazione",
+    "body": "Accedi per donare così possiamo assegnarti un badge da donatore che apparirà sul tuo profilo.",
+    "login_button": "Accedi per donare",
+    "signup_prompt": "Non hai un account? <1>Registrati</1>",
+    "anonymous_donation": "Per effettuare una donazione una tantum di ${{ amount }} o più senza collegarla a un account, contattaci all'indirizzo <1>{{ email }}</1>."
   }
 }
