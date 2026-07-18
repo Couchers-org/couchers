@@ -6,14 +6,17 @@
     "mobile_title": "Cerca"
   },
   "last_active_options": {
-    "last_3_months": "Gli ultimi 3 mesi",
-    "last_6_months": "Gli ultimi 6 mesi",
-    "last_year": "L'ultimo anno"
+    "last_3_months": "Ultimi 3 mesi",
+    "last_6_months": "Ultimi 6 mesi",
+    "last_year": "Ultimo anno",
+    "last_week": "Ultima settimana",
+    "last_month": "Ultimo mese"
   },
   "form": {
     "location_field_label": "Località vicina",
     "keywords": {
-      "field_label": "Nome, parola chiave o username"
+      "field_label": "Nome, parole chiave o username"
     }
-  }
+  },
+  "error_loading_users": "Errore di caricamento utenti"
 }
