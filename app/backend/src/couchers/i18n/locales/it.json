@@ -20,6 +20,7 @@
     "discussion_not_found": "Discussione non trovata.",
     "account_not_found": "Non è stato trovato alcun account con questo username o email.",
     "address_line_1_required": "La linea 1 dell'indirizzo è obbligatoria.",
-    "city_required": "La Città é obbligatoria."
+    "city_required": "La città è obbligatoria.",
+    "already_in_chat": "L'utente è già nella chat."
   }
 }
