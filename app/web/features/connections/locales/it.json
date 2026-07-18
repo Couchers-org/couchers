@@ -34,5 +34,8 @@
     "confirm": "Rimuovi"
   },
   "friend_requests_dismiss_button": "Rifiuta",
-  "unblock_user": "Sblocca utente"
+  "unblock_user": "Sblocca utente",
+  "friend_request_no_longer_available": "Questa richiesta di amicizia non è più disponibile.",
+  "no_friend_requests_sent": "Nessuna richiesta di amicizia in attesa",
+  "cancel_request_button_a11y": "Cancella richiesta"
 }

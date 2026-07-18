@@ -10,14 +10,35 @@
   },
   "not_found": {
     "title": "Oops!",
-    "go_home": "Vai alla schermata iniziale!"
+    "go_home": "Vai alla schermata iniziale!",
+    "message": "Questa schermata non esiste."
   },
   "tabs": {
     "messages": "Messaggi",
     "search": "Cerca",
-    "events": "Eventi"
+    "events": "Eventi",
+    "home": "Home",
+    "communities": "Community"
   },
   "common": {
-    "cancel": "Cancella"
+    "cancel": "Cancella",
+    "add_photo": "Aggiungi foto",
+    "choose_photo_source": "Scegli da dove caricare la foto",
+    "take_photo": "Fai una foto",
+    "choose_from_library": "Scegli dalla galleria",
+    "open_settings": "Apri le impostazioni"
+  },
+  "update": {
+    "required_title": "Aggiornamento richiesto",
+    "body_warn": "Sembra che tu stia utilizzando una vecchia versione dell'app, quindi dovrai aggiornarla presto.",
+    "body_block": "Sembra che tu stia usando una vecchia versione dell'app, quindi devi aggiornarla adesso.",
+    "body_banned": "Sembra che la versione dell'app che stai utilizzando abbia dei bug, quindi dovrai aggiornarla.",
+    "preamble_warn": "Siamo un piccolo team di volontari e supportare le vecchie versioni è davvero difficile, ci scusiamo per il disagio.",
+    "preamble_block": "Siamo un piccolo team di volontari e supportare le vecchie versioni è davvero difficile, ci scusiamo per il disagio.",
+    "preamble_banned": "Siamo un piccolo team di volontari e a volte commettiamo degli errori, ci scusiamo per il disagio!",
+    "action_update": "Aggiorna ora",
+    "action_reinstall": "Scarica la nuova app",
+    "later": "Più tardi",
+    "failed": "L'aggiornamento non può essere applicato. Riprova per favore."
   }
 }
