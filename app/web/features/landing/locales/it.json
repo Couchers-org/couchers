@@ -4,5 +4,13 @@
   "introduction_subtitle": "Condividi il tuo mondo, scopri quello degli altri. Autentiche esperienze di couch surfing, fondate sulla fiducia e su connessioni genuine—non sulle transazioni.",
   "create_an_account": "Crea un account",
   "what_couchsurfing_title": "Couchers.org: un modo diverso di viaggiare",
-  "sign_up_ready": "Iscriviti e sei pronto a partire!"
+  "sign_up_ready": "Iscriviti e inizia subito!",
+  "introduction_subtitle2": "Gratis per sempre. Gestito dalla community. Non-profit.",
+  "signup_description2_one": "Viaggia, ospita e connettiti con {{count}} utente. <2>Scopri di più su di noi</2>.",
+  "signup_description2_many": "Viaggia, ospita e connettiti con {{count}} di utenti. <2>Scopri di più su di noi</2>.",
+  "signup_description2_other": "Viaggia, ospita e connettiti con {{count}} utenti. <2>Scopri di più su di noi</2>.",
+  "signup_description_no_link2_one": "Viaggia, ospita e connettiti con {{count}} utente.",
+  "signup_description_no_link2_many": "Viaggia, ospita e connettiti con {{count}} di utenti.",
+  "signup_description_no_link2_other": "Viaggia, ospita e connettiti con {{count}} utenti.",
+  "signup_continue": "Completa l'iscrizione"
 }
