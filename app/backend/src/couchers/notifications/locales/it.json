@@ -2,14 +2,19 @@
   "account_deletion": {
     "complete": {
       "push": {
-        "title": "Account cancellato"
-      }
+        "title": "Account cancellato",
+        "ios_title": "Account eliminato"
+      },
+      "event_description": "Il tuo account è stato eliminato"
     },
     "start": {
       "push": {
         "ios_title": "E' stata richiesta la cancellazione dell'account",
         "body": "Usa il link che ti abbiamo inviato via email per confermare."
       }
+    },
+    "recovered": {
+      "event_description": "Il tuo account è stato ripristinato"
     }
   },
   "_adhoc": {
