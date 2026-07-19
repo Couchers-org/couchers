@@ -1,17 +1,14 @@
+import functools
 import logging
 
+import babel
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
+from couchers.i18n.localize import get_localized_language_names, get_localized_region_names
 from couchers.proto import resources_pb2, resources_pb2_grpc
-from couchers.resources import (
-    get_badge_dict,
-    get_icon,
-    get_language_dict,
-    get_region_dict,
-    get_terms_of_service,
-)
+from couchers.resources import get_badge_dict, get_icon, get_terms_of_service
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +18,29 @@ COMMUNITY_GUIDELINES = [
     {"key": "be_safe", "icon": "shield.svg"},
     {"key": "no_money", "icon": "handshake.svg"},
 ]
+
+
+# These responses are static per locale, and localizing ~300 names costs tens of ms of CPU (mostly
+# babel.Locale.parse), so cache the built protos. Sharing one message across requests is safe as
+# long as nothing mutates responses after return (the tracing interceptor deepcopies before
+# sanitizing).
+@functools.lru_cache
+def _get_regions_res(locale: babel.Locale) -> resources_pb2.GetRegionsRes:
+    return resources_pb2.GetRegionsRes(
+        regions=[
+            resources_pb2.Region(alpha3=alpha3, name=name)
+            for alpha3, name in get_localized_region_names(locale).items()
+        ]
+    )
+
+
+@functools.lru_cache
+def _get_languages_res(locale: babel.Locale) -> resources_pb2.GetLanguagesRes:
+    return resources_pb2.GetLanguagesRes(
+        languages=[
+            resources_pb2.Language(code=code, name=name) for code, name in get_localized_language_names(locale).items()
+        ]
+    )
 
 
 class Resources(resources_pb2_grpc.ResourcesServicer):
@@ -46,29 +66,12 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetRegions(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> resources_pb2.GetRegionsRes:
-        return resources_pb2.GetRegionsRes(
-            regions=[
-                resources_pb2.Region(
-                    alpha3=alpha3,
-                    name=context.localization.try_localize_region_name_from_iso3166(alpha3) or english_name,
-                )
-                for alpha3, english_name in sorted(get_region_dict().items())
-            ]
-        )
+        return _get_regions_res(context.localization.babel_locale)
 
     def GetLanguages(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> resources_pb2.GetLanguagesRes:
-        return resources_pb2.GetLanguagesRes(
-            languages=[
-                resources_pb2.Language(
-                    code=code,
-                    name=context.localization.try_localize_language_name_from_iso639(code, standalone=True)
-                    or english_name,
-                )
-                for code, english_name in sorted(get_language_dict().items())
-            ]
-        )
+        return _get_languages_res(context.localization.babel_locale)
 
     def GetBadges(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
