@@ -93,7 +93,7 @@
     "@types/react-gtm-module": "^2.0.4",
     "@types/react-simple-maps": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
-    "@typescript-eslint/parser": "^8.61.1",
+    "@typescript-eslint/parser": "^8.64.0",
     "babel-jest": "^30.4.1",
     "cross-env": "^10.1.0",
     "css-mediaquery": "^0.1.2",
