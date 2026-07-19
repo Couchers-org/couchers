@@ -106,7 +106,7 @@
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-junit": "^16.0.0",
-    "knip": "^6.16.1",
+    "knip": "^6.27.0",
     "msw": "^1.2.1",
     "next-router-mock": "^1.0.5",
     "prettier": "3.4.2",
