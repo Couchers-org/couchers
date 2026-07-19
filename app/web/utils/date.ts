@@ -280,6 +280,8 @@ const APPROX_DAYS_PER_MONTH = 30;
 
 /// Converts a duration which might have date units,
 /// to an approximate equivalent which only has time units.
+/// E.g. if the user asks to snooze something for 1 month (non-specific duration),
+/// we need to convert that to an amount of time by approximating hours/month.
 export function approxTimeDuration(
   duration: Temporal.Duration,
 ): Temporal.Duration {
