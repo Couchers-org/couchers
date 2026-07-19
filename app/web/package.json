@@ -76,7 +76,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@eslint/eslintrc": "3.3.6",
-    "@eslint/js": "9.39.5",
+    "@eslint/js": "10.0.1",
     "@next/bundle-analyzer": "^16.2.10",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
