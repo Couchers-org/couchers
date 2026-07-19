@@ -4,7 +4,7 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from datetime import date, datetime, time, tzinfo
 from typing import cast
 
@@ -13,7 +13,7 @@ import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
 from babel.lists import format_list
 
-from couchers.resources import get_language_dict, get_region_code_iso3166_alpha3_to_alpha2, get_region_dict
+from couchers.resources import get_region_code_iso3166_alpha3_to_alpha2
 
 
 def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
@@ -55,28 +55,6 @@ def try_localize_region_name_from_iso3166(code: str, locale: babel.Locale) -> st
     code = get_region_code_iso3166_alpha3_to_alpha2().get(code, code)
     region_name: str | None = locale.territories.get(code, None)
     return region_name
-
-
-def get_localized_language_names(locale: babel.Locale) -> Mapping[str, str]:
-    """
-    Maps every allowed language code to its standalone display name in the given locale
-    (falling back to English), ordered by code.
-    """
-    return {
-        code: try_localize_language_name_from_iso639(code, locale, standalone=True) or english_name
-        for code, english_name in sorted(get_language_dict().items())
-    }
-
-
-def get_localized_region_names(locale: babel.Locale) -> Mapping[str, str]:
-    """
-    Maps every region alpha3 code to its display name in the given locale
-    (falling back to English), ordered by code.
-    """
-    return {
-        alpha3: try_localize_region_name_from_iso3166(alpha3, locale) or english_name
-        for alpha3, english_name in sorted(get_region_dict().items())
-    }
 
 
 def localize_date(
