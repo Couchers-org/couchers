@@ -57,16 +57,19 @@ If you are motivated, really want to contribute, and you have the seniority and 
 
 Want to help but don't see anything listed for you? [Fill out this form](/volunteer/form)
 
-### Global Team
+### Community Building
 
 One of the best ways to get involved is to become an Event Organizer or Community Builder (CB) for your local Couchers community. You can even do this in addition to volunteering in a different role. A Community Builder is an ambassador to the community who helps support, moderate, and grow the community.
 
 The Couchers.org [Community Builder Guide](../documents/community-builder) provides helpful resources and tips.
 
-#### Community Building
-
+#### High commitment
 - [Community Builder Program Manager](./volunteer/community-builder-program-manager)
+
+#### Medium commitment
 - [Community Builder](./volunteer/community-builder)
+
+#### No continuous commitment
 - [Event Organizer](./volunteer/event-organizer)
 
 ### Core Team
