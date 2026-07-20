@@ -13,13 +13,22 @@ We are recruiting Community Builders (CBs) around the world to help grow, nurtur
 
 This is an unpaid volunteer position where you will work closely with the Community Builder Program Managers (CBPMs).
 
-### Duties
+### Mandatory Duties
+As a representative, you are expected to uphold the following baseline commitments:
 
-- Grow Your Local Community: Drive the creation, growth, and engagement of the Couchers.org platform within your city or region;
-- Organize Events: Plan, host, and promote regular events to bring local members and travelers together;
-- Welcome & Onboard: Actively welcome new members to your local community and help them get started on the platform;
-- Represent & Communicate: Act as the bridge between your local community and the Couchers.org core team, communicating goals, feedback, and local updates;
-- Foster Safety & Inclusivity: Monitor community discussions and events, promoting a safe, welcoming, and inclusive environment, and report to the support team if any issues arise.
+- **Represent Couchers.org:** Positively reflect our values, core mission, and guidelines across all interactions
+- **Collaborate with CBPMs:** Work closely with Community Building Program Managers (e.g., providing feedback on platform features, local updates, or community challenges)
+- **Uphold & Enforce Rules:** Adhere to and maintain the [Couchers.org Community Rules](/rules)
+- **Report Violations:** Actively and promptly report any safety issues or rule violations to the support team.
+- **Direct & Resource Members:** Point community members toward the appropriate resources when needed (e.g., Help Center, Support Team, Community Page, Account Settings).
+
+### Elective Duties
+To maintain active local engagement, you must regularly participate in at least one of the following:
+
+- **Organize Local Events:** Plan and host community gatherings or meetups on a relatively regular basis.
+- **Active Hosting:** Maintain high activity on the platform by hosting travelers frequently.
+- **Manage Community Pages:** Maintain your local community hub by updating local information, managing discussions, and monitoring local events for rule compliance.
+- **Welcome New Members:** Proactively greet and onboard new members joining your local community.
 
 ### Skills and Experience
 
