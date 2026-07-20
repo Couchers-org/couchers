@@ -167,7 +167,11 @@ export default function UserSummary({
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
               openInNewTab={!isMobile}
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              }}
             >
               {title}
               {!isMobile && <StyledOpenInNewIcon />}
