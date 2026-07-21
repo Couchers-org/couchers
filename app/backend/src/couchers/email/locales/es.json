@@ -1,1 +1,21 @@
-{}
+{
+  "account_deletion": {
+    "completed": {
+      "recovery_instructions_days_one": "Si cambias de opinión, <strong>tienes {{count}} día para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:",
+      "recovery_instructions_days_many": "Si cambias de opinión, <strong>tienes {{count}} de días para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:",
+      "recovery_instructions_days_other": "Si cambias de opinión, <strong>tienes {{count}} días para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:"
+    }
+  },
+  "activeness_probe": {
+    "instructions_days_one": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro del próximos <b>{{count}} día</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\"",
+    "instructions_days_many": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro de los próximos <b>{{count}} de días</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\"",
+    "instructions_days_other": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro de los próximos <b>{{count}} días</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\""
+  },
+  "chat_messages": {
+    "missed": {
+      "count_in_dm_one": "{{count}} mensaje de <b>{{author}}</b>:",
+      "count_in_dm_many": "{{count}} de mensajes de <b>{{author}}</b>:",
+      "count_in_dm_other": "{{count}} mensajes de <b>{{author}}</b>:"
+    }
+  }
+}

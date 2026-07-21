@@ -2,9 +2,9 @@
   "_adhoc": {
     "push_enabled": {
       "push": {
-        "ios_title": "Notificaciones push habilitadas",
+        "ios_title": "Notificaciones Push habilitadas",
         "body": "Ahora recibirás notificaciones en este dispositivo.",
-        "title": "Notificaciones push habilitadas"
+        "title": "Notificaciones Push habilitadas"
       }
     }
   },
@@ -39,12 +39,18 @@
         "title": "¿Sigues dispuesto a hospedar?",
         "ios_title": "¿Sigues dispuesto a hospedar?",
         "body": "Inicia sesión para confirmar tu estado como anfitrión."
-      }
+      },
+      "event_description": "Aceptas huéspedes pero no has iniciado sesión desde hace tiempo"
     }
   },
   "api_key": {
     "create": {
-      "event_description": "Se crea una clave API para tu cuenta"
+      "event_description": "Se crea una clave API para tu cuenta",
+      "push": {
+        "title": "Clave API creada",
+        "ios_title": "Clave API creada",
+        "body": "Se te han enviado los detalles por correo electrónico."
+      }
     }
   },
   "badge": {
@@ -65,7 +71,15 @@
       "event_description": "Alguien te envía un mensaje"
     },
     "missed_messages": {
-      "event_description": "Mensajes pendientes en un chat"
+      "event_description": "Mensajes pendientes en un chat",
+      "push": {
+        "title_one": "{{count}} mensaje perdido",
+        "title_many": "{{count}} de mensajes perdidos",
+        "title_other": "{{count}} mensajes perdidos",
+        "ios_title_one": "{{count}} Mensaje perdido",
+        "ios_title_many": "{{count}} de mensajes perdidos",
+        "ios_title_other": "{{count}} Mensajes perdidos"
+      }
     }
   },
   "discussion": {
@@ -94,7 +108,7 @@
       "event_description": "Se cancela un evento en el que participas"
     },
     "comment": {
-      "event_description": " Un usuario comenta en un evento al que asistirás"
+      "event_description": "Un usuario comenta en un evento al que asistirás"
     },
     "create_any": {
       "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)"
