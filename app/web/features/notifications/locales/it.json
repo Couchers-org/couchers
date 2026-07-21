@@ -1,7 +1,19 @@
 {
   "notification_settings": {
-    "title": "Impostazioni notifiche"
+    "title": "Impostazioni notifiche",
+    "go_to_button": "Gestisci le impostazioni di notifica",
+    "edit_preferences": {
+      "title": "Impostazioni di notifica",
+      "expand_all": "Espandi tutto",
+      "error_loading": "Errore di caricamento delle impostazioni di notifica",
+      "collapse_all": "Riduci tutto"
+    }
   },
   "all": "Tutti",
-  "error_loading": "Errore di caricamento notifiche"
+  "error_loading": "Errore di caricamento notifiche",
+  "no_new_notifications": "Nessuna nuova notifica",
+  "unread": "Non lette",
+  "mark_all_read": "Segna tutte come lette",
+  "error_updating_notifications": "Errore di aggiornamento notifiche",
+  "mark_unread": "Segna come non letta"
 }

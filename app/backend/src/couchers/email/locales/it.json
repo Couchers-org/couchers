@@ -2,6 +2,12 @@
   "generic": {
     "greeting_line": "Ciao {{name}},",
     "security_warning_contact_support": "Se non sei stato tu, contattaci a {{ email_link }} e risolveremo il prima possibile.",
-    "do_not_reply_request": "Non rispondere a questa mail. Usa uno dei pulsanti sopra per rispondere a questa richiesta."
+    "do_not_reply_request": "Non rispondere a questa mail. Usa uno dei pulsanti sopra per rispondere a questa richiesta.",
+    "thanks": "Grazie!",
+    "closing_lines": {
+      "default": "Saluti, <br>Il Team Couchers.org",
+      "founders": "Aapeli and Itsi,<br>Fondatori Couchers.org",
+      "aapeli": "Aapeli<br>Co-fondatore Couchers.org<br>{{ profile_link }}"
+    }
   }
 }

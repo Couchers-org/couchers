@@ -1,4 +1,22 @@
 {
-  "mark_all_read_button_text": "Segna tutte come lette",
-  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette"
+  "mark_all_read_button_text": "Segna tutti come letti",
+  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette",
+  "messages_page": {
+    "tabs": {
+      "unread": "Non letti"
+    },
+    "title": "Messaggi"
+  },
+  "mark_all_read_button_text_hosting": "Segna tutte le richieste ricevute come lette",
+  "mark_all_read_button_text_surfing": "Segna tutte le richieste di ospitalità come lette",
+  "write_reference_button_text": "Scrivi una referenza",
+  "close_request_button_text": "Rifiuta",
+  "confirm_request_button_text": "Conferma",
+  "host_pending_request_help_text": "<0>Cose da considerare</0> prima di rispondere.",
+  "surfer_declined_request_help_text": "<0>Leggi la nostra guida</0> su come scrivere una richiesta che possa essere accettata.",
+  "past_request_help_text": "Questa richiesta è passata, puoi ancora inviare messaggi ma non puoi modificarla.",
+  "reference_card": {
+    "title": "Scrivi una referenza",
+    "description": "Condividi la tua esperienza per aiutare la community."
+  }
 }

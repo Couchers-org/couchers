@@ -33,7 +33,6 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import { localizeDateTimeRange } from "utils/date";
-import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -141,7 +140,12 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(hostRequest.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
 
   const queryClient = useQueryClient();
 
