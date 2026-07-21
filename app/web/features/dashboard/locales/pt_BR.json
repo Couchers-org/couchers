@@ -57,19 +57,22 @@
     "your_upcoming_header": "Seus próximos eventos",
     "see_all_link": "Veja todos →",
     "community_header": "Eventos nas suas comunidades",
-    "today_label": "Hoje"
+    "today_label": "Hoje",
+    "your_upcoming_empty_message": "Nenhum evento no momento. Por que você não <0>cria</0> um ✨?"
   },
   "public_trips": {
     "my_trips_header": "Suas viagens públicas",
     "when_now": "Agora",
     "when_today": "Hoje",
     "when_tomorrow": "Amanhã",
-    "same_gender_only_indicator": "Mesmo gênero"
+    "same_gender_only_indicator": "Mesmo gênero",
+    "manage_link": "Gerenciar"
   },
   "stays": {
     "upcoming_guests_header": "Seus próximos hóspedes",
     "night_count_one": "{{count}} noite",
     "night_count_many": "{{count}} noites",
-    "night_count_other": "{{count}} noites"
+    "night_count_other": "{{count}} noites",
+    "upcoming_trips_header": "Suas próximas estadias"
   }
 }
