@@ -13,12 +13,11 @@ import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTime,
+  localizeDuration,
   localizeRelativeTime,
   localizeYearMonth,
   timestampToPlainDateTime,
-  UTC_TIMEZONE,
 } from "utils/date";
-import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 
 interface Props {
   user: User.AsObject;
@@ -80,11 +79,8 @@ export const ResponseRateText = ({
 export const ResponseRateLabel = ({ user }: Props) => {
   const {
     t,
-    i18n: { language },
+    i18n: { language: locale },
   } = useTranslation(PROFILE);
-  // Localize the humanized durations at the call site (no global dayjs locale).
-  const dayjsLocale = i18nToDayjsLocale(language);
-
   let rateText = undefined;
   let timeText = undefined;
 
@@ -95,34 +91,38 @@ export const ResponseRateLabel = ({ user }: Props) => {
   } else if (user.some) {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
-      p33: dayjs
-        .duration(user.some.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({ seconds: user.some.responseTimeP33!.seconds }),
+        locale,
+      ),
     });
   } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
-      p33: dayjs
-        .duration(user.most.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
-      p66: dayjs
-        .duration(user.most.responseTimeP66!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({ seconds: user.most.responseTimeP33!.seconds }),
+        locale,
+      ),
+      p66: localizeDuration(
+        Temporal.Duration.from({ seconds: user.most.responseTimeP66!.seconds }),
+        locale,
+      ),
     });
   } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
     timeText = t("response_time_text_almost_all", {
-      p33: dayjs
-        .duration(user.almostAll.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
-      p66: dayjs
-        .duration(user.almostAll.responseTimeP66!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({
+          seconds: user.almostAll.responseTimeP33!.seconds,
+        }),
+        locale,
+      ),
+      p66: localizeDuration(
+        Temporal.Duration.from({
+          seconds: user.almostAll.responseTimeP66!.seconds,
+        }),
+        locale,
+      ),
     });
   }
 
@@ -288,16 +288,15 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             : ""
         }
       />
-      <LabelAndText
-        label={t("profile:heading.local_time")}
-        text={localizeDateTime(
-          Temporal.Now.plainDateTimeISO(user.timezone || UTC_TIMEZONE),
-          {
+      {user.timezone ? (
+        <LabelAndText
+          label={t("profile:heading.local_time")}
+          text={localizeDateTime(Temporal.Now.plainDateTimeISO(user.timezone), {
             locale,
             includeDate: false,
-          },
-        )}
-      />
+          })}
+        />
+      ) : undefined}
     </>
   );
 };
