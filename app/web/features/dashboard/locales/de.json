@@ -19,6 +19,7 @@
   "landing_text": "Wir entwickeln neue <1>Funktionen</1> wie Events, Local Guides, Moderation und Hangouts. Wir danken euch für eure Geduld und <3>Unterstützung</3> bei der Entwicklung.",
   "your_communities_helper_text": "Du wurdest zu allen Communitys hinzugefügt, die sich auf deinen Standort beziehen. Du kannst auch an anderen Orten <1>Communitys durchsuchen</1>.",
   "community_builder_form_text": "Gründen deine eigene lokale Community",
+  "your_communities_helper_text2": "Siehst du deine Community nicht? <1>Gründe sie!</1>",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
   "profile_summary_edit": "Profil bearbeiten",

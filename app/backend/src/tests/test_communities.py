@@ -1248,46 +1248,52 @@ def test_LeaveCommunity_regression(db):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
 
-def test_ListUserCommunities_orders_locality_first_then_home_then_name(db):
-    user, token = generate_user(username="orderuser", geom=create_1d_point(20), geom_radius=0.1)
-    other_admin, _ = generate_user(username="orderuser_stateadmin")
+def test_ListUserCommunities_orders_locality_first_then_name(db):
+    user, token = generate_user(username="orderuser")
 
     with session_scope() as session:
         world = create_community(session, 0, 100, "World", [user], [], None)
         continent = create_community(session, 0, 90, "Continent", [user], [], world)
-        home_country = create_community(session, 10, 50, "Zzz Home Country", [user], [], continent)
-        other_country = create_community(session, 60, 80, "Aaa Country", [user], [], continent)
-        state = create_community(session, 15, 30, "State", [other_admin], [], home_country)
-        home_city = create_community(session, 18, 22, "Zzz Home City", [user], [], state)
-        other_city = create_community(session, 23, 26, "Aaa City", [user], [], state)
+        country_a = create_community(session, 0, 30, "Aaa Country", [user], [], continent)
+        country_z = create_community(session, 30, 60, "Zzz Country", [user], [], continent)
+        city_a = create_community(session, 0, 10, "Aaa City", [user], [], country_a)
+        city_m = create_community(session, 10, 20, "Mmm City", [user], [], country_a)
+        city_z = create_community(session, 20, 30, "Zzz City", [user], [], country_a)
 
         world_id = world.id
         continent_id = continent.id
-        home_country_id = home_country.id
-        other_country_id = other_country.id
-        home_city_id = home_city.id
-        other_city_id = other_city.id
+        country_a_id = country_a.id
+        country_z_id = country_z.id
+        city_a_id = city_a.id
+        city_m_id = city_m.id
+        city_z_id = city_z.id
+
+    expected_order = [
+        city_a_id,
+        city_m_id,
+        city_z_id,
+        country_a_id,
+        country_z_id,
+        continent_id,
+        world_id,
+    ]
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
-        assert [c.community_id for c in res.communities] == [
-            home_city_id,
-            other_city_id,
-            home_country_id,
-            other_country_id,
-            continent_id,
-            world_id,
-        ]
+        assert [c.community_id for c in res.communities] == expected_order
 
-        res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=3))
-        assert [c.community_id for c in res.communities] == [home_city_id, other_city_id, home_country_id]
-        assert res.next_page_token
+        seen: list[int] = []
+        page_token = ""
+        for _ in range(len(expected_order) + 1):
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=page_token))
+            seen.extend(c.community_id for c in res.communities)
+            if not res.next_page_token:
+                break
+            page_token = res.next_page_token
+        else:
+            pytest.fail("pagination did not terminate within the expected number of pages")
 
-        res = api.ListUserCommunities(
-            communities_pb2.ListUserCommunitiesReq(page_size=3, page_token=res.next_page_token)
-        )
-        assert [c.community_id for c in res.communities] == [other_country_id, continent_id, world_id]
-        assert not res.next_page_token
+        assert seen == expected_order
 
 
 def test_enforce_community_memberships_for_user(testing_communities):
