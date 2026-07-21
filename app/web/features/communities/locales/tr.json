@@ -67,6 +67,5 @@
   "location": "Konum",
   "delete_comment": "Yorumu sil",
   "discussion_creation_date": "{{dateOnly}} tarihinde oluşturuldu",
-  "discussion_edited_date": "",
   "discussion_deleted": "Bu tartışma silindi."
 }
