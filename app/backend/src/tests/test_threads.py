@@ -559,7 +559,7 @@ def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
                     lng=0.2,
                 ),
                 start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time)
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
     return int(res.thread.thread_id)
