@@ -8,6 +8,7 @@ import {
   MESSAGES,
   NOTIFICATIONS,
   PROFILE,
+  PUBLIC_TRIPS,
 } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -26,6 +27,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
       NOTIFICATIONS,
       PROFILE,
       MESSAGES,
+      PUBLIC_TRIPS,
     ])),
   },
 });

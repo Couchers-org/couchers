@@ -69,7 +69,7 @@ results
             assert json == {
                 "title": "subject",
                 "body": expected_body,
-                "labels": ["bug tool", "bug: triage needed"],
+                "labels": ["bug: triage needed"],
             }
 
             class _PostReturn:
@@ -130,7 +130,7 @@ results
             assert json == {
                 "title": "subject",
                 "body": expected_body,
-                "labels": ["bug tool", "bug: triage needed"],
+                "labels": ["bug: triage needed"],
             }
 
             class _PostReturn:

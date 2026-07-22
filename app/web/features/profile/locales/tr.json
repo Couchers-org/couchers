@@ -2,9 +2,8 @@
   "actions": {
     "back_to_dashboard": "Göstergeye geri dön",
     "message_label": "Mesaj",
-    "accept_friend_label": "Kabul et",
-    "decline_friend_label": "Reddet",
-    "request": "İstek"
+    "request": "İstek",
+    "add_friend": "Arkadaş ekle"
   },
   "heading": {
     "about_me": "Benim hakkımda",
@@ -30,7 +29,8 @@
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
     "hometown": "Büyüdüğü yer",
     "joined": "Kanepe sörfüne başlama tarihi",
-    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
+    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta",
+    "photos_section": "Fotoğraflar"
   },
   "active": "Aktif",
   "my_connections": "Bağlantılarım",
@@ -127,5 +127,6 @@
   "reference_amounts": {
     "count_references_one": "{{count}} referans",
     "count_references_other": "{{count}} referans"
-  }
+  },
+  "do_not_email_error_link": "Bunu yeniden etkinleştirmek için e-posta ayarlarınızı güncelleyin."
 }

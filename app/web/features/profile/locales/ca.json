@@ -136,8 +136,6 @@
   },
   "actions": {
     "message_label": "Missatge",
-    "accept_friend_label": "Accepta",
-    "decline_friend_label": "Declina",
     "back_to_dashboard": "Torna al tauler",
     "request": "Sol·licita"
   },
@@ -190,10 +188,6 @@
     "paid_offsite": "Aparcament de pagament a prop",
     "free_offsite": "Aparcament gratuït a prop",
     "paid_onsite": "Aparcament de pagament al lloc"
-  },
-  "pronouns": {
-    "man": "ell / li",
-    "woman": "ella / li"
   },
   "edit_profile_tab_bar_a11y_label": "pestanyes per editar les diferents parts del teu perfil",
   "info_unanswered": "Pregunta'm",
@@ -248,8 +242,6 @@
     "hosted": "Allotjat",
     "surfed": "Convidat"
   },
-  "accept_friend_label": "Accepta la sol·licitud d'amistat",
-  "decline_friend_label": "Declina la sol·licitud d'amistat",
   "no_references": "Encara no hi ha referències d'aquest tipus!",
   "references_filter_a11y_label": "Mostra les referències: ",
   "see_more_references": "Mira més referències",

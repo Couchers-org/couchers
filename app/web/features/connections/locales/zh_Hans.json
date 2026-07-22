@@ -14,11 +14,11 @@
     "title": "您确定要屏蔽{{name}}吗？",
     "message": "此人的消息和请求将被屏蔽，你的个人资料、活动和评论对该人将不可见。对方不会收到你已屏蔽他们的通知。"
   },
-  "remove_friend": "移除好友",
+  "remove_friend": "删除好友",
   "remove_friend_confirmation_dialog": {
-    "title": "移除好友",
+    "title": "删除好友",
     "message": "您确定要移除{{name}}吗？此操作无法撤销。",
-    "confirm": "移除"
+    "confirm": "删除"
   },
   "blocked_list_title": "已屏蔽用户",
   "block_user": "屏蔽用户",
@@ -29,6 +29,5 @@
     "confirm": "取消屏蔽",
     "message": "取消屏蔽后,对方将可以查看您的资料并向您发送请求。如果您之前是好友关系,对方会重新出现在您的好友列表中。对方不会收到通知。",
     "title": "您确定要取消屏蔽{{name}}吗?"
-  },
-  "decline": "拒绝"
+  }
 }

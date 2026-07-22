@@ -27,7 +27,6 @@
   "no_friend_requests": "Sin solicitudes de amistad pendientes",
   "blocked_list_title": "Usuarios bloqueados",
   "accept": "Aceptar",
-  "decline": "Rechazar",
   "no_friend_requests_sent": "Sin solicitudes de amistad pendientes",
   "remove_friend": "Eliminar amistad",
   "unblock_user": "Desbloquear usuario",
@@ -37,5 +36,6 @@
     "confirm": "Sí, lo conozco. ¡Envía la solicitud!"
   },
   "friend_request_no_longer_available": "Esta solicitud de amistad ya no está disponible.",
-  "cancel_request_button_a11y": "Cancelar solicitud"
+  "cancel_request_button_a11y": "Cancelar solicitud",
+  "friend_requests_dismiss_button": "Descartar"
 }

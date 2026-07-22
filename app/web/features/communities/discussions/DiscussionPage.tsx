@@ -24,8 +24,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import {
+  localizeDateTime,
+  localizeRelativeTime,
+  timestampToPlainDateTime,
+} from "utils/date";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
@@ -172,7 +175,7 @@ export default function DiscussionPage({
           },
         ] as EllipsisMenuItem[])
       : []),
-    ...((discussion?.canEdit || discussion?.canModerate) && !discussion?.deleted
+    ...(discussion?.canEdit && !discussion?.deleted
       ? ([
           {
             icon: DeleteOutlined,
@@ -287,7 +290,9 @@ export default function DiscussionPage({
                               <Typography variant="body2">
                                 {t("communities:discussion_creation_date", {
                                   dateOnly: localizeDateTime(
-                                    timestamp2Date(discussion.created!),
+                                    timestampToPlainDateTime(
+                                      discussion.created!,
+                                    ),
                                     {
                                       locale,
                                       includeTime: false,
@@ -299,13 +304,10 @@ export default function DiscussionPage({
                             {discussion.lastEdited && (
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
-                                  timeAgo: timeAgo({
-                                    since: timestamp2Date(
-                                      discussion.lastEdited,
-                                    ),
-                                    t,
+                                  timeAgo: localizeRelativeTime(
+                                    discussion.lastEdited,
                                     locale,
-                                  }),
+                                  ),
                                 })}
                               </Typography>
                             )}

@@ -1,5 +1,6 @@
 import string
 import textwrap
+from datetime import timedelta
 
 import grpc
 import pytest
@@ -17,11 +18,12 @@ from couchers.models import (
     User,
 )
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
-from couchers.proto import moderation_pb2, threads_pb2
+from couchers.proto import discussions_pb2, events_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import now
+from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import real_moderation_session, threads_session
+from tests.fixtures.sessions import discussions_session, events_session, real_moderation_session, threads_session
+from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -537,6 +539,101 @@ def test_delete_reply_creates_version_record(db):
         assert v.old_content == "reply to delete"
         assert v.new_content is None
         assert v.editor_user_id == user.id
+
+
+def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
+    """Helper: create an Event via the API, return its (packed) thread_id."""
+    with session_scope() as session:
+        create_community(session, 0, 2, "Testing Community", [organizer], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    with events_session(organizer_token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy event",
+                content="Dummy content.",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+    return int(res.thread.thread_id)
+
+
+def test_post_reply_incomplete_profile_blocked_on_event_comment(db):
+    """An incomplete-profile user cannot post a top-level comment on an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user(complete_profile=False)
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
+    """An incomplete-profile user cannot post a nested reply within an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user()
+    _replier, replier_token = generate_user(complete_profile=False)
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="top-level comment")
+        ).thread_id
+
+    with threads_session(replier_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="a reply"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_post_reply_complete_profile_allowed_on_event_comment(db):
+    """A complete-profile user can post a comment on an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user()
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello")
+        ).thread_id
+    assert comment_thread_id
+
+
+def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
+    """An incomplete-profile user cannot post a comment on a discussion thread."""
+    admin, admin_token = generate_user()
+    _commenter, commenter_token = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 1, "Testing Community", [admin], [], None).id
+
+    with discussions_session(admin_token) as api:
+        discussion = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="A discussion",
+                content="Content",
+                owner_community_id=community_id,
+            )
+        )
+        discussion_thread_id = discussion.thread.thread_id
+
+    with threads_session(commenter_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_edit_comment_multiple_edits_creates_multiple_version_records(db):

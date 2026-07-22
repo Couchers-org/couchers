@@ -3,7 +3,6 @@
   "please_complete_profile": "Please complete your profile and ensure you show up in search:",
   "fill_in_who_i_am": "1. Fill in your \"Who I am\" section with a few sentences about yourself",
   "upload_photo": "2. Upload a photo (by clicking on the avatar on the edit page)",
-  "edit_profile_button_text": "Edit your profile",
   "complete_profile_explanation": "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻",
   "your_communities_heading": "Your communities",
   "all_communities_heading": "All communities",
@@ -57,8 +56,19 @@
     "see_all_link": "See all →",
     "your_upcoming_empty_message": "No events at the moment. Why don't you <0>create</0> one ✨?",
     "community_header": "Events in your communities",
-    "location_online_label": "Online",
     "today_label": "Today"
+  },
+  "public_trips": {
+    "my_trips_header": "Your public trips",
+    "manage_link": "Manage",
+    "when_now": "Now",
+    "when_today": "Today",
+    "when_tomorrow": "Tomorrow",
+    "empty_description": "Heading somewhere? Post a public trip in a community to receive offers from nearby hosts.",
+    "same_gender_only_indicator": "Same gender",
+    "offers_count_one": "{{count}} offer",
+    "offers_count_other": "{{count}} offers",
+    "no_offers": "No offers yet"
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",

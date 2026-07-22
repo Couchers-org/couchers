@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
 from couchers.db import session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
@@ -384,6 +385,10 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth not in (0, 1):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_post_comment")
 
         object_to_add: Comment | Reply | None = None
 

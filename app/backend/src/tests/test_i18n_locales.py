@@ -3,6 +3,7 @@ import pytest
 from couchers.i18n.locales import (
     DEFAULT_LOCALE,
     get_babel_locale,
+    get_locale_chain,
     get_main_i18next,
     get_supported_locales,
     to_supported_locale,
@@ -51,17 +52,11 @@ def test_all_supported_locales_have_babel_locales():
         assert get_babel_locale(locale), f"Locale {locale} does not have a valid Babel locale"
 
 
-def test_fallback_chain():
+def test_get_locale_chain():
     """Test that fallbacks are correctly set up"""
-    i18next = get_main_i18next()
-
-    # Example: fr-CA should fallback to fr, which should fallback to en
-    fr_CA = i18next.translations_by_locale["fr-CA"]
-    fr = i18next.translations_by_locale["fr"]
-    en = i18next.translations_by_locale["en"]
-
-    assert fr_CA.fallbacks == [fr, en]
-    assert fr.fallbacks == [en]
-    assert en.fallbacks == []
-
-    assert i18next.default_translation == en
+    assert get_locale_chain("en") == ["en"]
+    assert get_locale_chain("pl") == ["pl", "en"]
+    assert get_locale_chain("xx") == ["xx", "en"]
+    assert get_locale_chain("fr-CA") == ["fr-CA", "fr", "en"]
+    assert get_locale_chain("pt") == ["pt", "pt-BR", "en"]
+    assert get_locale_chain("pt-BR") == ["pt-BR", "pt", "en"]

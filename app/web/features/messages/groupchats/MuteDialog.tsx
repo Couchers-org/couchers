@@ -20,7 +20,8 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import React, { useState } from "react";
 import { service } from "service";
-import dayjs from "utils/dayjs";
+import { Temporal } from "temporal-polyfill";
+import { approxTimeDuration } from "utils/date";
 
 type DurationChoice = "1h" | "8h" | "1d" | "1w" | "1m" | "forever";
 
@@ -33,14 +34,14 @@ export default function MuteDialog({
   const muteMutation = useMutation<void, RpcError, DurationChoice>({
     mutationFn: async (duration) => {
       let d;
-      if (duration === "1h") d = dayjs.duration({ hours: 1 });
-      else if (duration === "8h") d = dayjs.duration({ hours: 8 });
-      else if (duration === "1d") d = dayjs.duration({ days: 1 });
-      else if (duration === "1w") d = dayjs.duration({ weeks: 1 });
-      else if (duration === "1m") d = dayjs.duration({ months: 1 });
+      if (duration === "1h") d = Temporal.Duration.from({ hours: 1 });
+      else if (duration === "8h") d = Temporal.Duration.from({ hours: 8 });
+      else if (duration === "1d") d = Temporal.Duration.from({ days: 1 });
+      else if (duration === "1w") d = Temporal.Duration.from({ weeks: 1 });
+      else if (duration === "1m") d = Temporal.Duration.from({ months: 1 });
       await service.conversations.muteChat({
         groupChatId,
-        forDuration: d,
+        forDuration: d ? approxTimeDuration(d) : undefined,
         forever: !d,
       });
     },

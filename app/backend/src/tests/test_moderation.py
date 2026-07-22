@@ -2764,7 +2764,7 @@ def test_event_moderation_state_content(db):
                 title="My Event Title",
                 content="My event description.",
                 photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
@@ -2898,7 +2898,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
                 title="Event",
                 content="Event description.",
                 photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

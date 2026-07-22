@@ -9,7 +9,7 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
-import { timestamp2Date } from "utils/date";
+import { timestampToInstant } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
@@ -118,12 +118,12 @@ const StyledFooter = styled("div")(({ theme }) => ({
 
 const StyledFlagButton = styled(FlagButton)(({ theme }) => ({
   padding: theme.spacing(0.25),
-  color: "var(--mui-palette-text-secondary)",
+  color: "var(--mui-palette-primary-main)",
   "& svg": {
     fontSize: "1rem",
   },
   "&:hover, &:focus-visible": {
-    color: "var(--mui-palette-primary-main)",
+    color: "var(--mui-palette-primary-dark)",
   },
 }));
 
@@ -195,7 +195,7 @@ export default function MessageView({
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
-          <StyledTimeInterval date={timestamp2Date(message.time!)} />
+          <StyledTimeInterval instant={timestampToInstant(message.time!)} />
           {author && !isCurrentUser && (
             <StyledFlagButton
               contentRef={`chat/message/${message.messageId}`}

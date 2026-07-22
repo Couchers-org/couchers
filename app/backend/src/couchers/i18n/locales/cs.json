@@ -99,7 +99,6 @@
     "too_many_diagnostic_infos": "Příliš mnoho diagnostických událostí v jedné dávce.",
     "unknown_error": "Vyskytla se neznámá chyba systému. Zvaž prosím nahlášení chyby!",
     "unrecognized_phone_number": "Tvé telefonní číslo nebylo rozpoznáno. Zkontroluj ho prosím a pokud problém přetrvá, kontaktuj podporu.",
-    "visibility_must_be_specified": "Viditelnost musí být specifikována.",
     "user_already_admin": "Tento uživatel je již adminem.",
     "user_already_blocked": "Cílový uživatel je již zablokován.",
     "reply_edit_permission_denied": "Nemáš oprávnění upravit tento komentář.",
@@ -125,7 +124,6 @@
     "invite_code_not_found": "Kód pozvánky nenalezen.",
     "invite_permission_denied": "Nemáš oprávnění zvát ostatní uživatele.",
     "last_admin_cant_leave": "Poslední admin nesmí opustit skupinový chat.",
-    "missing_event_address_location_or_link": "Chybějící adresa události, lokace nebo odkaz.",
     "missing_event_address_or_location": "Chybějící adresa nebo lokace události.",
     "missing_event_title": "Chybějící název události."
   }

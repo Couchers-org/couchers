@@ -9,15 +9,15 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTime,
+  localizeDuration,
+  localizeRelativeTime,
   localizeYearMonth,
-  timestamp2Date,
-  UTC_TIMEZONE,
+  timestampToPlainDateTime,
 } from "utils/date";
-import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
-import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -38,11 +38,9 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
         label={t("heading.last_active")}
         text={
           user.lastActive
-            ? timeAgo({
-                since: timestamp2Date(user.lastActive),
+            ? localizeRelativeTime(user.lastActive, locale, {
+                smallestUnit: "hours",
                 t,
-                locale,
-                minimumUnit: TimeUnit.Hours,
               })
             : t("last_active_false")
         }
@@ -81,11 +79,8 @@ export const ResponseRateText = ({
 export const ResponseRateLabel = ({ user }: Props) => {
   const {
     t,
-    i18n: { language },
-  } = useTranslation("profile");
-  // Localize the humanized durations at the call site (no global dayjs locale).
-  const dayjsLocale = i18nToDayjsLocale(language);
-
+    i18n: { language: locale },
+  } = useTranslation(PROFILE);
   let rateText = undefined;
   let timeText = undefined;
 
@@ -96,34 +91,38 @@ export const ResponseRateLabel = ({ user }: Props) => {
   } else if (user.some) {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
-      p33: dayjs
-        .duration(user.some.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({ seconds: user.some.responseTimeP33!.seconds }),
+        locale,
+      ),
     });
   } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
-      p33: dayjs
-        .duration(user.most.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
-      p66: dayjs
-        .duration(user.most.responseTimeP66!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({ seconds: user.most.responseTimeP33!.seconds }),
+        locale,
+      ),
+      p66: localizeDuration(
+        Temporal.Duration.from({ seconds: user.most.responseTimeP66!.seconds }),
+        locale,
+      ),
     });
   } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
     timeText = t("response_time_text_almost_all", {
-      p33: dayjs
-        .duration(user.almostAll.responseTimeP33!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
-      p66: dayjs
-        .duration(user.almostAll.responseTimeP66!.seconds, "second")
-        .locale(dayjsLocale)
-        .humanize(),
+      p33: localizeDuration(
+        Temporal.Duration.from({
+          seconds: user.almostAll.responseTimeP33!.seconds,
+        }),
+        locale,
+      ),
+      p66: localizeDuration(
+        Temporal.Duration.from({
+          seconds: user.almostAll.responseTimeP66!.seconds,
+        }),
+        locale,
+      ),
     });
   }
 
@@ -163,7 +162,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     gender,
     pronouns,
   } = user;
-  const { t } = useTranslation("profile");
+  const { t } = useTranslation(PROFILE);
 
   const getBirthdateVerificationIcon = (
     status: BirthdateVerificationStatus,
@@ -233,7 +232,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
 };
 
 export const AgeGenderLanguagesLabels = ({ user }: Props) => {
-  const { t } = useTranslation("profile");
+  const { t } = useTranslation(PROFILE);
   const { languages } = useLanguages();
 
   return (
@@ -279,22 +278,25 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? localizeYearMonth(timestamp2Date(user.joined), {
-                locale,
-                abbreviate: true,
-                capitalize: true,
-              })
+            ? localizeYearMonth(
+                timestampToPlainDateTime(user.joined).toPlainDate(),
+                {
+                  locale,
+                  capitalize: true,
+                },
+              )
             : ""
         }
       />
-      <LabelAndText
-        label={t("profile:heading.local_time")}
-        text={localizeDateTime(dayjs(), {
-          timezone: user.timezone || UTC_TIMEZONE,
-          locale,
-          includeDate: false,
-        })}
-      />
+      {user.timezone ? (
+        <LabelAndText
+          label={t("profile:heading.local_time")}
+          text={localizeDateTime(Temporal.Now.plainDateTimeISO(user.timezone), {
+            locale,
+            includeDate: false,
+          })}
+        />
+      ) : undefined}
     </>
   );
 };

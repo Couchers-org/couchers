@@ -195,7 +195,7 @@ def _get_string(
         full_key = f"{string_group.topic}.{string_group.action}.push.{key}"
     else:
         full_key = f"{string_group}.{key}"
-    return get_notifs_i18next().localize(full_key, loc_context.locale, substitutions)
+    return get_notifs_i18next().localize(full_key, loc_context.locale_list, substitutions)
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:

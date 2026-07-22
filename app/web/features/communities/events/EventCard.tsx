@@ -16,12 +16,7 @@ import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
-import dayjs from "utils/dayjs";
+import { localizeDateTimeRange, timestampToPlainDateTime } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 
 const StyledCard = styled(Card, {
@@ -133,11 +128,10 @@ export default function EventCard({ event, className }: EventCardProps) {
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    dayjs(timestamp2Date(event.startTime!)),
-    dayjs(timestamp2Date(event.endTime!)),
+    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+    timestampToPlainDateTime(event.startTime!),
+    timestampToPlainDateTime(event.endTime!),
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
       abbreviate: true,
@@ -173,13 +167,6 @@ export default function EventCard({ event, className }: EventCardProps) {
             backgroundPosition: "center",
           }}
         >
-          {event.onlineInformation && (
-            <Chip
-              size="medium"
-              label={t("communities:online")}
-              sx={{ borderRadius: 1, fontWeight: "bold" }}
-            />
-          )}
           <FlagButtonWrapper>
             <FlagButton
               contentRef={`event/${event.eventId}`}
@@ -207,9 +194,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               maxWidth: "25em",
             }}
           >
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : t("communities:virtual_event_location_placeholder")}
+            {event.location?.address}
           </Typography>
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />

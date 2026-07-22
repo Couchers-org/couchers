@@ -105,7 +105,7 @@ describe("useUpdateHostingPreference hook", () => {
 
     await waitFor(() => result.current.status === "error");
 
-    expect(setError).toBeCalledWith("API error");
-    expect(setError).toBeCalledTimes(2);
+    expect(setError).toHaveBeenCalledWith("API error");
+    expect(setError).toHaveBeenCalledTimes(2);
   });
 });

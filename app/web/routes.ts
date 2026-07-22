@@ -176,6 +176,7 @@ const communityBaseRoute = "/community";
 export const communityTabs = [
   "overview",
   "info",
+  "public-trips",
   "discussions",
   "events",
   "members",
@@ -189,6 +190,8 @@ export const routeToCommunity = (
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
+
+export const myPublicTripsRoute = "/public-trips";
 
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";

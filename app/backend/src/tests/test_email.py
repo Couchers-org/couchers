@@ -238,8 +238,8 @@ def test_email_changed_confirmation_sent_to_new_email(db, email_collector: Email
     assert user.name in email.html
     assert user.email in email.plain
     assert user.email in email.html
-    assert "Your old email address is" in email.plain
-    assert "Your old email address is" in email.html
+    assert "You requested that your email be changed from " in email.plain
+    assert "You requested that your email be changed from " in email.html
     assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.plain
     assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.html
     assert "support@couchers.org" in email.plain
@@ -401,7 +401,7 @@ def test_send_donation_email(db, monkeypatch):
 
 Thank you so much for your donation of $20 to Couchers.org.
 
-Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
+Your contribution will go towards building and sustaining the Couchers.org community, and is vital for our goal of a free and non-profit couch surfing platform.
 
 You can download an invoice and receipt for the donation here:
 
@@ -410,8 +410,6 @@ Download invoice: https://example.com/receipt/12345
 Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.
 
 If you have any questions about your donation, please email us at donations@couchers.org.
-
-Your generosity will help deliver the platform for everyone.
 
 Thank you!
 
@@ -424,7 +422,7 @@ This is a security email, you cannot unsubscribe from it.
 """
         )
 
-        assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
+        assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
         assert email.sender_name == "Couchers.org"
         assert email.sender_email == "notify@couchers.org.invalid"
         assert email.recipient == "testing@couchers.org.invalid"
@@ -513,7 +511,7 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
                 content="Dummy content.",
                 photo_key=None,
                 parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
+                location=events_pb2.EventLocation(
                     address="Near Null Island",
                     lat=0.1,
                     lng=0.2,

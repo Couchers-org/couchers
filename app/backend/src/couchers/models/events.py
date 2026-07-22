@@ -129,12 +129,10 @@ class EventOccurrence(Base, kw_only=True):
     is_cancelled: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    # a null geom is an online-only event
-    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), default=None)
-    # physical address, iff geom is not null
-    address: Mapped[str | None] = mapped_column(String, default=None)
-    # videoconferencing link, etc, must be specified if no geom, otherwise optional
-    link: Mapped[str | None] = mapped_column(String, default=None)
+    # The GPS coordinates of the event location
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
+    # The physical address string. Legacy online events have been migrated to put the link in here.
+    address: Mapped[str] = mapped_column(String)
 
     timezone = "Etc/UTC"
 
@@ -165,24 +163,12 @@ class EventOccurrence(Base, kw_only=True):
     moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
-        # Geom and address go together
-        CheckConstraint(
-            # geom and address are either both null or neither of them are null
-            "(geom IS NULL) = (address IS NULL)",
-            name="geom_iff_address",
-        ),
-        # Online-only events need a link, note that online events may also have a link
-        CheckConstraint(
-            # exactly oen of geom or link is non-null
-            "(geom IS NULL) <> (link IS NULL)",
-            name="link_or_geom",
-        ),
         # Can't have overlapping occurrences in the same Event
         ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
 
     @property
-    def coordinates(self) -> tuple[float, float] | None:
+    def coordinates(self) -> tuple[float, float]:
         # returns (lat, lng) or None
         return get_coordinates(self.geom)
 

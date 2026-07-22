@@ -60,5 +60,36 @@
     "unarchive_button": "Vrátit z archivu",
     "no_archived_requests": "Žádné archivované požadavky",
     "no_archived_messages": "Žádné archivované zprávy"
+  },
+  "reference_card": {
+    "title": "Napiš referenci",
+    "description": "Nasdílej svou zkušenost a pomoz komunitě."
+  },
+  "respond_box_title": "Odeslat odpověď",
+  "respond_box_description": "Vyber odpověď a dej {{name}} hned vědět. Klidně pak připoj i zprávu.",
+  "status_bar_edit_button": "Upravit",
+  "status_bar_cancel_edit_button": "Zrušit",
+  "status_bar_close_button": "Zavřít",
+  "surfer_bar_pending": "Tvá žádost o ubytování byla odeslána – čeká se na odpověď od {{name}}.",
+  "cancel_request_button": "Zrušit žádost",
+  "cancel_request_dialog_title": "Zrušit žádost?",
+  "cancel_request_dialog_message": "Opravdu chceš zrušit svou žádost? Tuto akci nelze vrátit zpět.",
+  "cancel_request_dialog_confirm_button": "Ano, zrušit",
+  "cancel_request_dialog_dismiss_button": "Ne",
+  "private_feedback_card": {
+    "title": "Hodnocení této žádosti",
+    "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
+    "quality_high": "Kvalitní",
+    "quality_okay": "Dobrý",
+    "decline_reason_options": {
+      "other": "Ostatní"
+    },
+    "reason_other_placeholder": "Řekni nám více...",
+    "privacy_notice": "Tvé odpovědi jsou soukromé a nebudou sdíleny s uživatelem. Můžeme je použít v agregované a anonymní podobě – zkombinované s mnoha dalšími – ke zlepšení zpětné vazby pro všechny uživatele.",
+    "skip_button": "Přeskočit",
+    "next_button": "Další",
+    "back_button": "Zpět",
+    "submit_button": "Odeslat",
+    "quality_low": "Nízká kvalita"
   }
 }

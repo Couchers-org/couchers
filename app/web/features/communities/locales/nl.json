@@ -63,7 +63,6 @@
   "new_post_label": "Nieuwe post",
   "no_comments": "Er zijn geen comments in deze post op dit moment.",
   "no_moderators": "Er is hier op dit moment geen Community Builder.",
-  "online": "Online",
   "my_communities": "Mijn communities",
   "overview_label": "Overzicht",
   "page_content_field_label": "Inhoud pagina",
@@ -123,10 +122,6 @@
   "title_required": "Vul een titel in voor het event.",
   "total_members": "leden",
   "upload_helper_text": "Klik hier om een foto toe te voegen",
-  "virtual_event": "Online event",
-  "virtual_event_link": "Link event",
-  "virtual_event_location_placeholder": "Bekijk details van link",
-  "virtual_events_subtext": "Online events worden toegevoegd aan onze wereldwijde community.",
   "past": "Geweest",
   "upcoming": "Aankomende",
   "your_events": "Jouw events",
@@ -149,5 +144,20 @@
   "search_communities_helper": "Klik op een community om naar de pagina te gaan",
   "no_results_found_with_link": "Geen communities gevonden. <0>Doe een verzoek voor een nieuwe community!</0>",
   "copy_link": "Kopieer link",
-  "copy_link_success": "Link gekopieerd naar klembord"
+  "copy_link_success": "Link gekopieerd naar klembord",
+  "comment_deleted": "Deze reactie is verwijderd.",
+  "edit_comment": "Reactie bewerken",
+  "delete_comment": "Reactie verwijderen",
+  "comment_edited_date": "Bewerkt {{timeAgo}}",
+  "discussion_edited_date": "Bewerkt {{timeAgo}}",
+  "discussion_deleted": "Deze discussie is verwijderd.",
+  "delete_discussion": "Verwijder discussie",
+  "delete_discussion_dialog": {
+    "title": "Verwijder discussie",
+    "message": "Weet je zeker dat je deze discussie wilt verwijderen? De reacties blijven wel zichtbaar.",
+    "confirm": "Verwijderen",
+    "cancel": "Annuleren"
+  },
+  "edit_discussion": "Discussie bewerken",
+  "community_breadcrumb_a11y": "Huidige community"
 }

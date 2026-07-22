@@ -1,8 +1,6 @@
 {
   "actions": {
     "message_label": "信息",
-    "accept_friend_label": "接受",
-    "decline_friend_label": "拒绝",
     "request": "请求",
     "back_to_dashboard": "回到个人主页"
   },
@@ -121,10 +119,6 @@
     "man": "男性",
     "woman": "女性"
   },
-  "pronouns": {
-    "man": "他/他",
-    "woman": "她/她"
-  },
   "edit_profile_tab_bar_a11y_label": "编辑个人资料的标签",
   "info_unanswered": "问我",
   "my_connections": "我的联系人",
@@ -233,8 +227,6 @@
     "hosted": "已接待",
     "surfed": "客人"
   },
-  "accept_friend_label": "接受好友请求",
-  "decline_friend_label": "拒绝好友请求",
   "no_references": "还没有此类评语！",
   "references_filter_a11y_label": "显示评语：",
   "see_more_references": "查看更多评语",

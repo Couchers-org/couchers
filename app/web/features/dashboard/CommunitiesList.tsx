@@ -67,7 +67,9 @@ export default function CommunitiesList() {
 
   const { data, isPending, error } = useListUserCommunities();
 
-  const communities = data?.communitiesList ?? [];
+  const communities = (data?.pages ?? []).flatMap(
+    (page) => page.communitiesList,
+  );
 
   const updateScrollState = () => {
     const el = scrollerRef.current;
@@ -128,13 +130,17 @@ export default function CommunitiesList() {
           marginBottom: "16px",
         }}
       >
-        <Trans i18nKey="dashboard:your_communities_helper_text">
-          {`You have been added to all communities based on your location. Feel free to `}
-          <StyledBrowseCommunitiesLink href="/communities" underline="hover">
-            browse communities
-          </StyledBrowseCommunitiesLink>
-          {` in other locations as well.`}
-        </Trans>
+        <Trans
+          i18nKey="dashboard:your_communities_helper_text"
+          components={{
+            1: (
+              <StyledBrowseCommunitiesLink
+                href="/communities"
+                underline="hover"
+              />
+            ),
+          }}
+        />
       </Typography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
