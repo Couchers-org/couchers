@@ -3,7 +3,7 @@
     "title": "Emailini değiştir",
     "current_email_message": "Email adresiniz şu anda <1>{{email}}</1>.",
     "success_message": "Email değişiklik isteğiniz alındı. Değişimi tamamlamak için yeni mailinizi kontrol edin.",
-    "current_password": "Şimdiki şifre",
+    "current_password": "Mevcut şifre",
     "new_email": "Yeni email",
     "hide_current_password": "Mevcut şifreyi gizle",
     "show_current_password": "Mevcut şifreyi göster"
@@ -36,7 +36,11 @@
     "token_error": "Şifre sıfırlama tokenini işlemede bir hata oluştu, lütfen emaildeki linki tekrar açmayı deneyin.",
     "title": "Şifreyi değiştir",
     "subtitle": "Giriş şifreni bu form ile sıfırla.",
-    "confirm_password": "Şifreyi onayla"
+    "confirm_password": "Şifreyi onayla",
+    "hide_old_password": "Eski şifreyi gizle",
+    "show_old_password": "Eski şifreyi göster",
+    "hide_new_password": "Yeni şifreyi gizle",
+    "show_new_password": "Yeni şifreyi göster"
   },
   "login_page": {
     "no_account_prompt": "Daha hesabınız yok mu? <2> Bize katıl</2>",

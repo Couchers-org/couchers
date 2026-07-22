@@ -24,11 +24,17 @@
     "subtitle": "Usa questo form per ripristinare la tua password.",
     "user_logged_error": "Non puoi resettare la tua password se hai effettuato l'accesso. Puoi cambiare la tua password nelle impostazioni o uscire dal tuo account per resettarla.",
     "token_error": "Si è verificato un errore durante il caricamento del token. Per favore, prova a riaprire il link dell'email.",
-    "reset_password_error": "Errore durante il ripristino della password: {{message}}"
+    "reset_password_error": "Errore durante il ripristino della password: {{message}}",
+    "hide_old_password": "Nascondi vecchia password",
+    "show_old_password": "Mostra vecchia password",
+    "hide_new_password": "Nascondi nuova password",
+    "show_new_password": "Mostra nuova password",
+    "hide_confirm_password": "Nascondi conferma password",
+    "show_confirm_password": "Mostra conferma password"
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
-    "success_message": "Controlla la tua casella e-mail per un collegamento al ripristino della password!"
+    "success_message": "Un link per reimpostare la password è stato inviato all'indirizzo email associato a quell'account, se esiste ed è attivo. Nota che l'email potrebbe talvolta finire nello spam."
   },
   "login_page": {
     "title": "Accesso",
@@ -38,7 +44,9 @@
       "username_field_label": "E-mail/Nome utente",
       "password_field_label": "Password",
       "remember_me": "Ricordami",
-      "forgot_password": "Password dimenticata?"
+      "forgot_password": "Password dimenticata?",
+      "show_password": "Mostra password",
+      "hide_password": "Nascondi password"
     }
   },
   "basic_sign_up_form": {
@@ -53,7 +61,10 @@
     },
     "name": {
       "field_label": "Nome",
-      "required_error": "Questo campo non può essere vuoto."
+      "required_error": "Questo campo non può essere vuoto",
+      "invalid_characters_error": "Il nome può contenere solo lettere, spazi, trattini e apostrofi",
+      "min_length_error": "Il nome deve contenere almeno 2 caratteri",
+      "max_length_error": "Il nome non deve superare i 100 caratteri"
     }
   },
   "account_form": {
@@ -62,7 +73,8 @@
       "required_error": "Inserisci il tuo nome utente",
       "validation_error": "Un nome utente può contenere solo numeri o _, e deve iniziare con una lettera.",
       "field_label": "Nome utente",
-      "username_taken_error": "Questo nome utente è già preso."
+      "username_taken_error": "Questo nome utente è già preso.",
+      "helper_text": "Questo è il tuo nome utente pubblico, non il nome del tuo profilo."
     },
     "birthday": {
       "field_label": "Data di nascita",
@@ -72,7 +84,7 @@
       "too_young_error": "Devi avere almeno 18 anni per utilizzare Couchers"
     },
     "hosting_status": {
-      "field_label": "Stato ospitalità",
+      "field_label": "Disponibilità ad ospitare",
       "maybe": "Potrebbe ospitare",
       "cant_host": "Non può ospitare",
       "can_host": "Può ospitare"
@@ -82,7 +94,8 @@
       "non_binary": "Non binario",
       "man": "Uomo",
       "woman": "Donna",
-      "field_label": "Io mi identifico come…"
+      "field_label": "Io mi identifico come…",
+      "selector_a11y": "Genere"
     },
     "tos_accept_label": "Io accetto i Termini di Servizio.",
     "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
@@ -91,7 +104,7 @@
       "required_error": "Inserisci una password",
       "validation_error": "La password deve contenere da 8 a 256 caratteri e non essere troppo comune."
     },
-    "opt_in_newsletter": "Iscriviti alla nostra newsletter periodica riguardo gli aggiornamenti della comunità"
+    "opt_in_newsletter": "Iscriviti alla nostra newsletter occasionale sugli aggiornamenti della community."
   },
   "location": {
     "field_label": "La tua posizione",
@@ -142,7 +155,7 @@
       "acknowledge": "Conferma lettura"
     },
     "activeness_probe": {
-      "title": "Sei ancora disponibile ad ospitare?",
+      "title": "Sei ancora disponibile ad ospitare viaggiatori?",
       "description": "Abbiamo notato che è da un po' che non ti colleghi e volevamo verificare se sei ancora disponibile ad ospitare.",
       "still_hosting": "Sono ancora disponibile ad ospitare!",
       "not_hosting": "Non ho più la possibilità di ospitare.",
@@ -169,7 +182,18 @@
       "description": "Il tuo nome utente è <1>{{username}}</1>.",
       "explanation": "Il tuo nome utente viene definito quando crei il conto."
     },
-    "title": "Impostazioni conto"
+    "title": "Impostazioni account",
+    "appearance_section": {
+      "title": "Aspetto",
+      "current_mode": "La tua modalità attuale:",
+      "click_to_change": "Fai clic sul pulsante qui sotto per passare tra le modalità Chiara, Scura e Sistema.",
+      "change_mode": "Cambia modalità di aspetto",
+      "modes": {
+        "light": "Modalità chiara",
+        "dark": "Modalità scura",
+        "system": "Modalità di sistema (segue il dispositivo)"
+      }
+    }
   },
   "change_phone": {
     "phone_label": "Il tuo numero di telefono",
@@ -228,7 +252,7 @@
     "log_out_of_all_session": "Disconnetti tutte le altre sessioni"
   },
   "strong_verification": {
-    "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere in piedi l'associazione, la verifica e gli strumenti per volontari e community builders.",
+    "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere attivi i server, il sistema di verifica e gli strumenti per i volontari e creatori di community.",
     "donation_message2": "Se puoi, per favore prendi in considerazione l'idea di donare per aiutare Couchers.org nel rimanere aperto e a crescere.",
     "complete_message1": "Il tuo passaporto sta per essere validato. Riceverai una email con il risultato entro pochi minuti.",
     "delete_my_data_button": "Elimina i miei dati",
@@ -247,7 +271,55 @@
     "delete_information": "Puoi eliminare i dati della tua verifica robusta (eccetto la nazione di emissione, la data di scadenza e gli ultimi tre caratteri del numero di documento) dai nostri sever in qualsiasi momento.",
     "delete_information_text2": "Se elimini i tuoi dati, non potrai usare lo stesso passaporto per una nuova verifica robusta.",
     "delete_button": "Elimina i miei dati della verifica robusta",
-    "title": "Verifica robusta"
+    "title": "Verifica robusta",
+    "subtitle": "La verifica robusta è una funzione di sicurezza aggiuntiva che ti consente di verificare la tua data di nascita e il tuo genere utilizzando il tuo passaporto biometrico.",
+    "instructions": {
+      "title": "Come completare la verifica robusta",
+      "warning": "Importante: la scansione del chip del passaporto può essere complicata—leggi prima tutte le istruzioni!",
+      "step1": "Scarica l'app <strong>Iris ID</strong>",
+      "step1_apple_note": "<strong>Utenti Apple:</strong> Puoi saltare il download e usare il tuo browser. Basta cliccare su \"Apri\" quando richiesto.",
+      "step2": "Fai clic su <strong>\"Avvia verifica robusta\"</strong> qui sotto (si apre in una nuova scheda)",
+      "step3": "Scansiona il codice QR con il tuo telefono",
+      "step4": "Se richiesto, apri l'app e scansiona nuovamente il codice QR",
+      "step5": "Seleziona <strong>Passaporto</strong> (carte d'identità non supportate)",
+      "step6": "Scatta una foto nitida della pagina del passaporto con i numeri in fondo",
+      "step7": "Tieni il telefono appoggiato alla pagina del passaporto con il chip NFC e <strong>resta completamente fermo per almeno 5 secondi</strong> — muoversi troppo presto è la causa più comune di errore",
+      "step8": "Quando l'operazione è eseguita correttamente appare un indicatore di caricamento con una percentuale che aumenta",
+      "download_app_store": "Scarica sull'App Store",
+      "download_google_play": "Scaricala su Google Play",
+      "chip_location": {
+        "heading": "Trovare il chip NFC del tuo passaporto",
+        "description": "La posizione del chip varia da paese a paese. Potrebbe essere necessario provare pagine diverse. Ecco alcuni esempi di posizioni:",
+        "us_germany_mexico": "<strong>Brasile, USA, Germania (2016), Indonesia, Messico:</strong> Ultima pagina",
+        "finland_germany_new": "<strong>Finlandia, Germania (dal 2017), Russia:</strong> Pagina della foto",
+        "australia": "<strong>Australia:</strong> Pagina centrale (contrassegnata dal simbolo + \"nome chip\")"
+      },
+      "scanning_tips": {
+        "heading": "Suggerimenti per una scansione NFC efficace",
+        "description": "La scansione NFC è la parte più delicata. Questi suggerimenti aumentano notevolmente le tue probabilità di successo:",
+        "remove_case": "<strong>Rimuovi la custodia del telefono</strong> — anche le custodie sottili possono bloccare il segnale NFC",
+        "hold_still": "<strong>Tieni il telefono completamente fermo</strong> per almeno 5 secondi — muoverlo troppo presto è la causa più comune di errore",
+        "flat_surface": "<strong>Posiziona il passaporto su una superficie piana</strong> — non tenerlo in mano",
+        "nfc_location": "<strong>Individua l'antenna NFC del tuo telefono</strong> — di solito si trova sul retro del telefono nella parte centrale/superiore. Prova diverse posizioni se non si connette",
+        "no_metal": "<strong>Evita le superfici metalliche</strong> — non appoggiare il passaporto su un tavolo di metallo o su un laptop",
+        "retry": "Se la scansione non riesce, riprova: spesso servono 2-3 tentativi per trovare la posizione giusta"
+      },
+      "before_you_start": {
+        "heading": "Prima di iniziare",
+        "nfc_check": "Il tuo telefono deve avere la <strong>funzionalità NFC</strong> — la maggior parte dei telefoni moderni ce l'ha. L'NFC è solitamente attivo di default, ma su alcuni telefoni potrebbe essere necessario abilitarlo nelle impostazioni del telefono.",
+        "passport_check": "Il tuo passaporto deve essere un <strong>passaporto biometrico</strong> — cerca il simbolo del chip dorato sulla copertina. I passaporti più vecchi senza questo simbolo non funzioneranno.",
+        "remove_case": "<strong>Rimuovi la custodia del telefono prima di iniziare</strong> — anche le custodie sottili possono bloccare il segnale NFC e causare il fallimento della scansione.",
+        "passport_symbol_alt": "Simbolo del passaporto biometrico"
+      },
+      "didnt_work": {
+        "heading": "Problemi?",
+        "tip1": "Sui telefoni Android, assicurati che l'NFC sia abilitato nelle impostazioni del telefono (la maggior parte dei telefoni moderni lo ha attivo di default)",
+        "tip2": "Prova una pagina diversa del tuo passaporto — la posizione del chip varia da paese a paese",
+        "tip3": "Se utilizzi Android, assicurati di aver installato l'app IRIS ID (non la versione browser)",
+        "tip4": "Alcuni passaporti più vecchi non hanno chip NFC e non funzioneranno",
+        "contact": "Se hai ancora problemi, <1>faccelo sapere</1> e ti aiuteremo."
+      }
+    }
   },
   "quick_links": {
     "title": "Azione rapida da email",
@@ -277,6 +349,62 @@
       "no_emails_disable_text": "Riattiva le email",
       "no_emails_enable_text": "Non voglio ricevere email"
     },
-    "title": "Non voglio ricevere email"
+    "title": "Non voglio ricevere email",
+    "caveat": "Abilitando questa impostazione, il tuo account sarà configurato per non accettare richieste di ospitalità. Continuerai a ricevere le email di sicurezza (come quelle per reimpostare la password). Potresti continuare a ricevere la newsletter, puoi annullare l'iscrizione utilizzando il link nel piè di pagina della newsletter."
+  },
+  "motivations_form": {
+    "header": "Cosa ti porta su Couchers?",
+    "surfing": "Cercare ospitalità",
+    "surfing_description": "Sto pianificando un viaggio e cerco un host",
+    "hosting": "Ospitare",
+    "hosting_description": "Vorrei ospitare e accogliere viaggiatori nella mia città",
+    "events": "Eventi",
+    "events_description": "Vorrei partecipare agli eventi e conoscere la community",
+    "community_organizing": "Organizzazione della community",
+    "community_organizing_description": "Voglio organizzare eventi e attività sulla piattaforma",
+    "something_else": "Altro",
+    "something_else_description": "Sto solo esplorando o non ho ancora deciso"
+  },
+  "sign_up_need_verification_title": "Un'ultima cosa: conferma la tua email.",
+  "volunteer_management": {
+    "title": "Gestione dei volontari",
+    "description": "Se il tuo ruolo o le date non sono corretti, faccelo sapere.",
+    "card_preview_label": "Elenco della pagina del tuo team",
+    "not_a_volunteer_message": "Secondo i nostri archivi non sei un volontario attuale o passato. Se questo non è corretto, faccelo sapere compilando <1>questo modulo</1>.",
+    "current_volunteer": "Volontariato dal {{startDate}}.",
+    "past_volunteer": "Volontariato dal {{startDate}} al {{endDate}}.",
+    "shown_on_team_page_current": "Appare nella pagina del team come membro attuale del team.",
+    "shown_on_team_page_past": "Appare nella pagina del team come volontario passato.",
+    "not_shown_on_team_page": "Nascosto dalla pagina del team.",
+    "update_success": "Le informazioni del tuo volontariato sono state aggiornate.",
+    "form": {
+      "title": "Aggiorna le informazioni del tuo volontariato",
+      "override_name_label": "Usa un nome diverso nella pagina del team (invece di \"{{profileName}}\")",
+      "display_name_label": "Nome da mostrare",
+      "override_location_label": "Usa una località diversa nella pagina del team (invece di \"{{profileLocation}}\")",
+      "display_location_label": "Località da mostrare",
+      "show_on_team_page_label": "Mostrami nella pagina del team",
+      "link_type_label": "Tipo di link",
+      "link_type_couchers": "Profilo Couchers",
+      "link_type_email": "Email",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Sito web",
+      "link_text_label": "Link",
+      "link_text_linkedin_placeholder": "mario-rossi-a1b2c3",
+      "link_text_email_placeholder": "tua@email.com",
+      "link_text_website_placeholder": "https://tuo-sito-web.com",
+      "link_text_linkedin_helper": "Il nome utente dall'URL del tuo profilo (ad es. linkedin.com/in/mario-rossi-a1b2c3)",
+      "link_text_email_helper": "Il tuo indirizzo email",
+      "link_text_website_helper": "Il testo da visualizzare per il link",
+      "link_text_required": "Per favore inserisci un valore per il link",
+      "link_text_email_invalid": "Per favore, inserisci un indirizzo e-mail valido",
+      "link_text_linkedin_invalid": "Inserisci un nome utente LinkedIn valido (solo lettere, numeri e trattini)",
+      "link_url_label": "Link URL",
+      "link_url_placeholder": "https://tuo-sito-web.com",
+      "link_url_helper": "L'URL completo a cui il link deve puntare",
+      "link_url_required": "Per favore inserisci un URL per il sito web",
+      "link_url_invalid": "Per favore inserisci un URL valido che inizi con http:// o https://",
+      "save_button": "Salva modifiche"
+    }
   }
 }

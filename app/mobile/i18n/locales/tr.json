@@ -27,5 +27,11 @@
     "take_photo": "Fotoğraf Çek",
     "choose_from_library": "Kütüphaneden Seç",
     "open_settings": "Ayarları Aç"
+  },
+  "update": {
+    "preamble_block": "Biz küçük bir gönüllü ekibiyiz ve eski sürümleri desteklemek gerçekten zor, zahmet verdiğimiz için üzgünüz.",
+    "preamble_banned": "Küçük bir gönüllü ekibiz ve bazen hatalar yapıyoruz, verdiğimiz zahmet için üzgünüz!",
+    "action_update": "Şimdi güncelle",
+    "later": "Daha Sonra"
   }
 }

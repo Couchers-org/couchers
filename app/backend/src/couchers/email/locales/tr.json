@@ -17,5 +17,15 @@
       "blog_link": "Blog",
       "nonprofit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
     }
+  },
+  "account_deletion": {
+    "started": {
+      "confirm_action": "Hesap silme işlemini onayla"
+    },
+    "completed": {
+      "subject": "Hesabınız silindi",
+      "purpose": "Couchers.org hesabınızı başarıyla sildiniz.",
+      "farewell": "Gittiğini görmek bizi üzüyor, gelecekteki yolculuklarında sana en iyisini diliyoruz. Couchers.org platformuna geri dönmen her zaman memnuniyetle karşılanır :)"
+    }
   }
 }

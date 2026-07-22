@@ -347,5 +347,6 @@
   "do_not_email_error_link": "Обновите настройки электронной почты, чтобы снова включить это.",
   "open_full_profile": "Открыть полный профиль",
   "about_me_textbox_placeholder": "Например: текущая цель, почему вы пользуетесь Couchers.org, любимая история о путешествии...",
-  "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка..."
+  "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
+  "edit_profile_pronouns_placeholder": "напр. она/её"
 }

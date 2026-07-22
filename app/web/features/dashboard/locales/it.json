@@ -17,7 +17,7 @@
   "community_builder_form_text": "Crea la tua community locale",
   "communities_welcome_title": "Benvenuto nel portale community",
   "communities_intro": "Per aiutare la gente in tutto il mondo a organizzare eventi, discussioni e incontri, abbiamo creato il portale delle community, che sono riportate qui sotto. <strong>Fai automaticamente parte di alcune di queste in base alla tua posizione geografica, ma puoi unirti a qualsiasi community tu voglia!</strong> Le tue community sono riportate nella bacheca.",
-  "community_builder": "Vuoi essere un ambasciatore per la tua community e aiutare a farla crescere? Diventa un <1>Community Builder!</1>",
+  "community_builder": "Vuoi essere un ambasciatore per la tua community e aiutare a farla crescere? Diventa un <1>Creatore di community!</1>",
   "my_communities_heading": "Le mie community",
   "find_your_community": "Trova una community",
   "find_your_community_intro": "Qui sotto puoi cercare o navigare tutte le community che esistono finora. Manca il tuo paese o la tua città? <1>Usa questo form</1> per richiederlo!",
@@ -27,5 +27,97 @@
   "browse_communities_text": "Clicca sul nome di una regione per vedere le altre community contenute all'interno. Clicca sul link per vedere la pagina della community di quella specifica città o regione.",
   "show_all_communities": "Mostra tutte le community",
   "hide_all_communities": "Nascondi tutte le community",
-  "all_communities_section": "Tutte le community"
+  "all_communities_section": "Tutte le community",
+  "all_communities_intro": "Di seguito puoi sfogliare tutte le pagine della community esistenti finora. <strong>Clicca sul nome di una community per vedere le altre community al suo interno.</strong>",
+  "community_missing": "Manca il tuo paese o la tua città? Usa <1>questo modulo </1> per richiederlo!",
+  "member_count_one": "{{count}} utente",
+  "member_count_many": "{{count}} di utenti",
+  "member_count_other": "{{count}} utenti",
+  "profile_summary_edit": "Modifica il profilo",
+  "profile_summary_view": "Visualizza il mio profilo",
+  "profile_mobile_summary_view": "Vai al profilo",
+  "find_a_host": "Trova un host",
+  "become_a_host": "Diventa un host",
+  "search_input_label": "Dove vuoi andare?",
+  "search_input_placeholder": "Cerca una località",
+  "show_map": "Mostra mappa",
+  "hero_image_alt": "Mongolfiere in Cappadocia",
+  "hero_image_attribution": "Foto di <1>Mesut Kaya</1> su <3>Unsplash</3>",
+  "prev_page_button_a11y": "Pagina precedente",
+  "next_page_button_a11y": "Pagina successiva",
+  "now_label": "Adesso",
+  "discussions": {
+    "community_header": "Discussioni nelle tue community",
+    "community_empty_message": "Ancora nessuna discussione nelle tue community.",
+    "replies_count_label_one": "{{count}} risposta",
+    "replies_count_label_many": "{{count}} di risposte",
+    "replies_count_label_other": "{{count}} risposte"
+  },
+  "events": {
+    "your_upcoming_header": "I tuoi prossimi eventi",
+    "see_all_link": "Vedi tutti →",
+    "your_upcoming_empty_message": "Nessun evento al momento. Perché non ne <0>crei</0> uno ✨?",
+    "community_header": "Eventi nelle tue community",
+    "today_label": "Oggi"
+  },
+  "public_trips": {
+    "my_trips_header": "I tuoi viaggi pubblici",
+    "manage_link": "Gestisci",
+    "when_now": "Adesso",
+    "when_today": "Oggi",
+    "when_tomorrow": "Domani",
+    "empty_description": "Vai da qualche parte? Pubblica un viaggio pubblico in una community per ricevere offerte dagli host nelle vicinanze.",
+    "same_gender_only_indicator": "Stesso genere",
+    "offers_count_one": "{{count}} offerta",
+    "offers_count_many": "{{count}} di offerte",
+    "offers_count_other": "{{count}} offerte",
+    "no_offers": "Nessuna offerta da mostrare"
+  },
+  "stays": {
+    "upcoming_trips_header": "I tuoi prossimi soggiorni",
+    "upcoming_guests_header": "I tuoi prossimi ospiti",
+    "night_count_one": "{{count}} notte",
+    "night_count_many": "{{count}} di notti",
+    "night_count_other": "{{count}} notti",
+    "no_upcoming_trips": "Nessun viaggio in programma. Ti va di esplorare?",
+    "no_upcoming_guests": "Ancora nessun ospite in arrivo."
+  },
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Rispondi a {{name}}",
+      "description": "Non dimenticarti di rispondere alla richiesta di ospitalità di {{name}}.",
+      "button": "Visualizza richiesta"
+    },
+    "write_reference": {
+      "title": "Scrivi una referenza",
+      "description_surfed": "Lascia una referenza per il tuo soggiorno da {{name}}",
+      "description_hosted": "Lascia una recensione per il soggiorno di {{name}}",
+      "button": "Scrivi referenza"
+    },
+    "complete_my_home": {
+      "title": "Completa la sezione \"Casa mia\" del tuo profilo",
+      "description": "Completa la sistemazione per dormire, le regole della casa e una descrizione del tuo alloggio",
+      "button": "Modifica la tua casa"
+    },
+    "complete_profile": {
+      "title": "Completa il tuo profilo",
+      "description": "Compila la sezione \"Chi sono\" e carica una foto profilo",
+      "button": "Modifica il tuo profilo"
+    },
+    "strong_verification": {
+      "title": "Verifica robusta",
+      "description": "Verifica la tua identità per una community più sicura",
+      "button": "Verifica il tuo account"
+    },
+    "confirm_host_request": {
+      "title": "Conferma il tuo soggiorno con {{name}}",
+      "description": "{{name}} ha accettato la tua richiesta. Conferma il tuo soggiorno per riservarlo.",
+      "button": "Conferma soggiorno"
+    },
+    "carousel_dismiss_button_a11y": "Ignora promemoria",
+    "carousel_scroller": {
+      "left_arrow_a11y": "Scorri a sinistra",
+      "right_arrow_a11y": "Scorri a destra"
+    }
+  }
 }
