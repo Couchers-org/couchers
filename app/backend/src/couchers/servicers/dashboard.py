@@ -61,6 +61,7 @@ class Dashboard(dashboard_pb2_grpc.DashboardServicer):
                     page_size=DASHBOARD_PAGE_SIZE,
                     my_communities=True,
                     my_communities_exclude_global=True,
+                    exclude_attending=True,
                 ),
                 context,
                 session,

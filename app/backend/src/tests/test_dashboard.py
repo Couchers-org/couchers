@@ -4,8 +4,9 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.db import session_scope
 from couchers.proto import conversations_pb2, dashboard_pb2, discussions_pb2, events_pb2, requests_pb2
-from couchers.utils import today
+from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
@@ -14,6 +15,7 @@ from tests.fixtures.sessions import (
     events_session,
     requests_session,
 )
+from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -87,7 +89,9 @@ def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
     with events_session(token1) as api:
         my_events = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=3))
         community_events = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(page_size=3, my_communities=True, my_communities_exclude_global=True)
+            events_pb2.ListMyEventsReq(
+                page_size=3, my_communities=True, my_communities_exclude_global=True, exclude_attending=True
+            )
         )
     with discussions_session(token1) as api:
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=3))
@@ -131,6 +135,54 @@ def test_GetDashboardV2_buckets_by_role(db, moderator):
     assert len(res.hosting.host_requests) == 1
     assert res.hosting.host_requests[0].host_request_id == host_request_id
     assert len(res.surfing.host_requests) == 0
+
+
+def test_GetDashboardV2_community_events_excludes_attending(db, moderator):
+    # Pins the exclude_attending parameter the web frontend sends: an event the user is
+    # attending shows under my_events and must not also duplicate into community_events.
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        # community_events excludes global-level communities, so nest down to a subregion
+        world = create_community(session, 0, 100, "World", [user1, user2], [], None)
+        macroregion = create_community(session, 0, 100, "Macroregion", [user1, user2], [], world)
+        region = create_community(session, 0, 100, "Region", [user1, user2], [], macroregion)
+        subregion = create_community(session, 0, 100, "Subregion", [user1, user2], [], region)
+        community_id = subregion.id
+
+    start = now()
+
+    def make_event(hours: int) -> events_pb2.CreateEventReq:
+        return events_pb2.CreateEventReq(
+            title="Test Event",
+            content="Test content.",
+            location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
+            parent_community_id=community_id,
+            timezone="UTC",
+            start_time=Timestamp_from_datetime(start + timedelta(hours=hours)),
+            end_time=Timestamp_from_datetime(start + timedelta(hours=hours + 1)),
+        )
+
+    with events_session(token2) as api:
+        e_attending = api.CreateEvent(make_event(1)).event_id
+        e_community_only = api.CreateEvent(make_event(2)).event_id
+
+    moderator.approve_event_occurrence(e_attending)
+    moderator.approve_event_occurrence(e_community_only)
+
+    with events_session(token1) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with dashboard_session(token1) as api:
+        res = api.GetDashboardV2(dashboard_pb2.GetDashboardV2Req())
+
+    # the attended event shows under my_events (which with no flags includes all relationships)...
+    assert e_attending in {e.event_id for e in res.my_events.events}
+    # ...while community_events must exclude it (exclude_attending), showing only the rest
+    assert [e.event_id for e in res.community_events.events] == [e_community_only]
 
 
 def test_GetDashboardV2_empty(db):
