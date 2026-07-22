@@ -462,10 +462,10 @@ export default function PublicTripCard({
                           <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
                         )}
                         {trip.offersCount > 0
-                          ? t("publicTrips:offers_count", {
+                          ? t("publicTrips:invitations_count", {
                               count: trip.offersCount,
                             })
-                          : t("publicTrips:no_offers")}
+                          : t("publicTrips:no_invitations")}
                       </Box>
                     )}
                   </Box>
