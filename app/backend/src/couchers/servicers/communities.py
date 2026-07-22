@@ -1,4 +1,3 @@
-import json
 import logging
 from collections.abc import Sequence
 from datetime import timedelta
@@ -7,7 +6,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import and_, delete, func, or_
+from sqlalchemy.sql import delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
@@ -571,30 +570,17 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
-
-        query = (
-            select(Node)
-            .join(Cluster, Cluster.parent_node_id == Node.id)
-            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-            .where(ClusterSubscription.user_id == user_id)
-            .where(Cluster.is_official_cluster)
-        )
-
-        if request.page_token:
-            cursor_node_type_name, cursor_name, cursor_id = json.loads(decrypt_page_token(request.page_token))
-            cursor_node_type = NodeType[cursor_node_type_name]
-            query = query.where(
-                or_(
-                    Node.node_type < cursor_node_type,
-                    and_(Node.node_type == cursor_node_type, Cluster.name > cursor_name),
-                    and_(Node.node_type == cursor_node_type, Cluster.name == cursor_name, Node.id > cursor_id),
-                )
-            )
-
         nodes = (
             session.execute(
-                query.order_by(Node.node_type.desc(), Cluster.name.asc(), Node.id.asc())
+                select(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .where(ClusterSubscription.user_id == user_id)
+                .where(Cluster.is_official_cluster)
+                .where(Node.id >= next_node_id)
+                .order_by(Node.id)
                 .limit(page_size + 1)
                 .options(selectinload(Node.official_cluster))
             )
@@ -602,16 +588,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
 
-        next_page_token = None
-        if len(nodes) > page_size:
-            last_node = nodes[page_size - 1]
-            next_page_token = encrypt_page_token(
-                json.dumps([last_node.node_type.name, last_node.official_cluster.name, last_node.id])
-            )
-
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
-            next_page_token=next_page_token,
+            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )
 
     def ListAllCommunities(
