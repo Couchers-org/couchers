@@ -544,7 +544,7 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # should only notify creating_user, super_user and normal_user
+        # the approximate count excludes banned/deleted users, leaving creating_user, super_user and normal_user
         assert res.requests[0].approx_users_to_notify == 3
 
         editor.DecideEventCommunityInviteRequest(
@@ -554,4 +554,6 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
             )
         )
 
-    assert email_collector.count() == 3
+    # only super_user and normal_user get emailed: creating_user organizes (and attends) the
+    # event, so they're excluded from the invite fan-out
+    assert email_collector.count() == 2
