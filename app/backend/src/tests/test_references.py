@@ -24,7 +24,7 @@ from couchers.models import (
     User,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, moderation_pb2, references_pb2, requests_pb2
+from couchers.proto import conversations_types_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
@@ -1215,14 +1215,14 @@ def test_regression_disappearing_refs(db, hs, moderator):
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 

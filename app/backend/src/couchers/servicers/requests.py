@@ -36,7 +36,12 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import mark_notifications_seen, notify
-from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
+from couchers.proto import (
+    conversations_types_pb2,
+    notification_data_pb2,
+    requests_pb2,
+    requests_pb2_grpc,
+)
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
@@ -57,19 +62,19 @@ MAX_PAGE_SIZE = 50
 
 
 hostrequeststatus2api = {
-    HostRequestStatus.pending: conversations_pb2.HOST_REQUEST_STATUS_PENDING,
-    HostRequestStatus.accepted: conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-    HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
-    HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-    HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+    HostRequestStatus.pending: conversations_types_pb2.HOST_REQUEST_STATUS_PENDING,
+    HostRequestStatus.accepted: conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+    HostRequestStatus.rejected: conversations_types_pb2.HOST_REQUEST_STATUS_REJECTED,
+    HostRequestStatus.confirmed: conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+    HostRequestStatus.cancelled: conversations_types_pb2.HOST_REQUEST_STATUS_CANCELLED,
 }
 
 api2hostrequeststatus = {
-    conversations_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
-    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
-    conversations_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
-    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
-    conversations_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
+    conversations_types_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
+    conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
+    conversations_types_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
+    conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
+    conversations_types_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
 }
 
 hostrequestquality2sql = {
@@ -79,29 +84,29 @@ hostrequestquality2sql = {
 }
 
 
-def message_to_pb(message: Message) -> conversations_pb2.Message:
+def message_to_pb(message: Message) -> conversations_types_pb2.Message:
     """
     Turns the given message to a protocol buffer
     """
     if message.is_normal_message:
-        return conversations_pb2.Message(
+        return conversations_types_pb2.Message(
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
-            text=conversations_pb2.MessageContentText(text=message.text),
+            text=conversations_types_pb2.MessageContentText(text=message.text),
         )
     else:
-        return conversations_pb2.Message(
+        return conversations_types_pb2.Message(
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
             chat_created=(
-                conversations_pb2.MessageContentChatCreated()
+                conversations_types_pb2.MessageContentChatCreated()
                 if message.message_type == MessageType.chat_created
                 else None
             ),
             host_request_status_changed=(
-                conversations_pb2.MessageContentHostRequestStatusChanged(
+                conversations_types_pb2.MessageContentHostRequestStatusChanged(
                     status=hostrequeststatus2api[message.host_request_status_target]  # type: ignore[index]
                 )
                 if message.message_type == MessageType.host_request_status_changed
@@ -575,7 +580,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
+        if request.status == conversations_types_pb2.HOST_REQUEST_STATUS_PENDING:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
 
         if host_request.end_time < now():
@@ -587,7 +592,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             author_id=context.user_id,
         )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+        if request.status == conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "not_the_host")
@@ -633,7 +638,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
+        if request.status == conversations_types_pb2.HOST_REQUEST_STATUS_REJECTED:
             # only host can reject
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
@@ -676,7 +681,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+        if request.status == conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED:
             # only surfer can confirm
             if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
@@ -717,7 +722,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
+        if request.status == conversations_types_pb2.HOST_REQUEST_STATUS_CANCELLED:
             # only surfer can cancel
             if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")

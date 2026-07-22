@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/conversations_types_pb";
 import React from "react";
 import { howToRespondRequestGuideUrl, howToWriteRequestGuideUrl } from "routes";
 

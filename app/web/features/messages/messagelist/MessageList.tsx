@@ -4,7 +4,7 @@ import ControlMessageView from "features/messages/messagelist/ControlMessageView
 import { isControlMessage } from "features/messages/utils";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/conversations_pb";
+import { Message } from "proto/conversations_types_pb";
 import * as React from "react";
 import { theme } from "theme";
 

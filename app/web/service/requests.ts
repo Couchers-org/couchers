@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/conversations_types_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
