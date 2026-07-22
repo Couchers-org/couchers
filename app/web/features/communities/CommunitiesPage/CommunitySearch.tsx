@@ -90,7 +90,6 @@ export default function CommunitySearch() {
       onInputChange={handleInputChange}
       onChange={handleChange}
       getOptionLabel={(option) => option.name}
-      // keep backend order; don't let MUI re-filter
       filterOptions={(x) => x}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;

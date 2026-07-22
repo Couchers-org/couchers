@@ -21,7 +21,6 @@ jest.mock("next/router", () => ({
   }),
 }));
 
-// AuthProvider pulls in @sentry/nextjs, which crashes under jsdom
 jest.mock("platform/sentry", () => {
   const mockCaptureException = jest.fn();
   return {

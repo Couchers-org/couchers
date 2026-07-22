@@ -11,7 +11,12 @@ from sqlalchemy.sql import delete, func, or_
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
-from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
+from couchers.db import (
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_nodes_parents_recursively,
+    is_user_in_node_geography,
+)
 from couchers.event_log import log_event
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
@@ -50,8 +55,7 @@ nodetype2api = {
 }
 
 
-def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
-    parents = get_node_parents_recursively(session, node_id)
+def _parents_list_to_pb(parents: Sequence[tuple[int, int, int, Cluster]]) -> list[groups_pb2.Parent]:
     return [
         groups_pb2.Parent(
             community=groups_pb2.CommunityParent(
@@ -65,8 +69,16 @@ def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
     ]
 
 
+def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
+    return _parents_list_to_pb(get_node_parents_recursively(session, node_id))
+
+
 def _community_summary_to_pb(
-    session: Session, node: Node, cluster: Cluster, member_count: int | None, user_subscription: int | None
+    node: Node,
+    cluster: Cluster,
+    member_count: int | None,
+    user_subscription: int | None,
+    parents: Sequence[tuple[int, int, int, Cluster]],
 ) -> communities_pb2.CommunitySummary:
     return communities_pb2.CommunitySummary(
         community_id=node.id,
@@ -74,7 +86,7 @@ def _community_summary_to_pb(
         slug=cluster.slug,
         member=user_subscription is not None,
         member_count=member_count or 1,
-        parents=_parents_to_pb(session, node.id),
+        parents=_parents_list_to_pb(parents),
         created=Timestamp_from_datetime(node.created),
         node_type=nodetype2api[node.node_type],
     )
@@ -207,9 +219,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
         if not raw_query:
-            query = query.order_by(Cluster.name.asc(), Node.id.asc())
+            query = query.order_by(Cluster.name.asc(), Node.id.asc()).limit(page_size)
         elif len(raw_query) < 3:
-            # < 3 chars is too short for a trigram match; prefix-match instead (still uses the trgm index)
             query = (
                 query.where(func.immutable_unaccent(Cluster.name).ilike(func.unaccent(raw_query).concat("%")))
                 .order_by(Cluster.name.asc(), Node.id.asc())
@@ -227,9 +238,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         rows = session.execute(query).all()
 
+        parents_by_node_id = get_nodes_parents_recursively(session, [node.id for node, _, _, _ in rows])
+
         return communities_pb2.SearchCommunitiesRes(
             results=[
-                _community_summary_to_pb(session, node, cluster, member_count, user_subscription)
+                _community_summary_to_pb(node, cluster, member_count, user_subscription, parents_by_node_id[node.id])
                 for node, cluster, member_count, user_subscription in rows
             ]
         )
@@ -659,9 +672,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .order_by(Node.id)
         ).all()
 
+        parents_by_node_id = get_nodes_parents_recursively(session, [node.id for node, _, _, _ in results])
+
         return communities_pb2.ListAllCommunitiesRes(
             communities=[
-                _community_summary_to_pb(session, node, cluster, member_count, user_subscription)
+                _community_summary_to_pb(node, cluster, member_count, user_subscription, parents_by_node_id[node.id])
                 for node, cluster, member_count, user_subscription in results
             ],
         )

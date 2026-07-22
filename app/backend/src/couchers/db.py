@@ -12,7 +12,7 @@ from alembic import command
 from alembic.config import Config
 from geoalchemy2 import WKBElement
 from opentelemetry import trace
-from sqlalchemy import Engine, Row, Subquery, create_engine, select, text, true
+from sqlalchemy import Engine, Subquery, create_engine, select, text, true
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
@@ -197,14 +197,58 @@ def _get_node_parents_recursive_cte_subquery(node_id: int) -> Subquery:
     ).subquery()
 
 
-def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[tuple[int, int, int, Cluster]]]:
-    subquery = _get_node_parents_recursive_cte_subquery(node_id)
-    return session.execute(
-        select(subquery, Cluster)
+def _get_nodes_parents_recursive_cte_subquery(node_ids: Sequence[int]) -> Subquery:
+    parents = (
+        select(
+            Node.id.label("start_node_id"),
+            Node.id,
+            Node.parent_node_id,
+            literal(0).label("level"),
+        )
+        .where(Node.id.in_(node_ids))
+        .cte("parents", recursive=True)
+    )
+
+    return select(
+        parents.union(
+            select(
+                parents.c.start_node_id,
+                Node.id,
+                Node.parent_node_id,
+                (parents.c.level + 1).label("level"),
+            ).join(parents, Node.id == parents.c.parent_node_id)
+        )
+    ).subquery()
+
+
+def get_nodes_parents_recursively(
+    session: Session, node_ids: Sequence[int]
+) -> dict[int, list[tuple[int, int, int, Cluster]]]:
+    if not node_ids:
+        return {}
+
+    subquery = _get_nodes_parents_recursive_cte_subquery(node_ids)
+    rows = session.execute(
+        select(
+            subquery.c.start_node_id,
+            subquery.c.id,
+            subquery.c.parent_node_id,
+            subquery.c.level,
+            Cluster,
+        )
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
         .where(Cluster.is_official_cluster)
-        .order_by(subquery.c.level.desc())
+        .order_by(subquery.c.start_node_id, subquery.c.level.desc())
     ).all()
+
+    result: dict[int, list[tuple[int, int, int, Cluster]]] = {node_id: [] for node_id in node_ids}
+    for start_node_id, id_, parent_node_id, level, cluster in rows:
+        result[start_node_id].append((id_, parent_node_id, level, cluster))
+    return result
+
+
+def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[tuple[int, int, int, Cluster]]:
+    return get_nodes_parents_recursively(session, [node_id])[node_id]
 
 
 def _can_moderate_any_cluster(session: Session, user_id: int, cluster_ids: list[int]) -> bool:
