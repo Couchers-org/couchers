@@ -35,5 +35,6 @@
     "message": "Lütfen arkadaşlık isteklerini yalnızca tanıdığın ya da seyahatlerin sırasında tanıştığın kişilere gönder — çoğu kişi tanıştıktan sonra bağlantı kurmayı tercih ediyor. <helpCenterLink> Arkadaşlık istekleri hakkında Yardım Merkezimizden bilgi edin.</helpCenterLink>",
     "confirm": "Evet, tanıyorum. İsteği gönder!"
   },
-  "friend_requests_dismiss_button": "Reddet"
+  "friend_requests_dismiss_button": "Reddet",
+  "cancel_request_button_a11y": "İsteği iptal et"
 }

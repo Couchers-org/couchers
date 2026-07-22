@@ -29,7 +29,8 @@
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
     "hometown": "Büyüdüğü yer",
     "joined": "Kanepe sörfüne başlama tarihi",
-    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
+    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta",
+    "photos_section": "Fotoğraflar"
   },
   "active": "Aktif",
   "my_connections": "Bağlantılarım",

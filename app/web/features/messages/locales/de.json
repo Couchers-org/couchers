@@ -203,7 +203,13 @@
     "skip_button": "Überspringen",
     "next_button": "Weiter",
     "back_button": "Zurück",
-    "submit_button": "Absenden"
+    "submit_button": "Absenden",
+    "decline_reason_options": {
+      "didnt_read_profile": "Hat mein Profil nicht gelesen",
+      "dont_want_to_host": "Ich möchte diese Person nicht hosten",
+      "not_available": "Ich kann dann nicht hosten",
+      "other": "Sonstiges"
+    }
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
   "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",

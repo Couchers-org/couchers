@@ -15,6 +15,7 @@ import Autocomplete, {
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import { getLocalizedListComparer } from "i18n/sorting";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { theme } from "theme";
@@ -154,6 +155,7 @@ export default function ProfileTagInput({
   inputFieldProps,
 }: ProfileTagInputProps) {
   const { t, i18n } = useTranslation(PROFILE);
+  const compareLocalizedLabels = getLocalizedListComparer(i18n.language);
 
   // In case some value doesn't map to an option, add a fake option for it.
   // For example if value is [en, xx] and options is { en: "English", fr: "French" },
@@ -272,7 +274,7 @@ export default function ProfileTagInput({
             disablePortal
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
-              .sort((a, b) => a.label.localeCompare(b.label, i18n.language))}
+              .sort((a, b) => compareLocalizedLabels(a.label, b.label))}
             renderOption={(props, option, { selected }) => {
               const { key, ...rest } = props;
 
