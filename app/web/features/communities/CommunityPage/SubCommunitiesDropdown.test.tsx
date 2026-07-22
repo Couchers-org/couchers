@@ -16,9 +16,6 @@ jest.mock("next/router", () => ({
   }),
 }));
 
-// jest.mock("next/router") above replaces the whole module, which drops the `Router.events`
-// emitter @sentry/nextjs reads at import time - stub Sentry out the same way CommunitySearch's
-// test does so the import doesn't crash.
 jest.mock("platform/sentry", () => {
   const mockCaptureException = jest.fn();
   return {
@@ -123,7 +120,6 @@ describe("SubCommunitiesDropdown", () => {
     const searchInput = screen.getByPlaceholderText(
       t("communities:sub_community_search_placeholder"),
     );
-    // stopPropagation on the search input must NOT swallow Escape, or the menu can't close.
     searchInput.focus();
     await user.keyboard("{Escape}");
 

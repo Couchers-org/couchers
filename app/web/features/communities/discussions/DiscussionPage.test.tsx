@@ -124,7 +124,6 @@ describe("Discussion page", () => {
   beforeEach(() => {
     getLiteUserMock.mockImplementation(getLiteUser);
     getCommunityMock.mockResolvedValue(community);
-    // CommunityPageSubHeader lists sub-communities for its breadcrumb drill-down dropdown.
     listCommunitiesMock.mockResolvedValue({
       communitiesList: [],
       nextPageToken: "",

@@ -36,7 +36,6 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
     "& .MuiTypography-root, & .MuiLink-root, & .MuiButton-root": {
       fontSize: "inherit",
     },
-    // Wrap a whole crumb to the next line instead of truncating a name.
     "& li": {
       flexShrink: 0,
       whiteSpace: "nowrap",
@@ -56,8 +55,6 @@ export default function CommunityPageSubHeader({
 
   const router = useRouter();
 
-  // Read the children query here (not in the dropdown) so the whole breadcrumb element can be
-  // omitted on leaves — MUI Breadcrumbs renders a dangling separator for a child that returns null.
   const {
     data: subCommunitiesData,
     hasNextPage,

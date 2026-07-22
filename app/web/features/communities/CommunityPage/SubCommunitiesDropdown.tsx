@@ -60,7 +60,6 @@ export default function SubCommunitiesDropdown({
     handleClose();
   };
 
-  // MUI Menu hijacks typeahead/arrow keys meant for the search input; Escape must still bubble to close.
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Escape") {
       event.stopPropagation();
@@ -93,7 +92,6 @@ export default function SubCommunitiesDropdown({
         disableAutoFocusItem
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
-        // fixed width so the Paper doesn't reflow as results filter
         slotProps={{
           paper: { sx: { width: 300, maxWidth: "90vw", maxHeight: 288 } },
         }}
