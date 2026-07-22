@@ -157,7 +157,7 @@ def test_list_message_threads_single_cursor_pagination_across_kinds(db, moderato
             else:
                 collected.append(t.host_request.host_request_id)
                 latest_ids.append(t.host_request.latest_message.message_id)
-        if res.no_more:
+        if not res.next_page_token:
             break
         page_token = res.next_page_token
 
@@ -281,7 +281,7 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         )
         assert len(res.threads) == 0
 
-    # From the traveller's view: appears under SURFING and PUBLIC_TRIPS, never as the surfer being the host
+    # From the traveller's view: appears under SURFING and MY_PUBLIC_TRIPS, never as the surfer being the host
     with conversations_session(traveler_token) as c:
         res = c.ListMessageThreads(
             conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_SURFING)
@@ -293,7 +293,7 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         assert res.threads[0].host_request.host_user_id != traveler.id
 
         res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS)
+            conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS)
         )
         assert [t.host_request.host_request_id for t in res.threads] == [request_id]
 
@@ -311,10 +311,10 @@ def test_list_message_threads_public_trips_filter_gated_by_flag(db, moderator, f
 
     with conversations_session(traveler_token) as c:
         res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS)
+            conversations_pb2.ListMessageThreadsReq(filter=conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS)
         )
         assert len(res.threads) == 0
-        assert res.no_more
+        assert not res.next_page_token
 
 
 def test_mark_all_threads_seen_respects_filter(db, moderator):

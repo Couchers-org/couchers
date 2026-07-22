@@ -11,6 +11,7 @@ from sqlalchemy.sql import and_, case, func, literal, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -391,7 +392,9 @@ def _host_request_viewer_last_seen(host_request: HostRequest, user_id: int) -> i
     """The viewer's role-specific last-seen message id for a host request."""
     if host_request.initiator_user_id == user_id:
         return host_request.initiator_last_seen_message_id
-    return host_request.recipient_last_seen_message_id
+    if host_request.recipient_user_id == user_id:
+        return host_request.recipient_last_seen_message_id
+    raise ValueError(f"User {user_id} is not a party to host request {host_request.conversation_id}")
 
 
 def _host_request_thread_to_pb(
@@ -444,7 +447,6 @@ def _group_chat_candidate_query(
         select(
             GroupChatSubscription.group_chat_id.label("conversation_id"),
             func.max(Message.id).label("latest_message_id"),
-            func.max(GroupChatSubscription.id).label("subscription_id"),
         )
         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
@@ -455,21 +457,18 @@ def _group_chat_candidate_query(
     )
     if only_archived is not None:
         latest_by_group_chat = latest_by_group_chat.where(GroupChatSubscription.is_archived == only_archived)
+    if unread:
+        # restrict to chats with at least one message newer than the user's last-seen
+        latest_by_group_chat = latest_by_group_chat.where(Message.id > GroupChatSubscription.last_seen_message_id)
     visible_group_chats = where_moderated_content_visible(
         latest_by_group_chat, context, GroupChat, is_list_operation=True
     ).subquery()
 
-    candidate_query = select(
+    return select(
         visible_group_chats.c.conversation_id.label("conversation_id"),
         visible_group_chats.c.latest_message_id.label("latest_message_id"),
         literal("group_chat").label("kind"),
     )
-    if unread:
-        # restrict to chats with at least one message newer than the user's last-seen
-        candidate_query = candidate_query.join(
-            GroupChatSubscription, GroupChatSubscription.id == visible_group_chats.c.subscription_id
-        ).where(visible_group_chats.c.latest_message_id > GroupChatSubscription.last_seen_message_id)
-    return candidate_query
 
 
 def _host_request_candidate_query(
@@ -530,8 +529,8 @@ def _host_request_party_predicate(context: CouchersContext, thread_filter: int) 
             and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == viewer_id),
             and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == viewer_id),
         )
-    if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS:
-        # my incoming public-trip offers (I'm the traveller = recipient)
+    if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS:
+        # incoming offers on my public trips (I'm the traveller = recipient)
         return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == viewer_id)
     # ALL / UNREAD: any host request I'm party to
     return or_(HostRequest.initiator_user_id == viewer_id, HostRequest.recipient_user_id == viewer_id)
@@ -638,7 +637,7 @@ def _build_host_request_threads_pb(
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
-    # TODO(remove after FE migrates to ListMessageThreads)
+    # TODO(#7722): remove after FE migrates to ListMessageThreads
     def ListGroupChats(
         self, request: conversations_pb2.ListGroupChatsReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.ListGroupChatsRes:
@@ -724,10 +723,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_filter")
 
-        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS and not context.get_boolean_value(
+        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS and not context.get_boolean_value(
             "public_trips_enabled", False
         ):
-            return conversations_pb2.ListMessageThreadsRes(threads=[], no_more=True)
+            return conversations_pb2.ListMessageThreadsRes()
 
         page_size = request.page_size if request.page_size != 0 else DEFAULT_PAGINATION_LENGTH
         page_size = min(page_size, MAX_PAGE_SIZE)
@@ -744,7 +743,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             conversations_pb2.MESSAGE_THREAD_FILTER_UNREAD,
             conversations_pb2.MESSAGE_THREAD_FILTER_HOSTING,
             conversations_pb2.MESSAGE_THREAD_FILTER_SURFING,
-            conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+            conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS,
         )
 
         # Build one candidate subquery per included thread kind, each yielding
@@ -769,13 +768,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             combined_candidates.c.kind,
         )
         if request.page_token:
-            page_query = page_query.where(combined_candidates.c.latest_message_id < int(request.page_token))
+            page_query = page_query.where(
+                combined_candidates.c.latest_message_id < int(decrypt_page_token(request.page_token))
+            )
         page_query = page_query.order_by(combined_candidates.c.latest_message_id.desc()).limit(page_size + 1)
         candidate_rows = session.execute(page_query).all()
 
         page_rows = candidate_rows[:page_size]
-        no_more = len(candidate_rows) <= page_size
-        next_page_token = str(min(row.latest_message_id for row in page_rows)) if (page_rows and not no_more) else ""
+        has_more = len(candidate_rows) > page_size
+        next_page_token = encrypt_page_token(str(min(row.latest_message_id for row in page_rows))) if has_more else ""
 
         latest_message_id_by_conversation = {row.conversation_id: row.latest_message_id for row in page_rows}
         group_chat_ids = [row.conversation_id for row in page_rows if row.kind == "group_chat"]
@@ -798,9 +799,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 if host_request_thread is not None:
                     threads.append(conversations_pb2.MessageThread(host_request=host_request_thread))
 
-        return conversations_pb2.ListMessageThreadsRes(
-            threads=threads, next_page_token=next_page_token, no_more=no_more
-        )
+        return conversations_pb2.ListMessageThreadsRes(threads=threads, next_page_token=next_page_token)
 
     def MarkAllThreadsSeen(
         self, request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
@@ -810,7 +809,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_UNSPECIFIED:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_filter")
 
-        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS and not context.get_boolean_value(
+        if thread_filter == conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS and not context.get_boolean_value(
             "public_trips_enabled", False
         ):
             return empty_pb2.Empty()
@@ -828,7 +827,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             conversations_pb2.MESSAGE_THREAD_FILTER_UNREAD,
             conversations_pb2.MESSAGE_THREAD_FILTER_HOSTING,
             conversations_pb2.MESSAGE_THREAD_FILTER_SURFING,
-            conversations_pb2.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+            conversations_pb2.MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS,
         )
 
         if include_chats:

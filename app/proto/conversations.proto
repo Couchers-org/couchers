@@ -14,7 +14,7 @@ service Conversations {
 
   rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
     // Retrieves list of group chats (ordered by last message), paginated
-    // TODO(remove after FE migrates to ListMessageThreads)
+    // TODO(#7722): remove after FE migrates to ListMessageThreads
   }
 
   rpc ListMessageThreads(ListMessageThreadsReq) returns (ListMessageThreadsRes) {
@@ -204,7 +204,7 @@ enum MessageThreadFilter {
   MESSAGE_THREAD_FILTER_CHATS = 3; // group chats + DMs only
   MESSAGE_THREAD_FILTER_HOSTING = 4; // role-based: I am the host of the stay
   MESSAGE_THREAD_FILTER_SURFING = 5; // role-based: I am the guest/traveller
-  MESSAGE_THREAD_FILTER_PUBLIC_TRIPS = 6; // my incoming public-trip offers (I'm the traveller)
+  MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS = 6; // incoming offers on my public trips (I'm the traveller)
 }
 
 // A host request (or public-trip offer) shaped for the unified thread list.
@@ -249,7 +249,6 @@ message ListMessageThreadsReq {
 message ListMessageThreadsRes {
   repeated MessageThread threads = 1;
   string next_page_token = 2;
-  bool no_more = 3;
 }
 
 message MarkAllThreadsSeenReq {
