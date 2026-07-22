@@ -278,7 +278,16 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
+        # people already attending or organizing the event don't need an invite to it
+        already_involved_user_ids = set(
+            session.execute(
+                select(EventOccurrenceAttendee.user_id).where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+            ).scalars()
+        ) | set(session.execute(select(EventOrganizer.user_id).where(EventOrganizer.event_id == event.id)).scalars())
+
         for user in users:
+            if user.id in already_involved_user_ids:
+                continue
             if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_notification_user_context(user_id=user.id)

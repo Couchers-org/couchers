@@ -2288,6 +2288,74 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         assert err.value.details() == "A community invite has already been sent out for this event."
 
 
+def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Moderator):
+    # Regression: users who already RSVP'd (or organize the event) must not get the
+    # community invite notification when it is approved.
+    organizer, organizer_token = generate_user()
+    attendee, attendee_token = generate_user()
+    member, _ = generate_user()
+    superuser, superuser_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 2, "World Community", [superuser], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
+        r = create_community(session, 0, 2, "Region", [superuser], [], mr)
+        c_id = create_community(session, 0, 2, "Community", [organizer, attendee, member], [], r).id
+
+    enforce_community_memberships()
+
+    with events_session(organizer_token) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    # the attendee RSVPs before the community invite is approved
+    with events_session(attendee_token) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(organizer_token) as api:
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+
+    with real_editor_session(superuser_token) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                approve=True,
+            )
+        )
+
+    process_jobs()
+
+    with session_scope() as session:
+
+        def invite_notification_count(user_id: int) -> int:
+            notifications = session.execute(select(Notification).where(Notification.user_id == user_id)).scalars().all()
+            return len([n for n in notifications if n.topic_action == NotificationTopicAction.event__create_approved])
+
+        # a plain community member gets the invite...
+        assert invite_notification_count(member.id) == 1
+        # ...but the attendee and the organizer don't
+        assert invite_notification_count(attendee.id) == 0
+        assert invite_notification_count(organizer.id) == 0
+
+
 def test_update_event_should_notify_queues_job():
     user, token = generate_user()
     start = now()
