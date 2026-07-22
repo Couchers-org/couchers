@@ -1,5 +1,12 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
@@ -65,11 +72,24 @@ const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
 
 export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
+  const theme = useTheme();
+  const cardsPerView = useMediaQuery(theme.breakpoints.down("sm")) ? 2 : 3;
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const { data, isPending, error } = useListUserCommunities();
+  const {
+    data,
+    isPending,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useListUserCommunities();
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const communities = (data?.pages ?? []).flatMap(
     (page) => page.communitiesList,
@@ -92,7 +112,12 @@ export default function CommunitiesList() {
   const scroll = (dir: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+    const cards = Array.from(el.children) as HTMLElement[];
+    const step =
+      cards.length > 1
+        ? (cards[1].offsetLeft - cards[0].offsetLeft) * cardsPerView
+        : el.clientWidth;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
   return (
