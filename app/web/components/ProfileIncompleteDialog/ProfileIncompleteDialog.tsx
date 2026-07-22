@@ -13,16 +13,19 @@ import Link from "next/link";
 import React from "react";
 import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
 
+export type ProfileIncompleteAction =
+  | "create_event"
+  | "send_message"
+  | "send_request"
+  | "create_public_trip"
+  | "send_friend_request"
+  | "create_discussion"
+  | "post_comment";
+
 interface ProfileIncompleteDialogProps {
   open: boolean;
   onClose: () => void;
-  attempted_action:
-    | "create_event"
-    | "send_message"
-    | "send_request"
-    | "create_public_trip"
-    | "send_friend_request"
-    | "create_discussion";
+  attempted_action: ProfileIncompleteAction;
 }
 
 export default function ProfileIncompleteDialog({

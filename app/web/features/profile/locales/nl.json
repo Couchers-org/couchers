@@ -337,7 +337,8 @@
       "send_friend_request": "stuur een vriendschapsverzoek",
       "create_event": "een event aanmaken",
       "create_public_trip": "een openbare trip aanmaken",
-      "create_discussion": "start een discussie"
+      "create_discussion": "start een discussie",
+      "post_comment": "plaats een reactie"
     },
     "edit_profile_button": "Bewerk nu je profiel",
     "cancel_button": "Laat maar"

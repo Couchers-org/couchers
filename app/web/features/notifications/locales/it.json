@@ -1,7 +1,69 @@
 {
   "notification_settings": {
-    "title": "Impostazioni notifiche"
+    "title": "Impostazioni notifiche",
+    "go_to_button": "Gestisci le impostazioni di notifica",
+    "edit_preferences": {
+      "title": "Impostazioni di notifica",
+      "expand_all": "Espandi tutto",
+      "error_loading": "Errore di caricamento delle impostazioni di notifica",
+      "collapse_all": "Riduci tutto",
+      "description": "Le modifiche apportate di seguito vengono salvate automaticamente. Tieni presente che potresti comunque ricevere notifiche importanti sul tuo account e sui tuoi contenuti al di fuori delle impostazioni di notifica preferite.",
+      "list_heading": "Notifiche che potresti ricevere",
+      "list_items": {
+        "account_security": "Sicurezza dell'account",
+        "account_settings": "Impostazioni account",
+        "other_notifications": "Altre notifiche",
+        "chat": "Messaggi",
+        "event": "Eventi",
+        "friend_request": "Richieste di amicizia",
+        "host_request": "Richieste di ospitalità",
+        "reference": "Referenze",
+        "discussion": "Discussioni",
+        "reply": "Risposte"
+      },
+      "channels": {
+        "email_label": "Email",
+        "push_label": "Notifiche push"
+      }
+    },
+    "push_notifications": {
+      "title": "Notifiche push",
+      "description": "Puoi abilitare le notifiche push per Couchers.org sul tuo dispositivo. Stiamo lavorando per ampliare questa funzionalità.",
+      "allow_push": "Fai clic sul pulsante \"Consenti\" nel popup del browser per abilitare le notifiche push.",
+      "enabled_message": "Le notifiche push sono attualmente <1>abilitate</1>.",
+      "disabled_message": "Le notifiche push sono attualmente <1>disabilitate</1>.",
+      "error_generic": "Errore durante l'iscrizione alle notifiche push",
+      "error_unsupported": "Le notifiche push o i service worker non sono supportati in questo browser.",
+      "error_not_granted": "Non hai concesso l'autorizzazione per l'invio di notifiche push.",
+      "permission_denied": {
+        "platform_settings_description": "Hai ancora problemi dopo aver abilitato le notifiche nel tuo browser? Potrebbe essere necessario modificare le impostazioni della tua piattaforma.",
+        "instructions": {
+          "chrome": "Hai bloccato le notifiche. Abilita le notifiche nelle impostazioni del browser per continuare. Su Chrome, fai clic sull'icona del lucchetto nella barra degli indirizzi URL, quindi modifica l'impostazione \"Notifiche\".",
+          "firefox": "Hai bloccato le notifiche. Abilita le notifiche nelle impostazioni del browser per continuare. Su Firefox, vai su Preferenze > Privacy e sicurezza > Autorizzazioni > Notifiche e modifica l'autorizzazione del sito web.",
+          "safari": "Hai bloccato le notifiche. Abilita le notifiche nelle impostazioni del browser per continuare. Su Safari, vai su Preferenze > Siti web > Notifiche per modificare le autorizzazioni.",
+          "generic": "Hai bloccato le notifiche. Abilita le notifiche nelle impostazioni del browser per continuare.",
+          "macos": "Su macOS, vai su Impostazioni di Sistema > Notifiche e modifica le autorizzazioni dell'app.",
+          "windows": "Su Windows, vai su Impostazioni > Sistema > Notifiche e azioni e modifica le autorizzazioni dell'app o del sito web.",
+          "linux": {
+            "gnome": "Su GNOME, vai su Impostazioni > Notifiche per modificare i permessi dell'applicazione."
+          },
+          "mobile": {
+            "browser": "Nelle impostazioni del browser del tuo dispositivo, modifica l'autorizzazione per le notifiche di questo sito web.",
+            "os": "Nelle impostazioni delle notifiche del tuo dispositivo, modifica le autorizzazioni per consentire le notifiche."
+          }
+        }
+      }
+    }
   },
-  "all": "Tutti",
-  "error_loading": "Errore di caricamento notifiche"
+  "all": "Tutte",
+  "error_loading": "Errore di caricamento notifiche",
+  "no_new_notifications": "Nessuna nuova notifica",
+  "unread": "Non lette",
+  "mark_all_read": "Segna tutte come lette",
+  "error_updating_notifications": "Errore di aggiornamento notifiche",
+  "mark_unread": "Segna come non letta",
+  "push_notification_banner": {
+    "message": "Non perdere richieste, risposte o messaggi; possiamo inviarti notifiche push?",
+    "confirm": "Sì, grazie!"
+  }
 }

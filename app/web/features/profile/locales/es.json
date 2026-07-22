@@ -42,7 +42,7 @@
   },
   "edit_profile_headings": {
     "name": "Nombre",
-    "pronouns": "Pronombres",
+    "pronouns": "Pronombres (opcional)",
     "occupation": "Ocupación",
     "education": "Educación",
     "hosting_status": "Disponibilidad para alojar",
@@ -250,7 +250,7 @@
     "surfed": "De invitados",
     "given": "A otros"
   },
-  "edit": "Editar perfil",
+  "edit": "Editar Perfil",
   "edit_profile_helper_text": "¿Buscas inspiración sobre por dónde empezar? <2>Consulta nuestra guía para crear un perfil increíble</2>.",
   "edit_profile_name_required": "Nombre requerido",
   "edit_home_questions": {
@@ -336,12 +336,18 @@
       "create_event": "crear un evento",
       "send_message": "enviar un mensaje",
       "send_request": "enviar una solicitud",
-      "send_friend_request": "enviar una solicitud de amistad"
+      "send_friend_request": "enviar una solicitud de amistad",
+      "create_public_trip": "crear un viaje público",
+      "create_discussion": "crear un debate",
+      "post_comment": "publicar un comentario"
     },
     "edit_profile_button": "Edita tu perfil ahora",
     "cancel_button": "Da igual",
     "title": "Ya casi estás: ¡por favor completa tu perfil para continuar!",
     "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
   },
-  "open_full_profile": "Abrir perfil completo"
+  "open_full_profile": "Abrir perfil completo",
+  "about_me_textbox_placeholder": "p. ej. Tu misión actual, por qué usas Couchers.org, tu anécdota de viaje favorita...",
+  "hobbies_textbox_placeholder": "p. ej. Actividades, libros, películas, música...",
+  "edit_profile_pronouns_placeholder": "p. ej. ella/la"
 }

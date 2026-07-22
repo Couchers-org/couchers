@@ -29,7 +29,7 @@
       "required_error": "Introduce tu nombre de usuario",
       "username_taken_error": "Este nombre de usuario ya existe.",
       "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra.",
-      "helper_text": "Este es tu ID de inicio de sesión único, no tu nombre visible."
+      "helper_text": "Este es tu nombre de usuario público, no el nombre de tu perfil."
     },
     "birthday": {
       "field_label": "Cumpleaños",
@@ -60,7 +60,7 @@
     },
     "name": {
       "field_label": "Nombre",
-      "required_error": "Este campo no puede estar vacío.",
+      "required_error": "Este campo no puede estar vacío",
       "invalid_characters_error": "El nombre solo puede contener letras, espacios, guiones y apóstrofos",
       "min_length_error": "El nombre debe tener al menos 2 caracteres",
       "max_length_error": "El nombre no debe tener más de 100 caracteres"
@@ -237,7 +237,7 @@
     "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
     "need_to_donate": "Necesitas <2>donar</2> antes de poder completar la verificación telefónica."
   },
-  "unhandled_sign_up_state": "Error: estado del flujo de registro no gestionado",
+  "unhandled_sign_up_state": "Error: estado del flujo de registro desconocido.",
   "do_not_email": {
     "title": "No quiero recibir correos electrónicos",
     "status": {

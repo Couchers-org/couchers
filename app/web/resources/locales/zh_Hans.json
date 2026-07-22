@@ -5,7 +5,7 @@
   "retract": "撤回",
   "close": "关闭",
   "create_account": "创建账户",
-  "expand": "扩展",
+  "expand": "展开",
   "login": "登录",
   "sign_up": "注册",
   "join_us": "加入我们",
@@ -29,8 +29,8 @@
     "progress_label": "捐赠进度"
   },
   "community_standing": "社区声望",
-  "community_standing_description": "根据参考资料和社区参与度等各种因素计算得出。",
-  "verification_score": "验证分数",
+  "community_standing_description": "根据用户评价、社区参与度等多项因素计算得出。",
+  "verification_score": "验证评分",
   "verification_score_description": "根据其他人的凭证计算用户",
   "edit": "编辑",
   "save": "保存",
@@ -42,21 +42,21 @@
     "select_button_a11y": "选择图像",
     "read_file_error_message": "无法读取文件"
   },
-  "read_more": "读取更多",
+  "read_more": "阅读更多",
   "next": "下一页",
   "previous": "上一页",
   "mod": "审核",
   "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<1>服务条款</1>。",
   "hosting_status": {
     "can_host": "可以接待",
-    "maybe": "可能可以接待",
+    "maybe": "有可能接待",
     "cant_host": "无法接待",
-    "unspecified_info": "没有说"
+    "unspecified_info": "未声明"
   },
   "language_preference": {
     "current_preferred_language": "您的首选语言目前是<lang>{{language}}</lang>。",
-    "form_title": "Language",
-    "help_translate": "帮助翻译翻译成您的语言。",
+    "form_title": "语言",
+    "help_translate": "帮忙把 Couchers 翻译成你的语言。",
     "error_loading_languages": "无法加载语言选项。请稍后重试。",
     "translation_progress": {
       "title": "翻译进度",
@@ -77,26 +77,26 @@
     "show_all_languages_description": "启用后，语言选择器将显示所有语言，无论翻译完成百分比如何。这在登台上显示只是为了帮助测试仍在进行中的语言。"
   },
   "meetup_status": {
-    "wants_to_meetup": "想要满足",
-    "open_to_meetup": "打开满足",
-    "does_not_want_to_meetup": "不能满足",
-    "unspecified_info": "没说"
+    "wants_to_meetup": "想见面",
+    "open_to_meetup": "可以见面",
+    "does_not_want_to_meetup": "无法见面",
+    "unspecified_info": "未声明"
   },
   "report": {
     "label": "报告问题",
     "bug": {
       "button_label": "报告技术问题",
-      "warning_message": "请注意，这些信息以及诊断信息（包括您所在的页面、您使用的浏览器以及您的用户名）将被保存到公共错误列表中。",
+      "warning_message": "请注意，此信息以及诊断信息，包括您在哪个页面，使用的浏览器以及您的用户名将被保存到公开的错误报告列表中。",
       "title_label": "报告标题",
       "problem_label": "您做了什么操作来触发该错误？",
-      "problem_helper": "问题的简要描述以及如何重现",
+      "problem_helper": "简要说明问题以及如何复现",
       "expect_label": "发生了什么？应该发生什么？",
-      "expect_helper": "您期望发生的情况的简要描述",
+      "expect_helper": "简要说明您期望发生的事情",
       "success_message2": "感谢您报告该错误并使Couchers变得更好，已向开发人员发送了一份报告！Bug ID为<id/>。"
     },
     "content": {
       "button_label": "报告不当内容或行为",
-      "success_message": "感谢您的报告，并使Couchers成为每个人更好的平台！"
+      "success_message": "感谢您的举报，感谢您帮助我们让 Couchers 成为对所有人都更好的平台！"
     },
     "flag": {
       "block_user": "Block {{username}}",
@@ -157,7 +157,6 @@
       "location_publicly_visible": "这将是公开可见的",
       "location_warn": "单击并拖动下面的圆圈，向人们显示您家的大致位置。确保您的家不在圆圈中心，这样人们就不会知道确切位置。",
       "map_is_blank": "缺少坐标，请首先使用上面的地图搜索位置",
-      "radius_text2_one": "{{count}}米",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "没有结果。尝试仅搜索城市。",
       "press_enter_to_search": "按Enter键搜索"
@@ -204,7 +203,6 @@
     "no_codes_message": "尚无邀请代码",
     "created_datetime": "已创建：{{datetime}}",
     "disabled_datetime": "已禁用：{{datetime}}",
-    "number_of_uses_one": "使用：{{count}}已完成注册",
     "number_of_uses_other": "使用：{{count}}已完成注册",
     "disable_link": "禁用",
     "banner": {
