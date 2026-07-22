@@ -1,7 +1,7 @@
 """Add event timezone column
 
-Revision ID: 0171
-Revises: 0170
+Revision ID: 0172
+Revises: 0171
 Create Date: 2026-07-02 13:47:21.368662
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0171"
-down_revision = "0170"
+revision = "0172"
+down_revision = "0171"
 branch_labels = None
 depends_on = None
 
