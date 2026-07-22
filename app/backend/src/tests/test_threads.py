@@ -20,7 +20,7 @@ from couchers.models import (
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
 from couchers.proto import discussions_pb2, events_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import datetime_to_iso8601_local, now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import discussions_session, events_session, real_moderation_session, threads_session
 from tests.test_communities import create_community
@@ -558,9 +558,8 @@ def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time)
             )
         )
     return int(res.thread.thread_id)
