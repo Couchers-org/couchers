@@ -41,7 +41,10 @@
     "show_all_events": "Alle events weergeven",
     "volunteer": "Helpen",
     "legal_more": "Juridisch & meer",
-    "home": "Home"
+    "home": "Home",
+    "close_menu_a11y": "Menu sluiten",
+    "open_drawer_a11y": "Menuscherm openen",
+    "close_drawer_a11y": "Menuscherm sluiten"
   },
   "components": {
     "edit_location_map": {
@@ -242,7 +245,7 @@
       "2010s_text": "Communities en events groeien en bloeien; referenties geven vertrouwen — de wereld begint aan te voelen als één gezellige buurt.",
       "2020_year": "2020",
       "2020_text": "Een groot platform gaat commercieel; Couchers.org lanceert als een non-profit, een alternatief voor en door de community.",
-      "today_year": "Nu",
+      "today_year": "Vandaag",
       "today_text": "Couchers.org schrijft het volgende hoofdstuk: modern, veiliger, non-profit couchsurfing — gebouwd voor en door de community."
     },
     "actions": {
@@ -339,5 +342,9 @@
     "hu": "Hongaars"
   },
   "app_store_badge_a11y": "Download in de App Store",
-  "google_play_badge_a11y": "Ontdek het op Google Play"
+  "google_play_badge_a11y": "Ontdek het op Google Play",
+  "close_button_a11y": "Sluiten",
+  "bar": {
+    "help_button_a11y": "Help"
+  }
 }

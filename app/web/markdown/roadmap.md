@@ -19,7 +19,6 @@ hide_title: true
       <th style="border: 0; padding: 8px; border-radius: 5px;">Q1 2027</th>
     </tr>
   </thead>
- \`\``html
  <tbody>
   <!-- MILESTONES -->
     <tr>
@@ -44,7 +43,7 @@ hide_title: true
     </tr>
 	<!-- NEW FEATURES -->
     <tr>
-      <td rowspan="15" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td rowspan="14" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Dark Mode</td>
     </tr>
     <tr>
@@ -73,7 +72,7 @@ hide_title: true
     </tr>
     <tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Edit / Delete Discussions</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Edit / Delete Discussions</td>
     </tr>
     <tr >
 	  <td colspan="2"</td>
@@ -90,10 +89,6 @@ hide_title: true
     <tr >
 	  <td colspan="2"</td>
       <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Recurring Events</td>
-    </tr>
-    <tr >
-	  <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Friends in Common</td>
     </tr>
     <tr >
 	  <td colspan="3"</td>
@@ -120,7 +115,7 @@ hide_title: true
     </tr>
     <tr>
 	  <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Improve Notifications</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Improve Notifications</td>
     </tr>
 	<!-- OPERATIONS -->
     <tr >
@@ -136,7 +131,7 @@ hide_title: true
     </tr>
     <tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> New Merch</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ New Merch</td>
     </tr>
     <tr>
 	  <td colspan="2"</td>

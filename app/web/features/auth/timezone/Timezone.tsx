@@ -1,8 +1,8 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
+import { Temporal } from "temporal-polyfill";
 import { localizeDateTime } from "utils/date";
-import dayjs from "utils/dayjs";
 
 interface TimezoneProps {
   className?: string;
@@ -24,27 +24,18 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
         <Trans
           t={t}
           i18nKey="account_settings_page.timezone_section.description"
+          components={{
+            1: <strong />,
+            4: <strong />,
+          }}
           values={{
             timezone: timezone,
-            time: localizeDateTime(dayjs(), {
-              timezone,
+            time: localizeDateTime(Temporal.Now.plainDateTimeISO(timezone), {
               locale,
               includeDate: false,
             }),
           }}
-        >
-          {`Your timezone is `}
-          <strong>{timezone}</strong>. Based on this, your local time is
-          approximately{` `}
-          <strong>
-            {localizeDateTime(dayjs(), {
-              timezone,
-              locale,
-              includeDate: false,
-            })}
-          </strong>
-          {`.`}
-        </Trans>
+        />
       </Typography>
       <Typography variant="body1">
         {t("account_settings_page.timezone_section.explanation")}

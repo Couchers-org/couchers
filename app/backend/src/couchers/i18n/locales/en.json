@@ -98,6 +98,7 @@
     "incomplete_profile_create_discussion": "You have to complete your profile before you can start a discussion.",
     "incomplete_profile_create_event": "You have to complete your profile before you can create an event.",
     "incomplete_profile_create_public_trip": "You have to complete your profile before you can create a public trip.",
+    "incomplete_profile_post_comment": "You have to complete your profile before you can post a comment.",
     "incomplete_profile_send_friend_request": "You have to complete your profile before you can send a friend request.",
     "incomplete_profile_send_message": "You have to complete your profile before you can send a message.",
     "incomplete_profile_send_request": "You have to complete your profile before you can send a request.",

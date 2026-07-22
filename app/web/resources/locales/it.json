@@ -2,5 +2,29 @@
   "back": "Indietro",
   "load_more": "Carica altro",
   "verification_score": "Punteggio di verifica",
-  "cookie_message": "Usiamo i cookies per assicurarti la migliore esperienza sul nostro sito. Se continui ad usare questo sito, noi riteniamo che tu sia soddisfatto. Puoi leggere altro sui nostri <1>Termini di Servizio<1>"
+  "cookie_message": "Usiamo i cookies per assicurarti la migliore esperienza sul nostro sito. Se continui ad usare questo sito, noi riteniamo che tu sia soddisfatto. Puoi leggere altro sui nostri <1>Termini di Servizio<1>",
+  "close_button_a11y": "Chiudi",
+  "close": "Chiudi",
+  "create_account": "Crea un account",
+  "expand": "Espandi",
+  "couchers": "Couchers.org",
+  "learn_more": "Leggi altro",
+  "legal_name": "Couchers, Inc.",
+  "login": "Accedi",
+  "sign_up": "Iscriviti",
+  "join_us": "Unisciti a noi",
+  "update": "Aggiorna",
+  "create": "Crea",
+  "terms_of_service": "Termini di Servizio",
+  "required": "Richiesto",
+  "accept": "Accetta",
+  "donation_banner": {
+    "button": "Dona ora"
+  },
+  "edit": "Modifica",
+  "language_preference": {
+    "help_translate": "Aiuta a tradurre Couchers nella tua lingua."
+  },
+  "retract": "Riduci",
+  "cancel": "Annulla"
 }

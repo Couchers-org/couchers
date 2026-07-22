@@ -1,4 +1,3 @@
-import { Dayjs } from "dayjs";
 import { HostRequestStatus } from "proto/conversations_pb";
 import {
   CreateHostRequestReq,
@@ -14,6 +13,7 @@ import {
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -106,16 +106,18 @@ export async function getHostRequestMessages(
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
   "toDate" | "fromDate" | "publicTripId"
-> & { toDate: Dayjs; fromDate: Dayjs; stayType: number; publicTripId?: number };
+> & {
+  toDate: Temporal.PlainDate;
+  fromDate: Temporal.PlainDate;
+  stayType: number;
+  publicTripId?: number;
+};
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setHostUserId(data.hostUserId);
-  // Dayjs.format() uses the browser timezone,
-  // which matches the timezone we used to create the
-  // Dayjs object from the year/month/date input fields.
-  req.setFromDate(data.fromDate.format().split("T")[0]);
-  req.setToDate(data.toDate.format().split("T")[0]);
+  req.setFromDate(data.fromDate.toString());
+  req.setToDate(data.toDate.toString());
   req.setText(data.text);
   // Set when this host request is an "offer to host" made in response to a
   // public trip, so the backend links the offer back to the trip.

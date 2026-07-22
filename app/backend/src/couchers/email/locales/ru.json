@@ -1,1 +1,26 @@
-{}
+{
+  "account_deletion": {
+    "completed": {
+      "recovery_instructions_days_one": "Если вы передумаете, <strong>у вас есть {{count}} день для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:",
+      "recovery_instructions_days_few": "Если вы передумаете, <strong>у вас есть {{count}} дня для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:",
+      "recovery_instructions_days_many": "Если вы передумаете, <strong>у вас есть {{count}} дней для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:"
+    }
+  },
+  "references": {
+    "reminder": {
+      "subject_days_one": "У тебя есть {{count}} день, чтобы написать отзыв для {{name}}",
+      "subject_days_few": "У тебя есть {{count}} дня, чтобы написать отзыв для {{name}}",
+      "subject_days_many": "У тебя есть {{count}} дней, чтобы написать отзыв для {{name}}"
+    }
+  },
+  "generic": {
+    "greeting_line": "Привет, {{name}},",
+    "security_warning_contact_support": "Если вы не инициировали это действие, пожалуйста, свяжитесь с нами по адресу {{ email_link }}, чтобы мы могли решить эту проблему как можно скорее.",
+    "do_not_reply_request": "Не отвечайте на это письмо. Используйте одну из кнопок выше, чтобы ответить на этот запрос.",
+    "thanks": "Спасибо!",
+    "closing_lines": {
+      "default": "С уважением,<br>Команда Couchers.org",
+      "aapeli": "Аапели<br>Соучредитель Couchers.org<br>{{ profile_link }}"
+    }
+  }
+}

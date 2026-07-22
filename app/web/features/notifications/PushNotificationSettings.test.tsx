@@ -52,7 +52,6 @@ const mockServiceWorker = {
 
 describe("PushNotificationSettings Component", () => {
   const originalNavigator = global.navigator;
-  const originalWindow = global.window;
 
   const mNotification = jest.fn();
   Object.defineProperty(global, "Notification", {
@@ -71,10 +70,6 @@ describe("PushNotificationSettings Component", () => {
     // Restore the original navigator and window objects after each test
     Object.defineProperty(global, "navigator", {
       value: originalNavigator,
-      configurable: true,
-    });
-    Object.defineProperty(global, "window", {
-      value: originalWindow,
       configurable: true,
     });
 

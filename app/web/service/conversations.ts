@@ -21,9 +21,10 @@ import {
   SendMessageReq,
   SetGroupChatArchiveStatusReq,
 } from "proto/conversations_pb";
+import { Temporal } from "temporal-polyfill";
+import { durationToProtobuf } from "utils/date";
 
 import client from "./client";
-import { Duration, duration2pb } from "./utils/date";
 import isGrpcError from "./utils/isGrpcError";
 
 export async function listGroupChats(
@@ -172,14 +173,15 @@ export async function getDirectMessage(userId: number) {
 
 export type MuteChatOptions = Pick<MuteGroupChatReq.AsObject, "groupChatId"> &
   Partial<Omit<MuteGroupChatReq.AsObject, "groupChatId" | "forDuration">> & {
-    forDuration?: Duration;
+    forDuration?: Temporal.Duration;
   };
 export async function muteChat(options: MuteChatOptions) {
   const req = new MuteGroupChatReq();
   req.setGroupChatId(options.groupChatId);
   if (options.unmute) req.setUnmute(true);
   if (options.forever) req.setForever(true);
-  if (options.forDuration) req.setForDuration(duration2pb(options.forDuration));
+  if (options.forDuration)
+    req.setForDuration(durationToProtobuf(options.forDuration));
   return client.conversations.muteGroupChat(req);
 }
 

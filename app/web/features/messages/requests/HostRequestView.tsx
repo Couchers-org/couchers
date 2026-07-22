@@ -35,8 +35,8 @@ import {
 import { useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
@@ -154,7 +154,12 @@ export default function HostRequestView({
   const currentUserId = useAuthContext().authState.userId;
   const isHost = hostRequest?.hostUserId === currentUserId;
   const otherUser = isHost ? surfer : host;
-  const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isRequestPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(hostRequest.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
 
   let title =
     otherUser && hostRequest

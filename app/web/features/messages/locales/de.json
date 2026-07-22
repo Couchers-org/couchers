@@ -198,17 +198,18 @@
     "quality_okay": "Ok",
     "quality_low": "Niedrige Qualität",
     "decline_reason_label": "Warum hast du abgelehnt?",
-    "reason_didnt_read_profile": "Hat mein Profil nicht gelesen",
-    "reason_dont_want_to_host": "Ich will diese Person nicht hosten",
-    "reason_not_available": "Ich kann dann nicht hosten",
-    "reason_one": "Sonstiges",
-    "reason_other": "Sonstiges",
     "reason_other_placeholder": "Bitte erzähle uns mehr...",
     "privacy_notice": "Deine Antworten sind privat und werden nicht mit dem Nutzer geteilt. Wir können sie in aggregierter und anonymer Form — zusammen mit vielen anderen — verwenden, um das Feedback für alle Nutzer zu verbessern.",
     "skip_button": "Überspringen",
     "next_button": "Weiter",
     "back_button": "Zurück",
-    "submit_button": "Absenden"
+    "submit_button": "Absenden",
+    "decline_reason_options": {
+      "didnt_read_profile": "Hat mein Profil nicht gelesen",
+      "dont_want_to_host": "Ich möchte diese Person nicht hosten",
+      "not_available": "Ich kann dann nicht hosten",
+      "other": "Sonstiges"
+    }
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
   "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",

@@ -165,7 +165,9 @@
     "switch_to_light_mode": "Переключиться на светлую тему",
     "switch_to_dark_mode": "Переключиться на тёмную тему",
     "home": "Главная",
-    "close_menu_a11y": "Закрыть меню"
+    "close_menu_a11y": "Закрыть меню",
+    "open_drawer_a11y": "Открыть меню",
+    "close_drawer_a11y": "Закрыть меню"
   },
   "team": {
     "title": "Команда",
