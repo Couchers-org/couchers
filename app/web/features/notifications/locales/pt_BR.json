@@ -19,7 +19,11 @@
       },
       "title": "Preferências de Notificações",
       "expand_all": "Expandir tudo",
-      "collapse_all": "Recolher tudo"
+      "collapse_all": "Recolher tudo",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Notificação por push"
+      }
     },
     "push_notifications": {
       "permission_denied": {

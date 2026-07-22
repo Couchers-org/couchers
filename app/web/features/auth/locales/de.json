@@ -14,7 +14,7 @@
       "required_error": "Gib deinen Benutzernamen ein",
       "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
       "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten.",
-      "helper_text": "Dies ist deine eindeutige Anmelde-ID, nicht dein Anzeigename."
+      "helper_text": "Das ist dein öffentlicher Benutzername, nicht dein Profilname."
     },
     "birthday": {
       "field_label": "Geburtstag",

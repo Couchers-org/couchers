@@ -7,7 +7,191 @@
     "closing_lines": {
       "default": "Saluti, <br>Il Team Couchers.org",
       "founders": "Aapeli and Itsi,<br>Fondatori Couchers.org",
-      "aapeli": "Aapeli<br>Co-fondatore Couchers.org<br>{{ profile_link }}"
+      "aapeli": "Aapeli<br>Co-fondatore Couchers.org<br>{{ profile_link }}",
+      "emily": "Emily di Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Stai ricevendo queste email perché hai fatto l'iscrizione a Couchers.org.",
+      "contact_support": "Puoi contattare il nostro team di supporto all'indirizzo {{ email_link }}.",
+      "timezone_note": "Tutti gli orari sono in {{ timezone }}, in base alla posizione del tuo profilo.",
+      "donate_link": "Dona",
+      "volunteer_link": "Diventa volontario",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org è un progetto di Couchers, Inc., un'organizzazione senza scopo di lucro statunitense 501(c)(3) e per questo esente da tasse.",
+      "security_email_note": "Questa è un'email di sicurezza, non puoi annullare l'iscrizione.",
+      "notification_settings_link": "Gestisci le preferenze di notifica",
+      "do_not_email_link": "Non inviarmi email (disabilita la possibilità di ospitare)",
+      "happy_couch_icon_caption": "Il divano felice di Coucher ti augura un buon proseguimento di giornata."
+    }
+  },
+  "calendar_events": {
+    "title_cancelled": "Annullato: {{ title }}",
+    "host_requests": {
+      "title_host": "Soggiorno di {{ name }}",
+      "title_surfer": "Soggiorno da {{ name }}"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "Conferma l'eliminazione del tuo account",
+      "purpose": "Hai richiesto la cancellazione del tuo account Couchers.org. Per completare questa procedura, fai clic sul seguente link:",
+      "confirm_action": "Conferma eliminazione account"
+    },
+    "completed": {
+      "subject": "Il tuo account è stato eliminato",
+      "purpose": "Hai eliminato con successo il tuo account Couchers.org.",
+      "farewell": "Ci dispiace vederti andare via e ti auguriamo il meglio per i tuoi viaggi futuri. Sarai sempre il benvenuto sulla piattaforma Couchers.org :)",
+      "recovery_instructions_days_one": "Se cambi idea, <strong>hai {{count}} giorno per recuperare il tuo account</strong> cliccando il seguente link:",
+      "recovery_instructions_days_many": "",
+      "recovery_instructions_days_other": "Se cambi idea, <strong>hai {{count}} giorni per recuperare il tuo account</strong> cliccando il seguente link:",
+      "recover_action": "Recupera account"
+    },
+    "recovered": {
+      "subject": "Il tuo account è stato recuperato!",
+      "confirmation": "Il tuo account Couchers.org è stato recuperato con successo. Siamo felici che tu abbia deciso di restare!",
+      "login_instructions": "Per effettuare nuovamente l'accesso, clicca sul seguente link:",
+      "login_action": "Accedi di nuovo",
+      "redelete_instructions": "Se cambi idea, puoi eliminare il tuo account in qualsiasi momento."
+    }
+  },
+  "activeness_probe": {
+    "subject": "Sei ancora disponibile ad ospitare?",
+    "purpose": "Abbiamo notato che è da un po' che non ti colleghi e volevamo verificare se sei ancora disponibile ad ospitare.",
+    "instructions_days_one": "Per mantenere il tuo stato \"Può ospitare\", effettua nuovamente l'accesso entro <b>{{count}} giorno</b>. Altrimenti, cambieremo il tuo stato di ospitalità in \"Non può ospitare\".",
+    "instructions_days_many": "",
+    "instructions_days_other": "Per mantenere il tuo stato \"Può ospitare\", effettua nuovamente l'accesso entro i prossimi <b>{{count}} giorni</b>. Altrimenti, cambieremo il tuo stato di ospitalità in \"Non può ospitare\".",
+    "login_action": "Accedi di nuovo",
+    "encouragement": "Questi check aiutano i viaggiatori a trovare più facilmente host attivi e a mantenere accurati i tempi di risposta.",
+    "latest_release": "Nel caso te lo fossi perso, abbiamo recentemente rilasciato la versione {{version}}. Alcuni degli aggiornamenti recenti includono: app mobili per iOS e Android, una dashboard migliorata, un sistema di messaggistica rinnovato e nuove funzionalità per gli eventi. Leggi di più sul <a href=\"{{blog_url}}\">blog di Couchers.org</a>."
+  },
+  "api_key_issued": {
+    "subject": "La tua chiave API per Couchers.org",
+    "header": "Hai recentemente richiesto una chiave API per Couchers.org. Abbiamo creato per te la seguente chiave API:",
+    "expiry": "La chiave scade il <b>{{ datetime }}</b>.",
+    "usage_warning": "Questa chiave API è univoca per il tuo account; non condividerla con nessuno. Fornisce accesso completo al tuo account e sei responsabile di qualsiasi azione eseguita utilizzando questa chiave API.",
+    "policy_warning": "Ricorda di rispettare i nostri <a href=\"{{terms_url}}\">Termini di Servizio</a>, le nostre Linee Guida della community e le altre policy durante l'utilizzo delle nostre API. Tutti gli accessi vengono registrati e analizzati e potremmo revocare il tuo accesso o account in caso di abuso del servizio."
+  },
+  "badges": {
+    "added": {
+      "subject": "Il badge {{ name }} è stato aggiunto al tuo profilo",
+      "purpose": "Il badge <b>{{ name }}</b> è stato aggiunto al tuo profilo."
+    },
+    "removed": {
+      "subject": "Il badge {{ name }} è stato rimosso dal tuo profilo",
+      "purpose": "Il badge <b>{{ name }}</b> è stato rimosso dal tuo profilo."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "La tua data di nascita è stata modificata",
+    "purpose": "La tua data di nascita è stata modificata in <b>{{ date }}</b> da un amministratore."
+  },
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }} ti ha inviato un messaggio",
+        "purpose": "<b>{{ author }}</b> ti ha inviato un messaggio:",
+        "view_action": "Visualizza questo messaggio"
+      },
+      "group": {
+        "subject": "{{ author }} ha inviato un messaggio in {{ group }}",
+        "purpose": "<b>{{ author }}</b> ha inviato un messaggio in <b>{{ group }}</b>:",
+        "view_action": "Visualizza questo messaggio"
+      }
+    },
+    "missed": {
+      "subject": "Hai dei messaggi non letti",
+      "purpose": "Hai perso alcuni messaggi da quando hai visitato l'ultima volta:",
+      "count_in_dm_one": "{{count}} messaggio da <b>{{author}}</b>:",
+      "count_in_dm_many": "",
+      "count_in_dm_other": "{{count}} messaggi da <b>{{author}}</b>:",
+      "count_in_group_one": "{{count}} messaggio in <b>{{group}}</b>:",
+      "count_in_group_many": "",
+      "count_in_group_other": "{{count}} messaggi in <b>{{group}}</b>:",
+      "view_action": "Visualizza messaggi"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} ha avviato una discussione: {{title}}",
+      "purpose": "<b>{{author}}</b> ha avviato una discussione in <b>{{parent_context}}</b>:",
+      "view_action": "Visualizza discussione"
+    },
+    "comment": {
+      "subject": "{{author}} ha commentato in {{discussion_title}}",
+      "purpose": "<b>{{author}}</b> ha commentato <b>{{discussion_title}}</b> in <b>{{parent_context}}</b>:",
+      "view_action": "Visualizza discussione"
+    }
+  },
+  "donation_received": {
+    "subject": "Grazie per la tua donazione a Couchers.org!",
+    "purpose": "Grazie mille per la tua donazione di <b>{{amount_with_currency}}</b> a Couchers.org.",
+    "contribution_impact": "Il tuo contributo servirà a costruire e sostenere la community di Couchers.org, ed è fondamentale per il nostro obiettivo di una piattaforma di couch surfing gratuita e senza scopo di lucro.",
+    "invoice_receipt_info": "Puoi scaricare la fattura e la ricevuta della donazione qui:",
+    "download_invoice": "Scarica fattura",
+    "tax_acknowledgment": "Couchers, Inc. è un'organizzazione senza scopo di lucro 501(c)(3) (EIN: 87-1734577) registrata negli Stati Uniti. Nessun bene o servizio è stato fornito in cambio di questo contributo.",
+    "questions_contact": "Se hai domande sulla tua donazione, inviaci un'email all'indirizzo {{ email_link }}."
+  },
+  "email_change": {
+    "initiated": {
+      "subject": "Modifica dell'indirizzo email avviata",
+      "purpose": "Hai richiesto che il tuo indirizzo email venga cambiato in <b>{{ email_address }}</b>. Controlla l'email che abbiamo inviato al nuovo indirizzo per confermare la modifica."
+    },
+    "confirmation": {
+      "subject": "Conferma il tuo nuovo indirizzo email",
+      "purpose": "Hai richiesto che la tua email venga modificata da <b>{{ old_email }}</b> a questo indirizzo email. Per completare la modifica, fai clic sul seguente link:",
+      "confirm_action": "Conferma il nuovo indirizzo"
+    },
+    "verified": {
+      "subject": "Modifica email completata",
+      "purpose": "Il tuo nuovo indirizzo email è stato verificato."
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Visualizza evento"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} ti ha invitato a {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> ti ha invitato a un evento in <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> ti ha invitato a un evento nelle vicinanze:"
+      },
+      "notification": {
+        "subject": "{{user}} ha creato un evento: {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> ha creato un evento in <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> ha creato un evento nelle vicinanze:"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} ha aggiornato {{title}}",
+      "purpose_generic": "<b>{{user}}</b> ha aggiornato un evento che ti interessa:",
+      "purpose_with_items": "<b>{{user}}</b> ha aggiornato un evento che ti interessa ({{items_list}}):",
+      "item_names": {
+        "title": "titolo",
+        "content": "contenuto",
+        "location": "posizione",
+        "start_time": "ora di inizio",
+        "end_time": "ora di fine"
+      }
+    },
+    "organizer_invited": {
+      "subject": "{{user}} ti ha invitato a co-organizzare {{title}}",
+      "purpose": "<b>{{user}}</b> ti ha invitato a co-organizzare un evento:"
+    },
+    "comment": {
+      "subject": "{{author}} ha commentato in {{title}}",
+      "purpose": "<b>{{author}}</b> ha commentato un evento che ti interessa:"
+    },
+    "reminder": {
+      "subject": "Promemoria: {{title}} inizierà a breve",
+      "purpose": "Un evento che ti interessa inizierà tra meno di 24 ore:"
+    },
+    "cancel": {
+      "subject": "{{user}} ha annullato {{title}}"
     }
   }
 }
