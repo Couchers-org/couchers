@@ -9,6 +9,7 @@ import {
   localizeDuration,
   localizeRelativeTime,
   localizeTimeOffset,
+  localizeTimeZone,
 } from "utils/date";
 
 const janFirst2000 = Temporal.PlainDateTime.from("2000-01-01");
@@ -456,6 +457,42 @@ describe("localizeDuration", () => {
     );
     expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "es")).toBe(
       "3 minutos",
+    );
+  });
+});
+
+describe("localizeTimeZone", () => {
+  // Use timezones that have no daylight time or the test will produce different results
+  // depending on the time of the year.
+  it("supports for different time zones", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
+    expect(localizeTimeZone("America/Mexico_City", "en")).toBe(
+      "Central Standard Time",
+    );
+  });
+
+  it("supports for different languages", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
+    expect(localizeTimeZone("Asia/Shanghai", "es")).toBe(
+      "hora estándar de China",
+    );
+  });
+
+  it("supports short and long forms", () => {
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: false })).toBe(
+      "Greenwich Mean Time",
+    );
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: true })).toBe(
+      "GMT",
+    );
+  });
+
+  it("supports for capitalization", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: false })).toBe(
+      "hora estándar de China",
+    );
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: true })).toBe(
+      "Hora estándar de China",
     );
   });
 });
