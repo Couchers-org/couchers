@@ -146,7 +146,6 @@ message EventUpdate {
   org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
   reserved 3; // Formerly "updated_str_items", was not i18n-friendly. Use updated_enum_items.
-  reserved "updated_str_items";
   repeated EventUpdateItem updated_enum_items = 4;
 }
 
