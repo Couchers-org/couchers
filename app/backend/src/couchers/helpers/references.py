@@ -1,10 +1,38 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, func, or_
 
-from couchers.models import HostRequest, Reference, ReferenceType
+from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.sql import _shadow_clause
+
+if TYPE_CHECKING:
+    from couchers.context import CouchersContext
+
+
+def where_reference_user_visible[T: tuple[Any, ...]](
+    statement: Select[T], context: CouchersContext, column: InstrumentedAttribute[int]
+) -> Select[T]:
+    """
+    Filters references based on the visibility of the user in the given column (the writer
+    or the subject of the reference).
+
+    Deliberately weaker than users_visible: references involving deleted or blocked users
+    stay visible so reference history is preserved; only banned or shadowed (to others)
+    users hide their references. Both the reference list (ListReferences) and the reference
+    count (get_num_references) must use this, otherwise the count diverges from the list.
+    """
+    return statement.where(
+        exists(
+            select(1)
+            .select_from(User)
+            .where(User.id == column)
+            .where(User.banned_at.is_(None))
+            .where(_shadow_clause(context, User))
+            .correlate_except(User)
+        )
+    )
 
 
 def where_references_not_hidden_by_reciprocity[T: tuple[Any, ...]](statement: Select[T]) -> Select[T]:
