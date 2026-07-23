@@ -53,7 +53,7 @@ from couchers.models import (
     UserBlock,
     Volunteer,
 )
-from couchers.proto import conversations_pb2, conversations_types_pb2, requests_pb2
+from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
@@ -703,7 +703,7 @@ def test_send_request_notifications_host_request(db, moderator):
         requests.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Test request",
             )
         )
@@ -1438,7 +1438,7 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
         requests.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting your request",
             )
         )

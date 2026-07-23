@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HostRequestStatus } from "proto/conversations_types_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 

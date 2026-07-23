@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "proto/conversations_types_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]:

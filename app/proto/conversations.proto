@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
-import "conversations_types.proto";
+import "messages.proto";
 
 service Conversations {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -90,7 +90,7 @@ service Conversations {
   }
 }
 
-// Message, MessageContent*, and HostRequestStatus live in conversations_types.proto
+// Message, MessageContent*, and HostRequestStatus live in messages.proto
 // so other services (e.g. requests) can use them without circular imports.
 
 message MuteInfo {

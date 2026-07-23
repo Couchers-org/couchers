@@ -8,7 +8,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/conversations_types_pb";
+import { Message } from "proto/messages_pb";
 import { timestampToInstant } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 

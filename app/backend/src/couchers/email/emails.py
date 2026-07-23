@@ -51,7 +51,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.markup import html_link, html_mailto_link, markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
-from couchers.proto import conversations_types_pb2, events_pb2, notification_data_pb2
+from couchers.proto import events_pb2, messages_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
 # Common string keys
@@ -1445,20 +1445,20 @@ class HostRequestStatusChangedEmail(EmailBase):
     other_user: UserInfo
     from_date: date
     to_date: date
-    new_status: conversations_types_pb2.HostRequestStatus.ValueType
+    new_status: messages_pb2.HostRequestStatus.ValueType
     view_link: str
 
     @property
     def string_key_base(self) -> str:
         base_key = "host_requests.status_changed"
         match self.new_status:
-            case conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+            case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 return f"{base_key}.accepted_by_host"
-            case conversations_types_pb2.HOST_REQUEST_STATUS_REJECTED:
+            case messages_pb2.HOST_REQUEST_STATUS_REJECTED:
                 return f"{base_key}.declined_by_host"
-            case conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+            case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 return f"{base_key}.confirmed_by_surfer"
-            case conversations_types_pb2.HOST_REQUEST_STATUS_CANCELLED:
+            case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 return f"{base_key}.cancelled_by_surfer"
             case _:
                 raise ValueError(f"Unexpected host request status: {self.new_status}")
@@ -1492,20 +1492,20 @@ class HostRequestStatusChangedEmail(EmailBase):
         user_name: str,
     ) -> Self:
         other_user: UserInfo
-        new_status: conversations_types_pb2.HostRequestStatus.ValueType
+        new_status: messages_pb2.HostRequestStatus.ValueType
         match data:
             case notification_data_pb2.HostRequestAccept():
                 other_user = UserInfo.from_protobuf(data.host)
-                new_status = conversations_types_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
             case notification_data_pb2.HostRequestReject():
                 other_user = UserInfo.from_protobuf(data.host)
-                new_status = conversations_types_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
             case notification_data_pb2.HostRequestConfirm():
                 other_user = UserInfo.from_protobuf(data.surfer)
-                new_status = conversations_types_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
             case notification_data_pb2.HostRequestCancel():
                 other_user = UserInfo.from_protobuf(data.surfer)
-                new_status = conversations_types_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
                 # Enable mypy's exhaustiveness checking
                 assert_never("Unexpected host request status changed notification data type.")
@@ -1526,14 +1526,14 @@ class HostRequestStatusChangedEmail(EmailBase):
             other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
-            new_status=conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             view_link="https://couchers.org/requests/123",
         )
         return [
-            replace(prototype, new_status=conversations_types_pb2.HOST_REQUEST_STATUS_ACCEPTED),
-            replace(prototype, new_status=conversations_types_pb2.HOST_REQUEST_STATUS_REJECTED),
-            replace(prototype, new_status=conversations_types_pb2.HOST_REQUEST_STATUS_CONFIRMED),
-            replace(prototype, new_status=conversations_types_pb2.HOST_REQUEST_STATUS_CANCELLED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
         ]
 
 
