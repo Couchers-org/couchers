@@ -30,7 +30,15 @@ from couchers.models import (
     User,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import api_pb2, conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
+from couchers.proto import (
+    api_pb2,
+    conversations_pb2,
+    events_pb2,
+    messages_pb2,
+    moderation_pb2,
+    notifications_pb2,
+    requests_pb2,
+)
 from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
@@ -2603,7 +2611,7 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Actually, never mind",
             )
         )
@@ -2646,7 +2654,7 @@ def test_host_request_notifications_sent_after_approval(
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Sure, come on over!",
             )
         )
@@ -2661,7 +2669,7 @@ def test_host_request_notifications_sent_after_approval(
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                 text="See you then!",
             )
         )

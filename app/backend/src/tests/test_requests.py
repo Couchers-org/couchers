@@ -29,7 +29,7 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
     auth_pb2,
-    conversations_pb2,
+    messages_pb2,
     requests_pb2,
 )
 from couchers.proto.internal import unsubscribe_pb2
@@ -435,7 +435,7 @@ def test_ListHostRequests(db, moderator):
         assert res.host_requests[0].latest_message.text.text == valid_request_text("Test request 1")
         assert res.host_requests[0].surfer_user_id == user1.id
         assert res.host_requests[0].host_user_id == user2.id
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
 
         add_message(db, "Test request 1 message 1", user2.id, host_request_1)
         add_message(db, "Test request 1 message 2", user2.id, host_request_1)
@@ -524,21 +524,21 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_2,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 2",
             )
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_1,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 1",
             )
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_3,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 3",
             )
         )
@@ -727,7 +727,7 @@ def test_ListHostRequests_active_filter(db, moderator):
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -761,7 +761,7 @@ def test_ListHostRequests_active_filter_excludes_past(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -826,7 +826,7 @@ def test_ListHostRequests_status_in_filter(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=accepted_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -834,29 +834,29 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_ACCEPTED],
             )
         )
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
 
     # Filter to pending only
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_PENDING],
             )
         )
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
 
     # Filter to accepted + pending — both appear
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
                 status_in=[
-                    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    conversations_pb2.HOST_REQUEST_STATUS_PENDING,
+                    messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    messages_pb2.HOST_REQUEST_STATUS_PENDING,
                 ],
             )
         )
@@ -866,7 +866,7 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_CONFIRMED],
             )
         )
         assert len(res.host_requests) == 0
@@ -901,7 +901,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -911,7 +911,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -922,7 +922,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=9999, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=9999, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -931,7 +931,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -939,7 +939,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -948,18 +948,18 @@ def test_RespondHostRequests(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
                 text="Test rejection message",
             )
         )
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert res.messages[0].text.text == "Test rejection message"
         assert res.messages[1].WhichOneof("content") == "host_request_status_changed"
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         # should be able to move from rejected -> accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -968,7 +968,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_PENDING
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_PENDING
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -977,13 +977,13 @@ def test_RespondHostRequests(db, moderator):
         # can confirm then cancel
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -991,7 +991,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -1002,10 +1002,10 @@ def test_RespondHostRequests(db, moderator):
     with requests_session(token1) as api:
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert len(res.messages) == 7
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
-        assert res.messages[2].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
-        assert res.messages[4].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        assert res.messages[2].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[4].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         assert res.messages[6].WhichOneof("content") == "chat_created"
 
 
@@ -1034,7 +1034,7 @@ def test_get_host_request_messages(db, moderator):
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1043,7 +1043,7 @@ def test_get_host_request_messages(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
 
@@ -1058,7 +1058,7 @@ def test_get_host_request_messages(db, moderator):
         )
         assert not res.no_more
         assert len(res.messages) == 3
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 5"
         assert res.messages[2].text.text == "Test request 1 message 4"
@@ -1072,7 +1072,7 @@ def test_get_host_request_messages(db, moderator):
         )
         assert res.no_more
         assert len(res.messages) == 6
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
         assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
@@ -1140,7 +1140,7 @@ def test_SendHostRequestMessage(db, moderator):
         # CAN send messages to a rejected, confirmed or cancelled request, and for accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
         api.SendHostRequestMessage(
@@ -1149,14 +1149,14 @@ def test_SendHostRequestMessage(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
         api.SendHostRequestMessage(
@@ -1165,7 +1165,7 @@ def test_SendHostRequestMessage(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
         api.SendHostRequestMessage(
@@ -1201,7 +1201,7 @@ def test_get_updates(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
@@ -1218,7 +1218,7 @@ def test_get_updates(db, moderator):
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         assert len(res.messages) == 6
         assert res.messages[0].text.text == "Test message 3"
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[2].text.text == "Test message 2"
         assert res.messages[3].text.text == "Test message 1"
         assert res.messages[4].text.text == valid_request_text("Test message 0")
@@ -1236,20 +1236,18 @@ def test_get_updates(db, moderator):
         assert res.no_more
         assert len(res.updates) == 5
         assert res.updates[0].message.text.text == "Test message 2"
-        assert (
-            res.updates[1].message.host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        )
-        assert res.updates[1].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[1].message.host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[1].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.updates[2].message.text.text == "Test message 3"
         assert res.updates[3].message.WhichOneof("content") == "chat_created"
-        assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.updates[3].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
         assert res.updates[4].message.text.text == valid_request_text("Test message 4")
 
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1, number=1))
         assert not res.no_more
         assert len(res.updates) == 1
         assert res.updates[0].message.text.text == "Test message 2"
-        assert res.updates[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
     with requests_session(token3) as api:
         # other user can't access
@@ -1288,13 +1286,13 @@ def test_archive_host_request(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
         # Verify is_archived is False before archiving
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
@@ -1349,7 +1347,7 @@ def test_mark_last_seen(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
@@ -1546,7 +1544,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_2,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1565,7 +1563,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_3,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1585,7 +1583,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_1,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1646,7 +1644,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_5,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1666,7 +1664,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_4,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1729,7 +1727,7 @@ def test_request_notifications(db, email_collector: EmailCollector, push_collect
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1820,7 +1818,7 @@ def test_quick_decline(db, email_collector: EmailCollector, push_collector: Push
 
     with requests_session(surfer_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
-        assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
 
 
 def test_host_req_feedback(db, moderator):
@@ -1869,7 +1867,7 @@ def test_host_req_feedback(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
 
@@ -1913,9 +1911,7 @@ def test_host_req_feedback(db, moderator):
 
     with requests_session(host2_token) as api:
         api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr2_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-            )
+            requests_pb2.RespondHostRequestReq(host_request_id=hr2_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED)
         )
         # can't leave feedback on the wrong one
         with pytest.raises(grpc.RpcError) as e:
@@ -1932,9 +1928,7 @@ def test_host_req_feedback(db, moderator):
 
     with requests_session(host3_token) as api:
         api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr3_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-            )
+            requests_pb2.RespondHostRequestReq(host_request_id=hr3_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED)
         )
 
         api.SendHostRequestFeedback(

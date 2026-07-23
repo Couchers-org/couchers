@@ -19,6 +19,7 @@ from couchers.proto import (
     auth_pb2,
     conversations_pb2,
     events_pb2,
+    messages_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
@@ -394,7 +395,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -417,7 +418,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
             )
         )
 
@@ -456,7 +457,7 @@ def test_host_request_rejected_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
 
@@ -493,7 +494,7 @@ def test_host_request_cancelled_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             )
         )
 
