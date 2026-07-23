@@ -3,22 +3,34 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { getMuiTimeFormat } from "utils/date";
-import { Dayjs } from "utils/dayjs";
+import dayjs, { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
-  defaultValue?: Dayjs | null;
+  defaultValue?: Temporal.PlainTime;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
   rules?: UseControllerProps["rules"];
   label?: string;
   name: string;
-  onPostChange?(time: Dayjs | null): void;
+  onPostChange?(value: Temporal.PlainTime | null): void;
   testId?: string;
+}
+
+// Convert between our API's Temporal.PlainTime and MUI's expected Dayjs values.
+// Use the browser timezone in case we compare to now, aka dayjs().
+function temporalToDayjs(value: Temporal.PlainTime): Dayjs {
+  const timeString = value.toString({ smallestUnit: "minute" });
+  return dayjs(`1970-01-01T${timeString}`); // We don't care about the date, but dayjs needs one.
+}
+
+function dayjsToTemporal(value: Dayjs): Temporal.PlainTime {
+  return Temporal.PlainTime.from(value.format("HH:mm"));
 }
 
 const Timepicker = ({
@@ -43,7 +55,7 @@ const Timepicker = ({
   return (
     <Controller
       control={control}
-      defaultValue={defaultValue}
+      defaultValue={defaultValue ?? null}
       name={name}
       rules={rules}
       render={({ field }) => (
@@ -51,10 +63,14 @@ const Timepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value}
-          onChange={(time: Dayjs | null) => {
-            field.onChange(time);
-            onPostChange?.(time);
+          value={field.value ? temporalToDayjs(field.value) : null}
+          onChange={(valueDayjs: Dayjs | null) => {
+            const valueTemporal =
+              valueDayjs && valueDayjs.isValid()
+                ? dayjsToTemporal(valueDayjs)
+                : null;
+            field.onChange(valueTemporal);
+            onPostChange?.(valueTemporal);
           }}
           format={format}
           ampm={format.includes("a")} // Clock picker uses am/pm iff format also uses it

@@ -329,7 +329,7 @@ def _search_events(
         next_rank,
         page_size,
         [Event.title],
-        [EventOccurrence.address, EventOccurrence.link],
+        [EventOccurrence.address],
         [],
         [EventOccurrence.content],
     )

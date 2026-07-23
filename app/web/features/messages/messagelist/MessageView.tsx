@@ -8,8 +8,8 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/conversations_pb";
-import { timestamp2Date } from "utils/date";
+import { Message } from "proto/messages_pb";
+import { timestampToInstant } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
@@ -195,7 +195,7 @@ export default function MessageView({
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
-          <StyledTimeInterval date={timestamp2Date(message.time!)} />
+          <StyledTimeInterval instant={timestampToInstant(message.time!)} />
           {author && !isCurrentUser && (
             <StyledFlagButton
               contentRef={`chat/message/${message.messageId}`}

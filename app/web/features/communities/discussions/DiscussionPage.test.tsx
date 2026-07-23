@@ -370,7 +370,7 @@ describe("Discussion page", () => {
     );
 
     await waitFor(() => {
-      expect(mockRouter.back).toBeCalled();
+      expect(mockRouter.back).toHaveBeenCalled();
     });
   });
 

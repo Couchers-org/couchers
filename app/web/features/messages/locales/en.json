@@ -27,10 +27,12 @@
     "quality_okay": "Okay",
     "quality_low": "Low quality",
     "decline_reason_label": "Why did you decline?",
-    "reason_didnt_read_profile": "Didn't read my profile",
-    "reason_dont_want_to_host": "I don't want to host this person",
-    "reason_not_available": "I'm not available to host then",
-    "reason_other": "Other",
+    "decline_reason_options": {
+      "didnt_read_profile": "Didn't read my profile",
+      "dont_want_to_host": "I don't want to host this person",
+      "not_available": "I'm not available to host then",
+      "other": "Other"
+    },
     "reason_other_placeholder": "Please tell us more...",
     "privacy_notice": "Your responses are private and will not be shared with the user. We may use them in an aggregated and anonymous form—combined with many others—to improve feedback for all users.",
     "skip_button": "Skip",

@@ -30,9 +30,9 @@ import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
-import dayjs from "utils/dayjs";
+import { localizeDateTimeRange } from "utils/date";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -140,7 +140,12 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(hostRequest.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
 
   const queryClient = useQueryClient();
 
@@ -238,12 +243,9 @@ export default function HostRequestListItem({
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
                   {localizeDateTimeRange(
-                    // Host request are plain dates (no time),
-                    // just make sure to parse and format them in the same timezone.
-                    dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-                    dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                    Temporal.PlainDateTime.from(hostRequest.fromDate),
+                    Temporal.PlainDateTime.from(hostRequest.toDate),
                     {
-                      timezone: UTC_TIMEZONE,
                       locale,
                       includeTime: false,
                     },

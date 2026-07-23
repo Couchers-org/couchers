@@ -21,8 +21,11 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
-import { localizeDateTime, timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import {
+  localizeDateTime,
+  localizeRelativeTime,
+  timestampToPlainDateTime,
+} from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(1),
@@ -39,21 +42,21 @@ export default function LoginsPage({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = timeAgo({
-    since: timestamp2Date(session.lastSeen!),
-    t,
-    locale,
-  });
-  const createdDisplay = localizeDateTime(timestamp2Date(session.created!), {
-    locale,
-    includeSeconds: true,
-    abbreviate: true,
-  });
-  const expiryDisplay = localizeDateTime(timestamp2Date(session.expiry!), {
-    locale,
-    includeTime: false,
-    abbreviate: true,
-  });
+  const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
+  const createdDisplay = localizeDateTime(
+    timestampToPlainDateTime(session.created!),
+    {
+      locale,
+      includeSeconds: true,
+    },
+  );
+  const expiryDisplay = localizeDateTime(
+    timestampToPlainDateTime(session.expiry!),
+    {
+      locale,
+      includeTime: false,
+    },
+  );
   const queryClient = useQueryClient();
 
   const {

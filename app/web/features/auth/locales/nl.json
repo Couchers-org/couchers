@@ -68,7 +68,7 @@
       "required_error": "Vul je gebruikersnaam in",
       "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
       "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter.",
-      "helper_text": "Dit is je unieke aanmeld-ID, niet de naam die iedereen kan zien."
+      "helper_text": "Dit is je publieke gebruikersnaam, niet je profielnaam."
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn.",

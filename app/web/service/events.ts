@@ -1,4 +1,3 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   Int64Value,
   StringValue,
@@ -20,6 +19,7 @@ import {
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -118,8 +118,8 @@ interface EventInput {
   content: string;
   photoKey?: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: Temporal.PlainDateTime;
+  endTime: Temporal.PlainDateTime;
   address: string;
   lat: number;
   lng: number;
@@ -132,8 +132,8 @@ export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+  req.setStartDatetimeIso8601Local(input.startTime.toString());
+  req.setEndDatetimeIso8601Local(input.endTime.toString());
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
@@ -169,10 +169,14 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartTime(Timestamp.fromDate(input.startTime));
+    req.setStartDatetimeIso8601Local(
+      new StringValue().setValue(input.startTime.toString()),
+    );
   }
   if (input.endTime) {
-    req.setEndTime(Timestamp.fromDate(input.endTime));
+    req.setEndDatetimeIso8601Local(
+      new StringValue().setValue(input.endTime.toString()),
+    );
   }
 
   if (input.photoKey) {

@@ -80,6 +80,16 @@
     "title": "Hodnocení této žádosti",
     "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
     "quality_high": "Kvalitní",
-    "quality_okay": "Dobrá"
+    "quality_okay": "Dobrý",
+    "decline_reason_options": {
+      "other": "Ostatní"
+    },
+    "reason_other_placeholder": "Řekni nám více...",
+    "privacy_notice": "Tvé odpovědi jsou soukromé a nebudou sdíleny s uživatelem. Můžeme je použít v agregované a anonymní podobě – zkombinované s mnoha dalšími – ke zlepšení zpětné vazby pro všechny uživatele.",
+    "skip_button": "Přeskočit",
+    "next_button": "Další",
+    "back_button": "Zpět",
+    "submit_button": "Odeslat",
+    "quality_low": "Nízká kvalita"
   }
 }

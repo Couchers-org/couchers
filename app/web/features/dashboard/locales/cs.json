@@ -45,23 +45,77 @@
   "hero_image_attribution": "Foto: <1>Mesut Kaya</1> na <3>Unsplash</3>",
   "reminder": {
     "complete_profile": {
-      "button": "Upravit svůj profil"
+      "button": "Upravit svůj profil",
+      "title": "Dokonči svůj profil",
+      "description": "Vyplň svojí sekci \"Kdo jsem\" a nahraj profilovou fotku"
     },
     "strong_verification": {
-      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+      "description": "Ověř svoji identitu pro bezpečnější komunitu",
+      "title": "Silné ověření",
+      "button": "Ověř svůj účet"
     },
     "respond_to_host_request": {
-      "description": "Nezapomeň odpovědět {{name}} ohledně jejich pobytu.",
-      "button": "Zobrazit požadavek"
+      "description": "Nezapomeň odpovědět na žádost o ubytování od {{name}}.",
+      "button": "Zobrazit požadavek",
+      "title": "Odpovědět {{name}}"
     },
     "write_reference": {
-      "title": "Napsat referenci"
+      "title": "Napsat referenci",
+      "description_surfed": "Zanech referenci na svůj pobyt u {{name}}",
+      "button": "Napiš referenci",
+      "description_hosted": "Zanech referenci na pobyt {{name}} u tebe"
+    },
+    "complete_my_home": {
+      "title": "Dokonči sekci \"Můj domov\" ve svém profilu",
+      "description": "Vyplň informace o uspořádání spaní, domácí řád a popis vašeho ubytování",
+      "button": "Uprav svůj domov"
+    },
+    "carousel_dismiss_button_a11y": "Zavřít upozornění",
+    "carousel_scroller": {
+      "left_arrow_a11y": "Posunout doleva",
+      "right_arrow_a11y": "Posunout doprava"
+    },
+    "confirm_host_request": {
+      "title": "Potvrď svůj pobyt u {{name}}",
+      "button": "Potvrď pobyt"
     }
   },
   "public_trips": {
     "when_tomorrow": "Zítra",
     "when_today": "Dnes",
     "manage_link": "Spravovat",
-    "when_now": "Nyní"
+    "when_now": "Nyní",
+    "empty_description": "Chystáš se někam? Zveřejni veřejnou cestu v komunitě a získej tak nabídky od hostitelů v okolí.",
+    "same_gender_only_indicator": "Stejné pohlaví",
+    "offers_count_one": "{{count}} nabídka",
+    "offers_count_few": "{{count}} nabídky",
+    "offers_count_other": "{{count}} nabídek",
+    "no_offers": "Zatím žádné nabídky"
+  },
+  "prev_page_button_a11y": "Předchozí stránka",
+  "next_page_button_a11y": "Následující stránka",
+  "now_label": "Teď",
+  "discussions": {
+    "community_header": "Diskuze v tvých komunitách",
+    "community_empty_message": "Žádné diskuze ve tvých komunitách.",
+    "replies_count_label_one": "{{count}} odpověď",
+    "replies_count_label_few": "{{count}} odpovědi",
+    "replies_count_label_other": "{{count}} odpovědí"
+  },
+  "events": {
+    "your_upcoming_header": "Tvoje nadcházející události",
+    "see_all_link": "Zobrazit vše →",
+    "your_upcoming_empty_message": "Žádné události v tento moment. Co tak jednu <0>založit</0> ✨?",
+    "community_header": "Události v tvých komunitách",
+    "today_label": "Dnes"
+  },
+  "stays": {
+    "upcoming_trips_header": "Tvoje nadcházející ubytování",
+    "upcoming_guests_header": "Tvoji nadcházející hosté",
+    "night_count_one": "{{count}} noc",
+    "night_count_few": "{{count}} noci",
+    "night_count_other": "{{count}} nocí",
+    "no_upcoming_guests": "Zatím žádní nadcházející hosté.",
+    "no_upcoming_trips": "Žádné nadcházející cesty. Připraveni objevovat?"
   }
 }

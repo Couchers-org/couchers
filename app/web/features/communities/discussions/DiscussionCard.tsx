@@ -11,8 +11,7 @@ import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { localizeRelativeTime } from "utils/date";
 
 import getContentSummary from "../getContentSummary";
 
@@ -78,10 +77,9 @@ export default function DiscussionCard({
     discussion.deleted ? undefined : discussion.creatorUserId,
   );
 
-  const date = discussion.created
-    ? timestamp2Date(discussion.created)
-    : undefined;
-  const postedTime = date ? timeAgo({ since: date, t, locale }) : null;
+  const postedTime = discussion.created
+    ? localizeRelativeTime(discussion.created, locale)
+    : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({

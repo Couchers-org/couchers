@@ -21,5 +21,8 @@
   },
   "references": {
     "write_action": "Napiš referenci pro {{name}}"
+  },
+  "generic": {
+    "greeting_line": "Ahoj {{name}},"
   }
 }

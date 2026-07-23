@@ -1,4 +1,218 @@
 {
-  "mark_all_read_button_text": "Segna tutte come lette",
-  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette"
+  "mark_all_read_button_text": "Segna tutti come letti",
+  "mark_all_read_button_text_chats": "Segna tutte le conversazioni come lette",
+  "messages_page": {
+    "tabs": {
+      "unread": "Non letti",
+      "chats": "Chat",
+      "hosting": "Hosting",
+      "surfing": "Surfing"
+    },
+    "title": "Messaggi"
+  },
+  "mark_all_read_button_text_hosting": "Segna tutte le richieste ricevute come lette",
+  "mark_all_read_button_text_surfing": "Segna tutte le richieste di ospitalità come lette",
+  "write_reference_button_text": "Scrivi una referenza",
+  "close_request_button_text": "Rifiuta",
+  "confirm_request_button_text": "Conferma",
+  "host_pending_request_help_text": "<0>Cose da considerare</0> prima di rispondere.",
+  "surfer_declined_request_help_text": "<0>Leggi la nostra guida</0> su come scrivere una richiesta che possa essere accettata.",
+  "past_request_help_text": "Questa richiesta è passata, puoi ancora inviare messaggi ma non puoi modificarla.",
+  "reference_card": {
+    "title": "Scrivi una referenza",
+    "description": "Condividi la tua esperienza per aiutare la community."
+  },
+  "respond_box_title": "Invia una risposta",
+  "respond_box_description": "Seleziona una risposta per far sapere subito a {{name}}. Se ti va puoi anche inviare un messaggio.",
+  "status_bar_edit_button": "Modifica",
+  "status_bar_cancel_edit_button": "Annulla",
+  "status_bar_close_button": "Chiudi",
+  "surfer_bar_pending": "Hai inviato una richiesta all'host: in attesa di risposta da {{name}}.",
+  "cancel_request_button": "Cancella richiesta",
+  "cancel_request_dialog_title": "Cancellare la richiesta?",
+  "cancel_request_dialog_message": "Cancellare la richiesta? Questa operazione non può essere annullata.",
+  "cancel_request_dialog_confirm_button": "Sì, cancella",
+  "cancel_request_dialog_dismiss_button": "No",
+  "private_feedback_card": {
+    "title": "Feedback su questa richiesta",
+    "quality_label": "Valuta privatamente questa richiesta (facoltativo):",
+    "quality_high": "Eccellente",
+    "quality_okay": "Buona",
+    "quality_low": "Mediocre",
+    "decline_reason_label": "Perché hai rifiutato?",
+    "decline_reason_options": {
+      "didnt_read_profile": "Non ha letto il mio profilo",
+      "dont_want_to_host": "Non voglio ospitare questa persona",
+      "not_available": "Non sono disponibile a ospitare in quel momento",
+      "other": "Altro"
+    },
+    "reason_other_placeholder": "Raccontaci di più...",
+    "privacy_notice": "Le tue risposte sono private e non verranno condivise con l'utente. Potremmo utilizzarle in forma aggregata e anonima, combinandole con molte altre, per migliorare l'esperienza di tutti gli utenti.",
+    "skip_button": "Salta",
+    "next_button": "Avanti",
+    "back_button": "Indietro",
+    "submit_button": "Invia"
+  },
+  "surfer_confirm_box_title": "{{name}} ha accettato la tua richiesta!",
+  "surfer_confirm_box_description": "Conferma per bloccare il tuo soggiorno o annulla se i tuoi programmi sono cambiati.",
+  "archive": {
+    "archived": "Archiviato",
+    "archive_button": "Archivia",
+    "unarchive_button": "Rimuovi dall'archivio",
+    "no_archived_requests": "Nessuna richiesta archiviata",
+    "no_archived_messages": "Nessun messaggio archiviato"
+  },
+  "chat_view": {
+    "cannot_message_text": "Non puoi inviare messaggi in questa chat",
+    "invalid_id_error": "ID chat non valido.",
+    "no_messages_state_text": "Nessun messaggio",
+    "back_button": {
+      "a11y_label": "Indietro"
+    },
+    "muted_icon": {
+      "a11y_label": "Silenziata"
+    },
+    "actions_menu": {
+      "a11y_label": "Mostra altre azioni chat",
+      "items": {
+        "invite_members": "Invita a chattare",
+        "show_all_members": "Membri della chat",
+        "manage_admins": "Gestisci amministratori chat",
+        "chat_settings": "Impostazioni chat",
+        "leave_chat": "Abbandona chat"
+      }
+    },
+    "mute": {
+      "button_label": "Silenzia chat",
+      "unmute_button_label": "Riattiva notifiche chat",
+      "dialog_title": "Per quanto tempo vuoi silenziarla?",
+      "1_hour_label": "1 ora",
+      "8_hours_label": "8 ore",
+      "1_day_label": "1 giorno",
+      "1_week_label": "1 settimana",
+      "1_month_label": "1 mese",
+      "forever_label": "Finché non riattivo l'audio"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Vuoi rimuovere i tuoi privilegi di amministratore?",
+      "message": "Sei sicuro di voler smettere di essere un amministratore di questa chat di gruppo? Non potrai tornare a essere un amministratore a meno che un altro amministratore non ti aggiunga."
+    },
+    "remove_admin": {
+      "title": "Rimuovi amministratore",
+      "action_a11y_label": "Rimuovi come amministratore"
+    },
+    "add_admin": {
+      "title": "Aggiungi amministratore",
+      "action_a11y_label": "Aggiungi come amministratore"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Crea una nuova chat",
+    "group_title": "Crea chat di gruppo",
+    "no_friends_found_message": "Non è stato possibile trovare amici",
+    "user_load_error_message": "(Errore di caricamento utente)",
+    "friends_input_label": "Amici",
+    "title_label": "Titolo",
+    "create_button": "Crea chat",
+    "back_button": "Indietro"
+  },
+  "chat_input": {
+    "label": "Messaggio"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Impostazioni chat di gruppo",
+    "chat_title": {
+      "field_label": "Titolo della chat"
+    },
+    "only_admins_invite": {
+      "field_label": "Solo gli amministratori possono invitare altre persone alla chat"
+    }
+  },
+  "group_chats_tab": {
+    "load_more_button_label": "Carica altro"
+  },
+  "requests_tab": {
+    "no_requests_message": "Nessuna richiesta al momento",
+    "load_more_button_label": "Carica altro"
+  },
+  "all_messages_tab": {
+    "no_messages": "Nessun messaggio da mostrare",
+    "load_more": "Carica altro",
+    "filter": {
+      "all": "Tutti"
+    }
+  },
+  "invite_dialog": {
+    "title": "Invita a chattare",
+    "selected": {
+      "field_label": "Amici",
+      "no_options_text": "Nessuno da invitare",
+      "option_load_error_text": "(Errore di caricamento utente)"
+    },
+    "invite_button_label": "Invita"
+  },
+  "leave_chat_dialog": {
+    "title": "Vuoi uscire dalla chat?",
+    "message": "Sei sicuro di voler abbandonare questa chat?"
+  },
+  "members_dialog": {
+    "title": "Membri della chat"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} ha creato la chat",
+    "edited_chat_text": "{{user}} ha modificato la chat",
+    "invite_user_text": "{{user}} ha invitato {{target_user}}",
+    "user_left_chat_text": "{{user}} ha abbandonato la chat",
+    "admin_assignment_text": "{{user}} ha reso {{target_user}} amministratore",
+    "admin_removal_text": "{{user}} ha rimosso {{target_user}} da amministratore",
+    "host_request_status_changed": {
+      "accepted": "{{user}} ha accettato la richiesta",
+      "accepted_self": "Hai accettato la richiesta",
+      "cancelled": "{{user}} ha annullato la richiesta",
+      "cancelled_self": "Hai annullato la richiesta",
+      "confirmed": "{{user}} ha confermato la richiesta",
+      "confirmed_self": "Hai confermato la richiesta",
+      "rejected": "{{user}} ha rifiutato la richiesta",
+      "rejected_self": "Hai rifiutato la richiesta"
+    },
+    "unknown_message_text": "Messaggio di controllo sconosciuto"
+  },
+  "host_request_status": {
+    "accepted": "Accettata",
+    "cancelled": "Cancellata",
+    "confirmed": "Confermata",
+    "past": "Passate",
+    "pending": "In attesa",
+    "rejected": "Rifiutate"
+  },
+  "host_request_item": {
+    "expired": "Questa richiesta è scaduta",
+    "pending": "Questa richiesta è ancora in attesa",
+    "host_status": {
+      "accepted": "Hai accettato questa richiesta",
+      "accepted_waiting": "Hai accettato questa richiesta — in attesa della conferma dell'ospite.",
+      "cancelled": "L'ospite ha annullato questa richiesta",
+      "confirmed": "Buon divertimento! Hai accettato e l'ospite ha confermato questa richiesta.",
+      "rejected": "Hai rifiutato questa richiesta"
+    },
+    "surfer_status": {
+      "accepted": "Buon divertimento! {{name}} ha accettato la richiesta.",
+      "cancelled": "Hai annullato questa richiesta",
+      "confirmed": "Buon divertimento! {{name}} ha accettato e hai confermato questa richiesta.",
+      "rejected": "La tua richiesta è stata rifiutata"
+    }
+  },
+  "host_request_view": {
+    "error_message": "ID richiesta host non valido",
+    "back_button_a11y_label": "Indietro",
+    "title_for_host": "Richiesta da {{user}} - {{status}}",
+    "title_for_surfer": "Richiesta a {{user}} - {{status}}",
+    "request_duration_one": "{{count}} notte",
+    "request_duration_many": "{{count}} di notti",
+    "request_duration_other": "{{count}} notti"
+  },
+  "unknown_user": "Utente sconosciuto",
+  "show_more_actions_button_a11y": "Mostra altre azioni"
 }

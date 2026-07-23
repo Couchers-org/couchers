@@ -11,9 +11,9 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeDateTimeRange, numNights, UTC_TIMEZONE } from "utils/date";
-import dayjs from "utils/dayjs";
+import { daysBetween, localizeDateTimeRange } from "utils/date";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
@@ -96,12 +96,9 @@ const HostRequestUserSummarySection = ({
             sx={{ paddingRight: theme.spacing(1) }}
           >
             {localizeDateTimeRange(
-              // Host request are plain dates (no time),
-              // just make sure to parse and format them in the same timezone.
-              dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-              dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+              Temporal.PlainDateTime.from(hostRequest.fromDate),
+              Temporal.PlainDateTime.from(hostRequest.toDate),
               {
-                timezone: UTC_TIMEZONE,
                 locale,
                 includeTime: false,
                 abbreviate: true,
@@ -124,12 +121,9 @@ const HostRequestUserSummarySection = ({
               sx={{ paddingRight: theme.spacing(1) }}
             >
               {localizeDateTimeRange(
-                // Host request are plain dates (no time),
-                // just make sure to parse and format them in the same timezone.
-                dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-                dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                Temporal.PlainDateTime.from(hostRequest.fromDate),
+                Temporal.PlainDateTime.from(hostRequest.toDate),
                 {
-                  timezone: UTC_TIMEZONE,
                   locale,
                   includeTime: false,
                 },
@@ -142,7 +136,10 @@ const HostRequestUserSummarySection = ({
             >
               (
               {t("host_request_view.request_duration", {
-                count: numNights(hostRequest.toDate, hostRequest.fromDate),
+                count: daysBetween(
+                  Temporal.PlainDate.from(hostRequest.fromDate),
+                  Temporal.PlainDate.from(hostRequest.toDate),
+                ),
               })}
               )
             </Typography>

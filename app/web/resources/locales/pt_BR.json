@@ -197,7 +197,10 @@
     "invite_members": "Convidar membros",
     "merch_shop": "Produtos oficiais",
     "switch_to_light_mode": "Alternar para modo claro",
-    "switch_to_dark_mode": "Alternar para modo escuro"
+    "switch_to_dark_mode": "Alternar para modo escuro",
+    "close_menu_a11y": "Fechar menu",
+    "open_drawer_a11y": "Abrir menu hamburguer",
+    "close_drawer_a11y": "Fechar menu hamburguer"
   },
   "invites": {
     "title": "Convidar membros",
@@ -339,5 +342,11 @@
     "zh-Hans": "Chinês (Simplificado)",
     "zh-Hant": "Chinês (Tradicional)",
     "hu": "Húngaro"
+  },
+  "close_button_a11y": "Fechar",
+  "app_store_badge_a11y": "Baixe na App Store",
+  "google_play_badge_a11y": "Baixe no Google Play",
+  "bar": {
+    "help_button_a11y": "Ajuda"
   }
 }
