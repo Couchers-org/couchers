@@ -380,8 +380,6 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
-                    # TODO(#9117): Remove update_str_items once known unused.
-                    updated_str_items=payload.updated_str_items,
                     updated_enum_items=(
                         notification_data_pb2.EventUpdateItem.ValueType(value) for value in payload.updated_enum_items
                     ),

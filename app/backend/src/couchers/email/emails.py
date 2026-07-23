@@ -796,10 +796,6 @@ class EventUpdatedEmail(EmailBase):
         updated_items: list[notification_data_pb2.EventUpdateItem.ValueType] = []
         if data.updated_enum_items:
             updated_items.extend(data.updated_enum_items)
-        elif data.updated_str_items:
-            for updated_str_item in data.updated_str_items:
-                if updated_enum_item := cls._updated_item_str_to_enum(updated_str_item):
-                    updated_items.append(updated_enum_item)
 
         return cls(
             user_name=user_name,
@@ -807,23 +803,6 @@ class EventUpdatedEmail(EmailBase):
             event_info=EventInfo.from_proto(data.event),
             updated_items=updated_items,
         )
-
-    # TODO(#9117): Backcompat. Remove update_str_items fallback once known unused.
-    @staticmethod
-    def _updated_item_str_to_enum(value: str) -> notification_data_pb2.EventUpdateItem.ValueType | None:
-        match value:
-            case "title":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE
-            case "content":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT
-            case "location":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION
-            case "start time":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME
-            case "end time":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME
-            case _:
-                return None
 
     @staticmethod
     def _updated_item_to_string_key(value: notification_data_pb2.EventUpdateItem.ValueType) -> str | None:
