@@ -1,6 +1,8 @@
 {
-  "all": "All",
-  "unread": "Unread",
+  "notifications_filters": {
+    "all_button": "All",
+    "unread_button": "Unread"
+  },
   "error_loading": "Error loading notifications",
   "error_updating_notifications": "Error updating notifications",
   "mark_unread": "Mark unread",
