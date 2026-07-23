@@ -1,5 +1,4 @@
 {
-  "unread": "Okunmamışlar",
   "error_loading": "Bildirimleri yüklemede bir hata oluştu",
   "error_updating_notifications": "Bildirimleri güncellemede bir hata oluştu",
   "mark_unread": "Okunmadı işaretle",
@@ -37,6 +36,5 @@
       "error_generic": "Anlık bildirimlere abonelik sırasında hata oluştu",
       "error_not_granted": "Anlık bildirimler gönderebilmemiz için izin vermediniz."
     }
-  },
-  "all": "Hepsi"
+  }
 }
