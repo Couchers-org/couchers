@@ -63,7 +63,12 @@ export default function HostRequestReferenceCard({
     <StyledCard>
       <div>
         <Typography variant="subtitle2">{t("reference_card.title")}</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("reference_card.description")}
         </Typography>
       </div>

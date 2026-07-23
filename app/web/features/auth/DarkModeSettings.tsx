@@ -70,7 +70,13 @@ export default function DarkModeSettings() {
       </Typography>
       <ModeDisplay>
         {getModeIcon()}
-        <Typography variant="body1" component="span" fontWeight="bold">
+        <Typography
+          variant="body1"
+          component="span"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           {getModeText()}
         </Typography>
       </ModeDisplay>

@@ -43,7 +43,9 @@ export default function WhatIsCouchSurfingPage() {
             <Grid
               container
               spacing={{ xs: 1, md: 4 }}
-              alignItems={{ xs: "flex-start", md: "flex-start" }}
+              sx={{
+                alignItems: { xs: "flex-start", md: "flex-start" },
+              }}
             >
               <Grid
                 size={{ xs: 12, md: 5 }}
@@ -121,8 +123,10 @@ export default function WhatIsCouchSurfingPage() {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  sx={{ mb: 2 }}
+                  sx={{
+                    alignItems: "center",
+                    mb: 2,
+                  }}
                 >
                   <SecurityOutlined
                     sx={{ fontSize: 36, color: theme.palette.primary.main }}
@@ -171,8 +175,10 @@ export default function WhatIsCouchSurfingPage() {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  sx={{ mb: 2 }}
+                  sx={{
+                    alignItems: "center",
+                    mb: 2,
+                  }}
                 >
                   <GroupAddOutlined
                     sx={{
@@ -303,7 +309,13 @@ export default function WhatIsCouchSurfingPage() {
           }}
         >
           <PageContainer>
-            <Grid container spacing={4} alignItems="center">
+            <Grid
+              container
+              spacing={4}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography
                   variant="h2"
@@ -348,8 +360,10 @@ export default function WhatIsCouchSurfingPage() {
                   <Stack
                     direction="row"
                     spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 0.5 }}
+                    sx={{
+                      alignItems: "center",
+                      mb: 0.5,
+                    }}
                   >
                     <LightbulbOutlined
                       className="tip-lightbulb"
@@ -432,7 +446,13 @@ export default function WhatIsCouchSurfingPage() {
         }}
       >
         <PageContainer>
-          <Stack spacing={2} alignItems="center" textAlign="center">
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
             <Typography
               variant="h2"
               sx={{

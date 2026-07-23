@@ -81,7 +81,13 @@ export default function FlipCard({
             textAlign: "center",
           }}
         >
-          <Stack spacing={2} alignItems="center" justifyContent="center">
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Box sx={{ color: (theme) => theme.palette.primary.main }}>
               {icon}
             </Box>

@@ -1,4 +1,4 @@
-import { MailOutline } from "@mui/icons-material";
+import { MailOutlined } from "@mui/icons-material";
 import {
   List,
   ListItem,
@@ -141,7 +141,7 @@ export default function NotificationSettingsSubListItem({
         </StyledListItem>
         <StyledListItem component="button">
           <ListItemIcon>
-            <MailOutline fontSize="medium" />
+            <MailOutlined fontSize="medium" />
           </ListItemIcon>
           <ListItemText
             primary={t(

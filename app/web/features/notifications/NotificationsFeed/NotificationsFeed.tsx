@@ -284,8 +284,10 @@ const NotificationsFeed = ({
                 key={index}
                 direction="row"
                 spacing={1}
-                alignItems="flex-start"
-                sx={{ p: 1 }}
+                sx={{
+                  alignItems: "flex-start",
+                  p: 1,
+                }}
               >
                 <Skeleton variant="circular" width={32} height={32} />
                 <Stack spacing={0.5} sx={{ flex: 1 }}>

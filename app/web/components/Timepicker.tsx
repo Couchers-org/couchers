@@ -83,11 +83,6 @@ const Timepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               ),
               variant: "standard",
-              InputProps: {
-                className,
-                "aria-label": t("global:change_time"),
-              },
-              slotProps: { inputLabel: { shrink: true } },
               sx: {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "var(--mui-palette-primary-main)",
@@ -96,6 +91,13 @@ const Timepicker = ({
                 "& .MuiPaper-root": {
                   backgroundColor: "var(--mui-palette-primary-main)",
                   color: "var(--mui-palette-text-primary)",
+                },
+              },
+              slotProps: {
+                inputLabel: { shrink: true },
+                input: {
+                  className,
+                  "aria-label": t("global:change_time"),
                 },
               },
             },
