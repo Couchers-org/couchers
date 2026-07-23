@@ -178,6 +178,33 @@ export function localizeMonthAbbreviation(
     : formatted;
 }
 
+const timeZoneNameCache = new Map<string, string>();
+
+/// Localizes the name of a time zone.
+export function localizeTimeZone(
+  timeZone: string,
+  locale: string,
+  options?: {
+    short?: boolean;
+    capitalize?: boolean;
+  },
+) {
+  const intlOptions: Intl.DateTimeFormatOptions = {
+    timeZone: timeZone,
+    timeZoneName: options?.short ? "short" : "long",
+  };
+  const cacheKey = JSON.stringify({ ...intlOptions, locale });
+  let name = timeZoneNameCache.get(cacheKey);
+  if (!name) {
+    const format = new Intl.DateTimeFormat(locale, intlOptions);
+    name = format
+      .formatToParts(Date.now())
+      .find((part) => part.type === "timeZoneName")!.value;
+    timeZoneNameCache.set(cacheKey, name);
+  }
+  return options?.capitalize ? capitalizeFirstLetter(name, locale) : name;
+}
+
 const isoMuiDateFormat = "YYYY-MM-DD";
 
 /// Gets the date format for a locale using Material UI placeholders.
