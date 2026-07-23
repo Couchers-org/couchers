@@ -44,12 +44,11 @@ export default function FeatureFlagProvider({
   const { authState } = useAuthContext();
 
   useEffect(() => {
-    // Dev-only: when set, flags resolve from the shared ../feature-flags/feature-flags.dev.json
-    // (via the tsconfig path mapping) instead of GrowthBook, mirroring the backend's
-    // FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return the file value; unknown flags fall
-    // through to their in-code default. GrowthBook is never contacted in this mode. The inline
-    // NODE_ENV check lets webpack compile the whole branch out of production builds — required, as
-    // the file lives outside the web docker build context.
+    // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
+    // mirroring the backend's FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return the file
+    // value; unknown flags fall through to their in-code default. GrowthBook is never contacted in
+    // this mode. The inline NODE_ENV check lets webpack compile the whole branch out of production
+    // builds, keeping the file out of production bundles.
     if (
       process.env.NODE_ENV === "development" &&
       process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1"
