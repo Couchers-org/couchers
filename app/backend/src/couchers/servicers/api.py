@@ -18,6 +18,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.references import where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -1073,6 +1074,8 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     query = where_moderated_content_visible(
         select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
     )
+    # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
+    query = where_references_not_hidden_by_reciprocity(query)
     query = (
         query.where(Reference.to_user_id.in_(user_ids))
         .join(User, User.id == Reference.from_user_id)

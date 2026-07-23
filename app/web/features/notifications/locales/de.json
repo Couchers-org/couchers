@@ -56,8 +56,6 @@
     }
   },
   "error_updating_notifications": "Fehler beim Aktualisieren der Benachrichtigungen",
-  "all": "Alle",
-  "unread": "Ungelesen",
   "error_loading": "Fehler beim Laden der Benachrichtigungen",
   "mark_unread": "Als ungelesen markieren",
   "mark_all_read": "Alle als gelesen markieren",

@@ -27,7 +27,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,

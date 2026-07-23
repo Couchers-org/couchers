@@ -32,7 +32,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import mark_notifications_seen, notify
-from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
+from couchers.proto import conversations_pb2, conversations_pb2_grpc, messages_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
@@ -60,52 +60,48 @@ DEFAULT_PAGINATION_LENGTH = 20
 MAX_PAGE_SIZE = 50
 
 
-def _message_to_pb(message: Message) -> conversations_pb2.Message:
+def _message_to_pb(message: Message) -> messages_pb2.Message:
     """
     Turns the given message to a protocol buffer
     """
     if message.is_normal_message:
-        return conversations_pb2.Message(
+        return messages_pb2.Message(
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
-            text=conversations_pb2.MessageContentText(text=message.text),
+            text=messages_pb2.MessageContentText(text=message.text),
         )
     else:
-        return conversations_pb2.Message(
+        return messages_pb2.Message(
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
             chat_created=(
-                conversations_pb2.MessageContentChatCreated()
-                if message.message_type == MessageType.chat_created
-                else None
+                messages_pb2.MessageContentChatCreated() if message.message_type == MessageType.chat_created else None
             ),
             chat_edited=(
-                conversations_pb2.MessageContentChatEdited()
-                if message.message_type == MessageType.chat_edited
-                else None
+                messages_pb2.MessageContentChatEdited() if message.message_type == MessageType.chat_edited else None
             ),
             user_invited=(
-                conversations_pb2.MessageContentUserInvited(target_user_id=message.target_id)
+                messages_pb2.MessageContentUserInvited(target_user_id=message.target_id)
                 if message.message_type == MessageType.user_invited
                 else None
             ),
             user_left=(
-                conversations_pb2.MessageContentUserLeft() if message.message_type == MessageType.user_left else None
+                messages_pb2.MessageContentUserLeft() if message.message_type == MessageType.user_left else None
             ),
             user_made_admin=(
-                conversations_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
+                messages_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
                 if message.message_type == MessageType.user_made_admin
                 else None
             ),
             user_removed_admin=(
-                conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
+                messages_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
                 if message.message_type == MessageType.user_removed_admin
                 else None
             ),
             group_chat_user_removed=(
-                conversations_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
+                messages_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
                 if message.message_type == MessageType.user_removed
                 else None
             ),
