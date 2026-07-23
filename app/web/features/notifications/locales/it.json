@@ -55,10 +55,8 @@
       }
     }
   },
-  "all": "Tutte",
   "error_loading": "Errore di caricamento notifiche",
   "no_new_notifications": "Nessuna nuova notifica",
-  "unread": "Non lette",
   "mark_all_read": "Segna tutte come lette",
   "error_updating_notifications": "Errore di aggiornamento notifiche",
   "mark_unread": "Segna come non letta",
