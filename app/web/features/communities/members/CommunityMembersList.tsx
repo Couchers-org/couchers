@@ -2,28 +2,27 @@ import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CircularProgress from "components/CircularProgress";
+import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useCallback } from "react";
-import useOnVisibleEffect from "utils/useOnVisibleEffect";
+import { useState } from "react";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListMembers } from "../hooks";
 import MemberCard from "./MemberCard";
 
-const MembersGrid = styled("div")(({ theme }) => ({
-  display: "grid",
+const MembersList = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
   gap: theme.spacing(2),
   marginBlockStart: theme.spacing(2),
-  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 20rem), 1fr))",
 }));
 
-const LoadMoreWrapper = styled("div")(({ theme }) => ({
+const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   width: "100%",
@@ -40,34 +39,31 @@ export default function CommunityMembersList({
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const PAGE_SIZE = 20;
 
-  const {
-    data,
-    isFetching,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    error,
-  } = useListMembers({
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const { data, isFetching, isLoading, error, fetchNextPage } = useListMembers({
     communityId,
     pageSize: PAGE_SIZE,
   });
 
-  const memberUserIds =
-    data?.pages.flatMap((page) => page.memberUserIdsList) ?? [];
+  const currentPage = data?.pages && data.pages[pageNumber - 1];
+  const currentPageUserIds = currentPage?.memberUserIdsList ?? [];
 
   const { data: membersById, isLoading: isLoadingMembers } =
-    useLiteUsers(memberUserIds);
+    useLiteUsers(currentPageUserIds);
 
-  const handleLoadMoreVisible = useCallback(() => {
-    if (hasNextPage) fetchNextPage();
-  }, [hasNextPage, fetchNextPage]);
-
-  const { ref: loadMoreRef } = useOnVisibleEffect(handleLoadMoreVisible);
-
-  const members = memberUserIds
+  const members = currentPageUserIds
     .map((userId) => membersById?.get(userId))
     .filter((user): user is NonNullable<typeof user> => !!user);
+
+  const handlePreviousPageClick = () => {
+    setPageNumber(pageNumber - 1);
+  };
+
+  const handleNextPageClick = () => {
+    fetchNextPage();
+    setPageNumber(pageNumber + 1);
+  };
 
   return (
     <>
@@ -81,28 +77,24 @@ export default function CommunityMembersList({
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
       {(isLoading || isLoadingMembers) && <CenteredSpinner />}
-      {!isLoading && !isLoadingMembers && members.length > 0 && (
-        <MembersGrid>
+      {data?.pages && data.pages.length > 0 && (
+        <MembersList>
           {members.map((member) => (
             <MemberCard key={member.userId} user={member} />
           ))}
-        </MembersGrid>
+        </MembersList>
       )}
-      {!error && !isFetching && memberUserIds.length === 0 && (
+      <PaginationWrapper>
+        <CursorPagination
+          hasNextPage={currentPage?.nextPageToken !== ""}
+          onNext={handleNextPageClick}
+          hasPreviousPage={pageNumber > 1}
+          onPrevious={handlePreviousPageClick}
+          isLoading={isLoading}
+        />
+      </PaginationWrapper>
+      {!error && !isFetching && data?.pages.length === 0 && (
         <TextBody>{t("communities:members_empty_state")}</TextBody>
-      )}
-      {hasNextPage && !error && (
-        <LoadMoreWrapper>
-          {isFetchingNextPage ? (
-            <CircularProgress />
-          ) : (
-            <CircularProgress
-              variant="determinate"
-              value={0}
-              ref={loadMoreRef}
-            />
-          )}
-        </LoadMoreWrapper>
       )}
     </>
   );
