@@ -235,12 +235,19 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
+    # people already attending or organizing the event don't need an invite to it
+    not_already_involved = User.id.not_in(
+        select(EventOccurrenceAttendee.user_id)
+        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+        .union(select(EventOrganizer.user_id).where(EventOrganizer.event_id == occurrence.event_id))
+    )
+
     cluster = occurrence.event.parent_node.official_cluster
     if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
         logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
+        return list(cluster.members.where(User.is_visible).where(not_already_involved)), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
@@ -250,6 +257,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
                 .where(User.is_visible)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
+                .where(not_already_involved)
             )
             .scalars()
             .all()
@@ -278,16 +286,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
-        # people already attending or organizing the event don't need an invite to it
-        already_involved_user_ids = set(
-            session.execute(
-                select(EventOccurrenceAttendee.user_id).where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-            ).scalars()
-        ) | set(session.execute(select(EventOrganizer.user_id).where(EventOrganizer.event_id == event.id)).scalars())
-
         for user in users:
-            if user.id in already_involved_user_ids:
-                continue
             if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_notification_user_context(user_id=user.id)

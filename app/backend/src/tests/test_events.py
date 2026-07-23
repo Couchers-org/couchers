@@ -2262,9 +2262,10 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
         assert res.requests[0].user_id == user1.id
-        assert res.requests[0].approx_users_to_notify == 3
+        # user1 is the event organizer, so they're excluded from the notify count (only user3 and user4 remain)
+        assert res.requests[0].approx_users_to_notify == 2
         assert res.requests[1].user_id == user3.id
-        assert res.requests[1].approx_users_to_notify == 3
+        assert res.requests[1].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
