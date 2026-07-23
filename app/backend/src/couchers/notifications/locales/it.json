@@ -388,7 +388,115 @@
     "change": {
       "event_description": "Il tuo numero di telefono viene modificato",
       "push": {
-        "title": "Verifica del numero di telefono avviata"
+        "title": "Verifica del numero di telefono avviata",
+        "ios_title": "Verifica del numero di telefono avviata",
+        "body": "Hai avviato la verifica del telefono con il numero <b>{{ phone_number }}</b>."
+      }
+    },
+    "verify": {
+      "event_description": "Il tuo numero di telefono viene verificato",
+      "push": {
+        "title": "Verifica del numero di telefono completata",
+        "ios_title": "Verifica del numero di telefono completata",
+        "body": "Il tuo numero di telefono è stato verificato correttamente: {{phone_number}}."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "La verifica postale non riesce",
+      "push": {
+        "title": "Verifica postale non riuscita",
+        "ios_title": "Verifica postale non riuscita",
+        "body_code_expired": "Il tuo codice di verifica è scaduto. I codici sono validi per 90 giorni dopo l'invio della cartolina. Puoi richiedere una nuova cartolina.",
+        "body_too_many_attempts": "Troppi tentativi errati. Puoi richiedere una nuova cartolina.",
+        "body_generic": "Il tuo tentativo di verifica postale non è andato a buon fine. Puoi richiedere una nuova cartolina."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Ti viene inviata la cartolina di verifica",
+      "push": {
+        "title": "Verifica postale avviata",
+        "ios_title": "Verifica postale avviata",
+        "body": "La tua cartolina è in viaggio verso {{city}}, {{country}}. Dovrebbe arrivare entro 1-3 settimane."
+      }
+    },
+    "success": {
+      "event_description": "La verifica postale va a buon fine",
+      "push": {
+        "title": "Verifica postale completata",
+        "ios_title": "Verifica postale completata",
+        "body": "Il tuo indirizzo è ora verificato."
+      }
+    }
+  },
+  "reference": {
+    "_receive_any": {
+      "push": {
+        "title": "Nuovo referenza da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nuova referenza",
+        "body_must_write_yours": "{{user}} ti ha lasciato una referenza, ora tocca a te scrivere la sua!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Scrivi la tua referenza a {{user}}",
+        "ios_title": "Scrivi la tua referenza",
+        "ios_subtitle": "{{user}}",
+        "body_one": "Hai ancora {{count}} giorno per scrivere una referenza a {{user}}.",
+        "body_many": "Hai ancora {{count}} di giorni per scrivere una referenza a {{user}}.",
+        "body_other": "Hai ancora {{count}} giorni per scrivere una referenza a {{user}}."
+      }
+    },
+    "receive_friend": {
+      "event_description": "Hai ricevuto una referenza da un amico",
+      "push": {
+        "title": "Nuova referenza da amico da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nuova referenza da amico"
+      }
+    },
+    "receive_hosted": {
+      "event_description": "Ricevi una referenza da qualcuno che ti ha ospitato"
+    },
+    "receive_surfed": {
+      "event_description": "Ricevi una referenza da qualcuno che hai ospitato"
+    },
+    "reminder_hosted": {
+      "event_description": "Promemoria per scrivere una recensione a qualcuno che hai ospitato"
+    },
+    "reminder_surfed": {
+      "event_description": "Promemoria per scrivere una referenza a qualcuno che ti ha ospitato"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Qualcuno risponde al tuo commento",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "La tua verifica robusta non riesce",
+      "push": {
+        "title": "Verifica robusta non riuscita",
+        "ios_title": "Verifica robusta non riuscita",
+        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
+        "body_not_a_passport": "Hai utilizzato un documento diverso da un passaporto. Puoi utilizzare solo un passaporto per la verifica robusta.",
+        "body_duplicate": "Hai usato un passaporto che è già stato utilizzato per la verifica. Usa un altro passaporto."
+      }
+    },
+    "sv_success": {
+      "event_description": "La tua verifica robusta va a buon fine",
+      "push": {
+        "title": "Verifica robusta completata",
+        "ios_title": "Verifica robusta completata",
+        "body": "Hai completato la verifica robusta."
       }
     }
   }
