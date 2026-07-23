@@ -2312,9 +2312,8 @@ def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Mod
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=3)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
             )
         ).event_id
 

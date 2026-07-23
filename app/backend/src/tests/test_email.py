@@ -533,8 +533,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # this will count everyone
-        assert res.requests[0].approx_users_to_notify == 5
+        # creating_user organizes the event, so they're excluded; counts super_user, normal_user,
+        # ban_user and delete_user
+        assert res.requests[0].approx_users_to_notify == 4
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == ban_user.id).values(banned_at=func.now()))
@@ -543,8 +544,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # the approximate count excludes banned/deleted users, leaving creating_user, super_user and normal_user
-        assert res.requests[0].approx_users_to_notify == 3
+        # the approximate count excludes banned/deleted users and the organizer, leaving super_user
+        # and normal_user
+        assert res.requests[0].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
