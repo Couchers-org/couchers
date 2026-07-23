@@ -55,8 +55,6 @@
     "confirm": "Sí, sisplau!",
     "message": "No et perdis sol·licituds, respostes o missatges; vols que t'enviem notificacions push?"
   },
-  "all": "Totes",
-  "unread": "No llegit",
   "error_loading": "Error en carregar les notificacions",
   "error_updating_notifications": "Error en actualitzar les notificacions",
   "mark_unread": "Marca com a no llegit",
