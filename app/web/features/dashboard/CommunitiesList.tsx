@@ -8,12 +8,13 @@ import {
   useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
+import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useListUserCommunities } from "features/communities/hooks";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 
 import SectionCountBadge from "./SectionCountBadge";
@@ -27,17 +28,12 @@ const SectionHeader = styled("div")({
   marginBottom: "8px",
 });
 
-const CardRow = styled("div")({
-  display: "flex",
-  gap: `${CARD_GAP}px`,
-  justifyContent: "flex-start",
-});
-
 const CardSlot = styled(Box, {
   shouldForwardProp: (prop) => prop !== "$perView",
 })<{ $perView: number }>(({ $perView }) => ({
   flex: `0 0 calc((100% - ${($perView - 1) * CARD_GAP}px) / ${$perView})`,
   minWidth: 0,
+  scrollSnapAlign: "start",
 }));
 
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
@@ -71,7 +67,9 @@ export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
   const theme = useTheme();
   const cardsPerView = useMediaQuery(theme.breakpoints.down("sm")) ? 2 : 3;
-  const [pageIndex, setPageIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const {
     data,
@@ -90,15 +88,24 @@ export default function CommunitiesList() {
     (page) => page.communitiesList,
   );
 
-  const pageCount =
-    communities.length === 0 ? 0 : Math.ceil(communities.length / cardsPerView);
-  const currentPage = Math.min(pageIndex, Math.max(pageCount - 1, 0));
-  const visibleCommunities = communities.slice(
-    currentPage * cardsPerView,
-    currentPage * cardsPerView + cardsPerView,
-  );
-  const canGoPrev = currentPage > 0;
-  const canGoNext = currentPage < pageCount - 1;
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(
+      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
+    );
+  };
+
+  useEffect(() => {
+    updateScrollState();
+  }, [communities.length, isPending, cardsPerView]);
+
+  const scroll = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+  };
 
   return (
     <div>
@@ -118,18 +125,18 @@ export default function CommunitiesList() {
         <div>
           <IconButton
             size="small"
-            onClick={() => setPageIndex(currentPage - 1)}
-            disabled={!canGoPrev}
-            color={canGoPrev ? "primary" : "default"}
+            onClick={() => scroll(-1)}
+            disabled={!canScrollLeft}
+            color={canScrollLeft ? "primary" : "default"}
             aria-label={t("dashboard:prev_page_button_a11y")}
           >
             <ArrowBack fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
-            onClick={() => setPageIndex(currentPage + 1)}
-            disabled={!canGoNext}
-            color={canGoNext ? "primary" : "default"}
+            onClick={() => scroll(1)}
+            disabled={!canScrollRight}
+            color={canScrollRight ? "primary" : "default"}
             aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
@@ -156,16 +163,23 @@ export default function CommunitiesList() {
       </Typography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
-        <CardRow>
+        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
           {Array.from({ length: cardsPerView }).map((_, i) => (
             <CardSlot key={i} $perView={cardsPerView}>
               <SkeletonCard />
             </CardSlot>
           ))}
-        </CardRow>
+        </FadingScrollTrack>
       ) : communities.length > 0 ? (
-        <CardRow>
-          {visibleCommunities.map((community) => (
+        <FadingScrollTrack
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          $gap={CARD_GAP}
+          $snapType="x proximity"
+          $canScrollLeft={canScrollLeft}
+          $canScrollRight={canScrollRight}
+        >
+          {communities.map((community) => (
             <CardSlot
               key={`community-${community.communityId}`}
               $perView={cardsPerView}
@@ -188,7 +202,7 @@ export default function CommunitiesList() {
               </CommunityCard>
             </CardSlot>
           ))}
-        </CardRow>
+        </FadingScrollTrack>
       ) : (
         <TextBody>{t("dashboard:no_community")}</TextBody>
       )}
