@@ -39,9 +39,7 @@ interface DatepickerProps {
 }
 
 interface ReadOnlyDateFieldProps {
-  className?: string;
   id?: string;
-  label?: React.ReactNode;
   error?: boolean;
   helperText?: React.ReactNode;
   variant?: "standard" | "outlined" | "filled";
@@ -54,9 +52,7 @@ interface ReadOnlyDateFieldProps {
 // so there is never an editable section mask or format placeholder. Clicking it
 // opens the calendar, which is the only way to set the value.
 const ReadOnlyDateField = ({
-  className,
   id,
-  label,
   error,
   helperText,
   variant,
@@ -73,9 +69,9 @@ const ReadOnlyDateField = ({
   return (
     <TextField
       ref={pickerContext.triggerRef}
-      className={className}
+      className={pickerContext.rootClassName}
       id={id}
-      label={label}
+      label={pickerContext.label}
       error={error}
       helperText={helperText}
       variant={variant}
@@ -127,9 +123,7 @@ const Datepicker = ({
   );
 
   const readOnlyFieldProps: ReadOnlyDateFieldProps = {
-    className,
     id,
-    label,
     error,
     helperText: helperNode,
     variant,
@@ -151,6 +145,7 @@ const Datepicker = ({
         <DatePicker
           data-testid={testId}
           {...field}
+          className={className}
           label={label}
           value={field.value ? temporalToDayjs(field.value) : null}
           minDate={minValue ? temporalToDayjs(minValue) : undefined}
@@ -172,9 +167,6 @@ const Datepicker = ({
             : {
                 slotProps: {
                   textField: {
-                    // className goes on the field root (FormControl) so layout
-                    // styles like margins wrap the whole field, helper text included
-                    className,
                     fullWidth: true,
                     id,
                     error,
