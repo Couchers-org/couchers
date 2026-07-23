@@ -3,9 +3,6 @@
     "target": "es2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": ".",
-    "paths": {
-      "feature-flags.dev.json": ["../feature-flags/feature-flags.dev.json"]
-    },
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
