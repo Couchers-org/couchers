@@ -27,6 +27,7 @@ interface DatepickerProps {
   openTo?: "year" | "month" | "day";
   onPostChange?(value: Temporal.PlainDate | null): void;
   testId?: string;
+  // variant and inputProps only apply to pickerInputOnly fields
   variant?: "standard" | "outlined" | "filled";
   inputProps?: InputProps;
   // When true the field can only be set through the picker: no text input, no
@@ -125,26 +126,20 @@ const Datepicker = ({
     <span data-testid={`${name}-helper-text`}>{helperText}</span>
   );
 
-  // `pickerInputOnly` swaps the editable masked field for a read-only field slot
-  // (ReadOnlyDateField) so there is never a format placeholder. ReadOnlyDateField
-  // deliberately doesn't conform to MUI's injected field props (it reads value
-  // and open-state from the picker context), so the slot wiring is cast through
-  // `unknown` — MUI's own custom-field pattern requires this.
-  const pickerOnlyProps = {
+  const readOnlyFieldProps: ReadOnlyDateFieldProps = {
+    className,
+    id,
+    label,
+    error,
+    helperText: helperNode,
+    variant,
+    ariaLabel,
+    inputProps,
+  };
+  const pickerOnlyProps: Pick<DatePickerProps, "slots" | "slotProps"> = {
     slots: { field: ReadOnlyDateField },
-    slotProps: {
-      field: {
-        className,
-        id,
-        label,
-        error,
-        helperText: helperNode,
-        variant,
-        ariaLabel,
-        inputProps,
-      },
-    },
-  } as unknown as Partial<DatePickerProps>;
+    slotProps: { field: readOnlyFieldProps },
+  };
 
   return (
     <Controller
@@ -170,34 +165,30 @@ const Datepicker = ({
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
-          // Picker-only fields show a localized long date with the month name;
-          // editable fields use the parseable numeric locale format.
+          // "LL" is the localized long date with the month name (e.g. "May 25, 1990")
           format={pickerInputOnly ? "LL" : getMuiDateFormat(i18n.language)}
           {...(pickerInputOnly
             ? pickerOnlyProps
             : {
                 slotProps: {
                   textField: {
-                    // Apply the consumer className to the field root (FormControl)
-                    // so layout styles like margins wrap the whole field, not the
-                    // input box (which would push the helper text away).
+                    // className goes on the field root (FormControl) so layout
+                    // styles like margins wrap the whole field, helper text included
                     className,
                     fullWidth: true,
                     id,
                     error,
                     helperText: helperNode,
-                    variant,
+                    // the `variant` prop only applies to pickerInputOnly fields
+                    variant: "standard",
                     slotProps: {
                       inputLabel: { shrink: true },
-                    },
-                    InputProps: {
-                      ...(inputProps || {}),
-                      "aria-label": ariaLabel,
+                      input: { "aria-label": ariaLabel },
                     },
                   },
-                  // Shrink the calendar button so its circular hover/ripple stays
-                  // within the input's content box instead of overlapping the
-                  // (standard variant) underline.
+                  // Shrink the calendar button so its circular hover/ripple
+                  // stays within the input's content box instead of
+                  // overlapping the (standard variant) underline.
                   openPickerButton: {
                     size: "small",
                   },

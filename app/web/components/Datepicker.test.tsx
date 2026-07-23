@@ -16,8 +16,9 @@ const { t } = i18n;
 jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
+    // Force the Desktop variant so tests get consistent, non-adaptive
+    // rendering regardless of viewport
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
-    PickersDay: jest.requireActual("@mui/x-date-pickers").DesktopPickersDay,
   };
 });
 
