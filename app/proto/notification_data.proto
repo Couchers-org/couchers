@@ -145,8 +145,8 @@ enum EventUpdateItem {
 message EventUpdate {
   org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
-  // TODO(#9117): Remove once unused. Was not i18n-friendly. Use updated_enum_items.
-  repeated string updated_str_items = 3 [deprecated = true];
+  reserved 3; // Formerly "updated_str_items", was not i18n-friendly. Use updated_enum_items.
+  reserved "updated_str_items";
   repeated EventUpdateItem updated_enum_items = 4;
 }
 
