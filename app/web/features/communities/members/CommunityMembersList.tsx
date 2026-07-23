@@ -20,7 +20,6 @@ const MembersList = styled("div")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(2),
   marginBlockStart: theme.spacing(2),
-  maxWidth: "450px",
 }));
 
 const PaginationWrapper = styled("div")(({ theme }) => ({
