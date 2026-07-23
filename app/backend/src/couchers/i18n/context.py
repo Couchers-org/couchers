@@ -21,8 +21,6 @@ from couchers.i18n.localize import (
     localize_list,
     localize_time,
     localize_timezone,
-    try_localize_language_name_from_iso639,
-    try_localize_region_name_from_iso3166,
 )
 from couchers.models.users import User
 from couchers.utils import to_timezone
@@ -66,12 +64,6 @@ class LocalizationContext:
     @property
     def localized_timezone(self) -> str:
         return localize_timezone(self.timezone, self.babel_locale)
-
-    def try_localize_language_name_from_iso639(self, code: str, standalone: bool = False) -> str | None:
-        return try_localize_language_name_from_iso639(code, self.babel_locale, standalone=standalone)
-
-    def try_localize_region_name_from_iso3166(self, code: str) -> str | None:
-        return try_localize_region_name_from_iso3166(code, self.babel_locale)
 
     def localize_string(
         self, key: str, *, i18next: I18Next | None = None, substitutions: SubstitutionDict | None = None
