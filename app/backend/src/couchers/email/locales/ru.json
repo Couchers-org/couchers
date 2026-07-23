@@ -3,7 +3,23 @@
     "completed": {
       "recovery_instructions_days_one": "Если вы передумаете, <strong>у вас есть {{count}} день для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:",
       "recovery_instructions_days_few": "Если вы передумаете, <strong>у вас есть {{count}} дня для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:",
-      "recovery_instructions_days_many": "Если вы передумаете, <strong>у вас есть {{count}} дней для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:"
+      "recovery_instructions_days_many": "Если вы передумаете, <strong>у вас есть {{count}} дней для восстановления вашей учётной записи</strong>, перейдя по следующей ссылке:",
+      "subject": "Ваш аккаунт был удалён",
+      "purpose": "Вы успешно удалили свою учётную запись Couchers.org.",
+      "farewell": "Нам грустно, что ты уходишь, и мы желаем тебе всего наилучшего в твоих будущих путешествиях. Ты всегда можешь вернуться на платформу Couchers.org :)",
+      "recover_action": "Восстановить аккаунт"
+    },
+    "started": {
+      "subject": "Подтвердите удаление вашего аккаунта",
+      "purpose": "Вы запросили удаление вашей учётной записи Couchers.org. Чтобы завершить этот процесс, пожалуйста, перейдите по следующей ссылке:",
+      "confirm_action": "Подтвердить удаление аккаунта"
+    },
+    "recovered": {
+      "subject": "Ваш аккаунт был восстановлен!",
+      "confirmation": "Ваш аккаунт на Couchers.org был успешно восстановлен. Мы рады, что вы решили остаться!",
+      "login_instructions": "Чтобы снова войти, нажмите на следующую ссылку:",
+      "login_action": "Войти снова",
+      "redelete_instructions": "Если вы передумаете, вы можете удалить свою учётную запись в любое время."
     }
   },
   "references": {
@@ -20,7 +36,25 @@
     "thanks": "Спасибо!",
     "closing_lines": {
       "default": "С уважением,<br>Команда Couchers.org",
-      "aapeli": "Аапели<br>Соучредитель Couchers.org<br>{{ profile_link }}"
+      "aapeli": "Аапели<br>Соучредитель Couchers.org<br>{{ profile_link }}",
+      "founders": "Аапели и Итси,<br>основатели Couchers.org",
+      "emily": "Эмили из Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Вы получили это письмо, потому что зарегистрировались на Couchers.org.",
+      "contact_support": "Вы можете связаться с нашей службой поддержки по адресу {{ email_link }}.",
+      "donate_link": "Пожертвовать",
+      "blog_link": "Блог",
+      "nonprofit_note": "Couchers.org — это проект Couchers, Inc., некоммерческой организации США, освобождённой от налогов в соответствии с разделом 501(c)(3).",
+      "security_email_note": "Это письмо системы безопасности, отписаться от него нельзя.",
+      "notification_settings_link": "Управление настройками уведомлений"
     }
+  },
+  "calendar_events": {
+    "title_cancelled": "Отменено: {{ title }}"
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
   }
 }
