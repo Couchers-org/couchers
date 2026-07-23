@@ -520,14 +520,31 @@ class TestCommunities:
         with communities_session(token2) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
+
+            # paginated, with pages crossing node type boundaries
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=2))
+            assert [c.community_id for c in res.communities] == [c1r1c1_id, c1r1c2_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [c1r2c1_id, c1r1_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [c1r2_id, c1_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [w_id]
+            assert not res.next_page_token
 
     @staticmethod
     def test_ListOtherUserCommunities(testing_communities):
@@ -546,13 +563,13 @@ class TestCommunities:
         with communities_session(token1) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
 
     @staticmethod
@@ -1293,7 +1310,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
-        assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c2_id]
+        assert [c.community_id for c in res.communities] == [c1r1c2_id, c1r1_id, c1_id, w_id]
 
 
 # TODO: requires transferring of content
