@@ -27,16 +27,134 @@ interface DatepickerProps {
   openTo?: "year" | "month" | "day";
   onPostChange?(value: Temporal.PlainDate | null): void;
   testId?: string;
-  // variant and inputProps only apply to pickerInputOnly fields
-  variant?: "standard" | "outlined" | "filled";
-  inputProps?: InputProps;
-  // When true the field can only be set through the picker: no text input, no
-  // mask placeholder, clicking anywhere (not just the icon) opens the calendar,
-  // and the chosen date is shown as a localized long date with the month name
-  // (e.g. "May 25, 1990"). Otherwise the field is an editable, parseable numeric
-  // date in the locale's format.
-  pickerInputOnly?: boolean;
 }
+
+type BaseDatepickerProps = Omit<
+  DatepickerProps,
+  "error" | "helperText" | "id"
+> &
+  Pick<DatePickerProps, "slots" | "slotProps"> & {
+    format: string;
+  };
+
+// Convert between our API's Temporal.PlainDate and MUI's expected Dayjs values.
+// Use the browser timezone in case we compare to now, aka dayjs().
+function temporalToDayjs(value: Temporal.PlainDate): Dayjs {
+  return dayjs(value.toString(), "YYYY-MM-DD");
+}
+
+function dayjsToTemporal(value: Dayjs): Temporal.PlainDate {
+  return Temporal.PlainDate.from(value.format("YYYY-MM-DD"));
+}
+
+const BaseDatepicker = ({
+  className,
+  control,
+  defaultValue,
+  rules,
+  label,
+  minValue = dayjsToTemporal(dayjs()),
+  maxValue,
+  name,
+  openTo = "day",
+  onPostChange,
+  testId,
+  format,
+  slots,
+  slotProps,
+}: BaseDatepickerProps) => {
+  return (
+    <Controller
+      control={control}
+      defaultValue={defaultValue ?? null}
+      name={name}
+      rules={rules}
+      render={({ field }) => (
+        <DatePicker
+          data-testid={testId}
+          {...field}
+          className={className}
+          label={label}
+          value={field.value ? temporalToDayjs(field.value) : null}
+          minDate={minValue ? temporalToDayjs(minValue) : undefined}
+          maxDate={maxValue ? temporalToDayjs(maxValue) : undefined}
+          onChange={(valueDayjs: Dayjs | null) => {
+            const valueTemporal =
+              valueDayjs && valueDayjs.isValid()
+                ? dayjsToTemporal(valueDayjs)
+                : null;
+            field.onChange(valueTemporal);
+            onPostChange?.(valueTemporal);
+          }}
+          openTo={openTo}
+          views={["year", "month", "day"]}
+          format={format}
+          slots={slots}
+          slotProps={slotProps}
+        />
+      )}
+    />
+  );
+};
+
+const Datepicker = ({
+  className,
+  control,
+  defaultValue,
+  error,
+  helperText,
+  id,
+  rules,
+  label,
+  minValue,
+  maxValue,
+  name,
+  openTo,
+  onPostChange,
+  testId,
+}: DatepickerProps) => {
+  const { t, i18n } = useTranslation();
+  const ariaLabel = t("components.datepicker.change_date");
+  const helperNode = (
+    <span data-testid={`${name}-helper-text`}>{helperText}</span>
+  );
+
+  return (
+    <BaseDatepicker
+      className={className}
+      control={control}
+      defaultValue={defaultValue}
+      rules={rules}
+      label={label}
+      minValue={minValue}
+      maxValue={maxValue}
+      name={name}
+      openTo={openTo}
+      onPostChange={onPostChange}
+      testId={testId}
+      format={getMuiDateFormat(i18n.language)}
+      slotProps={{
+        textField: {
+          fullWidth: true,
+          id,
+          error,
+          helperText: helperNode,
+          variant: "standard",
+          slotProps: {
+            inputLabel: { shrink: true },
+            input: { "aria-label": ariaLabel },
+          },
+        },
+        // Shrink the calendar button so its circular hover/ripple stays within
+        // the input's content box instead of overlapping the (standard variant)
+        // underline.
+        openPickerButton: {
+          size: "small",
+        },
+      }}
+    />
+  );
+};
 
 interface ReadOnlyDateFieldProps {
   id?: string;
@@ -47,10 +165,10 @@ interface ReadOnlyDateFieldProps {
   inputProps?: InputProps;
 }
 
-// Read-only field used by `pickerInputOnly` pickers. It renders the selected
-// date as a localized long date (month name) and is blank when no date is set,
-// so there is never an editable section mask or format placeholder. Clicking it
-// opens the calendar, which is the only way to set the value.
+// Read-only field used by PickerOnlyDatepicker. It renders the selected date as
+// a localized long date (month name) and is blank when no date is set, so there
+// is never an editable section mask or format placeholder. Clicking it opens the
+// calendar, which is the only way to set the value.
 const ReadOnlyDateField = ({
   id,
   error,
@@ -87,17 +205,17 @@ const ReadOnlyDateField = ({
   );
 };
 
-// Convert between our API's Temporal.PlainDate and MUI's expected Dayjs values.
-// Use the browser timezone in case we compare to now, aka dayjs().
-function temporalToDayjs(value: Temporal.PlainDate): Dayjs {
-  return dayjs(value.toString(), "YYYY-MM-DD");
+interface PickerOnlyDatepickerProps extends DatepickerProps {
+  variant?: "standard" | "outlined" | "filled";
+  inputProps?: InputProps;
 }
 
-function dayjsToTemporal(value: Dayjs): Temporal.PlainDate {
-  return Temporal.PlainDate.from(value.format("YYYY-MM-DD"));
-}
-
-const Datepicker = ({
+// A date field that can only be set through the picker: no text input, no mask
+// placeholder, clicking anywhere (not just the icon) opens the calendar, and the
+// chosen date is shown as a localized long date with the month name
+// (e.g. "May 25, 1990"). Contrast with the default editable Datepicker, whose
+// field is an editable, parseable numeric date in the locale's format.
+export const PickerOnlyDatepicker = ({
   className,
   control,
   defaultValue,
@@ -106,17 +224,16 @@ const Datepicker = ({
   id,
   rules,
   label,
-  minValue = dayjsToTemporal(dayjs()),
+  minValue,
   maxValue,
   name,
-  openTo = "day",
+  openTo,
   onPostChange,
   testId,
   variant = "standard",
   inputProps = {},
-  pickerInputOnly = false,
-}: DatepickerProps) => {
-  const { t, i18n } = useTranslation();
+}: PickerOnlyDatepickerProps) => {
+  const { t } = useTranslation();
   const ariaLabel = t("components.datepicker.change_date");
   const helperNode = (
     <span data-testid={`${name}-helper-text`}>{helperText}</span>
@@ -130,64 +247,24 @@ const Datepicker = ({
     ariaLabel,
     inputProps,
   };
-  const pickerOnlyProps: Pick<DatePickerProps, "slots" | "slotProps"> = {
-    slots: { field: ReadOnlyDateField },
-    slotProps: { field: readOnlyFieldProps },
-  };
 
   return (
-    <Controller
+    <BaseDatepicker
+      className={className}
       control={control}
-      defaultValue={defaultValue ?? null}
-      name={name}
+      defaultValue={defaultValue}
       rules={rules}
-      render={({ field }) => (
-        <DatePicker
-          data-testid={testId}
-          {...field}
-          className={className}
-          label={label}
-          value={field.value ? temporalToDayjs(field.value) : null}
-          minDate={minValue ? temporalToDayjs(minValue) : undefined}
-          maxDate={maxValue ? temporalToDayjs(maxValue) : undefined}
-          onChange={(valueDayjs: Dayjs | null) => {
-            const valueTemporal =
-              valueDayjs && valueDayjs.isValid()
-                ? dayjsToTemporal(valueDayjs)
-                : null;
-            field.onChange(valueTemporal);
-            onPostChange?.(valueTemporal);
-          }}
-          openTo={openTo}
-          views={["year", "month", "day"]}
-          // "LL" is the localized long date with the month name (e.g. "May 25, 1990")
-          format={pickerInputOnly ? "LL" : getMuiDateFormat(i18n.language)}
-          {...(pickerInputOnly
-            ? pickerOnlyProps
-            : {
-                slotProps: {
-                  textField: {
-                    fullWidth: true,
-                    id,
-                    error,
-                    helperText: helperNode,
-                    // the `variant` prop only applies to pickerInputOnly fields
-                    variant: "standard",
-                    slotProps: {
-                      inputLabel: { shrink: true },
-                      input: { "aria-label": ariaLabel },
-                    },
-                  },
-                  // Shrink the calendar button so its circular hover/ripple
-                  // stays within the input's content box instead of
-                  // overlapping the (standard variant) underline.
-                  openPickerButton: {
-                    size: "small",
-                  },
-                },
-              })}
-        />
-      )}
+      label={label}
+      minValue={minValue}
+      maxValue={maxValue}
+      name={name}
+      openTo={openTo}
+      onPostChange={onPostChange}
+      testId={testId}
+      // "LL" is the localized long date with the month name (e.g. "May 25, 1990")
+      format="LL"
+      slots={{ field: ReadOnlyDateField }}
+      slotProps={{ field: readOnlyFieldProps }}
     />
   );
 };
