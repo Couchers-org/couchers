@@ -664,7 +664,7 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     # Saturday, July 5, 2025 at 4:40:00 AM UTC
     start_time = timestamp_pb2.Timestamp(seconds=1751690400)
     timezone = "Etc/GMT-2"  # Etc/GMT-2 means GMT+2
-    expected_time_str = "Saturday, July 5 at 6:40 AM"
+    expected_time_str = "Saturday, July 5, 6:40 AM"
 
     with session_scope() as session:
         user_in_session = session.get_one(User, user.id)
