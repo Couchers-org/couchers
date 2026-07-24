@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 
-interface SectionCountBadgeProps {
+interface CountBadgeProps {
   count: number;
 }
 
-export default function SectionCountBadge({ count }: SectionCountBadgeProps) {
+export default function CountBadge({ count }: CountBadgeProps) {
   return (
     <Box
       component="span"

@@ -7,6 +7,7 @@ import {
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -24,7 +25,6 @@ import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import SectionCountBadge from "./SectionCountBadge";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
 
 interface UpcomingStaysWidgetProps {
@@ -104,7 +104,7 @@ function UpcomingStaysWidget({
           {icon}
           {title}
           {!isLoading && requests.length > 0 && (
-            <SectionCountBadge count={requests.length} />
+            <CountBadge count={requests.length} />
           )}
         </Typography>
         <div>

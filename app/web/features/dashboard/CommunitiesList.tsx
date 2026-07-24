@@ -8,6 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
+import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -16,8 +17,6 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
-
-import SectionCountBadge from "./SectionCountBadge";
 
 const CARD_GAP = 12;
 
@@ -119,7 +118,7 @@ export default function CommunitiesList() {
           />
           {t("dashboard:your_communities_heading")}
           {!isPending && communities.length > 0 && (
-            <SectionCountBadge count={communities.length} />
+            <CountBadge count={communities.length} />
           )}
         </Typography>
         <div>
