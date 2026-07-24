@@ -633,16 +633,21 @@ class EventInfo:
     """Common display fields for an event, extracted from its proto representation."""
 
     title: str
-    start_time: datetime
-    end_time: datetime
+    start_time: datetime  # In event timezone
+    end_time: datetime  # In event timezone
     address: str | None  # The None case handles legacy online events
     view_url: str
     description_markdown: str
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        start_time_display = loc_context.localize_datetime(self.start_time, with_year=False, with_day_of_week=True)
-        end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
+        # Force using the start/end time timezone (that of the event), not the user's.
+        start_time_display = loc_context.localize_datetime(
+            self.start_time, timezone=self.start_time.tzinfo, with_year=False, with_day_of_week=True
+        )
+        end_time_display = loc_context.localize_datetime(
+            self.end_time, timezone=self.end_time.tzinfo, with_year=False, with_day_of_week=True
+        )
         time_range_display = f"{start_time_display} - {end_time_display}"
 
         html = f"<b>{escape(self.title)}</b>"
@@ -665,8 +670,8 @@ class EventInfo:
     def from_proto(cls, event: events_pb2.Event) -> EventInfo:
         return cls(
             title=event.title,
-            start_time=event.start_time.ToDatetime(tzinfo=UTC),
-            end_time=event.end_time.ToDatetime(tzinfo=UTC),
+            start_time=to_aware_datetime(event.start_time, event.timezone),
+            end_time=to_aware_datetime(event.start_time, event.timezone),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
             address=(event.location.address or None) if event.HasField("location") else None,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),

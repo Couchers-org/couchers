@@ -15,7 +15,6 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n import LocalizationContext
 from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
@@ -661,10 +660,11 @@ def test_get_topic_actions_by_delivery_type(db):
 def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     user, token = generate_user()
     title = "Board Game Night"
-    start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
 
-    loc_context = LocalizationContext.from_user(user)
-    expected_time_str = loc_context.localize_datetime(start_event_time, with_year=False, with_day_of_week=True)
+    # Saturday, July 5, 2025 at 4:40:00 AM UTC
+    start_time = timestamp_pb2.Timestamp(seconds=1751690400)
+    timezone = "Etc/GMT-2"  # Etc/GMT-2 means GMT+2
+    expected_time_str = "Saturday, July 5 at 6:40 AM"
 
     with session_scope() as session:
         user_in_session = session.get_one(User, user.id)
@@ -676,10 +676,7 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
             key="",
             data=notification_data_pb2.EventReminder(
                 event=events_pb2.Event(
-                    event_id=1,
-                    slug="board-game-night",
-                    title=title,
-                    start_time=start_event_time,
+                    event_id=1, slug="board-game-night", title=title, start_time=start_time, timezone=timezone
                 ),
                 user=user_model_to_pb(user_in_session, session, make_background_user_context(user_id=user.id)),
             ),
