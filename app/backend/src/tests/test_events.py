@@ -1985,6 +1985,8 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
         assert ics_event.name == "Dummy Title"
         assert ics_event.description == "Dummy content."
         assert ics_event.location == "Near Null Island"
+        assert ics_event.begin.isoformat() == start_time.isoformat()
+        assert ics_event.end.isoformat() == end_time.isoformat()
         assert ics_event.status != "CANCELLED"
 
         api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))

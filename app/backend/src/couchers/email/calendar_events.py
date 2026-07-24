@@ -97,7 +97,6 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
 
     ics_event.begin = to_aware_datetime(event.start_time, event.timezone)
     ics_event.end = to_aware_datetime(event.start_time, event.timezone)
-    ics_event.timezone = event.timezone
 
     ics_event.location = event.location
     url = urls.event_link(occurrence_id=event.event_id, slug=event.slug)

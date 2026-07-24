@@ -27,23 +27,26 @@ def test_host_request_ics_content():
     ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
-    assert _normalize_ics(ics) == _normalize_ics("""
+    assert _assert_ics_matches_pattern(
+        ics,
+        """
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:<stripped>
+SEQUENCE:***
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
-DESCRIPTION:<stripped>/42
+DESCRIPTION:***/42
 LOCATION:New York
 SUMMARY:Hosting Bob
-UID:host_request.42@<stripped>
-URL:<stripped>/42
+UID:host_request.42@***
+URL:***/42
 END:VEVENT
 METHOD:PUBLISH
 END:VCALENDAR
-    """)
+    """,
+    )
 
 
 def test_host_request_cancelled_ics_content():
@@ -58,24 +61,27 @@ def test_host_request_cancelled_ics_content():
     ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
-    assert _normalize_ics(ics) == _normalize_ics("""
+    assert _assert_ics_matches_pattern(
+        ics,
+        """
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:<stripped>
+SEQUENCE:***
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
-DESCRIPTION:<stripped>/42
+DESCRIPTION:***/42
 LOCATION:New York
 STATUS:CANCELLED
 SUMMARY:Cancelled: Hosting Bob
-UID:host_request.42@<stripped>
-URL:<stripped>/42
+UID:host_request.42@***
+URL:***/42
 END:VEVENT
 METHOD:PUBLISH
 END:VCALENDAR
-    """)
+    """,
+    )
 
 
 def test_event_ics_content():
@@ -84,47 +90,41 @@ def test_event_ics_content():
         title="Event Title",
         slug="event-slug",
         content="Event description",
-        start_time=Timestamp_from_datetime(datetime(2000, 1, 1, tzinfo=UTC)),
-        end_time=Timestamp_from_datetime(datetime(2000, 1, 2, tzinfo=UTC)),
+        start_time=Timestamp_from_datetime(datetime(2000, 1, 1, 12, 0, tzinfo=UTC)),
+        end_time=Timestamp_from_datetime(datetime(2000, 1, 2, 12, 0, tzinfo=UTC)),
         location=events_pb2.EventLocation(address="City, Country", lat=0.1, lng=0.1),
     )
 
     ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).serialize()
-    assert _normalize_ics(ics) == _normalize_ics("""
+    assert _assert_ics_matches_pattern(
+        ics,
+        """
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:<stripped>
-DTSTART;VALUE=DATE:20000101
-DTEND;VALUE=DATE:20000102
+SEQUENCE:***
+DTSTART;20000101T120000Z
+DTEND;20000102T120000Z
 DESCRIPTION:Event description
 LOCATION:City, Country
 STATUS:CANCELLED
 SUMMARY:Event Title
-UID:event.42@<stripped>
-URL:<stripped>/42
+UID:event.42@***
+URL:***/42
 END:VEVENT
 METHOD:PUBLISH
 END:VCALENDAR
-    """)
-
-
-def _normalize_ics(ics: str) -> str:
-    # Normalize whitespace:
-    # - The ics library produces '\r\n', in-code literals are '\n'
-    # - In-code literals have start/end newlines and indentation.
-    ics = ics.replace("\r\n", "\n").strip()
-
-    # Strip the domain in the UID, which depends on environment variables
-    ics = re.sub(
-        r"^UID:.*@(.*)$", lambda match: match[0].removesuffix(match[1]) + "<stripped>", ics, flags=re.MULTILINE
+    """,
     )
 
-    # Strip the domain in the URL and DESCRIPTION, which depends on environment variables
-    ics = re.sub(r"^(DESCRIPTION|URL):(.*)/(\d+)", r"\1:<stripped>/\3", ics, flags=re.MULTILINE)
 
-    return ics
+def _assert_ics_matches_pattern(actual: str, expected_pattern: str) -> str:
+    actual = actual.replace("\r\n", "\n").strip()
+    expected_pattern = expected_pattern.strip()
+
+    expected_pattern = re.escape(expected_pattern).replace("\*\*\*", ".*?")
+    return re.fullmatch(expected_pattern, actual)
 
 
 def test_host_request_attachments(db, email_collector: EmailCollector, moderator: Moderator):
