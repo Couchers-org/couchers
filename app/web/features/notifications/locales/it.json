@@ -63,5 +63,9 @@
   "push_notification_banner": {
     "message": "Non perdere richieste, risposte o messaggi; possiamo inviarti notifiche push?",
     "confirm": "Sì, grazie!"
+  },
+  "notifications_filters": {
+    "all_button": "Tutte",
+    "unread_button": "Non lette"
   }
 }
