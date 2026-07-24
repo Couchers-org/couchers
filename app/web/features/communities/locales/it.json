@@ -159,5 +159,13 @@
   "search_communities_placeholder": "Cerca per città o paese...",
   "search_communities_helper": "Seleziona una community per andare alla sua pagina",
   "no_results_found_with_link": "Nessuna community trovata. <0>Richiedi questa community!</0>",
-  "community_breadcrumb_a11y": "Community attuale"
+  "community_breadcrumb_a11y": "Community attuale",
+  "select_macroregion": "Seleziona regione",
+  "select_region": "Seleziona paese",
+  "select_subregion": "Seleziona area",
+  "select_locality": "Seleziona città",
+  "select_sublocality": "Seleziona quartiere",
+  "select_sub_community": "Seleziona community",
+  "sub_community_search_placeholder": "Località",
+  "sub_community_dropdown_a11y": "Esplora community più specifiche"
 }
