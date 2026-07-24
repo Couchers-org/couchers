@@ -1,14 +1,13 @@
 import re
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 import ics
 import pytest
 
-from couchers.email.calendar_events import create_host_request_calendar, create_host_request_cancellation_calendar
+from couchers.email.calendar_events import create_event_ics_calendar, create_host_request_ics_calendar
 from couchers.i18n.context import LocalizationContext
-from couchers.proto import messages_pb2, requests_pb2
-from couchers.proto.requests_pb2 import HostRequest
-from couchers.utils import today
+from couchers.proto import events_pb2, messages_pb2, requests_pb2
+from couchers.utils import Timestamp_from_datetime, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
@@ -20,12 +19,12 @@ def _(testconfig):
     pass
 
 
-def test_initial_ics_content():
-    host_request = HostRequest(
+def test_host_request_ics_content():
+    host_request = requests_pb2.HostRequest(
         host_request_id=42, from_date="2000-01-01", to_date="2000-01-02", hosting_city="New York"
     )
 
-    ics: str = create_host_request_calendar(
+    ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
     assert _normalize_ics(ics) == _normalize_ics("""
@@ -33,7 +32,7 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:0
+SEQUENCE:<stripped>
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:<stripped>/42
@@ -47,12 +46,16 @@ END:VCALENDAR
     """)
 
 
-def test_cancellation_ics_content():
-    host_request = HostRequest(
-        host_request_id=42, from_date="2000-01-01", to_date="2000-01-02", hosting_city="New York"
+def test_host_request_cancelled_ics_content():
+    host_request = requests_pb2.HostRequest(
+        host_request_id=42,
+        from_date="2000-01-01",
+        to_date="2000-01-02",
+        hosting_city="New York",
+        status=messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
     )
 
-    ics: str = create_host_request_cancellation_calendar(
+    ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
     assert _normalize_ics(ics) == _normalize_ics("""
@@ -60,7 +63,7 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:1
+SEQUENCE:<stripped>
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:<stripped>/42
@@ -68,6 +71,38 @@ LOCATION:New York
 STATUS:CANCELLED
 SUMMARY:Cancelled: Hosting Bob
 UID:host_request.42@<stripped>
+URL:<stripped>/42
+END:VEVENT
+METHOD:PUBLISH
+END:VCALENDAR
+    """)
+
+
+def test_event_ics_content():
+    event = events_pb2.Event(
+        event_id=42,
+        title="Event Title",
+        slug="event-slug",
+        content="Event description",
+        start_time=Timestamp_from_datetime(datetime(2000, 1, 1, tzinfo=UTC)),
+        end_time=Timestamp_from_datetime(datetime(2000, 1, 2, tzinfo=UTC)),
+        location=events_pb2.EventLocation(address="City, Country", lat=0.1, lng=0.1),
+    )
+
+    ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).serialize()
+    assert _normalize_ics(ics) == _normalize_ics("""
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Couchers.org//Couchers//EN
+BEGIN:VEVENT
+SEQUENCE:<stripped>
+DTSTART;VALUE=DATE:20000101
+DTEND;VALUE=DATE:20000102
+DESCRIPTION:Event description
+LOCATION:City, Country
+STATUS:CANCELLED
+SUMMARY:Event Title
+UID:event.42@<stripped>
 URL:<stripped>/42
 END:VEVENT
 METHOD:PUBLISH

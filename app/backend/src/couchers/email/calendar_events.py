@@ -1,4 +1,5 @@
 from email.headerregistry import Address
+from typing import Literal
 
 from ics import Calendar, Event
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
@@ -7,50 +8,58 @@ from couchers import urls
 from couchers.config import config
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
+from couchers.markup import markdown_to_plaintext
+from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal.jobs_pb2 import EmailPart
-from couchers.proto.requests_pb2 import HostRequest
+from couchers.utils import now, to_aware_datetime
 
 HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
 
 def create_host_request_attachment(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailPart:
-    calendar = create_host_request_calendar(host_request, other_name, hosting, loc_context)
-    return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
+    calendar = create_host_request_ics_calendar(host_request, other_name, hosting, loc_context)
+    return ics_calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
 
-def create_host_request_calendar(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+def create_host_request_ics_calendar(
+    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> Calendar:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context)
+    event = create_host_request_ics_event(host_request, other_name, hosting, loc_context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # It allows for later cancellation, and doesn't expose accept/decline functionality.
-    return event_to_calendar(event, "PUBLISH", loc_context)
+    # METHOD:CANCEL might leave the event in cancelled state or not work.
+    return ics_event_to_calendar(event, "PUBLISH", loc_context)
 
 
-def create_host_request_event(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext, sequence: int = 0
+def create_host_request_ics_event(
+    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> Event:
     """Creates an ics event for a host request."""
 
     event = Event()
-    event.uid = get_host_request_event_uid(host_request.host_request_id)
+    event.uid = _event_uid(host_request.host_request_id, kind="host_request")
+    event.extra.append(_monotonic_sequence_number())
 
-    # Explicitly allow later sequencing of a cancellation with SEQUENCE:1
-    event.extra.append(ContentLine(name="SEQUENCE", value=str(sequence)))
-
+    title: str
     if hosting:
-        event.name = loc_context.localize_string(
+        title = loc_context.localize_string(
             "calendar_events.host_requests.title_host", i18next=get_emails_i18next(), substitutions={"name": other_name}
         )
     else:
-        event.name = loc_context.localize_string(
+        title = loc_context.localize_string(
             "calendar_events.host_requests.title_surfer",
             i18next=get_emails_i18next(),
             substitutions={"name": other_name},
         )
+
+    event.name = _final_title(
+        title,
+        loc_context,
+        is_cancelled=host_request.status == messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
+    )
 
     # Our to_date is inclusive, iCalendar's DTEND is exclusive (for full-day events)
     # make_all_day will adjust the end date by one day accordingly.
@@ -64,32 +73,66 @@ def create_host_request_event(
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
     event.description = event.url
 
+    if host_request.status == messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
+        event.status = "CANCELLED"
+
     return event
 
 
-def create_host_request_cancellation_attachment(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> EmailPart:
-    calendar = create_host_request_cancellation_calendar(host_request, other_name, hosting, loc_context)
-    return calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
-
-
-def create_host_request_cancellation_calendar(
-    host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
-) -> Calendar:
-    event = create_host_request_event(host_request, other_name, hosting, loc_context, sequence=1)
-    event.name = loc_context.localize_string(
-        "calendar_events.title_cancelled", i18next=get_emails_i18next(), substitutions={"title": event.name}
-    )
-    event.status = "CANCELLED"
+def create_event_ics_calendar(event: events_pb2.Event, loc_context: LocalizationContext) -> Calendar:
+    ics_event = create_event_ics_event(event, loc_context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
-    # Gmail™ will immediately remove the event from the user's calendar.
-    # METHOD:CANCEL might leave the event in cancelled state or not work.
-    return event_to_calendar(event, "PUBLISH", loc_context)
+    # It allows for later cancellation, and doesn't expose accept/decline functionality.
+    return ics_event_to_calendar(ics_event, "PUBLISH", loc_context)
 
 
-def event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> Calendar:
+def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationContext) -> Event:
+    """Creates an ics event for a host request."""
+
+    ics_event = Event()
+    ics_event.uid = _event_uid(event.event_id, kind="event")
+    ics_event.extra.append(_monotonic_sequence_number())
+    ics_event.name = _final_title(event.title, loc_context, is_cancelled=event.is_cancelled)
+
+    ics_event.begin = to_aware_datetime(event.start_time, event.timezone)
+    ics_event.end = to_aware_datetime(event.start_time, event.timezone)
+    ics_event.timezone = event.timezone
+
+    ics_event.location = event.location
+    url = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+    ics_event.url = url
+    # Google Calendar™ will hide the URL if there is a location, so also include it in the description
+    ics_event.description = markdown_to_plaintext(event.content) + "\n\n" + url
+
+    return ics_event
+
+
+def _final_title(title: str, loc_context: LocalizationContext, *, is_cancelled: bool) -> str:
+    if is_cancelled:
+        title = loc_context.localize_string(
+            "calendar_events.title_cancelled", i18next=get_emails_i18next(), substitutions={"title": title}
+        )
+    return title
+
+
+def _event_uid(item_id: int, *, kind: Literal["host_request"] | Literal["event"]) -> str:
+    uid_domain = Address(addr_spec=config.NOTIFICATION_EMAIL_ADDRESS).domain
+    return f"{kind}.{item_id}@{uid_domain}"
+
+
+def _monotonic_sequence_number() -> ContentLine:
+    return ContentLine(name="SEQUENCE", value=str(round(now().timestamp())))
+
+
+def get_sequence_number(event: Event) -> int | None:
+    for extra in event.extra:
+        if extra.name == "SEQUENCE":
+            return int(extra.value)
+    return None
+
+
+def ics_event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> Calendar:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
     calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
     if method:
@@ -98,7 +141,7 @@ def event_to_calendar(event: Event, method: str | None, loc_context: Localizatio
     return calendar
 
 
-def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailPart:
+def ics_calendar_to_attachment(calendar: Calendar, filename: str) -> EmailPart:
     data = calendar.serialize().encode("utf-8")
     content_disposition = f'attachment; filename="{filename}"'
     content_type = 'text/calendar; charset="utf-8"'
@@ -108,8 +151,3 @@ def calendar_to_attachment(calendar: Calendar, filename: str) -> EmailPart:
         content_type += f"; method={calendar.method}"
 
     return EmailPart(data=data, content_disposition=content_disposition, content_type=content_type)
-
-
-def get_host_request_event_uid(host_request_id: int) -> str:
-    uid_domain = Address(addr_spec=config.NOTIFICATION_EMAIL_ADDRESS).domain
-    return f"host_request.{host_request_id}@{uid_domain}"

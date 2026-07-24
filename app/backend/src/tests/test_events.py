@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
+import ics
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
@@ -9,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
+from couchers.email.calendar_events import get_sequence_number
 from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
     BackgroundJob,
@@ -1946,6 +1948,52 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_GetEventCalendarFile(db, moderator: Moderator):
+    # event creator
+    user1, token1 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        created_event: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = created_event.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        ics_event: ics.Event = next(ics.Calendar(file_res.data.decode("utf-8")).events)
+        assert ics_event.name == "Dummy Title"
+        assert ics_event.description == "Dummy content."
+        assert ics_event.location == "Near Null Island"
+        assert ics_event.status != "CANCELLED"
+
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        cancelled_ics_event: ics.Event = next(ics.Calendar(file_res.data.decode("utf-8")).events)
+        assert cancelled_ics_event.name == "Dummy Title"  # Other props have not changed
+        assert cancelled_ics_event.status == "CANCELLED"
+        assert (get_sequence_number(cancelled_ics_event) or 0) > (get_sequence_number(ics_event) or 0)
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):

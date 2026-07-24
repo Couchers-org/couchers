@@ -80,7 +80,9 @@ service Events {
     // Lists all events
   }
 
-  // TODO: DownloadCalendarInvite
+  rpc GetEventCalendarFile(GetEventCalendarFileReq) returns (GetEventCalendarFileRes) {
+    // Downloads a calendar file for an event
+  }
 }
 
 message EventLocation {
@@ -348,4 +350,12 @@ message InviteEventOrganizerReq {
 message RemoveEventOrganizerReq {
   int64 event_id = 1;
   google.protobuf.Int64Value user_id = 2;
+}
+
+message GetEventCalendarFileReq {
+  int64 event_id = 1;
+}
+
+message GetEventCalendarFileRes {
+  bytes data = 1;
 }
