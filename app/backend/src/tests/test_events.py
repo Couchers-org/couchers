@@ -1951,11 +1951,11 @@ def test_ListEventAttendees_regression(db):
 
 
 def test_GetEventCalendarFile(db, moderator: Moderator):
-    # event creator
     user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)

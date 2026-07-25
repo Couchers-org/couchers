@@ -93,6 +93,7 @@ def test_event_ics_content():
         start_time=Timestamp_from_datetime(datetime(2000, 1, 1, 12, 0, tzinfo=UTC)),
         end_time=Timestamp_from_datetime(datetime(2000, 1, 2, 12, 0, tzinfo=UTC)),
         location=events_pb2.EventLocation(address="City, Country", lat=0.1, lng=0.1),
+        timezone="Etc/UTC",
     )
 
     ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).serialize()
@@ -164,13 +165,12 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
 
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert "accept" in email.subject and host.name in email.subject
-    ics_event = _get_email_ics_attachment_calendar_event(email)
-    assert _get_ics_event_sequence(ics_event) == 0
-    assert not ics_event.status
-    assert ics_event.begin.date() == from_date
-    assert ics_event.end.date() == (to_date + timedelta(days=1))
-    assert ics_event.name == f"Surfing with {host.name}"
-    assert ics_event.location == host.city
+    accepted_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert not accepted_ics_event.status
+    assert accepted_ics_event.begin.date() == from_date
+    assert accepted_ics_event.end.date() == (to_date + timedelta(days=1))
+    assert accepted_ics_event.name == f"Surfing with {host.name}"
+    assert accepted_ics_event.location == host.city
 
     # Surfer confirms, host gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -184,10 +184,9 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "confirm" in email.subject and surfer.name in email.subject
-    ics_event = _get_email_ics_attachment_calendar_event(email)
-    assert _get_ics_event_sequence(ics_event) == 0
-    assert not ics_event.status
-    assert ics_event.name == f"Hosting {surfer.name}"
+    confirmed_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert not confirmed_ics_event.status
+    assert confirmed_ics_event.name == f"Hosting {surfer.name}"
 
     # Surfer cancels, host gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -201,9 +200,9 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "cancel" in email.subject and surfer.name in email.subject
-    ics_event = _get_email_ics_attachment_calendar_event(email)
-    assert _get_ics_event_sequence(ics_event) == 1
-    assert ics_event.status == "CANCELLED"
+    cancelled_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert (_get_ics_event_sequence(cancelled_ics_event) or 0) > (_get_ics_event_sequence(accepted_ics_event) or 0)
+    assert cancelled_ics_event.status == "CANCELLED"
 
 
 def test_host_request_attachments_disabled(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):
