@@ -110,6 +110,9 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
     ics_event.description = markdown_to_plaintext(event.content) + "\n\n" + url
 
+    if event.is_cancelled:
+        ics_event.status = "CANCELLED"
+
     return ics_event
 
 
