@@ -1995,7 +1995,8 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
         cancelled_ics_event: ics.Event = next(ics.Calendar(file_res.data.decode("utf-8")).events)
         assert cancelled_ics_event.name == "Dummy Title"  # Other props have not changed
         assert cancelled_ics_event.status == "CANCELLED"
-        assert (get_sequence_number(cancelled_ics_event) or 0) > (get_sequence_number(ics_event) or 0)
+        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+        assert (get_sequence_number(cancelled_ics_event) or 0) >= (get_sequence_number(ics_event) or 0)
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):

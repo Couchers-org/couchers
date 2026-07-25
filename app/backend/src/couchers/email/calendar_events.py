@@ -1,3 +1,4 @@
+from datetime import datetime
 from email.headerregistry import Address
 from typing import Literal
 
@@ -41,7 +42,7 @@ def create_host_request_ics_event(
 
     event = Event()
     event.uid = _event_uid(host_request.host_request_id, kind="host_request")
-    event.extra.append(_monotonic_sequence_number())
+    _set_sequence_timestamp(event, now())
 
     title: str
     if hosting:
@@ -92,13 +93,14 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
 
     ics_event = Event()
     ics_event.uid = _event_uid(event.event_id, kind="event")
-    ics_event.extra.append(_monotonic_sequence_number())
+    ics_event.last_modified = to_aware_datetime(event.last_edited)
+    _set_sequence_timestamp(ics_event, to_aware_datetime(event.last_edited))
     ics_event.name = _final_title(event.title, loc_context, is_cancelled=event.is_cancelled)
 
     ics_event.begin = to_aware_datetime(event.start_time, event.timezone)
     ics_event.end = to_aware_datetime(event.start_time, event.timezone)
 
-    ics_event.location = event.location
+    ics_event.location = event.location.address
     url = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
     ics_event.url = url
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
@@ -120,8 +122,11 @@ def _event_uid(item_id: int, *, kind: Literal["host_request"] | Literal["event"]
     return f"{kind}.{item_id}@{uid_domain}"
 
 
-def _monotonic_sequence_number() -> ContentLine:
-    return ContentLine(name="SEQUENCE", value=str(round(now().timestamp())))
+def _set_sequence_timestamp(event: Event, dt: datetime) -> None:
+    # SEQUENCE is 32-bit, so only support second granularity to avoid overflows
+    # A better implementation would need to reply on a stored sequence number.
+    timestamp = round(dt.timestamp())
+    event.extra.append(ContentLine(name="SEQUENCE", value=str(timestamp)))
 
 
 def get_sequence_number(event: Event) -> int | None:
