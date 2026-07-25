@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from email.headerregistry import Address
 from typing import Literal
+from zoneinfo import ZoneInfo
 
-from ics import Calendar, Event
+from ics import Calendar, Event, Geo
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
@@ -93,14 +94,17 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
 
     ics_event = Event()
     ics_event.uid = _event_uid(event.event_id, kind="event")
-    ics_event.last_modified = to_aware_datetime(event.last_edited)
-    _set_sequence_timestamp(ics_event, to_aware_datetime(event.last_edited))
     ics_event.name = _final_title(event.title, loc_context, is_cancelled=event.is_cancelled)
 
-    ics_event.begin = to_aware_datetime(event.start_time, event.timezone)
-    ics_event.end = to_aware_datetime(event.start_time, event.timezone)
+    last_update_datetime = to_aware_datetime(event.created if event.last_edited.seconds == 0 else event.last_edited)
+    ics_event.last_modified = last_update_datetime
+    _set_sequence_timestamp(ics_event, last_update_datetime)
+
+    _set_datetime_with_timezone(ics_event, "DTSTART", to_aware_datetime(event.start_time, event.timezone))
+    _set_datetime_with_timezone(ics_event, "DTEND", to_aware_datetime(event.end_time, event.timezone))
 
     ics_event.location = event.location.address
+    ics_event.geo = Geo(event.location.lat, event.location.lng)
     url = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
     ics_event.url = url
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
@@ -129,11 +133,20 @@ def _set_sequence_timestamp(event: Event, dt: datetime) -> None:
     event.extra.append(ContentLine(name="SEQUENCE", value=str(timestamp)))
 
 
-def get_sequence_number(event: Event) -> int | None:
-    for extra in event.extra:
-        if extra.name == "SEQUENCE":
-            return int(extra.value)
-    return None
+def _set_datetime_with_timezone(event: Event, name: str, dt: datetime) -> None:
+    """
+    Adds a property whose value is a datetime with a timezone.
+    Working around that ics's native Event.begin/end properties don't encode the timezone.
+    """
+    datetime_format = "%Y%m%dT%H%M%S"
+    params: dict[str, list[str]] = {}
+    value: str
+    if isinstance(dt.tzinfo, ZoneInfo) and dt.tzinfo.key != "Etc/UTC":
+        params["TZID"] = [dt.tzinfo.key]
+        value = dt.strftime(datetime_format)
+    else:
+        value = dt.astimezone(UTC).strftime(datetime_format) + "Z"
+    event.extra.append(ContentLine(name, params, value=value))
 
 
 def ics_event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> Calendar:

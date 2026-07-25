@@ -1,8 +1,8 @@
+import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
-import ics
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
@@ -10,7 +10,6 @@ from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
-from couchers.email.calendar_events import get_sequence_number
 from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
     BackgroundJob,
@@ -1981,22 +1980,22 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
 
     with events_session(token1) as api:
         file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
-        ics_event: ics.Event = next(ics.Calendar(file_res.data.decode("utf-8")).events)
-        assert ics_event.name == "Dummy Title"
-        assert ics_event.description == "Dummy content."
-        assert ics_event.location == "Near Null Island"
-        assert ics_event.begin.isoformat() == start_time.isoformat()
-        assert ics_event.end.isoformat() == end_time.isoformat()
-        assert ics_event.status != "CANCELLED"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string
+        assert "DESCRIPTION:Dummy content." in ics_string
+        assert "LOCATION:Near Null Island" in ics_string
+        assert "STATUS:CANCELLED" not in ics_string
+        pre_cancel_sequence = int(re.match(r"SEQUENCE:(\d+)", ics_string).group(1))
 
         api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
 
         file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
-        cancelled_ics_event: ics.Event = next(ics.Calendar(file_res.data.decode("utf-8")).events)
-        assert cancelled_ics_event.name == "Dummy Title"  # Other props have not changed
-        assert cancelled_ics_event.status == "CANCELLED"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string  # Other props have not changed
+        assert "STATUS:CANCELLED" in ics_string
+        post_cancel_sequence = int(re.match(r"SEQUENCE:(\d+)", ics_string).group(1))
         # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
-        assert (get_sequence_number(cancelled_ics_event) or 0) >= (get_sequence_number(ics_event) or 0)
+        assert post_cancel_sequence >= pre_cancel_sequence
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):

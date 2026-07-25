@@ -27,7 +27,7 @@ def test_host_request_ics_content():
     ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
-    assert _assert_ics_matches_pattern(
+    _assert_ics_matches_pattern(
         ics,
         """
 BEGIN:VCALENDAR
@@ -61,7 +61,7 @@ def test_host_request_cancelled_ics_content():
     ics: str = create_host_request_ics_calendar(
         host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
     ).serialize()
-    assert _assert_ics_matches_pattern(
+    _assert_ics_matches_pattern(
         ics,
         """
 BEGIN:VCALENDAR
@@ -90,29 +90,31 @@ def test_event_ics_content():
         title="Event Title",
         slug="event-slug",
         content="Event description",
-        start_time=Timestamp_from_datetime(datetime(2000, 1, 1, 12, 0, tzinfo=UTC)),
-        end_time=Timestamp_from_datetime(datetime(2000, 1, 2, 12, 0, tzinfo=UTC)),
+        created=Timestamp_from_datetime(datetime(2000, 1, 1, 0, 0, tzinfo=UTC)),
+        start_time=Timestamp_from_datetime(datetime(2000, 1, 2, 12, 0, tzinfo=UTC)),
+        end_time=Timestamp_from_datetime(datetime(2000, 1, 3, 12, 0, tzinfo=UTC)),
         location=events_pb2.EventLocation(address="City, Country", lat=0.1, lng=0.1),
-        timezone="Etc/UTC",
+        timezone="Etc/GMT-1",  # Confusingly represents GMT+1, no DST
     )
 
     ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).serialize()
-    assert _assert_ics_matches_pattern(
+    _assert_ics_matches_pattern(
         ics,
         """
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
-SEQUENCE:***
-DTSTART;20000101T120000Z
-DTEND;20000102T120000Z
-DESCRIPTION:Event description
-LOCATION:City, Country
-STATUS:CANCELLED
-SUMMARY:Event Title
 UID:event.42@***
-URL:***/42
+SEQUENCE:***
+SUMMARY:Event Title
+DESCRIPTION:Event description***/event/42/event-slug
+DTSTART;TZID=Etc/GMT-1:20000102T130000
+DTEND;TZID=Etc/GMT-1:20000103T130000
+LAST-MODIFIED:20000101T000000Z
+LOCATION:City\\, Country
+GEO:0.100000;0.100000
+URL:***/event/42/event-slug
 END:VEVENT
 METHOD:PUBLISH
 END:VCALENDAR
@@ -122,11 +124,18 @@ END:VCALENDAR
 
 def _assert_ics_matches_pattern(actual: str, expected_pattern: str) -> str:
     """Assert that an ics file's content matches a pattern that includes "***" wildcards."""
+    # Normalize whitespace
     actual = actual.replace("\r\n", "\n").strip()
     expected_pattern = expected_pattern.strip()
 
-    expected_pattern = re.escape(expected_pattern).replace("\\*\\*\\*", ".*?")
-    return re.fullmatch(expected_pattern, actual)
+    # The ics library writes properties in an order that's hard to make sense of, and not important.
+    # So approximate by sorting lines, and test them one at a time so we know which one fails.
+    actual_lines = sorted(actual.splitlines())
+    expected_pattern_lines = sorted(expected_pattern.splitlines())
+    for actual_line, expected_pattern_line in zip(actual_lines, expected_pattern_lines, strict=True):
+        # Convert the expected pattern from *** wildcards to a regex
+        expected_line_regex = re.escape(expected_pattern_line).replace("\\*\\*\\*", ".*?")
+        assert re.fullmatch(expected_line_regex, actual_line)
 
 
 def test_host_request_attachments(db, email_collector: EmailCollector, moderator: Moderator):
