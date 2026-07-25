@@ -63,5 +63,9 @@
   "push_notification_banner": {
     "confirm": "Да, пожалуйста!",
     "message": "Не пропускайте запросы, ответы или сообщения; можно ли отправлять вам push-уведомления?"
+  },
+  "notifications_filters": {
+    "all_button": "Все",
+    "unread_button": "Непрочитанные"
   }
 }
