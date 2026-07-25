@@ -6,7 +6,7 @@ import pytest
 
 from couchers.email.calendar_events import create_host_request_calendar, create_host_request_cancellation_calendar
 from couchers.i18n.context import LocalizationContext
-from couchers.proto import conversations_pb2, requests_pb2
+from couchers.proto import messages_pb2, requests_pb2
 from couchers.proto.requests_pb2 import HostRequest
 from couchers.utils import today
 from tests.fixtures.db import generate_user
@@ -121,7 +121,7 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -141,7 +141,7 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                 text="Confirming host request",
             )
         )
@@ -158,7 +158,7 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Cancelling host request",
             )
         )
@@ -198,7 +198,7 @@ def test_host_request_attachments_disabled(db, email_collector: EmailCollector, 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )

@@ -231,7 +231,10 @@
     "event_community_invite_not_found": "Die Event-Einladung für die Community konnte nicht gefunden werden.",
     "public_trips_disabled": "Öffentliche Trips sind derzeit deaktiviert.",
     "incomplete_profile_create_discussion": "Du musst dein Profil vervollständigen, bevor du einen Beitrag starten kannst.",
-    "incomplete_profile_post_comment": "Du musst dein Profil vervollständigen, bevor du einen Kommentar posten kannst."
+    "incomplete_profile_post_comment": "Du musst dein Profil vervollständigen, bevor du einen Kommentar posten kannst.",
+    "event_timezone_not_found": "Für den Veranstaltungsort konnte keine Zeitzone gefunden werden.",
+    "invalid_event_start_end_datetime": "Ungültiges Start- oder Enddatum und -uhrzeit des Events.",
+    "missing_event_start_end_datetime": "Fehlendes Anfangs- oder Enddatum und -uhrzeit des Events."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
