@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Sequence
-from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -30,11 +29,11 @@ from couchers.models import (
 )
 from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
 from couchers.servicers.discussions import discussion_to_pb
-from couchers.servicers.events import event_to_pb
+from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
+from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -419,8 +418,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
@@ -447,19 +444,14 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
-        if request.past:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
-        else:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return communities_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def ListDiscussions(

@@ -4,19 +4,14 @@ from typing import Any
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
-from couchers.utils import (
-    Timestamp_from_datetime,
-    create_coordinate,
-    datetime_to_iso8601_local,
-    millis_from_dt,
-    now,
-)
+from couchers.utils import Timestamp_from_datetime, create_coordinate, datetime_to_iso8601_local, now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import communities_session, events_session, search_session
@@ -576,7 +571,7 @@ def test_event_search_pagination(sample_community, create_event):
     Check that
      - <page_size> events are returned, if available
      - sort order is applied (default: past=False)
-     - the next page token is correct
+     - the next page token continues where the previous page left off
     """
     user, token = generate_user()
 
@@ -594,25 +589,31 @@ def test_event_search_pagination(sample_community, create_event):
         res = api.EventSearch(search_pb2.EventSearchReq(past=False, page_size=4))
         assert len(res.events) == 4
         assert [event.title for event in res.events] == ["Event 1", "Event 2", "Event 3", "Event 4"]
-        assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=5, minutes=30)))
+        assert res.next_page_token
 
         res = api.EventSearch(search_pb2.EventSearchReq(page_size=4, page_token=res.next_page_token))
         assert len(res.events) == 1
         assert res.events[0].title == "Event 5"
         assert res.next_page_token == ""
 
-        res = api.EventSearch(
-            search_pb2.EventSearchReq(
-                past=True, page_size=2, page_token=str(millis_from_dt(anchor_time + timedelta(hours=4, minutes=30)))
+    # move all the events into the past to test past pagination
+    with session_scope() as session:
+        for occurrence in session.execute(select(EventOccurrence)).scalars().all():
+            occurrence.during = TimestamptzRange(
+                occurrence.start_time - timedelta(days=30), occurrence.end_time - timedelta(days=30)
             )
-        )
-        assert len(res.events) == 2
-        assert [event.title for event in res.events] == ["Event 4", "Event 3"]
-        assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=2, minutes=30)))
+
+    with search_session(token) as api:
+        res = api.EventSearch(search_pb2.EventSearchReq(past=True, page_size=2))
+        assert [event.title for event in res.events] == ["Event 5", "Event 4"]
+        assert res.next_page_token
 
         res = api.EventSearch(search_pb2.EventSearchReq(past=True, page_size=2, page_token=res.next_page_token))
-        assert len(res.events) == 2
-        assert [event.title for event in res.events] == ["Event 2", "Event 1"]
+        assert [event.title for event in res.events] == ["Event 3", "Event 2"]
+        assert res.next_page_token
+
+        res = api.EventSearch(search_pb2.EventSearchReq(past=True, page_size=2, page_token=res.next_page_token))
+        assert [event.title for event in res.events] == ["Event 1"]
         assert res.next_page_token == ""
 
 
