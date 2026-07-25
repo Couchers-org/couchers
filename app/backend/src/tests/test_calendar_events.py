@@ -120,10 +120,11 @@ END:VCALENDAR
 
 
 def _assert_ics_matches_pattern(actual: str, expected_pattern: str) -> str:
+    """Assert that an ics file's content matches a pattern that includes "***" wildcards."""
     actual = actual.replace("\r\n", "\n").strip()
     expected_pattern = expected_pattern.strip()
 
-    expected_pattern = re.escape(expected_pattern).replace("\*\*\*", ".*?")
+    expected_pattern = re.escape(expected_pattern).replace("\\*\\*\\*", ".*?")
     return re.fullmatch(expected_pattern, actual)
 
 
