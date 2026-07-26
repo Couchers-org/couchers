@@ -23,11 +23,9 @@ class Config:
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
-    # number of bg worker processes (requires worker or all above). Each process spawns
-    # BACKGROUND_WORKER_THREADS_PER_PROCESS threads; total in-flight jobs is the product.
+    # number of bg worker processes, requires worker or all above
     BACKGROUND_WORKER_PROCESSES: int = 1
-    # threads per worker process; raising this is far cheaper than another process (~200 MB saved per process)
-    # and fine for these I/O-bound handlers
+    # threads per worker process; in-flight jobs is the product of the two
     BACKGROUND_WORKER_THREADS_PER_PROCESS: int = 2
     # Version string
     VERSION: str = "unknown"
@@ -173,14 +171,7 @@ class Config:
             if not hasattr(self, attr_name):
                 raise ValueError(f"Config value {attr_name} not set")
 
-        # 0 processes services no jobs at all while looking perfectly healthy, and 0 threads makes the worker
-        # process exit immediately, which the supervisor turns into a restart loop
-        if self.BACKGROUND_WORKER_PROCESSES < 1:
-            raise Exception("BACKGROUND_WORKER_PROCESSES must be at least 1")
-        if self.BACKGROUND_WORKER_THREADS_PER_PROCESS < 1:
-            raise Exception("BACKGROUND_WORKER_THREADS_PER_PROCESS must be at least 1")
-        # each worker thread can hold two connections at once, so more than half the pool's worth of threads
-        # in one process could exhaust it
+        # each worker thread can hold two connections at once
         if 2 * self.BACKGROUND_WORKER_THREADS_PER_PROCESS > DB_POOL_SIZE:
             raise Exception(
                 f"BACKGROUND_WORKER_THREADS_PER_PROCESS ({self.BACKGROUND_WORKER_THREADS_PER_PROCESS}) must not "

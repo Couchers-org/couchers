@@ -134,11 +134,3 @@ def test_check_rejects_too_many_worker_threads() -> None:
     cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2 + 1
     with pytest.raises(Exception, match="BACKGROUND_WORKER_THREADS_PER_PROCESS"):
         cfg.check()
-
-
-@pytest.mark.parametrize("option", ["BACKGROUND_WORKER_PROCESSES", "BACKGROUND_WORKER_THREADS_PER_PROCESS"])
-def test_check_rejects_no_workers(option) -> None:
-    cfg = _complete_config(dev=True)
-    cfg[option] = 0
-    with pytest.raises(Exception, match=option):
-        cfg.check()

@@ -95,10 +95,8 @@ def process_job() -> bool:
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             finished = perf_counter_ns()
-            # new_scope keeps these tags scoped to this job. sentry_sdk.set_tag() would write them to the
-            # thread's long-lived isolation scope, where they'd stick to every later report from this thread,
-            # including unrelated ones. The logging call is inside the scope so the event the Sentry logging
-            # integration derives from it gets tagged too.
+            # not sentry_sdk.set_tag: that writes to the thread's isolation scope, where the tags stick to
+            # every later report from this thread. logger.exception is in here so its event is tagged too
             with sentry_sdk.new_scope() as scope:
                 scope.set_tag("context", "job")
                 scope.set_tag("job", job.job_type)
@@ -202,29 +200,23 @@ def _run_forever(func: Callable[[], None]) -> None:
 
 
 def _scheduler_process_entry() -> None:
-    # No profile_instance: matches prior behavior of leaving the scheduler unprofiled.
     _per_process_init(None)
     _run_forever(run_scheduler)
 
 
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
     _per_process_init(profile_instance)
-    # the lru_cache around this doesn't hold a lock across the load, so without warming it here every thread
-    # racing its first email job would parse the whole locale tree
+    # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
     get_main_i18next()
-    # Each worker process fans out into N threads sharing the same SQLAlchemy engine and HTTP
-    # clients. The handlers are I/O-bound (Postgres, SMTP, push, Stripe), so the GIL is released
-    # during the syscalls that matter and threads parallelize cleanly. Threads share memory with
-    # the parent process, so an extra thread costs ~nothing vs. a ~200 MB extra process.
+    # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB
     threads = [
         threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
         for i in range(threads_per_process)
     ]
     for t in threads:
         t.start()
-    # _run_forever only returns if a BaseException escapes it. A process that outlives one of its threads
-    # silently services fewer jobs and the supervisor can't see it (it only watches processes), so exit and
-    # let the supervisor restart the container. The threads are daemons, so exiting doesn't wait for them.
+    # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
+    # instead and let it restart us
     while all(t.is_alive() for t in threads):
         sleep(1)
     logger.critical("A jobs thread died, exiting so the supervisor restarts us")

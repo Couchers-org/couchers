@@ -77,9 +77,7 @@ MEDIA_PORT = 1753
 # per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
 SERVER_THREADS = 8
 
-# SQLAlchemy connection pool size, per process. ~2 per thread since a thread can hold two connections at once
-# (see db.py), sized for the API workers since they're the larger consumer; any process running more than
-# DB_POOL_SIZE // 2 threads that touch the DB could exhaust it (enforced in Config.check()).
+# SQLAlchemy pool size, per process; sized for the API workers as the larger consumer, see db.py
 DB_POOL_SIZE = 2 * SERVER_THREADS + 4
 
 # on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the

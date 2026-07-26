@@ -68,9 +68,9 @@ def _get_base_engine() -> Engine:
         pool_pre_ping=True,
         # one connection per thread
         poolclass=QueuePool,
-        # each process keeps its own pool, so total connections ~= process count * pool_size in the worst case,
-        # kept under postgres max_connections. A thread can hold two connections at once (handler + _store_log,
-        # or worker_repeatable_read + the handler's own session_scope), hence the ~2 per thread in DB_POOL_SIZE.
+        # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
+        # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _store_log,
+        # or worker_repeatable_read + the handler's own session_scope).
         pool_size=DB_POOL_SIZE,
         max_overflow=0,
     )
