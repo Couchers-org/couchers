@@ -2,6 +2,9 @@ import { BugReportFormData } from "components/Navigation/ReportDialog";
 import Sentry from "platform/sentry";
 import { GeolocationClickInfoReq, GeolocationSearchInfoReq, ReportBugReq, ScreenResolution } from "proto/bugs_pb";
 
+/*
+ * The 'bugs' service actually handles some telemetry entry points.
+ */
 import client from "./client";
 
 const REPLAY_FLUSH_TIMEOUT_MS = 2000;
@@ -44,18 +47,18 @@ export async function reportBug({ description, results, subject }: BugReportForm
 
 export async function geolocationSearchInfo({
   searchString,
-  nominatimResultJson,
+  peliasResultJson,
   formattedResultJson,
   durationMs,
 }: {
   searchString: string;
-  nominatimResultJson: string;
+  peliasResultJson: string;
   formattedResultJson: string;
   durationMs: number;
 }) {
   const req = new GeolocationSearchInfoReq();
   req.setSearchString(searchString);
-  req.setNominatimResultJson(nominatimResultJson);
+  req.setPeliasResultJson(peliasResultJson);
   req.setFormattedResultJson(formattedResultJson);
   req.setDurationMs(Math.max(Math.round(durationMs), 0));
   await client.bugs.geolocationSearchInfo(req);

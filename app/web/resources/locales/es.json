@@ -224,8 +224,6 @@
   },
   "location_autocomplete": {
     "more_specific": "Por favor elige un lugar más específico",
-    "select_location_hint": "Presiona Enter o haz clic en el icono de búsqueda, después selecciona una ubicación de la lista",
-    "search_location_hint": "Presiona Enter o haz clic en el icono de búsqueda para elegir una ubicación",
     "search_location_button": "Buscar ubicación"
   },
   "footer": {

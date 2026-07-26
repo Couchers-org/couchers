@@ -73,7 +73,13 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const [selected, setSelected] = useState<GeocodeResult | null>(null);
 
-  const { query, results: options, error: geocodeError, isLoading } = useGeocodeQuery();
+  const {
+    query,
+    clear: clearGeocodeResults,
+    results: options,
+    error: geocodeError,
+    isLoading,
+  } = useGeocodeQuery();
 
   useEffect(() => {
     if (!hasSearchValue) {
@@ -108,8 +114,11 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       setInputValue(newValue);
     }
 
-    if (newValue === "" && onClear) {
-      onClear();
+    if (newValue === "") {
+      clearGeocodeResults();
+      if (onClear) {
+        onClear();
+      }
     }
   };
 
