@@ -29,8 +29,9 @@ Other instructions for body text:
 
 import re
 from dataclasses import dataclass, replace
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, tzinfo
 from typing import Self, assert_never
+from zoneinfo import ZoneInfo
 
 from markupsafe import Markup, escape
 
@@ -635,14 +636,20 @@ class EventInfo:
     title: str
     start_time: datetime
     end_time: datetime
+    timezone: tzinfo
     address: str | None  # The None case handles legacy online events
     view_url: str
     description_markdown: str
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        start_time_display = loc_context.localize_datetime(self.start_time, with_year=False, with_day_of_week=True)
-        end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
+        # Force using the start/end time timezone (that of the event), not the user's.
+        start_time_display = loc_context.localize_datetime(
+            self.start_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
+        )
+        end_time_display = loc_context.localize_datetime(
+            self.end_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
+        )
         time_range_display = f"{start_time_display} - {end_time_display}"
 
         html = f"<b>{escape(self.title)}</b>"
@@ -665,8 +672,9 @@ class EventInfo:
     def from_proto(cls, event: events_pb2.Event) -> EventInfo:
         return cls(
             title=event.title,
-            start_time=event.start_time.ToDatetime(tzinfo=UTC),
-            end_time=event.end_time.ToDatetime(tzinfo=UTC),
+            start_time=to_aware_datetime(event.start_time),
+            end_time=to_aware_datetime(event.end_time),
+            timezone=ZoneInfo(event.timezone),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
             address=(event.location.address or None) if event.HasField("location") else None,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
@@ -679,6 +687,7 @@ class EventInfo:
             title="Berlin Meetup",
             start_time=datetime(2025, 7, 15, 18, 0, 0, tzinfo=UTC),
             end_time=datetime(2025, 7, 15, 21, 0, 0, tzinfo=UTC),
+            timezone=UTC,
             address="Alexanderplatz, Berlin",
             view_url="https://couchers.org/events/123/berlin-community-meetup",
             description_markdown="Come join us for our monthly meetup!",

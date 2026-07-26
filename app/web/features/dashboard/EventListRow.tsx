@@ -9,7 +9,7 @@ import { Temporal } from "temporal-polyfill";
 import {
   localizeDateTime,
   localizeMonthAbbreviation,
-  timestampToPlainDateTime,
+  timestampToZonedDateTime,
 } from "utils/date";
 
 export const EventListContainer = styled("div")({
@@ -172,16 +172,20 @@ export default function EventListRow({ event }: EventListRowProps) {
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
 
-  const now = Temporal.Now.plainDateTimeISO();
-  const startDate = timestampToPlainDateTime(event.startTime!);
+  const now = Temporal.Now.zonedDateTimeISO();
+  const startDate = timestampToZonedDateTime(event.startTime!, event.timezone);
   const endDate = event.endTime
-    ? timestampToPlainDateTime(event.endTime)
+    ? timestampToZonedDateTime(event.endTime, event.timezone)
     : null;
   const isOngoing =
     endDate !== null &&
-    Temporal.PlainDateTime.compare(startDate, now) <= 0 &&
-    Temporal.PlainDateTime.compare(endDate, now) >= 0;
-  const isToday = !isOngoing && startDate.toPlainDate() === now.toPlainDate();
+    Temporal.ZonedDateTime.compare(startDate, now) <= 0 &&
+    Temporal.ZonedDateTime.compare(endDate, now) >= 0;
+
+  // Define "today" as: starting on the current day in the current timezone.
+  const isToday =
+    !isOngoing &&
+    startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
   const todayLabel = t("dashboard:events.today_label");
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isOngoing ? nowLabel : todayLabel;
