@@ -718,7 +718,7 @@ preview:backend-coverage:
       python3 app/scripts/query_log_report.py \
         --input artifacts/test_artifacts/queries \
         --output artifacts/test_artifacts/queries \
-        --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json" \
+        --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json.gz" \
         --summary-file artifacts/test_artifacts/queries/summary.txt \
         --commit "$CI_COMMIT_SHORT_SHA"
   coverage: '/^TOTAL.+?(\d+\%)$/'

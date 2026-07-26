@@ -18,6 +18,7 @@ Postgres picks freely. The report still displays the real recorded order.
 import argparse
 import collections
 import difflib
+import gzip
 import html
 import json
 import urllib.error
@@ -34,6 +35,7 @@ SIZE_WARN_MB = 50
 
 def merge_nodes(input_dir: Path) -> dict[str, Any]:
     shapes: dict[str, dict[str, Any]] = {}
+    sites: dict[str, str] = {}
     tests: dict[str, list[Span]] = {}
     files = sorted(input_dir.glob("data.*.json"))
     if not files:
@@ -46,10 +48,19 @@ def merge_nodes(input_dir: Path) -> dict[str, Any]:
             # would have, i.e. the one from the lexicographically first test that produced it.
             if existing is None or shape["first_seen_in"] < existing["first_seen_in"]:
                 shapes[shape_id] = shape
+        # Site ids are content hashes too, so identical chains from different nodes coincide.
+        sites.update(data.get("sites", {}))
         # pytest-split gives each test to exactly one node, so this cannot collide.
         tests.update(data["tests"])
-    print(f"merged {len(files)} node files: {len(tests)} tests, {len(shapes)} distinct query shapes")
-    return {"shapes": shapes, "tests": dict(sorted(tests.items()))}
+    print(f"merged {len(files)} node files: {len(tests)} tests, {len(shapes)} shapes, {len(sites)} call sites")
+    return {"shapes": shapes, "sites": sites, "tests": dict(sorted(tests.items()))}
+
+
+def _decode(payload: bytes) -> dict[str, Any]:
+    """Read a recording, gzipped or not. urllib does not inflate for us the way a browser would."""
+    if payload[:2] == b"\x1f\x8b":
+        payload = gzip.decompress(payload)
+    return json.loads(payload)
 
 
 def canonical(span: Span) -> tuple[Any, ...]:
@@ -208,6 +219,8 @@ details > summary::-webkit-details-marker { display:none; }
 .q pre { margin:.35rem 0 0; overflow-x:auto; white-space:pre-wrap; word-break:break-word;
          font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; max-height:22em; overflow-y:auto; }
 .rep { font-weight:600; color:var(--chg); }
+.site { font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--muted);
+        margin-top:.25rem; overflow-x:auto; white-space:nowrap; }
 .copy { padding:.15rem .5rem; font-size:.75rem; }
 .muted { color:var(--muted); }
 table { border-collapse:collapse; width:100%; }
@@ -222,7 +235,7 @@ th { color:var(--muted); font-weight:600; }
 PAGE_JS = r"""
 const $ = s => document.querySelector(s);
 const diff = DIFF;
-let shapes = {}, tests = {}, byRpc = {};
+let shapes = {}, sites = {}, tests = {}, byRpc = {};
 
 let mode = 'test', changedOnly = diff.has_baseline, showRunnable = true, filter = '';
 
@@ -241,7 +254,7 @@ const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c
 const testStatus = t => (diff.tests[t] || {}).status || 'same';
 const spanAnn = (t, i) => ((diff.tests[t] || {}).spans || [])[i] || {status: 'same'};
 
-function shapeHtml(id, reps) {
+function shapeHtml(id, reps, siteId) {
   const sh = shapes[id];
   if (!sh) return '';
   const sql = showRunnable ? sh.example : sh.sql;
@@ -249,9 +262,23 @@ function shapeHtml(id, reps) {
   const nPlusOne = reps > 3 ? `<span class="tag changed">possible N+1</span>` : '';
   const write = sh.write ? '<span class="tag">write</span>' : '';
   const isNew = diff.added_shapes && diff.added_shapes.includes(id) ? '<span class="tag new">new shape</span>' : '';
+  const site = sites[siteId] ? `<div class="site">${esc(sites[siteId])}</div>` : '';
   return `<div class="q"><div class="q-head">${repBadge}${nPlusOne}${write}${isNew}
     <button class="copy" data-sql="${esc(sql).replace(/"/g, '&quot;')}">copy</button></div>
-    <pre>${esc(sql)}</pre></div>`;
+    ${site}<pre>${esc(sql)}</pre></div>`;
+}
+
+// Consecutive executions of the same query from the same line collapse into one row with a count, so an N+1 reads
+// as a single entry saying where it came from and how many times it ran.
+function queryRunsHtml(span) {
+  const runs = [];
+  span.queries.forEach((id, i) => {
+    const site = (span.sites || [])[i] || '';
+    const last = runs[runs.length - 1];
+    if (last && last.id === id && last.site === site) last.n++;
+    else runs.push({id, site, n: 1});
+  });
+  return runs.map(r => shapeHtml(r.id, r.n, r.site)).join('');
 }
 
 function spanHtml(test, span, i) {
@@ -260,15 +287,9 @@ function spanHtml(test, span, i) {
   let delta = '';
   if (ann.status === 'changed') delta = `<span class="tag changed">${ann.before} → ${span.queries.length}</span>`;
   if (ann.status === 'new') delta = `<span class="tag new">new</span>`;
-  // Collapse consecutive repeats so an N+1 reads as one row with a count.
-  const runs = [];
-  for (const id of span.queries) {
-    const last = runs[runs.length - 1];
-    if (last && last.id === id) last.n++; else runs.push({id, n: 1});
-  }
   return `<div class="span"><div class="span-head"><span class="kind">${span.kind}</span>
     <span class="name">${esc(label)}</span><span class="muted">${span.queries.length} queries</span>${delta}</div>
-    ${runs.map(r => shapeHtml(r.id, r.n)).join('')}</div>`;
+    ${queryRunsHtml(span)}</div>`;
 }
 
 function renderByTest() {
@@ -312,15 +333,7 @@ function renderByRpc() {
         <span class="name">${esc(c.test)}</span>
         <span class="muted">${tests[c.test][c.spanIndex].queries.length} queries</span>
         ${testStatus(c.test) !== 'same' ? `<span class="tag ${testStatus(c.test)}">${testStatus(c.test)}</span>` : ''}
-        </div>${(() => {
-          const span = tests[c.test][c.spanIndex];
-          const runs = [];
-          for (const id of span.queries) {
-            const last = runs[runs.length - 1];
-            if (last && last.id === id) last.n++; else runs.push({id, n: 1});
-          }
-          return runs.map(r => shapeHtml(r.id, r.n)).join('');
-        })()}</div>`).join('');
+        </div>${queryRunsHtml(tests[c.test][c.spanIndex])}</div>`).join('');
     return `<details><summary><span class="name">${esc(n)}</span>${tag}
       <span class="muted">${callers.length} calls, worst ${worst} queries</span></summary>
       <div class="body">${inner}</div></details>`;
@@ -349,14 +362,28 @@ document.addEventListener('click', e => {
   });
 });
 
-// The log runs to tens of megabytes, so it is fetched rather than inlined. data.json doubles as the baseline
-// the next develop pipeline compares against.
-fetch('data.json').then(r => r.json()).then(d => {
-  shapes = d.shapes; tests = d.tests;
+// Several megabytes raw, so it is fetched gzipped and inflated here rather than inlined. data.json.gz doubles as
+// the baseline the next develop pipeline compares against.
+async function load() {
+  const response = await fetch('data.json.gz');
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const buffer = await response.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  // A host that sets Content-Encoding: gzip will have inflated it already, in which case these are plain JSON
+  // bytes and piping them through DecompressionStream would fail.
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+    const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).json();
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+load().then(d => {
+  shapes = d.shapes; sites = d.sites || {}; tests = d.tests;
   buildIndex();
   render();
 }).catch(err => {
-  $('#list').innerHTML = `<p class="muted">Could not load data.json (${esc(String(err))}).
+  $('#list').innerHTML = `<p class="muted">Could not load data.json.gz (${esc(String(err))}).
     Opening this file over file:// will not work; serve the directory over HTTP.</p>`;
 });
 """
@@ -423,14 +450,14 @@ def main() -> None:
     current = merge_nodes(args.input)
     baseline = None
     if args.baseline and args.baseline.exists() and args.baseline.stat().st_size:
-        baseline = json.loads(args.baseline.read_text())
+        baseline = _decode(args.baseline.read_bytes())
     elif args.baseline_url:
         # Absent until develop has published one, and a broken baseline must not fail the pipeline: the report
         # simply falls back to describing this run.
         try:
-            with urllib.request.urlopen(args.baseline_url, timeout=60) as response:
-                baseline = json.loads(response.read())
-        except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            with urllib.request.urlopen(args.baseline_url, timeout=120) as response:
+                baseline = _decode(response.read())
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
             print(f"could not fetch baseline from {args.baseline_url}: {e}")
     if baseline is not None:
         print(f"baseline: {len(baseline['tests'])} tests, {len(baseline['shapes'])} shapes")
@@ -442,8 +469,11 @@ def main() -> None:
     print(f"summary: {summary}")
 
     args.output.mkdir(parents=True, exist_ok=True)
-    data_path = args.output / "data.json"
-    data_path.write_text(json.dumps(current, separators=(",", ":"), sort_keys=True))
+    raw = json.dumps(current, separators=(",", ":"), sort_keys=True).encode()
+    # Stored gzipped and inflated in the browser: it is mostly repeated SQL, so it compresses about tenfold, and
+    # the page fetches the whole thing on load. mtime=0 keeps the bytes reproducible across runs.
+    data_path = args.output / "data.json.gz"
+    data_path.write_bytes(gzip.compress(raw, mtime=0))
     (args.output / "index.html").write_text(render_html(current, report, args.commit))
     if args.summary_file:
         args.summary_file.write_text(summary)
@@ -451,7 +481,7 @@ def main() -> None:
     # The recording is published and then fetched by every viewer, so runaway growth matters. A statement carrying
     # bulk inlined data once took a single node's dump to 495 MB, and the job published it without complaint.
     size_mb = data_path.stat().st_size / 1048576
-    print(f"wrote {data_path} ({size_mb:.1f} MB)")
+    print(f"wrote {data_path} ({size_mb:.1f} MB gzipped, {len(raw) / 1048576:.1f} MB raw)")
     if size_mb > SIZE_WARN_MB:
         biggest = sorted(current["shapes"].values(), key=lambda s: -len(s["example"]))[:5]
         print(f"WARNING: the query log is {size_mb:.1f} MB, over the {SIZE_WARN_MB} MB mark. Largest shapes:")

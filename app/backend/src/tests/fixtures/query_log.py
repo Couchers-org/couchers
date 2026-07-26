@@ -12,9 +12,11 @@ import hashlib
 import json
 import os
 import re
+import sys
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import CodeType, FrameType
 from typing import Any
 
 import psycopg
@@ -45,6 +47,13 @@ _TRUNCATION_MARKER = " /* truncated by the query log */"
 # access pattern, it is already covered by the schema-diff artifact, and in CI it loads the real timezone_areas.sql.
 _EXCLUDED_MODULES = ("src/tests/test_db.py",)
 
+# How many of our own frames to keep for a query's call site. The innermost is the line that issued it; the next
+# couple show the chain that got there, which is usually what tells you whether a repeat is a loop.
+_CALLSITE_FRAMES = 3
+# Frames from these are plumbing between our code and the driver, so they never make a useful call site. The
+# recorder's own path is spelled out: a bare "query_log.py" would also swallow test_query_log.py.
+_CALLSITE_SKIP = ("/sqlalchemy/", "/psycopg", "/alembic/", "/fixtures/query_log.py")
+
 
 @dataclass(slots=True)
 class _Shape:
@@ -62,6 +71,9 @@ class _Span:
     kind: str
     name: str | None
     queries: list[str] = field(default_factory=list)
+    # Parallel to queries: the call site each execution came from. Kept as a separate array so the diff, which reads
+    # only `queries`, cannot be perturbed by line numbers shifting under an unrelated edit.
+    sites: list[str] = field(default_factory=list)
 
 
 _lock = threading.Lock()
@@ -71,6 +83,15 @@ _enabled = False
 _current_test: str | None = None
 _shapes: dict[str, _Shape] = {}
 _tests: dict[str, list[_Span]] = {}
+_sites: dict[str, str] = {}
+_site_ids: dict[str, str] = {}
+_frame_cache: dict[str, int] = {}
+
+# Everything under the backend's src/ is ours; paths are reported relative to it. couchers/ is application code,
+# anything else under src/ is test scaffolding.
+_SRC_ROOT = "/src/"
+_APP_ROOT = "/src/couchers/"
+_SKIP, _APP, _TEST = 0, 1, 2
 
 
 def _truncate(sql: str) -> str:
@@ -118,6 +139,54 @@ def _render_example(conn: Any, statement: str, parameters: Any) -> tuple[str, st
         return _truncate(statement), params
 
 
+def _frame_kind(code: CodeType) -> int:
+    """_APP, _TEST or _SKIP. Cached by filename, which is all the answer depends on: this runs on every frame of
+    every execution, and the string work is what would otherwise make stack walking too expensive to leave on.
+
+    Keyed by filename rather than by the code object, because code objects compare equal without regard to
+    co_filename, so two same-bodied functions in different files would share an entry.
+    """
+    filename = code.co_filename
+    known = _frame_cache.get(filename)
+    if known is None:
+        if any(part in filename for part in _CALLSITE_SKIP) or _SRC_ROOT not in filename:
+            known = _SKIP
+        else:
+            known = _APP if _APP_ROOT in filename else _TEST
+        _frame_cache[filename] = known
+    return known
+
+
+def _callsite() -> str:
+    """The innermost few application frames, innermost first, as "path:line in func".
+
+    Only couchers/ frames: the test and the fixture handler that got here are already implied by the test and span
+    this is recorded under, and including them multiplies the number of distinct call sites for no added meaning.
+    Test frames are used only when a query has no application frame at all, as fixture setup often does not.
+    """
+    frames: list[str] = []
+    fallback = ""
+    frame: FrameType | None = sys._getframe(1)
+    while frame is not None and len(frames) < _CALLSITE_FRAMES:
+        code = frame.f_code
+        kind = _frame_kind(code)
+        if kind != _SKIP:
+            path = code.co_filename.split(_SRC_ROOT, 1)[-1]
+            rendered_frame = f"{path}:{frame.f_lineno} in {code.co_name}"
+            if kind == _APP:
+                frames.append(rendered_frame)
+            elif not fallback:
+                fallback = rendered_frame
+        frame = frame.f_back
+    rendered = " <- ".join(frames) or fallback
+    site_id = _site_ids.get(rendered)
+    if site_id is None:
+        site_id = _shape_id(rendered)
+        _site_ids[rendered] = site_id
+        _sites[site_id] = rendered
+    return site_id
+
+
 def _current_span() -> _Span | None:
     return getattr(_local, "span", None)
 
@@ -155,6 +224,7 @@ def _after_cursor_execute(conn, cursor, statement, parameters, context, executem
                 span = _Span(kind="body", name=None)
                 spans.append(span)
         span.queries.append(shape.id)
+        span.sites.append(_callsite())
 
 
 class _SpanScope:
@@ -229,8 +299,9 @@ def dump(directory: Path) -> Path:
                 }
                 for shape in _shapes.values()
             },
+            "sites": dict(sorted(_sites.items())),
             "tests": {
-                test: [{"kind": s.kind, "name": s.name, "queries": s.queries} for s in spans]
+                test: [{"kind": s.kind, "name": s.name, "queries": s.queries, "sites": s.sites} for s in spans]
                 for test, spans in sorted(_tests.items())
             },
         }

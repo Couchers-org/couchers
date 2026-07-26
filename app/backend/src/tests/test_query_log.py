@@ -67,6 +67,34 @@ def test_shape_id_is_content_addressed():
     assert query_log._shape_id(sql) != query_log._shape_id("SELECT 2 FROM users WHERE id = ?")
 
 
+def test_callsite_falls_back_to_test_frames():
+    """Fixture setup often issues queries with no application frame on the stack, and should still be attributed."""
+    site_id = query_log._callsite()
+    assert query_log._sites[site_id].startswith("tests/test_query_log.py:")
+    assert "test_callsite_falls_back_to_test_frames" in query_log._sites[site_id]
+
+
+def test_callsite_ids_are_stable_and_content_addressed():
+    """Node dumps are merged by site id, so the same chain must produce the same id everywhere."""
+    first = query_log._callsite()
+    second = query_log._callsite()
+    # Different lines, so different sites, but each id is the hash of its own rendering.
+    assert first != second
+    assert first == query_log._shape_id(query_log._sites[first])
+
+
+def test_frame_kind_separates_application_from_test_and_plumbing():
+    assert query_log._frame_kind(_dummy_code("/app/backend/src/couchers/servicers/api.py")) == query_log._APP
+    assert query_log._frame_kind(_dummy_code("/app/backend/src/tests/fixtures/db.py")) == query_log._TEST
+    assert query_log._frame_kind(_dummy_code("/venv/lib/sqlalchemy/orm/session.py")) == query_log._SKIP
+    assert query_log._frame_kind(_dummy_code("/app/backend/src/tests/fixtures/query_log.py")) == query_log._SKIP
+
+
+def _dummy_code(filename: str):
+    """A code object with a chosen co_filename, to exercise the frame classifier without building real frames."""
+    return compile("pass", filename, "exec")
+
+
 def test_span_is_inert_when_recording_is_off(monkeypatch):
     """Ordinary runs go through the same span() calls, so being disabled must record nothing and raise nothing.
 

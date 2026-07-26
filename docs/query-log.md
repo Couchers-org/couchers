@@ -14,6 +14,16 @@ The queries are stored twice: once with the bound parameters replaced by `?`, wh
 diffing, and once with the values inlined, so a query can be copied out of the report and pasted straight into a
 `psql` prompt to run `EXPLAIN ANALYZE` against real data.
 
+Every execution also records the line that issued it, as the innermost few `couchers/` frames:
+
+```
+couchers/db.py:164 in are_friends <- couchers/servicers/references.py:243 in WriteFriendReference
+```
+
+Consecutive executions of the same query from the same line collapse into one row with a count, so an N+1 shows up as
+a single entry naming the line responsible. Call sites are deliberately kept out of the diff key: line numbers move
+whenever anything above them is edited, and a diff that flags every query in a touched file is useless.
+
 ## Running it locally
 
 From `/app/backend`:
@@ -45,8 +55,17 @@ Passing `--baseline path/to/other/data.json` compares two recordings, which is h
 | `preview:backend-coverage` | Merges, fetches develop's baseline, renders the report |
 | `preview:backend` | Uploads it to the preview bucket and adds the PR comment item |
 
-The report is published at `https://<sha>--test-artifacts.preview.couchershq.org/queries/index.html`. Its `data.json`
-is what the next pipeline compares against, fetched from the `develop--test-artifacts` host.
+The report is published at `https://<sha>--test-artifacts.preview.couchershq.org/queries/index.html`. Its
+`data.json.gz` is what the next pipeline compares against, fetched from the `develop--test-artifacts` host.
+
+The recording is stored gzipped and inflated in the browser with `DecompressionStream`, because it is mostly repeated
+SQL and compresses about twenty-fold — a few megabytes raw becomes a couple of hundred kilobytes over the wire. The
+page copes with a host that sets `Content-Encoding: gzip` and inflates it in transit, and `query_log_report.py`
+accepts a baseline either way, since `urllib` does not inflate the way a browser does. To read it by hand:
+
+```bash
+curl -s https://develop--test-artifacts.preview.couchershq.org/queries/data.json.gz | gunzip | jq keys
+```
 
 ## Attribution
 
