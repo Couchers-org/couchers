@@ -365,7 +365,7 @@ export default function NewHostRequest({
             <Button onClick={() => setIsRequesting(false)} variant="outlined">
               {t("global:cancel")}
             </Button>
-            <Button type="submit" loading={isPending}>
+            <Button type="submit" loading={isPending} onClick={onSubmit}>
               {t("global:send")}
             </Button>
           </StyledSendActions>

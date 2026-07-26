@@ -99,8 +99,6 @@ ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
-# A second request to the same host within this window is treated as an accidental duplicate: the
-# client may resend when it never sees a response, and users re-tap Send when nothing happens.
 HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 HOST_REQUEST_DUPLICATE_WINDOW = timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS)
 
