@@ -39,7 +39,12 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, parse_date
-from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
+from tests.fixtures.db import (
+    add_users_to_new_moderation_list,
+    backdate_conversations,
+    generate_user,
+    make_friends,
+)
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     account_session,
@@ -345,6 +350,7 @@ def test_UnshadowUser(db):
                 text=valid_request_text(),
             )
         ).host_request_id
+        backdate_conversations()
         admin_hidden_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,

@@ -1,6 +1,6 @@
 import "utils/dayjs"; // ensure dayjs timezone plugin is registered
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import users from "test/fixtures/users.json";
@@ -184,5 +184,44 @@ describe("NewHostRequest", () => {
 
     await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("only sends one request when Send is tapped repeatedly before the response arrives", async () => {
+    // On a slow connection the user gets no feedback and keeps tapping; each tap used to create
+    // another host request.
+    createHostRequestMock.mockImplementation(() => new Promise<number>(() => {}));
+    renderNewHostRequest();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const arrivalGroup = await screen.findByRole("group", {
+      name: t("profile:request_form.arrival_date"),
+    });
+    await user.click(arrivalGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06012026");
+
+    const departureGroup = screen.getByRole("group", {
+      name: t("profile:request_form.departure_date"),
+    });
+    await user.click(departureGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06052026");
+
+    fireEvent.change(screen.getByLabelText(t("profile:request_form.request")), {
+      target: { value: LONG_TEXT },
+    });
+
+    const send = screen.getByRole("button", { name: t("global:send") });
+    for (let tap = 0; tap < 6; tap++) {
+      fireEvent.click(send);
+      // let the submit handler settle between taps, as it would between real taps
+      await act(async () => {
+        await Promise.resolve();
+      });
+    }
+
+    expect(createHostRequestMock).toHaveBeenCalledTimes(1);
+    expect(send).toBeDisabled();
   });
 });

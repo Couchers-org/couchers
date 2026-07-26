@@ -8,13 +8,14 @@ from typing import Any, cast
 from sqlalchemy import Connection, Engine, create_engine, func, or_, select, text, update
 from sqlalchemy.orm import Session
 
-from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, HOST_REQUEST_DUPLICATE_WINDOW, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import (
     Base,
+    Conversation,
     FriendRelationship,
     FriendStatus,
     HostingStatus,
@@ -352,6 +353,20 @@ def make_user_block(user1: User, user2: User) -> None:
 def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
         session.execute(update(User).where(User.id == user_id).values(banned_at=func.now()))
+
+
+def backdate_conversations() -> None:
+    """
+    Shifts every existing conversation back past the duplicate-request window so the next
+    CreateHostRequest to the same host isn't rejected. Shifting them all by the same amount keeps
+    their relative order, which the listing tests rely on.
+    """
+    with session_scope() as session:
+        session.execute(
+            update(Conversation).values(
+                created=Conversation.created - HOST_REQUEST_DUPLICATE_WINDOW - timedelta(minutes=1)
+            )
+        )
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
