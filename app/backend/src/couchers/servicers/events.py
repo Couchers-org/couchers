@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_, update
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.email.calendar_events import create_event_ics_calendar
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
@@ -38,6 +39,7 @@ from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
@@ -1366,3 +1368,16 @@ class Events(events_pb2_grpc.EventsServicer):
         session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()
+
+    def GetEventCalendarFile(
+        self, request: events_pb2.GetEventCalendarFileReq, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
+        if not res:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
+
+        _, occurrence_db = res
+
+        event_pb = event_to_pb(session, occurrence_db, context)
+        ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
+        return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

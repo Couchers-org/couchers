@@ -6,7 +6,7 @@ import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.email.blocks import EmailBase, EmailFooter, UnsubscribeInfo, UnsubscribeLink
-from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
+from couchers.email.calendar_events import create_host_request_attachment
 from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, User
@@ -184,7 +184,7 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
-        return create_host_request_cancellation_attachment(
+        return create_host_request_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
     else:

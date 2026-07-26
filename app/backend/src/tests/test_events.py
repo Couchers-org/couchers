@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -1946,6 +1947,56 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_GetEventCalendarFile(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        created_event: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = created_event.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        assert file_res.content_type == "text/calendar"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string
+        assert "DESCRIPTION:Dummy content." in ics_string
+        assert "LOCATION:Near Null Island" in ics_string
+        assert "STATUS:CANCELLED" not in ics_string
+        pre_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Cancelled: Dummy Title" in ics_string
+        assert "STATUS:CANCELLED" in ics_string
+        post_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+        assert post_cancel_sequence >= pre_cancel_sequence
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
