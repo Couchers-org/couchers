@@ -103,6 +103,16 @@ class LocalizationContext:
         with_day_of_week: bool = False,
         with_seconds: bool = False,
     ) -> str:
+        """
+        Formats a date and time according to this localization context.
+
+        Params:
+          value: An instant in time to be formatted in date and time components.
+                 datetimes should be timezone-aware so they represent an unambiguous instant,
+                 but their timezones are irrelevant for formatting.
+          display_timezone: The timezone to use when formatting the datetime.
+                            Defaults to the value from this localization context.
+        """
         return localize_datetime(
             # By default we display the datetime in the user's timezone.
             # The "timezone" parameter overrides this behavior.
