@@ -7,11 +7,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeRelativeTime } from "utils/date";
 
 interface SignupInfo {
   userCount: string;

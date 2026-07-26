@@ -1,8 +1,8 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
+import { localizeDateTime } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTime } from "utils/date";
 
 interface TimezoneProps {
   className?: string;
