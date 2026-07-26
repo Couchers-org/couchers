@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -24,6 +24,7 @@ from couchers.models import (
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
+    NotificationPreference,
     NotificationTopicAction,
     PushNotificationDeliveryAttempt,
     PushNotificationDeliveryOutcome,
@@ -34,7 +35,12 @@ from couchers.models import (
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.notifications.settings import (
+    get_preference,
+    get_topic_actions_by_delivery_type,
+    reset_preference,
+    set_preference,
+)
 from couchers.proto import (
     api_pb2,
     auth_pb2,
@@ -655,6 +661,36 @@ def test_get_topic_actions_by_delivery_type(db):
         assert NotificationTopicAction.event__create_any in deliver
         assert NotificationTopicAction.discussion__create not in deliver
         assert NotificationTopicAction.account_deletion__start in deliver
+
+
+def test_reset_preference(db):
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.event__create_any
+    assert NotificationDeliveryType.push not in topic_action.defaults
+
+    with session_scope() as session:
+        set_preference(session, user.id, topic_action, NotificationDeliveryType.push, True)
+        set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
+
+    with session_scope() as session:
+        assert get_preference(session, user.id, topic_action) == [NotificationDeliveryType.push]
+
+    # only the push override should go, leaving the email one in place
+    with session_scope() as session:
+        reset_preference(session, user.id, topic_action, NotificationDeliveryType.push)
+
+    with session_scope() as session:
+        assert get_preference(session, user.id, topic_action) == []
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(NotificationPreference)
+                .where(NotificationPreference.user_id == user.id)
+                .where(NotificationPreference.topic_action == topic_action)
+            ).scalar_one()
+            == 1
+        )
 
 
 def test_event_reminder_email_sent(db, email_collector: EmailCollector):

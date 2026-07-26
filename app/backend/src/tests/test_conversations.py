@@ -16,6 +16,7 @@ from couchers.models import (
     NotificationTopicAction,
     RateLimitAction,
 )
+from couchers.notifications.notify import notify
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
@@ -1463,6 +1464,59 @@ def test_mark_last_seen_clears_notifications(db, moderator):
         c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
 
     assert unseen_notification_count(user2.id) == 0
+
+
+def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
+    """
+    Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
+    needs to be marked seen separately from the per-chat chat__message notifications.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
+            )
+        ).group_chat_id
+
+    moderator.approve_group_chat(gcid)
+
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user2.id,
+            topic_action=NotificationTopicAction.chat__missed_messages,
+            key="",
+            data=notification_data_pb2.ChatMissedMessages(
+                messages=[
+                    notification_data_pb2.ChatMessage(
+                        author=api_pb2.User(name="Test User", user_id=user1.id, username=user1.username),
+                        text="Hello!",
+                        group_chat_id=gcid,
+                        unseen_count=1,
+                    ),
+                ],
+            ),
+        )
+
+    def unseen_missed_messages_count():
+        with session_scope() as session:
+            return session.execute(
+                select(func.count())
+                .select_from(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == NotificationTopicAction.chat__missed_messages)
+                .where(Notification.is_seen == False)
+            ).scalar_one()
+
+    assert unseen_missed_messages_count() == 1
+
+    with conversations_session(token2) as c:
+        c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
+
+    assert unseen_missed_messages_count() == 0
 
 
 def test_one_dm_per_pair(db, moderator):
