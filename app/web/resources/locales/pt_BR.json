@@ -230,9 +230,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Escolha um local mais específico",
-    "search_location_hint": "Pressione Enter ou clique no ícone de busca para escolher uma localização",
-    "search_location_button": "Buscar localização",
-    "select_location_hint": "Pressione Enter ou clique no ícone de busca, depois em uma localização da lista"
+    "search_location_button": "Buscar localização"
   },
   "strong_verification": {
     "helper_text": "Este usuário verificou sua identidade usando um passaporte biométrico"

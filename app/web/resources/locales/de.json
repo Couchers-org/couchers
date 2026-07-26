@@ -193,9 +193,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Bitte wähle einen genaueren Ort aus",
-    "search_location_button": "Ort suchen",
-    "select_location_hint": "Drücke die Eingabetaste oder klicke auf das Suchsymbol und wähle dann einen Ort aus der Liste aus",
-    "search_location_hint": "Drücke die Eingabetaste oder klicke auf das Suchsymbol, um einen Ort auszuwählen"
+    "search_location_button": "Ort suchen"
   },
   "close": "Schließen",
   "expand": "Erweitern",

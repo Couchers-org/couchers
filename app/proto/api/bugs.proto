@@ -109,7 +109,7 @@ message StatusRes {
 
 message GeolocationSearchInfoReq {
   string search_string = 1;
-  string nominatim_result_json = 2;
+  string pelias_result_json = 2;
   string formatted_result_json = 3;
   uint32 duration_ms = 4;
 }
