@@ -8,7 +8,7 @@ from typing import Any, cast
 from sqlalchemy import Connection, Engine, create_engine, func, or_, select, text, update
 from sqlalchemy.orm import Session
 
-from couchers.constants import GUIDELINES_VERSION, HOST_REQUEST_DUPLICATE_WINDOW, TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, HOST_REQUEST_DUPLICATE_WINDOW_HOURS, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
@@ -364,7 +364,7 @@ def backdate_conversations() -> None:
     with session_scope() as session:
         session.execute(
             update(Conversation).values(
-                created=Conversation.created - HOST_REQUEST_DUPLICATE_WINDOW - timedelta(minutes=1)
+                created=Conversation.created - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS, minutes=1)
             )
         )
 

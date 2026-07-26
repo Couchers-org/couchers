@@ -7,11 +7,7 @@ from sqlalchemy import exists, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers.constants import (
-    HOST_REQUEST_DUPLICATE_WINDOW,
-    HOST_REQUEST_DUPLICATE_WINDOW_HOURS,
-    HOST_REQUEST_MIN_LENGTH_UTF16,
-)
+from couchers.constants import HOST_REQUEST_DUPLICATE_WINDOW_HOURS, HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
@@ -276,7 +272,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .where(HostRequest.initiator_user_id == context.user_id)
                 .where(HostRequest.recipient_user_id == recipient.id)
                 .where(HostRequest.public_trip_id == None)
-                .where(Conversation.created >= now() - HOST_REQUEST_DUPLICATE_WINDOW)
+                .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
+                # overlapping nights, so back-to-back stays are still allowed
+                .where(HostRequest.from_date < to_date)
+                .where(HostRequest.to_date > from_date)
                 .limit(1)
             ).scalar_one_or_none()
             if recent_request is not None:

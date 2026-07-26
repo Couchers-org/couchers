@@ -267,20 +267,20 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
 
 
 def test_create_request_duplicate_within_window(db):
-    """A second request to the same host inside the window is rejected, so a client that resends
-    (or a user who re-taps Send) doesn't create a pile of duplicates."""
+    """A second request to the same host for overlapping dates inside the window is rejected, so a
+    client that resends (or a user who re-taps Send) doesn't create a pile of duplicates."""
     user1, token1 = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
 
     with requests_session(token1) as api:
         assert api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
                 text=valid_request_text(),
             )
         ).host_request_id
@@ -289,21 +289,21 @@ def test_create_request_duplicate_within_window(db):
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=user2.id,
-                    from_date=today_plus_2.isoformat(),
-                    to_date=today_plus_3.isoformat(),
+                    from_date=from_date.isoformat(),
+                    to_date=to_date.isoformat(),
                     text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert "past 3 hours" in (e.value.details() or "")
 
-        # different dates don't get you around it either
+        # partly overlapping dates are blocked too
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=user2.id,
-                    from_date=(today_plus_2 + timedelta(days=30)).isoformat(),
-                    to_date=(today_plus_3 + timedelta(days=30)).isoformat(),
+                    from_date=(to_date - timedelta(days=1)).isoformat(),
+                    to_date=(to_date + timedelta(days=5)).isoformat(),
                     text=valid_request_text(),
                 )
             )
@@ -313,8 +313,45 @@ def test_create_request_duplicate_within_window(db):
         assert api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user3.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_window_allows_other_dates(db):
+    """Only overlapping stays count as duplicates, including a stay starting the day another one
+    ends."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=to_date.isoformat(),
+                to_date=(to_date + timedelta(days=5)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(from_date + timedelta(days=90)).isoformat(),
+                to_date=(to_date + timedelta(days=90)).isoformat(),
                 text=valid_request_text(),
             )
         ).host_request_id
@@ -323,15 +360,15 @@ def test_create_request_duplicate_within_window(db):
 def test_create_request_duplicate_allowed_after_window(db):
     user1, token1 = generate_user()
     user2, _ = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
 
     with requests_session(token1) as api:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
                 text=valid_request_text(),
             )
         )
@@ -340,8 +377,8 @@ def test_create_request_duplicate_allowed_after_window(db):
         assert api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
                 text=valid_request_text(),
             )
         ).host_request_id
@@ -382,11 +419,12 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
         ).host_request_id
 
         # the window only counts non-trip requests, so trip offers don't block a plain request
+        # even for dates they cover
         assert api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=surfer.id,
-                from_date=(today() + timedelta(days=60)).isoformat(),
-                to_date=(today() + timedelta(days=61)).isoformat(),
+                from_date=(trip_1_from + timedelta(days=2)).isoformat(),
+                to_date=(trip_1_to - timedelta(days=2)).isoformat(),
                 text=valid_request_text(),
             )
         ).host_request_id
@@ -716,7 +754,6 @@ def test_ListHostRequests_sort_by_from_date(db, moderator):
                 text=valid_request_text("Late request"),
             )
         ).host_request_id
-        backdate_conversations()
 
         hr_early = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -726,7 +763,6 @@ def test_ListHostRequests_sort_by_from_date(db, moderator):
                 text=valid_request_text("Early request"),
             )
         ).host_request_id
-        backdate_conversations()
 
         hr_mid = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -940,7 +976,6 @@ def test_ListHostRequests_status_in_filter(db, moderator):
         ).host_request_id
 
     moderator.approve_host_request(pending_id)
-    backdate_conversations()
 
     # Create an accepted request
     with requests_session(token1) as api:
