@@ -219,7 +219,6 @@
   },
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
-    "search_location_hint": "Bir konum seçmek için Enter tuşuna basın veya arama simgesine tıklayın",
     "search_location_button": "Konum ara"
   },
   "invites": {

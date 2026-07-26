@@ -213,9 +213,7 @@
   "yes": "Ano",
   "location_autocomplete": {
     "more_specific": "Vyber si prosím konkrétnější místo",
-    "search_location_button": "Hledat místo",
-    "search_location_hint": "Stiskni Enter nebo klikni na ikonu hledání a vyber místo",
-    "select_location_hint": "Stiskni Enter nebo klikni na ikonu hledání, poté vyber místo ze seznamu"
+    "search_location_button": "Hledat místo"
   },
   "strong_verification": {
     "helper_text": "Tento uživatel ověřil svou totožnost pomocí biometrického pasu"

@@ -93,6 +93,7 @@ export default function HeroSearch() {
           }}
           fieldError={errors.location?.message}
           disableRegions
+          preferCity
           autocompleteContext="hero-search"
           sx={{
             "& .MuiOutlinedInput-root": {

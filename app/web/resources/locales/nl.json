@@ -220,9 +220,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Kies alsjeblieft een preciezere plek",
-    "search_location_hint": "Druk op Enter of klik op het vergrootglas om een locatie te kiezen",
-    "search_location_button": "Zoek locatie",
-    "select_location_hint": "Druk op Enter of klik op het vergrootglas, kies daarna een locatie uit de lijst"
+    "search_location_button": "Zoek locatie"
   },
   "strong_verification": {
     "helper_text": "Deze gebruiker heeft zijn identiteit met een biometrisch paspoort geverifieerd"

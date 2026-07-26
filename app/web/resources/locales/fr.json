@@ -190,9 +190,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Veuillez choisir un emplacement plus spécifique",
-    "search_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches pour choisir un emplacement",
-    "search_location_button": "Rechercher un emplacement",
-    "select_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches, puis sélectionner un emplacement dans la liste"
+    "search_location_button": "Rechercher un emplacement"
   },
   "strong_verification": {
     "helper_text": "L'identité de ce membre a été vérifiée avec son passeport biométrique"

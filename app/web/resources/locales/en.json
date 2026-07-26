@@ -230,10 +230,10 @@
     "less_than_one_hour_ago": "Less than an hour ago"
   },
   "location_autocomplete": {
+    "loading": "Searching…",
     "more_specific": "Please choose a more specific place",
-    "search_location_hint": "Press Enter or click the search icon to choose a location",
-    "search_location_button": "Search location",
-    "select_location_hint": "Press Enter or click the search icon, then select a location from the list"
+    "no_results": "No matching places found",
+    "search_location_button": "Search location"
   },
   "strong_verification": {
     "helper_text": "This user has verified their identity using a biometric passport"

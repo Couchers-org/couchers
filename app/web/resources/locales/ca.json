@@ -226,9 +226,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Escull un lloc més específic",
-    "search_location_hint": "Prem Retorn o fes clic a la icona de cerca per escollir una ubicació",
-    "search_location_button": "Cerca la ubicació",
-    "select_location_hint": "Prem Retorn o fes clic a la icona de cerca i selecciona una ubicació de la llista"
+    "search_location_button": "Cerca la ubicació"
   },
   "strong_verification": {
     "helper_text": "Aquest usuari ha verificat la seva identitat amb un passaport biomètric"

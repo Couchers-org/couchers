@@ -228,9 +228,7 @@
   },
   "location_autocomplete": {
     "more_specific": "請選擇更具體的地點",
-    "search_location_hint": "按Enter或點擊搜尋圖示來選擇位置",
-    "search_location_button": "搜尋位置",
-    "select_location_hint": "按Enter或點擊搜尋圖示，然後從列表中選擇位置"
+    "search_location_button": "搜尋位置"
   },
   "strong_verification": {
     "helper_text": "該使用者已使用生物識別護照驗證其身份"

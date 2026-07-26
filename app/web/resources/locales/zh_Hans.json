@@ -228,9 +228,7 @@
   },
   "location_autocomplete": {
     "more_specific": "请选择更具体的地点",
-    "search_location_hint": "按Enter或单击搜索图标选择位置",
-    "search_location_button": "搜索位置",
-    "select_location_hint": "按Enter或单击搜索图标，然后从列表中选择一个位置"
+    "search_location_button": "搜索位置"
   },
   "strong_verification": {
     "helper_text": "该用户已使用生物识别护照验证其身份"
