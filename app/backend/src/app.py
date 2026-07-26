@@ -36,7 +36,7 @@ from dummy_data import add_dummy_data
 config.check()
 
 logging.basicConfig(
-    format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
+    format="[%(process)5d:%(threadName)-20s] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -129,9 +129,8 @@ def main() -> None:
         children.append(scheduler)
 
     if config.ROLE in ["worker", "all"]:
-        threads_per_process = config.BACKGROUND_WORKER_THREADS_PER_PROCESS
         for i in range(config.BACKGROUND_WORKER_PROCESSES):
-            worker = start_jobs_worker(i, threads_per_process)
+            worker = start_jobs_worker(i, config.BACKGROUND_WORKER_THREADS_PER_PROCESS)
             worker.name = f"worker-{i}"
             children.append(worker)
 

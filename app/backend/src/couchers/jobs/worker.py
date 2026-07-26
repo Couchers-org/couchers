@@ -21,6 +21,7 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.experimentation import setup_experimentation
+from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.definitions import JOBS, Job
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -94,12 +95,14 @@ def process_job() -> bool:
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             finished = perf_counter_ns()
-            logger.exception(e)
-            # new_scope keeps these tags isolated to this thread's report — without it, sibling
-            # worker threads sharing the process would see each other's `context`/`job` tags.
+            # new_scope keeps these tags scoped to this job. sentry_sdk.set_tag() would write them to the
+            # thread's long-lived isolation scope, where they'd stick to every later report from this thread,
+            # including unrelated ones. The logging call is inside the scope so the event the Sentry logging
+            # integration derives from it gets tagged too.
             with sentry_sdk.new_scope() as scope:
                 scope.set_tag("context", "job")
                 scope.set_tag("job", job.job_type)
+                logger.exception(e)
                 sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
@@ -206,6 +209,9 @@ def _scheduler_process_entry() -> None:
 
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
     _per_process_init(profile_instance)
+    # the lru_cache around this doesn't hold a lock across the load, so without warming it here every thread
+    # racing its first email job would parse the whole locale tree
+    get_main_i18next()
     # Each worker process fans out into N threads sharing the same SQLAlchemy engine and HTTP
     # clients. The handlers are I/O-bound (Postgres, SMTP, push, Stripe), so the GIL is released
     # during the syscalls that matter and threads parallelize cleanly. Threads share memory with
@@ -216,9 +222,12 @@ def _worker_process_entry(profile_instance: str, threads_per_process: int) -> No
     ]
     for t in threads:
         t.start()
-    # _run_forever never returns, so this join blocks until the process is signalled.
-    for t in threads:
-        t.join()
+    # _run_forever only returns if a BaseException escapes it. A process that outlives one of its threads
+    # silently services fewer jobs and the supervisor can't see it (it only watches processes), so exit and
+    # let the supervisor restart the container. The threads are daemons, so exiting doesn't wait for them.
+    while all(t.is_alive() for t in threads):
+        sleep(1)
+    logger.critical("A jobs thread died, exiting so the supervisor restarts us")
 
 
 def start_jobs_scheduler() -> Process:

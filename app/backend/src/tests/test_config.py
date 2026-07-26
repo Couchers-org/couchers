@@ -3,7 +3,7 @@ import typing
 import pytest
 
 from couchers.config import Config
-from couchers.constants import SERVER_THREADS
+from couchers.constants import DB_POOL_SIZE
 
 
 def _complete_config(dev: bool) -> Config:
@@ -128,6 +128,17 @@ def test_check_config_only_references_known_keys(dev):
 
 def test_check_rejects_too_many_worker_threads() -> None:
     cfg = _complete_config(dev=True)
-    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = SERVER_THREADS + 1
+    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2
+    cfg.check()
+
+    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2 + 1
     with pytest.raises(Exception, match="BACKGROUND_WORKER_THREADS_PER_PROCESS"):
+        cfg.check()
+
+
+@pytest.mark.parametrize("option", ["BACKGROUND_WORKER_PROCESSES", "BACKGROUND_WORKER_THREADS_PER_PROCESS"])
+def test_check_rejects_no_workers(option) -> None:
+    cfg = _complete_config(dev=True)
+    cfg[option] = 0
+    with pytest.raises(Exception, match=option):
         cfg.check()

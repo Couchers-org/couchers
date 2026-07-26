@@ -7,7 +7,7 @@ import typing
 from collections.abc import Mapping
 from typing import Any, Literal
 
-from couchers.constants import SERVER_THREADS
+from couchers.constants import DB_POOL_SIZE
 
 
 # Not a dataclass. Not all attributes must be initialized.
@@ -173,12 +173,19 @@ class Config:
             if not hasattr(self, attr_name):
                 raise ValueError(f"Config value {attr_name} not set")
 
-        # the DB pool is sized as 2 * SERVER_THREADS + 4 (see db.py) and each worker thread can hold
-        # two connections at once, so more worker threads than SERVER_THREADS could exhaust the pool
-        if self.BACKGROUND_WORKER_THREADS_PER_PROCESS > SERVER_THREADS:
+        # 0 processes services no jobs at all while looking perfectly healthy, and 0 threads makes the worker
+        # process exit immediately, which the supervisor turns into a restart loop
+        if self.BACKGROUND_WORKER_PROCESSES < 1:
+            raise Exception("BACKGROUND_WORKER_PROCESSES must be at least 1")
+        if self.BACKGROUND_WORKER_THREADS_PER_PROCESS < 1:
+            raise Exception("BACKGROUND_WORKER_THREADS_PER_PROCESS must be at least 1")
+        # each worker thread can hold two connections at once, so more than half the pool's worth of threads
+        # in one process could exhaust it
+        if 2 * self.BACKGROUND_WORKER_THREADS_PER_PROCESS > DB_POOL_SIZE:
             raise Exception(
                 f"BACKGROUND_WORKER_THREADS_PER_PROCESS ({self.BACKGROUND_WORKER_THREADS_PER_PROCESS}) must not "
-                f"exceed SERVER_THREADS ({SERVER_THREADS}), or worker threads could exhaust the DB connection pool"
+                f"exceed half of DB_POOL_SIZE ({DB_POOL_SIZE // 2}), or worker threads could exhaust the DB "
+                "connection pool"
             )
 
         if not self.DEV:
