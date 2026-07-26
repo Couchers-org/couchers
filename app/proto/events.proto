@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.couchers.api.events;
 
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -80,8 +82,11 @@ service Events {
     // Lists all events
   }
 
-  rpc GetEventCalendarFile(GetEventCalendarFileReq) returns (GetEventCalendarFileRes) {
+  rpc GetEventCalendarFile(GetEventCalendarFileReq) returns (google.api.HttpBody) {
     // Downloads a calendar file for an event
+    option (google.api.http) = {
+      get : "/events/{event_id}/calendar"
+    };
   }
 }
 
@@ -354,8 +359,4 @@ message RemoveEventOrganizerReq {
 
 message GetEventCalendarFileReq {
   int64 event_id = 1;
-}
-
-message GetEventCalendarFileRes {
-  bytes data = 1;
 }

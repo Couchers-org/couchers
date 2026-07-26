@@ -39,6 +39,7 @@ from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
@@ -1370,7 +1371,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def GetEventCalendarFile(
         self, request: events_pb2.GetEventCalendarFileReq, context: CouchersContext, session: Session
-    ) -> events_pb2.GetEventCalendarFileRes:
+    ) -> httpbody_pb2.HttpBody:
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -1379,4 +1380,4 @@ class Events(events_pb2_grpc.EventsServicer):
 
         event_pb = event_to_pb(session, occurrence_db, context)
         ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
-        return events_pb2.GetEventCalendarFileRes(data=ics_data)
+        return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

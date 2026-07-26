@@ -1980,6 +1980,7 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
 
     with events_session(token1) as api:
         file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        assert file_res.content_type == "text/calendar"
         ics_string = file_res.data.decode("utf-8")
         assert "SUMMARY:Dummy Title" in ics_string
         assert "DESCRIPTION:Dummy content." in ics_string
