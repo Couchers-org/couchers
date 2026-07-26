@@ -5,6 +5,7 @@ Renders a Notification model into a localized push notification.
 import logging
 from datetime import date
 from typing import Any, assert_never
+from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -875,4 +876,6 @@ def _format_event_start_datetime(timestamp: Timestamp, timezone: str, loc_contex
     # Events are typically in the near future future,
     # so the year is not useful but the day of week is.
     # Event start/end times are displayed in their local timezone.
-    return loc_context.localize_datetime(timestamp, timezone=timezone, with_year=False, with_day_of_week=True)
+    return loc_context.localize_datetime(
+        timestamp, display_timezone=ZoneInfo(timezone), with_year=False, with_day_of_week=True
+    )

@@ -97,7 +97,7 @@ class LocalizationContext:
         self,
         value: datetime | Timestamp,
         *,
-        timezone: str | tzinfo | None = None,
+        display_timezone: tzinfo | None = None,
         abbrev: bool = False,
         with_year: bool = True,
         with_day_of_week: bool = False,
@@ -106,7 +106,7 @@ class LocalizationContext:
         return localize_datetime(
             # By default we display the datetime in the user's timezone.
             # The "timezone" parameter overrides this behavior.
-            to_timezone(value, timezone or self.timezone),
+            to_timezone(value, display_timezone or self.timezone),
             self.babel_locale,
             abbrev=abbrev,
             with_year=with_year,

@@ -111,19 +111,15 @@ def date_to_api(date_obj: date) -> str:
     return date_obj.isoformat()
 
 
-def to_aware_datetime(ts: Timestamp, timezone: tzinfo | str = UTC) -> datetime:
+def to_aware_datetime(ts: Timestamp) -> datetime:
     """
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
-    if isinstance(timezone, str):
-        timezone = ZoneInfo(timezone)
-    return ts.ToDatetime(tzinfo=timezone)
+    return ts.ToDatetime(tzinfo=UTC)
 
 
-def to_timezone(value: Timestamp | datetime, timezone: tzinfo | str) -> datetime:
+def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
     """Returns an instant in time as a datetime in a given timezone."""
-    if isinstance(timezone, str):
-        timezone = ZoneInfo(timezone)
     if isinstance(value, Timestamp):
         return value.ToDatetime(timezone)
 
