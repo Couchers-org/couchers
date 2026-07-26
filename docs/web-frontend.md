@@ -7,13 +7,13 @@ cd ./app
 docker-compose up --build
 ```
 
-2. Clone the new frontend repo somewhere
+1. Clone the new frontend repo somewhere
 
 ```sh
 git clone git@github.com:Couchers-org/web-frontend.git
 ```
 
-3. Replace the `.env.development` with one that points to the local backend:
+1. Replace the `.env.development` with one that points to the local backend:
 
 ```
 NEXT_PUBLIC_COUCHERS_ENV=dev
@@ -22,26 +22,27 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8888
 NEXT_PUBLIC_MEDIA_BASE_URL="http://localhost:5001"
 NEXT_PUBLIC_CONSOLE_BASE_URL="http://localhost:10027"
 NEXT_PUBLIC_IS_POST_BETA_ENABLED=true
-NEXT_PUBLIC_NOMINATIM_URL="https://nominatim.openstreetmap.org/"
+NEXT_PUBLIC_GEOCODE_EARTH_KEY=
+NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL=
 NEXT_PUBLIC_IS_VERIFICATION_ENABLED=true
 NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED=true
 NEXT_PUBLIC_STRIPE_KEY="pk_test_51KEzByIfR5z29g5khFE5samD8XKOGLcCrM1lhCkfOomGPUFAEYOw8uAqI2Nkv33wYdPM2FgTQNTC07IiNfHY1kLJ00Jqm8Ppai"
 ```
 
-4. Run the new frontend
+1. Run the new frontend
 
 ```sh
 docker-compose up --build
 ```
 
-5. It should now work
+1. It should now work
+
+
 
 ## How to regenerate protos and use them in frontend
 
 1. Compile the protos as usual
-
 2. Copy `app/web-frontend/protos/` to the `web-frontend` repo you cloned as `web-frontend/protos` (if you just clone into `./app` then you can skip this)
-
 3. Make the following change in `web-frontend/dockerfile.stage`:
 
 ```diff
@@ -61,3 +62,4 @@ index 3c2a0bf..833ede8 100644
      mv /tmp/saved-temporarily .env.local && \
      yarn build
 ```
+
