@@ -6,6 +6,8 @@ declare namespace NodeJS {
     NEXT_PUBLIC_API_BASE_URL: string;
     NEXT_PUBLIC_MEDIA_BASE_URL: string;
     NEXT_PUBLIC_CONSOLE_BASE_URL: string;
+    NEXT_PUBLIC_GEOCODE_EARTH_KEY: string; // intentionally client-side and not a secret (must referrer restriction must be enabled)
+    NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL: string;
     NEXT_PUBLIC_IS_POST_BETA_ENABLED?: "true";
     NEXT_PUBLIC_VERSION: string;
     NEXT_PUBLIC_DISPLAY_VERSION?: string;
