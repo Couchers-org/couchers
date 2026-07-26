@@ -22,6 +22,8 @@ This means we have three layers:
 2. Our "native shell" code: the JavaScript code that defines where WebViews are, where ThemedText goes, etc. This is interpreted by the native base layer via Hermes and manipulates that code.
 3. Our web app: this is loaded within the WebViews from our servers every time the user uses the platform.
 
+![Architecture diagram of native app](native-arch.svg)
+
 We have full control at all times over (3), and OTA updates give us relatively flexible control over (2). We cannot change (1) without going through the app stores. But this pyramid is inverted when it comes to frequency of changes: we only need to touch (1) in very rare cases where we either fully upgrade Expo, or where we add a new native Expo module (like geolocation, etc). We'll sometimes want to touch (2) or if we start moving towards native screens, we'll want to do it with higher frequency. More than half the time though, our changes touch (3), as this is the shared layer used by all clients across web and the apps. This means that OTA updates give us the ability to do something north of 95% of our work without going through the app stores.
 
 ### On compatibility: fingerprints and runtimeVersion
@@ -30,7 +32,7 @@ It would be a beautiful world if Expo provided a stable ABI between the native b
 
 In order to do this, Expo has a "runtimeVersion", that it compares before applying an OTA update to the running app. By default, this runtime version is a hash of a bunch of different data, that is supposed to catch you making breaking changes. This is called a fingerprint. (It can generally be an arbitrary string, and I believe Expo has a rollback mechanism so it won't brick the app.) Still, we need to be very careful with only shipping OTA updates with code that is compatible with the native base.
 
-Currently we use fingerprints as our runtime version. You can decide what stuff to include in the fingerprint (which information to watch for changes with). We use some tiny bit unsafe options, which *may* cause OTA update issues. This is so that we have some more freedom to make safe changes. But in order to catch any potential issues, we also have a "full" fingerprint that we track, which includes everything.
+Currently we use fingerprints as our runtime version. You can decide what stuff to include in the fingerprint (which information to watch for changes with). We use some tiny bit unsafe options, which *may* cause OTA update issues. This is so that we have some more freedom to make safe changes. But in order to catch any potential issues, we also have a "full" fingerprint that we track, which includes everything. (The reality is that we are not entirely sure of all the sharp edges that may cause fingerprint issues, so this is a safety mechanism to make sure we don't break things. Examples of safe-but-flagged things would be things like updating certain package scripts (since it's technically possible to modify the environment in ways that invalidate the real fingerprint but is a very rare edge case), and similar.)
 
 So basically, fingerprints tell you: "here's a unique value that captures all the stuff about the native code that may break OTA updates".
 
@@ -62,7 +64,7 @@ The publishing flow involves taking a full Expo bundle (generated via `ota-bundl
 
 You can see how this works by tracing the staging OTA update flow (from `.gitlab-ci.yml`), where we build a new update on every push to `develop`. For prod the flow is the same, but we have a magic button in a magic place to trigger it.
 
-We can "rollback" by taking an old bundle, restamp & resign it, etc; and it is eaten up by the clients which are no wiser about the fact that it's actually older.
+We can "rollback" by taking an old bundle, restamp & resign it, etc; and it is eaten up by the clients which are no wiser about the fact that it's actually older. In practice this means clicking the "Deploy OTA" button in the ops console for an older release: it functions exactly the same as deploying a new version.
 
 ## Update nagging
 
