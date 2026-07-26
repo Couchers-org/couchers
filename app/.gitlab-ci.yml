@@ -342,7 +342,9 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
+    # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json, which the
+    # after_script below already picks up along with the rest of test_artifacts
+    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= --query-log --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
     # Move the stored durations to a node-specific file
     - mv src/tests/.test_durations /app/.test_durations.$CI_NODE_INDEX
   after_script:
@@ -710,6 +712,15 @@ preview:backend-coverage:
           json.dump(merged, fp, sort_keys=True, indent=4)
       print(f"Merged {len(merged)} test durations from {len(glob.glob('.test_durations.*'))} files")
       EOF
+    # Merge the per-node SQL query logs, diff against the log develop last published, and render the report.
+    # Writes data.json (which becomes the next baseline), index.html and summary.txt next to the node dumps.
+    - |
+      python3 app/scripts/query_log_report.py \
+        --input artifacts/test_artifacts/queries \
+        --output artifacts/test_artifacts/queries \
+        --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json" \
+        --summary-file artifacts/test_artifacts/queries/summary.txt \
+        --commit "$CI_COMMIT_SHORT_SHA"
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -719,6 +730,7 @@ preview:backend-coverage:
     paths:
       - htmlcov
       - test_durations.json
+      - artifacts/test_artifacts/queries
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -767,7 +779,7 @@ preview:backend:
       fi
     # Upload coverage report to S3
     - |
-      BACKEND_ITEMS=schema,schema-diff,emails
+      BACKEND_ITEMS=schema,schema-diff,emails,queries
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ] || [ "$DO_COVERAGE" = "true" ]; then
         aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
         aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
