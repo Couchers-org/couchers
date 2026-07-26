@@ -1,6 +1,12 @@
 import "utils/dayjs"; // ensure dayjs timezone plugin is registered
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import users from "test/fixtures/users.json";
@@ -189,7 +195,9 @@ describe("NewHostRequest", () => {
   it("only sends one request when Send is tapped repeatedly before the response arrives", async () => {
     // On a slow connection the user gets no feedback and keeps tapping; each tap used to create
     // another host request.
-    createHostRequestMock.mockImplementation(() => new Promise<number>(() => {}));
+    createHostRequestMock.mockImplementation(
+      () => new Promise<number>(() => {}),
+    );
     renderNewHostRequest();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
