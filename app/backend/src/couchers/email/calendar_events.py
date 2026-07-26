@@ -100,8 +100,9 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
     ics_event.last_modified = last_update_datetime
     _set_sequence_timestamp(ics_event, last_update_datetime)
 
-    _set_datetime_with_timezone(ics_event, "DTSTART", to_aware_datetime(event.start_time, event.timezone))
-    _set_datetime_with_timezone(ics_event, "DTEND", to_aware_datetime(event.end_time, event.timezone))
+    timezone = ZoneInfo(event.timezone)
+    _set_datetime_with_timezone(ics_event, "DTSTART", to_aware_datetime(event.start_time).astimezone(timezone))
+    _set_datetime_with_timezone(ics_event, "DTEND", to_aware_datetime(event.end_time).astimezone(timezone))
 
     ics_event.location = event.location.address
     ics_event.geo = Geo(event.location.lat, event.location.lng)
