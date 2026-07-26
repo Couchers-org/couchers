@@ -27,8 +27,23 @@ _PARAM_RE = re.compile(r"%\([^)]*\)s|%s")
 _COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 # Expanded IN (...) lists, whose length varies with the test data.
 _PARAM_LIST_RE = re.compile(r"\?(?:\s*,\s*\?)+")
+# Repeated VALUES tuples from a multi-row insert, whose count varies with the test data.
+_VALUES_LIST_RE = re.compile(r"\(\?\)(?:\s*,\s*\(\?\))+")
+# Literals inlined into the statement text rather than bound. Bulk resource loads do this: the real
+# timezone_areas.sql applied by the migrations is a few hundred INSERTs each carrying megabytes of WKB hex, so
+# without collapsing them every row becomes its own multi-megabyte shape.
+_LONG_LITERAL_RE = re.compile(r"'[^']{64,}'")
 _WHITESPACE_RE = re.compile(r"\s+")
 _WRITE_RE = re.compile(r"^\s*(INSERT|UPDATE|DELETE)\b", re.IGNORECASE)
+
+# Hard cap on what is stored per statement. Nothing this long is an access pattern worth diffing, and the cap is
+# what bounds the artifact: uncapped, the timezone_areas load alone took a CI node's dump to 495 MB.
+_MAX_SQL_CHARS = 4096
+_TRUNCATION_MARKER = " /* truncated by the query log */"
+
+# test_db rebuilds the schema from migrations to diff it against the models. That is schema plumbing rather than an
+# access pattern, it is already covered by the schema-diff artifact, and in CI it loads the real timezone_areas.sql.
+_EXCLUDED_MODULES = ("src/tests/test_db.py",)
 
 
 @dataclass(slots=True)
@@ -58,11 +73,17 @@ _shapes: dict[str, _Shape] = {}
 _tests: dict[str, list[_Span]] = {}
 
 
+def _truncate(sql: str) -> str:
+    return sql if len(sql) <= _MAX_SQL_CHARS else sql[:_MAX_SQL_CHARS] + _TRUNCATION_MARKER
+
+
 def _fingerprint(statement: str) -> str:
     sql = _COMMENT_RE.sub("", statement)
     sql = _PARAM_RE.sub("?", sql)
     sql = _PARAM_LIST_RE.sub("?", sql)
-    return _WHITESPACE_RE.sub(" ", sql).strip()
+    sql = _VALUES_LIST_RE.sub("(?)", sql)
+    sql = _LONG_LITERAL_RE.sub("'...'", sql)
+    return _truncate(_WHITESPACE_RE.sub(" ", sql).strip())
 
 
 def _shape_id(fingerprint: str) -> str:
@@ -85,12 +106,16 @@ def _render_example(conn: Any, statement: str, parameters: Any) -> tuple[str, st
         params = json.dumps(parameters, default=repr) if parameters else None
     except TypeError, ValueError:
         params = None
+    if params is not None:
+        params = _truncate(params)
     try:
         cursor = psycopg.ClientCursor(conn.connection.driver_connection)
-        return cursor.mogrify(statement, parameters), params
+        # Truncated past the cap, so the marker is a SQL comment: the result is visibly not runnable rather than
+        # silently invalid.
+        return _truncate(cursor.mogrify(statement, parameters)), params
     except Exception:
         # Not worth losing the whole entry over; the fingerprint plus the parameters is still pasteable by hand.
-        return statement, params
+        return _truncate(statement), params
 
 
 def _current_span() -> _Span | None:
@@ -99,7 +124,7 @@ def _current_span() -> _Span | None:
 
 def _after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     test = _current_test
-    if test is None:
+    if test is None or test.startswith(_EXCLUDED_MODULES):
         return
     fingerprint = _fingerprint(statement)
     with _lock:
@@ -209,5 +234,5 @@ def dump(directory: Path) -> Path:
                 for test, spans in sorted(_tests.items())
             },
         }
-    path.write_text(json.dumps(data, indent=1, sort_keys=True))
+    path.write_text(json.dumps(data, separators=(",", ":"), sort_keys=True))
     return path

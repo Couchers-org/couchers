@@ -27,6 +27,10 @@ from typing import Any
 
 Span = dict[str, Any]
 
+# Not fatal, just loud: the recorder caps individual statements, so exceeding this means something new is bloating
+# the recording and is worth looking at before it reaches half a gigabyte again.
+SIZE_WARN_MB = 50
+
 
 def merge_nodes(input_dir: Path) -> dict[str, Any]:
     shapes: dict[str, dict[str, Any]] = {}
@@ -438,10 +442,21 @@ def main() -> None:
     print(f"summary: {summary}")
 
     args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "data.json").write_text(json.dumps(current, separators=(",", ":"), sort_keys=True))
+    data_path = args.output / "data.json"
+    data_path.write_text(json.dumps(current, separators=(",", ":"), sort_keys=True))
     (args.output / "index.html").write_text(render_html(current, report, args.commit))
     if args.summary_file:
         args.summary_file.write_text(summary)
+
+    # The recording is published and then fetched by every viewer, so runaway growth matters. A statement carrying
+    # bulk inlined data once took a single node's dump to 495 MB, and the job published it without complaint.
+    size_mb = data_path.stat().st_size / 1048576
+    print(f"wrote {data_path} ({size_mb:.1f} MB)")
+    if size_mb > SIZE_WARN_MB:
+        biggest = sorted(current["shapes"].values(), key=lambda s: -len(s["example"]))[:5]
+        print(f"WARNING: the query log is {size_mb:.1f} MB, over the {SIZE_WARN_MB} MB mark. Largest shapes:")
+        for shape in biggest:
+            print(f"  {len(shape['example']):>9} bytes  {shape['sql'][:100]}")
 
 
 if __name__ == "__main__":

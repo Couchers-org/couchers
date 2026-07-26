@@ -74,6 +74,17 @@ from a plan, or the planner will make a choice that has nothing to do with produ
 handler's `__name__` and type hints, so wrapping handlers to name them breaks `get_type_hints`. Splitting these out
 wants a span alongside the existing tracer span in `couchers/jobs/worker.py`.
 
+**Statements are capped, and bulk loads are collapsed.** Some SQL inlines its data as literals in the statement text
+rather than binding it — the real `timezone_areas.sql` applied by the migrations is a few hundred `INSERT`s each
+carrying megabytes of WKB hex. Nothing can group those by parameter, so the recorder collapses long quoted literals
+and repeated `VALUES` tuples, and caps each stored statement at 4 KB with a `/* truncated by the query log */`
+marker so an over-long entry is visibly not runnable rather than silently invalid. Without this a single CI node's
+dump reached 495 MB. `query_log_report.py` warns if the merged recording exceeds 50 MB.
+
+**`src/tests/test_db.py` is not recorded.** It rebuilds the schema from migrations to diff it against the models,
+which is schema plumbing rather than an access pattern, is already covered by the schema-diff artifact, and is what
+pulls in the real `timezone_areas.sql` in CI.
+
 **A shared fixture change moves everything.** Adding one query to `generate_user()` shifts every test at once. That is
 real, but it drowns the report, so treat a diff that touches most tests as a signal to look at the fixture rather than
 the tests.
