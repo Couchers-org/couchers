@@ -7,6 +7,8 @@ import typing
 from collections.abc import Mapping
 from typing import Any, Literal
 
+from couchers.constants import SERVER_THREADS
+
 
 # Not a dataclass. Not all attributes must be initialized.
 class Config:
@@ -170,6 +172,14 @@ class Config:
         for attr_name in Config.__annotations__.keys():
             if not hasattr(self, attr_name):
                 raise ValueError(f"Config value {attr_name} not set")
+
+        # the DB pool is sized as 2 * SERVER_THREADS + 4 (see db.py) and each worker thread can hold
+        # two connections at once, so more worker threads than SERVER_THREADS could exhaust the pool
+        if self.BACKGROUND_WORKER_THREADS_PER_PROCESS > SERVER_THREADS:
+            raise Exception(
+                f"BACKGROUND_WORKER_THREADS_PER_PROCESS ({self.BACKGROUND_WORKER_THREADS_PER_PROCESS}) must not "
+                f"exceed SERVER_THREADS ({SERVER_THREADS}), or worker threads could exhaust the DB connection pool"
+            )
 
         if not self.DEV:
             # checks for prod

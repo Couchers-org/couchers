@@ -3,6 +3,7 @@ import typing
 import pytest
 
 from couchers.config import Config
+from couchers.constants import SERVER_THREADS
 
 
 def _complete_config(dev: bool) -> Config:
@@ -123,3 +124,10 @@ def test_check_config_only_references_known_keys(dev):
     Config.check() only runs in app.py's startup path. Exercising it here catches that.
     """
     _complete_config(dev=dev).check()
+
+
+def test_check_rejects_too_many_worker_threads() -> None:
+    cfg = _complete_config(dev=True)
+    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = SERVER_THREADS + 1
+    with pytest.raises(Exception, match="BACKGROUND_WORKER_THREADS_PER_PROCESS"):
+        cfg.check()

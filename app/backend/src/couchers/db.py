@@ -71,7 +71,8 @@ def _get_base_engine() -> Engine:
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
         # max_connections. ~2 per thread since a request can hold two connections at once (handler + _store_log,
         # or worker_repeatable_read + handler's own session_scope). Sized for SERVER_THREADS (API) since that's
-        # the larger consumer; the worker process's BACKGROUND_WORKER_THREADS_PER_PROCESS must stay below that.
+        # the larger consumer; the worker process's BACKGROUND_WORKER_THREADS_PER_PROCESS must stay below that
+        # (enforced in Config.check()).
         pool_size=2 * SERVER_THREADS + 4,
         max_overflow=0,
     )
