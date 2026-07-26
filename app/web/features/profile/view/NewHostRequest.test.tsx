@@ -1,13 +1,9 @@
 import "utils/dayjs"; // ensure dayjs timezone plugin is registered
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent, {
+  PointerEventsCheckLevel,
+} from "@testing-library/user-event";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -93,7 +89,7 @@ describe("NewHostRequest", () => {
     await user.keyboard("06052026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    fireEvent.change(textArea, { target: { value: LONG_TEXT } });
+    await user.type(textArea, LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -138,7 +134,7 @@ describe("NewHostRequest", () => {
     await user.keyboard("05282026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    fireEvent.change(textArea, { target: { value: LONG_TEXT } });
+    await user.type(textArea, LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -182,9 +178,10 @@ describe("NewHostRequest", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("05302026");
 
-    fireEvent.change(screen.getByLabelText(t("profile:request_form.request")), {
-      target: { value: LONG_TEXT },
-    });
+    await user.type(
+      screen.getByLabelText(t("profile:request_form.request")),
+      LONG_TEXT,
+    );
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -200,7 +197,12 @@ describe("NewHostRequest", () => {
     );
     renderNewHostRequest();
 
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    // a real finger keeps tapping a disabled button, so don't refuse taps over its
+    // `pointer-events: none`
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+      pointerEventsCheck: PointerEventsCheckLevel.Never,
+    });
 
     const arrivalGroup = await screen.findByRole("group", {
       name: t("profile:request_form.arrival_date"),
@@ -216,13 +218,14 @@ describe("NewHostRequest", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("06052026");
 
-    fireEvent.change(screen.getByLabelText(t("profile:request_form.request")), {
-      target: { value: LONG_TEXT },
-    });
+    await user.type(
+      screen.getByLabelText(t("profile:request_form.request")),
+      LONG_TEXT,
+    );
 
     const send = screen.getByRole("button", { name: t("global:send") });
     for (let tap = 0; tap < 6; tap++) {
-      fireEvent.click(send);
+      await user.click(send);
       // let the submit handler settle between taps, as it would between real taps
       await act(async () => {
         await Promise.resolve();
