@@ -127,7 +127,7 @@
     "invalid_phone": "Phone number must be in international format without punctuation.",
     "invalid_recipients": "Invalid recipients list.",
     "invalid_region": "Invalid region.",
-    "invalid_thread_filter": "Invalid message thread filter.",
+    "invalid_thread_category": "Invalid message thread category.",
     "invalid_token": "Invalid token.",
     "invalid_username": "Invalid username.",
     "invalid_website_url": "Invalid website URL or text, make sure URL starts with \"https://\", and that the text is included in the URL.",

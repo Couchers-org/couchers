@@ -9,6 +9,7 @@ import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "messages.proto";
+import "requests.proto";
 
 service Conversations {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -143,53 +144,39 @@ message ListGroupChatsRes {
   bool no_more = 3;
 }
 
-enum MessageThreadFilter {
-  MESSAGE_THREAD_FILTER_UNSPECIFIED = 0;
-  MESSAGE_THREAD_FILTER_ALL = 1;
-  MESSAGE_THREAD_FILTER_UNREAD = 2;
-  MESSAGE_THREAD_FILTER_CHATS = 3; // group chats + DMs only
-  MESSAGE_THREAD_FILTER_HOSTING = 4; // role-based: I am the host of the stay
-  MESSAGE_THREAD_FILTER_SURFING = 5; // role-based: I am the guest/traveller
-  MESSAGE_THREAD_FILTER_MY_PUBLIC_TRIPS = 6; // incoming offers on my public trips (I'm the traveller)
-}
-
-// A host request (or public-trip offer) shaped for the unified thread list.
-// surfer_user_id/host_user_id are ROLE-based: for a public-trip offer (role
-// reversal) they are swapped relative to the underlying initiator/recipient.
-message HostRequestThread {
-  uint64 host_request_id = 1;
-  uint64 surfer_user_id = 2;
-  uint64 host_user_id = 3;
-  HostRequestStatus status = 4;
-  google.protobuf.Timestamp created = 5;
-  // dates as "yyyy-mm-dd"
-  string from_date = 6;
-  string to_date = 7;
-  uint64 last_seen_message_id = 8;
-  Message latest_message = 9;
-  string hosting_city = 10;
-  bool is_archived = 11;
-  // Set iff this thread is a public-trip offer; presence is the "is offer" flag,
-  // and the value links to the trip. The viewer's role is derived client-side:
-  // the viewer is the host iff host_user_id is their own user id.
-  optional uint64 public_trip_id = 12;
-  uint32 unseen_message_count = 13;
+// Categories of message thread. Combinable in ListMessageThreads / MarkAllThreadsSeen: an empty
+// list means all categories. Read-state (only_unread) and archived (only_archived) are separate,
+// orthogonal filters.
+enum MessageThreadCategory {
+  MESSAGE_THREAD_CATEGORY_UNSPECIFIED = 0;
+  MESSAGE_THREAD_CATEGORY_CHATS = 1; // group chats + DMs
+  MESSAGE_THREAD_CATEGORY_HOSTING = 2; // role-based: I am the host of the stay
+  MESSAGE_THREAD_CATEGORY_SURFING = 3; // role-based: I am the guest/traveller
+  // incoming offers on my public trips (I'm the traveller); a subset of SURFING
+  MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS = 4;
 }
 
 message MessageThread {
   oneof thread {
     GroupChat group_chat = 1;
-    HostRequestThread host_request = 2;
+    // Same shape and semantics as the Requests API: surfer_user_id is the
+    // request's initiator and host_user_id its recipient, even for a
+    // public-trip offer (where the initiator is the one offering to host);
+    // clients derive display roles from public_trip_id being set.
+    org.couchers.api.requests.HostRequest host_request = 2;
   }
 }
 
 message ListMessageThreadsReq {
-  MessageThreadFilter filter = 1;
+  // which categories to include; empty means all categories
+  repeated MessageThreadCategory categories = 1;
   // orthogonal: when present, restrict to archived (true) or non-archived (false)
   optional bool only_archived = 2;
   uint32 page_size = 3;
   // pagination cursor; pass back the next_page_token from the previous response, or empty for the first page
   string page_token = 4;
+  // orthogonal: when true, restrict to unread threads
+  bool only_unread = 5;
 }
 
 message ListMessageThreadsRes {
@@ -198,9 +185,12 @@ message ListMessageThreadsRes {
 }
 
 message MarkAllThreadsSeenReq {
-  MessageThreadFilter filter = 1;
+  // which categories to include; empty means all categories
+  repeated MessageThreadCategory categories = 1;
   // orthogonal: when present, restrict to archived (true) or non-archived (false)
   optional bool only_archived = 2;
+  // orthogonal: when true, restrict to unread threads
+  bool only_unread = 3;
 }
 
 message GetUpdatesReq {

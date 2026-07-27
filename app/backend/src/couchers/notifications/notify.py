@@ -82,3 +82,24 @@ def mark_notifications_seen(
         .where(Notification.key == key)
         .where(Notification.topic_action.in_(topic_actions))
     )
+
+
+def mark_notifications_seen_for_keys(
+    session: Session,
+    *,
+    user_id: int,
+    keys: list[str],
+    topic_actions: list[NotificationTopicAction],
+) -> None:
+    """
+    Bulk variant of mark_notifications_seen: marks notifications for all the given keys as seen in one update.
+    """
+    if not keys:
+        return
+    session.execute(
+        update(Notification)
+        .values(is_seen=True)
+        .where(Notification.user_id == user_id)
+        .where(Notification.key.in_(keys))
+        .where(Notification.topic_action.in_(topic_actions))
+    )

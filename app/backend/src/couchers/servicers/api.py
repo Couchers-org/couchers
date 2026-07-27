@@ -190,6 +190,8 @@ class API(api_pb2_grpc.APIServicer):
             )
         ).scalar_one()
 
+        # TODO: collapse these 5 host-request counts into one query (select requests where I'm a party,
+        # then count sent/received/hosting/surfing/offers with func.count().filter()) — follow-up PR
         sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
             HostRequest.initiator_user_id == context.user_id
         )
