@@ -132,6 +132,7 @@ export default function EventCard({ event, className }: EventCardProps) {
     timestampToPlainDateTime(event.endTime!, event.timezone),
     {
       locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
       abbreviate: true,
       capitalize: true,

@@ -247,6 +247,7 @@ export default function HostRequestListItem({
                     Temporal.PlainDateTime.from(hostRequest.toDate),
                     {
                       locale,
+                      includeYear: "auto",
                       includeTime: false,
                     },
                   )}

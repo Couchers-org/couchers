@@ -136,6 +136,7 @@ const LongEventCard = ({
     timestampToPlainDateTime(event.endTime!, event.timezone),
     {
       locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
       includeTime: true,
       capitalize: true,

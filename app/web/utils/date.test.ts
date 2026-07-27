@@ -15,6 +15,11 @@ import {
 const janFirst2000 = Temporal.PlainDateTime.from("2000-01-01");
 
 describe("localizeDateTime", () => {
+  afterEach(() => {
+    // Clean up after tests that mock the system clock.
+    jest.useRealTimers();
+  });
+
   it("excludes dates when specified", () => {
     expect(
       localizeDateTime(janFirst2000, {
@@ -27,6 +32,37 @@ describe("localizeDateTime", () => {
         includeDate: false,
       }),
     ).not.toContain("2000");
+  });
+
+  it("supports all includeYear modes", () => {
+    expect(
+      localizeDateTime(janFirst2000, {
+        locale: "en",
+        includeYear: true,
+      }),
+    ).toContain("2000");
+    expect(
+      localizeDateTime(janFirst2000, {
+        locale: "en",
+        includeYear: false,
+      }),
+    ).not.toContain("2000");
+
+    // includeYear: "auto" depends on the system date
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2001-01-01T00:00:00Z"));
+    expect(
+      localizeDateTime(janFirst2000, {
+        locale: "en",
+        includeYear: "auto",
+      }),
+    ).toContain("2000");
+    expect(
+      localizeDateTime(Temporal.PlainDateTime.from("2001-01-01"), {
+        locale: "en",
+        includeYear: "auto",
+      }),
+    ).not.toContain("2001");
   });
 
   it("honors abbreviated month names", () => {

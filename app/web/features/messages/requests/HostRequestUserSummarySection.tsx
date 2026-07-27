@@ -100,6 +100,7 @@ const HostRequestUserSummarySection = ({
               Temporal.PlainDateTime.from(hostRequest.toDate),
               {
                 locale,
+                includeYear: "auto",
                 includeTime: false,
                 abbreviate: true,
               },
@@ -125,6 +126,7 @@ const HostRequestUserSummarySection = ({
                 Temporal.PlainDateTime.from(hostRequest.toDate),
                 {
                   locale,
+                  includeYear: "auto",
                   includeTime: false,
                 },
               )}
