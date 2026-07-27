@@ -141,8 +141,8 @@ class EventOccurrence(Base, kw_only=True):
     # simplifies database constraints, etc
     during: Mapped[TimestamptzRange] = mapped_column(TSTZRANGE)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default_factory=now, init=False)
-    last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), default_factory=now, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), init=False)
+    last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), init=False)
 
     creator_user: Mapped[User] = relationship(
         init=False, backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
@@ -167,6 +167,11 @@ class EventOccurrence(Base, kw_only=True):
         # Can't have overlapping occurrences in the same Event
         ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
+
+    def __post_init__(self) -> None:
+        # Ensure we use the same "now()" value.
+        self.created = now()
+        self.last_edited = self.created
 
     @property
     def coordinates(self) -> tuple[float, float]:
