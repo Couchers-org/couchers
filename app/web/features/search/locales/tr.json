@@ -46,7 +46,10 @@
     },
     "general_filters": {
       "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor",
-      "has_strong_verification": "Kuvvetli doğrulamaya sahip"
+      "has_strong_verification": "Kuvvetli doğrulamaya sahip",
+      "same_gender_only": "Yalnızca aynı cinsiyetteki kişileri göster",
+      "same_gender_only_helper_text": "Bu filtreyi yalnızca kuvvetli doğrulamaya sahip kullanıcılar kullanabilir.",
+      "get_strong_verification": "Buradan kuvvetli doğrulanın(ücretsiz)."
     },
     "rules": {
       "title": "Kurallar",
