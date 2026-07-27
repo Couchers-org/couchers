@@ -82,19 +82,6 @@ def public_trip_to_pb(
             .where(HostRequest.public_trip_id == public_trip.id)
             .where(HostRequest.status != HostRequestStatus.cancelled)
         ).scalar_one()
-        # Per-status tally of offers, for the trip owner's grouped view.
-        counts_by_status: dict[HostRequestStatus, int] = dict(
-            session.execute(  # type: ignore[arg-type]
-                select(HostRequest.status, func.count())
-                .where(HostRequest.public_trip_id == public_trip.id)
-                .where(HostRequest.status != HostRequestStatus.cancelled)
-                .group_by(HostRequest.status)
-            ).all()
-        )
-        pb.offer_tally.pending = counts_by_status.get(HostRequestStatus.pending, 0)
-        pb.offer_tally.accepted = counts_by_status.get(HostRequestStatus.accepted, 0)
-        pb.offer_tally.confirmed = counts_by_status.get(HostRequestStatus.confirmed, 0)
-        pb.offer_tally.declined = counts_by_status.get(HostRequestStatus.rejected, 0)
     else:
         # The viewer's own existing offer on this trip (if any), so the client can
         # show an "already offered" state and link to the thread.

@@ -441,8 +441,12 @@ def _group_chat_candidate_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
 ) -> Select[tuple[int, int, str]]:
     """
-    Candidate (conversation_id, latest_message_id, kind) rows for the user's group
-    chats (incl. DMs), with moderation + archived + unread filtering applied.
+    One row per group chat (including DMs) the viewer should see, carrying only what paging needs: the
+    conversation id, the id of its newest message, and a tag marking the row as a group chat.
+
+    ListMessageThreads unions these rows with the host-request ones and orders the result by newest
+    message — that's what lets one cursor page through both kinds as a single list. Only ids come back
+    here; the full protobufs are built afterwards, for one page's worth of rows.
     """
     latest_by_group_chat = (
         select(
@@ -473,12 +477,16 @@ def _group_chat_candidate_query(
 
 
 def _host_request_candidate_query(
-    context: CouchersContext, party_predicate: ColumnElement[bool], only_archived: bool | None, unread: bool
+    context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
 ) -> Select[tuple[int, int, str]]:
     """
-    Candidate (conversation_id, latest_message_id, kind) rows for the user's host
-    requests / public-trip offers matching party_predicate, with visibility +
-    moderation + archived + unread filtering applied.
+    The host-request half of the same idea as _group_chat_candidate_query: the same three columns for
+    host requests and public-trip offers, so the two can be unioned and paged together.
+
+    role_filter decides which requests belong in this view — the ones the viewer is hosting, the ones
+    they're surfing, or offers on their public trips (see _host_request_role_filter). Requests the
+    viewer shouldn't see are dropped here too: ones involving deleted or blocked users, ones hidden by
+    moderation, and — when the caller asks for it — archived or already-read ones.
     """
     viewer_last_seen_message_id = case(
         (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
@@ -491,7 +499,7 @@ def _host_request_candidate_query(
             literal(_KIND_HOST_REQUEST).label("kind"),
         )
         .join(Message, Message.conversation_id == HostRequest.conversation_id)
-        .where(party_predicate)
+        .where(role_filter)
         .group_by(HostRequest.conversation_id)
     )
     if only_archived is not None:
@@ -515,8 +523,10 @@ def _host_request_candidate_query(
     return candidate_query
 
 
-def _host_request_party_predicate(context: CouchersContext, categories: set[int]) -> ColumnElement[bool]:
-    """Role-based membership predicate for the selected host-request categories (OR'd together).
+def _host_request_role_filter(context: CouchersContext, categories: set[int]) -> ColumnElement[bool]:
+    """
+    A WHERE condition matching the host requests in the given categories, OR'd together — so asking
+    for hosting and surfing returns both.
 
     MY_PUBLIC_TRIPS is a subset of SURFING, so requesting both is redundant but harmless; grouping by
     conversation dedupes.
@@ -569,7 +579,7 @@ def _thread_candidate_queries(
     host_request_categories = categories & _HOST_REQUEST_THREAD_CATEGORIES
     host_request_query = (
         _host_request_candidate_query(
-            context, _host_request_party_predicate(context, host_request_categories), only_archived, only_unread
+            context, _host_request_role_filter(context, host_request_categories), only_archived, only_unread
         )
         if host_request_categories
         else None

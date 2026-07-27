@@ -984,10 +984,9 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 1
         assert not res.public_trips[0].HasField("offers_count")
-        assert not res.public_trips[0].HasField("offer_tally")
 
 
-def test_list_public_trips_by_user_offer_tally_owner(db):
+def test_list_public_trips_by_user_offers_count_excludes_cancelled(db):
     traveler, traveler_token = generate_user()
     hosts = [generate_user() for _ in range(5)]
     node_id = _make_node()
@@ -1006,7 +1005,7 @@ def test_list_public_trips_by_user_offer_tally_owner(db):
                 )
             )
 
-    # Set one offer per status: pending, accepted, confirmed, rejected, cancelled.
+    # Set one offer per status, so we cover every status the count has to consider.
     with session_scope() as session:
         offers = (
             session.execute(
@@ -1024,12 +1023,7 @@ def test_list_public_trips_by_user_offer_tally_owner(db):
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
-        assert trip.HasField("offer_tally")
-        assert trip.offer_tally.pending == 1
-        assert trip.offer_tally.accepted == 1
-        assert trip.offer_tally.confirmed == 1
-        assert trip.offer_tally.declined == 1
-        # cancelled is excluded from offers_count and the tally
+        # pending, accepted, confirmed and rejected all count; cancelled does not
         assert trip.offers_count == 4
 
 

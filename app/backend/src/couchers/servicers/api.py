@@ -236,12 +236,12 @@ class API(api_pb2_grpc.APIServicer):
         # Role-based unread host-request counts. Unlike sent/received above, these
         # classify by stay-role, so public-trip offers (role reversal) bucket
         # correctly: the offering host counts under hosting, the traveller under surfing.
-        def role_based_unseen_host_request_count(party_predicate: ColumnElement[bool]) -> int:
+        def role_based_unseen_host_request_count(role_filter: ColumnElement[bool]) -> int:
             viewer_last_seen = case(
                 (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
                 else_=HostRequest.recipient_last_seen_message_id,
             )
-            reqs_query = select(HostRequest.conversation_id, viewer_last_seen.label("last_seen")).where(party_predicate)
+            reqs_query = select(HostRequest.conversation_id, viewer_last_seen.label("last_seen")).where(role_filter)
             reqs_query = where_users_column_visible(reqs_query, context, HostRequest.initiator_user_id)
             reqs_query = where_users_column_visible(reqs_query, context, HostRequest.recipient_user_id)
             reqs_query = where_moderated_content_visible(reqs_query, context, HostRequest, is_list_operation=True)
