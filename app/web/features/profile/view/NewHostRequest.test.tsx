@@ -89,7 +89,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("06052026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    await user.type(textArea, LONG_TEXT);
+    await user.click(textArea);
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -134,7 +135,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("05282026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    await user.type(textArea, LONG_TEXT);
+    await user.click(textArea);
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -178,10 +180,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("05302026");
 
-    await user.type(
-      screen.getByLabelText(t("profile:request_form.request")),
-      LONG_TEXT,
-    );
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -218,10 +218,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("06052026");
 
-    await user.type(
-      screen.getByLabelText(t("profile:request_form.request")),
-      LONG_TEXT,
-    );
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
 
     const send = screen.getByRole("button", { name: t("global:send") });
     for (let tap = 0; tap < 6; tap++) {
