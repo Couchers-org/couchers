@@ -349,5 +349,6 @@
     "next_photo": "Foto successiva",
     "close_viewer": "Chiudi visualizzatore foto",
     "report_photo": "Segnala foto"
-  }
+  },
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
 }

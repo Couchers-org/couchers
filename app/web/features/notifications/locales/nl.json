@@ -1,7 +1,5 @@
 {
   "error_updating_notifications": "Error bij updaten van notificaties",
-  "all": "Alles",
-  "unread": "Ongelezen",
   "error_loading": "Error bij het laden van notificaties",
   "mark_unread": "Markeer als ongelezen",
   "mark_all_read": "Alles markeren als gelezen",

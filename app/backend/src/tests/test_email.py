@@ -32,7 +32,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import datetime_to_iso8601_local, now
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
@@ -516,9 +516,8 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -534,8 +533,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # this will count everyone
-        assert res.requests[0].approx_users_to_notify == 5
+        # creating_user organizes the event, so they're excluded; counts super_user, normal_user,
+        # ban_user and delete_user
+        assert res.requests[0].approx_users_to_notify == 4
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == ban_user.id).values(banned_at=func.now()))
@@ -544,8 +544,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # should only notify creating_user, super_user and normal_user
-        assert res.requests[0].approx_users_to_notify == 3
+        # the approximate count excludes banned/deleted users and the organizer, leaving super_user
+        # and normal_user
+        assert res.requests[0].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
@@ -554,4 +555,6 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
             )
         )
 
-    assert email_collector.count() == 3
+    # only super_user and normal_user get emailed: creating_user organizes (and attends) the
+    # event, so they're excluded from the invite fan-out
+    assert email_collector.count() == 2

@@ -55,8 +55,6 @@
       "error_not_granted": "No has dado permiso para enviar notificaciones push."
     }
   },
-  "all": "Todas",
-  "unread": "No leídas",
   "error_loading": "Error al cargar las notificaciones",
   "push_notification_banner": {
     "message": "No te pierdas solicitudes, respuestas o mensajes; ¿podemos enviarte notificaciones?",

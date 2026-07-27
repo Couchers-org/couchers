@@ -162,5 +162,13 @@
   "search_communities_placeholder": "Search by city or country name...",
   "search_communities_helper": "Select a community to go to its page",
   "no_results_found_with_link": "No communities found. <0>Request this community!</0>",
-  "community_breadcrumb_a11y": "Current community"
+  "community_breadcrumb_a11y": "Current community",
+  "select_macroregion": "Select region",
+  "select_region": "Select country",
+  "select_subregion": "Select area",
+  "select_locality": "Select city",
+  "select_sublocality": "Select neighborhood",
+  "select_sub_community": "Select community",
+  "sub_community_search_placeholder": "Location",
+  "sub_community_dropdown_a11y": "Browse more specific communities"
 }

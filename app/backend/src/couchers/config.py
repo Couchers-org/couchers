@@ -7,6 +7,8 @@ import typing
 from collections.abc import Mapping
 from typing import Any, Literal
 
+from couchers.constants import DB_POOL_SIZE
+
 
 # Not a dataclass. Not all attributes must be initialized.
 class Config:
@@ -22,7 +24,9 @@ class Config:
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
     # number of bg worker processes, requires worker or all above
-    BACKGROUND_WORKER_COUNT: int = 2
+    BACKGROUND_WORKER_PROCESSES: int = 1
+    # threads per worker process; in-flight jobs is the product of the two
+    BACKGROUND_WORKER_THREADS_PER_PROCESS: int = 2
     # Version string
     VERSION: str = "unknown"
     # ISO 8601 timestamp of the deployed commit (CI_COMMIT_TIMESTAMP), empty outside CI builds
@@ -166,6 +170,14 @@ class Config:
         for attr_name in Config.__annotations__.keys():
             if not hasattr(self, attr_name):
                 raise ValueError(f"Config value {attr_name} not set")
+
+        # each worker thread can hold two connections at once
+        if 2 * self.BACKGROUND_WORKER_THREADS_PER_PROCESS > DB_POOL_SIZE:
+            raise Exception(
+                f"BACKGROUND_WORKER_THREADS_PER_PROCESS ({self.BACKGROUND_WORKER_THREADS_PER_PROCESS}) must not "
+                f"exceed half of DB_POOL_SIZE ({DB_POOL_SIZE // 2}), or worker threads could exhaust the DB "
+                "connection pool"
+            )
 
         if not self.DEV:
             # checks for prod

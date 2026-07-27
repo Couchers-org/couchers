@@ -9,12 +9,14 @@ import {
   GenderVerificationStatus,
   User,
 } from "proto/api_pb";
+import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import {
   localizeDateTime,
   localizeDuration,
   localizeRelativeTime,
+  localizeTimeZone,
   localizeYearMonth,
   timestampToPlainDateTime,
 } from "utils/date";
@@ -291,10 +293,38 @@ export const RemainingAboutLabels = ({ user }: Props) => {
       {user.timezone ? (
         <LabelAndText
           label={t("profile:heading.local_time")}
-          text={localizeDateTime(Temporal.Now.plainDateTimeISO(user.timezone), {
-            locale,
-            includeDate: false,
-          })}
+          text={
+            <Trans
+              i18nKey="profile:local_time_with_time_zone_text"
+              values={{
+                time: localizeDateTime(
+                  Temporal.Now.plainDateTimeISO(user.timezone),
+                  {
+                    locale,
+                    includeDate: false,
+                  },
+                ),
+              }}
+              components={{
+                timeZone: (
+                  <Tooltip
+                    title={localizeTimeZone(user.timezone, locale, {
+                      short: false,
+                      capitalize: true,
+                    })}
+                    placement="top"
+                    arrow
+                  >
+                    <span>
+                      {localizeTimeZone(user.timezone, locale, {
+                        short: true,
+                      })}
+                    </span>
+                  </Tooltip>
+                ),
+              }}
+            />
+          }
         />
       ) : undefined}
     </>

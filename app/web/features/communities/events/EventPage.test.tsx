@@ -94,7 +94,7 @@ describe("Event page", () => {
     ).toBeVisible();
     expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
-      await screen.findByText("Tuesday, June 29, 2021, 2:37 – 3:37 AM", {
+      await screen.findByText("Tuesday, June 29, 2021, 4:37 – 5:37 AM", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
@@ -140,7 +140,7 @@ describe("Event page", () => {
 
     expect(
       await screen.findByText(
-        "Tuesday, June 29, 2021 at 9:00 PM – Wednesday, June 30, 2021 at 2:00 AM",
+        "Tuesday, June 29, 2021 at 11:00 PM – Wednesday, June 30, 2021 at 4:00 AM",
         {
           normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
         },

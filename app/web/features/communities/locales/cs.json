@@ -37,5 +37,12 @@
   "comment_deleted": "Tento komentář byl smazán.",
   "edit_comment": "Upravit komentář",
   "delete_comment": "Smazat komentář",
-  "comment_edited_date": "Upraveno {{timeAgo}}"
+  "comment_edited_date": "Upraveno {{timeAgo}}",
+  "select_sub_community": "Vybrat komunitu",
+  "sub_community_search_placeholder": "Poloha",
+  "select_locality": "Vybrat město",
+  "select_sublocality": "Vybrat čtvrť",
+  "select_subregion": "Vybrat oblast",
+  "select_region": "Zvolit zemi",
+  "select_macroregion": "Vybrat oblast"
 }

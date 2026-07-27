@@ -3,7 +3,7 @@ import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 
 const StyledBanner = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
