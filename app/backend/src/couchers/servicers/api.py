@@ -18,6 +18,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.host_requests import is_hosting_party, is_public_trip_offer_party, is_surfing_party
 from couchers.helpers.references import where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -257,22 +258,11 @@ class API(api_pb2_grpc.APIServicer):
                 )
             ).scalar_one()
 
-        me = context.user_id
-        unseen_hosting_host_request_count = role_based_unseen_host_request_count(
-            or_(
-                and_(HostRequest.public_trip_id.is_(None), HostRequest.recipient_user_id == me),
-                and_(HostRequest.public_trip_id.isnot(None), HostRequest.initiator_user_id == me),
-            )
-        )
-        unseen_surfing_host_request_count = role_based_unseen_host_request_count(
-            or_(
-                and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == me),
-                and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me),
-            )
-        )
+        unseen_hosting_host_request_count = role_based_unseen_host_request_count(is_hosting_party(context.user_id))
+        unseen_surfing_host_request_count = role_based_unseen_host_request_count(is_surfing_party(context.user_id))
         if context.get_boolean_value("public_trips_enabled", False):
             unseen_public_trip_offer_count = role_based_unseen_host_request_count(
-                and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == me)
+                is_public_trip_offer_party(context.user_id)
             )
         else:
             unseen_public_trip_offer_count = 0

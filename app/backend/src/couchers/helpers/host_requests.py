@@ -1,0 +1,43 @@
+from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql.elements import ColumnElement
+
+from couchers.models import HostRequest
+
+"""
+Role-based party predicates for host requests.
+
+A host request has a fixed direction (initiator -> recipient), but the *stay-role* of each party
+depends on how the request came about:
+
+  - a normal request: the initiator is the surfer, the recipient is the host
+  - a public-trip offer: the roles are reversed — the initiator is offering their couch, so they are
+    the host, and the recipient (the trip owner) is the surfer
+
+So "am I hosting?" is not the same question as "did I receive this?". These helpers express the
+role-based version, and live here rather than in a servicer so the Ping counts and the thread list
+can't drift apart.
+"""
+
+
+def is_hosting_party(user_id: int) -> ColumnElement[bool]:
+    """The viewer is the host of the stay: a normal request they received, or an offer they sent."""
+    return or_(
+        and_(HostRequest.public_trip_id.is_(None), HostRequest.recipient_user_id == user_id),
+        and_(HostRequest.public_trip_id.isnot(None), HostRequest.initiator_user_id == user_id),
+    )
+
+
+def is_surfing_party(user_id: int) -> ColumnElement[bool]:
+    """The viewer is the guest of the stay: a normal request they sent, or an offer they received."""
+    return or_(
+        and_(HostRequest.public_trip_id.is_(None), HostRequest.initiator_user_id == user_id),
+        and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == user_id),
+    )
+
+
+def is_public_trip_offer_party(user_id: int) -> ColumnElement[bool]:
+    """
+    An incoming offer on one of the viewer's public trips (they're the traveller, so the recipient).
+    A strict subset of is_surfing_party.
+    """
+    return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == user_id)
