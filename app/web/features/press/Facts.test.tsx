@@ -4,10 +4,17 @@ import { RpcError } from "grpc-web";
 import { GetVolunteersRes, Volunteer } from "proto/public_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import useSignupPageInfo, { SignupInfo } from "utils/useSignupPageInfo";
 
 import Facts from "./Facts";
 
 const { t } = i18n;
+
+jest.mock("utils/useSignupPageInfo");
+
+const mockUseSignupPageInfo = useSignupPageInfo as jest.MockedFunction<
+  typeof useSignupPageInfo
+>;
 
 const makeVolunteers = (
   current: Volunteer.AsObject[] = [],
@@ -19,100 +26,91 @@ const makeVolunteers = (
     isLoading,
   }) as UseQueryResult<GetVolunteersRes.AsObject, RpcError>;
 
-const mockSignupInfo = {
+const mockSignupInfo: SignupInfo = {
   userCount: "80000",
   lastSignup: "2024-01-01T00:00:00Z",
   lastLocation: "Berlin",
 };
 
+const mockHook = (signupInfo: SignupInfo | null, isLoading = false) => {
+  mockUseSignupPageInfo.mockReturnValue({ signupInfo, isLoading });
+};
+
 describe("Facts", () => {
   beforeEach(() => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockSignupInfo),
-    });
+    mockHook(mockSignupInfo);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   it("shows skeletons while loading and hides stat text", () => {
-    const { container } = render(
-      <Facts volunteers={makeVolunteers([], [], true)} />,
-      { wrapper },
-    );
+    mockHook(null, true);
+    const { container } = render(<Facts volunteers={makeVolunteers()} />, {
+      wrapper,
+    });
     expect(container.querySelectorAll(".MuiSkeleton-root")).toHaveLength(4);
     expect(screen.queryByText(/members/)).not.toBeInTheDocument();
     expect(screen.queryByText(/countries/)).not.toBeInTheDocument();
     expect(screen.queryByText(/volunteers/)).not.toBeInTheDocument();
   });
 
-  it("shows user count from API", async () => {
+  it("shows skeletons while volunteers are loading", () => {
+    const { container } = render(
+      <Facts volunteers={makeVolunteers([], [], true)} />,
+      { wrapper },
+    );
+    expect(container.querySelectorAll(".MuiSkeleton-root")).toHaveLength(4);
+  });
+
+  it("shows user count from the signup info", () => {
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
     expect(
-      await screen.findByText(t("landing:num_users2", { count: 80000 })),
+      screen.getByText(t("landing:num_users2", { count: 80000 })),
     ).toBeInTheDocument();
   });
 
-  it("falls back to 77000 when fetch fails", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Network error"));
+  it("falls back to 77000 when signup info is unavailable", () => {
+    mockHook(null);
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
     expect(
-      await screen.findByText(t("landing:num_users2", { count: 77000 })),
+      screen.getByText(t("landing:num_users2", { count: 77000 })),
     ).toBeInTheDocument();
   });
 
-  it("falls back to 77000 when the response is not ok", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      json: () => Promise.resolve({}),
-    });
+  it("falls back to 77000 when userCount is not a valid number", () => {
+    mockHook({ ...mockSignupInfo, userCount: "bad" });
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
     expect(
-      await screen.findByText(t("landing:num_users2", { count: 77000 })),
+      screen.getByText(t("landing:num_users2", { count: 77000 })),
     ).toBeInTheDocument();
   });
 
-  it("falls back to 77000 when userCount is not a valid number", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ ...mockSignupInfo, userCount: "bad" }),
-    });
+  it("shows countries count", () => {
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
     expect(
-      await screen.findByText(t("landing:num_users2", { count: 77000 })),
+      screen.getByText(t("landing:num_countries2", { count: 180 })),
     ).toBeInTheDocument();
   });
 
-  it("shows countries count", async () => {
+  it("shows last signup when lastSignup is present", () => {
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
-    expect(
-      await screen.findByText(t("landing:num_countries2", { count: 180 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Last signup/)).toBeInTheDocument();
   });
 
-  it("shows last signup when lastSignup is present", async () => {
+  it("hides last signup stat when lastSignup is absent", () => {
+    mockHook({ ...mockSignupInfo, lastSignup: "" });
     render(<Facts volunteers={makeVolunteers()} />, { wrapper });
-    expect(await screen.findByText(/Last signup/)).toBeInTheDocument();
-  });
-
-  it("hides last signup stat when lastSignup is absent", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ ...mockSignupInfo, lastSignup: "" }),
-    });
-    render(<Facts volunteers={makeVolunteers()} />, { wrapper });
-    await screen.findByText(/members/);
     expect(screen.queryByText(/Last signup/)).not.toBeInTheDocument();
   });
 
-  it("shows combined current and past volunteer count", async () => {
+  it("shows combined current and past volunteer count", () => {
     const current = Array(4).fill({}) as Volunteer.AsObject[];
     const past = Array(2).fill({}) as Volunteer.AsObject[];
     render(<Facts volunteers={makeVolunteers(current, past)} />, { wrapper });
     expect(
-      await screen.findByText(t("press:num_volunteers2", { count: 6 })),
+      screen.getByText(t("press:num_volunteers2", { count: 6 })),
     ).toBeInTheDocument();
   });
 });

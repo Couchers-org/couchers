@@ -8,15 +8,9 @@ import {
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import { useEffect, useState } from "react";
 import { theme } from "theme";
 import { timeAgo } from "utils/timeAgo";
-
-interface SignupInfo {
-  userCount: string;
-  lastSignup: string | Date;
-  lastLocation: string;
-}
+import useSignupPageInfo from "utils/useSignupPageInfo";
 
 const SocialProof = () => {
   const {
@@ -25,30 +19,7 @@ const SocialProof = () => {
   } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSignupInfo = async () => {
-      try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch signup info");
-        }
-        const data = await response.json();
-        setSignupInfo(data);
-      } catch (error) {
-        console.error("Error fetching signup info:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSignupInfo();
-  }, []);
+  const { signupInfo, isLoading } = useSignupPageInfo();
 
   return (
     <Box

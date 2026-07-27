@@ -4,18 +4,12 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANDING, PRESS } from "i18n/namespaces";
-import { useEffect, useState } from "react";
 import { timeAgo } from "utils/timeAgo";
+import useSignupPageInfo from "utils/useSignupPageInfo";
 
 import { GetVolunteersRes } from "../../proto/public_pb";
 import SectionHeading from "./SectionHeading";
 import SectionWrapper from "./SectionWrapper";
-
-interface SignupInfo {
-  userCount: string;
-  lastSignup: string | Date;
-  lastLocation: string;
-}
 
 const StyledWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -70,30 +64,7 @@ export default function Facts({ volunteers }: FactsProps) {
     t,
     i18n: { language: locale },
   } = useTranslation([LANDING, PRESS]);
-  const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
-  const [isSignupInfoLoading, setIsSignupInfoLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSignupInfo = async () => {
-      try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch signup info");
-        }
-        const data = await response.json();
-        setSignupInfo(data);
-      } catch (error) {
-        console.error("Error fetching signup info:", error);
-      } finally {
-        setIsSignupInfoLoading(false);
-      }
-    };
-
-    fetchSignupInfo();
-  }, []);
+  const { signupInfo, isLoading: isSignupInfoLoading } = useSignupPageInfo();
 
   const currentVolunteersList = volunteers.data?.currentVolunteersList ?? [];
   const pastVolunteersList = volunteers.data?.pastVolunteersList ?? [];
