@@ -126,7 +126,7 @@ export default function PressCoverage() {
               <Typography fontSize="1.25rem">"{headline}"</Typography>
               <StyledLink
                 href={href}
-                aria-label={`${t("read_more")}: ${headline} ${t("opens_in_a_new_tab")}`}
+                aria-label={t("read_more_link_aria", { headline })}
                 target="_blank"
                 rel="noopener noreferrer"
               >

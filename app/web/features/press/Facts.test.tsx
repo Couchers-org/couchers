@@ -110,7 +110,7 @@ describe("Facts", () => {
     const past = Array(2).fill({}) as Volunteer.AsObject[];
     render(<Facts volunteers={makeVolunteers(current, past)} />, { wrapper });
     expect(
-      screen.getByText(t("press:num_volunteers2", { count: 6 })),
+      screen.getByText(t("press:num_volunteers", { count: 6 })),
     ).toBeInTheDocument();
   });
 });

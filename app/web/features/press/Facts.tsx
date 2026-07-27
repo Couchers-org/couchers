@@ -122,7 +122,7 @@ export default function Facts({ volunteers }: FactsProps) {
             <Loader width="7.5rem" />
           ) : (
             <Typography sx={textStyle}>
-              {t("press:num_volunteers2", { count: volunteersNumber })}
+              {t("press:num_volunteers", { count: volunteersNumber })}
             </Typography>
           )}
         </Box>

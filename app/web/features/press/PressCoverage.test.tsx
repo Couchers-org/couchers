@@ -19,7 +19,7 @@ describe("PressCoverage", () => {
     articles.forEach((headline) => {
       expect(
         screen.getByRole("link", {
-          name: `${t("press:read_more")}: ${headline} ${t("press:opens_in_a_new_tab")}`,
+          name: t("press:read_more_link_aria", { headline }),
         }),
       ).toBeInTheDocument();
     });

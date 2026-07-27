@@ -85,7 +85,7 @@ export default function About() {
             <Typography>{t(text)}</Typography>
             <StyledReadMoreLink
               href={href}
-              aria-label={`${t("read_more")}: ${t(heading)}`}
+              aria-label={t("read_more_link_aria", { headline: t(heading) })}
             >
               {t("read_more")}
             </StyledReadMoreLink>
