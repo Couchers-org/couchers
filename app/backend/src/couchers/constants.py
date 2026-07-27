@@ -77,6 +77,9 @@ MEDIA_PORT = 1753
 # per API worker process; kept small since we parallelize across processes (API_WORKER_COUNT), not threads
 SERVER_THREADS = 8
 
+# SQLAlchemy pool size, per process; sized for the API workers as the larger consumer, see db.py
+DB_POOL_SIZE = 2 * SERVER_THREADS + 4
+
 # on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
 # container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
 GRACEFUL_SHUTDOWN_TIMEOUT = 5

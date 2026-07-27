@@ -97,13 +97,26 @@ class LocalizationContext:
         self,
         value: datetime | Timestamp,
         *,
+        display_timezone: tzinfo | None = None,
         abbrev: bool = False,
         with_year: bool = True,
         with_day_of_week: bool = False,
         with_seconds: bool = False,
     ) -> str:
+        """
+        Formats a date and time according to this localization context.
+
+        Params:
+          value: An instant in time to be formatted in date and time components.
+                 datetimes should be timezone-aware so they represent an unambiguous instant,
+                 but their timezones are irrelevant for formatting.
+          display_timezone: The timezone to use when formatting the datetime.
+                            Defaults to the value from this localization context.
+        """
         return localize_datetime(
-            to_timezone(value, self.timezone),
+            # By default we display the datetime in the user's timezone.
+            # The "timezone" parameter overrides this behavior.
+            to_timezone(value, display_timezone or self.timezone),
             self.babel_locale,
             abbrev=abbrev,
             with_year=with_year,

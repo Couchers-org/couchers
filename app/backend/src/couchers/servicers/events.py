@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_, update
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.email.calendar_events import create_event_ics_calendar
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
@@ -38,6 +39,7 @@ from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
@@ -292,12 +294,19 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
+    # people already attending or organizing the event don't need an invite to it
+    not_already_involved = User.id.not_in(
+        select(EventOccurrenceAttendee.user_id)
+        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+        .union(select(EventOrganizer.user_id).where(EventOrganizer.event_id == occurrence.event_id))
+    )
+
     cluster = occurrence.event.parent_node.official_cluster
     if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
         logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
+        return list(cluster.members.where(User.is_visible).where(not_already_involved)), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
@@ -307,6 +316,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
                 .where(User.is_visible)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
+                .where(not_already_involved)
             )
             .scalars()
             .all()
@@ -380,8 +390,6 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
-                    # TODO(#9117): Remove update_str_items once known unused.
-                    updated_str_items=payload.updated_str_items,
                     updated_enum_items=(
                         notification_data_pb2.EventUpdateItem.ValueType(value) for value in payload.updated_enum_items
                     ),
@@ -1360,3 +1368,16 @@ class Events(events_pb2_grpc.EventsServicer):
         session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()
+
+    def GetEventCalendarFile(
+        self, request: events_pb2.GetEventCalendarFileReq, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
+        if not res:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
+
+        _, occurrence_db = res
+
+        event_pb = event_to_pb(session, occurrence_db, context)
+        ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
+        return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

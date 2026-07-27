@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -1948,6 +1949,56 @@ def test_ListEventAttendees_regression(db):
         assert res.attendee_user_ids[0] == user1.id
 
 
+def test_GetEventCalendarFile(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        created_event: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = created_event.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        assert file_res.content_type == "text/calendar"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string
+        assert "DESCRIPTION:Dummy content." in ics_string
+        assert "LOCATION:Near Null Island" in ics_string
+        assert "STATUS:CANCELLED" not in ics_string
+        pre_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Cancelled: Dummy Title" in ics_string
+        assert "STATUS:CANCELLED" in ics_string
+        post_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+        assert post_cancel_sequence >= pre_cancel_sequence
+
+
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -2258,9 +2309,10 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
         assert res.requests[0].user_id == user1.id
-        assert res.requests[0].approx_users_to_notify == 3
+        # user1 is the event organizer, so they're excluded from the notify count (only user3 and user4 remain)
+        assert res.requests[0].approx_users_to_notify == 2
         assert res.requests[1].user_id == user3.id
-        assert res.requests[1].approx_users_to_notify == 3
+        assert res.requests[1].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
@@ -2282,6 +2334,73 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert err.value.details() == "A community invite has already been sent out for this event."
+
+
+def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Moderator):
+    # Regression: users who already RSVP'd (or organize the event) must not get the
+    # community invite notification when it is approved.
+    organizer, organizer_token = generate_user()
+    attendee, attendee_token = generate_user()
+    member, _ = generate_user()
+    superuser, superuser_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 2, "World Community", [superuser], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
+        r = create_community(session, 0, 2, "Region", [superuser], [], mr)
+        c_id = create_community(session, 0, 2, "Community", [organizer, attendee, member], [], r).id
+
+    enforce_community_memberships()
+
+    with events_session(organizer_token) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+            )
+        ).event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    # the attendee RSVPs before the community invite is approved
+    with events_session(attendee_token) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(organizer_token) as api:
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+
+    with real_editor_session(superuser_token) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                approve=True,
+            )
+        )
+
+    process_jobs()
+
+    with session_scope() as session:
+
+        def invite_notification_count(user_id: int) -> int:
+            notifications = session.execute(select(Notification).where(Notification.user_id == user_id)).scalars().all()
+            return len([n for n in notifications if n.topic_action == NotificationTopicAction.event__create_approved])
+
+        # a plain community member gets the invite...
+        assert invite_notification_count(member.id) == 1
+        # ...but the attendee and the organizer don't
+        assert invite_notification_count(attendee.id) == 0
+        assert invite_notification_count(organizer.id) == 0
 
 
 def test_update_event_should_notify_queues_job():

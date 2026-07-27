@@ -63,5 +63,9 @@
   "push_notification_banner": {
     "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
     "confirm": "Ja, bitte!"
+  },
+  "notifications_filters": {
+    "all_button": "Alle",
+    "unread_button": "Ungelesen"
   }
 }
