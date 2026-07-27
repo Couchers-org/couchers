@@ -1,9 +1,10 @@
 import re
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
 import pytest
+import time_machine
 from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select
@@ -50,6 +51,7 @@ def is_utc_or_gmt(timezone: str) -> bool:
     return timezone in ("Etc/UTC", "Etc/GMT")
 
 
+@time_machine.travel(datetime(2000, 1, 1, tzinfo=UTC), tick=False)
 def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
@@ -67,7 +69,6 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    time_before = now()
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
@@ -97,11 +98,11 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.location.lat == 0.1
         assert res.location.lng == 0.2
         assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
+        assert to_aware_datetime(res.created) == now()
+        assert to_aware_datetime(res.last_edited) == now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
@@ -133,11 +134,11 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.location.lat == 0.1
         assert res.location.lng == 0.2
         assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
+        assert to_aware_datetime(res.created) == now()
+        assert to_aware_datetime(res.last_edited) == now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
@@ -164,11 +165,11 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.location.lat == 0.1
         assert res.location.lng == 0.2
         assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
+        assert to_aware_datetime(res.created) == now()
+        assert to_aware_datetime(res.last_edited) == now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
         assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer

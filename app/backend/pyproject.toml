@@ -56,6 +56,7 @@ dev = [
     "pytest-cov>=6.2.1",
     "pre-commit>=4.2.0",
     "mypy>=1.18.2",
+    "time-machine>=3.2.0",
     "types-grpcio>=1.0.0.20251009",
     "types-protobuf>=6.32.1.20251105",
     "types-shapely>=2.1.0.20250917",

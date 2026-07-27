@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+import time_machine
 from sqlalchemy import Connection, Engine
 from sqlalchemy.sql import text
 
@@ -29,6 +30,9 @@ from tests.fixtures.db import (  # noqa: E402
     populate_testing_resources,
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
+
+# Enforce usage of tz-aware datetimes to avoid bugs
+time_machine.naive_mode = time_machine.NaiveMode.ERROR
 
 
 @pytest.fixture(scope="session")

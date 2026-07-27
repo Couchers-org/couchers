@@ -25,7 +25,7 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.models.moderation import ModerationObjectType
-from couchers.utils import get_coordinates
+from couchers.utils import get_coordinates, now
 
 if TYPE_CHECKING:
     from couchers.models import Cluster, Node, Thread, Upload, User
@@ -72,7 +72,7 @@ class Event(Base, kw_only=True):
     slug: Mapped[str] = column_property(func.slugify(title))
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default_factory=now, init=False)
     owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True, default=None)
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True, default=None)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
@@ -141,8 +141,8 @@ class EventOccurrence(Base, kw_only=True):
     # simplifies database constraints, etc
     during: Mapped[TimestamptzRange] = mapped_column(TSTZRANGE)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default_factory=now, init=False)
+    last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), default_factory=now, init=False)
 
     creator_user: Mapped[User] = relationship(
         init=False, backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
