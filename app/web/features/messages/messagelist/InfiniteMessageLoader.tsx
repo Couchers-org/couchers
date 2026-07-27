@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { messageElementId } from "features/messages/messagelist/MessageView";
-import { Message } from "proto/conversations_pb";
+import { Message } from "proto/messages_pb";
 import {
   ReactNode,
   useCallback,

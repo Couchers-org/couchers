@@ -1,4 +1,5 @@
-import { HostRequestStatus, MessageThreadFilter } from "proto/conversations_pb";
+import { MessageThreadCategory } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 
 export type MessageFilterType =
   | "all"
@@ -20,47 +21,46 @@ export const MESSAGE_FILTER_TYPES: MessageFilterType[] = [
 ];
 
 // Maps a URL filter slug to the unified ListMessageThreads request params.
-// "archived" is orthogonal: it's the full list restricted to archived threads.
+// categories, onlyUnread and onlyArchived are orthogonal; an empty categories
+// list means all categories.
 export function messageFilterToRequest(filter: MessageFilterType): {
-  filter: MessageThreadFilter;
+  categories: MessageThreadCategory[];
+  onlyUnread: boolean;
   onlyArchived: boolean;
 } {
   switch (filter) {
     case "unread":
-      return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_UNREAD,
-        onlyArchived: false,
-      };
+      return { categories: [], onlyUnread: true, onlyArchived: false };
     case "chats":
       return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_CHATS,
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_CHATS],
+        onlyUnread: false,
         onlyArchived: false,
       };
     case "hosting":
       return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_HOSTING,
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_HOSTING],
+        onlyUnread: false,
         onlyArchived: false,
       };
     case "surfing":
       return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_SURFING,
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_SURFING],
+        onlyUnread: false,
         onlyArchived: false,
       };
     case "public-trips":
       return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+        categories: [
+          MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
+        ],
+        onlyUnread: false,
         onlyArchived: false,
       };
     case "archived":
-      return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
-        onlyArchived: true,
-      };
+      return { categories: [], onlyUnread: false, onlyArchived: true };
     default:
-      return {
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
-        onlyArchived: false,
-      };
+      return { categories: [], onlyUnread: false, onlyArchived: false };
   }
 }
 

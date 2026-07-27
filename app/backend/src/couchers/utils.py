@@ -130,6 +130,14 @@ def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
     return value.astimezone(timezone)
 
 
+def datetime_to_iso8601_local(value: datetime) -> str:
+    """
+    Gets a local ISO 8601 representation of a datetime, without timezone information.
+    This loses information and requires parsers to assume a timezone, so use with care.
+    """
+    return value.replace(tzinfo=None).isoformat()
+
+
 def now() -> datetime:
     return datetime.now(tz=UTC)
 

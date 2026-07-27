@@ -119,7 +119,7 @@ export default function AllMessagesTab() {
 
   const showArchived = filter === "archived";
   const isGroupedView = filter === "public-trips";
-  const { filter: threadFilter, onlyArchived } = messageFilterToRequest(filter);
+  const { categories, onlyUnread, onlyArchived } = messageFilterToRequest(filter);
 
   const handleFilterChange = (newFilter: MessageFilterType) => {
     router.push(`/messages/${newFilter}`);
@@ -136,15 +136,14 @@ export default function AllMessagesTab() {
     queryKey: messageThreadsListKey({ filter, onlyArchived }),
     queryFn: ({ pageParam }) =>
       service.conversations.listMessageThreads({
-        filter: threadFilter,
+        categories,
+        onlyUnread,
         onlyArchived,
         pageToken: pageParam as string | undefined,
         count: PAGE_SIZE,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore || !lastPage.nextPageToken
-        ? undefined
-        : lastPage.nextPageToken,
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     initialPageParam: undefined,
     enabled: !isGroupedView,
   });

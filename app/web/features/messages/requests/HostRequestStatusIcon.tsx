@@ -1,6 +1,6 @@
 import { Avatar, AvatarProps } from "@mui/material";
 import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import React from "react";
 import { theme } from "theme";
 

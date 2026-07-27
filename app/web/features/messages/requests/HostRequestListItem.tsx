@@ -27,13 +27,12 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequestThread } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import { localizeDateTimeRange } from "utils/date";
-import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -92,7 +91,7 @@ const RequestTypeChip = styled(Chip)<{ ishost: "true" | "false" }>(
 );
 
 interface HostRequestListItemProps {
-  hostRequest: HostRequestThread.AsObject;
+  hostRequest: HostRequest.AsObject;
   className?: string;
   isArchived?: boolean;
 }
@@ -146,7 +145,12 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(hostRequest.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
 
   const queryClient = useQueryClient();
 

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import HostRequestStatusText from "features/messages/requests/HostRequestStatusText";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import wrapper from "test/hookWrapper";
 
 describe("HostRequestStatusText (public-trip offers)", () => {

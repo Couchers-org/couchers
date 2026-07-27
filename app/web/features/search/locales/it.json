@@ -1,4 +1,94 @@
 {
   "any": "Qualsiasi",
-  "choose_search_criteria": "Scrivi una località o applica un filtro per cercare."
+  "choose_search_criteria": "Scrivi una località o applica un filtro per cercare.",
+  "filter_dialog": {
+    "desktop_title": "Filtri",
+    "mobile_title": "Cerca"
+  },
+  "last_active_options": {
+    "last_3_months": "Ultimi 3 mesi",
+    "last_6_months": "Ultimi 6 mesi",
+    "last_year": "Ultimo anno",
+    "last_week": "Ultima settimana",
+    "last_month": "Ultimo mese"
+  },
+  "form": {
+    "location_field_label": "Località vicina",
+    "keywords": {
+      "field_label": "Nome, parole chiave o username",
+      "clear_field_action_a11y_label": "Cancella la ricerca",
+      "search_this_keyword_a11y_label": "Cerca questa parola chiave"
+    },
+    "by_location_filter_label": "Per località",
+    "by_keyword_filter_label": "Per parola chiave o nome",
+    "host_filters": {
+      "age": {
+        "field_label": "Età dell'host",
+        "min_age": "Età minima",
+        "max_age": "Età massima"
+      },
+      "last_active_field_label": "Ultimo accesso",
+      "hosting_status_field_label": "Disponibilità ad ospitare",
+      "meetup_status_field_label": "Disponibilità ad incontrarsi"
+    },
+    "accommodation_filters": {
+      "title": "Filtri di alloggio",
+      "guests_field_label": "Numero di ospiti",
+      "sleeping_arrangement_label": "Sistemazione per dormire",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Stanza condivisa",
+          "description": " - ad es. camera da letto condivisa con un posto per dormire personale"
+        },
+        "private": {
+          "label": "Spazio privato",
+          "description": " - ad es. camera singola o simile"
+        },
+        "common": {
+          "label": "Stanza comune",
+          "description": " - ad es. divano in soggiorno"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Mostra profili vuoti"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Accetta richieste last minute",
+      "has_strong_verification": "Ha la verifica robusta",
+      "has_references": "Ha referenze",
+      "same_gender_only": "Mostra solo lo stesso genere",
+      "same_gender_only_helper_text": "Solo gli utenti con la verifica robusta possono usare questo filtro.",
+      "get_strong_verification": "Ottieni la verifica robusta qui (è gratis)."
+    },
+    "rules": {
+      "title": "Regole",
+      "alcohol_allowed": "Sono ammessi alcolici",
+      "kids_allowed": "Sono ammessi bambini",
+      "pets_allowed": "Sono ammessi animali domestici",
+      "smokes_at_home": "Fuma in casa"
+    },
+    "submit_button_label": "Applica",
+    "search_filters": "Filtri di ricerca",
+    "clear_filters": "Cancella tutti i filtri"
+  },
+  "error_loading_users": "Errore di caricamento utenti",
+  "search_result": {
+    "no_user_result_message": "Nessun utente trovato. Prova a rimuovere alcuni filtri per vedere più risultati.",
+    "missing_about_description": "{{name}} non ha ancora detto nulla su di sé",
+    "people_range_message_one": "{{currentRange}} di {{count}} persona",
+    "people_range_message_many": "{{currentRange}} di {{count}} di persone",
+    "people_range_message_other": "{{currentRange}} di {{count}} persone",
+    "few_results_suggestion": "Di default, i profili vuoti e quelli \"non disponibili a ospitare\" sono nascosti.",
+    "include_empty_profiles_button": "Mostra tutti i profili"
+  },
+  "views": {
+    "choose_map_view": "Scegli la vista mappa",
+    "list": "Elenco",
+    "map_and_list": "Mappa ed elenco"
+  },
+  "location": "Località",
+  "keyword": "Parola chiave",
+  "search_this_area": "Cerca in quest'area",
+  "zoom_in_to_select_user": "Fai zoom per selezionare un utente"
 }

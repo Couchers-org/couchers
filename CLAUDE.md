@@ -57,6 +57,7 @@ make mypy
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
 - Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
+- For paginated APIs, use a `next_page_token` string field: an empty token means there are no more pages (don't add a separate `no_more` flag). Encrypt tokens with `encrypt_page_token`/`decrypt_page_token` from `couchers.crypto` so they are opaque to clients
 
 ### Web (TypeScript/React)
 - Uses `nvm` for node version management

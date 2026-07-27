@@ -62,6 +62,14 @@ def test_localize_datetime() -> None:
     assert localize_datetime(value, babel_en) == "January 2, 2000, 2:05 PM"
     assert localize_datetime(value, babel_fr) == "2 janvier 2000, 14:05"
 
+    value_non_utc = datetime(2000, 1, 2, 14, 5, tzinfo=ZoneInfo("Etc/GMT-2"))
+    assert localize_datetime(value_non_utc, babel_en) == "January 2, 2000, 2:05 PM"
+
+    assert localize_datetime(value, babel_en, abbrev=True) == "Jan 2, 2000, 2:05 PM"
+    assert localize_datetime(value, babel_en, with_year=False) == "January 2, 2:05 PM"
+    assert localize_datetime(value, babel_en, with_day_of_week=True) == "Sunday, January 2, 2000, 2:05 PM"
+    assert localize_datetime(value, babel_en, with_seconds=True) == "January 2, 2000, 2:05:00 PM"
+
 
 def test_localize_timezone() -> None:
     assert localize_timezone(ZoneInfo("Europe/London"), babel_en) == "United Kingdom Time"

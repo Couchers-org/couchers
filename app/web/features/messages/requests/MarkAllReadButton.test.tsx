@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { MessageThreadFilter } from "proto/conversations_pb";
+import { MessageThreadCategory } from "proto/conversations_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -21,13 +21,16 @@ describe("MarkAllReadButton", () => {
   });
 
   it.each([
-    ["chats", MessageThreadFilter.MESSAGE_THREAD_FILTER_CHATS],
-    ["hosting", MessageThreadFilter.MESSAGE_THREAD_FILTER_HOSTING],
-    ["surfing", MessageThreadFilter.MESSAGE_THREAD_FILTER_SURFING],
-    ["public-trips", MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS],
+    ["chats", MessageThreadCategory.MESSAGE_THREAD_CATEGORY_CHATS],
+    ["hosting", MessageThreadCategory.MESSAGE_THREAD_CATEGORY_HOSTING],
+    ["surfing", MessageThreadCategory.MESSAGE_THREAD_CATEGORY_SURFING],
+    [
+      "public-trips",
+      MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
+    ],
   ] as const)(
     "marks all threads seen for the %s filter",
-    async (type, expectedFilter) => {
+    async (type, expectedCategory) => {
       const label =
         type === "public-trips"
           ? t("messages:mark_all_read_button_text_public_trips")
@@ -39,7 +42,8 @@ describe("MarkAllReadButton", () => {
 
       await waitFor(() => {
         expect(markAllThreadsSeenMock).toHaveBeenCalledWith({
-          filter: expectedFilter,
+          categories: [expectedCategory],
+          onlyUnread: false,
           onlyArchived: false,
         });
       });
@@ -57,7 +61,8 @@ describe("MarkAllReadButton", () => {
 
     await waitFor(() => {
       expect(markAllThreadsSeenMock).toHaveBeenCalledWith({
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
+        categories: [],
+        onlyUnread: false,
         onlyArchived: false,
       });
     });

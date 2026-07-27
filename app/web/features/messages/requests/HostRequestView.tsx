@@ -29,7 +29,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
@@ -37,8 +37,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
@@ -158,14 +158,19 @@ export default function HostRequestView({
   // Whether the viewer is the host of the *stay* (the one offering a couch).
   // For a normal request that's the recipient (hostUserId); for a public-trip
   // offer the roles are reversed, so it's the initiator (surferUserId), i.e. the
-  // person who offered to host. GetHostRequest is not role-swapped, so we derive
+  // person who offered to host. The payload is not role-swapped, so we derive
   // it here.
   const isHost = isOffer
     ? hostRequest?.surferUserId === currentUserId
     : hostRequest?.hostUserId === currentUserId;
   // The other party in the conversation, independent of stay-role.
   const otherUser = hostRequest?.surferUserId === currentUserId ? host : surfer;
-  const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isRequestPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(
+      Temporal.PlainDate.from(hostRequest.toDate),
+      Temporal.Now.plainDateISO(),
+    ) < 0;
 
   const titleStatus =
     hostRequest &&

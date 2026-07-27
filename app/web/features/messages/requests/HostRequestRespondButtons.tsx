@@ -3,7 +3,7 @@ import { Box, styled, Typography } from "@mui/material";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 
 import FieldButton from "./FieldButton";
 

@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
-import "conversations.proto";
+import "messages.proto";
 
 service Requests {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -81,6 +81,9 @@ message HostRequest {
   bool is_archived = 15;
   // If set, this host request was created in response to a public trip
   optional int64 public_trip_id = 16;
+  // number of messages the viewer hasn't seen yet; currently only populated by
+  // Conversations.ListMessageThreads
+  uint32 unseen_message_count = 17;
 }
 
 message GetHostRequestReq {

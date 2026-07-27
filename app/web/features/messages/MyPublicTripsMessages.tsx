@@ -16,16 +16,16 @@ import { MESSAGES, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
-  HostRequestThread,
   ListMessageThreadsRes,
-  MessageThreadFilter,
+  MessageThreadCategory,
 } from "proto/conversations_pb";
 import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
+import { HostRequest } from "proto/requests_pb";
 import React, { useCallback, useEffect, useState } from "react";
 import { myPublicTripsRoute, routeToHostRequest } from "routes";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTimeRange, numNights } from "utils/date";
+import { localizeDateTimeRange } from "utils/date";
 
 const OFFERS_PAGE_SIZE = 50;
 
@@ -138,14 +138,14 @@ export default function MyPublicTripsMessages() {
     }),
     queryFn: ({ pageParam }) =>
       service.conversations.listMessageThreads({
-        filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+        categories: [
+          MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
+        ],
         pageToken: pageParam as string | undefined,
         count: OFFERS_PAGE_SIZE,
       }),
     getNextPageParam: (lastPage) =>
-      lastPage.noMore || !lastPage.nextPageToken
-        ? undefined
-        : lastPage.nextPageToken,
+      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     initialPageParam: undefined,
     enabled: !!userId,
   });
@@ -162,10 +162,10 @@ export default function MyPublicTripsMessages() {
     offersQuery.data?.pages.flatMap((page) =>
       page.threadsList
         .map((thread) => thread.hostRequest)
-        .filter((hr): hr is HostRequestThread.AsObject => hr !== undefined),
+        .filter((hr): hr is HostRequest.AsObject => hr !== undefined),
     ) ?? [];
 
-  const offersByTrip = new Map<number, HostRequestThread.AsObject[]>();
+  const offersByTrip = new Map<number, HostRequest.AsObject[]>();
   for (const offer of offers) {
     const tripId = offer.publicTripId ?? 0;
     const list = offersByTrip.get(tripId) ?? [];
@@ -276,7 +276,9 @@ export default function MyPublicTripsMessages() {
                   )}
                   {" · "}
                   {t("my_public_trips.nights", {
-                    count: numNights(trip.toDate, trip.fromDate),
+                    count: Temporal.PlainDate.from(trip.toDate).since(
+                      Temporal.PlainDate.from(trip.fromDate),
+                    ).days,
                   })}
                 </Typography>
               </div>

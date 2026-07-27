@@ -3,7 +3,6 @@ import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
@@ -12,11 +11,10 @@ import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
 import { Temporal } from "temporal-polyfill";
 import {
+  daysBetween,
   localizeDateTimeRange,
   localizeRelativeTimeUnit,
-  UTC_TIMEZONE,
 } from "utils/date";
-import dayjs from "utils/dayjs";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -131,8 +129,6 @@ export default function UpcomingStayCard({
   hostRequest,
 }: UpcomingStayCardProps) {
   const { authState } = useAuthContext();
-  const { data: currentUser } = useCurrentUser();
-  const timezone = currentUser?.timezone ?? UTC_TIMEZONE;
   const {
     t,
     i18n: { language: locale },
@@ -144,30 +140,28 @@ export default function UpcomingStayCard({
     : hostRequest.hostUserId;
   const { data: otherUser, isLoading } = useLiteUser(otherUserId);
 
-  const fromDate = dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE);
-  const toDate = dayjs.tz(hostRequest.toDate, UTC_TIMEZONE);
-  const nights = toDate.diff(fromDate, "day");
-  const today = dayjs().tz(timezone).startOf("day");
-  const daysUntil = fromDate.diff(today, "day");
-  const daysUntilEnd = toDate.diff(today, "day");
+  const fromDate = Temporal.PlainDate.from(hostRequest.fromDate);
+  const toDate = Temporal.PlainDate.from(hostRequest.toDate);
+  const today = Temporal.Now.plainDateISO();
+  const nights = daysBetween(fromDate, toDate);
+  const daysUntil = daysBetween(today, fromDate);
+  const daysUntilEnd = daysBetween(today, toDate);
   const isOngoing = daysUntil <= 0 && daysUntilEnd >= 0;
   const isImminent = daysUntil <= 3;
   const relativeDaysLabel = localizeRelativeTimeUnit(
     daysUntil,
     "days",
     locale,
-    { capitalize: true },
-  );
-
-  const dateRange = localizeDateTimeRange(
-    Temporal.PlainDateTime.from(hostRequest.fromDate),
-    Temporal.PlainDateTime.from(hostRequest.toDate),
     {
-      locale,
-      includeTime: false,
-      abbreviate: true,
+      capitalize: true,
     },
   );
+
+  const dateRange = localizeDateTimeRange(fromDate, toDate, {
+    locale,
+    includeTime: false,
+    abbreviate: true,
+  });
 
   const primary = isLoading ? (
     <Skeleton width={80} />

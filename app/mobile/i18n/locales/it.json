@@ -2,6 +2,43 @@
   "errors": {
     "check_connection": "Controlla la tua connessione Internet e riprova.",
     "try_again": "Riprova",
-    "failed_to_load": "Errore di caricamento"
+    "failed_to_load": "Errore di caricamento",
+    "camera_permission_denied": "Per fare le foto è necessario fornire l'autorizzazione della fotocamera.",
+    "camera_permission_required": "Permesso fotocamera richiesto",
+    "camera_permission_explanation": "Questa applicazione ha bisogno dell'accesso alla fotocamera per fare le foto. Per favore concedere il permesso quando richiesto.",
+    "camera_permission_denied_permanently": "L'accesso alla fotocamera è stato negato. Per fare le foto dovrai abilitare il permesso della fotocamera nelle impostazioni del tuo dispositivo."
+  },
+  "not_found": {
+    "title": "Oops!",
+    "go_home": "Vai alla schermata iniziale!",
+    "message": "Questa schermata non esiste."
+  },
+  "tabs": {
+    "messages": "Messaggi",
+    "search": "Cerca",
+    "events": "Eventi",
+    "home": "Home",
+    "communities": "Community"
+  },
+  "common": {
+    "cancel": "Annulla",
+    "add_photo": "Aggiungi foto",
+    "choose_photo_source": "Scegli da dove caricare la foto",
+    "take_photo": "Fai una foto",
+    "choose_from_library": "Scegli dalla galleria",
+    "open_settings": "Apri le impostazioni"
+  },
+  "update": {
+    "required_title": "Aggiornamento richiesto",
+    "body_warn": "Sembra che tu stia utilizzando una vecchia versione dell'app, quindi dovrai aggiornarla presto.",
+    "body_block": "Sembra che tu stia usando una vecchia versione dell'app, quindi devi aggiornarla adesso.",
+    "body_banned": "Sembra che la versione dell'app che stai utilizzando abbia dei bug, quindi dovrai aggiornarla.",
+    "preamble_warn": "Siamo un piccolo team di volontari e supportare le vecchie versioni è davvero difficile, ci scusiamo per il disagio.",
+    "preamble_block": "Siamo un piccolo team di volontari e supportare le vecchie versioni è davvero difficile, ci scusiamo per il disagio.",
+    "preamble_banned": "Siamo un piccolo team di volontari e a volte commettiamo degli errori, ci scusiamo per il disagio!",
+    "action_update": "Aggiorna ora",
+    "action_reinstall": "Scarica la nuova app",
+    "later": "Più tardi",
+    "failed": "L'aggiornamento non può essere applicato. Riprova per favore."
   }
 }

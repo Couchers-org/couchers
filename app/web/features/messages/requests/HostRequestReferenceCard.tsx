@@ -5,7 +5,7 @@ import { useListAvailableReferences } from "features/profile/hooks/referencesHoo
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import { ReferenceType } from "proto/references_pb";
 import { HostRequest } from "proto/requests_pb";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";

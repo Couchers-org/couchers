@@ -19,7 +19,11 @@
       },
       "title": "Preferências de Notificações",
       "expand_all": "Expandir tudo",
-      "collapse_all": "Recolher tudo"
+      "collapse_all": "Recolher tudo",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Notificação por push"
+      }
     },
     "push_notifications": {
       "permission_denied": {
@@ -55,11 +59,9 @@
     "message": "Não perca solicitações, respostas ou mensagens. Podemos enviar notificações por push para você?",
     "confirm": "Sim, por favor!"
   },
-  "unread": "Não lidas",
   "mark_unread": "Marcar como não lida",
   "mark_all_read": "Marcar todas como lidas",
   "no_new_notifications": "Nenhuma nova notificação",
   "error_loading": "Erro ao carregar notificações",
-  "all": "Todas",
   "error_updating_notifications": "Erro ao atualizar notificações"
 }

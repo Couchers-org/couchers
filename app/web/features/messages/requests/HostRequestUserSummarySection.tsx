@@ -14,7 +14,7 @@ import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeDateTimeRange, numNights } from "utils/date";
+import { daysBetween, localizeDateTimeRange } from "utils/date";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
@@ -163,7 +163,10 @@ const HostRequestUserSummarySection = ({
             >
               (
               {t("host_request_view.request_duration", {
-                count: numNights(hostRequest.toDate, hostRequest.fromDate),
+                count: daysBetween(
+                  Temporal.PlainDate.from(hostRequest.fromDate),
+                  Temporal.PlainDate.from(hostRequest.toDate),
+                ),
               })}
               )
             </Typography>

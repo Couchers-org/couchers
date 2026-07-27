@@ -59,11 +59,9 @@
     "message": "不要錯過請求、回覆或訊息；我們可以向您發送推送通知嗎？",
     "confirm": "好的！"
   },
-  "unread": "未讀",
   "mark_unread": "標記為未讀",
   "mark_all_read": "全部標記為已讀",
   "no_new_notifications": "沒有新通知",
-  "all": "全部",
   "error_loading": "載入通知時發生錯誤",
   "error_updating_notifications": "更新通知時出錯"
 }

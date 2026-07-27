@@ -251,7 +251,7 @@ const NotificationsFeed = ({
               },
             }}
           >
-            {t("notifications:all")}
+            {t("notifications:notifications_filters.all_button")}
           </Pill>
           <Pill
             variant="rounded"
@@ -272,7 +272,7 @@ const NotificationsFeed = ({
               },
             }}
           >
-            {t("notifications:unread")}
+            {t("notifications:notifications_filters.unread_button")}
           </Pill>
         </StyledPills>
       </TopContentWrapper>

@@ -30,11 +30,9 @@
       "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce."
     }
   },
-  "all": "Vše",
   "error_loading": "Chyba při načítání oznámení",
   "mark_unread": "Označit jako nepřečtené",
   "mark_all_read": "Označit vše jako přečtené",
   "no_new_notifications": "Žádná nová oznámení",
-  "error_updating_notifications": "Chyba při aktualizaci oznámení",
-  "unread": "Nepřečteno"
+  "error_updating_notifications": "Chyba při aktualizaci oznámení"
 }

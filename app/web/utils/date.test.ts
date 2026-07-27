@@ -1,11 +1,15 @@
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
 import {
+  approxDateDuration,
+  approxTimeDuration,
   getMuiDateFormat,
   getMuiTimeFormat,
   localizeDateTime,
-  localizeDurationLargestUnit,
+  localizeDuration,
   localizeRelativeTime,
+  localizeTimeOffset,
+  localizeTimeZone,
 } from "utils/date";
 
 const janFirst2000 = Temporal.PlainDateTime.from("2000-01-01");
@@ -167,122 +171,118 @@ describe("localizeDateTime", () => {
   });
 });
 
-describe("localizeDurationLargestUnit", () => {
-  it("works with positive durations", () => {
+describe("localizeTimeOffset", () => {
+  it("works with positive offsets", () => {
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ milliseconds: 1 }),
-        "en",
-        { numeric: "always" },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ milliseconds: 1 }), "en", {
+        numeric: "always",
+      }),
     ).toBe("in 0 seconds");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ seconds: 1 }), "en"),
+      localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en"),
     ).toBe("in 1 second");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ seconds: 5 }), "en"),
-    ).toBe("in 5 seconds");
+      localizeTimeOffset(Temporal.Duration.from({ seconds: 3 }), "en"),
+    ).toBe("in 3 seconds");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ minutes: 1 }), "en"),
+      localizeTimeOffset(Temporal.Duration.from({ minutes: 1 }), "en"),
     ).toBe("in 1 minute");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ minutes: 5 }), "en"),
-    ).toBe("in 5 minutes");
+      localizeTimeOffset(Temporal.Duration.from({ minutes: 3 }), "en"),
+    ).toBe("in 3 minutes");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 1 }), "en")).toBe(
+      "in 1 hour",
+    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "en")).toBe(
+      "in 3 hours",
+    );
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ hours: 1 }), "en"),
-    ).toBe("in 1 hour");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ hours: 5 }), "en"),
-    ).toBe("in 5 hours");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ days: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ days: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 day");
+    expect(localizeTimeOffset(Temporal.Duration.from({ days: 3 }), "en")).toBe(
+      "in 3 days",
+    );
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ days: 5 }), "en"),
-    ).toBe("in 5 days");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ weeks: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ weeks: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 week");
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: 3 }), "en")).toBe(
+      "in 3 weeks",
+    );
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ weeks: 5 }), "en"),
-    ).toBe("in 5 weeks");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ months: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ months: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 month");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ months: 5 }), "en"),
-    ).toBe("in 5 months");
+      localizeTimeOffset(Temporal.Duration.from({ months: 3 }), "en"),
+    ).toBe("in 3 months");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ years: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ years: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 year");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ years: 5 }), "en"),
-    ).toBe("in 5 years");
+    expect(localizeTimeOffset(Temporal.Duration.from({ years: 3 }), "en")).toBe(
+      "in 3 years",
+    );
   });
 
-  it("works with negative durations", () => {
+  it("works with negative offsets", () => {
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ hours: -5 }), "en"),
-    ).toBe("5 hours ago");
+      localizeTimeOffset(Temporal.Duration.from({ hours: -3 }), "en"),
+    ).toBe("3 hours ago");
   });
 
   it("works with other locales", () => {
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ hours: 5 }), "fr"),
-    ).toBe("dans 5 heures");
-    expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ hours: 5 }), "es"),
-    ).toBe("dentro de 5 horas");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "fr")).toBe(
+      "dans 3 heures",
+    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "es")).toBe(
+      "dentro de 3 horas",
+    );
   });
 
   it("uses friendly readable forms for date unit deltas of 1", () => {
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ days: -1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ days: -1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("yesterday");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ days: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ days: 1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("tomorrow");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ weeks: -1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ weeks: -1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("last week");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ weeks: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ weeks: 1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("next week");
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ months: -1 }),
-        "en",
-        { numeric: "auto" },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ months: -1 }), "en", {
+        numeric: "auto",
+      }),
     ).toBe("last month");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ months: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ months: 1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("next month");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ years: -1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ years: -1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("last year");
     expect(
-      localizeDurationLargestUnit(Temporal.Duration.from({ years: 1 }), "en", {
+      localizeTimeOffset(Temporal.Duration.from({ years: 1 }), "en", {
         numeric: "auto",
       }),
     ).toBe("next year");
@@ -290,21 +290,15 @@ describe("localizeDurationLargestUnit", () => {
 
   it("honors the smallest unit", () => {
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ seconds: 1 }),
-        "en",
-        {
-          numeric: "always",
-          smallestUnit: "minutes",
-        },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en", {
+        numeric: "always",
+        smallestUnit: "minutes",
+      }),
     ).toBe("in 0 minutes");
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ minutes: 1 }),
-        "en",
-        { smallestUnit: "minutes" },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ minutes: 1 }), "en", {
+        smallestUnit: "minutes",
+      }),
     ).toBe("in 1 minute");
   });
 
@@ -312,28 +306,24 @@ describe("localizeDurationLargestUnit", () => {
     const mockT = ((key: string): string => key) as TFunction;
 
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ seconds: -1 }),
-        "en",
-        { smallestUnit: "minutes", t: mockT },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ seconds: -1 }), "en", {
+        smallestUnit: "minutes",
+        t: mockT,
+      }),
     ).toBe("global:relative_time.less_than_a_minute_ago");
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ minutes: -1 }),
-        "en",
-        { smallestUnit: "minutes", t: mockT },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ minutes: -1 }), "en", {
+        smallestUnit: "minutes",
+        t: mockT,
+      }),
     ).toBe("1 minute ago");
   });
 
   it("supports capitalizing", () => {
     expect(
-      localizeDurationLargestUnit(
-        Temporal.Duration.from({ seconds: 1 }),
-        "en",
-        { capitalize: true },
-      ),
+      localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en", {
+        capitalize: true,
+      }),
     ).toBe("In 1 second");
   });
 });
@@ -348,18 +338,18 @@ describe("localizeRelativeTime", () => {
   it("handles time units", () => {
     expect(
       localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerHour * 5n),
+        new Temporal.Instant(nanosecondsPerHour * 3n),
         "en",
         { relativeTo: instantZero },
       ),
-    ).toBe("in 5 hours");
+    ).toBe("in 3 hours");
     expect(
       localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerHour * -5n),
+        new Temporal.Instant(nanosecondsPerHour * -3n),
         "en",
         { relativeTo: instantZero },
       ),
-    ).toBe("5 hours ago");
+    ).toBe("3 hours ago");
   });
 
   it("handles date units", () => {
@@ -448,6 +438,84 @@ describe("localizeRelativeTime", () => {
         },
       ),
     ).toBe("2 weeks ago");
+  });
+});
+
+describe("localizeDuration", () => {
+  it("works with different units", () => {
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe(
+      "3 minutes",
+    );
+    expect(localizeDuration(Temporal.Duration.from({ hours: 3 }), "en")).toBe(
+      "3 hours",
+    );
+  });
+
+  it("honors the locale", () => {
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe(
+      "3 minutes",
+    );
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "es")).toBe(
+      "3 minutos",
+    );
+  });
+});
+
+describe("localizeTimeZone", () => {
+  // Use timezones that have no daylight time or the test will produce different results
+  // depending on the time of the year.
+  it("supports for different time zones", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
+    expect(localizeTimeZone("America/Mexico_City", "en")).toBe(
+      "Central Standard Time",
+    );
+  });
+
+  it("supports for different languages", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
+    expect(localizeTimeZone("Asia/Shanghai", "es")).toBe(
+      "hora estándar de China",
+    );
+  });
+
+  it("supports short and long forms", () => {
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: false })).toBe(
+      "Greenwich Mean Time",
+    );
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: true })).toBe(
+      "GMT",
+    );
+  });
+
+  it("supports for capitalization", () => {
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: false })).toBe(
+      "hora estándar de China",
+    );
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: true })).toBe(
+      "Hora estándar de China",
+    );
+  });
+});
+
+describe("approxTimeDuration", () => {
+  it("converts years, months, weeks and days to hours", () => {
+    expect(
+      approxTimeDuration(
+        Temporal.Duration.from({ years: 1, months: 2, weeks: 3, days: 4 }),
+      ).hours,
+    ).toBe((365 * 1 + 30 * 2 + 7 * 3 + 1 * 4) * 24);
+  });
+});
+
+describe("approxDateDuration", () => {
+  it("converts hours to days, weeks, months and years", () => {
+    expect(
+      approxDateDuration(
+        Temporal.Duration.from({
+          hours: (365 * 1 + 30 * 2 + 7 * 3 + 1 * 4) * 24,
+        }),
+      ).toString(),
+    ).toBe("P1Y2M3W4D");
   });
 });
 

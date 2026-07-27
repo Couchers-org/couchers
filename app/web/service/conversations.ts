@@ -17,16 +17,17 @@ import {
   MakeGroupChatAdminReq,
   MarkAllThreadsSeenReq,
   MarkLastSeenGroupChatReq,
-  MessageThreadFilter,
+  MessageThreadCategory,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendDirectMessageReq,
   SendMessageReq,
   SetGroupChatArchiveStatusReq,
 } from "proto/conversations_pb";
+import { Temporal } from "temporal-polyfill";
+import { durationToProtobuf } from "utils/date";
 
 import client from "./client";
-import { Duration, duration2pb } from "./utils/date";
 import isGrpcError from "./utils/isGrpcError";
 
 export async function listGroupChats(
@@ -47,18 +48,23 @@ export async function listGroupChats(
 }
 
 export async function listMessageThreads({
-  filter,
+  categories,
+  onlyUnread,
   onlyArchived,
   pageToken,
   count,
 }: {
-  filter: MessageThreadFilter;
+  categories: MessageThreadCategory[];
+  onlyUnread?: boolean;
   onlyArchived?: boolean;
   pageToken?: string;
   count?: number;
 }) {
   const req = new ListMessageThreadsReq();
-  req.setFilter(filter);
+  req.setCategoriesList(categories);
+  if (onlyUnread !== undefined) {
+    req.setOnlyUnread(onlyUnread);
+  }
   if (onlyArchived !== undefined) {
     req.setOnlyArchived(onlyArchived);
   }
@@ -75,14 +81,19 @@ export async function listMessageThreads({
 }
 
 export async function markAllThreadsSeen({
-  filter,
+  categories,
+  onlyUnread,
   onlyArchived,
 }: {
-  filter: MessageThreadFilter;
+  categories: MessageThreadCategory[];
+  onlyUnread?: boolean;
   onlyArchived?: boolean;
 }) {
   const req = new MarkAllThreadsSeenReq();
-  req.setFilter(filter);
+  req.setCategoriesList(categories);
+  if (onlyUnread !== undefined) {
+    req.setOnlyUnread(onlyUnread);
+  }
   if (onlyArchived !== undefined) {
     req.setOnlyArchived(onlyArchived);
   }
@@ -218,14 +229,15 @@ export async function getDirectMessage(userId: number) {
 
 export type MuteChatOptions = Pick<MuteGroupChatReq.AsObject, "groupChatId"> &
   Partial<Omit<MuteGroupChatReq.AsObject, "groupChatId" | "forDuration">> & {
-    forDuration?: Duration;
+    forDuration?: Temporal.Duration;
   };
 export async function muteChat(options: MuteChatOptions) {
   const req = new MuteGroupChatReq();
   req.setGroupChatId(options.groupChatId);
   if (options.unmute) req.setUnmute(true);
   if (options.forever) req.setForever(true);
-  if (options.forDuration) req.setForDuration(duration2pb(options.forDuration));
+  if (options.forDuration)
+    req.setForDuration(durationToProtobuf(options.forDuration));
   return client.conversations.muteGroupChat(req);
 }
 

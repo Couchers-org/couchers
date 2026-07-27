@@ -121,5 +121,15 @@
   "status_bar_cancel_edit_button": "İptal Et",
   "status_bar_close_button": "Kapat",
   "surfer_bar_pending": "Bir konaklama isteği gönderdin — {{name}} tarafından bir yanıt bekleniyor.",
-  "cancel_request_button": "İsteği iptal et"
+  "cancel_request_button": "İsteği iptal et",
+  "private_feedback_card": {
+    "decline_reason_options": {
+      "didnt_read_profile": "Profilimi okumadı",
+      "dont_want_to_host": "Bu kişiyi ağırlamak istemiyorum",
+      "not_available": "O zaman ev sahipliği yapmak için müsait değilim",
+      "other": "Diğer"
+    },
+    "reason_other_placeholder": "Lütfen bize daha fazla bilgi verin...",
+    "privacy_notice": "Yanıtlarınız gizlidir ve kullanıcıyla paylaşılmayacaktır. Bunları, tüm kullanıcılar için geri bildirimi iyileştirmek amacıyla, diğer birçok yanıtla birleştirilmiş, toplu ve anonim bir biçimde kullanabiliriz."
+  }
 }

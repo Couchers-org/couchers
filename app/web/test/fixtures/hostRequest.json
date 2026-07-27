@@ -18,5 +18,6 @@
   "hostingLng": 13.405,
   "hostingRadius": 500,
   "needHostRequestFeedback": false,
-  "isArchived": false
+  "isArchived": false,
+  "unseenMessageCount": 0
 }

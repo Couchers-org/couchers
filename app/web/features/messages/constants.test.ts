@@ -1,37 +1,47 @@
 import { messageFilterToRequest } from "features/messages/constants";
-import { MessageThreadFilter } from "proto/conversations_pb";
+import { MessageThreadCategory } from "proto/conversations_pb";
 
 describe("messageFilterToRequest", () => {
-  it("maps content filters to the matching enum with onlyArchived=false", () => {
+  it("maps content filters to the matching categories with onlyUnread/onlyArchived=false", () => {
     expect(messageFilterToRequest("all")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
-      onlyArchived: false,
-    });
-    expect(messageFilterToRequest("unread")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_UNREAD,
+      categories: [],
+      onlyUnread: false,
       onlyArchived: false,
     });
     expect(messageFilterToRequest("chats")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_CHATS,
+      categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_CHATS],
+      onlyUnread: false,
       onlyArchived: false,
     });
     expect(messageFilterToRequest("hosting")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_HOSTING,
+      categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_HOSTING],
+      onlyUnread: false,
       onlyArchived: false,
     });
     expect(messageFilterToRequest("surfing")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_SURFING,
+      categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_SURFING],
+      onlyUnread: false,
       onlyArchived: false,
     });
     expect(messageFilterToRequest("public-trips")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_PUBLIC_TRIPS,
+      categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS],
+      onlyUnread: false,
+      onlyArchived: false,
+    });
+  });
+
+  it("maps unread to the full list restricted to unread threads", () => {
+    expect(messageFilterToRequest("unread")).toEqual({
+      categories: [],
+      onlyUnread: true,
       onlyArchived: false,
     });
   });
 
   it("maps archived to the full list restricted to archived threads", () => {
     expect(messageFilterToRequest("archived")).toEqual({
-      filter: MessageThreadFilter.MESSAGE_THREAD_FILTER_ALL,
+      categories: [],
+      onlyUnread: false,
       onlyArchived: true,
     });
   });

@@ -1,4 +1,6 @@
-from datetime import timedelta
+import re
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import grpc
 import pytest
@@ -25,7 +27,7 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
+from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
@@ -35,6 +37,17 @@ from tests.test_communities import create_community, create_group
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+def to_event_time_granularity(value: datetime) -> datetime:
+    """Events are scheduled at the minute granularity."""
+    return value.replace(second=0, microsecond=0)
+
+
+def is_utc_or_gmt(timezone: str) -> bool:
+    # Our lightweight "timezone_areas.sql-fake" uses Etc/UTC, whereas the real file uses Etc/GMT.
+    # Tests should be agnostic to which one we're using.
+    return timezone in ("Etc/UTC", "Etc/GMT")
 
 
 def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
@@ -70,9 +83,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -88,9 +100,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
@@ -124,9 +136,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -155,9 +167,9 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -184,9 +196,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -203,9 +214,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -222,9 +232,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -235,12 +244,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                    ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -252,12 +257,26 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                     title="Dummy Title",
                     content="Dummy content.",
                     location=events_pb2.EventLocation(
+                        address="Near Null Island",
+                    ),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid coordinate."
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
+                    location=events_pb2.EventLocation(
                         lat=0.1,
                         lng=0.1,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -273,9 +292,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(now() - timedelta(hours=2)),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() - timedelta(hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -291,9 +309,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(end_time),
-                    end_time=Timestamp_from_datetime(start_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -309,9 +326,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=2)),
-                    end_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=5)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=5)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -327,9 +343,8 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(now() + timedelta(days=100)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=100)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -358,9 +373,8 @@ def test_CreateEvent_incomplete_profile(db):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -391,9 +405,8 @@ def test_ScheduleEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -409,9 +422,8 @@ def test_ScheduleEvent(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(new_start_time),
-                end_time=Timestamp_from_datetime(new_end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(new_start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(new_end_time),
             )
         )
 
@@ -429,9 +441,9 @@ def test_ScheduleEvent(db):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user.id
-        assert to_aware_datetime(res.start_time) == new_start_time
-        assert to_aware_datetime(res.end_time) == new_end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(new_start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(new_end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
@@ -465,9 +477,8 @@ def test_cannot_overlap_occurrences_schedule(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -481,9 +492,8 @@ def test_cannot_overlap_occurrences_schedule(db):
                         lat=0.3,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
-                    end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -509,9 +519,8 @@ def test_cannot_overlap_occurrences_update(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -524,9 +533,8 @@ def test_cannot_overlap_occurrences_update(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         ).event_id
 
@@ -534,8 +542,12 @@ def test_cannot_overlap_occurrences_update(db):
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
-                start_time=Timestamp_from_datetime(start + timedelta(hours=5)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
+                ),
+                end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
+                ),
             )
         )
 
@@ -543,8 +555,12 @@ def test_cannot_overlap_occurrences_update(db):
             api.UpdateEvent(
                 events_pb2.UpdateEventReq(
                     event_id=event_id,
-                    start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
-                    end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                    start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                        value=datetime_to_iso8601_local(start + timedelta(hours=2))
+                    ),
+                    end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                        value=datetime_to_iso8601_local(start + timedelta(hours=4))
+                    ),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -585,9 +601,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -630,9 +645,9 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
@@ -661,9 +676,9 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -692,9 +707,9 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -729,52 +744,6 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.location.lng == 0.02
 
 
-def test_GetEvent_online(db, moderator: Moderator):
-    """Validate that legacy online events are surfaced as offline events through the API."""
-    user1, token1 = generate_user()
-
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
-
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    # Create as an offline event since the API doesn't support online events anymore.
-    with events_session(token1) as api:
-        create_res: events_pb2.Event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
-            )
-        )
-
-    event_id = create_res.event_id
-
-    moderator.approve_event_occurrence(event_id)
-
-    # Tweak the DB object to turn it into a legacy online event
-    with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
-        occurrence.geom = None
-        occurrence.address = None
-        occurrence.link = "https://couchers.org/meet/"
-
-    # Backend should surface it as an offline event
-    with events_session(token1) as api:
-        get_res: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert get_res.title == "Dummy Title"
-        assert get_res.HasField("location")
-        assert get_res.location.address == "https://couchers.org/meet/"
-        assert get_res.location.lng == 0
-        assert get_res.location.lat == 0
-
-
 def test_UpdateEvent_all(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
@@ -805,9 +774,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -838,9 +806,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start_time + timedelta(hours=2 + i)),
-                    end_time=Timestamp_from_datetime(start_time + timedelta(hours=2.5 + i)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2.5 + i)),
                 )
             )
 
@@ -861,6 +828,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
                 title=wrappers_pb2.StringValue(value="New Title"),
                 content=wrappers_pb2.StringValue(value="New content."),
                 location=events_pb2.EventLocation(
+                    address="Not so near Null Island",
                     lat=0.2,
                     lng=0.2,
                 ),
@@ -911,9 +879,8 @@ def test_GetEvent(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -947,9 +914,9 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
@@ -978,9 +945,9 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -1009,9 +976,9 @@ def test_GetEvent(db, moderator: Moderator):
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == start_time
-        assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
+        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
+        assert is_utc_or_gmt(res.timezone)
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
@@ -1053,9 +1020,8 @@ def test_CancelEvent(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -1171,9 +1137,8 @@ def test_ListEventAttendees(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1226,9 +1191,8 @@ def test_ListEventSubscribers(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1279,9 +1243,8 @@ def test_ListEventOrganizers(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1331,9 +1294,8 @@ def test_TransferEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1366,9 +1328,8 @@ def test_TransferEvent(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1410,9 +1371,8 @@ def test_SetEventSubscription(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1443,9 +1403,8 @@ def test_SetEventAttendance(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1489,9 +1448,8 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1537,9 +1495,8 @@ def test_ListEventOccurrences(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
             )
         )
 
@@ -1555,9 +1512,8 @@ def test_ListEventOccurrences(db):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
-                    end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
                 )
             )
 
@@ -1613,9 +1569,8 @@ def test_ListMyEvents(db, moderator: Moderator):
                 lng=0.2,
             ),
             parent_community_id=community_id,
-            timezone="UTC",
-            start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
-            end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now + 0.5)),
         )
 
     with events_session(token1) as api:
@@ -1787,9 +1742,8 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
                 lng=0.2,
             ),
             parent_community_id=c_id,
-            timezone="UTC",
-            start_time=Timestamp_from_datetime(start + timedelta(hours=hours)),
-            end_time=Timestamp_from_datetime(start + timedelta(hours=hours + 1)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours + 1)),
         )
 
     # user1 organizes e_own; user2 organizes e_attending and e_community_only
@@ -1859,9 +1813,8 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         ).event_id
 
@@ -1970,9 +1923,8 @@ def test_ListEventAttendees_regression(db):
                     lng=0.2,
                 ),
                 parent_community_id=c_id,
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -1995,6 +1947,56 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_GetEventCalendarFile(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        created_event: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = created_event.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        assert file_res.content_type == "text/calendar"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string
+        assert "DESCRIPTION:Dummy content." in ics_string
+        assert "LOCATION:Near Null Island" in ics_string
+        assert "STATUS:CANCELLED" not in ics_string
+        pre_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Cancelled: Dummy Title" in ics_string
+        assert "STATUS:CANCELLED" in ics_string
+        post_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+        assert post_cancel_sequence >= pre_cancel_sequence
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
@@ -2020,9 +2022,8 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
             )
         )
 
@@ -2088,9 +2089,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=5)),
             )
         )
 
@@ -2105,9 +2105,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=2)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
             )
         )
 
@@ -2121,9 +2120,8 @@ def test_can_overlap_other_events_schedule_regression(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         )
 
@@ -2148,9 +2146,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
             )
         )
 
@@ -2164,9 +2161,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=7)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=8)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=7)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=8)),
             )
         )
 
@@ -2179,9 +2175,8 @@ def test_can_overlap_other_events_update_regression(db):
                     lat=0.3,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         ).event_id
 
@@ -2189,16 +2184,24 @@ def test_can_overlap_other_events_update_regression(db):
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
-                start_time=Timestamp_from_datetime(start + timedelta(hours=5)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
+                ),
+                end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
+                ),
             )
         )
 
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
-                start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=2))
+                ),
+                end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(start + timedelta(hours=4))
+                ),
             )
         )
 
@@ -2223,9 +2226,8 @@ def test_list_past_events_regression(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
             )
         )
 
@@ -2267,9 +2269,8 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + timedelta(hours=3)),
-                end_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
             )
         )
         user_url = f"http://localhost:3000/user/{user1.username}"
@@ -2308,9 +2309,10 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
         assert res.requests[0].user_id == user1.id
-        assert res.requests[0].approx_users_to_notify == 3
+        # user1 is the event organizer, so they're excluded from the notify count (only user3 and user4 remain)
+        assert res.requests[0].approx_users_to_notify == 2
         assert res.requests[1].user_id == user3.id
-        assert res.requests[1].approx_users_to_notify == 3
+        assert res.requests[1].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
@@ -2334,6 +2336,73 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         assert err.value.details() == "A community invite has already been sent out for this event."
 
 
+def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Moderator):
+    # Regression: users who already RSVP'd (or organize the event) must not get the
+    # community invite notification when it is approved.
+    organizer, organizer_token = generate_user()
+    attendee, attendee_token = generate_user()
+    member, _ = generate_user()
+    superuser, superuser_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 2, "World Community", [superuser], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
+        r = create_community(session, 0, 2, "Region", [superuser], [], mr)
+        c_id = create_community(session, 0, 2, "Community", [organizer, attendee, member], [], r).id
+
+    enforce_community_memberships()
+
+    with events_session(organizer_token) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+            )
+        ).event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    # the attendee RSVPs before the community invite is approved
+    with events_session(attendee_token) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(organizer_token) as api:
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+
+    with real_editor_session(superuser_token) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                approve=True,
+            )
+        )
+
+    process_jobs()
+
+    with session_scope() as session:
+
+        def invite_notification_count(user_id: int) -> int:
+            notifications = session.execute(select(Notification).where(Notification.user_id == user_id)).scalars().all()
+            return len([n for n in notifications if n.topic_action == NotificationTopicAction.event__create_approved])
+
+        # a plain community member gets the invite...
+        assert invite_notification_count(member.id) == 1
+        # ...but the attendee and the organizer don't
+        assert invite_notification_count(attendee.id) == 0
+        assert invite_notification_count(organizer.id) == 0
+
+
 def test_update_event_should_notify_queues_job():
     user, token = generate_user()
     start = now()
@@ -2353,9 +2422,8 @@ def test_update_event_should_notify_queues_job():
                     lat=1.0,
                     lng=2.0,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
             )
         )
 
@@ -2370,7 +2438,9 @@ def test_update_event_should_notify_queues_job():
     api.UpdateEvent(
         events_pb2.UpdateEventReq(
             event_id=event_id,
-            start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                value=datetime_to_iso8601_local(start + timedelta(hours=4))
+            ),
             should_notify=False,
         )
     )
@@ -2383,7 +2453,9 @@ def test_update_event_should_notify_queues_job():
     api.UpdateEvent(
         events_pb2.UpdateEventReq(
             event_id=event_id,
-            start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                value=datetime_to_iso8601_local(start + timedelta(hours=5))
+            ),
             should_notify=True,
         )
     )
@@ -2422,9 +2494,8 @@ def test_event_photo_key(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 
@@ -2442,9 +2513,8 @@ def test_event_photo_key(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time + timedelta(days=1)),
-                end_time=Timestamp_from_datetime(end_time + timedelta(days=1)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(days=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time + timedelta(days=1)),
             )
         )
 
@@ -2457,6 +2527,65 @@ def test_event_photo_key(db):
         get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert get_res.photo_key == "test_event_photo_key_123"
         assert "test_event_photo_key_123" in get_res.photo_url
+
+
+def test_event_timezone(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    # Midnight future day, UTC timezone
+    start_time = (now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time = start_time + timedelta(days=1)
+
+    with events_session(token) as api:
+        create_res: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                photo_key=None,
+                parent_community_id=c_id,
+                # timezone_areas.sql-fake has a region for Europe/Helsinki
+                location=events_pb2.EventLocation(address="Helsinki", lat=60.192059, lng=24.945831),
+                # Should result in YYYY-MM-DDT00:00 (midnight local time)
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+
+        # Backend should have deduced the helsinki timezone when creating the event,
+        # so the datetime in Helsinki should be at midnight, but it shouldn't in UTC.
+        assert create_res.timezone == "Europe/Helsinki"
+        assert to_aware_datetime(create_res.start_time).hour != 0
+        assert create_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
+
+        # Now update its location such that it gets a new timezone
+        update_res: events_pb2.Event = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=create_res.event_id,
+                # timezone_areas.sql-fake has a region for America/New_York
+                location=events_pb2.EventLocation(address="New York", lat=40.712776, lng=-74.005974),
+            )
+        )
+
+        # The user didn't touch the datetime components on the frontend,
+        # so they expect the event to be at the same local time (midnight),
+        # but now in the New York timezone.
+        assert update_res.timezone == "America/New_York"
+        assert update_res.start_time != create_res.start_time
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour != 0
+        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour == 0
+
+        # Also validate GetEvent
+        get_res: events_pb2.Event = api.GetEvent(
+            events_pb2.GetEventReq(
+                event_id=create_res.event_id,
+            )
+        )
+
+        assert get_res.timezone == update_res.timezone
+        assert get_res.start_time == update_res.start_time
 
 
 def test_event_created_with_shadowed_visibility(db):
@@ -2479,9 +2608,8 @@ def test_event_created_with_shadowed_visibility(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2515,9 +2643,8 @@ def test_shadowed_event_visible_to_creator_only(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2555,9 +2682,8 @@ def test_event_visible_after_approval(db, moderator: Moderator):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2598,9 +2724,8 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2651,9 +2776,8 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2705,9 +2829,8 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2766,9 +2889,8 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2820,9 +2942,8 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2874,9 +2995,8 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2933,9 +3053,8 @@ def test_event_reminder_not_sent_for_invisible_attendee(
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -2983,9 +3102,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
             )
         )
         event_a_ids.append(res.event_id)
@@ -2999,9 +3117,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
-                    end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
-                    timezone="UTC",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
                 )
             )
             event_a_ids.append(res.event_id)
@@ -3019,9 +3136,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=10)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=10.5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10.5)),
             )
         )
         event_b_ids.append(res.event_id)
@@ -3034,9 +3150,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start + timedelta(hours=11)),
-                end_time=Timestamp_from_datetime(start + timedelta(hours=11.5)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11.5)),
             )
         )
         event_b_ids.append(res.event_id)
@@ -3079,9 +3194,8 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id
@@ -3137,9 +3251,8 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
         event_id = res.event_id

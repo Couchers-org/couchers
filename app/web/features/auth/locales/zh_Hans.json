@@ -235,9 +235,9 @@
     "delete_information_text2": "如果您删除了您的数据，您将无法再次使用同一本护照进行强身份验证。",
     "delete_my_data_button": "删除我的数据",
     "delete_button": "删除我的强身份验证数据",
-    "complete_message1": "您的护照正在验证中,结果将在几分钟内通过邮件发送给您。",
+    "complete_message1": "您的护照正在验证中，您将在几分钟内收到包含结果的邮件。",
     "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
-    "delete_success": "您的护照信息已被删除。",
+    "delete_success": "您的护照信息已删除。",
     "donation_title": "感谢验证！感谢您让Couchers.org变得更安全。",
     "complete_title": "我们正在处理您的强身份验证请求",
     "delete_data_title": "删除您的强身份验证护照数据",
@@ -345,7 +345,7 @@
     "visiblility_options": {
       "most": "<1>大部分</1>：显示完整的“关于我”部分，但不包括“附加信息”",
       "full_profile": "<1>完整资料</1>：显示我的完整资料（不包括用户评价）",
-      "nothing": "<1>无</1>：彻底隐藏我",
+      "nothing": "<1>不可见</1>：隐藏我的所有信息",
       "map_only": "<1>仅地图</1>：仅显示一个随机、匿名的地图标记，不包含其他信息",
       "limited": "<1>有限</1>：显示我的姓名、位置、接待/见面状态、徽章、评价数量，以及我成为Coucher的时长"
     },
