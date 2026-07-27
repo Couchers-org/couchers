@@ -122,7 +122,7 @@ END:VCALENDAR
     )
 
 
-def _assert_ics_matches_pattern(actual: str, expected_pattern: str) -> str:
+def _assert_ics_matches_pattern(actual: str, expected_pattern: str) -> None:
     """Assert that an ics file's content matches a pattern that includes "***" wildcards."""
     # Normalize whitespace
     actual = actual.replace("\r\n", "\n").strip()

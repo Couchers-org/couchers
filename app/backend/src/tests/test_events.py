@@ -1986,7 +1986,9 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
         assert "DESCRIPTION:Dummy content." in ics_string
         assert "LOCATION:Near Null Island" in ics_string
         assert "STATUS:CANCELLED" not in ics_string
-        pre_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+        pre_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+        assert pre_cancel_match is not None
+        pre_cancel_sequence = int(pre_cancel_match.group(1))
 
         api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
 
@@ -1994,7 +1996,9 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
         ics_string = file_res.data.decode("utf-8")
         assert "SUMMARY:Cancelled: Dummy Title" in ics_string
         assert "STATUS:CANCELLED" in ics_string
-        post_cancel_sequence = int(re.search(r"SEQUENCE:(\d+)", ics_string).group(1))
+        post_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+        assert post_cancel_match is not None
+        post_cancel_sequence = int(post_cancel_match.group(1))
         # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
         assert post_cancel_sequence >= pre_cancel_sequence
 
