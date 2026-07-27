@@ -612,6 +612,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             topic_actions=[NotificationTopicAction.chat__message],
         )
         # chat__missed_messages is a summary across all chats, so it's keyed with an empty string
+        # rather than a chat id: reading any chat counts as acting on it, and it gets marked seen
         mark_notifications_seen(
             session,
             user_id=context.user_id,

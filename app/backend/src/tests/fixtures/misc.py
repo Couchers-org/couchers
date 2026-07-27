@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 
@@ -11,12 +12,17 @@ from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.threads import unpack_thread_id
+from couchers.utils import now
 from tests.fixtures.sessions import real_moderation_session
 
 
 def process_jobs() -> None:
     while process_job():
         pass
+
+
+def now_5_min_in_future() -> datetime:
+    return now() + timedelta(minutes=5)
 
 
 class EmailCollector:

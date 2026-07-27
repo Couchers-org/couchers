@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
-from sqlalchemy import func, select, update
+from sqlalchemy import select, update
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -24,7 +24,6 @@ from couchers.models import (
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
-    NotificationPreference,
     NotificationTopicAction,
     PushNotificationDeliveryAttempt,
     PushNotificationDeliveryOutcome,
@@ -35,12 +34,7 @@ from couchers.models import (
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.notifications.settings import (
-    get_preference,
-    get_topic_actions_by_delivery_type,
-    reset_preference,
-    set_preference,
-)
+from couchers.notifications.settings import get_topic_actions_by_delivery_type, reset_preference
 from couchers.proto import (
     api_pb2,
     auth_pb2,
@@ -667,30 +661,49 @@ def test_reset_preference(db):
     user, token = generate_user()
 
     topic_action = NotificationTopicAction.event__create_any
+    # neither delivery type is on by default, so enabling both leaves two overrides to tell apart
     assert NotificationDeliveryType.push not in topic_action.defaults
+    assert NotificationDeliveryType.email not in topic_action.defaults
 
-    with session_scope() as session:
-        set_preference(session, user.id, topic_action, NotificationDeliveryType.push, True)
-        set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
+    def get_setting() -> notifications_pb2.NotificationItem:
+        with notifications_session(token) as notifications:
+            res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
+        items: list[notifications_pb2.NotificationItem] = [
+            item
+            for group in res.groups
+            for topic in group.topics
+            if topic.topic == topic_action.topic
+            for item in topic.items
+            if item.action == topic_action.action
+        ]
+        (item,) = items
+        return item
 
-    with session_scope() as session:
-        assert get_preference(session, user.id, topic_action) == [NotificationDeliveryType.push]
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method=delivery_method,
+                        enabled=True,
+                    )
+                    for delivery_method in ["push", "email"]
+                ]
+            )
+        )
 
-    # only the push override should go, leaving the email one in place
+    assert get_setting().push
+    assert get_setting().email
+
+    # there is no API for clearing an override back to its default, it's only reachable internally
     with session_scope() as session:
         reset_preference(session, user.id, topic_action, NotificationDeliveryType.push)
 
-    with session_scope() as session:
-        assert get_preference(session, user.id, topic_action) == []
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(NotificationPreference)
-                .where(NotificationPreference.user_id == user.id)
-                .where(NotificationPreference.topic_action == topic_action)
-            ).scalar_one()
-            == 1
-        )
+    # only the push override should go, leaving the email one in place
+    assert not get_setting().push
+    assert get_setting().email
 
 
 def test_event_reminder_email_sent(db, email_collector: EmailCollector):
