@@ -239,7 +239,10 @@
     "user_not_member": "Questo utente non è nella community.",
     "username_not_available": "Spiacenti, questo nome utente non è disponibile.",
     "wrong_signature": "Firma errata.",
-    "wrong_sms_code": "Il codice è errato."
+    "wrong_sms_code": "Il codice è errato.",
+    "duplicate_host_request_one": "Nell'ultima ora hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista.",
+    "duplicate_host_request_many": "Nelle ultime {{count}} di ore hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista.",
+    "duplicate_host_request_other": "Nelle ultime {{count}} ore hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista."
   },
   "quick_links": {
     "do_not_email": "Non riceverai più email che non riguardino la sicurezza e il tuo stato di ospitalità è stato disattivato. Potresti continuare a ricevere la newsletter, dalla quale devi annullare l'iscrizione separatamente.",

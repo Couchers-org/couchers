@@ -159,5 +159,13 @@
     "cancel": "Cancelar"
   },
   "edit_discussion": "Editar discusión",
-  "community_breadcrumb_a11y": "Comunidad actual"
+  "community_breadcrumb_a11y": "Comunidad actual",
+  "select_macroregion": "Selecciona región",
+  "select_region": "Selecciona país",
+  "select_subregion": "Selecciona área",
+  "select_locality": "Selecciona ciudad",
+  "select_sublocality": "Selecciona barrio",
+  "select_sub_community": "Selecciona comunidad",
+  "sub_community_search_placeholder": "Ubicación",
+  "sub_community_dropdown_a11y": "Explora comunidades más específicas"
 }
