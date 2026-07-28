@@ -1722,6 +1722,89 @@ def test_ListMyEvents(db, moderator: Moderator):
         assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
 
+def _paginate_my_events(api, page_size: int) -> list[int]:
+    event_ids = []
+    page_token = ""
+    for _ in range(10):
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=page_size, page_token=page_token))
+        event_ids += [event.event_id for event in res.events]
+        page_token = res.next_page_token
+        if not page_token:
+            return event_ids
+    raise AssertionError("pagination did not terminate")
+
+
+def test_ListMyEvents_pagination_overlapping_durations(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    def new_event(start_offset: timedelta, duration: timedelta) -> events_pb2.CreateEventReq:
+        return events_pb2.CreateEventReq(
+            title="Dummy Title",
+            content="Dummy content.",
+            location=events_pb2.EventLocation(
+                address="Near Null Island",
+                lat=0.1,
+                lng=0.2,
+            ),
+            parent_community_id=c_id,
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset + duration),
+        )
+
+    with events_session(token) as api:
+        # a multi-day event overlapping all the short events below: it ends last but starts first,
+        # so an end time based cursor would repeat it on every page and skip the short events
+        long_event = api.CreateEvent(new_event(timedelta(hours=1), timedelta(days=3))).event_id
+        short_events = [
+            api.CreateEvent(new_event(timedelta(hours=2 + i), timedelta(hours=1))).event_id for i in range(4)
+        ]
+
+    for event_id in [long_event, *short_events]:
+        moderator.approve_event_occurrence(event_id)
+
+    with events_session(token) as api:
+        assert _paginate_my_events(api, page_size=2) == [long_event, *short_events]
+
+
+def test_ListMyEvents_pagination_identical_start_times(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        event_ids = [
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
+                    location=events_pb2.EventLocation(
+                        address="Near Null Island",
+                        lat=0.1,
+                        lng=0.2,
+                    ),
+                    parent_community_id=c_id,
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
+                )
+            ).event_id
+            for _ in range(5)
+        ]
+
+    for event_id in event_ids:
+        moderator.approve_event_occurrence(event_id)
+
+    with events_session(token) as api:
+        assert _paginate_my_events(api, page_size=2) == event_ids
+
+
 def test_list_my_events_exclude_attending(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
