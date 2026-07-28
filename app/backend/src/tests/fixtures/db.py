@@ -1,5 +1,5 @@
 import subprocess
-from collections.abc import Generator, Sequence
+from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
@@ -173,39 +173,6 @@ def drop_database() -> None:
                 "CREATE EXTENSION pg_stat_statements;"
             )
         )
-
-
-@contextmanager
-def without_mock_clock() -> Generator[None]:
-    """
-    Takes mock.now() out of the picture so the schema built inside looks like production's.
-
-    Column defaults bind whichever now() the search_path resolved at DDL time, so a schema built
-    with the mock installed reads DEFAULT mock.now() and doesn't represent prod. The schema is
-    rebuilt with the mock back in place on the way out, since later tests in the session inherit
-    whatever this leaves behind.
-    """
-    engine = _get_base_engine()
-
-    def set_search_path(path: str) -> None:
-        with engine.connect() as conn:
-            conn.execute(text(f"ALTER DATABASE testdb SET search_path = {path}"))
-            conn.commit()
-        # existing pooled connections keep the old search_path
-        engine.dispose()
-
-    with engine.connect() as conn:
-        conn.execute(text("DROP SCHEMA IF EXISTS mock CASCADE"))
-        conn.commit()
-    set_search_path("public, pg_catalog")
-    try:
-        yield
-    finally:
-        set_search_path("public, mock, pg_catalog")
-        with engine.connect() as conn:
-            create_mock_clock(conn)
-        drop_database()
-        create_schema_from_models()
 
 
 @contextmanager
