@@ -106,6 +106,7 @@ const StyledIconButtonGroup = styled("div")(() => ({
 const StyledInviteAndAttendanceRow = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(1),
+  justifyContent: "flex-end",
   alignItems: "center",
   flexWrap: "wrap",
 }));
@@ -119,7 +120,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
 
   [theme.breakpoints.down("md")]: {
     gridAutoFlow: "row",
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, max-content))",
+    gridTemplateColumns: "max-content 1fr",
     gap: theme.spacing(1),
     width: "100%",
   },
