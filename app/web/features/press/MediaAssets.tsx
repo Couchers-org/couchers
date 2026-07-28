@@ -91,7 +91,7 @@ export default function MediaAssets() {
 
   return (
     <SectionWrapper>
-      <SectionHeading>{t("download_subheading")}</SectionHeading>
+      <SectionHeading>{t("download.subheading")}</SectionHeading>
       <StyledContainer>
         <StyledSection>
           <StyledLogo>
@@ -99,36 +99,36 @@ export default function MediaAssets() {
           </StyledLogo>
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
-              {t("download_logo_text")}
+              {t("download.logo_text")}
             </Typography>
             <StyledButton
               component="a"
               href="/img/press/downloads/couchers-logo-assets.zip"
               download="couchers-logo-assets.zip"
               variant="outlined"
-              aria-label={t("download_logo_aria_label")}
+              aria-label={t("download.logo_aria_label")}
             >
-              {t("download_button")}
+              {t("download.button")}
             </StyledButton>
           </StyledCard>
         </StyledSection>
         <StyledSection>
           <StyledImage
             src="/img/press/mobile-image.webp"
-            alt={t("mobile_image_alt")}
+            alt={t("download.mobile_image_alt")}
           />
           <StyledCard>
             <Typography fontSize="1.25rem" textAlign="center">
-              {t("download_images_text")}
+              {t("download.images_text")}
             </Typography>
             <StyledButton
               component="a"
               href="/img/press/downloads/couchers-mobile-images.zip"
               download="couchers-mobile-images.zip"
               variant="outlined"
-              aria-label={t("download_mobile_images_aria_label")}
+              aria-label={t("download.mobile_images_aria_label")}
             >
-              {t("download_button")}
+              {t("download.button")}
             </StyledButton>
           </StyledCard>
         </StyledSection>

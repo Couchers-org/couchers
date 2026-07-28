@@ -11,15 +11,15 @@ describe("MediaAssets", () => {
     render(<MediaAssets />, { wrapper });
 
     expect(
-      screen.getByRole("link", { name: t("press:download_logo_aria_label") }),
+      screen.getByRole("link", { name: t("press:download.logo_aria_label") }),
     ).toHaveAttribute("href", "/img/press/downloads/couchers-logo-assets.zip");
     expect(
-      screen.getByRole("link", { name: t("press:download_logo_aria_label") }),
+      screen.getByRole("link", { name: t("press:download.logo_aria_label") }),
     ).toHaveAttribute("download", "couchers-logo-assets.zip");
 
     expect(
       screen.getByRole("link", {
-        name: t("press:download_mobile_images_aria_label"),
+        name: t("press:download.mobile_images_aria_label"),
       }),
     ).toHaveAttribute(
       "href",
@@ -27,7 +27,7 @@ describe("MediaAssets", () => {
     );
     expect(
       screen.getByRole("link", {
-        name: t("press:download_mobile_images_aria_label"),
+        name: t("press:download.mobile_images_aria_label"),
       }),
     ).toHaveAttribute("download", "couchers-mobile-images.zip");
   });

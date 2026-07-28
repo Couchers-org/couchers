@@ -39,7 +39,7 @@ describe("Press", () => {
   it("renders all sections", async () => {
     render(<Press />, { wrapper });
     expect(
-      screen.getByRole("heading", { level: 1, name: t("press:hero_title") }),
+      screen.getByRole("heading", { level: 1, name: t("press:hero.title") }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
@@ -50,19 +50,19 @@ describe("Press", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: t("press:about_subheading"),
+        name: t("press:about.subheading"),
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: t("press:download_subheading"),
+        name: t("press:download.subheading"),
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: t("press:team_subheading"),
+        name: t("press:team.subheading"),
       }),
     ).toBeInTheDocument();
     expect(

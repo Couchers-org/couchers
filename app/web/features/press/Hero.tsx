@@ -81,9 +81,9 @@ export default function Hero() {
       <StyledOverlay />
       <HeroImageAttribution />
       <StyledContentContainer>
-        <StyledHeading>{t("hero_title")}</StyledHeading>
+        <StyledHeading>{t("hero.title")}</StyledHeading>
         <Typography color="var(--mui-palette-common-white)" fontSize="1.25rem">
-          {t("hero_description", { email })}
+          {t("hero.description", { email })}
         </Typography>
       </StyledContentContainer>
     </StyledContainer>

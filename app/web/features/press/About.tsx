@@ -9,18 +9,18 @@ import SectionWrapper from "./SectionWrapper";
 
 const aboutUsItems = [
   {
-    heading: "about_mission_heading",
-    text: "about_mission_text",
+    heading: "about.mission_heading",
+    text: "about.mission_text",
     href: missionRoute,
   },
   {
-    heading: "about_blog_heading",
-    text: "about_blog_text",
+    heading: "about.blog_heading",
+    text: "about.blog_text",
     href: blogRoute,
   },
   {
-    heading: "about_foundation_heading",
-    text: "about_foundation_text",
+    heading: "about.foundation_heading",
+    text: "about.foundation_text",
     href: foundationRoute,
   },
 ];
@@ -77,7 +77,7 @@ export default function About() {
 
   return (
     <SectionWrapper>
-      <SectionHeading>{t("about_subheading")}</SectionHeading>
+      <SectionHeading>{t("about.subheading")}</SectionHeading>
       <StyledContainer>
         {aboutUsItems.map(({ heading, text, href }) => (
           <StyledCard key={heading}>
