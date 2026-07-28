@@ -28,6 +28,7 @@ from tests.fixtures.db import (
     generate_user,
     pg_dump_is_available,
     populate_testing_resources,
+    without_mock_clock,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
@@ -186,7 +187,8 @@ def strip_leading_whitespace(lines: list[str]) -> list[str]:
 @pytest.fixture
 def restore_db_after_migration_test(db):
     try:
-        yield
+        with without_mock_clock():
+            yield
     finally:
         # Dispose the engine's connection pool since we dropped/recreated PostGIS extension,
         # which invalidates cached operator OIDs in existing connections

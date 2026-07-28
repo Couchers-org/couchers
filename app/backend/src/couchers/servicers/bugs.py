@@ -40,6 +40,7 @@ from couchers.native_updates import (
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +286,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             except json.JSONDecodeError, ValueError:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_diagnostics_json")
 
-            occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else datetime.now(UTC)
+            occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else now()
 
             events.append(
                 {
@@ -322,9 +323,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             request.launch_source,
             request.debug_json,
         )
-        now = datetime.now(UTC)
+        checked_at = now()
         banned = _is_update_id_banned(session, info)
-        decision = decide_native_update(context, info, now, banned=banned)
+        decision = decide_native_update(context, info, checked_at, banned=banned)
 
         # An OTA block with no newer bundle to serve would loop the client on the block screen
         # forever, so refuse to serve it: raise (pages via Sentry) and the client, which ignores
@@ -343,7 +344,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                     f"newest_non_banned_created_at={None if newest is None else newest.manifest_created_at})"
                 )
 
-        _observe_native_check_metrics(request, info, decision, now, banned=banned)
+        _observe_native_check_metrics(request, info, decision, checked_at, banned=banned)
 
         if context.is_logged_in():
             session.add(NativeClientUser(eas_client_id=info.eas_client_id, user_id=context.user_id))

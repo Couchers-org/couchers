@@ -138,8 +138,14 @@ def datetime_to_iso8601_local(value: datetime) -> str:
     return value.replace(tzinfo=None).isoformat()
 
 
-def now() -> datetime:
+def _real_now() -> datetime:
     return datetime.now(tz=UTC)
+
+
+def now() -> datetime:
+    # everything that reads the clock goes through this call, so tests can move it in one place
+    # by swapping _real_now; see the timewarp fixture
+    return _real_now()
 
 
 def minimum_allowed_birthdate() -> date:
@@ -162,7 +168,7 @@ def now_in_timezone(tz: str) -> datetime:
     """
     tz should be tzdata identifier, e.g. America/New_York
     """
-    return datetime.now(ZoneInfo(tz))
+    return now().astimezone(ZoneInfo(tz))
 
 
 def today_in_timezone(tz: str) -> date:
