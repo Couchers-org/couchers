@@ -29,7 +29,8 @@
         "field_label": "Věk hostitele"
       },
       "last_active_field_label": "Naposledy aktivní",
-      "meetup_status_field_label": "Stav setkání"
+      "meetup_status_field_label": "Stav setkání",
+      "hosting_status_field_label": "Stav ubytování"
     },
     "accommodation_filters": {
       "title": "Filtry ubytování",

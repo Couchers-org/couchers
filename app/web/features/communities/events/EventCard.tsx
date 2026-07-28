@@ -16,12 +16,7 @@ import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
-import dayjs from "utils/dayjs";
+import { localizeDateTimeRange, timestampToPlainDateTime } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 
 const StyledCard = styled(Card, {
@@ -133,11 +128,9 @@ export default function EventCard({ event, className }: EventCardProps) {
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    dayjs(timestamp2Date(event.startTime!)),
-    dayjs(timestamp2Date(event.endTime!)),
+    timestampToPlainDateTime(event.startTime!, event.timezone),
+    timestampToPlainDateTime(event.endTime!, event.timezone),
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
       abbreviate: true,

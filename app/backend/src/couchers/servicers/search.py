@@ -2,7 +2,6 @@
 See //docs/search.md for an overview.
 """
 
-from datetime import timedelta
 from typing import Any, cast
 
 import grpc
@@ -50,18 +49,15 @@ from couchers.servicers.api import (
     user_model_to_pb,
 )
 from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import event_to_pb
+from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
-    dt_from_millis,
     get_coordinates,
     last_active_coarsen,
-    millis_from_dt,
-    now,
     to_aware_datetime,
 )
 
@@ -329,7 +325,7 @@ def _search_events(
         next_rank,
         page_size,
         [Event.title],
-        [EventOccurrence.address, EventOccurrence.link],
+        [EventOccurrence.address],
         [],
         [EventOccurrence.content],
     )
@@ -919,20 +915,13 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(EventOccurrence.end_time < before_time)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
+        # the page token is ignored when a page number is given
+        page_token = request.page_token if not request.page_number else ""
         page_number = request.page_number or 1
         # Calculate the offset for pagination
         offset = (page_number - 1) * page_size
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            statement = statement.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            statement = statement.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        statement = apply_occurrence_pagination(statement, page_token, request.past)
 
         total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         # Apply pagination by page number
@@ -941,6 +930,6 @@ class Search(search_pb2_grpc.SearchServicer):
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
             total_items=total_items,
         )

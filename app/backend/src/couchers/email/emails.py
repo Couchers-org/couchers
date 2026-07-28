@@ -29,8 +29,9 @@ Other instructions for body text:
 
 import re
 from dataclasses import dataclass, replace
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, tzinfo
 from typing import Self, assert_never
+from zoneinfo import ZoneInfo
 
 from markupsafe import Markup, escape
 
@@ -51,7 +52,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.markup import html_link, html_mailto_link, markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
-from couchers.proto import conversations_pb2, events_pb2, notification_data_pb2
+from couchers.proto import events_pb2, messages_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
 # Common string keys
@@ -204,7 +205,7 @@ class APIKeyIssuedEmail(EmailBase):
         builder.quote(self.api_key, markdown=False)
         builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para(".usage_warning")
-        builder.para(".policy_warning")
+        builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
         return builder.build()
 
     @classmethod
@@ -635,14 +636,20 @@ class EventInfo:
     title: str
     start_time: datetime
     end_time: datetime
+    timezone: tzinfo
     address: str | None  # The None case handles legacy online events
     view_url: str
     description_markdown: str
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        start_time_display = loc_context.localize_datetime(self.start_time, with_year=False, with_day_of_week=True)
-        end_time_display = loc_context.localize_datetime(self.end_time, with_year=False, with_day_of_week=True)
+        # Force using the start/end time timezone (that of the event), not the user's.
+        start_time_display = loc_context.localize_datetime(
+            self.start_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
+        )
+        end_time_display = loc_context.localize_datetime(
+            self.end_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
+        )
         time_range_display = f"{start_time_display} - {end_time_display}"
 
         html = f"<b>{escape(self.title)}</b>"
@@ -665,8 +672,9 @@ class EventInfo:
     def from_proto(cls, event: events_pb2.Event) -> EventInfo:
         return cls(
             title=event.title,
-            start_time=event.start_time.ToDatetime(tzinfo=UTC),
-            end_time=event.end_time.ToDatetime(tzinfo=UTC),
+            start_time=to_aware_datetime(event.start_time),
+            end_time=to_aware_datetime(event.end_time),
+            timezone=ZoneInfo(event.timezone),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
             address=(event.location.address or None) if event.HasField("location") else None,
             view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
@@ -679,6 +687,7 @@ class EventInfo:
             title="Berlin Meetup",
             start_time=datetime(2025, 7, 15, 18, 0, 0, tzinfo=UTC),
             end_time=datetime(2025, 7, 15, 21, 0, 0, tzinfo=UTC),
+            timezone=UTC,
             address="Alexanderplatz, Berlin",
             view_url="https://couchers.org/events/123/berlin-community-meetup",
             description_markdown="Come join us for our monthly meetup!",
@@ -796,10 +805,6 @@ class EventUpdatedEmail(EmailBase):
         updated_items: list[notification_data_pb2.EventUpdateItem.ValueType] = []
         if data.updated_enum_items:
             updated_items.extend(data.updated_enum_items)
-        elif data.updated_str_items:
-            for updated_str_item in data.updated_str_items:
-                if updated_enum_item := cls._updated_item_str_to_enum(updated_str_item):
-                    updated_items.append(updated_enum_item)
 
         return cls(
             user_name=user_name,
@@ -807,23 +812,6 @@ class EventUpdatedEmail(EmailBase):
             event_info=EventInfo.from_proto(data.event),
             updated_items=updated_items,
         )
-
-    # TODO(#9117): Backcompat. Remove update_str_items fallback once known unused.
-    @staticmethod
-    def _updated_item_str_to_enum(value: str) -> notification_data_pb2.EventUpdateItem.ValueType | None:
-        match value:
-            case "title":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE
-            case "content":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT
-            case "location":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION
-            case "start time":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME
-            case "end time":
-                return notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME
-            case _:
-                return None
 
     @staticmethod
     def _updated_item_to_string_key(value: notification_data_pb2.EventUpdateItem.ValueType) -> str | None:
@@ -1445,20 +1433,20 @@ class HostRequestStatusChangedEmail(EmailBase):
     other_user: UserInfo
     from_date: date
     to_date: date
-    new_status: conversations_pb2.HostRequestStatus.ValueType
+    new_status: messages_pb2.HostRequestStatus.ValueType
     view_link: str
 
     @property
     def string_key_base(self) -> str:
         base_key = "host_requests.status_changed"
         match self.new_status:
-            case conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+            case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 return f"{base_key}.accepted_by_host"
-            case conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
+            case messages_pb2.HOST_REQUEST_STATUS_REJECTED:
                 return f"{base_key}.declined_by_host"
-            case conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+            case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 return f"{base_key}.confirmed_by_surfer"
-            case conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
+            case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 return f"{base_key}.cancelled_by_surfer"
             case _:
                 raise ValueError(f"Unexpected host request status: {self.new_status}")
@@ -1492,20 +1480,20 @@ class HostRequestStatusChangedEmail(EmailBase):
         user_name: str,
     ) -> Self:
         other_user: UserInfo
-        new_status: conversations_pb2.HostRequestStatus.ValueType
+        new_status: messages_pb2.HostRequestStatus.ValueType
         match data:
             case notification_data_pb2.HostRequestAccept():
                 other_user = UserInfo.from_protobuf(data.host)
-                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
             case notification_data_pb2.HostRequestReject():
                 other_user = UserInfo.from_protobuf(data.host)
-                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
             case notification_data_pb2.HostRequestConfirm():
                 other_user = UserInfo.from_protobuf(data.surfer)
-                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
             case notification_data_pb2.HostRequestCancel():
                 other_user = UserInfo.from_protobuf(data.surfer)
-                new_status = conversations_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
                 # Enable mypy's exhaustiveness checking
                 assert_never("Unexpected host request status changed notification data type.")
@@ -1526,14 +1514,14 @@ class HostRequestStatusChangedEmail(EmailBase):
             other_user=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
-            new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             view_link="https://couchers.org/requests/123",
         )
         return [
-            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED),
-            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED),
-            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED),
-            replace(prototype, new_status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
         ]
 
 

@@ -93,8 +93,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastSeenGroupChatMock).toBeCalledTimes(1);
-      expect(markLastSeenGroupChatMock).toBeCalledWith(2, 2);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
+      expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         chats: [
           { lastSeenMessageId: 1 },
@@ -115,8 +115,8 @@ describe("MarkAllReadButton", () => {
     );
 
     await waitFor(() => {
-      expect(markLastRequestSeenMock).toBeCalledTimes(1);
-      expect(markLastRequestSeenMock).toBeCalledWith(2, 2);
+      expect(markLastRequestSeenMock).toHaveBeenCalledTimes(1);
+      expect(markLastRequestSeenMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
         requests: [
           { lastSeenMessageId: 1 },

@@ -1,12 +1,11 @@
 import logging
 from collections.abc import Sequence
-from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import delete, func, or_
+from sqlalchemy.sql import and_, delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
@@ -30,11 +29,11 @@ from couchers.models import (
 )
 from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
 from couchers.servicers.discussions import discussion_to_pb
-from couchers.servicers.events import event_to_pb
+from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
+from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -419,8 +418,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
@@ -447,19 +444,14 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
-        if request.past:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
-        else:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return communities_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def ListDiscussions(
@@ -570,27 +562,34 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
-        nodes = (
-            session.execute(
-                select(Node)
-                .join(Cluster, Cluster.parent_node_id == Node.id)
-                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                .where(ClusterSubscription.user_id == user_id)
-                .where(Cluster.is_official_cluster)
-                .where(Node.id >= next_node_id)
-                .order_by(Node.id)
-                .limit(page_size + 1)
-                .options(selectinload(Node.official_cluster))
-            )
-            .scalars()
-            .all()
+        # most specific communities first: node_type desc (sublocality -> world), then id asc
+        statement = (
+            select(Node)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+            .where(ClusterSubscription.user_id == user_id)
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.node_type.desc(), Node.id)
+            .limit(page_size + 1)
+            .options(selectinload(Node.official_cluster))
         )
+        if request.page_token:
+            node_type_ordinal, next_node_id = (int(v) for v in decrypt_page_token(request.page_token).split(","))
+            next_node_type = NodeType(node_type_ordinal)
+            statement = statement.where(
+                or_(
+                    Node.node_type < next_node_type,
+                    and_(Node.node_type == next_node_type, Node.id >= next_node_id),
+                )
+            )
+        nodes = session.execute(statement).scalars().all()
 
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
-            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            next_page_token=encrypt_page_token(f"{nodes[-1].node_type.value},{nodes[-1].id}")
+            if len(nodes) > page_size
+            else None,
         )
 
     def ListAllCommunities(

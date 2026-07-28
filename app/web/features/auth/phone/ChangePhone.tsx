@@ -156,10 +156,7 @@ export default function ChangePhone({
               components={{
                 2: <StyledLink href={howToDonateUrl} />,
               }}
-            >
-              You need to <StyledLink href={howToDonateUrl}>donate</StyledLink>
-              before you can complete phone verification.
-            </Trans>
+            />
           </Typography>
         ) : (
           <StyledForm onSubmit={onChangeSubmit}>

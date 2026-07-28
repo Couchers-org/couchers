@@ -16,6 +16,12 @@ jest.mock("./eventCollector", () => ({
 let eventOnSpy: jest.SpyInstance;
 let eventOffSpy: jest.SpyInstance;
 
+// jsdom makes window.location non-configurable, so it can't be replaced with
+// Object.defineProperty. pushState updates pathname/search/href in place instead.
+function setLocation(pathname: string, search = "") {
+  window.history.pushState({}, "", `${pathname}${search}`);
+}
+
 beforeEach(() => {
   mockLogEvent.mockReset();
   mockDestroyCollector.mockReset();
@@ -26,15 +32,7 @@ beforeEach(() => {
   // Reset router to root
   mockRouter.setCurrentUrl("/");
 
-  Object.defineProperty(window, "location", {
-    value: {
-      pathname: "/",
-      search: "",
-      href: "http://localhost/",
-    },
-    writable: true,
-    configurable: true,
-  });
+  setLocation("/");
 });
 
 afterEach(() => {
@@ -112,15 +110,10 @@ describe("AnalyticsProvider", () => {
 
   describe("search property (item 9)", () => {
     it("includes non-UTM query params as search in initial page.viewed", () => {
-      Object.defineProperty(window, "location", {
-        value: {
-          pathname: "/search",
-          search: "?q=paris&guests=2&utm_source=google&utm_medium=cpc",
-          href: "http://localhost/search?q=paris&guests=2&utm_source=google&utm_medium=cpc",
-        },
-        writable: true,
-        configurable: true,
-      });
+      setLocation(
+        "/search",
+        "?q=paris&guests=2&utm_source=google&utm_medium=cpc",
+      );
 
       render(
         <AnalyticsProvider>
@@ -136,15 +129,7 @@ describe("AnalyticsProvider", () => {
     });
 
     it("sets search to null when only UTM params are present", () => {
-      Object.defineProperty(window, "location", {
-        value: {
-          pathname: "/landing",
-          search: "?utm_source=google&utm_campaign=spring",
-          href: "http://localhost/landing?utm_source=google&utm_campaign=spring",
-        },
-        writable: true,
-        configurable: true,
-      });
+      setLocation("/landing", "?utm_source=google&utm_campaign=spring");
 
       render(
         <AnalyticsProvider>
@@ -176,15 +161,10 @@ describe("AnalyticsProvider", () => {
 
   describe("UTM params in session.started", () => {
     it("includes UTM params in session.started properties", () => {
-      Object.defineProperty(window, "location", {
-        value: {
-          pathname: "/",
-          search: "?utm_source=twitter&utm_medium=social&utm_campaign=launch",
-          href: "http://localhost/?utm_source=twitter&utm_medium=social&utm_campaign=launch",
-        },
-        writable: true,
-        configurable: true,
-      });
+      setLocation(
+        "/",
+        "?utm_source=twitter&utm_medium=social&utm_campaign=launch",
+      );
 
       render(
         <AnalyticsProvider>

@@ -59,18 +59,19 @@ export default function SignupFormContent({
           submitText={t("global:create_account")}
         />
         <Typography variant="caption">
-          <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
-            By continuing, you agree to our{" "}
-            <StyledLink
-              href={tosRoute}
-              target={isNativeEmbed ? undefined : "_blank"}
-              variant="caption"
-              sx={{ fontWeight: 700 }}
-            >
-              Terms of Service
-            </StyledLink>
-            , including our cookie, email, and data handling policies.
-          </Trans>
+          <Trans
+            i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer"
+            components={{
+              2: (
+                <StyledLink
+                  href={tosRoute}
+                  target={isNativeEmbed ? undefined : "_blank"}
+                  variant="caption"
+                  sx={{ fontWeight: 700 }}
+                />
+              ),
+            }}
+          />
         </Typography>
       </>
     );

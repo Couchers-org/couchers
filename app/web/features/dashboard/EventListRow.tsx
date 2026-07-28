@@ -5,11 +5,11 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
+import { Temporal } from "temporal-polyfill";
 import {
-  BROWSER_TIMEZONE,
   localizeDateTime,
   localizeMonthAbbreviation,
-  timestamp2Date,
+  timestampToZonedDateTime,
 } from "utils/date";
 
 export const EventListContainer = styled("div")({
@@ -172,26 +172,33 @@ export default function EventListRow({ event }: EventListRowProps) {
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
 
-  const now = new Date();
-  const startDate = timestamp2Date(event.startTime!);
-  const endDate = event.endTime ? timestamp2Date(event.endTime) : null;
-  const isOngoing = endDate !== null && startDate <= now && endDate >= now;
-  const isToday = !isOngoing && startDate.toDateString() === now.toDateString();
+  const now = Temporal.Now.zonedDateTimeISO();
+  const startDate = timestampToZonedDateTime(event.startTime!, event.timezone);
+  const endDate = event.endTime
+    ? timestampToZonedDateTime(event.endTime, event.timezone)
+    : null;
+  const isOngoing =
+    endDate !== null &&
+    Temporal.ZonedDateTime.compare(startDate, now) <= 0 &&
+    Temporal.ZonedDateTime.compare(endDate, now) >= 0;
+
+  // Define "today" as: starting on the current day in the current timezone.
+  const isToday =
+    !isOngoing &&
+    startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
   const todayLabel = t("dashboard:events.today_label");
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isOngoing ? nowLabel : todayLabel;
   const chipFontSize =
     chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
-  const month = localizeMonthAbbreviation(startDate, {
+  const month = localizeMonthAbbreviation(startDate.toPlainDate(), {
     locale,
-    timezone: BROWSER_TIMEZONE,
     capitalize: true,
   });
-  const day = startDate.getDate();
+  const day = startDate.day;
 
   const timeStr = localizeDateTime(startDate, {
     locale,
-    timezone: BROWSER_TIMEZONE,
     includeDate: false,
     includeTime: true,
   });

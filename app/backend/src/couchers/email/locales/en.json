@@ -64,14 +64,14 @@
     "instructions_days_other": "To keep your \"Can Host\" status, please log back in within the next <b>{{count}} days</b>. Otherwise, we'll change your hosting status to \"Can't Host.\"",
     "login_action": "Log back in",
     "encouragement": "These check-ins help surfers find active hosts more easily and keep response times accurate.",
-    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include new mobile app on iOS and Android, improved dashboard, overhauled messaging and new event features. Read more on the <a href=\"{{blog_url}}\">Couchers.org blog</a>."
+    "latest_release": "In case you've missed it, we recently released version {{version}}. Some of the recent updates include: mobile apps for iOS and Android, an improved dashboard, overhauled messaging and new event features. Read more on the <a href=\"{{blog_url}}\">Couchers.org blog</a>."
   },
   "api_key_issued": {
     "subject": "Your API key for Couchers.org",
     "header": "You recently requested an API key for Couchers.org. We've issued you with the following API key:",
     "expiry": "The key expires on <b>{{ datetime }}</b>.",
     "usage_warning": "This API key is unique to your account; do not share it with anyone. It gives complete access to your account, and you are reponsible for any actions taken using this API key.",
-    "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
+    "policy_warning": "Please remember to abide by our <a href=\"{{terms_url}}\">Terms of Service</a>, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
   },
   "badges": {
     "added": {

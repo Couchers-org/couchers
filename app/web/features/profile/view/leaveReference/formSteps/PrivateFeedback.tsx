@@ -211,18 +211,17 @@ export default function PrivateFeedback({
                 {t("profile:leave_reference.private_text_explanation_1")}
               </Typography>
               <Typography sx={{ marginTop: theme.spacing(2) }}>
-                <Trans i18nKey="profile:leave_reference.private_text_explanation_2">
-                  This will only be seen by our Safety Team and will stay
-                  private. The more details the better, but even a short
-                  explanation can help a lot. Read more{" "}
-                  <StyledLink
-                    href={helpCenterPrivateFeedbackUrl}
-                    sx={{ fontWeight: 600 }}
-                  >
-                    here
-                  </StyledLink>
-                  .
-                </Trans>
+                <Trans
+                  i18nKey="profile:leave_reference.private_text_explanation_2"
+                  components={{
+                    2: (
+                      <StyledLink
+                        href={helpCenterPrivateFeedbackUrl}
+                        sx={{ fontWeight: 600 }}
+                      />
+                    ),
+                  }}
+                />
               </Typography>
               <Typography sx={{ marginTop: theme.spacing(2) }}>
                 {t("profile:leave_reference.private_text_explanation_3")}

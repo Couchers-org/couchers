@@ -36,5 +36,6 @@
     "confirm": "Sí, lo conozco. ¡Envía la solicitud!"
   },
   "friend_request_no_longer_available": "Esta solicitud de amistad ya no está disponible.",
-  "cancel_request_button_a11y": "Cancelar solicitud"
+  "cancel_request_button_a11y": "Cancelar solicitud",
+  "friend_requests_dismiss_button": "Descartar"
 }

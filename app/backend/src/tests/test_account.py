@@ -22,9 +22,9 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
+from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.fixtures.db import generate_user, make_volunteer
+from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     account_session,
@@ -1044,6 +1044,7 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
 
+    backdate_conversations()
     with requests_session(req_user_token1) as api:
         host_request3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1075,7 +1076,7 @@ def test_reminders(db, moderator):
     with requests_session(token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request1_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1150,7 +1151,7 @@ def test_confirm_host_request_reminder(db, moderator):
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1165,7 +1166,7 @@ def test_confirm_host_request_reminder(db, moderator):
     with requests_session(surfer_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 

@@ -106,5 +106,18 @@
     "night_count_other": "{{count}} noches",
     "no_upcoming_trips": "Sin próximos viajes. ¿Listo para explorar?",
     "no_upcoming_guests": "Aún no hay huéspedes próximos."
+  },
+  "public_trips": {
+    "my_trips_header": "Tus viajes públicos",
+    "manage_link": "Administrar",
+    "when_now": "Ahora",
+    "when_today": "Hoy",
+    "when_tomorrow": "Mañana",
+    "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir ofertas de anfitriones cercanos.",
+    "same_gender_only_indicator": "Mismo género",
+    "offers_count_one": "{{count}} ofrecimiento",
+    "offers_count_many": "{{count}} de ofrecimientos",
+    "offers_count_other": "{{count}} ofrecimientos",
+    "no_offers": "Ningún ofrecimiento todavía"
   }
 }

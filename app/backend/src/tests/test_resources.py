@@ -1,6 +1,10 @@
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
+from couchers.db import session_scope
+from couchers.models import Language
+from couchers.resources import copy_resources_to_database
 from tests.fixtures.sessions import resources_session
 
 
@@ -55,6 +59,16 @@ def test_GetLanguages(db):
         languages_list = [(r.code, r.name) for r in languages]
         assert ("swe", "Sueco") in languages_list
         assert ("swe", "Swedish") not in languages_list
+
+
+def test_languages_resource_drops_deprecated_ajp(db):
+    # Load the real languages.json (not the hardcoded testing fixture) so a future bad code is caught.
+    # Mirrors test_add_dummy_data's pattern of calling copy_resources_to_database directly.
+    with session_scope() as session:
+        copy_resources_to_database(session)
+        codes = set(session.execute(select(Language.code)).scalars().all())
+    assert "ajp" not in codes  # deprecated; ISO 639-3 CR 2022-006 merged it into apc
+    assert "apc" in codes
 
 
 def test_GetBadges(db):

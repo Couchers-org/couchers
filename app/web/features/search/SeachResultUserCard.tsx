@@ -20,10 +20,9 @@ import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { localizeRelativeTime, timestampToInstant } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
-import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -47,7 +46,7 @@ function displayedAttributes(
   user: SearchUser.AsObject,
 ): Record<string, unknown> {
   const lastActive = user.lastActive
-    ? timestamp2Date(user.lastActive).getTime()
+    ? timestampToInstant(user.lastActive).epochMilliseconds
     : null;
   return {
     has_avatar: user.avatarUrl.length > 0,
@@ -342,11 +341,9 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive
                 ? `${t("profile:active")}: ` +
-                  timeAgo({
-                    since: timestamp2Date(user.lastActive),
+                  localizeRelativeTime(user.lastActive, locale, {
+                    smallestUnit: "hours",
                     t,
-                    locale,
-                    minimumUnit: TimeUnit.Hours,
                   })
                 : t("last_active_false")}
             </Typography>

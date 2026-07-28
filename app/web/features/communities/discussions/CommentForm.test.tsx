@@ -5,6 +5,7 @@ import { discussionBaseRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { getAccountInfo } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
 import CommentForm from "./CommentForm";
@@ -16,6 +17,9 @@ jest.mock("components/MarkdownInput");
 const postReplyMock = service.threads.postReply as MockedService<
   typeof service.threads.postReply
 >;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
+>;
 
 function renderCommentForm() {
   mockRouter.setCurrentUrl(
@@ -23,6 +27,11 @@ function renderCommentForm() {
   );
   render(<CommentForm threadId={999} shown={true} />, { wrapper });
 }
+
+beforeEach(() => {
+  // Default to a complete profile so non-gate tests don't trip the incomplete-profile dialog.
+  getAccountInfoMock.mockImplementation(getAccountInfo);
+});
 
 describe("Comment form", () => {
   beforeAll(() => {
@@ -94,5 +103,61 @@ describe("Comment form", () => {
     user.click(screen.getByRole("button", { name: t("communities:comment") }));
 
     expect(postReplyMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("Comment form profile-completeness gate", () => {
+  beforeAll(() => {
+    // The "Comment form" describe above leaves fake timers active; restore
+    // real timers so `await user.type`/`user.click` resolve normally here.
+    jest.useRealTimers();
+  });
+
+  beforeEach(() => {
+    postReplyMock.mockClear();
+  });
+
+  it("shows the profile incomplete dialog instead of posting when the profile is incomplete", async () => {
+    getAccountInfoMock.mockImplementation(async () => ({
+      ...(await getAccountInfo()),
+      profileComplete: false,
+    }));
+    renderCommentForm();
+
+    const user = userEvent.setup();
+
+    const commentInput = (await screen.findByLabelText(
+      t("communities:write_comment_a11y_label"),
+    )) as HTMLInputElement;
+    await user.type(commentInput, "This is a valid comment");
+
+    await user.click(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    );
+
+    expect(
+      await screen.findByLabelText(t("profile:complete_profile_dialog.title")),
+    ).toBeVisible();
+    expect(postReplyMock).not.toHaveBeenCalled();
+  });
+
+  it("posts the comment as usual when the profile is complete", async () => {
+    renderCommentForm();
+
+    const user = userEvent.setup();
+
+    const commentInput = (await screen.findByLabelText(
+      t("communities:write_comment_a11y_label"),
+    )) as HTMLInputElement;
+    await user.type(commentInput, "This is a valid comment");
+
+    await user.click(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    );
+
+    await waitFor(() => expect(postReplyMock).toHaveBeenCalledTimes(1));
+    expect(
+      screen.queryByLabelText(t("profile:complete_profile_dialog.title")),
+    ).not.toBeInTheDocument();
   });
 });

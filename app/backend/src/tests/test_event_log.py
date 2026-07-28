@@ -19,12 +19,13 @@ from couchers.proto import (
     auth_pb2,
     conversations_pb2,
     events_pb2,
+    messages_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
     search_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
+from couchers.utils import create_coordinate, datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -394,7 +395,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -417,7 +418,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
             )
         )
 
@@ -456,7 +457,7 @@ def test_host_request_rejected_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
 
@@ -493,7 +494,7 @@ def test_host_request_cancelled_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             )
         )
 
@@ -788,9 +789,8 @@ def test_event_created_event(db):
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
             )
         )
 

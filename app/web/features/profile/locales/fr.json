@@ -203,10 +203,6 @@
   "edit_profile_name_required": "Prénom requis",
   "unspecified_info": "-",
   "cancel": "Annuler",
-  "pronouns": {
-    "man": "il / lui",
-    "woman": "elle / elle"
-  },
   "my_connections": "Mes connexions",
   "connection_pending": "En attente",
   "more_profile_actions": "...",

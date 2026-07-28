@@ -11,6 +11,8 @@ import { GLOBAL, LANDING } from "i18n/namespaces";
 import { theme } from "theme";
 import { timeAgo } from "utils/timeAgo";
 import useSignupPageInfo from "utils/useSignupPageInfo";
+import { Temporal } from "temporal-polyfill";
+import { localizeRelativeTime } from "utils/date";
 
 const SocialProof = () => {
   const {
@@ -134,11 +136,10 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: timeAgo({
-                    since: new Date(signupInfo.lastSignup),
-                    t,
+                  timeAgo: localizeRelativeTime(
+                    Temporal.Instant.from(signupInfo.lastSignup),
                     locale,
-                  }),
+                  ),
                 })}
               </Typography>
             )

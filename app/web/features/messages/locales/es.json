@@ -67,9 +67,9 @@
     }
   },
   "host_request_status": {
-    "confirmed": "Confirmadas",
-    "accepted": "Aceptadas",
-    "cancelled": "Canceladas",
+    "confirmed": "Confirmada",
+    "accepted": "Aceptada",
+    "cancelled": "Cancelada",
     "past": "Pasadas",
     "pending": "Pendientes",
     "rejected": "Declinadas"
@@ -133,7 +133,11 @@
       "accepted": "{{user}} ha aceptado la solicitud",
       "cancelled": "{{user}} ha cancelado la solicitud",
       "confirmed": "{{user}} ha confirmado la solicitud",
-      "rejected": "{{user}} ha rechazado la solicitud"
+      "rejected": "{{user}} ha rechazado la solicitud",
+      "accepted_self": "Has aceptado la solicitud",
+      "cancelled_self": "Has cancelado la solicitud",
+      "confirmed_self": "Has confirmado la solicitud",
+      "rejected_self": "Has rechazado la solicitud"
     }
   },
   "host_pending_request_help_text": "<0>Cosas a considerar</0> antes de responder.",
@@ -143,14 +147,15 @@
     "pending": "Esta solicitud sigue pendiente",
     "host_status": {
       "accepted": "Has aceptado esta solicitud",
-      "cancelled": "Has cancelado esta solicitud",
-      "confirmed": "Has confirmado esta solicitud",
-      "rejected": "Has declinado esta solicitud"
+      "cancelled": "El viajero ha cancelado esta solicitud",
+      "confirmed": "¡Diviértete! Has aceptado y el viajero ha confirmado esta solicitud.",
+      "rejected": "Has declinado esta solicitud",
+      "accepted_waiting": "Has aceptado esta solicitud: esperando a que el viajero lo confirme."
     },
     "surfer_status": {
-      "accepted": "Tu solicitud ha sido aceptada",
-      "cancelled": "Tu solicitud ha sido cancelada",
-      "confirmed": "Tu solicitud ha sido confirmada",
+      "accepted": "¡Diviértete! {{name}} ha aceptado la solicitud.",
+      "cancelled": "Has cancelado esta solicitud",
+      "confirmed": "¡Diviértete! {{name}} aceptó y tu has confirmdo esta solicitud.",
       "rejected": "Tu solicitud fue declinada"
     }
   },
@@ -171,5 +176,43 @@
     "filter": {
       "all": "Todas"
     }
-  }
+  },
+  "reference_card": {
+    "title": "Escribe una referencia",
+    "description": "Comparte tu experiencia para ayudar a la comunidad."
+  },
+  "respond_box_title": "Envía una respuesta",
+  "respond_box_description": "Selecciona una respuesta para avisar a {{name}} de inmediato. Posteriormente si quieres podrás enviarle un mensaje.",
+  "status_bar_edit_button": "Editar",
+  "status_bar_cancel_edit_button": "Cancelar",
+  "status_bar_close_button": "Cerrar",
+  "surfer_bar_pending": "Enviaste una solicitud de anfitrión: esperando a que {{name}} responda.",
+  "cancel_request_button": "Cancelar solicitud",
+  "cancel_request_dialog_title": "¿Cancelar solicitud?",
+  "cancel_request_dialog_message": "¿Estás seguro de que quieres cancelar tu solicitud? Esto no se puede deshacer.",
+  "cancel_request_dialog_confirm_button": "Si, cancelar",
+  "cancel_request_dialog_dismiss_button": "No",
+  "private_feedback_card": {
+    "title": "Comentarios sobre esta solicitud",
+    "quality_label": "Califica esta solicitud de forma privada (Opcional):",
+    "quality_high": "Excelente",
+    "quality_okay": "Buena",
+    "quality_low": "Mediocre",
+    "decline_reason_label": "¿Por qué la rechazaste?",
+    "decline_reason_options": {
+      "didnt_read_profile": "No leyó mi perfil",
+      "dont_want_to_host": "No quiero hospedar a esta persona",
+      "not_available": "No estaba disponible para hospedar en ese momento",
+      "other": "Otros"
+    },
+    "reason_other_placeholder": "Cuéntanos más...",
+    "privacy_notice": "Tus respuestas son privadas y no se compartirán con el usuario. Es posible que las utilicemos de forma agregada y anónima -combinadas con muchas otras- para mejorar la retroalimentación de todos los usuarios.",
+    "skip_button": "Saltar",
+    "next_button": "Siguiente",
+    "back_button": "Atrás",
+    "submit_button": "Enviar"
+  },
+  "surfer_confirm_box_title": "¡{{name}} ha aceptado tu solicitud!",
+  "surfer_confirm_box_description": "Confirma para asegurar tu estancia, o cancela si tus planes han cambiado.",
+  "show_more_actions_button_a11y": "Mostrar más acciones"
 }

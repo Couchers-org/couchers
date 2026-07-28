@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Event } from "proto/events_pb";
 import { useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -124,6 +125,7 @@ describe("Event time changer", () => {
 
   it("should show proper error if startDate is today but startTime is in the past", async () => {
     jest.setSystemTime(new Date("2021-08-01 23:00"));
+    expect(Temporal.Now.plainDateISO().toString() == "2021-08-01");
 
     render(<TestForm />, { wrapper });
 
@@ -478,10 +480,14 @@ describe("Event time changer", () => {
       expect(onValidSubmit).toHaveBeenCalledTimes(1);
       const submittedData = onValidSubmit.mock.calls[0][0];
 
-      expect(submittedData.startDate.format("YYYY-MM-DD")).toBe("2021-08-05");
-      expect(submittedData.startTime.format("HH:mm")).toBe("14:00");
-      expect(submittedData.endDate.format("YYYY-MM-DD")).toBe("2021-08-06");
-      expect(submittedData.endTime.format("HH:mm")).toBe("15:00");
+      expect(submittedData.startDate).toEqual(
+        Temporal.PlainDate.from("2021-08-05"),
+      );
+      expect(submittedData.startTime).toEqual(Temporal.PlainTime.from("14:00"));
+      expect(submittedData.endDate).toEqual(
+        Temporal.PlainDate.from("2021-08-06"),
+      );
+      expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("15:00"));
     });
   });
 });

@@ -34,19 +34,20 @@ export default function ResendVerificationEmailForm() {
       </Typography>
       <Typography variant="body1">
         {!resent ? (
-          <Trans i18nKey="auth:sign_up_resend_verification_email_help">
-            Didn't receive the email? Click{" "}
-            <StyledLink
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                mutation.mutateAsync();
-              }}
-            >
-              here to resend the verification link
-            </StyledLink>
-            .
-          </Trans>
+          <Trans
+            i18nKey="auth:sign_up_resend_verification_email_help"
+            components={{
+              2: (
+                <StyledLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    mutation.mutateAsync();
+                  }}
+                />
+              ),
+            }}
+          />
         ) : (
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}

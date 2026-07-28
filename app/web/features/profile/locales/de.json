@@ -89,7 +89,7 @@
     "hosting_status": "Hosting-Status",
     "meetup_status": "Treffen-Status",
     "name": "Name",
-    "pronouns": "Pronomen",
+    "pronouns": "Pronomen (optional)",
     "hometown": "Aufgewachsen in",
     "education": "Ausbildung",
     "occupation": "Beruf",
@@ -122,10 +122,6 @@
   "gender": {
     "woman": "Frau",
     "man": "Mann"
-  },
-  "pronouns": {
-    "woman": "sie / ihr",
-    "man": "er / ihm"
   },
   "edit_profile_tab_bar_a11y_label": "tabs zum Bearbeiten verschiedener Teile deines Profils",
   "info_unanswered": "Frag mich",
@@ -341,9 +337,15 @@
       "send_message": "Nachricht senden",
       "create_event": "Event erstellen",
       "send_friend_request": "Freundschaftsanfrage senden",
-      "create_public_trip": "Erstelle einen öffentlichen Trip"
+      "create_public_trip": "Erstelle einen öffentlichen Trip",
+      "create_discussion": "Erstelle einen Beitrag",
+      "post_comment": "einen Kommentar posten"
     },
     "edit_profile_button": "Profil jetzt bearbeiten",
     "cancel_button": "Doch nicht"
-  }
+  },
+  "about_me_textbox_placeholder": "z. B. Aktuelle Mission, warum du Couchers.org nutzt, deine liebste Reisegeschichte...",
+  "hobbies_textbox_placeholder": "z. B. Aktivitäten, Bücher, Filme, Musik...",
+  "edit_profile_pronouns_placeholder": "z. B. sie/ihr",
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
 }

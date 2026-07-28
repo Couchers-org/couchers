@@ -140,9 +140,9 @@ describe("Event form", () => {
     });
 
     expect(startDateGroup).toHaveTextContent("06/29/2021");
-    expect(startTimeGroup).toHaveTextContent("02:37 am");
+    expect(startTimeGroup).toHaveTextContent("04:37 am");
     expect(endDateGroup).toHaveTextContent("06/29/2021");
-    expect(endTimeGroup).toHaveTextContent("03:37 am");
+    expect(endTimeGroup).toHaveTextContent("05:37 am");
 
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
@@ -265,18 +265,16 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
     expect(submittedData.location.name).toBe(
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -423,17 +421,15 @@ describe("Event form", () => {
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
     expect(submittedData.location.name).toBe(
       "test city, test county, test country",
     );
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 });
