@@ -1,6 +1,7 @@
 import {
   CancelOutlined,
   ContentCopyOutlined,
+  DownloadOutlined,
   EditOutlined,
   LinkOutlined,
 } from "@mui/icons-material";
@@ -272,6 +273,23 @@ export default function EventPage({
       },
       id: "copy-link",
     },
+    ...(!event?.isCancelled
+      ? ([
+          {
+            icon: DownloadOutlined,
+            label: t("communities:download_calendar_file"),
+            onClick: () => {
+              const link = document.createElement("a");
+              link.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/events/${
+                event!.eventId
+              }/calendar`;
+              link.download = `${event!.title || "event"}.ics`;
+              link.click();
+            },
+            id: "download-calendar-file",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
     ...(event?.canEdit && !event.isCancelled && !isPastEvent
       ? ([
           {
