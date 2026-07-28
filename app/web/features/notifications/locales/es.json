@@ -63,5 +63,9 @@
   "mark_unread": "Marcar como no leído",
   "mark_all_read": "Marcar todo como leído",
   "no_new_notifications": "Sin nuevas notificaciones",
-  "error_updating_notifications": "Error al actualizar las notificaciones"
+  "error_updating_notifications": "Error al actualizar las notificaciones",
+  "notifications_filters": {
+    "all_button": "Todas",
+    "unread_button": "No leídas"
+  }
 }
