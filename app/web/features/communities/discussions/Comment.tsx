@@ -21,13 +21,13 @@ import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeRelativeTime } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { useThread } from "../hooks";

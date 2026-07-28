@@ -143,7 +143,7 @@
       "title": "Per favore, aggiorna la tua posizione",
       "submit_button": {
         "inactive_text": "Grazie!",
-        "active_text": "Salvare"
+        "active_text": "Salva"
       },
       "resubmit_button_text": "Inviare di nuovo",
       "explanation": "Sembra che le tue coordinate non siano corrette. Per favore, aggiorna la tua posizione per continuare."

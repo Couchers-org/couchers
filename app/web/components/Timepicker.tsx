@@ -1,10 +1,10 @@
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
+import { getMuiTimeFormat } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
-import { getMuiTimeFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
