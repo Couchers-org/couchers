@@ -190,9 +190,9 @@ def _message_unseen_long_enough(user_id_column: InstrumentedAttribute[int]) -> C
         .where(PushNotificationSubscription.disabled_at > func.now())
         .exists()
     )
-    return or_(
-        and_(has_active_push_subscription, Message.time < now() - MISSED_MESSAGES_DELAY_WITH_PUSH),
-        and_(not_(has_active_push_subscription), Message.time < now() - MISSED_MESSAGES_DELAY),
+    return Message.time < case(
+        (has_active_push_subscription, now() - MISSED_MESSAGES_DELAY_WITH_PUSH),
+        else_=now() - MISSED_MESSAGES_DELAY,
     )
 
 
