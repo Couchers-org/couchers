@@ -10,7 +10,7 @@ import Avatar from "components/Avatar";
 import { useCommunity } from "features/communities/hooks";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange, localizeRelativeTimeUnit } from "i18n/datetimes";
+import { localizeDateRange, localizeRelativeTimeUnit } from "i18n/datetimes";
 import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { myPublicTripsRoute, routeToCommunity } from "routes";
@@ -187,10 +187,11 @@ export function DashboardPublicTripCard({
 
   const { data: community, isLoading: communityLoading } = useCommunity(communityMode ? 0 : trip.communityId);
 
-  const dateRange = localizeDateTimeRange(
+  const dateRange = localizeDateRange(
     Temporal.PlainDateTime.from(trip.fromDate),
     Temporal.PlainDateTime.from(trip.toDate),
-    { locale, includeTime: false, abbreviate: true },
+    locale,
+    { abbreviate: true },
   );
 
   const hasFooter = !communityMode && (offersCount !== undefined || trip.sameGenderOnly);

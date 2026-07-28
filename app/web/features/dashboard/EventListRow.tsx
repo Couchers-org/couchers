@@ -1,7 +1,7 @@
 import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
-import { localizeDateTime, localizeMonthAbbreviation } from "i18n/datetimes";
+import { localizeMonthName, localizeTimeOnly } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
@@ -176,17 +176,13 @@ export default function EventListRow({ event }: EventListRowProps) {
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isOngoing ? nowLabel : todayLabel;
   const chipFontSize = chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
-  const month = localizeMonthAbbreviation(startDate.toPlainDate(), {
-    locale,
+  const month = localizeMonthName(startDate.month, locale, {
+    abbreviate: true,
     capitalize: true,
   });
   const day = startDate.day;
 
-  const timeStr = localizeDateTime(startDate, {
-    locale,
-    includeDate: false,
-    includeTime: true,
-  });
+  const timeStr = localizeTimeOnly(startDate, locale);
 
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>

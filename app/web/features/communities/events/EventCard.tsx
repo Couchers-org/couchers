@@ -124,8 +124,8 @@ export default function EventCard({ event, className }: EventCardProps) {
   const dateTimeRangeText = localizeDateTimeRange(
     timestampToPlainDateTime(event.startTime!, event.timezone),
     timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      locale,
       includeYear: "auto",
       includeDayOfWeek: true,
       abbreviate: true,

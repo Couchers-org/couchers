@@ -1,11 +1,15 @@
 import {
   getMuiDateFormat,
   getMuiTimeFormat,
+  localizeDateOnly,
   localizeDateTime,
   localizeDuration,
+  localizeMonthName,
   localizeRelativeTime,
   localizeTimeOffset,
+  localizeTimeOnly,
   localizeTimeZone,
+  localizeYearMonth,
 } from "i18n/datetimes";
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
@@ -19,14 +23,9 @@ describe("localizeDateTime", () => {
   });
 
   it("excludes dates when specified", () => {
+    expect(localizeDateTime(janFirst2000, "en")).toContain("2000");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("2000");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDate: false,
       }),
     ).not.toContain("2000");
@@ -34,14 +33,12 @@ describe("localizeDateTime", () => {
 
   it("supports all includeYear modes", () => {
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: true,
       }),
     ).toContain("2000");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: false,
       }),
     ).not.toContain("2000");
@@ -50,28 +47,21 @@ describe("localizeDateTime", () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2001-01-01T00:00:00Z"));
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: "auto",
       }),
     ).toContain("2000");
     expect(
-      localizeDateTime(Temporal.PlainDateTime.from("2001-01-01"), {
-        locale: "en",
+      localizeDateTime(Temporal.PlainDateTime.from("2001-01-01"), "en", {
         includeYear: "auto",
       }),
     ).not.toContain("2001");
   });
 
   it("honors abbreviated month names", () => {
+    expect(localizeDateTime(janFirst2000, "en")).toContain("January");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         abbreviate: true,
       }),
     ).not.toContain("uary");
@@ -79,20 +69,17 @@ describe("localizeDateTime", () => {
 
   it("includes the day of week when specified", () => {
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: false,
       }),
     ).not.toContain("Sat");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: true,
       }),
     ).toContain("Saturday");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: true,
         abbreviate: true,
       }),
@@ -100,14 +87,9 @@ describe("localizeDateTime", () => {
   });
 
   it("excludes times when specified", () => {
+    expect(localizeDateTime(janFirst2000.add({ hours: 11 }), "en")).toContain("11");
     expect(
-      localizeDateTime(janFirst2000.add({ hours: 11 }), {
-        locale: "en",
-      }),
-    ).toContain("11");
-    expect(
-      localizeDateTime(janFirst2000.add({ hours: 11 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ hours: 11 }), "en", {
         includeTime: false,
       }),
     ).not.toContain("11");
@@ -115,66 +97,31 @@ describe("localizeDateTime", () => {
 
   it("includes seconds when specified", () => {
     expect(
-      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), "en", {
         includeSeconds: false,
       }),
     ).not.toContain("42");
     expect(
-      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), "en", {
         includeSeconds: true,
       }),
     ).toContain("42");
   });
 
   it("honors the locale", () => {
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en-US",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "es",
-      }),
-    ).toContain("enero");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "de",
-      }),
-    ).toContain("Januar");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "pt-BR",
-      }),
-    ).toContain("janeiro");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "ca",
-      }),
-    ).toContain("gener");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "zh-Hans",
-      }),
-    ).toContain("1月");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "zh-Hant",
-      }),
-    ).toContain("1月");
+    expect(localizeDateTime(janFirst2000, "en")).toContain("January");
+    expect(localizeDateTime(janFirst2000, "en-US")).toContain("January");
+    expect(localizeDateTime(janFirst2000, "es")).toContain("enero");
+    expect(localizeDateTime(janFirst2000, "de")).toContain("Januar");
+    expect(localizeDateTime(janFirst2000, "pt-BR")).toContain("janeiro");
+    expect(localizeDateTime(janFirst2000, "ca")).toContain("gener");
+    expect(localizeDateTime(janFirst2000, "zh-Hans")).toContain("1月");
+    expect(localizeDateTime(janFirst2000, "zh-Hant")).toContain("1月");
   });
 
   it("does not capitalize day/month names by default (assumed mid-sentence)", () => {
     // Spanish weekday + month stay lowercase when the date may be part of a sentence.
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeDayOfWeek: true,
       includeTime: false,
     });
@@ -183,8 +130,7 @@ describe("localizeDateTime", () => {
   });
 
   it("capitalizes only the first letter when capitalize is set (standalone date)", () => {
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeDayOfWeek: true,
       includeTime: false,
       capitalize: true,
@@ -196,12 +142,32 @@ describe("localizeDateTime", () => {
 
   it("leaves a non-letter first grapheme unchanged when capitalize is set", () => {
     // Spanish dates without a weekday start with the day number.
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeTime: false,
       capitalize: true,
     });
     expect(formatted).toMatch(/^1 de enero/);
+  });
+});
+
+describe("localizeDateTime-derived helpers", () => {
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
+  it("localizeDateOnly", () => {
+    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("January 1, 2000");
+  });
+
+  it("localizeTimeOnly", () => {
+    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 AM");
+  });
+
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
+  it("localizeYearMonth", () => {
+    expect(localizeYearMonth(new Temporal.PlainYearMonth(2000, 2), "en")).toBe("February 2000");
+  });
+
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which it delegates to.
+  it("localizeMonthName", () => {
+    expect(localizeMonthName(2, "en")).toBe("February");
   });
 });
 

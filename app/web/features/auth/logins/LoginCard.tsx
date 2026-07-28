@@ -6,7 +6,7 @@ import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icon
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
-import { localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
+import { localizeDateOnly, localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
@@ -25,14 +25,10 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
   } = useTranslation([GLOBAL, AUTH]);
 
   const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
-  const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), {
-    locale,
+  const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), locale, {
     includeSeconds: true,
   });
-  const expiryDisplay = localizeDateTime(timestampToPlainDateTime(session.expiry!), {
-    locale,
-    includeTime: false,
-  });
+  const expiryDisplay = localizeDateOnly(timestampToPlainDateTime(session.expiry!), locale);
   const queryClient = useQueryClient();
 
   const {

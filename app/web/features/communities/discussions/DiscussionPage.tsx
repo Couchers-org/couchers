@@ -17,7 +17,7 @@ import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
+import { localizeDateOnly, localizeRelativeTime } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
@@ -254,10 +254,7 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                             ) : (
                               <Typography variant="body2">
                                 {t("communities:discussion_creation_date", {
-                                  dateOnly: localizeDateTime(timestampToPlainDateTime(discussion.created!), {
-                                    locale,
-                                    includeTime: false,
-                                  }),
+                                  dateOnly: localizeDateOnly(timestampToPlainDateTime(discussion.created!), locale),
                                 })}
                               </Typography>
                             )}

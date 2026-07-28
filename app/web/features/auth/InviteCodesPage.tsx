@@ -148,8 +148,7 @@ export default function InviteCodesPage() {
                       {c.created?.seconds && (
                         <>
                           {t("global:invites.created_datetime", {
-                            datetime: localizeDateTime(timestampToPlainDateTime(c.created), {
-                              locale: locale,
+                            datetime: localizeDateTime(timestampToPlainDateTime(c.created), locale, {
                               abbreviate: true,
                             }),
                           })}
@@ -159,8 +158,7 @@ export default function InviteCodesPage() {
                         <>
                           {" • "}
                           {t("global:invites.disabled_datetime", {
-                            datetime: localizeDateTime(timestampToPlainDateTime(c.disabled), {
-                              locale,
+                            datetime: localizeDateTime(timestampToPlainDateTime(c.disabled), locale, {
                               abbreviate: true,
                             }),
                           })}

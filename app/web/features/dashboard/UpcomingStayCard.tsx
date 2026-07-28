@@ -5,7 +5,7 @@ import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange, localizeRelativeTimeUnit } from "i18n/datetimes";
+import { localizeDateRange, localizeRelativeTimeUnit } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
@@ -134,10 +134,8 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
     capitalize: true,
   });
 
-  const dateRange = localizeDateTimeRange(fromDate, toDate, {
-    locale,
+  const dateRange = localizeDateRange(fromDate, toDate, locale, {
     includeYear: "auto",
-    includeTime: false,
     abbreviate: true,
   });
 
