@@ -2423,6 +2423,117 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
         assert err.value.details() == "A community invite has already been sent out for this event."
 
 
+def test_list_decided_community_invite_requests(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    superuser, superuser_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 2, "World Community", [superuser], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
+        r = create_community(session, 0, 2, "Region", [superuser], [], mr)
+        c_id = create_community(session, 0, 2, "Community", [user1, user2, user3], [], r).id
+
+    enforce_community_memberships()
+
+    def create_event_and_request_invite(token: str, title: str) -> str:
+        with events_session(token) as api:
+            res = api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title=title,
+                    content="Dummy content.",
+                    parent_community_id=c_id,
+                    location=events_pb2.EventLocation(
+                        address="Near Null Island",
+                        lat=0.1,
+                        lng=0.2,
+                    ),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+                )
+            )
+        moderator.approve_event_occurrence(res.event_id)
+        with events_session(token) as api:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        return f"http://localhost:3000/event/{res.event_id}/{res.slug}"
+
+    event1_url = create_event_and_request_invite(token1, "Approved Event")
+    event2_url = create_event_and_request_invite(token2, "Declined Event")
+    # this one stays pending
+    create_event_and_request_invite(token3, "Pending Event")
+
+    with real_editor_session(superuser_token) as editor:
+        pending = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
+        assert len(pending.requests) == 3
+        by_user = {req.user_id: req.event_community_invite_request_id for req in pending.requests}
+
+        # nothing decided yet
+        res = editor.ListDecidedEventCommunityInviteRequests(editor_pb2.ListDecidedEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 0
+        assert not res.next_page_token
+
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=by_user[user1.id],
+                approve=True,
+            )
+        )
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=by_user[user2.id],
+                approve=False,
+            )
+        )
+
+        # the pending one is not returned, and the most recently decided comes first
+        res = editor.ListDecidedEventCommunityInviteRequests(editor_pb2.ListDecidedEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 2
+        assert not res.next_page_token
+
+        declined, approved = res.requests
+
+        assert declined.event_community_invite_request_id == by_user[user2.id]
+        assert declined.user_id == user2.id
+        assert declined.event_url == event2_url
+        assert declined.community_id == c_id
+        assert declined.decided_by_user_id == superuser.id
+        assert not declined.approved
+        assert declined.created.ToDatetime() <= declined.decided.ToDatetime()
+
+        assert approved.event_community_invite_request_id == by_user[user1.id]
+        assert approved.user_id == user1.id
+        assert approved.event_url == event1_url
+        assert approved.community_id == c_id
+        assert approved.decided_by_user_id == superuser.id
+        assert approved.approved
+        assert approved.decided.ToDatetime() <= declined.decided.ToDatetime()
+
+        # filtering
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=True))
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=False))
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+
+        # pagination
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1)
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+        assert res.next_page_token
+
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1, page_token=res.next_page_token)
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+        assert not res.next_page_token
+
+
 def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Moderator):
     # Regression: users who already RSVP'd (or organize the event) must not get the
     # community invite notification when it is approved.
