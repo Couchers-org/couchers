@@ -8,11 +8,10 @@ import {
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import { theme } from "theme";
-import { timeAgo } from "utils/timeAgo";
-import useSignupPageInfo from "utils/useSignupPageInfo";
 import { Temporal } from "temporal-polyfill";
+import { theme } from "theme";
 import { localizeRelativeTime } from "utils/date";
+import useSignupPageInfo from "utils/useSignupPageInfo";
 
 const SocialProof = () => {
   const {
