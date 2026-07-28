@@ -40,7 +40,7 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, today
-from tests.fixtures.db import generate_user, make_friends
+from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
@@ -73,6 +73,8 @@ def create_test_host_request_with_moderation(surfer_token, host_user_id):
                 text=valid_request_text(),
             )
         ).host_request_id
+
+    backdate_conversations()
 
     with session_scope() as session:
         hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr_id)).scalar_one()
@@ -711,6 +713,7 @@ def test_multiple_host_requests_listing_visibility(db):
                 )
             ).host_request_id
             host_request_ids.append(hr_id)
+            backdate_conversations()
 
     # Get state IDs
     with session_scope() as session:
@@ -1171,6 +1174,7 @@ def test_GetModerationQueue_filter_by_author(db):
                 text=valid_request_text(),
             )
         ).host_request_id
+        backdate_conversations()
 
         hr2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1300,6 +1304,7 @@ def test_GetModerationQueue_pagination_newest_first(db):
                 )
             ).host_request_id
             hr_ids.append(hr_id)
+            backdate_conversations()
 
     # Get moderation state IDs
     state_ids = []
