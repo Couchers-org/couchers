@@ -4,7 +4,8 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANDING, PRESS } from "i18n/namespaces";
-import { timeAgo } from "utils/timeAgo";
+import { Temporal } from "temporal-polyfill";
+import { localizeRelativeTime } from "utils/date";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
 import { GetVolunteersRes } from "../../proto/public_pb";
@@ -107,11 +108,10 @@ export default function Facts({ volunteers }: FactsProps) {
           ) : signupInfo?.lastSignup ? (
             <Typography sx={textStyle}>
               {t("landing:last_signup", {
-                timeAgo: timeAgo({
-                  since: new Date(signupInfo.lastSignup),
-                  t,
+                timeAgo: localizeRelativeTime(
+                  Temporal.Instant.from(signupInfo.lastSignup),
                   locale,
-                }),
+                ),
               })}
             </Typography>
           ) : null}
