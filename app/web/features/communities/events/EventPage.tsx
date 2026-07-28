@@ -21,6 +21,7 @@ import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
@@ -34,11 +35,7 @@ import {
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import {
-  localizeDateTimeRange,
-  timestampToInstant,
-  timestampToPlainDateTime,
-} from "utils/date";
+import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
