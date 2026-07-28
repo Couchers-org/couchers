@@ -191,6 +191,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         requests = session.execute(query).scalars().all()
 
         def _request_to_pb(req: EventCommunityInviteRequest) -> editor_pb2.DecidedEventCommunityInviteRequest:
+            # these are set together, per the decided_approved check constraint
             assert req.decided is not None and req.decided_by_user_id is not None and req.approved is not None
             return editor_pb2.DecidedEventCommunityInviteRequest(
                 event_community_invite_request_id=req.id,
