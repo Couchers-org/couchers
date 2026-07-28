@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
 from couchers.i18n import LocalizationContext
+from couchers.metrics import push_subscriptions_registered_counter
 from couchers.models import (
     DeviceType,
     HostingStatus,
@@ -188,6 +189,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
         session.add(subscription)
         session.flush()
+        push_subscriptions_registered_counter.labels(PushNotificationPlatform.web_push.name, "new").inc()
         push_to_subscription(
             session,
             push_notification_subscription_id=subscription.id,
@@ -243,6 +245,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 if request.device_type:
                     existing.device_type = DeviceType[request.device_type]
                 logger.info(f"Re-enabled mobile push sub {existing.id} for user {context.user_id}")
+                push_subscriptions_registered_counter.labels(PushNotificationPlatform.expo.name, "reenabled").inc()
+            else:
+                push_subscriptions_registered_counter.labels(PushNotificationPlatform.expo.name, "already_active").inc()
             return empty_pb2.Empty()
 
         # Parse device_type if provided
@@ -257,6 +262,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
         session.add(subscription)
         session.flush()
+        push_subscriptions_registered_counter.labels(PushNotificationPlatform.expo.name, "new").inc()
 
         push_content = render_adhoc_push_notification("push_enabled", context.localization)
         push_to_subscription(

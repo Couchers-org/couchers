@@ -31,6 +31,7 @@ from couchers.models import (
     BackgroundJob,
     ClientPlatform,
     Cluster,
+    DeviceType,
     EventOccurrenceAttendee,
     HostingStatus,
     HostRequest,
@@ -39,6 +40,8 @@ from couchers.models import (
     NodeType,
     NonvisibleUserAccessType,
     NonvisibleUserState,
+    PushNotificationPlatform,
+    PushNotificationSubscription,
     Reference,
     User,
     UserActivity,
@@ -722,6 +725,128 @@ push_notification_counter: Counter = Counter(
 emails_counter: Counter = Counter(
     "couchers_emails_total",
     "Number of emails sent",
+)
+
+
+# Push subscription inventory and lifecycle. The delivery counter above only shows attempts, which says nothing
+# about how much of the userbase we can reach at all: a subscription only exists if the user granted OS/browser
+# permission, and mobile Safari has no web push outside an installed PWA. These answer "who is reachable".
+
+push_subscriptions_gauge: Gauge = Gauge(
+    "couchers_push_subscriptions",
+    "Push notification subscriptions, by platform, device type, and whether they are still enabled",
+    labelnames=["platform", "device_type", "state"],
+    multiprocess_mode="mostrecent",
+)
+
+
+def push_subscriptions_statement() -> Select[Any]:
+    return (
+        select(
+            PushNotificationSubscription.platform,
+            PushNotificationSubscription.device_type,
+            (PushNotificationSubscription.disabled_at > func.now()).label("active"),
+            func.count(),
+        )
+        .select_from(PushNotificationSubscription)
+        .group_by(PushNotificationSubscription.platform, PushNotificationSubscription.device_type, "active")
+    )
+
+
+# device_type is only populated for expo subscriptions, so web push always lands in the "unknown" bucket.
+_DEVICE_TYPE_LABELS: list[str] = [device_type.name for device_type in DeviceType] + ["unknown"]
+
+
+def _set_push_subscriptions(gauge: Gauge) -> None:
+    with tracer.start_as_current_span("metric.couchers_push_subscriptions"):
+        with session_scope() as session:
+            rows = session.execute(push_subscriptions_statement()).all()
+    for platform in PushNotificationPlatform:
+        for device_type_label in _DEVICE_TYPE_LABELS:
+            for state in ("active", "disabled"):
+                gauge.labels(platform.name, device_type_label, state).set(0)
+    for platform, device_type, active, count in rows:
+        gauge.labels(
+            platform.name,
+            device_type.name if device_type is not None else "unknown",
+            "active" if active else "disabled",
+        ).set(count)
+
+
+_set_hacky_labeled_gauges_funcs.append((push_subscriptions_gauge, _set_push_subscriptions))
+
+
+# Windows over which to measure what share of the people actually using the site can be reached by push. This is
+# the input to deciding whether an email is a duplicate of a push or the only way to reach someone.
+_PUSH_REACHABILITY_PERIODS: list[tuple[str, timedelta]] = [
+    ("24h", timedelta(hours=24)),
+    ("1month", timedelta(weeks=4)),
+]
+
+push_reachable_users_gauge: Gauge = Gauge(
+    "couchers_push_reachable_users",
+    "Active users with at least one enabled push subscription, by activity window",
+    labelnames=["period"],
+    multiprocess_mode="mostrecent",
+)
+push_reachable_fraction_gauge: Gauge = Gauge(
+    "couchers_push_reachable_fraction",
+    "Fraction of active users with at least one enabled push subscription, by activity window",
+    labelnames=["period"],
+    multiprocess_mode="mostrecent",
+)
+
+
+def push_reachability_statement() -> Select[Any]:
+    # Distinct subscribed users first so the join is a hash against a small set rather than a per-user lookup, and
+    # the user side is capped to the widest window so this never scans the long inactive tail of the users table.
+    subscribed_users = (
+        select(PushNotificationSubscription.user_id)
+        .where(PushNotificationSubscription.disabled_at > func.now())
+        .distinct()
+        .subquery()
+    )
+    columns = []
+    for name, interval in _PUSH_REACHABILITY_PERIODS:
+        in_period = User.last_active > func.now() - interval
+        columns.append(func.count(User.id).filter(in_period).label(f"active_{name}"))
+        columns.append(
+            func.count(User.id).filter(and_(in_period, subscribed_users.c.user_id != None)).label(f"reachable_{name}")
+        )
+    return (
+        select(*columns)
+        .select_from(User)
+        .outerjoin(subscribed_users, subscribed_users.c.user_id == User.id)
+        .where(User.is_visible)
+        .where(User.last_active > func.now() - max(interval for _, interval in _PUSH_REACHABILITY_PERIODS))
+    )
+
+
+def _set_push_reachability(gauge: Gauge) -> None:
+    with tracer.start_as_current_span("metric.couchers_push_reachable_users"):
+        with session_scope() as session:
+            row = session.execute(push_reachability_statement()).one()._mapping
+    for name, _ in _PUSH_REACHABILITY_PERIODS:
+        active = row[f"active_{name}"]
+        reachable = row[f"reachable_{name}"]
+        gauge.labels(name).set(reachable)
+        push_reachable_fraction_gauge.labels(name).set(reachable / active if active else 0.0)
+
+
+_set_hacky_labeled_gauges_funcs.append((push_reachable_users_gauge, _set_push_reachability))
+
+
+push_subscriptions_registered_counter: Counter = Counter(
+    "couchers_push_subscriptions_registered_total",
+    "Push subscription registration calls, by platform and whether the subscription was new, re-enabled, or "
+    "already active",
+    labelnames=["platform", "result"],
+)
+
+push_subscriptions_disabled_counter: Counter = Counter(
+    "couchers_push_subscriptions_disabled_total",
+    "Push subscriptions disabled by the server because the endpoint or device token went dead, by platform and reason",
+    labelnames=["platform", "reason"],
 )
 
 

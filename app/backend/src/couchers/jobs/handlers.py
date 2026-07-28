@@ -62,6 +62,7 @@ from couchers.metrics import (
     moderation_auto_approved_counter,
     postcards_sent_counter,
     push_notification_counter,
+    push_subscriptions_disabled_counter,
     strong_verification_completions_counter,
 )
 from couchers.models import (
@@ -1258,6 +1259,9 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
                             logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
                             push_notification_counter.labels(
                                 platform="expo", outcome="permanent_subscription_failure_receipt"
+                            ).inc()
+                            push_subscriptions_disabled_counter.labels(
+                                platform="expo", reason="device_not_registered"
                             ).inc()
                     else:
                         logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")

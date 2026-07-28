@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.metrics import push_notification_counter
+from couchers.metrics import push_notification_counter, push_subscriptions_disabled_counter
 from couchers.models import (
     PushNotificationDeliveryAttempt,
     PushNotificationDeliveryOutcome,
@@ -243,6 +243,7 @@ def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPaylo
             )
             sub.disabled_at = func.now()
             push_notification_counter.labels(platform=sub.platform.name, outcome="permanent_subscription_failure").inc()
+            push_subscriptions_disabled_counter.labels(platform=sub.platform.name, reason="permanent_failure").inc()
 
         except PermanentMessageFailure as e:
             logger.warning(f"Permanent message failure for sub {sub.id}: {e}")
