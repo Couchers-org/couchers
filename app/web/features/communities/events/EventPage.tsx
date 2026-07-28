@@ -418,6 +418,7 @@ export default function EventPage({
                     timestampToPlainDateTime(event.endTime!, event.timezone),
                     {
                       locale,
+                      includeYear: "auto",
                       includeDayOfWeek: true,
                       capitalize: true,
                     },

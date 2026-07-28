@@ -159,6 +159,7 @@ export default function UpcomingStayCard({
 
   const dateRange = localizeDateTimeRange(fromDate, toDate, {
     locale,
+    includeYear: "auto",
     includeTime: false,
     abbreviate: true,
   });

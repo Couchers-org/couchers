@@ -59,6 +59,9 @@ interface LocalizeDateTimeParams {
   locale: string;
   /// Whether to include the date (defaults to true).
   includeDate?: boolean;
+  /// Whether to include the year (defaults to true).
+  /// "auto" omits the year if it matches the current year (browser timezone).
+  includeYear?: boolean | "auto";
   /// If including the date, whether to include the day (defaults to true).
   includeDay?: boolean;
   /// If including the date, whether to include the day of week (defaults to false).
@@ -80,7 +83,7 @@ export function localizeDateTime(
   date: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
   args: LocalizeDateTimeParams,
 ): string {
-  const format = getIntlDateTimeFormatUTC(args);
+  const format = getIntlDateTimeFormatUTC(args, { year: date.year });
   const formatted = format.format(toDateForUTCDisplay(date));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
@@ -111,7 +114,9 @@ export function localizeDateTimeRange(
   end: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
   args: LocalizeDateTimeParams,
 ): string {
-  const format = getIntlDateTimeFormatUTC(args);
+  const format = getIntlDateTimeFormatUTC(args, {
+    year: start.year == end.year ? start.year : undefined,
+  });
   const formatted = format.formatRange(
     toDateForUTCDisplay(start),
     toDateForUTCDisplay(end),
@@ -127,12 +132,20 @@ const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
 /// Gets an Intl.DateTimeFormat based on params.
 function getIntlDateTimeFormatUTC(
   args: LocalizeDateTimeParams,
+  options: { year: number | undefined },
 ): Intl.DateTimeFormat {
+  // Resolve the auto option since the Intl.DateTimeFormat needs a boolean.
+  if (args.includeYear === "auto") {
+    args = {
+      ...args,
+      includeYear:
+        options.year === undefined || options.year != new Date().getFullYear(),
+    };
+  }
+
   // We can't use args as the Map key as it uses reference equality.
-  // Convert it to a json string. The Symbol type requires special handling.
-  const cacheKey = JSON.stringify(args, (_, v) =>
-    typeof v === "symbol" ? v.toString() : v,
-  );
+  // Convert it to a json string.
+  const cacheKey = JSON.stringify(args);
   const cached = intlDateTimeFormatCache.get(cacheKey);
   if (cached) return cached;
 
@@ -147,7 +160,9 @@ function createIntlDateTimeFormatUTC(
 ): Intl.DateTimeFormat {
   const options: Intl.DateTimeFormatOptions = {};
   if (args.includeDate !== false) {
-    options.year = "numeric";
+    if (args.includeYear !== false) {
+      options.year = "numeric";
+    }
     options.month = args.abbreviate ? "short" : "long";
     if (args.includeDay !== false) {
       options.day = "numeric";
@@ -175,9 +190,7 @@ export function localizeMonthAbbreviation(
     capitalize?: boolean;
   },
 ): string {
-  const cacheKey = JSON.stringify(args, (_, v) =>
-    typeof v === "symbol" ? v.toString() : v,
-  );
+  const cacheKey = JSON.stringify(args);
   let format = intlDateTimeFormatCache.get(cacheKey);
   if (!format) {
     const options: Intl.DateTimeFormatOptions = { month: "short" };
