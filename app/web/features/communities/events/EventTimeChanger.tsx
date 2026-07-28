@@ -41,7 +41,6 @@ export default function EventTimeChanger({
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
-  // FIXME(#8064): Event times should be interpreted in their timezones.
   const defaultStartDateTime = event?.startTime
     ? timestampToPlainDateTime(event.startTime, event?.timezone)
     : undefined;

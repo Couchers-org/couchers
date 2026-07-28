@@ -35,7 +35,7 @@ from couchers.proto import (
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import backdate_conversations, generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
@@ -266,6 +266,170 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
             assert res.host_request_id
 
 
+def test_create_request_duplicate_within_window(db):
+    """A second request to the same host for overlapping dates inside the window is rejected, so a
+    client that resends (or a user who re-taps Send) doesn't create a pile of duplicates."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=from_date.isoformat(),
+                    to_date=to_date.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert "past 3 hours" in (e.value.details() or "")
+
+        # partly overlapping dates are blocked too
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=(to_date - timedelta(days=1)).isoformat(),
+                    to_date=(to_date + timedelta(days=5)).isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+        # a different host is unaffected
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user3.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_window_allows_other_dates(db):
+    """Only overlapping stays count as duplicates, including a stay starting the day another one
+    ends."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=to_date.isoformat(),
+                to_date=(to_date + timedelta(days=5)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(from_date + timedelta(days=90)).isoformat(),
+                to_date=(to_date + timedelta(days=90)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_allowed_after_window(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        )
+        backdate_conversations()
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_window_ignores_public_trip_offers(db):
+    """Offers on public trips are deduplicated per trip, so two offers to the same traveler for
+    two different trips must both go through."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_1_from = today() + timedelta(days=10)
+    trip_1_to = today() + timedelta(days=20)
+    trip_2_from = today() + timedelta(days=40)
+    trip_2_to = today() + timedelta(days=50)
+    trip_1_id = _create_public_trip(surfer.id, trip_1_from, trip_1_to)
+    trip_2_id = _create_public_trip(surfer.id, trip_2_from, trip_2_to)
+
+    with requests_session(host_token) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_1_from.isoformat(),
+                to_date=trip_1_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_1_id,
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_2_from.isoformat(),
+                to_date=trip_2_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_2_id,
+            )
+        ).host_request_id
+
+        # the window only counts non-trip requests, so trip offers don't block a plain request
+        # even for dates they cover
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(trip_1_from + timedelta(days=2)).isoformat(),
+                to_date=(trip_1_to - timedelta(days=2)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, _ = generate_user()
@@ -489,6 +653,7 @@ def test_ListHostRequests_pagination_regression(db, moderator):
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -498,6 +663,7 @@ def test_ListHostRequests_pagination_regression(db, moderator):
                 text=valid_request_text("Test request 2"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -645,6 +811,7 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
                 text=valid_request_text("Request A"),
             )
         ).host_request_id
+        backdate_conversations()
 
         # Same from_date as A — tiebreaker by conversation_id
         hr_b = api.CreateHostRequest(
@@ -655,6 +822,7 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
                 text=valid_request_text("Request B"),
             )
         ).host_request_id
+        backdate_conversations()
 
         hr_c = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1206,6 +1374,7 @@ def test_get_updates(db, moderator):
             )
         )
 
+        backdate_conversations()
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
@@ -1324,6 +1493,7 @@ def test_mark_last_seen(db, moderator):
                 text=valid_request_text("Test message 0"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1483,6 +1653,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_1)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1505,6 +1676,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_2)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1527,6 +1699,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_3)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1608,6 +1781,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_4)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1626,6 +1800,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_5)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)

@@ -5,6 +5,7 @@ Renders a Notification model into a localized push notification.
 import logging
 from datetime import date
 from typing import Any, assert_never
+from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -367,7 +368,7 @@ def _render_event__create_any(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -382,7 +383,7 @@ def _render_event__create_approved(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -442,7 +443,7 @@ def _render_event__reminder(
         loc_context,
         substitutions={
             "title": data.event.title,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -871,7 +872,10 @@ def _format_host_request_start_date(date: str, loc_context: LocalizationContext)
     return loc_context.localize_date_from_iso(date, with_year=False, with_day_of_week=True)
 
 
-def _format_event_start_datetime(timestamp: Timestamp, loc_context: LocalizationContext) -> str:
+def _format_event_start_datetime(timestamp: Timestamp, timezone: str, loc_context: LocalizationContext) -> str:
     # Events are typically in the near future future,
     # so the year is not useful but the day of week is.
-    return loc_context.localize_datetime(timestamp, with_year=False, with_day_of_week=True)
+    # Event start/end times are displayed in their local timezone.
+    return loc_context.localize_datetime(
+        timestamp, display_timezone=ZoneInfo(timezone), with_year=False, with_day_of_week=True
+    )

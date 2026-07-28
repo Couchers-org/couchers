@@ -453,6 +453,16 @@ def dt_from_page_token(page_token: str) -> datetime:
     return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=UTC)
 
 
+def dt_id_to_page_token(dt: datetime, id_: int) -> str:
+    # see above comment about resolution
+    return encrypt_page_token(f"{round(1_000_000 * dt.timestamp())}:{id_}")
+
+
+def dt_id_from_page_token(page_token: str) -> tuple[datetime, int]:
+    micros, id_ = decrypt_page_token(page_token).split(":")
+    return datetime.fromtimestamp(int(micros) / 1_000_000, tz=UTC), int(id_)
+
+
 def last_active_coarsen(dt: datetime) -> datetime:
     """
     Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC

@@ -33,10 +33,20 @@ export function daysBetween(
   return date1.until(date2, { largestUnit: "days" }).days;
 }
 
-/// Converts a Temporal.PlainDate[Time] to a Date, interpreting it in UTC timezone.
-function toUTCDate(
-  temporal: Temporal.PlainDate | Temporal.PlainDateTime,
+/// Converts a Temporal date/time object to a Date
+/// such that it displays as expected in the UTC timezone.
+function toDateForUTCDisplay(
+  temporal:
+    | Temporal.ZonedDateTime
+    | Temporal.PlainDate
+    | Temporal.PlainDateTime,
 ): Date {
+  if (temporal instanceof Temporal.ZonedDateTime) {
+    // Discard the timezone, we'll reinterpret it in UTC,
+    // which results in an incorrect timestamp but correct
+    // datetime components for displaying.
+    temporal = temporal.toPlainDateTime();
+  }
   if (temporal instanceof Temporal.PlainDate) {
     temporal = temporal.toPlainDateTime();
   }
@@ -67,11 +77,11 @@ interface LocalizeDateTimeParams {
 
 /// Localizes a date and time, optionally with the day of the week.
 export function localizeDateTime(
-  date: Temporal.PlainDateTime | Temporal.PlainDate,
+  date: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
   args: LocalizeDateTimeParams,
 ): string {
   const format = getIntlDateTimeFormatUTC(args);
-  const formatted = format.format(toUTCDate(date));
+  const formatted = format.format(toDateForUTCDisplay(date));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -97,12 +107,15 @@ export function localizeYearMonth(
 
 /// Localizes a range of date and times as a string.
 export function localizeDateTimeRange(
-  start: Temporal.PlainDateTime | Temporal.PlainDate,
-  end: Temporal.PlainDateTime | Temporal.PlainDate,
+  start: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
+  end: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
   args: LocalizeDateTimeParams,
 ): string {
   const format = getIntlDateTimeFormatUTC(args);
-  const formatted = format.formatRange(toUTCDate(start), toUTCDate(end));
+  const formatted = format.formatRange(
+    toDateForUTCDisplay(start),
+    toDateForUTCDisplay(end),
+  );
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -172,7 +185,7 @@ export function localizeMonthAbbreviation(
     format = Intl.DateTimeFormat(args.locale, options);
     intlDateTimeFormatCache.set(cacheKey, format);
   }
-  const formatted = format.format(toUTCDate(date));
+  const formatted = format.format(toDateForUTCDisplay(date));
   return args.capitalize
     ? capitalizeFirstLetter(formatted, args.locale)
     : formatted;
@@ -300,6 +313,15 @@ export function timestampToPlainDateTime(
   timezone?: string,
 ): Temporal.PlainDateTime {
   return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
+}
+
+export function timestampToZonedDateTime(
+  timestamp: Timestamp.AsObject,
+  timezone: string | undefined,
+): Temporal.ZonedDateTime {
+  return timestampToInstant(timestamp).toZonedDateTimeISO(
+    timezone ?? Temporal.Now.timeZoneId(),
+  );
 }
 
 const APPROX_DAYS_PER_YEAR = 365;

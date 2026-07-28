@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -1721,6 +1722,89 @@ def test_ListMyEvents(db, moderator: Moderator):
         assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
 
+def _paginate_my_events(api, page_size: int) -> list[int]:
+    event_ids = []
+    page_token = ""
+    for _ in range(10):
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=page_size, page_token=page_token))
+        event_ids += [event.event_id for event in res.events]
+        page_token = res.next_page_token
+        if not page_token:
+            return event_ids
+    raise AssertionError("pagination did not terminate")
+
+
+def test_ListMyEvents_pagination_overlapping_durations(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    def new_event(start_offset: timedelta, duration: timedelta) -> events_pb2.CreateEventReq:
+        return events_pb2.CreateEventReq(
+            title="Dummy Title",
+            content="Dummy content.",
+            location=events_pb2.EventLocation(
+                address="Near Null Island",
+                lat=0.1,
+                lng=0.2,
+            ),
+            parent_community_id=c_id,
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset + duration),
+        )
+
+    with events_session(token) as api:
+        # a multi-day event overlapping all the short events below: it ends last but starts first,
+        # so an end time based cursor would repeat it on every page and skip the short events
+        long_event = api.CreateEvent(new_event(timedelta(hours=1), timedelta(days=3))).event_id
+        short_events = [
+            api.CreateEvent(new_event(timedelta(hours=2 + i), timedelta(hours=1))).event_id for i in range(4)
+        ]
+
+    for event_id in [long_event, *short_events]:
+        moderator.approve_event_occurrence(event_id)
+
+    with events_session(token) as api:
+        assert _paginate_my_events(api, page_size=2) == [long_event, *short_events]
+
+
+def test_ListMyEvents_pagination_identical_start_times(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        event_ids = [
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
+                    location=events_pb2.EventLocation(
+                        address="Near Null Island",
+                        lat=0.1,
+                        lng=0.2,
+                    ),
+                    parent_community_id=c_id,
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
+                )
+            ).event_id
+            for _ in range(5)
+        ]
+
+    for event_id in event_ids:
+        moderator.approve_event_occurrence(event_id)
+
+    with events_session(token) as api:
+        assert _paginate_my_events(api, page_size=2) == event_ids
+
+
 def test_list_my_events_exclude_attending(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1946,6 +2030,60 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_GetEventCalendarFile(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        created_event: events_pb2.Event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = created_event.event_id
+
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(token1) as api:
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        assert file_res.content_type == "text/calendar"
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Dummy Title" in ics_string
+        assert "DESCRIPTION:Dummy content." in ics_string
+        assert "LOCATION:Near Null Island" in ics_string
+        assert "STATUS:CANCELLED" not in ics_string
+        pre_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+        assert pre_cancel_match is not None
+        pre_cancel_sequence = int(pre_cancel_match.group(1))
+
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
+        ics_string = file_res.data.decode("utf-8")
+        assert "SUMMARY:Cancelled: Dummy Title" in ics_string
+        assert "STATUS:CANCELLED" in ics_string
+        post_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+        assert post_cancel_match is not None
+        post_cancel_sequence = int(post_cancel_match.group(1))
+        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+        assert post_cancel_sequence >= pre_cancel_sequence
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
@@ -2283,6 +2421,117 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert err.value.details() == "A community invite has already been sent out for this event."
+
+
+def test_list_decided_community_invite_requests(db, moderator: Moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    superuser, superuser_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 2, "World Community", [superuser], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
+        r = create_community(session, 0, 2, "Region", [superuser], [], mr)
+        c_id = create_community(session, 0, 2, "Community", [user1, user2, user3], [], r).id
+
+    enforce_community_memberships()
+
+    def create_event_and_request_invite(token: str, title: str) -> str:
+        with events_session(token) as api:
+            res = api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title=title,
+                    content="Dummy content.",
+                    parent_community_id=c_id,
+                    location=events_pb2.EventLocation(
+                        address="Near Null Island",
+                        lat=0.1,
+                        lng=0.2,
+                    ),
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+                )
+            )
+        moderator.approve_event_occurrence(res.event_id)
+        with events_session(token) as api:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        return f"http://localhost:3000/event/{res.event_id}/{res.slug}"
+
+    event1_url = create_event_and_request_invite(token1, "Approved Event")
+    event2_url = create_event_and_request_invite(token2, "Declined Event")
+    # this one stays pending
+    create_event_and_request_invite(token3, "Pending Event")
+
+    with real_editor_session(superuser_token) as editor:
+        pending = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
+        assert len(pending.requests) == 3
+        by_user = {req.user_id: req.event_community_invite_request_id for req in pending.requests}
+
+        # nothing decided yet
+        res = editor.ListDecidedEventCommunityInviteRequests(editor_pb2.ListDecidedEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 0
+        assert not res.next_page_token
+
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=by_user[user1.id],
+                approve=True,
+            )
+        )
+        editor.DecideEventCommunityInviteRequest(
+            editor_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=by_user[user2.id],
+                approve=False,
+            )
+        )
+
+        # the pending one is not returned, and the most recently decided comes first
+        res = editor.ListDecidedEventCommunityInviteRequests(editor_pb2.ListDecidedEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 2
+        assert not res.next_page_token
+
+        declined, approved = res.requests
+
+        assert declined.event_community_invite_request_id == by_user[user2.id]
+        assert declined.user_id == user2.id
+        assert declined.event_url == event2_url
+        assert declined.community_id == c_id
+        assert declined.decided_by_user_id == superuser.id
+        assert not declined.approved
+        assert declined.created.ToDatetime() <= declined.decided.ToDatetime()
+
+        assert approved.event_community_invite_request_id == by_user[user1.id]
+        assert approved.user_id == user1.id
+        assert approved.event_url == event1_url
+        assert approved.community_id == c_id
+        assert approved.decided_by_user_id == superuser.id
+        assert approved.approved
+        assert approved.decided.ToDatetime() <= declined.decided.ToDatetime()
+
+        # filtering
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=True))
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=False))
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+
+        # pagination
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1)
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+        assert res.next_page_token
+
+        res = editor.ListDecidedEventCommunityInviteRequests(
+            editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1, page_token=res.next_page_token)
+        )
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+        assert not res.next_page_token
 
 
 def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Moderator):

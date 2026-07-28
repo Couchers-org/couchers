@@ -12,7 +12,7 @@ from typing import Any
 import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import ColumnElement, Float, Function, Integer, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import (
     and_,
     case,
@@ -170,6 +170,32 @@ def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
         )
 
 
+# how long a message must go unseen before we email the user about it
+MISSED_MESSAGES_DELAY = timedelta(minutes=5)
+# ... unless we could reach them by push, in which case they've already been told about it once
+MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+
+
+def _message_unseen_long_enough(user_id_column: InstrumentedAttribute[int]) -> ColumnElement[bool]:
+    """
+    Whether `Message` has gone unseen long enough to email the given user about it.
+
+    Note that a subscription we can still push to is not proof the user sees those pushes: they may
+    have revoked notification permission in their OS settings without the token going stale. Such
+    users still get the email, just a day late.
+    """
+    has_active_push_subscription = (
+        select(PushNotificationSubscription.id)
+        .where(PushNotificationSubscription.user_id == user_id_column)
+        .where(PushNotificationSubscription.disabled_at > func.now())
+        .exists()
+    )
+    return Message.time < case(
+        (has_active_push_subscription, now() - MISSED_MESSAGES_DELAY_WITH_PUSH),
+        else_=now() - MISSED_MESSAGES_DELAY,
+    )
+
+
 def send_message_notifications(payload: empty_pb2.Empty) -> None:
     """
     Sends out email notifications for messages that have been unseen for a long enough time
@@ -195,7 +221,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .where(Message.id > User.last_notified_message_id)
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(_message_unseen_long_enough(User.id))
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
@@ -292,7 +318,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
             .where(User.is_visible)
             .where(Message.id > HostRequest.initiator_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
+            .where(_message_unseen_long_enough(User.id))
             .where(Message.message_type == MessageType.text)
         )
         host_ids = (
@@ -302,7 +328,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
             .where(User.is_visible)
             .where(Message.id > HostRequest.recipient_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
+            .where(_message_unseen_long_enough(User.id))
             .where(Message.message_type == MessageType.text)
         )
         candidate_user_ids = session.execute(union_all(surfer_ids, host_ids)).scalars().unique().all()
@@ -326,7 +352,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.initiator_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(_message_unseen_long_enough(User.id))
                 .where(Message.message_type == MessageType.text)
                 .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
@@ -347,7 +373,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.recipient_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(_message_unseen_long_enough(User.id))
                 .where(Message.message_type == MessageType.text)
                 .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
