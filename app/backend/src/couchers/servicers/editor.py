@@ -33,6 +33,7 @@ from couchers.utils import (
     date_to_api,
     dt_id_from_page_token,
     dt_id_to_page_token,
+    not_none,
     now,
     parse_date,
 )
@@ -190,29 +191,23 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         requests = session.execute(query).scalars().all()
 
-        def _request_to_pb(req: EventCommunityInviteRequest) -> editor_pb2.DecidedEventCommunityInviteRequest:
-            # these are set together, per the decided_approved check constraint
-            assert req.decided is not None and req.decided_by_user_id is not None and req.approved is not None
-            return editor_pb2.DecidedEventCommunityInviteRequest(
-                event_community_invite_request_id=req.id,
-                user_id=req.user_id,
-                event_url=urls.event_link(occurrence_id=req.occurrence.id, slug=req.occurrence.event.slug),
-                community_id=req.occurrence.event.parent_node_id,
-                created=Timestamp_from_datetime(req.created),
-                decided=Timestamp_from_datetime(req.decided),
-                decided_by_user_id=req.decided_by_user_id,
-                approved=req.approved,
-            )
-
-        next_page_token = None
-        if len(requests) > page_size:
-            next_req = requests[page_size]
-            assert next_req.decided is not None
-            next_page_token = dt_id_to_page_token(next_req.decided, next_req.id)
-
         return editor_pb2.ListDecidedEventCommunityInviteRequestsRes(
-            requests=[_request_to_pb(req) for req in requests[:page_size]],
-            next_page_token=next_page_token,
+            requests=[
+                editor_pb2.DecidedEventCommunityInviteRequest(
+                    event_community_invite_request_id=req.id,
+                    user_id=req.user_id,
+                    event_url=urls.event_link(occurrence_id=req.occurrence.id, slug=req.occurrence.event.slug),
+                    community_id=req.occurrence.event.parent_node_id,
+                    created=Timestamp_from_datetime(req.created),
+                    decided=Timestamp_from_datetime(not_none(req.decided)),
+                    decided_by_user_id=not_none(req.decided_by_user_id),
+                    approved=not_none(req.approved),
+                )
+                for req in requests[:page_size]
+            ],
+            next_page_token=dt_id_to_page_token(not_none(requests[page_size].decided), requests[page_size].id)
+            if len(requests) > page_size
+            else None,
         )
 
     def DecideEventCommunityInviteRequest(
