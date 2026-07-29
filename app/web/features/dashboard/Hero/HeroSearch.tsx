@@ -71,6 +71,9 @@ export default function HeroSearch() {
           variant="outlined"
           placeholder={t("search_input_placeholder")}
           defaultValue={""}
+          // Destination search only — the result is never persisted, so degraded
+          // fallback results are better than no search at all.
+          allowFallback
           onChange={(value) => {
             if (value && value.bbox && value.simplifiedName) {
               const newBbox: Coordinates = [value.bbox[2], value.bbox[3], value.bbox[0], value.bbox[1]];
