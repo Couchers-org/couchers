@@ -85,7 +85,7 @@ service Events {
   rpc GetEventCalendarFile(GetEventCalendarFileReq) returns (google.api.HttpBody) {
     // Downloads a calendar file for an event
     option (google.api.http) = {
-      get : "/events/{event_id}/calendar"
+      get : "/event/{event_id}/calendar"
     };
   }
 }

@@ -139,6 +139,7 @@ static_resources:
                 - org.couchers.stripe.Stripe
                 - org.couchers.iris.Iris
                 - org.couchers.bugs.Bugs
+                - org.couchers.events.Events
               convert_grpc_status: true
               auto_mapping: true
               print_options:
