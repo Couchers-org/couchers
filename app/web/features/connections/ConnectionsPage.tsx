@@ -23,8 +23,7 @@ function ConnectionsPage() {
       <Grid
         container
         spacing={2}
-        alignItems="flex-start"
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", alignItems: "flex-start" }}
       >
         <Grid size={{ xs: 12, md: 7 }}>
           <FriendList errors={errors} friends={friends} isLoading={isLoading} />
