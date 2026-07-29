@@ -5,7 +5,12 @@ import Sentry from "platform/sentry";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { service } from "service";
-import { autocomplete, toPeliasLanguage } from "utils/pelias";
+import {
+  GeocodeProvider,
+  geocodeSearch,
+  initialProvider,
+  isOutageError,
+} from "utils/geocode";
 
 function useIsClient() {
   const [isClient, setIsClient] = useState(false);
@@ -25,20 +30,41 @@ export interface GeocodeResult {
 }
 
 /**
- * Forward-geocoding autocomplete backed by Geocode.earth (Pelias Cloud)
+ * Forward-geocoding autocomplete backed by Geocode.earth (Pelias Cloud), with a
+ * legacy Nominatim fallback for Geocode.earth outages (see `utils/geocode.ts`).
  *
  * `query` is safe to call on every (debounced) keystroke: it aborts any
  * in-flight request and ignores stale responses so only the latest query's
  * results are surfaced. Results are localized via the active `i18n.language`
- * passed to the Pelias API.
+ * passed to the provider.
  *
  * `preferCity` (homepage destination search) enables soft city ranking, label
  * collapse to locality, parent-area bbox, and dedupe by display string. Other
  * surfaces leave precise venue/address hits alone for address / event venue use.
+ *
+ * The returned `provider` is sticky for the lifetime of the hook: once a query
+ * has fallen back to Nominatim it stays there until remount, so the widget's UI
+ * does not flip back and forth if Geocode.earth recovers intermittently.
+ * Consumers driving an as-you-type UI MUST switch to submit-on-demand while
+ * `provider === "nominatim"`.
+ *
+ * `allowFallback` is required: pass `false` on any surface that persists the
+ * chosen location requiring a gid, since fallback results carry no Pelias `gid`.
+ * In that case,  it surfaces `isProviderUnavailable` on an outage instead of degraded
+ * results, and its `provider` never leaves `"pelias"`.
  */
-const useGeocodeQuery = (options?: { preferCity?: boolean }) => {
-  const preferCity = options?.preferCity ?? false;
+const useGeocodeQuery = (options: {
+  allowFallback: boolean;
+  preferCity?: boolean;
+}) => {
+  const { allowFallback } = options;
+  const preferCity = options.preferCity ?? false;
   const { i18n } = useTranslation();
+  const isMounted = useIsMounted();
+  const [provider, setProvider] = useState<GeocodeProvider>(() => initialProvider(allowFallback));
+  // The active provider is unavailable and no fallback was permitted, so there
+  // are no results to show — distinct from a failed or malformed query.
+  const [isProviderUnavailable, setIsProviderUnavailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [results, setResults] = useState<GeocodeResult[] | undefined>(undefined);
@@ -57,8 +83,9 @@ const useGeocodeQuery = (options?: { preferCity?: boolean }) => {
     latestRequestIdRef.current += 1;
     setResults(undefined);
     setError(undefined);
+    setIsProviderUnavailable(false);
     setIsLoading(false);
-  }, [setError, setIsLoading, setResults]);
+  }, [setError, setIsLoading, setIsProviderUnavailable, setResults]);
 
   const query = useCallback(
     async (value: string) => {
@@ -74,32 +101,52 @@ const useGeocodeQuery = (options?: { preferCity?: boolean }) => {
 
       setIsLoading(true);
       setError(undefined);
+      setIsProviderUnavailable(false);
       // Clear immediately so a subsequent search never shows the previous
       // query's hits while the new request is in flight (or if it fails).
       setResults(undefined);
 
       try {
         const startTime = performance.now();
-        const { results: formattedResults, features } = await autocomplete(
-          value,
-          {
-            language: toPeliasLanguage(i18n.language),
-            preferCity,
-            signal: abortController.signal,
-          },
-        );
+        const {
+          results: formattedResults,
+          provider: usedProvider,
+          peliasFeatures,
+          fallbackCause,
+        } = await geocodeSearch(value, {
+          allowFallback,
+          language: i18n.language,
+          preferCity,
+          signal: abortController.signal,
+        });
 
         // A newer query has superseded this one; drop these results.
         if (requestId !== latestRequestIdRef.current) {
           return;
         }
 
-        service.bugs.geolocationSearchInfo({
-          searchString: value,
-          peliasResultJson: JSON.stringify(features),
-          formattedResultJson: JSON.stringify(formattedResults),
-          durationMs: performance.now() - startTime,
-        });
+        if (usedProvider === "nominatim") {
+          // Sticky: never switch back, so the widget's UI mode is stable for the
+          // rest of the session.
+          setProvider("nominatim");
+          // The search telemetry field is Pelias-shaped, so report the outage
+          // itself instead — this is how we learn a fallback happened.
+          if (fallbackCause) {
+            Sentry.captureException(fallbackCause, {
+              tags: {
+                hook: "useGeocodeQuery",
+                geocodeFallback: "nominatim",
+              },
+            });
+          }
+        } else {
+          service.bugs.geolocationSearchInfo({
+            searchString: value,
+            peliasResultJson: JSON.stringify(peliasFeatures ?? []),
+            formattedResultJson: JSON.stringify(formattedResults),
+            durationMs: performance.now() - startTime,
+          });
+        }
 
         setResults(formattedResults);
       } catch (e) {
@@ -112,17 +159,42 @@ const useGeocodeQuery = (options?: { preferCity?: boolean }) => {
             hook: "useGeocodeQuery",
           },
         });
-        setError(e instanceof Error ? e.message : "");
+        // A no-fallback surface hitting an outage is not a query the user got
+        // wrong; the consumer shows a "try again shortly" message instead of the
+        // provider's raw error text.
+        if (!allowFallback && isOutageError(e)) {
+          setIsProviderUnavailable(true);
+        } else {
+          setError(e instanceof Error ? e.message : "");
+        }
       } finally {
         if (requestId === latestRequestIdRef.current) {
           setIsLoading(false);
         }
       }
     },
-    [clear, i18n.language, preferCity, setError, setIsLoading, setResults],
+    [
+      allowFallback,
+      clear,
+      i18n.language,
+      preferCity,
+      setError,
+      setIsLoading,
+      setIsProviderUnavailable,
+      setProvider,
+      setResults,
+    ],
   );
 
-  return { isLoading, error, results, query, clear };
+  return {
+    isLoading,
+    error,
+    results,
+    query,
+    clear,
+    provider,
+    isProviderUnavailable,
+  };
 };
 
 function useUnsavedChangesWarning({

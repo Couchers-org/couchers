@@ -70,9 +70,15 @@ export interface FocusPoint {
 // A clean, typed error the widget can map to the outage state (LOC-18 seam).
 // We do NOT swallow it — the hook surfaces it and reports it to Sentry.
 export class PeliasError extends Error {
-  constructor(message: string) {
+  // HTTP status of the failed response, when there was one. Undefined for
+  // network failures, timeouts, and misconfiguration. `utils/geocode.ts` uses it
+  // to tell a provider outage (retry elsewhere) from a bad request (don't).
+  readonly status?: number;
+
+  constructor(message: string, status?: number) {
     super(message);
     this.name = "PeliasError";
+    this.status = status;
   }
 }
 
@@ -153,8 +159,7 @@ export function simplifyPeliasDisplayName(
   if (MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer)) {
     primary = properties.name;
   } else if (preferCity) {
-    primary =
-      properties.locality || properties.localadmin || properties.name;
+    primary = properties.locality || properties.localadmin || properties.name;
   } else {
     primary = properties.name;
   }
@@ -210,10 +215,7 @@ export function displayAreaGid(
   if (MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer)) {
     return undefined;
   }
-  if (
-    properties.layer === "locality" ||
-    properties.layer === "localadmin"
-  ) {
+  if (properties.layer === "locality" || properties.layer === "localadmin") {
     return undefined;
   }
   // Mirrors simplifyPeliasDisplayName's locality || localadmin || name priority.
@@ -390,7 +392,7 @@ export async function autocomplete(
     });
 
     if (!response.ok) {
-      throw new PeliasError(await response.text());
+      throw new PeliasError(await response.text(), response.status);
     }
 
     const data = (await response.json()) as PeliasResponse;

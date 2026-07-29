@@ -177,6 +177,8 @@ export default function EventForm({
             label={t("communities:location")}
             required={t("communities:location_required")}
             showFullDisplayName
+            // The venue is persisted, so later we won't allow the fallback provider (no provider id)
+            allowFallback={true /*false*/}
             autocompleteContext="create-event-form"
           />
 
