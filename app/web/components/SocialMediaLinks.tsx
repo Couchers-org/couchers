@@ -57,9 +57,9 @@ export default function SocialMediaLinks({ iconSize }: SocialMediaLinksProps) {
           target="_blank"
           rel="noopener"
           aria-label={label}
-          display="flex"
           color="inherit"
           sx={{
+            display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
