@@ -43,7 +43,7 @@ export default function Press() {
   return (
     <StyledContainer>
       <Hero />
-      <Facts volunteers={volunteers} />
+      <Facts />
       <Divider />
       <About />
       <MediaAssets />

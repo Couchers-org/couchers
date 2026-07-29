@@ -1,14 +1,12 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
-import { UseQueryResult } from "@tanstack/react-query";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { LANDING, PRESS } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
-import { GetVolunteersRes } from "../../proto/public_pb";
+import { useListVolunteers } from "../communities/hooks";
 import SectionHeading from "./SectionHeading";
 import SectionWrapper from "./SectionWrapper";
 
@@ -62,16 +60,13 @@ function Loader({ width }: LoaderProps) {
   );
 }
 
-type FactsProps = {
-  volunteers: UseQueryResult<GetVolunteersRes.AsObject, RpcError>;
-};
-
-export default function Facts({ volunteers }: FactsProps) {
+export default function Facts() {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([LANDING, PRESS]);
   const { signupInfo, isLoading: isSignupInfoLoading } = useSignupPageInfo();
+  const volunteers = useListVolunteers();
 
   const currentVolunteersList = volunteers.data?.currentVolunteersList ?? [];
   const pastVolunteersList = volunteers.data?.pastVolunteersList ?? [];
