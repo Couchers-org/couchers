@@ -11,7 +11,6 @@ import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeRelativeTime } from "utils/date";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
 const SocialProof = () => {

@@ -3,9 +3,9 @@ import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { UseQueryResult } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { LANDING, PRESS } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
-import { localizeRelativeTime } from "utils/date";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
 import { GetVolunteersRes } from "../../proto/public_pb";
