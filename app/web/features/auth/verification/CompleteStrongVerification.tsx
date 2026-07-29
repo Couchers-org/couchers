@@ -45,7 +45,12 @@ export default function CompleteStrongVerification() {
         >
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Security sx={{ color: "primary.main", mr: 1, fontSize: 28 }} />
-            <Typography color="primary.main" sx={{ fontWeight: "bold" }}>
+            <Typography
+              sx={{
+                color: "primary.main",
+                fontWeight: "bold",
+              }}
+            >
               {t("strong_verification.donation_title")}
             </Typography>
           </Box>

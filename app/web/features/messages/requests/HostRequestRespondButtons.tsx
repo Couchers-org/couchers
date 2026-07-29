@@ -47,7 +47,12 @@ export default function HostRequestRespondButtons({
           <Typography variant="subtitle2">
             {t("messages:respond_box_title")}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {t("messages:respond_box_description", { name })}
           </Typography>
         </div>
@@ -82,7 +87,12 @@ export default function HostRequestRespondButtons({
         <Typography variant="subtitle2">
           {t("messages:surfer_confirm_box_title", { name })}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("messages:surfer_confirm_box_description")}
         </Typography>
       </div>

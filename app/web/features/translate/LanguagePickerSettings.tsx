@@ -71,10 +71,21 @@ export default function LanguagePickerSettings({
             }
             label={
               <div>
-                <Typography variant="body1" component="span" fontWeight="bold">
+                <Typography
+                  variant="body1"
+                  component="span"
+                  sx={{
+                    fontWeight: "bold",
+                  }}
+                >
                   {t("global:language_preference.show_all_languages")}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {t(
                     "global:language_preference.show_all_languages_description",
                   )}

@@ -43,7 +43,7 @@ cd couchers/app/web
 ## Set up node & yarn
 # install the requires node version
 nvm install
-# install yarn
+# install yarn (inside this nvm installation)
 npm install --global yarn
 
 ## Download & extract the latest protos

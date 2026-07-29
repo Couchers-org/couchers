@@ -80,9 +80,9 @@ const CouchersIntroduction = () => {
   return (
     <StyledIntroduction>
       <Typography
-        lineHeight={1.1}
-        fontWeight="bold"
         sx={{
+          lineHeight: 1.1,
+          fontWeight: "bold",
           fontSize: "3.5rem",
 
           [theme.breakpoints.down("md")]: {

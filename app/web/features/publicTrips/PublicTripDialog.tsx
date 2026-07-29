@@ -212,7 +212,12 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
             </DateRow>
             {communityName && (
               <Typography variant="body2">
-                <Typography component="span" fontWeight={600}>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   {t("publicTrips:location_label")}
                 </Typography>{" "}
                 {communityName}
