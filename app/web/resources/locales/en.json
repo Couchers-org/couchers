@@ -233,7 +233,9 @@
     "loading": "Searching…",
     "more_specific": "Please choose a more specific place",
     "no_results": "No matching places found",
-    "search_location_button": "Search location"
+    "provider_unavailable": "Location search is temporarily unavailable. Please try again in a few minutes.",
+    "search_location_button": "Search location",
+    "search_location_hint": "Press Enter or click the search icon to choose a location"
   },
   "strong_verification": {
     "helper_text": "This user has verified their identity using a biometric passport"

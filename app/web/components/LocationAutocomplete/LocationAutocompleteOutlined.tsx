@@ -26,6 +26,10 @@ interface LocationAutocompleteOutlinedProps {
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
+  // Whether a Geocode.earth outage may be served by the legacy fallback
+  // provider. Required, and later must be `false` wherever the chosen location is
+  // persisted — fallback results have no provider id (see utils/geocode.ts).
+  allowFallback: boolean;
   autocompleteContext: string;
 }
 
@@ -65,6 +69,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onClear,
     placeholder,
     showFullDisplayName = false,
+    allowFallback,
     autocompleteContext,
   } = props;
   const { t } = useTranslation([GLOBAL]);
@@ -79,7 +84,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     results: options,
     error: geocodeError,
     isLoading,
-  } = useGeocodeQuery();
+  } = useGeocodeQuery({ allowFallback });
 
   useEffect(() => {
     if (!hasSearchValue) {
