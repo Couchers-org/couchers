@@ -1,5 +1,5 @@
 import {
-  ChatBubbleOutline,
+  ChatBubbleOutlined,
   ChevronRight,
   Place,
   Schedule,
@@ -138,7 +138,7 @@ export default function DiscussionListRow({
           <Schedule sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>{timeStr}</span>
           <MetaDot>·</MetaDot>
-          <ChatBubbleOutline sx={{ fontSize: "11px", flexShrink: 0 }} />
+          <ChatBubbleOutlined sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>
             {t("dashboard:discussions.replies_count_label", {
               count: commentCount,

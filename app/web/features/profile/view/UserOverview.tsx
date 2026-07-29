@@ -126,7 +126,7 @@ export default function UserOverview({
       )}
 
       <StyledWrapper>
-        <StyledIntro variant="h1" gap={0.5}>
+        <StyledIntro variant="h1" sx={{ gap: 0.5 }}>
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>

@@ -25,8 +25,8 @@ const WhyCouchersSection = () => {
       </Typography>
       <Grid
         container
-        gap={2}
         sx={{
+          gap: 2,
           padding: theme.spacing(3, 0),
           width: "100%",
           flexWrap: { xs: "wrap", md: "nowrap" },
@@ -34,8 +34,8 @@ const WhyCouchersSection = () => {
       >
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -44,7 +44,13 @@ const WhyCouchersSection = () => {
             marginLeft: { xs: 0, md: 2 },
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
             <Diversity2Outlined
               color="primary"
               sx={{ fontSize: "35px", marginBottom: 1 }}
@@ -62,8 +68,8 @@ const WhyCouchersSection = () => {
         </Grid>
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -71,7 +77,13 @@ const WhyCouchersSection = () => {
             minWidth: 0,
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
             <VerifiedUserOutlined
               color="primary"
               sx={{ fontSize: "35px", marginBottom: 1 }}
@@ -89,8 +101,8 @@ const WhyCouchersSection = () => {
         </Grid>
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -99,7 +111,13 @@ const WhyCouchersSection = () => {
             marginRight: { xs: 0, md: 2 },
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
             <LoyaltyOutlined
               color="primary"
               sx={{ fontSize: "35px", marginBottom: 1 }}

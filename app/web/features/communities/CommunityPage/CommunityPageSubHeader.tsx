@@ -104,8 +104,10 @@ export default function CommunityPageSubHeader({
               index === array.length - 1 ? (
                 <Typography
                   variant="body1"
-                  color="var(--mui-palette-text-primary)"
                   key={`breadcrumb-${communityParent?.communityId}`}
+                  sx={{
+                    color: "var(--mui-palette-text-primary)",
+                  }}
                 >
                   {communityParent.name}
                 </Typography>

@@ -30,9 +30,9 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
     <Stack
       direction="row"
       spacing={3}
-      alignItems="center"
-      justifyContent="space-between"
       sx={{
+        alignItems: "center",
+        justifyContent: "space-between",
         width: "100%",
         height: "50px",
         position: "sticky",

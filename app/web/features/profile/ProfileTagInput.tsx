@@ -265,8 +265,8 @@ export default function ProfileTagInput({
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <StyledInputBase
-                ref={params.InputProps.ref}
-                inputProps={params.inputProps}
+                ref={params.slotProps.input.ref}
+                inputProps={params.slotProps.htmlInput}
                 autoFocus
               />
             )}
