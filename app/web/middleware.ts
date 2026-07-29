@@ -62,7 +62,7 @@ async function getProductionReadyLocales(): Promise<string[]> {
  * Check if a locale is production-ready (>= 80% translated)
  * Uses server-side Weblate stats with caching
  */
-async function isLanguageProductionReady(locale: string): Promise<boolean> {
+async function isLocaleProductionReady(locale: string): Promise<boolean> {
   const productionReadyLocales = await getProductionReadyLocales();
   return productionReadyLocales.includes(locale);
 }
@@ -112,11 +112,11 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   // Only consider languages that are production-ready (>= 80% translated),
   // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
-  const productionReadyCodes = await getProductionReadyLocales();
+  const productionReadyLocales = await getProductionReadyLocales();
   return (
     getBrowserLocaleFromHeader(
       acceptLanguage || undefined,
-      productionReadyCodes,
+      productionReadyLocales,
     ) || "en"
   );
 }
@@ -131,7 +131,7 @@ export async function middleware(request: NextRequest) {
   const isClientNavigation = request.headers.get("x-nextjs-data");
 
   // Check if current locale should be blocked
-  const isProductionReady = await isLanguageProductionReady(currentLocale);
+  const isProductionReady = await isLocaleProductionReady(currentLocale);
   const shouldBlock = shouldBlockIncompleteLanguage(
     currentLocale,
     cookieLocale,
