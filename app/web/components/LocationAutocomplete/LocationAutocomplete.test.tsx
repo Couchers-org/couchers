@@ -1,10 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
+import { resetFailoverState } from "utils/geocode";
 import { GeocodeResult } from "utils/hooks";
 
 import LocationAutocomplete from "./LocationAutocomplete";
@@ -24,6 +25,7 @@ const renderForm = (
   onChange: (value: GeocodeResult | "") => void,
   showFullDisplayName = false,
   disableRegions = false,
+  allowFallback = true,
 ) => {
   const Form = () => {
     const {
@@ -44,6 +46,7 @@ const renderForm = (
           showFullDisplayName={showFullDisplayName}
           fieldError={errors.location?.message}
           disableRegions={disableRegions}
+          allowFallback={allowFallback}
           autocompleteContext="test"
         />
         <input type="submit" aria-label="submit" />
@@ -59,6 +62,7 @@ describe("LocationAutocomplete component", () => {
   });
   afterEach(() => {
     server.resetHandlers();
+    resetFailoverState();
   });
   afterAll(() => {
     server.close();
@@ -218,8 +222,12 @@ describe("LocationAutocomplete component", () => {
     await user.clear(input);
     await user.type(input, "second");
 
-    expect(await screen.findByText("second city, second country")).toBeVisible();
-    expect(screen.queryByText("first city, first country")).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("second city, second country"),
+    ).toBeVisible();
+    expect(
+      screen.queryByText("first city, first country"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows an empty state when there are no results", async () => {
@@ -342,9 +350,10 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("shows an error when the geocode lookup fails", async () => {
+    // 400 is a bad request, not an outage, so no fallback is attempted.
     server.use(
       rest.get(AUTOCOMPLETE_URL, async (_req, res, ctx) => {
-        return res(ctx.status(500), ctx.text("generic error"));
+        return res(ctx.status(400), ctx.text("generic error"));
       }),
     );
 
@@ -441,5 +450,254 @@ describe("LocationAutocomplete component", () => {
 
     expect(await screen.findByText(t("global:location_autocomplete.more_specific"))).toBeVisible();
     expect(submitAction).not.toHaveBeenCalled();
+  });
+
+  describe("during a Geocode.earth outage", () => {
+    const SEARCH_BUTTON = t(
+      "global:location_autocomplete.search_location_button",
+    );
+    const SEARCH_HINT = t("global:location_autocomplete.search_location_hint");
+    const FALLBACK_RESULT = "fallback city, fallback state, fallback country";
+
+    const failPelias = () =>
+      server.use(
+        rest.get(AUTOCOMPLETE_URL, async (_req, res, ctx) => {
+          return res(ctx.status(503), ctx.text("unavailable"));
+        }),
+      );
+
+    // Type enough to trigger the typeahead, which fails over to Nominatim and
+    // flips the widget into submit mode.
+    const triggerFallback = async (
+      user: ReturnType<typeof userEvent.setup>,
+      input: HTMLElement,
+    ) => {
+      await user.type(input, "test");
+      expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
+    };
+
+    it("serves fallback results and switches to the search button and hint", async () => {
+      failPelias();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      expect(
+        screen.queryByRole("button", { name: SEARCH_BUTTON }),
+      ).not.toBeInTheDocument();
+
+      await triggerFallback(user, input);
+
+      expect(
+        await screen.findByRole("button", { name: SEARCH_BUTTON }),
+      ).toBeVisible();
+      expect(await screen.findByText(SEARCH_HINT)).toBeVisible();
+    });
+
+    it("stops querying as the user types once in submit mode", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
+          (_req, res, ctx) => {
+            fallbackRequests += 1;
+            return res(
+              ctx.json([
+                {
+                  place_id: 1,
+                  display_name: FALLBACK_RESULT,
+                  lat: "4.0",
+                  lon: "3.0",
+                  boundingbox: ["1", "2", "3", "4"],
+                  importance: 0.5,
+                  address: {
+                    city: "fallback city",
+                    state: "fallback state",
+                    country: "fallback country",
+                  },
+                },
+              ]),
+            );
+          },
+        ),
+      );
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      expect(fallbackRequests).toBe(1);
+
+      // Further typing must not reach Nominatim — it is submit-driven only.
+      await user.type(input, " more text");
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(1);
+      });
+
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(2);
+      });
+    });
+
+    it("searches on Enter as well as on the search button", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
+          (_req, res, ctx) => {
+            fallbackRequests += 1;
+            return res(
+              ctx.json([
+                {
+                  place_id: 1,
+                  display_name: FALLBACK_RESULT,
+                  lat: "4.0",
+                  lon: "3.0",
+                  boundingbox: ["1", "2", "3", "4"],
+                  importance: 0.5,
+                  address: {
+                    city: "fallback city",
+                    state: "fallback state",
+                    country: "fallback country",
+                  },
+                },
+              ]),
+            );
+          },
+        ),
+      );
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      expect(fallbackRequests).toBe(1);
+
+      // Editing the text drops the stale hits, so Enter means "search again".
+      await user.type(input, " again");
+      expect(screen.queryByText(FALLBACK_RESULT)).not.toBeInTheDocument();
+
+      await user.type(input, "{enter}");
+
+      expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
+      expect(fallbackRequests).toBe(2);
+    });
+
+    it("does not submit the form when Enter triggers a fallback search", async () => {
+      failPelias();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      await user.type(input, " again{enter}");
+
+      await waitFor(() => {
+        expect(screen.getByText(FALLBACK_RESULT)).toBeVisible();
+      });
+      expect(submitAction).not.toBeCalled();
+    });
+
+    it("starts a newly mounted widget in submit mode, without querying", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
+          (_req, res, ctx) => {
+            fallbackRequests += 1;
+            return res(ctx.json([]));
+          },
+        ),
+      );
+      const user = userEvent.setup();
+
+      // First widget discovers the outage (this mock returns no places, so wait
+      // on the request rather than on a rendered result).
+      renderForm("", () => {});
+      await user.type(await screen.findByLabelText(LABEL), "test");
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(1);
+      });
+
+      // A later navigation mounts a fresh widget: it must already be in submit
+      // mode, and must not query anything as the user types.
+      cleanup();
+      renderForm("", () => {});
+      const input = await screen.findByLabelText(LABEL);
+
+      expect(
+        await screen.findByRole("button", { name: SEARCH_BUTTON }),
+      ).toBeVisible();
+      await user.type(input, "somewhere");
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(1);
+      });
+
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(2);
+      });
+    });
+
+    it("fails closed with a retry message when allowFallback is false", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
+          (_req, res, ctx) => {
+            fallbackRequests += 1;
+            return res(ctx.json([]));
+          },
+        ),
+      );
+      renderForm("", () => {}, false, false, false);
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await user.type(input, "test");
+
+      expect(
+        await screen.findByText(
+          t("global:location_autocomplete.provider_unavailable"),
+        ),
+      ).toBeVisible();
+      expect(fallbackRequests).toBe(0);
+      // The widget stays a typeahead: no submit UI, since nothing degraded.
+      expect(
+        screen.queryByRole("button", { name: SEARCH_BUTTON }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("submits a fallback result that has no provider id", async () => {
+      failPelias();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      await user.click(screen.getByText(FALLBACK_RESULT));
+      await user.click(await screen.findByRole("button", { name: "submit" }));
+
+      await waitFor(() => {
+        expect(submitAction).toBeCalledWith(
+          expect.objectContaining({
+            location: expect.objectContaining({
+              name: FALLBACK_RESULT,
+              simplifiedName: FALLBACK_RESULT,
+              location: new LngLat(3.0, 4.0),
+              bbox: [4, 2, 3, 1],
+              isRegion: false,
+            }),
+          }),
+          expect.anything(),
+        );
+      });
+      expect(submitAction.mock.calls[0][0].location.id).toBeUndefined();
+    });
   });
 });

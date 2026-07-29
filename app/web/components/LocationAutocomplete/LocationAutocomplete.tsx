@@ -6,6 +6,8 @@ import {
   Theme,
 } from "@mui/material";
 import Autocomplete from "components/Autocomplete";
+import IconButton from "components/IconButton";
+import { SearchIcon } from "components/Icons";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { useTranslation } from "next-i18next";
@@ -41,6 +43,10 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
   // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
   preferCity?: boolean;
+  // Whether a Geocode.earth outage may be served by the legacy fallback
+  // provider. Required, and later must be `false` wherever the chosen location is
+  // persisted — fallback results have no provider id (see utils/geocode.ts).
+  allowFallback: boolean;
   autocompleteContext: string;
   sx?: SxProps<Theme>;
 }
@@ -62,6 +68,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     showFullDisplayName = false,
     disableRegions = false,
     preferCity = false,
+    allowFallback,
     autocompleteContext,
     sx,
   } = props;
@@ -76,9 +83,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       required,
       validate: {
         didSelect: (value) =>
-          value === "" || typeof value !== "string"
-            ? true
-            : false, // don't show a scary error while the autocomplete UI is displayed
+          value === "" || typeof value !== "string" ? true : false, // don't show a scary error while the autocomplete UI is displayed
         isSpecific: (value) =>
           !value?.isRegion || !disableRegions
             ? true
@@ -93,9 +98,18 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     results: options,
     error: geocodeError,
     isLoading,
-  } = useGeocodeQuery({ preferCity });
+    provider,
+    isProviderUnavailable,
+  } = useGeocodeQuery({ preferCity, allowFallback });
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
+
+  // Geocode.earth is unavailable and we are serving results from the legacy
+  // Nominatim fallback, which must not be queried as-you-type (OSM usage
+  // policy). Fall back to the pre-LOC-1 interaction: the user types, then
+  // submits with Enter or the search button.
+  // TODO(LOC-eval): remove along with the Nominatim fallback.
+  const isSubmitMode = provider === "nominatim";
 
   const debouncedQuery = useMemo(
     () => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS),
@@ -126,6 +140,14 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   const isNoResultsOption = (value: GeocodeResult | string | null) =>
     typeof value === "object" && value !== null && value.id === NO_RESULTS_ID;
 
+  // Submit mode only: run the search the user explicitly asked for.
+  const searchSubmit = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    query(trimmed);
+    setIsOpen(true);
+  };
+
   // Fired on every keystroke: drives the debounced typeahead query.
   const handleInputChange = (
     value: string,
@@ -142,6 +164,15 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
 
     if (reason === "input" || reason === "clear") {
       const trimmed = value.trim();
+      if (isSubmitMode) {
+        // No request until the user submits. Any results still on screen belong
+        // to the previously submitted text, so drop them and close the list —
+        // that also keeps Enter unambiguous: with the list closed it means
+        // "search this text", with it open it means "take the highlighted hit".
+        clearGeocodeResults();
+        setIsOpen(false);
+        return;
+      }
       if (trimmed.length >= MIN_SEARCH_LENGTH) {
         setIsOpen(true);
         debouncedQuery(trimmed);
@@ -173,9 +204,9 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
 
     if (typeof value === "string") {
       setInputValue(value);
-      // Enter on free-typed text (createOption): flush the debounce so results
-      // appear immediately. Selecting a highlighted suggestion is handled by
-      // MUI; free text alone never navigates (needs a real GeocodeResult).
+      // Defensive: MUI's freeSolo "createOption" path does not currently fire
+      // here (see the Enter handling in onKeyDown for why), but if it does, treat
+      // it as an explicit search and flush the debounce.
       if (reason === "createOption") {
         debouncedQuery.clear();
         query(value);
@@ -212,11 +243,32 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       id={id}
       ref={ref}
       label={label}
-      error={fieldError || geocodeError}
+      error={
+        fieldError ||
+        (isProviderUnavailable
+          ? t("location_autocomplete.provider_unavailable")
+          : geocodeError)
+      }
       fullWidth={fullWidth}
       variant={variant}
       placeholder={placeholder}
       sx={sx}
+      helperText={
+        isSubmitMode
+          ? t("location_autocomplete.search_location_hint")
+          : undefined
+      }
+      endAdornment={
+        isSubmitMode ? (
+          <IconButton
+            aria-label={t("location_autocomplete.search_location_button")}
+            onClick={searchSubmit}
+            size="small"
+          >
+            <SearchIcon />
+          </IconButton>
+        ) : undefined
+      }
       loading={isLoading}
       loadingText={t("location_autocomplete.loading")}
       options={displayOptions}
@@ -240,10 +292,16 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       onInputChange={(_e, value, reason) => handleInputChange(value, reason)}
       onChange={(_e, value, reason) => handleChange(value, reason)}
       onKeyDown={(e) => {
-        // Stop the wrapping <form> from submitting on Enter. MUI still handles
-        // selecting a highlighted option / createOption before this runs.
-        if (e.key === "Enter") {
-          e.preventDefault();
+        if (e.key !== "Enter") return;
+        // Stop the wrapping <form> from submitting. MUI still gets this event and
+        // selects the highlighted option, if the list is open on one.
+        e.preventDefault();
+        // In submit mode Enter is the search trigger, and we have to run it
+        // ourselves: MUI's freeSolo "createOption" path is skipped because we
+        // mirror the typed text into the form value, so it sees the input as
+        // already equal to the selected value.
+        if (isSubmitMode && !isOpen) {
+          searchSubmit();
         }
       }}
       disableClearable={!hasClearableValue}

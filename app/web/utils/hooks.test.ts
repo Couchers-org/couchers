@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { LngLat } from "maplibre-gl";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
+import { resetFailoverState } from "utils/geocode";
 
 import { useGeocodeQuery, useIsMounted, useSafeState } from "./hooks";
 
@@ -34,13 +35,16 @@ describe("useGeocodeQuery hook", () => {
   });
   afterEach(() => {
     server.resetHandlers();
+    resetFailoverState();
   });
   afterAll(() => {
     server.close();
   });
 
   it("works with expected loading state and result", async () => {
-    const { result } = renderHook(() => useGeocodeQuery());
+    const { result } = renderHook(() =>
+      useGeocodeQuery({ allowFallback: true }),
+    );
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
@@ -123,7 +127,9 @@ describe("useGeocodeQuery hook", () => {
       ),
     );
 
-    const { result } = renderHook(() => useGeocodeQuery());
+    const { result } = renderHook(() =>
+      useGeocodeQuery({ allowFallback: true }),
+    );
     await act(() => result.current.query("first"));
     await waitFor(() => {
       expect(result.current.results?.[0].simplifiedName).toBe(
@@ -157,7 +163,9 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("clear() drops results and cancels in-flight work", async () => {
-    const { result } = renderHook(() => useGeocodeQuery());
+    const { result } = renderHook(() =>
+      useGeocodeQuery({ allowFallback: true }),
+    );
     await act(() => result.current.query("test"));
     await waitFor(() => {
       expect(result.current.results).toBeDefined();
@@ -188,15 +196,15 @@ describe("useGeocodeQuery hook", () => {
           `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`,
           (req, res, ctx) => {
             requestedLang = req.url.searchParams.get("lang");
-            return res(
-              ctx.json({ type: "FeatureCollection", features: [] }),
-            );
+            return res(ctx.json({ type: "FeatureCollection", features: [] }));
           },
         ),
       );
 
       await act(() => i18n.changeLanguage(language));
-      const { result } = renderHook(() => useGeocodeQuery());
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true }),
+      );
       await act(() => result.current.query("test"));
 
       await waitFor(() => {
@@ -208,20 +216,25 @@ describe("useGeocodeQuery hook", () => {
   );
 
   it("gives correct error result", async () => {
+    // 400 is a bad request, not an outage — it must surface as an error rather
+    // than fall back to Nominatim.
     server.use(
       rest.get(
         `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`,
         async (_req, res, ctx) => {
-          return res(ctx.status(500), ctx.text("Generic error"));
+          return res(ctx.status(400), ctx.text("Generic error"));
         },
       ),
     );
-    const { result } = renderHook(() => useGeocodeQuery());
+    const { result } = renderHook(() =>
+      useGeocodeQuery({ allowFallback: true }),
+    );
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
       results: undefined,
       query: expect.anything(),
+      provider: "pelias",
     });
 
     await act(() => result.current.query("test"));
@@ -232,7 +245,157 @@ describe("useGeocodeQuery hook", () => {
         error: "Generic error",
         results: undefined,
         query: expect.anything(),
+        provider: "pelias",
       });
+    });
+  });
+
+  describe("Geocode.earth outage fallback", () => {
+    const failPelias = (status: number) =>
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`,
+          async (_req, res, ctx) => {
+            return res(ctx.status(status), ctx.text("provider unavailable"));
+          },
+        ),
+      );
+
+    it.each([500, 503, 429, 402])(
+      "serves Nominatim results and reports the fallback provider on a %i",
+      async (status) => {
+        failPelias(status);
+        const { result } = renderHook(() =>
+          useGeocodeQuery({ allowFallback: true }),
+        );
+
+        await act(() => result.current.query("test"));
+
+        await waitFor(() => {
+          expect(result.current.provider).toBe("nominatim");
+        });
+        expect(result.current.error).toBeUndefined();
+        expect(result.current.results).toEqual([
+          {
+            name: "fallback city, fallback state, fallback country",
+            simplifiedName: "fallback city, fallback state, fallback country",
+            location: new LngLat(3.0, 4.0),
+            // Nominatim's [minLat, maxLat, minLon, maxLon] rotated into our
+            // [maxLon, maxLat, minLon, minLat] ordering.
+            bbox: [4, 2, 3, 1],
+            isRegion: false,
+          },
+        ]);
+      },
+    );
+
+    it("does not attach an id to fallback results", async () => {
+      failPelias(500);
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true }),
+      );
+
+      await act(() => result.current.query("test"));
+
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+      expect(result.current.results?.[0].id).toBeUndefined();
+    });
+
+    it("stays on the fallback provider once it has been used", async () => {
+      failPelias(500);
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true }),
+      );
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+
+      // Geocode.earth recovers, but the provider must not flip back mid-session.
+      server.resetHandlers();
+      await act(() => result.current.query("test again"));
+
+      await waitFor(() => {
+        expect(result.current.results).toHaveLength(1);
+      });
+      expect(result.current.provider).toBe("nominatim");
+    });
+
+    it("fails closed when the caller does not allow fallback", async () => {
+      failPelias(503);
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: false }),
+      );
+
+      await act(() => result.current.query("test"));
+
+      await waitFor(() => {
+        expect(result.current.isProviderUnavailable).toBe(true);
+      });
+      expect(result.current.results).toBeUndefined();
+      expect(result.current.provider).toBe("pelias");
+      // The raw provider text is not a user-facing message; the consumer
+      // translates `isProviderUnavailable` instead.
+      expect(result.current.error).toBeUndefined();
+    });
+
+    it("reports a bad request as an error even when fallback is disallowed", async () => {
+      failPelias(400);
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: false }),
+      );
+
+      await act(() => result.current.query("test"));
+
+      await waitFor(() => {
+        expect(result.current.error).toBe("provider unavailable");
+      });
+      expect(result.current.isProviderUnavailable).toBe(false);
+    });
+
+    it("clears the unavailable state when a later query succeeds", async () => {
+      failPelias(503);
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: false }),
+      );
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.isProviderUnavailable).toBe(true);
+      });
+
+      server.resetHandlers();
+      await act(() => result.current.query("test again"));
+
+      await waitFor(() => {
+        expect(result.current.results).toHaveLength(1);
+      });
+      expect(result.current.isProviderUnavailable).toBe(false);
+    });
+
+    it("surfaces an error when the fallback provider also fails", async () => {
+      failPelias(500);
+      server.use(
+        rest.get(
+          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
+          async (_req, res, ctx) => {
+            return res(ctx.status(500), ctx.text("fallback down"));
+          },
+        ),
+      );
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true }),
+      );
+
+      await act(() => result.current.query("test"));
+
+      await waitFor(() => {
+        expect(result.current.error).toBe("fallback down");
+      });
+      expect(result.current.results).toBeUndefined();
     });
   });
 });

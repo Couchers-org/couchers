@@ -237,6 +237,8 @@ const FloatingSearchControls = ({
                 name="location"
                 onChange={handleLocationChange}
                 onClear={handleClearLocation}
+                // Search filter only, never persisted.
+                allowFallback
                 autocompleteContext="floating-search-controls"
               />
             )}

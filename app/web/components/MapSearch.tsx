@@ -56,7 +56,11 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
 
-  const { query, isLoading, results, error } = useGeocodeQuery();
+  // This widget sets the location stored on a user's profile (signup and profile
+  // edit), so later we won'taccept results from the legacy fallback provider —
+  // those have no provider id
+  const { query, isLoading, results, error, isProviderUnavailable } =
+    useGeocodeQuery({ allowFallback: true /*false*/ });
 
   //create a dummy search options if there are no results
   const searchOptions = isLoading
@@ -71,10 +75,14 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
         ]
       : results;
 
+  const errorMessage = isProviderUnavailable
+    ? t("global:location_autocomplete.provider_unavailable")
+    : error || "";
+
   useEffect(() => {
-    setError(error || "");
-    if (error) setOpen(false);
-  }, [error, setError]);
+    setError(errorMessage);
+    if (errorMessage) setOpen(false);
+  }, [errorMessage, setError]);
 
   const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
