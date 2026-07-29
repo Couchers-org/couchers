@@ -69,7 +69,7 @@ export default function HostRequestStatusText({
   return (
     <Typography
       variant="body2"
-      color={isPast ? theme.palette.grey[500] : "default"}
+      sx={{ color: isPast ? theme.palette.grey[500] : "default" }}
     >
       {statusText}
     </Typography>

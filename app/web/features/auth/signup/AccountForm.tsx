@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import Datepicker from "components/Datepicker";
+import { PickerOnlyDatepicker } from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
@@ -86,7 +86,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
-const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
+const StyledDatepicker = styled(PickerOnlyDatepicker)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   marginTop: 0,
   width: "100%",
@@ -300,7 +300,6 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
-          pickerInputOnly
           inputProps={{
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
           }}

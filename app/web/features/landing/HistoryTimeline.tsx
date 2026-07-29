@@ -26,7 +26,13 @@ const TimelineTab = memo(function TimelineTab({
   registerRef,
 }: TimelineTabProps) {
   return (
-    <Stack alignItems="center" sx={{ minWidth: 180, position: "relative" }}>
+    <Stack
+      sx={{
+        alignItems: "center",
+        minWidth: 180,
+        position: "relative",
+      }}
+    >
       <Box
         aria-hidden
         sx={{
@@ -246,18 +252,18 @@ export default function HistoryTimeline() {
           <Stack
             direction="row"
             spacing={4}
+            role="tablist"
+            aria-label={t("what_is_cs.timeline_title")}
+            aria-orientation="horizontal"
+            onKeyDown={handleKeyNav}
             sx={{
+              alignItems: "flex-start",
               position: "relative",
               px: 2,
               py: 3,
               width: "fit-content",
               mx: "auto",
             }}
-            alignItems="flex-start"
-            role="tablist"
-            aria-label={t("what_is_cs.timeline_title")}
-            aria-orientation="horizontal"
-            onKeyDown={handleKeyNav}
           >
             <Box
               sx={{

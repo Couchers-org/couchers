@@ -10,13 +10,13 @@ import {
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
-import { localizeRelativeTime } from "utils/date";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 

@@ -10,6 +10,7 @@ import ReportButton from "components/Navigation/ReportButton";
 import SocialMediaLinks from "components/SocialMediaLinks";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -37,7 +38,6 @@ import {
   volunteerRoute,
 } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { localizeRelativeTime } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(

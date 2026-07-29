@@ -92,10 +92,20 @@ export default function MotivationsForm() {
                 }
                 label={
                   <Box>
-                    <Typography variant="body1" fontWeight="bold">
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
                       {t(`auth:motivations_form.${key}`)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {t(`auth:motivations_form.${key}_description`)}
                     </Typography>
                   </Box>

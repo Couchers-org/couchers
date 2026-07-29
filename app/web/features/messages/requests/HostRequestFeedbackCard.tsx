@@ -215,7 +215,12 @@ export default function HostRequestFeedbackCard({
           />
         )}
       </FormControl>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         {t("private_feedback_card.privacy_notice")}
       </Typography>
       <StyledActions>

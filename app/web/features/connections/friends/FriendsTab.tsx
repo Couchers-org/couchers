@@ -16,7 +16,14 @@ function FriendsTab() {
   const { errors, isLoading, data: friends, refetchFriends } = useFriendList();
 
   return (
-    <Grid container direction="column" gap={2} sx={{ width: "100%" }}>
+    <Grid
+      container
+      sx={{
+        flexDirection: "column",
+        gap: 2,
+        width: "100%",
+      }}
+    >
       <StyledGrid size={{ xs: 12, md: 6 }}>
         <FriendRequestsReceived />
       </StyledGrid>

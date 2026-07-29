@@ -17,7 +17,7 @@ export default function CommunitiesSection() {
   return (
     <>
       <CommunitiesList />
-      <StyledCreateCommunityText variant="body1" paragraph>
+      <StyledCreateCommunityText variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans
           i18nKey="dashboard:your_communities_helper_text2"
           components={{

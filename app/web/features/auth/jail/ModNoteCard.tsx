@@ -2,12 +2,13 @@ import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { Trans, useTranslation } from "i18n";
+import { localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
 import { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestampToPlainDateTime } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledNoteContainer = styled("div")(() => ({
   marginBottom: theme.spacing(4),

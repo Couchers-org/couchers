@@ -7,6 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
@@ -25,10 +26,10 @@ const SocialProof = () => {
   return (
     <Box
       sx={{
+        maxWidth: "lg",
         padding: theme.spacing(8, 4),
         textAlign: "center",
       }}
-      maxWidth="lg"
     >
       <Typography
         sx={{
@@ -59,14 +60,22 @@ const SocialProof = () => {
         }}
       />
       <Box
-        display="flex"
-        flexDirection={isMobile ? "column" : "row"}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ marginTop: 4, width: "100%" }}
-        gap={3}
+        sx={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 3,
+          marginTop: 4,
+          width: "100%",
+        }}
       >
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Favorite
             sx={{
               marginRight: 1,
@@ -94,7 +103,12 @@ const SocialProof = () => {
             </Typography>
           )}
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Language
             sx={{
               marginRight: 1,
@@ -106,7 +120,12 @@ const SocialProof = () => {
             {t("landing:num_countries2", { count: 180 })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: isMobile ? "flex-start" : "center",
+          }}
+        >
           <Star
             sx={{
               marginRight: 1,
