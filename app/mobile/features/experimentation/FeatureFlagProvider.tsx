@@ -68,8 +68,17 @@ export default function FeatureFlagProvider({
     // release bundles.
     if (__DEV__ && process.env.EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
       void import("@/feature-flags.dev.json").then((mod) => {
-        const overrides = (mod.default ?? mod) as Record<string, boolean>;
-        growthbook.setForcedFeatures(new Map(Object.entries(overrides)));
+        const overrides = (mod.default ?? mod) as Record<string, unknown>;
+        growthbook.initSync({
+          payload: {
+            features: Object.fromEntries(
+              Object.entries(overrides).map(([key, value]) => [
+                key,
+                { defaultValue: value },
+              ]),
+            ),
+          },
+        });
       });
       return;
     }

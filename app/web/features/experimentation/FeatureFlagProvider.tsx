@@ -53,10 +53,18 @@ export default function FeatureFlagProvider({
       process.env.NODE_ENV === "development" &&
       process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1"
     ) {
-      void import("feature-flags.dev.json").then((overrides) => {
-        growthbook.setForcedFeatures(
-          new Map(Object.entries(overrides.default)),
-        );
+      void import("feature-flags.dev.json").then((mod) => {
+        const overrides = mod.default as Record<string, unknown>;
+        growthbook.initSync({
+          payload: {
+            features: Object.fromEntries(
+              Object.entries(overrides).map(([key, value]) => [
+                key,
+                { defaultValue: value },
+              ]),
+            ),
+          },
+        });
       });
       return;
     }
