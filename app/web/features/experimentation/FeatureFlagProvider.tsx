@@ -45,14 +45,16 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
     // value; unknown flags fall through to their in-code default. GrowthBook is never contacted in
     // this mode. The inline NODE_ENV check lets webpack compile the whole branch out of production
     // builds, keeping the file out of production bundles.
-    if (
-      process.env.NODE_ENV === "development" &&
-      process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1"
-    ) {
-      void import("feature-flags.dev.json").then((overrides) => {
-        growthbook.setForcedFeatures(
-          new Map(Object.entries(overrides.default)),
-        );
+    if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
+      void import("feature-flags.dev.json").then((mod) => {
+        const overrides = mod.default as Record<string, unknown>;
+        growthbook.initSync({
+          payload: {
+            features: Object.fromEntries(
+              Object.entries(overrides).map(([key, value]) => [key, { defaultValue: value }]),
+            ),
+          },
+        });
       });
       return;
     }
