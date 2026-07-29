@@ -46,9 +46,15 @@ type LoaderProps = {
 
 function Loader({ width }: LoaderProps) {
   return (
-    <Box width={width}>
+    <Box sx={{ width: width }}>
       <Typography sx={textStyle}>
-        <Box component="span" display="inline-block" width="100%">
+        <Box
+          component="span"
+          sx={{
+            display: "inline-block",
+            width: "100%",
+          }}
+        >
           <Skeleton variant="text" width="100%" />
         </Box>
       </Typography>
@@ -78,7 +84,12 @@ export default function Facts({ volunteers }: FactsProps) {
     <SectionWrapper>
       <SectionHeading>{t("press:facts_subheading")}</SectionHeading>
       <StyledWrapper>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Favorite sx={iconStyle} />
           {isLoading ? (
             <Loader width="9rem" />
@@ -91,7 +102,12 @@ export default function Facts({ volunteers }: FactsProps) {
             </Typography>
           )}
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Language sx={iconStyle} />
           {isLoading ? (
             <Loader width="9.5rem" />
@@ -101,7 +117,12 @@ export default function Facts({ volunteers }: FactsProps) {
             </Typography>
           )}
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Star sx={iconStyle} />
           {isLoading ? (
             <Loader width="14.5rem" />
@@ -116,7 +137,12 @@ export default function Facts({ volunteers }: FactsProps) {
             </Typography>
           ) : null}
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <People sx={iconStyle} />
           {isLoading ? (
             <Loader width="7.5rem" />

@@ -58,11 +58,13 @@ export default function SocialMediaLinks({ iconSize }: SocialMediaLinksProps) {
           rel="noopener"
           aria-label={label}
           display="flex"
-          alignItems="center"
           color="inherit"
-          justifyContent="center"
-          flexShrink={0}
-          fontSize={iconSize}
+          sx={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            fontSize: iconSize,
+          }}
         >
           {icon}
         </Link>

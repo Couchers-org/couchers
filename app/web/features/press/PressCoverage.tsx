@@ -123,7 +123,13 @@ export default function PressCoverage() {
               <Typography component="time" dateTime={dateTime}>
                 {publishedDate}
               </Typography>
-              <Typography fontSize="1.25rem">"{headline}"</Typography>
+              <Typography
+                sx={{
+                  fontSize: "1.25rem",
+                }}
+              >
+                "{headline}"
+              </Typography>
               <StyledLink
                 href={href}
                 aria-label={t("read_more_link_aria", { headline })}

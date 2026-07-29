@@ -98,7 +98,12 @@ export default function MediaAssets() {
             <CouchersIcon color="secondary" className="svg-logo" />
           </StyledLogo>
           <StyledCard>
-            <Typography fontSize="1.25rem" textAlign="center">
+            <Typography
+              sx={{
+                fontSize: "1.25rem",
+                textAlign: "center",
+              }}
+            >
               {t("download.logo_text")}
             </Typography>
             <StyledButton
@@ -118,7 +123,12 @@ export default function MediaAssets() {
             alt={t("download.mobile_image_alt")}
           />
           <StyledCard>
-            <Typography fontSize="1.25rem" textAlign="center">
+            <Typography
+              sx={{
+                fontSize: "1.25rem",
+                textAlign: "center",
+              }}
+            >
               {t("download.images_text")}
             </Typography>
             <StyledButton

@@ -82,7 +82,12 @@ export default function Hero() {
       <HeroImageAttribution />
       <StyledContentContainer>
         <StyledHeading>{t("hero.title")}</StyledHeading>
-        <Typography color="var(--mui-palette-common-white)" fontSize="1.25rem">
+        <Typography
+          sx={{
+            fontSize: "1.25rem",
+            color: "var(--mui-palette-common-white)",
+          }}
+        >
           {t("hero.description", { email })}
         </Typography>
       </StyledContentContainer>

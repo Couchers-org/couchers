@@ -190,7 +190,13 @@ function MemberList({
       {hasExtraCard && extraCardContent ? (
         <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
           <ExtraCard variant="outlined">
-            <Typography textAlign="center">{extraCardContent.text}</Typography>
+            <Typography
+              sx={{
+                textAlign: "center",
+              }}
+            >
+              {extraCardContent.text}
+            </Typography>
             <StyledLink href={teamRoute}>{extraCardContent.link}</StyledLink>
           </ExtraCard>
         </Grid>
