@@ -215,6 +215,101 @@ describe("useGeocodeQuery hook", () => {
     },
   );
 
+  describe("location bias (LOC-3)", () => {
+    const autocompleteUrl = `${process.env
+      .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
+
+    const mockGranted = (granted: boolean) => {
+      Object.defineProperty(navigator, "geolocation", {
+        configurable: true,
+        value: {
+          getCurrentPosition: (
+            onSuccess: PositionCallback,
+            onError: PositionErrorCallback,
+          ) =>
+            granted
+              ? onSuccess({
+                  coords: { latitude: 43.0, longitude: -81.2 },
+                } as GeolocationPosition)
+              : onError({
+                  code: 1,
+                  message: "denied",
+                } as GeolocationPositionError),
+        },
+      });
+      Object.defineProperty(navigator, "permissions", {
+        configurable: true,
+        value: {
+          query: () =>
+            Promise.resolve({
+              state: granted ? "granted" : "denied",
+            } as PermissionStatus),
+        },
+      });
+    };
+
+    const captureParams = () => {
+      const captured: { params?: URLSearchParams } = {};
+      server.use(
+        rest.get(autocompleteUrl, (req, res, ctx) => {
+          captured.params = req.url.searchParams;
+          return res(ctx.json({ type: "FeatureCollection", features: [] }));
+        }),
+      );
+      return captured;
+    };
+
+    it("biases the request to the user's position when it is available", async () => {
+      mockGranted(true);
+      const captured = captureParams();
+
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }),
+      );
+      // Let the permission check and position read settle before querying.
+      await act(async () => {});
+      await act(() => result.current.query("london"));
+
+      await waitFor(() => {
+        expect(captured.params?.get("focus.point.lat")).toBe("43");
+        expect(captured.params?.get("focus.point.lon")).toBe("-81.2");
+      });
+    });
+
+    it("queries unbiased when geolocation is refused", async () => {
+      mockGranted(false);
+      const captured = captureParams();
+
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }),
+      );
+      await act(async () => {});
+      await act(() => result.current.query("london"));
+
+      await waitFor(() => {
+        expect(captured.params).toBeDefined();
+      });
+      expect(captured.params?.has("focus.point.lat")).toBe(false);
+      expect(result.current.error).toBeUndefined();
+    });
+
+    it("queries unbiased when the caller does not ask for bias", async () => {
+      mockGranted(true);
+      const captured = captureParams();
+
+      const { result } = renderHook(() =>
+        useGeocodeQuery({ allowFallback: true }),
+      );
+      await act(async () => {});
+      await act(() => result.current.query("london"));
+
+      await waitFor(() => {
+        expect(captured.params).toBeDefined();
+      });
+      expect(captured.params?.has("focus.point.lat")).toBe(false);
+    });
+  });
+
   it("gives correct error result", async () => {
     // 400 is a bad request, not an outage — it must surface as an error rather
     // than fall back to Nominatim.
