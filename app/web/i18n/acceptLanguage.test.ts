@@ -24,9 +24,19 @@ describe("chooseAcceptLanguage", () => {
     expect(locale).toBe("en");
   });
 
+  it("should match case-insensitively", () => {
+    const locale = lookupAcceptLanguage("fr-ca", ["fr-CA"]);
+    expect(locale).toBe("fr-CA");
+  });
+
   it("should default to quality = 1", () => {
     const locale = lookupAcceptLanguage("fr;q=0.5,en", ["fr", "en"]);
     expect(locale).toBe("en");
+  });
+
+  it("should not match to quality = 0", () => {
+    const locale = lookupAcceptLanguage("fr;q=0", ["fr"]);
+    expect(locale).toBeUndefined();
   });
 
   it("should fallback to simpler locales on a per-entry basis", () => {

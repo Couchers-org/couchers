@@ -21,6 +21,7 @@ export function lookupAcceptLanguage(
 ): string | undefined {
   // Consider accepted locales by descending quality.
   const acceptLocales = parseAcceptLanguage(header)
+    .filter((e) => e.quality > 0) // q=0 should not be matched
     .sort((a, b) => b.quality - a.quality)
     .map((e) => e.code);
 
@@ -28,8 +29,14 @@ export function lookupAcceptLanguage(
     // RFC 4647 lookup: First check pt-BR, then pt
     let possibleLocale = acceptLocale;
     while (true) {
-      if (supportedLocales.includes(possibleLocale)) {
-        return possibleLocale;
+      for (const supportedLocale of supportedLocales) {
+        if (
+          possibleLocale.localeCompare(supportedLocale, undefined, {
+            sensitivity: "base", // Case-insensitive
+          }) === 0
+        ) {
+          return supportedLocale;
+        }
       }
 
       // Strip the last suffix
