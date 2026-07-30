@@ -10,6 +10,7 @@ import { useTranslation } from "i18n";
 import { GeoJSONSource, LngLat, Map as MaplibreMap, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
+import { markGeolocationGranted } from "utils/useLocationBias";
 
 import { GLOBAL } from "../i18n/namespaces";
 
@@ -221,10 +222,17 @@ export default function EditLocationMap({
         });
       }
 
-      // if no user is specified, ask to get the location from browser
-      if (!initialLocation && navigator.geolocation) {
+      // No location chosen yet (signup, jail, or a profile with none set): offer to
+      // centre the map on the browser's location. Never when the user already has
+      // one — that would move the circle off their saved home.
+      if (isBlank.current && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
-          flyToSearch(new LngLat(position.coords.longitude, position.coords.latitude));
+          // Record the grant so search can bias results (LOC-3) on browsers whose
+          // Permissions API can't report geolocation state (Safari).
+          markGeolocationGranted();
+          flyToSearch(
+            new LngLat(position.coords.longitude, position.coords.latitude),
+          );
         });
       }
     });

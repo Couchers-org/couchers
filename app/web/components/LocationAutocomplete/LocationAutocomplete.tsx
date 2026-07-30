@@ -43,6 +43,9 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
   // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
   preferCity?: boolean;
+  // Rank places near the user's approximate location higher (LOC-3). Silent
+  // best-effort: no permission prompt, unbiased results when unavailable
+  biasToUserLocation?: boolean;
   // Whether a Geocode.earth outage may be served by the legacy fallback
   // provider. Required, and later must be `false` wherever the chosen location is
   // persisted — fallback results have no provider id (see utils/geocode.ts).
@@ -68,6 +71,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     showFullDisplayName = false,
     disableRegions = false,
     preferCity = false,
+    biasToUserLocation = false,
     allowFallback,
     autocompleteContext,
     sx,
@@ -100,7 +104,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     isLoading,
     provider,
     isProviderUnavailable,
-  } = useGeocodeQuery({ preferCity, allowFallback });
+  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback });
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
 
