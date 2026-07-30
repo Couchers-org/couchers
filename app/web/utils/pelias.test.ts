@@ -446,6 +446,88 @@ describe("autocomplete", () => {
     expect(results[0].simplifiedName).toBe("Paris, Île-de-France, France");
   });
 
+  it("sends focus.point coordinates when a bias point is given", async () => {
+    let params: URLSearchParams | undefined;
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
+        params = req.url.searchParams;
+        return res(
+          ctx.json({ type: "FeatureCollection", features: [feature()] }),
+        );
+      }),
+    );
+
+    await autocomplete("london", { focus: { lat: 43.0, lon: -81.2 } });
+
+    expect(params?.get("focus.point.lat")).toBe("43");
+    expect(params?.get("focus.point.lon")).toBe("-81.2");
+    // Bias only — a hard boundary filter would drop distant results entirely.
+    expect(
+      [...params!.keys()].filter((key) => key.startsWith("boundary.")),
+    ).toEqual([]);
+  });
+
+  it("omits focus.point entirely when no bias point is known", async () => {
+    let params: URLSearchParams | undefined;
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
+        params = req.url.searchParams;
+        return res(
+          ctx.json({ type: "FeatureCollection", features: [feature()] }),
+        );
+      }),
+    );
+
+    await autocomplete("london");
+
+    // Not "" and not 0 — 0,0 is a real point in the Gulf of Guinea.
+    expect(params?.has("focus.point.lat")).toBe(false);
+    expect(params?.has("focus.point.lon")).toBe(false);
+  });
+
+  it("preserves the provider's ranking order, so bias is not undone", async () => {
+    const londonOntario = feature({
+      properties: {
+        gid: "whosonfirst:locality:101735809",
+        layer: "locality",
+        name: "London",
+        locality: "London",
+        region: "Ontario",
+        country: "Canada",
+      },
+    });
+    const londonUk = feature({
+      properties: {
+        gid: "whosonfirst:locality:101750367",
+        layer: "locality",
+        name: "London",
+        locality: "London",
+        region: "England",
+        country: "United Kingdom",
+      },
+    });
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [londonOntario, londonUk],
+          }),
+        ),
+      ),
+    );
+
+    const { results } = await autocomplete("london", {
+      focus: { lat: 43.0, lon: -81.2 },
+      preferCity: true,
+    });
+
+    expect(results.map((result) => result.simplifiedName)).toEqual([
+      "London, Ontario, Canada",
+      "London, England, United Kingdom",
+    ]);
+  });
+
   it("soft-reorders city hits when preferCity is set", async () => {
     server.use(
       rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>

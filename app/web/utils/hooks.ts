@@ -11,6 +11,7 @@ import {
   initialProvider,
   isOutageError,
 } from "utils/geocode";
+import useLocationBias from "utils/useLocationBias";
 
 function useIsClient() {
   const [isClient, setIsClient] = useState(false);
@@ -52,13 +53,20 @@ export interface GeocodeResult {
  * chosen location requiring a gid, since fallback results carry no Pelias `gid`.
  * In that case,  it surfaces `isProviderUnavailable` on an outage instead of degraded
  * results, and its `provider` never leaves `"pelias"`.
+ *
+ * `biasToUserLocation` (LOC-3) ranks results nearer the user's approximate
+ * location higher, when the browser will give it to us without a prompt (see
+ * `utils/useLocationBias.ts`). It is a soft signal only — distant places are still
+ * returned, and searches run unbiased whenever no position is available.
  */
 const useGeocodeQuery = (options: {
   allowFallback: boolean;
   preferCity?: boolean;
+  biasToUserLocation?: boolean;
 }) => {
   const { allowFallback } = options;
   const preferCity = options.preferCity ?? false;
+  const focusRef = useLocationBias(options.biasToUserLocation ?? false);
   const { i18n } = useTranslation();
   const isMounted = useIsMounted();
   const [provider, setProvider] = useState<GeocodeProvider>(() => initialProvider(allowFallback));
@@ -117,6 +125,9 @@ const useGeocodeQuery = (options: {
           allowFallback,
           language: i18n.language,
           preferCity,
+          // Read at request time, not render time: the fix may land between
+          // keystrokes, and an early query simply goes out unbiased.
+          focus: focusRef.current,
           signal: abortController.signal,
         });
 
@@ -176,6 +187,7 @@ const useGeocodeQuery = (options: {
     [
       allowFallback,
       clear,
+      focusRef,
       i18n.language,
       preferCity,
       setError,
