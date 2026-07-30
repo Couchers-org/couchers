@@ -57,7 +57,7 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
   const { t } = useTranslation([GLOBAL]);
 
   // This widget sets the location stored on a user's profile (signup and profile
-  // edit), so later we won'taccept results from the legacy fallback provider —
+  // edit), so later we won't accept results from the legacy fallback provider —
   // those have no provider id
   const { query, isLoading, results, error, isProviderUnavailable } =
     useGeocodeQuery({ allowFallback: true /*false*/ });

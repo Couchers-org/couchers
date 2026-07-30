@@ -1,5 +1,6 @@
 import type { GeocodeResult } from "utils/hooks";
 import * as nominatim from "utils/nominatim";
+import type { FocusPoint } from "utils/pelias";
 import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
 
 /**
@@ -108,6 +109,10 @@ export interface GeocodeSearchOptions {
   // BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
   language?: string;
   preferCity?: boolean;
+  // LOC-3: soft ranking bias toward the user's approximate location. Pelias only
+  // (Nominatim's viewbox is a different, harder mechanism we don't replicate for
+  // the deprecated fallback path). Omitted entirely when unknown.
+  focus?: FocusPoint;
   signal?: AbortSignal;
 }
 
@@ -160,6 +165,7 @@ export async function geocodeSearch(
         ? toPeliasLanguage(options.language)
         : undefined,
       preferCity: options.preferCity,
+      focus: options.focus,
       signal: options.signal,
     });
     return { results, provider: "pelias", peliasFeatures: features };
