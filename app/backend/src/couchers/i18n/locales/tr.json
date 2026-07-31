@@ -158,7 +158,13 @@
     "host_request_rate_limit2_one": "Son {{count}} saatte çok fazla ev sahibi isteği gönderdiniz. Spam'i önlemek için şimdilik daha fazla gönderemezsiniz.",
     "host_request_rate_limit2_other": "Son {{count}} saatte çok fazla ev sahibi isteği gönderdiniz. Spam'i önlemek için şimdilik daha fazla gönderemezsiniz.",
     "host_request_too_short2_one": "Konaklanma isteği {{count}} karakterden kısa olamaz.",
-    "host_request_too_short2_other": "Konaklanma isteği {{count}} karakterden kısa olamaz."
+    "host_request_too_short2_other": "Konaklanma isteği {{count}} karakterden kısa olamaz.",
+    "discussion_delete_permission_denied": "Bu tartışmayı silme iznin yok.",
+    "discussion_deleted": "Bu tartışma silindi.",
+    "discussion_edit_permission_denied": "Bu tartışmayı düzenleme iznin yok.",
+    "reply_delete_permission_denied": "Bu yorumu silme iznin yok.",
+    "reply_deleted": "Bu yorum silinmiş.",
+    "reply_edit_permission_denied": "Bu yorumu düzenleme iznin yok."
   },
   "badges": {
     "volunteer_description": "Bu kullanıcı Couchers.org için aktif bir gönüllü",
