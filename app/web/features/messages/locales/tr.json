@@ -103,7 +103,9 @@
   "archive": {
     "archived": "Arşiv",
     "archive_button": "Arşivle",
-    "unarchive_button": "Arşivden Çıkar"
+    "unarchive_button": "Arşivden Çıkar",
+    "no_archived_requests": "Arşivlenmiş istek yok",
+    "no_archived_messages": "Arşivlenmiş mesaj yok"
   },
   "host_request_status": {
     "rejected": "Reddedildi"
