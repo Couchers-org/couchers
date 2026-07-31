@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
@@ -37,6 +38,10 @@ jest.mock("features/userQueries/useCurrentUser");
 const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
+
+const reportContentMock = service.reporting.reportContent as jest.MockedFunction<
+  typeof service.reporting.reportContent
+>;
 
 function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
@@ -288,6 +293,34 @@ describe("Event page", () => {
     renderEventPage();
 
     await assertErrorAlert(errorMessage);
+  });
+
+  describe("when the report button is clicked", () => {
+    it("submits a report for the event itself", async () => {
+      reportContentMock.mockResolvedValue(new Empty());
+      getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 2 });
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(
+        await screen.findByRole("button", {
+          name: t("communities:report_event_button_a11y"),
+        }),
+      );
+
+      const reason = t("global:report.flag.reason.spam");
+      await user.selectOptions(await screen.findByLabelText(t("global:report.flag.reason_label")), reason);
+      await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+      await waitFor(() => {
+        expect(reportContentMock).toHaveBeenCalledWith({
+          authorUser: 2,
+          contentRef: `event/${firstEvent.eventId}`,
+          description: "",
+          reason,
+        });
+      });
+    });
   });
 
   describe("when the event attendance button is clicked", () => {

@@ -14,6 +14,7 @@ import { routeToDiscussion } from "routes";
 import { theme } from "theme";
 
 import getContentSummary from "../getContentSummary";
+import getDiscussionContentRef from "./getDiscussionContentRef";
 
 const StyledDeletedTitle = styled(Typography)(() => ({
   color: "var(--mui-palette-text-secondary)",
@@ -85,10 +86,7 @@ export default function DiscussionCard({
     [discussion.content],
   );
 
-  const contentRef =
-    (discussion.ownerCommunityId != 0
-      ? `community/${discussion.ownerCommunityId}`
-      : `group/${discussion.ownerGroupId}`) + `/discussion/${discussion.discussionId}`;
+  const contentRef = getDiscussionContentRef(discussion);
 
   return (
     <StyledCard className={className} data-testid={DISCUSSION_CARD_TEST_ID}>
