@@ -4,10 +4,12 @@ import { useColorScheme } from "@mui/material/styles";
 import { GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
+import useResolvedColorScheme from "utils/useResolvedColorScheme";
 
 export default function DarkModeToggle() {
   const { t } = useTranslation(GLOBAL);
-  const { mode, systemMode, setMode } = useColorScheme();
+  const { setMode } = useColorScheme();
+  const resolvedMode = useResolvedColorScheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -15,12 +17,10 @@ export default function DarkModeToggle() {
   }, []);
 
   // Avoid hydration mismatch
-  if (!mounted || !mode) {
+  if (!mounted || !resolvedMode) {
     return null;
   }
 
-  // Determine the actual displayed mode (resolving "system" to the actual mode)
-  const resolvedMode = mode === "system" ? systemMode : mode;
   const isDark = resolvedMode === "dark";
 
   const handleToggle = () => {

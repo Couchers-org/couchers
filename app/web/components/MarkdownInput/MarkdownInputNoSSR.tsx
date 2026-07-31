@@ -1,7 +1,7 @@
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
-import { styled, useColorScheme } from "@mui/material";
+import { styled } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
@@ -9,6 +9,7 @@ import UploadImage from "components/MarkdownInput/UploadImage";
 import { useEffect, useRef, useState } from "react";
 import { useController } from "react-hook-form";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useResolvedColorScheme from "utils/useResolvedColorScheme";
 
 import { MarkdownInputProps } from "./MarkdownInput";
 
@@ -94,7 +95,7 @@ export default function MarkdownInput({
   required,
   placeholder,
 }: MarkdownInputProps) {
-  const { mode } = useColorScheme();
+  const resolvedMode = useResolvedColorScheme();
   const isNativeEmbed = useIsNativeEmbed();
   const { field, fieldState } = useController({
     name,
@@ -169,7 +170,7 @@ export default function MarkdownInput({
       toolbarItems,
       autofocus,
       extendedAutolinks: true,
-      theme: mode === "dark" ? "dark" : "light",
+      theme: resolvedMode === "dark" ? "dark" : "light",
     });
 
     if (resetInputRef) {
@@ -216,7 +217,7 @@ export default function MarkdownInput({
     labelId,
     imageUpload,
     placeholder,
-    mode,
+    resolvedMode,
   ]);
 
   return (

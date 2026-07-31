@@ -1,11 +1,12 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
-import { styled, useColorScheme } from "@mui/material";
+import { styled } from "@mui/material";
 import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import { increaseMarkdownHeaderLevel } from "components/Markdown";
 import { useEffect, useRef } from "react";
 import { escapeRegExp } from "utils/escapeRegExp";
+import useResolvedColorScheme from "utils/useResolvedColorScheme";
 
 interface MarkdownProps {
   className?: string;
@@ -52,7 +53,7 @@ export default function Markdown({
   topHeaderLevel = 2,
   allowImages = "none",
 }: MarkdownProps) {
-  const { mode } = useColorScheme();
+  const resolvedMode = useResolvedColorScheme();
   const rootEl = useRef<HTMLDivElement>(null);
   const viewer = useRef<ToastUIEditorViewer>(undefined);
   useEffect(() => {
@@ -75,20 +76,17 @@ export default function Markdown({
       el: rootEl.current!,
       initialValue: sanitizedSource,
       extendedAutolinks: true,
-      theme: mode === "dark" ? "dark" : "light",
+      theme: resolvedMode === "dark" ? "dark" : "light",
     });
 
     // Update theme class on root element
-    if (rootEl.current) {
-      if (mode === "dark") {
-        rootEl.current.classList.add("toastui-editor-dark");
-      } else {
-        rootEl.current.classList.remove("toastui-editor-dark");
-      }
-    }
+    rootEl.current?.classList.toggle(
+      "toastui-editor-dark",
+      resolvedMode === "dark",
+    );
 
     return () => viewer.current?.destroy();
-  }, [source, topHeaderLevel, allowImages, mode]);
+  }, [source, topHeaderLevel, allowImages, resolvedMode]);
 
   return <StyledRoot className={className} ref={rootEl} />;
 }
