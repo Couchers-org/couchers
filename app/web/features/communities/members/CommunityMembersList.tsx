@@ -5,7 +5,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
+import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -13,14 +13,6 @@ import { useState } from "react";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListMembers } from "../hooks";
-import MemberCard from "./MemberCard";
-
-const MembersList = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(2),
-  marginBlockStart: theme.spacing(2),
-}));
 
 const PaginationWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -47,14 +39,6 @@ export default function CommunityMembersList({
   });
 
   const currentPage = data?.pages && data.pages[pageNumber - 1];
-  const currentPageUserIds = currentPage?.memberUserIdsList ?? [];
-
-  const { data: membersById, isLoading: isLoadingMembers } =
-    useLiteUsers(currentPageUserIds);
-
-  const members = currentPageUserIds
-    .map((userId) => membersById?.get(userId))
-    .filter((user): user is NonNullable<typeof user> => !!user);
 
   const handlePreviousPageClick = () => {
     setPageNumber(pageNumber - 1);
@@ -76,14 +60,12 @@ export default function CommunityMembersList({
         </Typography>
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {(isLoading || isLoadingMembers) && <CenteredSpinner />}
-      {data?.pages && data.pages.length > 0 && (
-        <MembersList>
-          {members.map((member) => (
-            <MemberCard key={member.userId} user={member} />
-          ))}
-        </MembersList>
-      )}
+      {isLoading && <CenteredSpinner />}
+      <Box sx={{ width: "100%", maxWidth: "450px" }}>
+        {data?.pages && data?.pages.length > 0 && (
+          <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
+        )}
+      </Box>
       <PaginationWrapper>
         <CursorPagination
           hasNextPage={currentPage?.nextPageToken !== ""}

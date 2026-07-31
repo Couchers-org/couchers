@@ -6,6 +6,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import Avatar from "components/Avatar";
+import StrongVerificationBadge from "components/StrongVerificationBadge";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
@@ -49,6 +50,12 @@ const StyledShortUserInfo = styled("div")(({ theme }) => ({
   marginLeft: theme.spacing(2),
 }));
 
+const StyledNameCityRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+}));
+
 const HostRequestUserSummarySection = ({
   hostRequest,
   otherUser,
@@ -78,15 +85,14 @@ const HostRequestUserSummarySection = ({
           {!otherUser ? (
             <Skeleton />
           ) : (
-            <Tooltip
-              title={`${otherUser.name}, ${otherUser.age}, ${otherUser.city}`}
-            >
-              <div>
-                {`${truncateTextEllipsis(otherUser.name, 25)}, ${
-                  otherUser.age
-                }, ${truncateTextEllipsis(otherUser.city, 25)}`}
-              </div>
-            </Tooltip>
+            <StyledNameCityRow>
+              <Tooltip title={`${otherUser.name}, ${otherUser.city}`}>
+                <div>
+                  {`${truncateTextEllipsis(otherUser.name, 25)}, ${truncateTextEllipsis(otherUser.city, 25)}`}
+                </div>
+              </Tooltip>
+              {otherUser.hasStrongVerification && <StrongVerificationBadge />}
+            </StyledNameCityRow>
           )}
         </Typography>
         {hostRequest && (

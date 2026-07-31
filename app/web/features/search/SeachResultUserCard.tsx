@@ -1,10 +1,8 @@
 import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
-import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
-import StyledLink from "components/StyledLink";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
 import {
@@ -18,10 +16,8 @@ import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-import { routeToUser } from "routes";
 import { theme } from "theme";
 import { localizeRelativeTime, timestampToInstant } from "utils/date";
-import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
@@ -102,11 +98,6 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     fontSize: ".82rem",
   },
-}));
-
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
-  height: "1rem",
-  width: "1rem",
 }));
 
 const FlexRow = styled("div")<{
@@ -198,7 +189,6 @@ const SearchResultUserCard = ({
   user,
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isNativeEmbed = useIsNativeEmbed();
   const {
     t,
     i18n: { language: locale },
@@ -270,15 +260,13 @@ const SearchResultUserCard = ({
       ref={analytics ? impressionRef : undefined}
     >
       <StyledTopContent>
-        <Avatar openInNewTab user={user} />
+        <Avatar user={user} />
         <FlexColumn>
           <FlexRow justifyContent="space-between" alignItems="center">
             <FlexRow alignItems="center">
               <ProfileLink
                 userId={user.userId}
                 username={user.username}
-                aria-label={t("profile:open_profile_new_tab")}
-                openInNewTab
                 style={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
                 <Typography
@@ -295,25 +283,6 @@ const SearchResultUserCard = ({
               </ProfileLink>
               {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
-            {!isNativeEmbed && !isMobile && (
-              <StyledLink
-                aria-label={t("profile:open_profile_new_tab")}
-                href={routeToUser(user.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Tooltip title={t("profile:open_profile_new_tab")}>
-                  <StyledOpenInNewIcon
-                    sx={{
-                      "&:hover": {
-                        color: "var(--mui-palette-primary-dark)",
-                      },
-                    }}
-                  />
-                </Tooltip>
-              </StyledLink>
-            )}
           </FlexRow>
 
           <FlexRow justifyContent="space-between">

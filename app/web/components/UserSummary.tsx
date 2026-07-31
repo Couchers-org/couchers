@@ -9,12 +9,11 @@ import {
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
-import { OpenInNewIcon } from "components/Icons";
+import { PinIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
-import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
@@ -29,19 +28,14 @@ const StyledWrapper = styled("div")({
   display: "flex",
   padding: 0,
   width: "100%",
+  minWidth: 0,
   alignItems: "center",
   wordBreak: "break-word",
 });
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
-  display: "block",
-  marginInlineStart: theme.spacing(0.5),
-  height: "1.25rem",
-  width: "1.25rem",
-}));
-
 const StyledListItemText = styled(ListItemText)(({ theme }) => ({
   display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
   gap: theme.spacing(0.25),
   margin: 0,
   minHeight: theme.spacing(9),
@@ -92,7 +86,6 @@ export default function UserSummary({
     },
   );
 
-  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -105,12 +98,7 @@ export default function UserSummary({
     setMenuAnchorEl(null);
   };
 
-  const nameValue =
-    user && user.name
-      ? user.name.length > 20
-        ? user.name.slice(0, 20) + "..."
-        : user.name
-      : "";
+  const nameValue = user?.name ?? "";
 
   const cityValue =
     user && "city" in user && typeof user.city === "string"
@@ -125,7 +113,7 @@ export default function UserSummary({
         component={headlineComponentWithRef}
         variant="h2"
         noWrap={nameOnly}
-        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+        sx={{ marginTop: "auto", fontSize: "1.2rem", minWidth: 0 }}
       >
         {!user ? (
           <Skeleton
@@ -133,12 +121,29 @@ export default function UserSummary({
             sx={{ maxWidth: 300 }}
           />
         ) : (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {nameOnly
-              ? nameValue
-              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              minWidth: 0,
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nameValue}
+            </Box>
             {isLiteUser(user) && user.hasStrongVerification && (
-              <StrongVerificationBadge />
+              <Box component="span" sx={{ flexShrink: 0 }}>
+                <StrongVerificationBadge />
+              </Box>
             )}
           </Box>
         )}
@@ -166,15 +171,14 @@ export default function UserSummary({
             <ProfileLink
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
-              openInNewTab={!isMobile}
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "flex-start",
+                minWidth: 0,
               }}
             >
               {title}
-              {!isMobile && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title
@@ -188,13 +192,32 @@ export default function UserSummary({
                 arrow
                 placement="top"
               >
-                <Typography
-                  color="textSecondary"
-                  variant="body1"
-                  noWrap={nameOnly}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    minWidth: 0,
+                  }}
                 >
-                  {!user ? <Skeleton /> : cityValue}
-                </Typography>
+                  {user && cityValue && (
+                    <PinIcon
+                      fontSize="small"
+                      sx={{
+                        flexShrink: 0,
+                        color: "var(--mui-palette-text-secondary)",
+                      }}
+                    />
+                  )}
+                  <Typography
+                    color="textSecondary"
+                    variant="body1"
+                    noWrap
+                    sx={{ minWidth: 0 }}
+                  >
+                    {!user ? <Skeleton /> : cityValue}
+                  </Typography>
+                </Box>
               </Tooltip>
             )}
             {children}

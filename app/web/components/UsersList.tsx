@@ -17,6 +17,7 @@ const StyledUsersDiv = styled("div", {
 })<{ layout?: "list" | "grid" }>(({ theme, layout = "list" }) => ({
   marginBlockStart: theme.spacing(2),
   display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
   gap: theme.spacing(1),
   ...(layout === "grid" && {
     gridAutoRows: "6rem",

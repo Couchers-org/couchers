@@ -122,9 +122,6 @@
   "load_more_organizers": "Load more organizers",
   "location": "Location",
   "location_required": "Please provide a location for the event.",
-  "member_card": {
-    "profile_link_a11y_label": "Profile of {{name}}"
-  },
   "members_empty_state": "No members at the moment.",
   "members_label": "Members",
   "members_title": "Community Members",

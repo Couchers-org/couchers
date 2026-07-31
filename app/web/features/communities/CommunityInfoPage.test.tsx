@@ -37,16 +37,14 @@ async function assertAdminsShown(
       name: getProfileLinkA11yLabel(firstAdmin.name),
     }),
   ).toBeVisible();
-  expect(
-    element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`),
-  ).toBeVisible();
+  expect(element.getByRole("heading", { name: firstAdmin.name })).toBeVisible();
   expect(
     element.getByRole("link", {
       name: getProfileLinkA11yLabel(secondAdmin.name),
     }),
   ).toBeVisible();
   expect(
-    element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`),
+    element.getByRole("heading", { name: secondAdmin.name }),
   ).toBeVisible();
 }
 
@@ -232,7 +230,7 @@ describe("Community info page", () => {
         }),
       ).toBeVisible();
       expect(
-        adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`),
+        adminDialog.getByRole("heading", { name: thirdAdmin.name }),
       ).toBeVisible();
 
       // Check it doesn't affect the underlying page
