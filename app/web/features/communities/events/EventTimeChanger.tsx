@@ -70,12 +70,12 @@ export default function EventTimeChanger({
   };
 
   const handleStartTimeChange = (value: Temporal.PlainTime) => {
-    const endTime = getValues("endTime");
-    const userChangedMeridiem = endTime ?  (Math.abs(value.until(endTime).total("hours")) == 12) : false;
     setValue("startTime", value, {
       shouldDirty: true,
       shouldValidate: true,
     });
+    const endTime = getValues("endTime");
+    const userChangedMeridiem = endTime ?  (Math.abs(value.until(endTime).total("hours")) == 12) : false;
     if (!endTime || userChangedMeridiem){
       setValue("endTime", value, {
         shouldDirty: true,
