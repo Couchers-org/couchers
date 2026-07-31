@@ -34,7 +34,7 @@ def test_to_supported_locale():
     # No-ops
     assert to_supported_locale("en") == "en"
     assert to_supported_locale("fr") == "fr"
-    assert to_supported_locale("fr-CA") == "fr-CA"
+    assert to_supported_locale("fr-CA") == "fr" # We don't have a separate fr-CA translation anymore
     assert to_supported_locale("zh-Hans") == "zh-Hans"
 
     # Supported locale with no translations
@@ -47,10 +47,10 @@ def test_to_supported_locale():
     assert to_supported_locale("------------------") == DEFAULT_LOCALE
 
     # Normalization
-    assert to_supported_locale("FR-ca") == "fr-CA"
+    assert to_supported_locale("PT-br") == "pt-BR"
     assert to_supported_locale("en-UK") == "en"
     assert to_supported_locale("en-Shorthand") == "en"
-    assert to_supported_locale("fr-CA-Shorthand") == "fr-CA"
+    assert to_supported_locale("pt-BR-Shorthand") == "pt-BR"
 
 
 def test_all_supported_locales_have_babel_locales():
@@ -75,6 +75,5 @@ def test_get_locale_chain():
     assert get_locale_chain("en-US") == ["en-US", "en"]
     assert get_locale_chain("pl") == ["pl", "en"]
     assert get_locale_chain("xx") == ["xx", "en"]
-    assert get_locale_chain("fr-CA") == ["fr-CA", "fr", "en"]
     assert get_locale_chain("pt") == ["pt", "pt-BR", "en"]
     assert get_locale_chain("pt-BR") == ["pt-BR", "pt", "en"]

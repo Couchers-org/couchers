@@ -22,8 +22,7 @@ _LOCALE_FALLBACKS: dict[str, str] = {
     "pt-BR": "pt",
     "pt": "pt-BR",
     "es-419": "es",
-    "es": "es-419",
-    "fr-CA": "fr",
+    "es": "es-419"
 }
 
 
