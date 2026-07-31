@@ -71,7 +71,8 @@ export default function EventTimeChanger({
 
   const handleStartTimeChange = (value: Temporal.PlainTime) => {
     const endTime = getValues("endTime");
-    if (!endTime) {
+    const userChangedMeridiem = endTime ?  (Math.abs(value.until(endTime).total("hours")) == 12) : false;
+    if (!endTime || userChangedMeridiem){
       setValue("endTime", value, {
         shouldDirty: true,
         shouldValidate: true,
