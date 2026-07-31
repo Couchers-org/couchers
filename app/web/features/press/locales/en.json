@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "title": "Press & Media",
+    "description": "For press and media inquiries, contact {{email}}"
+  },
+  "facts_subheading": "At a glance",
+  "num_volunteers_one": "{{count}}+ volunteers",
+  "num_volunteers_other": "{{count}}+ volunteers",
+  "about": {
+    "subheading": "Get to know more about us",
+    "mission_heading": "Our Mission and Values",
+    "mission_text": "Couchers.org exists to create genuine real-world connections and community. By engaging with people from different cultures and backgrounds, we push people to grow into being more open, empathetic, and tolerant and to build safe, inclusive community.",
+    "blog_heading": "Our Blog",
+    "blog_text": "Welcome to the Couchers.org blog where we write about latest updates, news, and milestones!",
+    "foundation_heading": "Couchers, Inc.",
+    "foundation_text": "Couchers, Inc. is a 501(c)(3) non-profit organization incorporated in the State of Florida in the United States and operates the Couchers.org service and project."
+  },
+  "read_more": "Read more",
+  "read_more_link_aria": "Read more: {{headline}} (opens in a new tab)",
+  "download": {
+    "subheading": "Download media assets",
+    "logo_text": "Download our logo in SVG and PNG format",
+    "images_text": "Download mobile app images",
+    "mobile_image_alt": "Couchers app dashboard screen on mobile",
+    "button": "Download",
+    "logo_aria_label": "Download logo assets",
+    "mobile_images_aria_label": "Download mobile app assets"
+  },
+  "team": {
+    "subheading": "Meet the team",
+    "extra_card_text": "We are passionate couch surfers and skilled professionals committed to creating an improved, safer, and more inclusive platform.",
+    "extra_card_link": "More about the team"
+  },
+  "social_media_subheading": "Follow us",
+  "press_coverage_subheading": "Featured Coverage"
+}
