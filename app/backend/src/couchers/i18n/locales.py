@@ -11,26 +11,41 @@ from couchers.i18n.i18next import I18Next
 # Note: "en" is a valid locale even if it doesn't include a region.
 DEFAULT_LOCALE = "en"
 
+# Locales that we support for regional formatting,
+# but don't have dedicated translations.
+NON_TRANSLATED_LOCALES: list[str] = ["en-US"]
+
 # Locale fallbacks (for those that don't fallback to English).
 # If a string is not found in the requested language, we try the provided one before English
 # Some mutually intelligible language variants fallback to each other.
 _LOCALE_FALLBACKS: dict[str, str] = {
     "pt-BR": "pt",
     "pt": "pt-BR",
+    "en-US": "en",
     "es-419": "es",
     "es": "es-419",
     "fr-CA": "fr",
 }
 
 
-def get_supported_locales() -> list[str]:
-    """Gets the list of supported locales (i.e., for which we have translations)."""
+def get_locales_with_translations() -> list[str]:
+    """Gets the list of locales which have translations."""
     return list(get_main_i18next().translations_by_locale.keys())
 
 
-def is_supported_locale(locale: str) -> bool:
-    """Checks if a locale is supported (i.e., if we have translations for it)."""
+def is_locale_with_translations(locale: str) -> bool:
+    """Checks if we have translations for a given locale."""
     return locale in get_main_i18next().translations_by_locale.keys()
+
+
+def get_supported_locales() -> list[str]:
+    """Gets the list of locales supported."""
+    return get_locales_with_translations() + NON_TRANSLATED_LOCALES
+
+
+def is_supported_locale(locale: str) -> bool:
+    """Checks if a locale is supported."""
+    return locale in get_supported_locales()
 
 
 def to_supported_locale(locale: str) -> str:
@@ -77,6 +92,7 @@ def get_babel_locale(locale: str) -> babel.Locale:
     Returns the babel locale object for a given locale string.
     Guaranteed by tests to succeed for supported locales.
     """
+    # TODO(#9184): Once we have en-US available, "en" should return the babel locale for "en-001" (Global English)
     return babel.Locale.parse(locale, sep="-")
 
 
