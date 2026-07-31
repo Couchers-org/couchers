@@ -277,5 +277,14 @@
   "copy_button": {
     "a11y": "Copier",
     "copied_tooltip": "Copié dans le presse-papier"
+  },
+  "use_my_location": {
+    "button": "Utiliser ma position",
+    "loading": "Recherche de votre position…",
+    "permission_denied": "L'accès à la localisation a été refusé. Vous pouvez toujours saisir un lieu à la place.",
+    "position_unavailable": "Impossible d'obtenir votre position. Vous pouvez toujours saisir un lieu à la place.",
+    "no_address": "Impossible de trouver un lieu à votre position. Vous pouvez toujours saisir un lieu à la place.",
+    "lookup_failed": "Impossible de rechercher votre position pour le moment. Vous pouvez toujours saisir un lieu à la place.",
+    "unsupported": "Ce navigateur ne peut pas partager votre position. Vous pouvez toujours saisir un lieu à la place."
   }
 }

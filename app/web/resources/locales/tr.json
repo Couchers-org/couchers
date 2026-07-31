@@ -300,5 +300,14 @@
   "ok": "Tamam",
   "close_button_a11y": "Kapat",
   "app_store_badge_a11y": "App Store'dan İndirin",
-  "google_play_badge_a11y": "İndirin Google Play"
+  "google_play_badge_a11y": "İndirin Google Play",
+  "use_my_location": {
+    "button": "Konumumu kullan",
+    "loading": "Konumunuz bulunuyor…",
+    "permission_denied": "Konum erişimi reddedildi. Bunun yerine bir yer yazabilirsiniz.",
+    "position_unavailable": "Konumunuz alınamadı. Bunun yerine bir yer yazabilirsiniz.",
+    "no_address": "Konumunuzda bir yer bulunamadı. Bunun yerine bir yer yazabilirsiniz.",
+    "lookup_failed": "Konumunuz şu anda sorgulanamadı. Bunun yerine bir yer yazabilirsiniz.",
+    "unsupported": "Bu tarayıcı konumunuzu paylaşamıyor. Bunun yerine bir yer yazabilirsiniz."
+  }
 }

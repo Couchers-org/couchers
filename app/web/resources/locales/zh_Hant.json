@@ -342,5 +342,14 @@
   "google_play_badge_a11y": "在Google Play上取得",
   "bar": {
     "help_button_a11y": "幫助"
+  },
+  "use_my_location": {
+    "button": "使用我的位置",
+    "loading": "正在尋找你的位置…",
+    "permission_denied": "位置存取遭拒。你仍然可以手動輸入地點。",
+    "position_unavailable": "無法取得你的位置。你仍然可以手動輸入地點。",
+    "no_address": "無法在你的位置找到地點。你仍然可以手動輸入地點。",
+    "lookup_failed": "暫時無法查詢你的位置。你仍然可以手動輸入地點。",
+    "unsupported": "此瀏覽器無法分享你的位置。你仍然可以手動輸入地點。"
   }
 }

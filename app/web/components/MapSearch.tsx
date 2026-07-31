@@ -1,4 +1,4 @@
-import { Box, IconButton, styled } from "@mui/material";
+import { Box, CircularProgress, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "features/profile/edit/EditProfile";
@@ -8,9 +8,10 @@ import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
+import useMyLocation from "utils/useMyLocation";
 
 import Autocomplete from "./Autocomplete";
-import { SearchIcon } from "./Icons";
+import { MyLocationIcon, SearchIcon } from "./Icons";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   "& *": {
@@ -61,6 +62,12 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
   // those have no provider id
   const { query, isLoading, results, error, isProviderUnavailable } =
     useGeocodeQuery({ allowFallback: true /*false*/ });
+  const {
+    getMyLocation,
+    isLoading: isLocating,
+    error: myLocationError,
+    reset: resetMyLocationError,
+  } = useMyLocation();
 
   //create a dummy search options if there are no results
   const searchOptions = isLoading
@@ -77,12 +84,25 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
 
   const errorMessage = isProviderUnavailable
     ? t("global:location_autocomplete.provider_unavailable")
-    : error || "";
+    : error || myLocationError || "";
 
   useEffect(() => {
     setError(errorMessage);
     if (errorMessage) setOpen(false);
   }, [errorMessage, setError]);
+
+  // LOC-4: fill the address field and move the pin from the device's position.
+  // On any failure the hook's message shows and nothing changes, so the user can
+  // still search or type — no dead end.
+  const useMyLocationSubmit = async () => {
+    const place = await getMyLocation();
+    if (!place) {
+      return;
+    }
+    setValue(place.simplifiedName);
+    setOpen(false);
+    setResult(place.location, place.name, place.simplifiedName);
+  };
 
   const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
@@ -117,7 +137,11 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
           onBlur={() => setOpen(false)}
           inputProps={inputFieldProps}
           error={inputFieldError?.message}
-          onInputChange={(e, v) => setValue(v)}
+          onInputChange={(e, v) => {
+            setValue(v);
+            // They're typing, which is what a failed lookup told them to do.
+            resetMyLocationError();
+          }}
           onChange={(e, v, reason) => {
             setValue(v);
             searchSubmit(v, reason);
@@ -142,6 +166,19 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
           }}
         >
           <SearchIcon />
+        </IconButton>
+        <IconButton
+          aria-label={t("global:use_my_location.button")}
+          title={t("global:use_my_location.button")}
+          size="medium"
+          disabled={isLocating}
+          onClick={useMyLocationSubmit}
+        >
+          {isLocating ? (
+            <CircularProgress size="1.25rem" />
+          ) : (
+            <MyLocationIcon />
+          )}
         </IconButton>
       </StyledForm>
     </StyledBox>

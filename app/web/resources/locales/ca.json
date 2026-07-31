@@ -334,5 +334,14 @@
     "zh-Hans": "Xinès (simplificat)",
     "zh-Hant": "Xinès (tradicional)",
     "hu": "Hongarès"
+  },
+  "use_my_location": {
+    "button": "Usa la meva ubicació",
+    "loading": "S'està cercant la teva ubicació…",
+    "permission_denied": "S'ha denegat l'accés a la ubicació. Encara pots escriure un lloc.",
+    "position_unavailable": "No s'ha pogut obtenir la teva ubicació. Encara pots escriure un lloc.",
+    "no_address": "No s'ha pogut trobar un lloc a la teva ubicació. Encara pots escriure un lloc.",
+    "lookup_failed": "No s'ha pogut consultar la teva ubicació ara mateix. Encara pots escriure un lloc.",
+    "unsupported": "Aquest navegador no pot compartir la teva ubicació. Encara pots escriure un lloc."
   }
 }

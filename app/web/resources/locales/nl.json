@@ -342,5 +342,14 @@
   "close_button_a11y": "Sluiten",
   "bar": {
     "help_button_a11y": "Help"
+  },
+  "use_my_location": {
+    "button": "Mijn locatie gebruiken",
+    "loading": "Je locatie wordt gezocht…",
+    "permission_denied": "Toegang tot je locatie is geweigerd. Je kunt nog steeds een plaats typen.",
+    "position_unavailable": "Je locatie kon niet worden opgehaald. Je kunt nog steeds een plaats typen.",
+    "no_address": "Er kon geen plaats bij je locatie worden gevonden. Je kunt nog steeds een plaats typen.",
+    "lookup_failed": "Je locatie kon nu niet worden opgezocht. Je kunt nog steeds een plaats typen.",
+    "unsupported": "Deze browser kan je locatie niet delen. Je kunt nog steeds een plaats typen."
   }
 }

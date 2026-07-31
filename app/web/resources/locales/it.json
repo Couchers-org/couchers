@@ -346,5 +346,14 @@
   },
   "bar": {
     "help_button_a11y": "Aiuto"
+  },
+  "use_my_location": {
+    "button": "Usa la mia posizione",
+    "loading": "Ricerca della tua posizione…",
+    "permission_denied": "L'accesso alla posizione è stato negato. Puoi comunque digitare un luogo.",
+    "position_unavailable": "Impossibile ottenere la tua posizione. Puoi comunque digitare un luogo.",
+    "no_address": "Impossibile trovare un luogo alla tua posizione. Puoi comunque digitare un luogo.",
+    "lookup_failed": "Impossibile cercare la tua posizione in questo momento. Puoi comunque digitare un luogo.",
+    "unsupported": "Questo browser non può condividere la tua posizione. Puoi comunque digitare un luogo."
   }
 }

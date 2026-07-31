@@ -1,13 +1,14 @@
 import {
   AutocompleteChangeReason,
   AutocompleteInputChangeReason,
+  CircularProgress,
   debounce,
   SxProps,
   Theme,
 } from "@mui/material";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
+import { MyLocationIcon, SearchIcon } from "components/Icons";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { useTranslation } from "next-i18next";
@@ -15,6 +16,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { service } from "service";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
+import useMyLocation from "utils/useMyLocation";
 
 // Debounced typeahead: wait this long after the last keystroke before querying,
 // and require at least this many characters before firing a request.
@@ -46,6 +48,10 @@ interface LocationAutocompleteProps {
   // Rank places near the user's approximate location higher (LOC-3). Silent
   // best-effort: no permission prompt, unbiased results when unavailable
   biasToUserLocation?: boolean;
+  // Show the "use my location" button (LOC-4), which fills the field from the
+  // device's position. Prompts for permission, and always leaves manual typing
+  // available on any failure.
+  showUseMyLocation?: boolean;
   // Whether a Geocode.earth outage may be served by the legacy fallback
   // provider. Required, and later must be `false` wherever the chosen location is
   // persisted — fallback results have no provider id (see utils/geocode.ts).
@@ -72,6 +78,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     disableRegions = false,
     preferCity = false,
     biasToUserLocation = false,
+    showUseMyLocation = false,
     allowFallback,
     autocompleteContext,
     sx,
@@ -105,6 +112,14 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     provider,
     isProviderUnavailable,
   } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback });
+  // Same city-level/precise choice the typed search makes, so the button fills the
+  // field with the kind of place this field is for.
+  const {
+    getMyLocation,
+    isLoading: isLocating,
+    error: myLocationError,
+    reset: resetMyLocationError,
+  } = useMyLocation({ preferCity });
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -144,6 +159,22 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   const isNoResultsOption = (value: GeocodeResult | string | null) =>
     typeof value === "object" && value !== null && value.id === NO_RESULTS_ID;
 
+  // LOC-4: resolve the device position into a place and select it as if the user
+  // had picked it from the list. On any failure the hook surfaces a message and we
+  // change nothing, so typing remains the way out.
+  const handleUseMyLocation = async () => {
+    const place = await getMyLocation();
+    if (!place) {
+      return;
+    }
+    debouncedQuery.clear();
+    clearGeocodeResults();
+    setIsOpen(false);
+    setInputValue(geocodeResult2String(place, showFullDisplayName));
+    controller.field.onChange(place);
+    onChange?.(place);
+  };
+
   // Submit mode only: run the search the user explicitly asked for.
   const searchSubmit = () => {
     const trimmed = inputValue.trim();
@@ -162,6 +193,9 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     if (value === controller.field.value?.simplifiedName) return;
 
     setInputValue(value);
+    // The user is doing exactly what a failed "use my location" told them to do,
+    // so drop that message.
+    resetMyLocationError();
     // Keep the form value as the raw string until a real option is picked, so
     // form validation (didSelect) knows nothing has been selected yet.
     controller.field.onChange(value ?? "");
@@ -235,6 +269,9 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   // Show the clear control only when there is something to clear (typed text or
   // a selected place). MUI hides it by default when empty; be explicit so it
   // cannot stick around as a no-op affordance.
+  // Also swaps with "use my location": once the field has content, that button
+  // would replace what the user is working on, so it steps aside and comes back
+  // as soon as the field is empty again (clear button or backspace).
   const hasClearableValue =
     inputValue !== "" ||
     (typeof controller.field.value === "object" &&
@@ -251,7 +288,10 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
         fieldError ||
         (isProviderUnavailable
           ? t("location_autocomplete.provider_unavailable")
-          : geocodeError)
+          : geocodeError) ||
+        // Never blocks typing: the field stays editable and the message clears on
+        // the next keystroke (LOC-4's no-dead-end acceptance note).
+        myLocationError
       }
       fullWidth={fullWidth}
       variant={variant}
@@ -263,15 +303,32 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
           : undefined
       }
       endAdornment={
-        isSubmitMode ? (
-          <IconButton
-            aria-label={t("location_autocomplete.search_location_button")}
-            onClick={searchSubmit}
-            size="small"
-          >
-            <SearchIcon />
-          </IconButton>
-        ) : undefined
+        <>
+          {showUseMyLocation && !hasClearableValue && (
+            <IconButton
+              aria-label={t("use_my_location.button")}
+              title={t("use_my_location.button")}
+              onClick={handleUseMyLocation}
+              disabled={isLocating}
+              size="small"
+            >
+              {isLocating ? (
+                <CircularProgress size="1.25rem" />
+              ) : (
+                <MyLocationIcon />
+              )}
+            </IconButton>
+          )}
+          {isSubmitMode && (
+            <IconButton
+              aria-label={t("location_autocomplete.search_location_button")}
+              onClick={searchSubmit}
+              size="small"
+            >
+              <SearchIcon />
+            </IconButton>
+          )}
+        </>
       }
       loading={isLoading}
       loadingText={t("location_autocomplete.loading")}

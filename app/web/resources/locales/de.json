@@ -342,5 +342,14 @@
   "close_button_a11y": "Schließen",
   "bar": {
     "help_button_a11y": "Hilfe"
+  },
+  "use_my_location": {
+    "button": "Meinen Standort verwenden",
+    "loading": "Standort wird ermittelt…",
+    "permission_denied": "Der Zugriff auf den Standort wurde verweigert. Du kannst stattdessen einen Ort eingeben.",
+    "position_unavailable": "Dein Standort konnte nicht ermittelt werden. Du kannst stattdessen einen Ort eingeben.",
+    "no_address": "An deinem Standort konnte kein Ort gefunden werden. Du kannst stattdessen einen Ort eingeben.",
+    "lookup_failed": "Dein Standort konnte gerade nicht nachgeschlagen werden. Du kannst stattdessen einen Ort eingeben.",
+    "unsupported": "Dieser Browser kann deinen Standort nicht teilen. Du kannst stattdessen einen Ort eingeben."
   }
 }

@@ -344,5 +344,14 @@
   "close_button_a11y": "Cerrar",
   "bar": {
     "help_button_a11y": "Ayuda"
+  },
+  "use_my_location": {
+    "button": "Usar mi ubicación",
+    "loading": "Buscando tu ubicación…",
+    "permission_denied": "Se denegó el acceso a la ubicación. Puedes escribir un lugar en su lugar.",
+    "position_unavailable": "No se pudo obtener tu ubicación. Puedes escribir un lugar en su lugar.",
+    "no_address": "No se pudo encontrar un lugar en tu ubicación. Puedes escribir un lugar en su lugar.",
+    "lookup_failed": "No se pudo consultar tu ubicación ahora mismo. Puedes escribir un lugar en su lugar.",
+    "unsupported": "Este navegador no puede compartir tu ubicación. Puedes escribir un lugar en su lugar."
   }
 }

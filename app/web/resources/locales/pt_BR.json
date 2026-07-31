@@ -344,5 +344,14 @@
   "google_play_badge_a11y": "Baixe no Google Play",
   "bar": {
     "help_button_a11y": "Ajuda"
+  },
+  "use_my_location": {
+    "button": "Usar minha localização",
+    "loading": "Buscando sua localização…",
+    "permission_denied": "O acesso à localização foi negado. Você ainda pode digitar um lugar.",
+    "position_unavailable": "Não foi possível obter sua localização. Você ainda pode digitar um lugar.",
+    "no_address": "Não foi possível encontrar um lugar na sua localização. Você ainda pode digitar um lugar.",
+    "lookup_failed": "Não foi possível consultar sua localização agora. Você ainda pode digitar um lugar.",
+    "unsupported": "Este navegador não consegue compartilhar sua localização. Você ainda pode digitar um lugar."
   }
 }

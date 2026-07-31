@@ -344,5 +344,14 @@
   "bar": {
     "help_button_a11y": "Nápověda"
   },
-  "close_button_a11y": "Zavřít"
+  "close_button_a11y": "Zavřít",
+  "use_my_location": {
+    "button": "Použít mou polohu",
+    "loading": "Hledání vaší polohy…",
+    "permission_denied": "Přístup k poloze byl odepřen. Místo toho můžete napsat místo.",
+    "position_unavailable": "Nepodařilo se získat vaši polohu. Místo toho můžete napsat místo.",
+    "no_address": "Na vaší poloze se nepodařilo najít místo. Místo toho můžete napsat místo.",
+    "lookup_failed": "Vaši polohu se teď nepodařilo vyhledat. Místo toho můžete napsat místo.",
+    "unsupported": "Tento prohlížeč neumí sdílet vaši polohu. Místo toho můžete napsat místo."
+  }
 }
