@@ -12,7 +12,9 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     ModerationObjectType,
+    ModerationQueueItem,
     ModerationState,
+    ModerationTrigger,
     ModerationVisibility,
     Node,
     NodeType,
@@ -1049,6 +1051,7 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
 
 
 def test_create_public_trip_creates_shadowed_moderation_state(db):
+    """Creating a trip creates a ModerationState (shadowed) and an initial-review queue item."""
     user, token = generate_user()
     node_id = _make_node()
 
@@ -1070,6 +1073,12 @@ def test_create_public_trip_creates_shadowed_moderation_state(db):
         assert state.object_type == ModerationObjectType.public_trip
         assert state.object_id == trip.id
         assert state.visibility == ModerationVisibility.shadowed
+
+        queue_item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state.id)
+        ).scalar_one()
+        assert queue_item.trigger == ModerationTrigger.initial_review
+        assert queue_item.resolved_by_log_id is None
 
 
 def test_shadowed_public_trip_visible_to_author_hidden_from_others(db):
@@ -1164,3 +1173,11 @@ def test_moderator_approval_makes_public_trip_visible(db, moderator):
 
         get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=res.trip_id))
         assert get_res.trip_id == res.trip_id
+
+    # ... and the initial-review queue item is resolved, so the trip leaves the queue
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == res.trip_id)).scalar_one()
+        queue_item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == trip.moderation_state_id)
+        ).scalar_one()
+        assert queue_item.resolved_by_log_id is not None

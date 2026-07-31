@@ -329,6 +329,7 @@ class Moderator:
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
+                    clear_flags=True,
                 )
             )
 
