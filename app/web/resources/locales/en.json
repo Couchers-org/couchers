@@ -346,5 +346,14 @@
   },
   "bar": {
     "help_button_a11y": "Help"
+  },
+  "use_my_location": {
+    "button": "Use my location",
+    "loading": "Finding your location…",
+    "permission_denied": "Location access was denied. You can still type a place instead.",
+    "position_unavailable": "Couldn't get your location. You can still type a place instead.",
+    "no_address": "Couldn't find a place at your location. You can still type a place instead.",
+    "lookup_failed": "Couldn't look up your location right now. You can still type a place instead.",
+    "unsupported": "This browser can't share your location. You can still type a place instead."
   }
 }

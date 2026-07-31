@@ -9,6 +9,7 @@ import {
   PeliasError,
   PeliasFeature,
   reorderPreferCity,
+  reverse,
   simplifyPeliasDisplayName,
   toPeliasLanguage,
 } from "./pelias";
@@ -16,6 +17,8 @@ import {
 const AUTOCOMPLETE_URL = `${process.env
   .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
+const REVERSE_URL = `${process.env
+  .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
 const feature = (
   overrides: {
@@ -41,6 +44,10 @@ const feature = (
     ...overrides.properties,
   },
 });
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe("simplifyPeliasDisplayName", () => {
   it("builds locality, region, country", () => {
@@ -99,6 +106,44 @@ describe("simplifyPeliasDisplayName", () => {
         true,
       ),
     ).toBe("New York, United States");
+  });
+
+  it("names the containing city for a precise hit, not the département", () => {
+    // Pelias maps the French département onto `region` and the région onto
+    // `macroregion`, so without the locality this read "Rue Foch, Hérault, France".
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "street",
+            name: "Rue Foch",
+            locality: "Montpellier",
+            localadmin: "Montpellier",
+            county: "Montpellier",
+            region: "Hérault",
+            macroregion: "Occitanie",
+            country: "France",
+          },
+        }).properties,
+      ),
+    ).toBe("Rue Foch, Montpellier, France");
+  });
+
+  it("keeps the region for a city hit, which is not inside another city", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "locality",
+            name: "Montpellier",
+            locality: "Montpellier",
+            region: "Hérault",
+            macroregion: "Occitanie",
+            country: "France",
+          },
+        }).properties,
+      ),
+    ).toBe("Montpellier, Hérault, France");
   });
 
   it("keeps the matched venue name when preferCity is off", () => {
@@ -421,10 +466,6 @@ describe("normalize", () => {
 });
 
 describe("autocomplete", () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-
   it("returns normalized results and forwards the language", async () => {
     let requestedLang: string | null = null;
     let requestedText: string | null = null;
@@ -767,5 +808,182 @@ describe("autocomplete", () => {
     );
 
     await expect(autocomplete("paris")).rejects.toBeInstanceOf(PeliasError);
+  });
+});
+
+describe("reverse", () => {
+  const reverseHandler = (features: PeliasFeature[]) => {
+    const captured: { params?: URLSearchParams } = {};
+    server.use(
+      rest.get(REVERSE_URL, (req, res, ctx) => {
+        captured.params = req.url.searchParams;
+        return res(ctx.json({ type: "FeatureCollection", features }));
+      }),
+    );
+    return captured;
+  };
+
+  it("sends the point and language, and normalizes the response", async () => {
+    const captured = reverseHandler([
+      feature({
+        properties: {
+          gid: "openstreetmap:address:1",
+          layer: "address",
+          label: "8 Place De L'Hotel De Ville, Paris, France",
+          name: "8 Place De L'Hotel De Ville",
+          locality: "Paris",
+          region: "Île-de-France",
+          country: "France",
+        },
+      }),
+    ]);
+
+    const { results } = await reverse(48.8566, 2.3522, { language: "fr" });
+
+    expect(captured.params?.get("point.lat")).toBe("48.8566");
+    expect(captured.params?.get("point.lon")).toBe("2.3522");
+    expect(captured.params?.get("lang")).toBe("fr");
+    // Fine mode: no layers restriction, so addresses and venues can come back.
+    expect(captured.params?.has("layers")).toBe(false);
+    expect(results[0].simplifiedName).toBe(
+      "8 Place De L'Hotel De Ville, Paris, France",
+    );
+    expect(results[0].id).toBe("openstreetmap:address:1");
+  });
+
+  it("collapses an address to its city, with the city's geometry, when preferCity is set", async () => {
+    // The city-level fields (destination search) never want the street back —
+    // and the street number is not returned anyway.
+    reverseHandler([
+      feature({
+        bbox: undefined,
+        geometry: { type: "Point", coordinates: [2.3512, 48.8565] },
+        properties: {
+          gid: "openstreetmap:address:1",
+          layer: "address",
+          label: "8 Place De L'Hotel De Ville, Paris, France",
+          name: "8 Place De L'Hotel De Ville",
+          locality: "Paris",
+          locality_gid: "whosonfirst:locality:101751119",
+          region: "Île-de-France",
+          country: "France",
+        },
+      }),
+    ]);
+    let requestedPlaceIds: string | null = null;
+    server.use(
+      rest.get(PLACE_URL, (req, res, ctx) => {
+        requestedPlaceIds = req.url.searchParams.get("ids");
+        return res(
+          ctx.json({ type: "FeatureCollection", features: [feature()] }),
+        );
+      }),
+    );
+
+    const { results } = await reverse(48.8565, 2.3512, { preferCity: true });
+
+    expect(requestedPlaceIds).toBe("whosonfirst:locality:101751119");
+    expect(results[0].simplifiedName).toBe("Paris, Île-de-France, France");
+    expect(results[0].location).toEqual(new LngLat(2.3522, 48.8566));
+    expect(results[0].bbox).toEqual([2.47, 48.902, 2.224, 48.815]);
+  });
+
+  it("keeps the street when preferCity is off", async () => {
+    let placeCalled = false;
+    reverseHandler([
+      feature({
+        bbox: undefined,
+        geometry: { type: "Point", coordinates: [2.3512, 48.8565] },
+        properties: {
+          gid: "openstreetmap:address:1",
+          layer: "address",
+          label: "8 Place De L'Hotel De Ville, Paris, France",
+          name: "8 Place De L'Hotel De Ville",
+          locality: "Paris",
+          locality_gid: "whosonfirst:locality:101751119",
+          region: "Île-de-France",
+          country: "France",
+        },
+      }),
+    ]);
+    server.use(
+      rest.get(PLACE_URL, (_req, res, ctx) => {
+        placeCalled = true;
+        return res(ctx.json({ type: "FeatureCollection", features: [] }));
+      }),
+    );
+
+    const { results } = await reverse(48.8565, 2.3512);
+
+    expect(placeCalled).toBe(false);
+    expect(results[0].simplifiedName).toBe(
+      "8 Place De L'Hotel De Ville, Paris, France",
+    );
+    expect(results[0].location).toEqual(new LngLat(2.3512, 48.8565));
+  });
+
+  it("returns the provider's coarse fallback for a sparse coordinate", async () => {
+    // What api.geocode.earth actually answers in the middle of the Sahara.
+    reverseHandler([
+      feature({
+        bbox: undefined,
+        geometry: { type: "Point", coordinates: [25.6628, 23.4162] },
+        properties: {
+          gid: "whosonfirst:county:1108739523",
+          layer: "county",
+          label: "El-Wahat El-Dakhlah, WJ, Egypt",
+          name: "El-Wahat El-Dakhlah",
+          locality: undefined,
+          region: "WJ",
+          country: "Egypt",
+        },
+      }),
+    ]);
+
+    const { results } = await reverse(23.4162, 25.6628);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].simplifiedName).toBe("El-Wahat El-Dakhlah, WJ, Egypt");
+  });
+
+  it("returns an ocean feature at sea rather than nothing", async () => {
+    reverseHandler([
+      feature({
+        bbox: undefined,
+        geometry: { type: "Point", coordinates: [-30.0, 0.0] },
+        properties: {
+          gid: "whosonfirst:ocean:1",
+          layer: "ocean",
+          label: "South Atlantic Ocean",
+          name: "South Atlantic Ocean",
+          locality: undefined,
+          region: undefined,
+          country: undefined,
+        },
+      }),
+    ]);
+
+    const { results } = await reverse(0, -30);
+
+    expect(results[0].simplifiedName).toBe("South Atlantic Ocean");
+  });
+
+  it("treats an empty response as a normal empty result, not an error", async () => {
+    reverseHandler([]);
+
+    await expect(reverse(0, 0)).resolves.toEqual({
+      results: [],
+      features: [],
+    });
+  });
+
+  it("throws a typed PeliasError on a non-ok response", async () => {
+    server.use(
+      rest.get(REVERSE_URL, (_req, res, ctx) =>
+        res(ctx.status(503), ctx.text("down")),
+      ),
+    );
+
+    await expect(reverse(48.8566, 2.3522)).rejects.toBeInstanceOf(PeliasError);
   });
 });
