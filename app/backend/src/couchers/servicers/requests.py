@@ -7,7 +7,7 @@ from sqlalchemy import exists, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_DUPLICATE_WINDOW_HOURS, HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
@@ -263,9 +263,33 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         # If this is an offer in response to a public trip, validate it
         public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+
+        # Offers on public trips are deduplicated per trip further down instead
+        if public_trip_id is None:
+            recent_request = session.execute(
+                select(HostRequest.conversation_id)
+                .join(Conversation, HostRequest.conversation_id == Conversation.id)
+                .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.recipient_user_id == recipient.id)
+                .where(HostRequest.public_trip_id == None)
+                .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
+                # overlapping nights, so back-to-back stays are still allowed
+                .where(HostRequest.from_date < to_date)
+                .where(HostRequest.to_date > from_date)
+                .limit(1)
+            ).scalar_one_or_none()
+            if recent_request is not None:
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION,
+                    "duplicate_host_request",
+                    substitutions={"count": HOST_REQUEST_DUPLICATE_WINDOW_HOURS},
+                )
+
         if public_trip_id is not None:
             public_trip = session.execute(
-                select(PublicTrip).where(PublicTrip.id == public_trip_id)
+                where_moderated_content_visible(select(PublicTrip), context, PublicTrip, is_list_operation=False).where(
+                    PublicTrip.id == public_trip_id
+                )
             ).scalar_one_or_none()
             if not public_trip:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")

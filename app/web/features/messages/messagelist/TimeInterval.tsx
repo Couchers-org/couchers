@@ -1,9 +1,9 @@
 import { styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { Temporal } from "temporal-polyfill";
-import { localizeRelativeTime } from "utils/date";
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem", // 12px

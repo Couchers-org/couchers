@@ -67,8 +67,10 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     setOpenDialog(null);
   };
 
+  // The friends list has the full width of the main column and only an overflow
+  // menu, so it keeps the wide row and the larger avatar.
   return (
-    <FriendSummaryView friend={friend}>
+    <FriendSummaryView friend={friend} isCompact={false}>
       <EllipsisMenu
         idName="friend-item"
         isMenuOpen={isMenuOpen}

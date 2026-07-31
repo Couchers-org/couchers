@@ -164,14 +164,15 @@ export default function CommunitySearch() {
           placeholder={t("communities:search_communities_placeholder")}
           helperText={t("communities:search_communities_helper")}
           slotProps={{
+            ...params.slotProps,
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               startAdornment: (
                 <>
                   <InputAdornment position="start">
                     <SearchOutlined color="action" />
                   </InputAdornment>
-                  {params.InputProps.startAdornment}
+                  {params.slotProps.input.startAdornment}
                 </>
               ),
             },

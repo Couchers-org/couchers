@@ -216,7 +216,7 @@ export default function NewHostRequest({
     getLatestValues: () => latestValuesRef.current,
   });
 
-  const { error, mutate } = useMutation({
+  const { error, isPending, mutate } = useMutation({
     mutationFn: (data: CreateHostRequestWrapper) => {
       return service.requests.createHostRequest(data);
     },
@@ -232,6 +232,8 @@ export default function NewHostRequest({
   const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 
   const onSubmit = handleSubmit((data) => {
+    // The disabled button doesn't cover submitting with Enter from the date fields
+    if (isPending) return;
     mutate(data);
   });
 
@@ -363,7 +365,7 @@ export default function NewHostRequest({
             <Button onClick={() => setIsRequesting(false)} variant="outlined">
               {t("global:cancel")}
             </Button>
-            <Button type="submit" onClick={onSubmit}>
+            <Button type="submit" loading={isPending} onClick={onSubmit}>
               {t("global:send")}
             </Button>
           </StyledSendActions>

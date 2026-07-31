@@ -41,5 +41,10 @@
   "browse_communities_text": "Cliquez sur le nom d'une région pour voir les autres communautés qu'elle contient ci-dessous. Cliquez sur le lien pour accéder à la page de la communauté de cette ville ou de cette région.",
   "show_all_communities": "Afficher toutes les communautés",
   "hide_all_communities": "Masquer toutes les communautés",
-  "find_your_community_intro": "Vous pouvez ci-dessous rechercher ou parcourir toutes les pages communautaires existantes. Votre pays ou votre ville manque á l'appel ? <1>Utilisez ce formulaire</1> pour en faire la demande !"
+  "find_your_community_intro": "Vous pouvez ci-dessous rechercher ou parcourir toutes les pages communautaires existantes. Votre pays ou votre ville manque á l'appel ? <1>Utilisez ce formulaire</1> pour en faire la demande !",
+  "reminder": {
+    "respond_to_host_request": {
+      "description": "N'oubliez pas de répondre à la demande d'hébergement de {{name}}."
+    }
+  }
 }

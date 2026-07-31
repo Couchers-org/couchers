@@ -40,11 +40,13 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
   width: "1.25rem",
 }));
 
-const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+const StyledListItemText = styled(ListItemText, {
+  shouldForwardProp: (prop) => prop !== "isSmallAvatar",
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
   display: "grid",
   gap: theme.spacing(0.25),
   margin: 0,
-  minHeight: theme.spacing(9),
+  minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
 }));
 
 const StyledSkeleton = styled(Skeleton, {
@@ -161,6 +163,7 @@ export default function UserSummary({
       </ListItemAvatar>
       <StyledListItemText
         disableTypography
+        isSmallAvatar={smallAvatar}
         primary={
           titleIsLink && user ? (
             <ProfileLink

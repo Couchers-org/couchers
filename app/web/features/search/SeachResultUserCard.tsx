@@ -13,6 +13,7 @@ import {
 } from "features/analytics/searchAttribution";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
@@ -20,7 +21,7 @@ import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
-import { localizeRelativeTime, timestampToInstant } from "utils/date";
+import { timestampToInstant } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 

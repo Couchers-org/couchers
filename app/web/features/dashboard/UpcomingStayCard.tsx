@@ -5,16 +5,16 @@ import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
+import {
+  localizeDateTimeRange,
+  localizeRelativeTimeUnit,
+} from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
 import { Temporal } from "temporal-polyfill";
-import {
-  daysBetween,
-  localizeDateTimeRange,
-  localizeRelativeTimeUnit,
-} from "utils/date";
+import { daysBetween } from "utils/date";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -159,6 +159,7 @@ export default function UpcomingStayCard({
 
   const dateRange = localizeDateTimeRange(fromDate, toDate, {
     locale,
+    includeYear: "auto",
     includeTime: false,
     abbreviate: true,
   });

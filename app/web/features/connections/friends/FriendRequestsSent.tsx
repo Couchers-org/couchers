@@ -1,6 +1,4 @@
-import { Box, IconButton } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CloseIcon } from "components/Icons";
+import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
@@ -31,22 +29,17 @@ function CancelFriendRequestAction({
   const { t } = useTranslation(CONNECTIONS);
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
-    <Box>
-      {isPending || isSuccess ? (
-        <CenteredSpinner />
-      ) : (
-        <IconButton
-          aria-label={t("connections:cancel_request_button_a11y")}
-          onClick={() => {
-            reset();
-            cancelFriendRequest({ friendRequestId, setMutationError, userId });
-          }}
-          size="large"
-        >
-          <CloseIcon />
-        </IconButton>
-      )}
-    </Box>
+    <Button
+      aria-label={t("connections:cancel_request_button_a11y")}
+      variant="outlined"
+      loading={isPending || isSuccess}
+      onClick={() => {
+        reset();
+        cancelFriendRequest({ friendRequestId, setMutationError, userId });
+      }}
+    >
+      {t("connections:cancel_request_button_a11y")}
+    </Button>
   ) : null;
 }
 

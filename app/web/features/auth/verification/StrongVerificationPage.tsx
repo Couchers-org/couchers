@@ -127,8 +127,11 @@ export default function StrongVerificationInstructions() {
             </Typography>
             <Typography
               variant="body2"
-              color="text.secondary"
-              sx={{ marginTop: 1, marginBottom: 1 }}
+              sx={{
+                color: "text.secondary",
+                marginTop: 1,
+                marginBottom: 1,
+              }}
             >
               <Trans i18nKey="auth:strong_verification.instructions.step1_apple_note" />
             </Typography>

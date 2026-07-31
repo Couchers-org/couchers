@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -105,11 +104,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
             i18nKey="report.bug.success_message2"
             t={t}
             components={{
-              id: (
-                <StyledLink variant="body2" href={bug.bugUrl}>
-                  {bug.bugId}
-                </StyledLink>
-              ),
+              id: <span>{bug.bugId}</span>,
             }}
           />
         </Snackbar>

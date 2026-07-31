@@ -3,6 +3,13 @@ import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
+import {
+  localizeDateTime,
+  localizeDuration,
+  localizeRelativeTime,
+  localizeTimeZone,
+  localizeYearMonth,
+} from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import {
   BirthdateVerificationStatus,
@@ -12,14 +19,7 @@ import {
 import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import {
-  localizeDateTime,
-  localizeDuration,
-  localizeRelativeTime,
-  localizeTimeZone,
-  localizeYearMonth,
-  timestampToPlainDateTime,
-} from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 interface Props {
   user: User.AsObject;
