@@ -20,6 +20,9 @@ from couchers.models import (
     HostRequest,
     Message,
     MessageType,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Node,
     NodeType,
     Notification,
@@ -2129,7 +2132,15 @@ def _make_trip_node_admin(user_id: int, trip_id: int):
         session.add(ClusterSubscription(cluster_id=cluster.id, user_id=user_id, role=ClusterRole.admin))
 
 
-def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_gender_only: bool = False):
+def _create_public_trip(
+    user_id: int,
+    from_date,
+    to_date,
+    *,
+    status=None,
+    same_gender_only: bool = False,
+    visibility: ModerationVisibility = ModerationVisibility.visible,
+):
     with session_scope() as session:
         node = session.execute(select(Node).limit(1)).scalar_one_or_none()
         if node is None:
@@ -2139,6 +2150,13 @@ def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_g
             )
             session.add(node)
             session.flush()
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.public_trip,
+            object_id=0,  # placeholder, set after PublicTrip flush
+            visibility=visibility,
+        )
+        session.add(moderation_state)
+        session.flush()
         trip = PublicTrip(
             user_id=user_id,
             node_id=node.id,
@@ -2147,9 +2165,11 @@ def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_g
             description="Looking for a host!",
             status=status or PublicTripStatus.searching_for_host,
             same_gender_only=same_gender_only,
+            moderation_state_id=moderation_state.id,
         )
         session.add(trip)
         session.flush()
+        moderation_state.object_id = trip.id
         return trip.id
 
 
@@ -2283,6 +2303,68 @@ def test_create_request_with_nonexistent_public_trip(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_create_request_with_shadowed_public_trip(db, moderator):
+    """A trip awaiting moderation can't be offered on until it's approved."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that public trip."
+
+    moderator.approve_public_trip(trip_id)
+
+    with requests_session(host_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(trip_from + timedelta(days=1)).isoformat(),
+                to_date=(trip_to - timedelta(days=1)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id
+
+
+def test_create_request_with_hidden_public_trip(db):
+    """A hidden trip can't be offered on."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that public trip."
 
 
 def test_create_request_without_public_trip_id_unchanged(db, moderator):
