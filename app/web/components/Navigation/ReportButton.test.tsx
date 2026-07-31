@@ -238,9 +238,8 @@ describe("ReportButton", () => {
       );
 
       const successAlert = await screen.findByRole("alert");
-      const bugLink = await within(successAlert).findByRole("link");
-      expect(bugLink).toBeVisible();
-      expect(bugLink).toHaveTextContent("#1");
+      expect(within(successAlert).getByText("#1")).toBeVisible();
+      expect(within(successAlert).queryByRole("link")).not.toBeInTheDocument();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith({
         description: "Log in is broken",
