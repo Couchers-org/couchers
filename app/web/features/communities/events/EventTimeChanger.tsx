@@ -75,8 +75,10 @@ export default function EventTimeChanger({
       shouldValidate: true,
     });
     const endTime = getValues("endTime");
-    const userChangedMeridiem = endTime ? (Math.abs(value.until(endTime).total("hours")) == 12) : false;
-    if (!endTime || userChangedMeridiem){
+    const userChangedMeridiem = endTime
+      ? Math.abs(value.until(endTime).total("hours")) == 12
+      : false;
+    if (!endTime || userChangedMeridiem) {
       setValue("endTime", value, {
         shouldDirty: true,
         shouldValidate: true,
