@@ -18,12 +18,7 @@ NON_TRANSLATED_LOCALES: list[str] = ["en-US"]
 # Locale fallbacks (for those that don't fallback to English).
 # If a string is not found in the requested language, we try the provided one before English
 # Some mutually intelligible language variants fallback to each other.
-_LOCALE_FALLBACKS: dict[str, str] = {
-    "pt-BR": "pt",
-    "pt": "pt-BR",
-    "es-419": "es",
-    "es": "es-419"
-}
+_LOCALE_FALLBACKS: dict[str, str] = {"pt-BR": "pt", "pt": "pt-BR", "es-419": "es", "es": "es-419"}
 
 
 def get_locales_with_translations() -> list[str]:

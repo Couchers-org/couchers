@@ -34,7 +34,7 @@ def test_to_supported_locale():
     # No-ops
     assert to_supported_locale("en") == "en"
     assert to_supported_locale("fr") == "fr"
-    assert to_supported_locale("fr-CA") == "fr" # We don't have a separate fr-CA translation anymore
+    assert to_supported_locale("fr-CA") == "fr"  # We don't have a separate fr-CA translation anymore
     assert to_supported_locale("zh-Hans") == "zh-Hans"
 
     # Supported locale with no translations
