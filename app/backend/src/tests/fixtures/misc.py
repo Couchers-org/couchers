@@ -314,6 +314,25 @@ class Moderator:
                 )
             )
 
+    def approve_public_trip(self, public_trip_id: int, reason: str = "Test approval") -> None:
+        """Approve a PublicTrip using the moderation API."""
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
+                    object_id=public_trip_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                    clear_flags=True,
+                )
+            )
+
     def approve_thread_post(self, packed_thread_id: int, reason: str = "Test approval") -> None:
         """Approve whichever of Comment/Reply the packed thread_id refers to."""
         database_id, depth = unpack_thread_id(packed_thread_id)

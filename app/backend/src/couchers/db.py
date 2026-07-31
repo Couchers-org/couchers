@@ -19,7 +19,7 @@ from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
-from couchers.constants import SERVER_THREADS
+from couchers.constants import DB_POOL_SIZE
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -69,8 +69,9 @@ def _get_base_engine() -> Engine:
         # one connection per thread
         poolclass=QueuePool,
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
-        # max_connections. ~2 per thread since a request can hold two connections at once (handler + _store_log).
-        pool_size=2 * SERVER_THREADS + 4,
+        # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _store_log,
+        # or worker_repeatable_read + the handler's own session_scope).
+        pool_size=DB_POOL_SIZE,
         max_overflow=0,
     )
     register_perf_listeners(engine)

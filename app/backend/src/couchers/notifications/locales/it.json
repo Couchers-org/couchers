@@ -35,5 +35,469 @@
         "ios_title": "Notifiche push abilitate"
       }
     }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "Accetti ospiti ma non effettui l'accesso da un po' di tempo",
+      "push": {
+        "title": "Ancora disponibile a ospitare?",
+        "ios_title": "Sei ancora disponibile a ospitare?",
+        "body": "Accedi per confermare la tua disponibilità ad ospitare."
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Viene creata una chiave API per il tuo account",
+      "push": {
+        "title": "Chiave API creata",
+        "ios_title": "Chiave API creata",
+        "body": "I dettagli ti sono stati inviati via email."
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Un badge viene aggiunto al tuo account",
+      "push": {
+        "title": "Nuovo badge del profilo: {{badge_name}}",
+        "ios_title": "Nuovo badge del profilo",
+        "body": "Il badge {{badge_name}} è stato aggiunto al tuo profilo."
+      }
+    },
+    "remove": {
+      "event_description": "Un badge viene rimosso dal tuo account",
+      "push": {
+        "title": "Badge del profilo rimosso",
+        "ios_title": "Badge del profilo rimosso",
+        "body": "Il badge {{badge_name}} è stato rimosso dal tuo profilo."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "La tua data di nascita viene modificata",
+      "push": {
+        "title": "Data di nascita modificata",
+        "ios_title": "Data di nascita modificata",
+        "body": "Un amministratore ha modificato la tua data di nascita in {{birthdate}}."
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Qualcuno ti invia un messaggio"
+    },
+    "missed_messages": {
+      "event_description": "Perdi messaggi in una chat",
+      "push": {
+        "title_one": "{{count}} messaggio perso",
+        "title_many": "{{count}} di messaggi persi",
+        "title_other": "{{count}} messaggi persi",
+        "ios_title_one": "{{count}} messaggio perso",
+        "ios_title_many": "{{count}} di messaggi persi",
+        "ios_title_other": "{{count}} messaggi persi",
+        "body": "Hai nuovi messaggi non letti."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Qualcuno commenta una discussione che stai seguendo",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
+    },
+    "create": {
+      "event_description": "Qualcuno avvia una discussione in una community di cui fai parte",
+      "push": {
+        "title": "Nuova discussione: {{title}}",
+        "ios_title": "Nuova discussione",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha avviato la discussione in {{group_or_community}}."
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "La tua donazione viene ricevuta",
+      "push": {
+        "title": "Donazione ricevuta",
+        "ios_title": "Donazione ricevuta",
+        "body": "Grazie mille per la tua donazione di {{amount_with_currency}}!"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "Viene avviata la modifica dell'indirizzo email",
+      "push": {
+        "title": "Modifica email richiesta",
+        "ios_title": "Modifica email richiesta",
+        "body": "Usa il link che abbiamo inviato a {{email}} per confermare il tuo nuovo indirizzo."
+      }
+    },
+    "verify": {
+      "event_description": "Viene verificata la tua nuova email",
+      "push": {
+        "title": "Email verificata",
+        "ios_title": "Email verificata",
+        "body": "Il tuo nuovo indirizzo email è stato verificato."
+      }
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Viene annullato un evento a cui partecipi",
+      "push": {
+        "title": "Evento annullato: {{title}}",
+        "ios_title": "Evento annullato",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha annullato l'evento."
+      }
+    },
+    "comment": {
+      "event_description": "Un utente commenta un evento a cui parteciperai",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Commentato su {{title}}"
+      }
+    },
+    "create_any": {
+      "event_description": "Un utente crea un evento nella tua community (non verificato da un amministratore)",
+      "push": {
+        "title": "Nuovo evento: {{title}}",
+        "ios_title": "Nuovo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha creato l'evento il {{date_and_time}}."
+      }
+    },
+    "create_approved": {
+      "event_description": "Viene creato un evento approvato dai moderatori nella tua community",
+      "push": {
+        "title": "Nuovo evento: {{title}}",
+        "ios_title": "Nuovo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ti ha invitato all'evento il {{date_and_time}}."
+      }
+    },
+    "delete": {
+      "event_description": "Un evento a cui parteciperai viene eliminato",
+      "push": {
+        "title": "Evento eliminato: {{title}}",
+        "ios_title": "Evento eliminato",
+        "ios_subtitle": "{{title}}",
+        "body": "Un moderatore ha eliminato l'evento."
+      }
+    },
+    "invite_organizer": {
+      "event_description": "Qualcuno ti invita a co-organizzare un evento",
+      "push": {
+        "title": "Evento aggiornato: {{title}}",
+        "ios_title": "Evento aggiornato",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ti ha aggiunto come co-organizzatore dell'evento."
+      }
+    },
+    "reminder": {
+      "event_description": "Promemoria che un evento a cui parteciperai si terrà a breve",
+      "push": {
+        "title": "Evento in arrivo: {{title}}",
+        "ios_title": "Evento in arrivo",
+        "ios_subtitle": "{{title}}",
+        "body": "L'evento inizia il {{date_and_time}}."
+      }
+    },
+    "update": {
+      "event_description": "Un evento a cui parteciperai è stato aggiornato",
+      "push": {
+        "title": "Evento aggiornato: {{title}}",
+        "ios_title": "Evento aggiornato",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha aggiornato l'evento."
+      }
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Qualcuno accetta la tua richiesta di amicizia",
+      "push": {
+        "title": "{{friend}} ha accettato la tua richiesta di amicizia",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "Ha accettato la tua richiesta di amicizia",
+        "body": "Tu e {{friend}} siete amici ora."
+      }
+    },
+    "create": {
+      "event_description": "Qualcuno ti invia una richiesta di amicizia",
+      "push": {
+        "title": "Richiesta di amicizia da {{from_user}}",
+        "ios_title": "{{from_user}}",
+        "ios_subtitle": "Richiesta di amicizia",
+        "body": "{{from_user}} vuole stringere amicizia con te."
+      }
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "Il genere visualizzato sul tuo profilo viene modificato",
+      "push": {
+        "title": "Genere modificato",
+        "ios_title": "Genere modificato",
+        "body": "Un amministratore ha cambiato il tuo genere in {{gender}}."
+      }
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Viene pubblicato un nuovo articolo del blog",
+      "push": {
+        "title": "Nuovo post nel blog: {{title}}",
+        "ios_title": "Nuovo post nel blog",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Qualcuno accetta la tua richiesta di soggiorno",
+      "push": {
+        "title": "{{user}} ha accettato la tua richiesta di soggiorno",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Richiesta di soggiorno accettata",
+        "body": "{{user}} ha accettato la tua richiesta di soggiorno per il {{date}}."
+      }
+    },
+    "cancel": {
+      "event_description": "Qualcuno annulla la sua richiesta di soggiorno",
+      "push": {
+        "title": "{{user}} ha annullato la sua richiesta di soggiorno",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Richiesta di soggiorno annullata",
+        "body": "{{user}} ha annullato la sua richiesta di soggiorno per il {{date}}."
+      }
+    },
+    "confirm": {
+      "event_description": "Qualcuno conferma la sua richiesta di soggiorno",
+      "push": {
+        "title": "{{user}} ha confermato la sua richiesta di soggiorno",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Richiesta di soggiorno confermata",
+        "body": "{{user}} ha confermato la sua richiesta di soggiorno per il {{date}}."
+      }
+    },
+    "create": {
+      "event_description": "Qualcuno ti invia una richiesta di soggiorno",
+      "push": {
+        "title": "Nuova richiesta di soggiorno da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nuova richiesta di soggiorno",
+        "body_one": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notte.",
+        "body_many": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} di notti.",
+        "body_other": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notti."
+      }
+    },
+    "message": {
+      "event_description": "Qualcuno invia un messaggio in una richiesta di soggiorno"
+    },
+    "missed_messages": {
+      "event_description": "Hai messaggi non letti in una richiesta di soggiorno",
+      "push": {
+        "title": "Nuovi messaggi da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Messaggi persi",
+        "body": "Hai nuovi messaggi non letti da {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Qualcuno rifiuta la tua richiesta di soggiorno",
+      "push": {
+        "title": "{{user}} ha rifiutato la tua richiesta di soggiorno",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Richiesta di soggiorno rifiutata",
+        "body": "{{user}} ha rifiutato la tua richiesta di soggiorno per il {{date}}."
+      }
+    },
+    "reminder": {
+      "event_description": "Non hai risposto a una richiesta di soggiorno in sospeso",
+      "push": {
+        "title": "Richiesta in sospeso da {{user}}",
+        "ios_title": "Richiesta di soggiorno in attesa",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} è in attesa della tua risposta, per favore accetta o rifiuta la richiesta."
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Un moderatore ti invia una nota",
+      "push": {
+        "title": "Nuova nota del moderatore",
+        "ios_title": "Nuova nota del moderatore",
+        "body": "Hai ricevuto una nota da un moderatore. Leggila e conferma la presa visione per continuare a usare la piattaforma."
+      }
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Promemoria per completare il tuo profilo dopo la registrazione",
+      "push": {
+        "first": {
+          "title": "Benvenuto su Couchers!",
+          "ios_title": "Benvenuto su Couchers!",
+          "body": "Completa il tuo profilo con una foto e una breve descrizione di te."
+        },
+        "subsequent": {
+          "title": "Ricorda di completare il tuo profilo",
+          "ios_title": "Promemoria profilo",
+          "body": "Completa il tuo profilo con una foto e una breve descrizione di te."
+        }
+      }
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "La tua password viene modificata",
+      "push": {
+        "title": "Password modificata",
+        "ios_title": "Password modificata",
+        "body": "La tua password è stata modificata."
+      }
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "Il ripristino della password viene completato",
+      "push": {
+        "title": "Reimposta password",
+        "ios_title": "Reimposta password",
+        "body": "La tua password è stata reimpostata correttamente."
+      }
+    },
+    "start": {
+      "event_description": "Viene avviata il ripristino della password",
+      "push": {
+        "title": "Ripristino della password richiesto",
+        "ios_title": "Ripristino della password richiesto",
+        "body": "Usa il link che ti abbiamo inviato via email per completarlo."
+      }
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Il tuo numero di telefono viene modificato",
+      "push": {
+        "title": "Verifica del numero di telefono avviata",
+        "ios_title": "Verifica del numero di telefono avviata",
+        "body": "Hai avviato la verifica del telefono con il numero <b>{{ phone_number }}</b>."
+      }
+    },
+    "verify": {
+      "event_description": "Il tuo numero di telefono viene verificato",
+      "push": {
+        "title": "Verifica del numero di telefono completata",
+        "ios_title": "Verifica del numero di telefono completata",
+        "body": "Il tuo numero di telefono è stato verificato correttamente: {{phone_number}}."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "La verifica postale non riesce",
+      "push": {
+        "title": "Verifica postale non riuscita",
+        "ios_title": "Verifica postale non riuscita",
+        "body_code_expired": "Il tuo codice di verifica è scaduto. I codici sono validi per 90 giorni dopo l'invio della cartolina. Puoi richiedere una nuova cartolina.",
+        "body_too_many_attempts": "Troppi tentativi errati. Puoi richiedere una nuova cartolina.",
+        "body_generic": "Il tuo tentativo di verifica postale non è andato a buon fine. Puoi richiedere una nuova cartolina."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Ti viene inviata la cartolina di verifica",
+      "push": {
+        "title": "Verifica postale avviata",
+        "ios_title": "Verifica postale avviata",
+        "body": "La tua cartolina è in viaggio verso {{city}}, {{country}}. Dovrebbe arrivare entro 1-3 settimane."
+      }
+    },
+    "success": {
+      "event_description": "La verifica postale va a buon fine",
+      "push": {
+        "title": "Verifica postale completata",
+        "ios_title": "Verifica postale completata",
+        "body": "Il tuo indirizzo è ora verificato."
+      }
+    }
+  },
+  "reference": {
+    "_receive_any": {
+      "push": {
+        "title": "Nuovo referenza da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nuova referenza",
+        "body_must_write_yours": "{{user}} ti ha lasciato una referenza, ora tocca a te scrivere la sua!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Scrivi la tua referenza a {{user}}",
+        "ios_title": "Scrivi la tua referenza",
+        "ios_subtitle": "{{user}}",
+        "body_one": "Hai ancora {{count}} giorno per scrivere una referenza a {{user}}.",
+        "body_many": "Hai ancora {{count}} di giorni per scrivere una referenza a {{user}}.",
+        "body_other": "Hai ancora {{count}} giorni per scrivere una referenza a {{user}}."
+      }
+    },
+    "receive_friend": {
+      "event_description": "Hai ricevuto una referenza da un amico",
+      "push": {
+        "title": "Nuova referenza da amico da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nuova referenza da amico"
+      }
+    },
+    "receive_hosted": {
+      "event_description": "Ricevi una referenza da qualcuno che ti ha ospitato"
+    },
+    "receive_surfed": {
+      "event_description": "Ricevi una referenza da qualcuno che hai ospitato"
+    },
+    "reminder_hosted": {
+      "event_description": "Promemoria per scrivere una recensione a qualcuno che hai ospitato"
+    },
+    "reminder_surfed": {
+      "event_description": "Promemoria per scrivere una referenza a qualcuno che ti ha ospitato"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Qualcuno risponde al tuo commento",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "La tua verifica robusta non riesce",
+      "push": {
+        "title": "Verifica robusta non riuscita",
+        "ios_title": "Verifica robusta non riuscita",
+        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
+        "body_not_a_passport": "Hai utilizzato un documento diverso da un passaporto. Puoi utilizzare solo un passaporto per la verifica robusta.",
+        "body_duplicate": "Hai usato un passaporto che è già stato utilizzato per la verifica. Usa un altro passaporto."
+      }
+    },
+    "sv_success": {
+      "event_description": "La tua verifica robusta va a buon fine",
+      "push": {
+        "title": "Verifica robusta completata",
+        "ios_title": "Verifica robusta completata",
+        "body": "Hai completato la verifica robusta."
+      }
+    }
   }
 }

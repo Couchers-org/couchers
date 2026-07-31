@@ -31,7 +31,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, datetime_to_iso8601_local, now, to_multi
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import (
@@ -220,9 +220,8 @@ def create_event(
                     lat=0.1,
                     lng=0.2,
                 ),
-                start_time=Timestamp_from_datetime(now() + start_td),
-                end_time=Timestamp_from_datetime(now() + start_td + timedelta(hours=2)),
-                timezone="UTC",
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td + timedelta(hours=2)),
             )
         )
         api.TransferEvent(
@@ -525,14 +524,31 @@ class TestCommunities:
         with communities_session(token2) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
+
+            # paginated, with pages crossing node type boundaries
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=2))
+            assert [c.community_id for c in res.communities] == [c1r1c1_id, c1r1c2_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [c1r2c1_id, c1r1_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [c1r2_id, c1_id]
+            res = api.ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=2, page_token=res.next_page_token)
+            )
+            assert [c.community_id for c in res.communities] == [w_id]
+            assert not res.next_page_token
 
     @staticmethod
     def test_ListOtherUserCommunities(testing_communities):
@@ -551,13 +567,13 @@ class TestCommunities:
         with communities_session(token1) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
             assert [c.community_id for c in res.communities] == [
-                w_id,
-                c1_id,
-                c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
-                c1r2_id,
                 c1r2c1_id,
+                c1r1_id,
+                c1r2_id,
+                c1_id,
+                w_id,
             ]
 
     @staticmethod
@@ -1345,7 +1361,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
-        assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c2_id]
+        assert [c.community_id for c in res.communities] == [c1r1c2_id, c1r1_id, c1_id, w_id]
 
 
 # TODO: requires transferring of content

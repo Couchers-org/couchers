@@ -10,11 +10,14 @@ import Avatar from "components/Avatar";
 import { useCommunity } from "features/communities/hooks";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
+import {
+  localizeDateTimeRange,
+  localizeRelativeTimeUnit,
+} from "i18n/datetimes";
 import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { myPublicTripsRoute, routeToCommunity } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTimeRange, localizeRelativeTimeUnit } from "utils/date";
 import dayjs from "utils/dayjs";
 
 export const CARD_WIDTH = 220;

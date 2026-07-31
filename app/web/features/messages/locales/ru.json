@@ -203,7 +203,13 @@
     "next_button": "Продолжить",
     "back_button": "Назад",
     "submit_button": "Отправить",
-    "decline_reason_label": "Почему вы отказали?"
+    "decline_reason_label": "Почему вы отказали?",
+    "decline_reason_options": {
+      "didnt_read_profile": "Не ознакомились с моим профилем",
+      "dont_want_to_host": "Я не хочу принимать этого человека у себя",
+      "not_available": "Не могу принять в эти даты",
+      "other": "Другое"
+    }
   },
   "surfer_confirm_box_title": "{{name}} принял ваш запрос!",
   "surfer_bar_pending": "Вы отправили запрос хосту — ожидаем ответа от {{name}}.",

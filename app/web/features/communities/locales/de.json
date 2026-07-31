@@ -159,5 +159,13 @@
     "confirm": "Löschen",
     "cancel": "Abbrechen"
   },
-  "edit_discussion": "Beitrag bearbeiten"
+  "edit_discussion": "Beitrag bearbeiten",
+  "select_macroregion": "Region auswählen",
+  "select_region": "Land auswählen",
+  "select_subregion": "Gebiet auswählen",
+  "select_locality": "Stadt auswählen",
+  "select_sublocality": "Nachbarschaft auswählen",
+  "select_sub_community": "Community auswählen",
+  "sub_community_search_placeholder": "Standort",
+  "sub_community_dropdown_a11y": "Weitere spezifische Communitys durchsuchen"
 }

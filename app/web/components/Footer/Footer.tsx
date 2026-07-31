@@ -1,7 +1,3 @@
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import RedditIcon from "@mui/icons-material/Reddit";
 import {
   Box,
   Button,
@@ -10,10 +6,11 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { BlueSkyIcon, TikTokIcon } from "components/Icons";
 import ReportButton from "components/Navigation/ReportButton";
+import SocialMediaLinks from "components/SocialMediaLinks";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -25,18 +22,15 @@ import {
   couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
-  facebookURL,
   faqRoute,
   foundationRoute,
   githubUpdatesURL,
-  githubURL,
   helpCenterURL,
-  instagramURL,
   landingRoute,
   missionRoute,
   newsletterSignupURL,
   planRoute,
-  redditURL,
+  pressRoute,
   roadmapRoute,
   shopRoute,
   teamRoute,
@@ -44,7 +38,6 @@ import {
   volunteerRoute,
 } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { localizeRelativeTime } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
@@ -198,6 +191,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={roadmapRoute}>
               {t("nav.roadmap_updates")}
             </FooterLink>
+            <FooterLink href={pressRoute}>{t("nav.press")}</FooterLink>
           </div>
           <div>
             <Typography variant="h4" component="h4">
@@ -277,60 +271,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
               </a>
             </Box>
             <StyledSocialIconsContainer>
-              <MuiLink
-                href={githubURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="GitHub"
-                color="inherit"
-              >
-                <GitHubIcon />
-              </MuiLink>
-              <MuiLink
-                href={instagramURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Instagram"
-                color="inherit"
-              >
-                <InstagramIcon />
-              </MuiLink>
-              <MuiLink
-                href={redditURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Reddit"
-                color="inherit"
-              >
-                <RedditIcon />
-              </MuiLink>
-              <MuiLink
-                href="https://bsky.app/profile/couchers.bsky.social"
-                target="_blank"
-                rel="noopener"
-                aria-label="BlueSky"
-                color="inherit"
-              >
-                <BlueSkyIcon />
-              </MuiLink>
-              <MuiLink
-                href="https://www.tiktok.com/@couchersorg"
-                target="_blank"
-                rel="noopener"
-                aria-label="TikTok"
-                color="inherit"
-              >
-                <TikTokIcon />
-              </MuiLink>
-              <MuiLink
-                href={facebookURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Facebook"
-                color="inherit"
-              >
-                <FacebookIcon />
-              </MuiLink>
+              <SocialMediaLinks iconSize="1.5rem" />
             </StyledSocialIconsContainer>
           </StyledButtonContainer>
         </StyledUpperContainer>

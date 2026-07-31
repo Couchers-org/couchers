@@ -135,7 +135,13 @@ export default function TranslationProgress() {
   if (!languages || languages.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("global:language_preference.translation_progress.no_data")}
         </Typography>
       </Box>
@@ -155,11 +161,15 @@ export default function TranslationProgress() {
     <Box sx={{ p: 2 }}>
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
         <TranslateIcon sx={{ fontSize: 28, color: "primary.main" }} />
-        <Typography variant="h1" fontWeight="bold">
+        <Typography
+          variant="h1"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           {t("global:language_preference.translation_progress.title")}
         </Typography>
       </Box>
-
       <Box sx={{ mb: 3 }}>
         <Typography sx={{ mb: 2 }}>
           {t("global:language_preference.translation_progress.description")}
@@ -175,13 +185,15 @@ export default function TranslationProgress() {
           →
         </Link>
       </Box>
-
       <Box sx={{ mb: 3, p: 2, bgcolor: "grey.50", borderRadius: 2 }}>
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
-
       {availableLanguages.map((language) => {
         const languageCode = language.code.replace("_", "-");
         const languageInfo = LANGUAGE_MAP[languageCode];
@@ -210,7 +222,12 @@ export default function TranslationProgress() {
                     }}
                   >
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      <Typography variant="subtitle2" fontWeight="bold">
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {languageInfo.nativeName}
                       </Typography>
                     </Box>
@@ -238,14 +255,20 @@ export default function TranslationProgress() {
                   >
                     <Typography
                       variant="h5"
-                      fontWeight="bold"
-                      color={
-                        percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
-                      }
+                      sx={{
+                        color:
+                          percent < HIDDEN_CUTOFF
+                            ? "text.secondary"
+                            : "primary.main",
+                        fontWeight: "bold",
+                      }}
                     >
                       {percent.toFixed(1)}%
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.secondary" }}
+                    >
                       {languageCode.toUpperCase()}
                     </Typography>
                   </Box>
@@ -266,10 +289,21 @@ export default function TranslationProgress() {
                       width: "100%",
                     }}
                   >
-                    <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                    <Typography
+                      variant="subtitle1"
+                      noWrap
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
                       {languageInfo.nativeName}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {languageCode.toUpperCase()}
                     </Typography>
 
@@ -285,10 +319,13 @@ export default function TranslationProgress() {
                     >
                       <Typography
                         variant="h5"
-                        fontWeight="bold"
-                        color={
-                          percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
-                        }
+                        sx={{
+                          color:
+                            percent < HIDDEN_CUTOFF
+                              ? "text.secondary"
+                              : "primary.main",
+                          fontWeight: "bold",
+                        }}
                       >
                         {percent.toFixed(1)}%
                       </Typography>

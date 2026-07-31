@@ -205,9 +205,11 @@ function BrowserColumn({
       {communities.length === 0 ? (
         <StyledListItem>
           <StyledListItemText
-            primaryTypographyProps={{
-              className: "emptyState",
-              variant: "body2",
+            slotProps={{
+              primary: {
+                className: "emptyState",
+                variant: "body2",
+              },
             }}
           >
             {t("dashboard:no_sub_communities")}
@@ -222,9 +224,11 @@ function BrowserColumn({
             aria-selected={community.communityId === selected}
           >
             <StyledListItemText
-              primaryTypographyProps={{
-                className:
-                  community.communityId === selected ? "selected" : undefined,
+              slotProps={{
+                primary: {
+                  className:
+                    community.communityId === selected ? "selected" : undefined,
+                },
               }}
             >
               {community.name}

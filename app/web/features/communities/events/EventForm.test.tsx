@@ -140,9 +140,9 @@ describe("Event form", () => {
     });
 
     expect(startDateGroup).toHaveTextContent("06/29/2021");
-    expect(startTimeGroup).toHaveTextContent("02:37 am");
+    expect(startTimeGroup).toHaveTextContent("04:37 am");
     expect(endDateGroup).toHaveTextContent("06/29/2021");
-    expect(endTimeGroup).toHaveTextContent("03:37 am");
+    expect(endTimeGroup).toHaveTextContent("05:37 am");
 
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),

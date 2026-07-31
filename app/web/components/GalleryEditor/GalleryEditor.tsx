@@ -480,8 +480,10 @@ export default function GalleryEditor({
             {description && (
               <Typography
                 variant="body2"
-                color="var(--mui-palette-text-secondary)"
-                sx={{ mt: 1 }}
+                sx={{
+                  color: "var(--mui-palette-text-secondary)",
+                  mt: 1,
+                }}
               >
                 {description}
               </Typography>
@@ -523,7 +525,9 @@ export default function GalleryEditor({
                 <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
                 <Typography
                   variant="body2"
-                  color="var(--mui-palette-text-secondary)"
+                  sx={{
+                    color: "var(--mui-palette-text-secondary)",
+                  }}
                 >
                   {t("profile:gallery.verification_required_for_more_photos")}{" "}
                   <a
@@ -540,7 +544,6 @@ export default function GalleryEditor({
           </>
         )}
       </Header>
-
       <HiddenInput
         ref={inputRef}
         type="file"
@@ -548,25 +551,21 @@ export default function GalleryEditor({
         onChange={handleFileChange}
         aria-label={t("profile:gallery.select_photo")}
       />
-
       {showReorderSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {t("profile:gallery.reorder_success")}
         </Alert>
       )}
-
       {showUploadSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {t("profile:gallery.upload_success")}
         </Alert>
       )}
-
       {uploadError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {uploadError}
         </Alert>
       )}
-
       {photos.length === 0 ? (
         canEdit ? (
           <EmptyState onClick={handleUploadClick}>

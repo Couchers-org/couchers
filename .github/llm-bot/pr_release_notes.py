@@ -12,9 +12,12 @@ import re
 from typing import Optional, List, Dict, Any
 from enum import Enum
 
+import requests
 from pydantic import BaseModel, Field
 from a5.ai import LLM
 from github import Github, Auth
+
+from slack import send_slack_message
 
 
 # ============================================================================
@@ -324,7 +327,6 @@ class PRReleaseNotesBot:
         """Get the PR diff, truncated if necessary."""
         # Get the diff using the GitHub API
         # We need to make a raw request with the diff media type
-        import requests
         headers = {
             'Authorization': f'token {os.environ["GITHUB_TOKEN"]}',
             'Accept': 'application/vnd.github.v3.diff'
@@ -498,12 +500,23 @@ This PR does not need to be included in release notes.
 
         print(f"\n✅ Successfully processed PR #{self.pr_number}")
 
+    def announce_to_slack(self, decision: BotDecision):
+        """Announce an included PR to Slack."""
+
+        if decision.decision != ReleaseNotesDecision.INCLUDE or not decision.release_note:
+            return
+
+        send_slack_message(
+            f"{decision.release_note}\n\n"
+            f"<{self.pr.html_url}|#{self.pr_number}: {self.pr.title}> by {self.pr.user.login}"
+        )
+
     def run(self):
         """Main execution flow."""
-        try:
-            if not self.should_process():
-                return
+        if not self.should_process():
+            return
 
+        try:
             decision = self.analyze_pr()
             self.apply_decision(decision)
         except Exception as e:
@@ -517,6 +530,10 @@ This PR does not need to be included in release notes.
                 f"Error: `{type(e).__name__}: {str(e)}`"
             )
             sys.exit(1)
+
+        # Outside the handler above: the labelling and comment have already landed, so a
+        # Slack failure should fail the job loudly rather than claim the PR needs a human
+        self.announce_to_slack(decision)
 
 
 # ============================================================================
