@@ -153,10 +153,12 @@ export default function LanguagePickerSelect({
             }}
           >
             <Stack
-              sx={{ width: "100%" }}
               direction="row"
-              alignItems="center"
-              justifyContent="space-between"
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
             >
               <Stack direction="row">
                 <ListItemText
@@ -254,9 +256,11 @@ export default function LanguagePickerSelect({
                 }}
               >
                 <Typography
-                  color="var(--mui-palette-primary-main)"
-                  sx={{ fontWeight: "bold" }}
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                    fontWeight: "bold",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>
@@ -291,8 +295,10 @@ export default function LanguagePickerSelect({
               >
                 <Typography
                   variant="body2"
-                  color="var(--mui-palette-primary-main)"
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>

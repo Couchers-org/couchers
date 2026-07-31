@@ -70,7 +70,7 @@ function BoardMemberBadge() {
     <Typography
       variant="h4"
       component={StyleBoardMemberBadgeText}
-      color={theme.palette.common.white}
+      sx={{ color: theme.palette.common.white }}
     >
       {t("team.board_member")}
     </Typography>
@@ -90,10 +90,12 @@ function MemberList({ variant, volunteers }: MemberListProps) {
   return (
     <StyledGrid
       container
-      maxWidth="xl"
       spacing={2}
-      justifyContent="center"
-      alignItems="stretch"
+      sx={{
+        maxWidth: "xl",
+        justifyContent: "center",
+        alignItems: "stretch",
+      }}
     >
       {volunteers?.map(
         ({

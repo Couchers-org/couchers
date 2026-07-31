@@ -241,7 +241,13 @@ export default function HostRequestListItem({
                 )}
               </StyledHostStatusContainer>
               <StyledDateAndBadgeContainer>
-                <Typography component="div" display="inline" variant="h3">
+                <Typography
+                  component="div"
+                  variant="h3"
+                  sx={{
+                    display: "inline",
+                  }}
+                >
                   {localizeDateTimeRange(
                     Temporal.PlainDateTime.from(hostRequest.fromDate),
                     Temporal.PlainDateTime.from(hostRequest.toDate),

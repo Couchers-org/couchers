@@ -149,31 +149,34 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {params.InputProps.endAdornment}
-                <InputAdornment
-                  position="end"
-                  sx={{
-                    marginRight: inputValue === "" ? theme.spacing(1) : 0,
-                  }}
-                >
-                  <IconButton
-                    aria-label={t(
-                      "location_autocomplete.search_location_button",
-                    )}
-                    onClick={handleSearchSubmit}
-                    size="small"
-                    sx={{ marginRight: theme.spacing(1) }}
+          slotProps={{
+            ...params.slotProps,
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <>
+                  {params.slotProps.input.endAdornment}
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      marginRight: inputValue === "" ? theme.spacing(1) : 0,
+                    }}
                   >
-                    <SearchIcon />
-                  </IconButton>
-                  {InputProps?.endAdornment}
-                </InputAdornment>
-              </>
-            ),
+                    <IconButton
+                      aria-label={t(
+                        "location_autocomplete.search_location_button",
+                      )}
+                      onClick={handleSearchSubmit}
+                      size="small"
+                      sx={{ marginRight: theme.spacing(1) }}
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                    {InputProps?.endAdornment}
+                  </InputAdornment>
+                </>
+              ),
+            },
           }}
         />
       )}
