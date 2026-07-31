@@ -50,7 +50,8 @@
       "password_field_label": "Şifre",
       "forgot_password": "Şifrenizi mi unuttunuz?"
     },
-    "title": "Giriş yap"
+    "title": "Giriş yap",
+    "header": "Tekrardan hoşgeldin!"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Zaten hesabın var mı? <2>Giriş yap</2>"

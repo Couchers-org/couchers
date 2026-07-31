@@ -33,7 +33,7 @@
     "startTime": { "nanos": 0, "seconds": 1624934220 },
     "endTime": { "nanos": 0, "seconds": 1624937820 },
     "title": "Weekly Meetup",
-    "timezone": "Europe/Amsterdam"
+    "timezone": "Etc/GMT-2"
   },
   {
     "attendanceState": 0,
@@ -69,7 +69,7 @@
     "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
     "title": "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
-    "timezone": "Europe/Amsterdam"
+    "timezone": "Etc/GMT-2"
   },
   {
     "attendanceState": 2,
@@ -105,7 +105,7 @@
     "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625004020 },
     "title": "Planting Season Meetup",
-    "timezone": "Europe/Amsterdam"
+    "timezone": "Etc/GMT-2"
   },
   {
     "attendanceState": 0,
@@ -141,6 +141,6 @@
     "startTime": { "nanos": 0, "seconds": 1625000400 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
     "title": "A cancelled event",
-    "timezone": "Europe/Amsterdam"
+    "timezone": "Etc/GMT-2"
   }
 ]

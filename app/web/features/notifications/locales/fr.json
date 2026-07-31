@@ -1,5 +1,4 @@
 {
-  "unread": "Non lu",
   "mark_unread": "Marquez comme non lu",
   "mark_all_read": "Marquez tout comme lu",
   "no_new_notifications": "Aucune nouvelle notification",
@@ -55,7 +54,6 @@
       "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
     }
   },
-  "all": "Toutes",
   "error_loading": "Erreur de chargement des notifications",
   "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
   "push_notification_banner": {

@@ -3,7 +3,7 @@
   "blocked_list_title": "Utenti bloccati",
   "block_user_confirmation_dialog": {
     "title": "Sei sicura di voler bloccare {{name}}?",
-    "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati.",
+    "message": "Messaggi e richieste da questa persona saranno bloccati ed il tuo profilo, eventi e commenti non saranno visibili a questa persona. Non informeremo l'altra persona che tu l'hai bloccata.",
     "confirm": "Blocca"
   },
   "my_connections": "I miei contatti",

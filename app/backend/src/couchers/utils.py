@@ -130,6 +130,14 @@ def to_timezone(value: Timestamp | datetime, timezone: tzinfo) -> datetime:
     return value.astimezone(timezone)
 
 
+def datetime_to_iso8601_local(value: datetime) -> str:
+    """
+    Gets a local ISO 8601 representation of a datetime, without timezone information.
+    This loses information and requires parsers to assume a timezone, so use with care.
+    """
+    return value.replace(tzinfo=None).isoformat()
+
+
 def now() -> datetime:
     return datetime.now(tz=UTC)
 
@@ -443,6 +451,16 @@ def dt_to_page_token(dt: datetime) -> str:
 def dt_from_page_token(page_token: str) -> datetime:
     # see above comment
     return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=UTC)
+
+
+def dt_id_to_page_token(dt: datetime, id_: int) -> str:
+    # see above comment about resolution
+    return encrypt_page_token(f"{round(1_000_000 * dt.timestamp())}:{id_}")
+
+
+def dt_id_from_page_token(page_token: str) -> tuple[datetime, int]:
+    micros, id_ = decrypt_page_token(page_token).split(":")
+    return datetime.fromtimestamp(int(micros) / 1_000_000, tz=UTC), int(id_)
 
 
 def last_active_coarsen(dt: datetime) -> datetime:

@@ -2,9 +2,8 @@ import { Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { GetSignupPageInfoRes } from "proto/public_pb";
-import { useEffect, useState } from "react";
 import { missionRoute, tosRoute } from "routes";
+import useSignupPageInfo from "utils/useSignupPageInfo";
 
 import { useIsNativeEmbed } from "../../../utils/nativeLink";
 import { useAuthContext } from "../AuthProvider";
@@ -24,28 +23,7 @@ export default function SignupFormContent({
   const state = authState.flowState;
   const isNativeEmbed = useIsNativeEmbed();
 
-  const [signupInfo, setSignupInfo] =
-    useState<GetSignupPageInfoRes.AsObject | null>(null);
-
-  useEffect(() => {
-    const fetchSignupInfo = async () => {
-      try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch signup info");
-        }
-        const data = await response.json();
-        setSignupInfo(data);
-      } catch (error) {
-        console.warn("Error fetching signup info:", error);
-      }
-    };
-
-    fetchSignupInfo();
-  }, []);
+  const { signupInfo } = useSignupPageInfo();
 
   if (!state || state.needBasic) {
     return (

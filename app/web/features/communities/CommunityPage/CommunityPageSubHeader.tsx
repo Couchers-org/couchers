@@ -3,25 +3,43 @@ import { Breadcrumbs, styled, Typography } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
+import { useListSubCommunities } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+import SubCommunitiesDropdown from "./SubCommunitiesDropdown";
 
-const StyledBreadcrumbsContainer = styled("div")(() => ({
+const StyledBreadcrumbsContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  gap: theme.spacing(1),
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
 }));
 
-const StyledBreadcrumbs = styled(Breadcrumbs)(() => ({
+const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
+  minWidth: 0,
   "& ol": {
     justifyContent: "flex-start",
+  },
+  [theme.breakpoints.down("sm")]: {
+    fontSize: theme.typography.body2.fontSize,
+    "& .MuiTypography-root, & .MuiLink-root, & .MuiButton-root": {
+      fontSize: "inherit",
+    },
+    "& li": {
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+    },
   },
 }));
 
@@ -36,6 +54,20 @@ export default function CommunityPageSubHeader({
   const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
   const router = useRouter();
+
+  const {
+    data: subCommunitiesData,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useListSubCommunities(community.communityId);
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const subCommunities =
+    subCommunitiesData?.pages.flatMap((page) => page.communitiesList) ?? [];
   const communityTabBarLabels: Partial<
     Record<CommunityTab, string | ReactNode>
   > = {
@@ -72,8 +104,10 @@ export default function CommunityPageSubHeader({
               index === array.length - 1 ? (
                 <Typography
                   variant="body1"
-                  color="var(--mui-palette-text-primary)"
                   key={`breadcrumb-${communityParent?.communityId}`}
+                  sx={{
+                    color: "var(--mui-palette-text-primary)",
+                  }}
                 >
                   {communityParent.name}
                 </Typography>
@@ -89,6 +123,9 @@ export default function CommunityPageSubHeader({
                 </StyledLink>
               ),
             )}
+          {subCommunities.length > 0 && (
+            <SubCommunitiesDropdown subCommunities={subCommunities} />
+          )}
         </StyledBreadcrumbs>
         <JoinCommunityButton community={community} />
       </StyledBreadcrumbsContainer>

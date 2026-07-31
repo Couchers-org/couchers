@@ -1,3 +1,4 @@
+import { MenuList } from "@mui/material";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -51,11 +52,13 @@ describe("NotificationItem", () => {
 
   it("marks single notification as unseen when clicked", async () => {
     render(
-      <NotificationItem
-        notification={testNotifications.notificationsList[0]}
-        onClose={mockOnClose}
-        onMarkIsSeen={onMarkIsSeenMock}
-      />,
+      <MenuList>
+        <NotificationItem
+          notification={testNotifications.notificationsList[0]}
+          onClose={mockOnClose}
+          onMarkIsSeen={onMarkIsSeenMock}
+        />
+      </MenuList>,
       { wrapper },
     );
 
@@ -85,11 +88,13 @@ describe("NotificationItem", () => {
 
   it("marks a single notification as seen when clicked", async () => {
     render(
-      <NotificationItem
-        notification={testNotifications.notificationsList[1]}
-        onClose={mockOnClose}
-        onMarkIsSeen={onMarkIsSeenMock}
-      />,
+      <MenuList>
+        <NotificationItem
+          notification={testNotifications.notificationsList[1]}
+          onClose={mockOnClose}
+          onMarkIsSeen={onMarkIsSeenMock}
+        />
+      </MenuList>,
       { wrapper },
     );
 
@@ -109,11 +114,13 @@ describe("NotificationItem", () => {
     mockRouter.setCurrentUrl("/");
 
     render(
-      <NotificationItem
-        notification={testNotifications.notificationsList[0]}
-        onClose={mockOnClose}
-        onMarkIsSeen={onMarkIsSeenMock}
-      />,
+      <MenuList>
+        <NotificationItem
+          notification={testNotifications.notificationsList[0]}
+          onClose={mockOnClose}
+          onMarkIsSeen={onMarkIsSeenMock}
+        />
+      </MenuList>,
       { wrapper },
     );
 

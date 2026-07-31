@@ -67,5 +67,9 @@
   "location": "Konum",
   "delete_comment": "Yorumu sil",
   "discussion_creation_date": "{{dateOnly}} tarihinde oluşturuldu",
-  "discussion_deleted": "Bu tartışma silindi."
+  "discussion_deleted": "Bu tartışma silindi.",
+  "delete_discussion_dialog": {
+    "cancel": "İptal Et"
+  },
+  "edit_discussion": "Tartışmayı düzenle"
 }

@@ -1,5 +1,5 @@
 import {
-  ChatBubbleOutline,
+  ChatBubbleOutlined,
   ChevronRight,
   Place,
   Schedule,
@@ -7,11 +7,11 @@ import {
 import { Skeleton, styled } from "@mui/material";
 import getContentSummary from "features/communities/getContentSummary";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { routeToDiscussion } from "routes";
-import { localizeRelativeTime } from "utils/date";
 
 type DiscussionSummary = Pick<
   Discussion.AsObject,
@@ -138,7 +138,7 @@ export default function DiscussionListRow({
           <Schedule sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>{timeStr}</span>
           <MetaDot>·</MetaDot>
-          <ChatBubbleOutline sx={{ fontSize: "11px", flexShrink: 0 }} />
+          <ChatBubbleOutlined sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>
             {t("dashboard:discussions.replies_count_label", {
               count: commentCount,

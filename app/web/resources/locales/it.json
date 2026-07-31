@@ -2,7 +2,7 @@
   "back": "Indietro",
   "load_more": "Carica altro",
   "verification_score": "Punteggio di verifica",
-  "cookie_message": "Usiamo i cookies per assicurarti la migliore esperienza sul nostro sito. Se continui ad usare questo sito, noi riteniamo che tu sia soddisfatto. Puoi leggere altro sui nostri <1>Termini di Servizio<1>",
+  "cookie_message": "Utilizziamo i cookie per garantirti la migliore esperienza sul nostro sito web. Se continui a utilizzare questo sito, presumeremo che tu ne sia soddisfatto. Puoi trovare maggiori informazioni nei <1>Termini di Servizio</1>.",
   "close_button_a11y": "Chiudi",
   "close": "Chiudi",
   "create_account": "Crea un account",
@@ -19,12 +19,334 @@
   "required": "Richiesto",
   "accept": "Accetta",
   "donation_banner": {
-    "button": "Dona ora"
+    "button": "Dona ora",
+    "message": "Couchers.org funziona grazie alla gentilezza — proprio come il couch surfing stesso. In queste festività, aiutaci a fare in modo che resti così. Stiamo raccogliendo {{goal}} per coprire i costi di gestione di Couchers.org.",
+    "progress_label": "Progresso delle donazioni"
   },
   "edit": "Modifica",
   "language_preference": {
-    "help_translate": "Aiuta a tradurre Couchers nella tua lingua."
+    "help_translate": "Aiuta a tradurre Couchers nella tua lingua.",
+    "current_preferred_language": "La tua lingua preferita è attualmente <lang>{{language}}</lang>.",
+    "form_title": "Lingua",
+    "error_loading_languages": "Impossibile caricare le opzioni della lingua. Riprova più tardi.",
+    "translation_progress": {
+      "title": "Avanzamento traduzione",
+      "description": "Scopri quanto sono complete le nostre traduzioni nelle diverse lingue. Aiutaci a rendere Couchers accessibile a più persone in tutto il mondo!",
+      "help_translate": "Aiuta a tradurre Couchers nella tua lingua",
+      "loading": "Caricamento dell'avanzamento della traduzione...",
+      "error_loading": "Impossibile caricare l'avanzamento della traduzione",
+      "no_data": "Nessun dato di traduzione disponibile",
+      "complete": "Completo",
+      "almost_there": "Ci siamo quasi",
+      "midway": "A metà strada",
+      "early_stage": "Fase iniziale",
+      "just_started": "Appena iniziato",
+      "info_text": "💡 Le lingue con un completamento tra il 50% e l'80% appaiono in grigio nel selettore delle lingue. Le lingue con un completamento inferiore al 50% sono nascoste dal selettore delle lingue. Per incoraggiare i collaboratori, le lingue sotto il 20% sono mostrate su questo sito.",
+      "view_progress": "Visualizza l'avanzamento della traduzione"
+    },
+    "show_all_languages": "Mostra tutte le lingue nel selettore della lingua",
+    "show_all_languages_description": "Se attivata, questa opzione mostra nel selettore tutte le lingue, indipendentemente dalla percentuale di traduzione completata. Viene visualizzata solo in modalità tester per aiutare a controllare le lingue ancora in corso di traduzione."
   },
   "retract": "Riduci",
-  "cancel": "Annulla"
+  "cancel": "Annulla",
+  "app_store_badge_a11y": "Scarica su App Store",
+  "google_play_badge_a11y": "Disponibile su Google Play",
+  "continue": "Continua",
+  "copy_button": {
+    "a11y": "Copia",
+    "copied_tooltip": "Copiato negli appunti"
+  },
+  "thanks": "Grazie!",
+  "community_standing": "Reputazione nella community",
+  "community_standing_description": "Calcolata in base a vari fattori come le referenze e la partecipazione alla community.",
+  "verification_score_description": "Calcolato in base alle conferme di altri utenti",
+  "save": "Salva",
+  "save_changes": "Salva modifiche",
+  "send": "Invia",
+  "submit": "Invia",
+  "confirm": "Conferma",
+  "image_input": {
+    "select_button_a11y": "Seleziona un'immagine",
+    "read_file_error_message": "Impossibile leggere il file"
+  },
+  "read_more": "Scopri di più",
+  "next": "Avanti",
+  "previous": "Precedente",
+  "mod": "Moderazione",
+  "hosting_status": {
+    "can_host": "Può ospitare",
+    "maybe": "Potrebbe ospitare",
+    "cant_host": "Non può ospitare",
+    "unspecified_info": "Non specificato"
+  },
+  "meetup_status": {
+    "wants_to_meetup": "Vuole incontrare gente",
+    "open_to_meetup": "Disponibile a incontrare gente",
+    "does_not_want_to_meetup": "Non disponibile a incontrare gente",
+    "unspecified_info": "Non specificato"
+  },
+  "report": {
+    "label": "Segnala un problema",
+    "bug": {
+      "button_label": "Segnala un problema tecnico",
+      "warning_message": "Tieni presente che queste informazioni, così come i dati diagnostici, tra cui la pagina in cui ti trovi, il browser che stai utilizzando e il tuo nome utente, verranno salvati in un elenco pubblico di bug.",
+      "title_label": "Titolo del report",
+      "problem_label": "Cosa hai fatto che potrebbe aver scatenato l'errore?",
+      "problem_helper": "Breve descrizione del problema e di come riprodurlo",
+      "expect_label": "Cosa è successo? Cosa sarebbe dovuto succedere?",
+      "expect_helper": "Breve descrizione di ciò che ti aspettavi che accadesse",
+      "success_message2": "Grazie per aver segnalato il problema e per rendere Couchers più robusto: un report è stato inviato agli sviluppatori! L'ID del bug è <id/>."
+    },
+    "content": {
+      "button_label": "Segnala contenuti o comportamenti inappropriati",
+      "success_message": "Grazie per la tua segnalazione e per rendere Couchers una piattaforma migliore per tutti!"
+    },
+    "flag": {
+      "block_user": "Blocca {{username}}",
+      "block_user_explainer": "Messaggi e richieste da questa persona saranno bloccati ed il tuo profilo, eventi e commenti non saranno visibili a questa persona. Non informeremo l'altra persona che tu l'hai bloccata.",
+      "button_aria_label": "Segnala il contenuto o l'utente",
+      "profile_button_aria_label": "Segnala contenuto o blocca un utente",
+      "explainer": "Invia una segnalazione riservata al team Fiducia & Sicurezza.",
+      "title": "Segnala il contenuto o l'utente",
+      "profile_title": "Segnala o blocca",
+      "reason_label": "Motivo della segnalazione",
+      "reason_required": "Il motivo è obbligatorio.",
+      "description_required": "La descrizione è obbligatoria.",
+      "description_label": "Descrivi il problema",
+      "description_helper": "Per favore dicci perché stai effettuando questa segnalazione.",
+      "success": "Grazie per la tua segnalazione e per rendere Couchers una piattaforma migliore per tutti!",
+      "reason": {
+        "dating": "Flirt / comportamento da app di incontri o simili",
+        "external": "Incidente fuori dalla piattaforma",
+        "harassment": "Molestie, bullismo, incitamento all'odio o contenuti illegali",
+        "guidelines_breach": "Violazione di regole o norme (richiesta di denaro, nudismo, letti condivisi, ecc.)",
+        "safety": "Preoccupazione per la sicurezza (propria o altrui)",
+        "scam": "Truffa, informazioni false o fuorvianti",
+        "spam": "Spam o contenuti promozionali non correlati al couch surfing",
+        "sexualized": "Contenuti o comportamenti sessualizzati",
+        "other": "Altro (si prega di specificare di seguito)"
+      }
+    }
+  },
+  "not_found_text_1": "Non abbiamo trovato l'URL o la risorsa che hai richiesto",
+  "not_found_text_2": "Vuoi solo <1>tornare a casa?</1>",
+  "not_found_alt": "Errore 404: risorsa non trovata",
+  "change_time": "Modifica orario",
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Condividi il tuo mondo, scopri quello degli altri. Esperienze locali autentiche, basate sulla fiducia e su legami genuini—non su transazioni."
+  },
+  "error": {
+    "fatal_message": "Questo non sarebbe dovuto succedere. Contattaci e dicci cosa stavi facendo, così potrai aiutarci a evitare questo errore in futuro.",
+    "unknown": "Errore sconosciuto",
+    "fallback": {
+      "title": "Ooops... si è verificato un errore sconosciuto",
+      "subtitle": "Usa il pulsante \"Segnala un problema\" e raccontaci cosa stavi facendo, così potremo evitare che questo errore si ripeta in futuro.",
+      "refresh_page_button_label": "Aggiorna la pagina",
+      "home_page_link_label": "Torna alla homepage"
+    }
+  },
+  "components": {
+    "datepicker": {
+      "change_date": "Cambia data"
+    },
+    "edit_location_map": {
+      "display_location_label": "Località da mostrare",
+      "search_location_label": "Cerca località",
+      "display_location_not_empty": "Inserisci un indirizzo da visualizzare",
+      "invalid_coordinate": "Coordinate mancanti, seleziona una posizione utilizzando la mappa sopra",
+      "location_accuracy": "Precisione della posizione",
+      "location_publicly_visible": "Questo sarà visibile pubblicamente",
+      "location_warn": "Fai clic e trascina il cerchio qui sotto per mostrare agli altri la posizione approssimativa della tua casa. Assicurati che la tua casa non si trovi al centro del cerchio, così nessuno potrà conoscere la posizione esatta.",
+      "map_is_blank": "Coordinate mancanti, inizia cercando una posizione nella mappa qui sopra",
+      "radius_text2_one": "{{count}} metro",
+      "radius_text2_many": "{{count}} di metri",
+      "radius_text2_other": "{{count}} metri",
+      "no_location_results_text": "Nessun risultato. Prova a cercare solo la città.",
+      "press_enter_to_search": "Premi invio per cercare"
+    }
+  },
+  "nav": {
+    "account_settings": "Impostazioni account",
+    "about": "Informazioni",
+    "badges": "Badge",
+    "blog": "Blog",
+    "community": "Community",
+    "communities": "Community",
+    "dashboard": "Pannello di controllo",
+    "donate": "Dona",
+    "events": "Eventi",
+    "faq": "FAQ",
+    "help_center": "Centro assistenza",
+    "roadmap_updates": "Roadmap e aggiornamenti",
+    "help": "Aiuto",
+    "home": "Home",
+    "log_out": "Log out",
+    "map_search": "Cerca",
+    "mission": "Missione e valori",
+    "messages": "Messaggi",
+    "newsletter": "Newsletter",
+    "notifications": "Notifiche",
+    "our_plan": "Il nostro piano",
+    "our_team": "Il nostro team",
+    "profile": "Profilo",
+    "show_all_events": "Mostra tutti gli eventi",
+    "volunteer": "Diventa volontario",
+    "legal_more": "Legale e altro",
+    "contact_us": "Contattaci",
+    "built_with": "Open source",
+    "landing_page": "Pagina di inizio",
+    "invite_members": "Invita membri",
+    "merch_shop": "Merchandising",
+    "switch_to_light_mode": "Passa alla modalità chiara",
+    "switch_to_dark_mode": "Passa alla modalità scura",
+    "close_menu_a11y": "Chiudi menu",
+    "open_drawer_a11y": "Apri menu a tendina",
+    "close_drawer_a11y": "Chiudi menu a tendina"
+  },
+  "invites": {
+    "title": "Invita membri",
+    "instructions": "Crea un link d'invito da condividere con amici e community. Disattiva i codici che non usi più.",
+    "no_codes_message": "Ancora nessun codice di invito",
+    "created_datetime": "Creato: {{datetime}}",
+    "disabled_datetime": "Disattivato: {{datetime}}",
+    "number_of_uses_one": "Utilizzi: {{count}} iscrizione completata",
+    "number_of_uses_many": "Utilizzi: {{count}} di iscrizioni completate",
+    "number_of_uses_other": "Utilizzi: {{count}} iscrizioni completate",
+    "disable_link": "Disattiva",
+    "banner": {
+      "invited_you": "{{name}} ti ha invitato a unirti a Couchers!"
+    },
+    "error": {
+      "fetch_invite_info": "Impossibile ottenere i dettagli del codice di invito"
+    }
+  },
+  "contribute_title": "Iscriviti per contribuire",
+  "reply": "Rispondi",
+  "yes": "Sì",
+  "no": "No",
+  "ok": "Ok",
+  "beta": "Beta",
+  "relative_time": {
+    "less_than_a_minute_ago": "< 1 minuto fa",
+    "less_than_one_hour_ago": "Meno di un'ora fa"
+  },
+  "location_autocomplete": {
+    "more_specific": "Per favore scegli un luogo più specifico",
+    "search_location_hint": "Premi invio o fai clic sull'icona di ricerca per scegliere una località",
+    "search_location_button": "Cerca località",
+    "select_location_hint": "Premi Invio o fai clic sull'icona di ricerca, quindi seleziona una località dall'elenco"
+  },
+  "strong_verification": {
+    "helper_text": "Questo utente ha verificato la propria identità utilizzando un passaporto biometrico"
+  },
+  "footer": {
+    "non_profit_note": "Couchers.org è un progetto di Couchers, Inc., un'organizzazione senza scopo di lucro statunitense 501(c)(3) e per questo esente da tasse.",
+    "version_info": "Versione <2>{{version}}</2>, ultimo aggiornamento <5>{{updated_ago}}</5>."
+  },
+  "what_is_cs": {
+    "title": "Che cos'è il couch surfing?",
+    "description_1": "Il couch surfing è un concetto in base al quale alcuni membri (chiamati host) pubblicano un annuncio sulla piattaforma, dichiarando di essere disponibili a ospitare altri membri (chiamati ospiti) in visita nella loro città.",
+    "description_2": "È come avere un amico in un'altra città e andare a fargli visita, l'unica differenza è che incontri l'amico per la prima volta quando arrivi lì!",
+    "get_involved_title": "Cosa posso fare su Couchers.org?",
+    "timeline_title": "Una breve storia del couch surfing",
+    "timeline": {
+      "early_2000s_year": "Primi anni 2000",
+      "early_2000s_text": "Nasce il movimento online del couch surfing: soggiorna presso la gente del posto, condividi la cultura.",
+      "2010s_year": "Anni 10 del 2000",
+      "2010s_text": "Le community e gli eventi prosperano; le referenze costruiscono fiducia — il mondo inizia a sembrare un unico accogliente quartiere.",
+      "2020_year": "2020",
+      "2020_text": "Una grande piattaforma diventa a scopo di lucro; Couchers.org nasce come alternativa no-profit, gestita dalla community.",
+      "today_year": "Oggi",
+      "today_text": "Couchers.org scrive il prossimo capitolo: un couch surfing moderno, più sicuro e no-profit — creato dalla community per la community."
+    },
+    "actions": {
+      "host": "Ospita una persona che visita la tua città",
+      "surf": "Soggiorna da un local mentre viaggi",
+      "attend_events": "Partecipa a eventi con gente del posto e viaggiatori",
+      "find_people": "Trova e incontra persone con la stessa mentalità nella tua città",
+      "join_discussions": "Partecipa o avvia discussioni nella tua community locale"
+    },
+    "why_people_title": "Perché le persone amano il couch surfing",
+    "why_people_points": {
+      "travelers": "<bold>Per i viaggiatori</bold>: esperienze più profonde e umane oltre i percorsi turistici",
+      "hosts": "<bold>Per gli host</bold>: incontra persone da tutto il mondo e condividi la tua città",
+      "everyone": "<bold>Per tutti</bold>: community, cultura e connessioni — non transazioni"
+    },
+    "tip_label": "CONSIGLIO",
+    "tip_text": "Prima volta? Partecipa a un evento locale per farti un'idea della community: poco impegno, tante connessioni.",
+    "compare_title": "Perchè Couchers.org è diverso?",
+    "table": {
+      "header_couchers": "Couchers.org",
+      "header_hostel": "Ostello",
+      "header_hotel": "Hotel",
+      "people_first": "Incentrato sulle persone e no-profit",
+      "cost_to_stay": "Costo del soggiorno",
+      "free_to_stay": "Soggiorno gratuito",
+      "dollar": "$",
+      "dollars_range": "$$–$$$",
+      "stay_with_locals": "Soggiorna con i locals",
+      "professionally_managed": "Soggiorno gestito professionalmente",
+      "meetups_communities": "Incontri e community locali",
+      "cultural_exchange": "Focus sullo scambio culturale",
+      "non_transactional": "Modello di comunità senza transazioni",
+      "no_investor_pressure": "Nessuna pressione degli investitori",
+      "social_expectation": "Incoraggiato a trascorrere del tempo con l'host"
+    },
+    "bottom_cta_title": "Pronto a provare il couch surfing?",
+    "bottom_cta_subtitle": "Unisciti a Couchers.org e diventa parte di una comunità globale fondata sull'ospitalità e sulle connessioni.",
+    "join_couchers": "Unisciti a Couchers.org",
+    "is_it_safe": {
+      "title": "Quanto è sicuro il couch surfing?",
+      "description_1": "Sebbene qualsiasi viaggio e ogni interazione con estranei comportino dei rischi, il couch surfing è molto più sicuro di quanto molti immaginino inizialmente.",
+      "description_2": "La nostra community si basa sulla fiducia tra i membri, costruita attraverso le referenze lasciate dopo i soggiorni. Il nostro team di moderazione segue ogni segnalazione con la massima serietà e respinge chi non rispetta le nostre <guidelines>Linee Guida della community</guidelines>.",
+      "description_3": "Inoltre, la piattaforma Couchers include strumenti come diverse forme di verifica (ad esempio la verifica robusta con passaporto biometrico) che aggiungono un ulteriore livello di sicurezza. È importante avere sempre pronto un piano alternativo nel caso in cui le cose non vadano come previsto, e fidarsi del proprio istinto!"
+    }
+  },
+  "team": {
+    "title": "Il team",
+    "description": "Siamo persone appassionate di couch surfing e professionisti qualificati, impegnati a creare una piattaforma migliore, più sicura e più inclusiva. Stiamo costruendo questa piattaforma per sostenere e far crescere in modo sostenibile la comunità del couch surfing, condividendone i valori con il mondo. Se condividi la nostra passione e vuoi contribuire, ci farebbe molto piacere entrare in contatto con te.",
+    "join_the_team": "Unisciti al team",
+    "join_our_team": "Unisciti al nostro team",
+    "have_skills_contribute": "Hai competenze che vorresti mettere a disposizione?",
+    "fill_form_description": "Couchers.org è un progetto guidato dalla community, sviluppato da persone come te a beneficio della comunità globale del couch surfing. Se ti interessa unirti a questa entusiasmante iniziativa, clicca sul pulsante qui sotto e compila il breve modulo.",
+    "past_members": "Ex membri",
+    "board_member": "Membro del Consiglio"
+  },
+  "blog": {
+    "byline_with_author": "Scritto da <1/>. Pubblicato il {{date}}.",
+    "byline_without_author": "Pubblicato il {{date}}.",
+    "cta_message": "Vuoi aiutarci a scrivere il nostro blog o fare il volontario? <1>Iscriviti</1> e faccelo sapere. I volontari e le <3>donazioni</3> sono ciò che rende possibile Couchers.org!"
+  },
+  "error_loading_languages": "Impossibile caricare le opzioni della lingua",
+  "language_names": {
+    "ca": "Catalano",
+    "cs": "Ceco",
+    "de": "Tedesco",
+    "en": "Inglese",
+    "es": "Spagnolo (Spagna)",
+    "es-419": "Spagnolo",
+    "fr": "Francese (Francia)",
+    "fr-CA": "Francese (Canada)",
+    "he": "Ebraico",
+    "hi": "Hindi",
+    "it": "Italiano",
+    "ja": "Giapponese",
+    "nb-NO": "Norvegese (Bokmål)",
+    "nl": "Olandese",
+    "pl": "Polacco",
+    "pt": "Portoghese (Portogallo)",
+    "pt-BR": "Portoghese (Brasile)",
+    "ru": "Russo",
+    "sv": "Svedese",
+    "tr": "Turco",
+    "uk": "Ucraino",
+    "zh-Hans": "Cinese (semplificato)",
+    "zh-Hant": "Cinese (tradizionale)",
+    "hu": "Ungherese"
+  },
+  "bar": {
+    "help_button_a11y": "Aiuto"
+  }
 }

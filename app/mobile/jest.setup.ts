@@ -17,13 +17,15 @@ jest.mock("expo-constants", () => ({
     version: "1.0.0-test",
     extra: {
       eas: { projectId: "test-project-id" },
-      gitHash: "abc12345",
+      displayVersion: "v1.2.3456",
+      debugVersion: "v1.2.3456.abc12345.20260528Z0533",
     },
   },
 }));
 
 // Mock expo-application globally
 jest.mock("expo-application", () => ({
+  nativeApplicationVersion: "1.0.0-test",
   nativeBuildVersion: "42",
 }));
 

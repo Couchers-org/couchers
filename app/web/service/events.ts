@@ -1,4 +1,3 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   Int64Value,
   StringValue,
@@ -129,20 +128,12 @@ interface EventInput {
 
 export type CreateEventInput = EventInput;
 
-function toTimestamp(dateTime: Temporal.PlainDateTime): Timestamp {
-  // FIXME(#8064): Events should be created in their location's timezone
-  const zoned = dateTime.toZonedDateTime(Temporal.Now.timeZoneId());
-  const legacyDate = new Date(zoned.epochMilliseconds);
-  return Timestamp.fromDate(legacyDate);
-}
-
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-
-  req.setStartTime(toTimestamp(input.startTime));
-  req.setEndTime(toTimestamp(input.endTime));
+  req.setStartDatetimeIso8601Local(input.startTime.toString());
+  req.setEndDatetimeIso8601Local(input.endTime.toString());
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
@@ -178,10 +169,14 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartTime(toTimestamp(input.startTime));
+    req.setStartDatetimeIso8601Local(
+      new StringValue().setValue(input.startTime.toString()),
+    );
   }
   if (input.endTime) {
-    req.setEndTime(toTimestamp(input.endTime));
+    req.setEndDatetimeIso8601Local(
+      new StringValue().setValue(input.endTime.toString()),
+    );
   }
 
   if (input.photoKey) {

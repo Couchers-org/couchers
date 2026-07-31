@@ -21,7 +21,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 
 //[[...slug]] will be used when we have connections other than friends
 export default function ConnectionsPage() {
-  return <ConnectionsPageComponent type="friends" />;
+  return <ConnectionsPageComponent />;
 }
 
 ConnectionsPage.getLayout = appGetLayout();

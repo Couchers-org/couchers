@@ -8,4 +8,5 @@ dependencies = [
     "openai>=2.7.1",
     "pydantic>=2.12.4",
     "pygithub>=2.8.1",
+    "requests>=2.32.5",
 ]

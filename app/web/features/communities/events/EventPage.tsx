@@ -21,6 +21,7 @@ import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
@@ -34,11 +35,7 @@ import {
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import {
-  localizeDateTimeRange,
-  timestampToInstant,
-  timestampToPlainDateTime,
-} from "utils/date";
+import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -109,6 +106,7 @@ const StyledIconButtonGroup = styled("div")(() => ({
 const StyledInviteAndAttendanceRow = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(1),
+  justifyContent: "flex-end",
   alignItems: "center",
   flexWrap: "wrap",
 }));
@@ -122,7 +120,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
 
   [theme.breakpoints.down("md")]: {
     gridAutoFlow: "row",
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, max-content))",
+    gridTemplateColumns: "max-content 1fr",
     gap: theme.spacing(1),
     width: "100%",
   },
@@ -414,11 +412,11 @@ export default function EventPage({
                 <StyledCalendarIcon />
                 <Typography variant="body1">
                   {localizeDateTimeRange(
-                    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-                    timestampToPlainDateTime(event.startTime!),
-                    timestampToPlainDateTime(event.endTime!),
+                    timestampToPlainDateTime(event.startTime!, event.timezone),
+                    timestampToPlainDateTime(event.endTime!, event.timezone),
                     {
                       locale,
+                      includeYear: "auto",
                       includeDayOfWeek: true,
                       capitalize: true,
                     },

@@ -70,7 +70,7 @@ const HostMeetupReferenceStatus = ({
   return (
     <Wrapper>
       <StyledTypography
-        display="inline"
+        sx={{ display: "inline" }}
         variant="body1"
         isNegative={hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST}
       >
@@ -108,7 +108,7 @@ const HostMeetupReferenceStatus = ({
       </StyledTypography>
       <VerticalLine>|</VerticalLine>
       <StyledTypography
-        display="inline"
+        sx={{ display: "inline" }}
         variant="body1"
         isNegative={
           meetupStatus === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP

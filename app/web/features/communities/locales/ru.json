@@ -159,5 +159,13 @@
   "edit_discussion": "Редактировать обсуждение",
   "copy_link": "Скопировать ссылку",
   "copy_link_success": "Ссылка скопирована в буфер обмена",
-  "community_breadcrumb_a11y": "Текущее сообщество"
+  "community_breadcrumb_a11y": "Текущее сообщество",
+  "select_macroregion": "Выберите регион",
+  "select_region": "Выберите страну",
+  "select_locality": "Выберите город",
+  "sub_community_search_placeholder": "Местоположение",
+  "sub_community_dropdown_a11y": "Просмотреть более специализированные сообщества",
+  "select_subregion": "Выбрать область",
+  "select_sublocality": "Выбрать район",
+  "select_sub_community": "Выбрать сообщество"
 }

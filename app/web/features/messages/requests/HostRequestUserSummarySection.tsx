@@ -9,12 +9,13 @@ import Avatar from "components/Avatar";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { daysBetween, localizeDateTimeRange } from "utils/date";
+import { daysBetween } from "utils/date";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
@@ -106,6 +107,7 @@ const HostRequestUserSummarySection = ({
               Temporal.PlainDateTime.from(hostRequest.toDate),
               {
                 locale,
+                includeYear: "auto",
                 includeTime: false,
                 abbreviate: true,
               },
@@ -131,6 +133,7 @@ const HostRequestUserSummarySection = ({
                 Temporal.PlainDateTime.from(hostRequest.toDate),
                 {
                   locale,
+                  includeYear: "auto",
                   includeTime: false,
                 },
               )}

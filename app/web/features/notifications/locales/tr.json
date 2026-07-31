@@ -1,5 +1,4 @@
 {
-  "unread": "Okunmamışlar",
   "error_loading": "Bildirimleri yüklemede bir hata oluştu",
   "error_updating_notifications": "Bildirimleri güncellemede bir hata oluştu",
   "mark_unread": "Okunmadı işaretle",
@@ -35,8 +34,15 @@
       "enabled_message": "Şu anda anlık bildirimleriniz <1>açık</1>.",
       "disabled_message": "Şu anda anlık bildirimler <1>kapalı</1>.",
       "error_generic": "Anlık bildirimlere abonelik sırasında hata oluştu",
-      "error_not_granted": "Anlık bildirimler gönderebilmemiz için izin vermediniz."
+      "error_not_granted": "Anlık bildirimler gönderebilmemiz için izin vermediniz.",
+      "permission_denied": {
+        "platform_settings_description": "Tarayıcınızda bildirimleri etkinleştirdikten sonra hâlâ sorun mu yaşıyorsunuz? Platform ayarlarınızı değiştirmeniz gerekebilir.",
+        "instructions": {
+          "chrome": "Bildirimleri engellediniz. Devam etmek için lütfen tarayıcı ayarlarınızdan bildirimleri etkinleştirin. Chrome'da, URL(link) çubuğundaki kilit simgesine tıklayın ve \"Bildirimler\" ayarını düzenleyin.",
+          "generic": "Bildirimler engelli. Devam etmek için lütfen tarayıcı ayarlarınızdan bildirimleri etkinleştirin.",
+          "macos": "macOS'ta Sistem Ayarları > Bildirimler bölümüne gidin ve uygulamanın iznini değiştirin."
+        }
+      }
     }
-  },
-  "all": "Hepsi"
+  }
 }

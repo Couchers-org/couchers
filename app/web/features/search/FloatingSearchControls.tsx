@@ -261,54 +261,55 @@ const FloatingSearchControls = ({
                 onChange={handleKeywordChange}
                 value={keyword}
                 onKeyDown={handleKeyWordEnterPress}
-                InputProps={
-                  keyword.length < 1
-                    ? {}
-                    : {
-                        endAdornment: (
-                          <>
-                            <InputAdornment
-                              position="end"
-                              sx={{
-                                marginRight:
-                                  query === "" ? theme.spacing(1) : 0,
-                              }}
-                            >
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.search_this_keyword_a11y_label",
-                                )}
-                                onClick={handleKeywordSubmit}
-                                size="small"
-                                sx={{ marginRight: theme.spacing(1) }}
-                              >
-                                <SearchIcon />
-                              </IconButton>
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.clear_field_action_a11y_label",
-                                )}
-                                onClick={handleClearKeyword}
-                                size="small"
+                slotProps={{
+                  input:
+                    keyword.length < 1
+                      ? {}
+                      : {
+                          endAdornment: (
+                            <>
+                              <InputAdornment
+                                position="end"
                                 sx={{
-                                  backgroundColor: alpha(
-                                    theme.palette.primary.light,
-                                    0.2,
-                                  ), // Adjust opacity as needed
+                                  marginRight:
+                                    query === "" ? theme.spacing(1) : 0,
                                 }}
                               >
-                                <Clear
+                                <IconButton
+                                  aria-label={t(
+                                    "search:form.keywords.search_this_keyword_a11y_label",
+                                  )}
+                                  onClick={handleKeywordSubmit}
+                                  size="small"
+                                  sx={{ marginRight: theme.spacing(1) }}
+                                >
+                                  <SearchIcon />
+                                </IconButton>
+                                <IconButton
+                                  aria-label={t(
+                                    "search:form.keywords.clear_field_action_a11y_label",
+                                  )}
+                                  onClick={handleClearKeyword}
+                                  size="small"
                                   sx={{
-                                    color: "var(--mui-palette-primary-main)",
-                                    fontSize: "20px",
+                                    backgroundColor: alpha(
+                                      theme.palette.primary.light,
+                                      0.2,
+                                    ), // Adjust opacity as needed
                                   }}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          </>
-                        ),
-                      }
-                }
+                                >
+                                  <Clear
+                                    sx={{
+                                      color: "var(--mui-palette-primary-main)",
+                                      fontSize: "20px",
+                                    }}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            </>
+                          ),
+                        },
+                }}
               />
             )}
 

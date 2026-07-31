@@ -3,6 +3,7 @@ Background job workers
 """
 
 import logging
+import threading
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
@@ -20,6 +21,7 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.experimentation import setup_experimentation
+from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.definitions import JOBS, Job
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -93,10 +95,13 @@ def process_job() -> bool:
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             finished = perf_counter_ns()
-            logger.exception(e)
-            sentry_sdk.set_tag("context", "job")
-            sentry_sdk.set_tag("job", job.job_type)
-            sentry_sdk.capture_exception(e)
+            # not sentry_sdk.set_tag: that writes to the thread's isolation scope, where the tags stick to
+            # every later report from this thread. logger.exception is in here so its event is tagged too
+            with sentry_sdk.new_scope() as scope:
+                scope.set_tag("context", "job")
+                scope.set_tag("job", job.job_type)
+                logger.exception(e)
+                sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
@@ -172,15 +177,18 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _run_forever(func: Callable[[], None], profile_instance: str | None = None) -> None:
+def _per_process_init(profile_instance: str | None) -> None:
     # Post-fork initialization: these services use threading/async internals that
-    # don't survive fork() and must be initialized fresh in each child process
+    # don't survive fork() and must be initialized fresh in each child process.
+    # Pyroscope in particular can only be initialized once per process.
     db_post_fork()
     setup_tracing()
     setup_experimentation()
     if profile_instance is not None:
         setup_profiling(role="worker", instance=profile_instance)
 
+
+def _run_forever(func: Callable[[], None]) -> None:
     while True:
         try:
             logger.info("Background worker starting")
@@ -191,16 +199,39 @@ def _run_forever(func: Callable[[], None], profile_instance: str | None = None) 
             sleep(60)
 
 
+def _scheduler_process_entry() -> None:
+    _per_process_init(None)
+    _run_forever(run_scheduler)
+
+
+def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
+    _per_process_init(profile_instance)
+    # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
+    get_main_i18next()
+    # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB
+    threads = [
+        threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
+        for i in range(threads_per_process)
+    ]
+    for t in threads:
+        t.start()
+    # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
+    # instead and let it restart us
+    while all(t.is_alive() for t in threads):
+        sleep(1)
+    logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+
+
 def start_jobs_scheduler() -> Process:
-    scheduler = Process(
-        target=_run_forever,
-        args=(run_scheduler,),
-    )
+    scheduler = Process(target=_scheduler_process_entry)
     scheduler.start()
     return scheduler
 
 
-def start_jobs_worker(index: int) -> Process:
-    worker = Process(target=_run_forever, args=(service_jobs,), kwargs={"profile_instance": f"worker-{index}"})
+def start_jobs_worker(index: int, threads_per_process: int) -> Process:
+    worker = Process(
+        target=_worker_process_entry,
+        args=(f"worker-{index}", threads_per_process),
+    )
     worker.start()
     return worker
