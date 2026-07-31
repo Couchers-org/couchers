@@ -62,8 +62,21 @@
       "clear_field_action_a11y_label": "Aramayı temizle",
       "search_this_keyword_a11y_label": "Bu anahtar kelimeyi ara"
     },
-    "by_location_filter_label": "Konuma göre"
+    "by_location_filter_label": "Konuma göre",
+    "search_filters": "Arama filtreleri",
+    "clear_filters": "Tüm filtreleri temizle"
   },
   "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula.",
-  "location": "Konum"
+  "location": "Konum",
+  "search_result": {
+    "no_user_result_message": "Kullanıcı bulunamadı. Daha fazla sonuç bulmak için bazı filtreleri kaldırmayı deneyin.",
+    "missing_about_description": "{{name}} kendisi hakkında henüz hiçbir şey söylemedi",
+    "few_results_suggestion": "Varsayılan olarak, boş ve \"ev sahipliği yapamam\" işaretli profiller gizlenir.",
+    "include_empty_profiles_button": "Tüm profilleri göster"
+  },
+  "views": {
+    "choose_map_view": "Harita görünümünü seç",
+    "list": "Liste",
+    "map_and_list": "Harita & Liste"
+  }
 }

@@ -37,5 +37,33 @@
     "subject": "Hâlâ ev sahipliği yapmaya açık mısın?",
     "purpose": "Bir süredir giriş yapmadığınızı fark ettik ve sörfçülere ev sahipliği yapmaya hâlâ açık olup olmadığınızı kontrol etmek istedik.",
     "login_action": "Tekrar giriş yap"
+  },
+  "api_key_issued": {
+    "subject": "Couchers.org API anahtarınız",
+    "header": "Yakın zamanda Couchers.org için bir API anahtarı istediniz. Size aşağıdaki API anahtarını oluşturduk:"
+  },
+  "badges": {
+    "added": {
+      "subject": "{{ name }} rozeti profiline eklendi",
+      "purpose": "<b>{{ name }}</b> rozeti profiline eklendi."
+    },
+    "removed": {
+      "subject": "{{ name }} rozeti profilinizden kaldırıldı",
+      "purpose": "<b>{{ name }}</b> rozeti profilinden kaldırıldı."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "Doğum tarihiniz değiştirildi"
+  },
+  "chat_messages": {
+    "missed": {
+      "view_action": "Mesajları görüntüle"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} bir tartışma başlattı: {{title}}",
+      "view_action": "Tartışmayı görüntüle"
+    }
   }
 }

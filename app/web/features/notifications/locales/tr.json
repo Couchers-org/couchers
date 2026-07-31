@@ -40,9 +40,16 @@
         "instructions": {
           "chrome": "Bildirimleri engellediniz. Devam etmek için lütfen tarayıcı ayarlarınızdan bildirimleri etkinleştirin. Chrome'da, URL(link) çubuğundaki kilit simgesine tıklayın ve \"Bildirimler\" ayarını düzenleyin.",
           "generic": "Bildirimler engelli. Devam etmek için lütfen tarayıcı ayarlarınızdan bildirimleri etkinleştirin.",
-          "macos": "macOS'ta Sistem Ayarları > Bildirimler bölümüne gidin ve uygulamanın iznini değiştirin."
+          "macos": "macOS'ta Sistem Ayarları > Bildirimler bölümüne gidin ve uygulamanın iznini değiştirin.",
+          "mobile": {
+            "os": "Mobil cihazınızın bildirim ayarlarında, bildirimlere izin verecek şekilde izinleri düzenleyin."
+          }
         }
       }
     }
+  },
+  "push_notification_banner": {
+    "message": "İstekleri, yanıtları veya mesajları kaçırmamak için sana anlık bildirimleri gönderebilir miyiz?",
+    "confirm": "Evet, lütfen!"
   }
 }
