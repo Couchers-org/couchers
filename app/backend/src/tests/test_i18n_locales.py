@@ -38,8 +38,7 @@ def test_to_supported_locale():
     assert to_supported_locale("zh-Hans") == "zh-Hans"
 
     # Supported locale with no translations
-    assert not is_supported_locale("en-US")
-    assert not is_locale_with_translations("en-US")
+    assert is_supported_locale("en-US") and not is_locale_with_translations("en-US")
     assert to_supported_locale("en-US") == "en-US"
 
     # Bogus locales

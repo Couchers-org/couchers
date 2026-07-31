@@ -21,7 +21,6 @@ NON_TRANSLATED_LOCALES: list[str] = ["en-US"]
 _LOCALE_FALLBACKS: dict[str, str] = {
     "pt-BR": "pt",
     "pt": "pt-BR",
-    "en-US": "en",
     "es-419": "es",
     "es": "es-419",
     "fr-CA": "fr",
@@ -45,7 +44,7 @@ def get_supported_locales() -> list[str]:
 
 def is_supported_locale(locale: str) -> bool:
     """Checks if a locale is supported."""
-    return locale in get_supported_locales()
+    return is_locale_with_translations(locale) or locale in NON_TRANSLATED_LOCALES
 
 
 def to_supported_locale(locale: str) -> str:
