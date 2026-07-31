@@ -155,19 +155,37 @@ export function simplifyPeliasDisplayName(
   properties: PeliasFeatureProperties,
   preferCity = false,
 ): string {
+  const isCoarseAdmin = MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer);
   let primary: string | undefined;
-  if (MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer)) {
+  if (isCoarseAdmin) {
     primary = properties.name;
   } else if (preferCity) {
     primary = properties.locality || properties.localadmin || properties.name;
   } else {
     primary = properties.name;
   }
+
+  // Name the containing city for precise hits (street, address, venue), or the
+  // label says nothing about where the place is: Pelias maps the French
+  // département onto `region`, so name + region alone reads "Rue X, Hérault,
+  // France". Skipped when the primary already *is* that city, and for coarse
+  // admin areas, which are not inside a city.
+  const containingCity =
+    isCoarseAdmin || preferCity
+      ? undefined
+      : properties.locality || properties.localadmin;
+  const city =
+    containingCity && containingCity !== primary ? containingCity : undefined;
   const region = properties.region || properties.macroregion;
 
-  const parts = [primary, region, properties.country].filter(
-    (part): part is string => Boolean(part),
-  );
+  const parts = [
+    primary,
+    // City and region together are more administrative detail than an address
+    // field needs — the city is the more useful of the two, and matches the
+    // provider's own `label` format.
+    city ?? region,
+    properties.country,
+  ].filter((part): part is string => Boolean(part));
 
   // Drop consecutive duplicates (e.g. a region feature whose name equals its
   // region field) while preserving order.
@@ -297,6 +315,59 @@ export function dedupeBySimplifiedName(
 }
 
 /**
+ * Issue a request to Geocode.earth and parse the GeoJSON body.
+ *
+ * Applies our own request timeout on top of any caller-supplied abort signal, and
+ * turns every failure mode into a `PeliasError` so callers (and `utils/geocode.ts`'s
+ * outage classification) see one error type. A deliberate cancellation is still
+ * distinguishable by the caller via its own `signal.aborted`.
+ */
+async function fetchPelias(
+  url: URL,
+  signal?: AbortSignal,
+): Promise<PeliasResponse> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const abortFromExternal = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) {
+      controller.abort();
+    } else {
+      signal.addEventListener("abort", abortFromExternal);
+    }
+  }
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new PeliasError(await response.text(), response.status);
+    }
+
+    return (await response.json()) as PeliasResponse;
+  } catch (error) {
+    if (error instanceof PeliasError) {
+      throw error;
+    }
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new PeliasError("The location search was cancelled or timed out.");
+    }
+    throw new PeliasError(
+      error instanceof Error ? error.message : "Geocoding request failed.",
+    );
+  } finally {
+    clearTimeout(timeout);
+    if (signal) {
+      signal.removeEventListener("abort", abortFromExternal);
+    }
+  }
+}
+
+/**
  * Batch-fetch place geometries by gid (`GET /v1/place?ids=...`). Used to resolve
  * the area bbox for hits whose simplified label is a parent locality. Failures
  * are non-fatal — callers fall back to the original feature geometry.
@@ -315,22 +386,101 @@ async function fetchPlacesByIds(
   url.searchParams.set("ids", ids.join(","));
 
   try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      signal,
-    });
-    if (!response.ok) {
-      return places;
-    }
-    const data = (await response.json()) as PeliasResponse;
+    const data = await fetchPelias(url, signal);
     for (const feature of data.features ?? []) {
       places.set(feature.properties.gid, feature);
     }
   } catch {
-    // Abort or network blip — leave the map empty so normalize falls back.
+    // Abort, timeout, or network blip — leave the map empty so normalize falls
+    // back to the original feature's own geometry. Never fatal to the search.
   }
   return places;
+}
+
+/**
+ * Resolve the parent-area geometries a `preferCity` display needs, then map every
+ * feature to a `GeocodeResult`. Shared by forward autocomplete and reverse so a
+ * collapsed "Paris, France" label always carries Paris's own bbox and centre
+ * rather than the precise hit's.
+ */
+async function normalizeFeatures(
+  features: PeliasFeature[],
+  preferCity: boolean,
+  signal?: AbortSignal,
+): Promise<GeocodeResult[]> {
+  if (!preferCity) {
+    return features.map((feature) => normalize(feature));
+  }
+
+  const areaIds = [
+    ...new Set(
+      features
+        .map((feature) => displayAreaGid(feature.properties))
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const displayAreas = await fetchPlacesByIds(areaIds, signal);
+
+  return features.map((feature) => {
+    const areaGid = displayAreaGid(feature.properties);
+    return normalize(
+      feature,
+      areaGid ? displayAreas.get(areaGid) : undefined,
+      true,
+    );
+  });
+}
+
+/**
+ * Reverse-geocode a coordinate (`GET /v1/reverse`) — "what is at this point".
+ *
+ * Fine mode (no `layers` restriction) on purpose: the provider's nearest hit is
+ * the most accurate answer about where the user is standing. Pelias falls back to
+ * coarse (county/localadmin) results by itself when nothing is indexed within
+ * ~1km, which covers a GPS fix in a desert; at sea it answers with an `ocean`
+ * feature. All of those are returned as-is — the caller decides what is useful.
+ *
+ * `preferCity` then decides how precise the *answer* is: set it for city-level
+ * fields (destination search), where an address or venue hit collapses to its
+ * containing city — "Paris, Île-de-France, France", not "8 Place de l'Hôtel de
+ * Ville, Paris, France" — with that city's bbox and centre. Leave it unset for
+ * address fields, which want the street back.
+ *
+ * An empty result is a legitimate answer, not a failure: it comes back as `[]`.
+ * Genuine failures (network, non-2xx, timeout) throw `PeliasError`, same as
+ * `autocomplete`.
+ */
+export async function reverse(
+  lat: number,
+  lon: number,
+  options: {
+    language?: string;
+    preferCity?: boolean;
+    signal?: AbortSignal;
+  } = {},
+): Promise<{ results: GeocodeResult[]; features: PeliasFeature[] }> {
+  const { language, preferCity = false, signal } = options;
+
+  if (!BASE_URL || !API_KEY) {
+    throw new PeliasError("Geocoding is not configured.");
+  }
+
+  const url = new URL("/v1/reverse", BASE_URL);
+  url.searchParams.set("api_key", API_KEY);
+  url.searchParams.set("point.lat", String(lat));
+  url.searchParams.set("point.lon", String(lon));
+  if (language) {
+    url.searchParams.set("lang", language);
+  }
+
+  const data = await fetchPelias(url, signal);
+  const features = data.features ?? [];
+  // Reverse features are structurally identical to forward ones (verified against
+  // live responses), so LOC-1's normalizer is reused unchanged.
+  return {
+    results: await normalizeFeatures(features, preferCity, signal),
+    features,
+  };
 }
 
 export interface AutocompleteOptions {
@@ -372,76 +522,13 @@ export async function autocomplete(
     url.searchParams.set("focus.point.lon", String(focus.lon));
   }
 
-  // Combine an internal timeout with any externally-supplied abort signal.
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  const abortFromExternal = () => controller.abort();
-  if (signal) {
-    if (signal.aborted) {
-      controller.abort();
-    } else {
-      signal.addEventListener("abort", abortFromExternal);
-    }
-  }
+  const data = await fetchPelias(url, signal);
+  const features = data.features ?? [];
+  const ordered = preferCity ? reorderPreferCity(features) : features;
+  const results = await normalizeFeatures(ordered, preferCity, signal);
 
-  try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new PeliasError(await response.text(), response.status);
-    }
-
-    const data = (await response.json()) as PeliasResponse;
-    const features = data.features ?? [];
-    const ordered = preferCity ? reorderPreferCity(features) : features;
-
-    let displayAreas = new Map<string, PeliasFeature>();
-    if (preferCity) {
-      const areaIds = [
-        ...new Set(
-          ordered
-            .map((feature) => displayAreaGid(feature.properties))
-            .filter((id): id is string => Boolean(id)),
-        ),
-      ];
-      displayAreas = await fetchPlacesByIds(areaIds, controller.signal);
-    }
-
-    const results = ordered.map((feature) => {
-      const areaGid = preferCity
-        ? displayAreaGid(feature.properties)
-        : undefined;
-      return normalize(
-        feature,
-        areaGid ? displayAreas.get(areaGid) : undefined,
-        preferCity,
-      );
-    });
-
-    return {
-      results: preferCity ? dedupeBySimplifiedName(results) : results,
-      features,
-    };
-  } catch (error) {
-    // Surface abort/timeout as a typed error, but let the caller distinguish a
-    // deliberate cancellation via `signal.aborted`.
-    if (error instanceof PeliasError) {
-      throw error;
-    }
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new PeliasError("The location search was cancelled or timed out.");
-    }
-    throw new PeliasError(
-      error instanceof Error ? error.message : "Geocoding request failed.",
-    );
-  } finally {
-    clearTimeout(timeout);
-    if (signal) {
-      signal.removeEventListener("abort", abortFromExternal);
-    }
-  }
+  return {
+    results: preferCity ? dedupeBySimplifiedName(results) : results,
+    features,
+  };
 }

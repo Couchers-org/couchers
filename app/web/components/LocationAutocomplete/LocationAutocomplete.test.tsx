@@ -26,6 +26,8 @@ const renderForm = (
   showFullDisplayName = false,
   disableRegions = false,
   allowFallback = true,
+  showUseMyLocation = false,
+  preferCity = false,
 ) => {
   const Form = () => {
     const {
@@ -47,6 +49,8 @@ const renderForm = (
           fieldError={errors.location?.message}
           disableRegions={disableRegions}
           allowFallback={allowFallback}
+          showUseMyLocation={showUseMyLocation}
+          preferCity={preferCity}
           autocompleteContext="test"
         />
         <input type="submit" aria-label="submit" />
@@ -450,6 +454,234 @@ describe("LocationAutocomplete component", () => {
 
     expect(await screen.findByText(t("global:location_autocomplete.more_specific"))).toBeVisible();
     expect(submitAction).not.toHaveBeenCalled();
+  });
+
+  describe('the "use my location" button (LOC-4)', () => {
+    const BUTTON = t("global:use_my_location.button");
+    const REVERSE_URL = `${process.env
+      .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
+
+    const mockPosition = (granted: boolean, code = 1) => {
+      Object.defineProperty(navigator, "geolocation", {
+        configurable: true,
+        value: {
+          getCurrentPosition: (
+            onSuccess: PositionCallback,
+            onError: PositionErrorCallback,
+          ) =>
+            granted
+              ? onSuccess({
+                  coords: { latitude: 48.8566, longitude: 2.3522 },
+                } as GeolocationPosition)
+              : onError({ code, message: "nope" } as GeolocationPositionError),
+        },
+      });
+    };
+
+    const mockReverse = (status = 200) =>
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          status === 200
+            ? res(
+                ctx.json({
+                  type: "FeatureCollection",
+                  features: [
+                    {
+                      type: "Feature",
+                      geometry: {
+                        type: "Point",
+                        coordinates: [2.3522, 48.8566],
+                      },
+                      bbox: [2.224, 48.815, 2.47, 48.902],
+                      properties: {
+                        gid: "whosonfirst:locality:101751119",
+                        layer: "locality",
+                        label: "Paris, Île-de-France, France",
+                        name: "Paris",
+                        locality: "Paris",
+                        region: "Île-de-France",
+                        country: "France",
+                      },
+                    },
+                  ],
+                }),
+              )
+            : res(ctx.status(status), ctx.text("down")),
+        ),
+      );
+
+    it("is not shown unless the widget asks for it", async () => {
+      renderForm("", () => {});
+      await screen.findByLabelText(LABEL);
+      expect(
+        screen.queryByRole("button", { name: BUTTON }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("fills the field with the resolved place", async () => {
+      mockPosition(true);
+      mockReverse();
+      const onChange = jest.fn();
+      renderForm("", onChange, false, false, true, true);
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      await waitFor(() => {
+        expect(input).toHaveValue("Paris, Île-de-France, France");
+      });
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "whosonfirst:locality:101751119",
+          simplifiedName: "Paris, Île-de-France, France",
+        }),
+      );
+    });
+
+    it("fills a city-level field with the city, not the street", async () => {
+      // Destination search looks for hosts in a city, so the street the device is
+      // standing on collapses to the city around it (and gets the city's bbox).
+      const PLACE_URL = `${process.env
+        .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
+      mockPosition(true);
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          res(
+            ctx.json({
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: [2.3512, 48.8565] },
+                  properties: {
+                    gid: "openstreetmap:address:1",
+                    layer: "address",
+                    label: "8 Place De L'Hotel De Ville, Paris, France",
+                    name: "8 Place De L'Hotel De Ville",
+                    locality: "Paris",
+                    locality_gid: "whosonfirst:locality:101751119",
+                    region: "Île-de-France",
+                    country: "France",
+                  },
+                },
+              ],
+            }),
+          ),
+        ),
+        rest.get(PLACE_URL, (_req, res, ctx) =>
+          res(
+            ctx.json({
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: [2.3522, 48.8566] },
+                  bbox: [2.224, 48.815, 2.47, 48.902],
+                  properties: {
+                    gid: "whosonfirst:locality:101751119",
+                    layer: "locality",
+                    label: "Paris, Île-de-France, France",
+                    name: "Paris",
+                    locality: "Paris",
+                    region: "Île-de-France",
+                    country: "France",
+                  },
+                },
+              ],
+            }),
+          ),
+        ),
+      );
+      const onChange = jest.fn();
+      renderForm("", onChange, false, false, true, true, true);
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      await waitFor(() => {
+        expect(input).toHaveValue("Paris, Île-de-France, France");
+      });
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          simplifiedName: "Paris, Île-de-France, France",
+          bbox: [2.47, 48.902, 2.224, 48.815],
+        }),
+      );
+    });
+
+    it("explains a denied permission and still allows typing", async () => {
+      mockPosition(false, 1);
+      renderForm("", () => {}, false, false, true, true);
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(
+        await screen.findByText(t("global:use_my_location.permission_denied")),
+      ).toBeVisible();
+
+      // No dead end: the field still works, and the message clears as they type.
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+      expect(await screen.findByText("test city, test country")).toBeVisible();
+      expect(
+        screen.queryByText(t("global:use_my_location.permission_denied")),
+      ).not.toBeInTheDocument();
+    });
+
+    it("explains an unavailable position and still allows typing", async () => {
+      mockPosition(false, 2 /* POSITION_UNAVAILABLE */);
+      renderForm("", () => {}, false, false, true, true);
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(
+        await screen.findByText(
+          t("global:use_my_location.position_unavailable"),
+        ),
+      ).toBeVisible();
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+    });
+
+    it("explains a failed provider lookup and still allows typing", async () => {
+      mockPosition(true);
+      mockReverse(503);
+      renderForm("", () => {}, false, false, true, true);
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(
+        await screen.findByText(t("global:use_my_location.lookup_failed")),
+      ).toBeVisible();
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+    });
+
+    it("reports when the provider has nothing at that point", async () => {
+      mockPosition(true);
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          res(ctx.json({ type: "FeatureCollection", features: [] })),
+        ),
+      );
+      renderForm("", () => {}, false, false, true, true);
+      const user = userEvent.setup();
+      await screen.findByLabelText(LABEL);
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(
+        await screen.findByText(t("global:use_my_location.no_address")),
+      ).toBeVisible();
+    });
   });
 
   describe("during a Geocode.earth outage", () => {
