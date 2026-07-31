@@ -50,7 +50,7 @@ export default function EventTimeChanger({
 
   const handleStartDateChange = (value: Temporal.PlainDate) => {
     const endDate = getValues("endDate");
-    if (!endDate){
+    if (!endDate) {
       setValue("endDate", value, {
         shouldDirty: true,
         shouldValidate: true,
@@ -71,7 +71,7 @@ export default function EventTimeChanger({
 
   const handleStartTimeChange = (value: Temporal.PlainTime) => {
     const endTime = getValues("endTime");
-    if (!endTime){
+    if (!endTime) {
       setValue("endTime", value, {
         shouldDirty: true,
         shouldValidate: true,
