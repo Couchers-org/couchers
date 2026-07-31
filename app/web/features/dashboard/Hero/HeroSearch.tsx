@@ -98,6 +98,7 @@ export default function HeroSearch() {
           disableRegions
           preferCity
           biasToUserLocation
+          showUseMyLocation
           autocompleteContext="hero-search"
           sx={{
             "& .MuiOutlinedInput-root": {
