@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 def where_reference_user_visible[T: tuple[Any, ...]](
-    statement: Select[T], context: CouchersContext, column: InstrumentedAttribute[int]
+    statement: Select[T], context: CouchersContext, user_id_column: InstrumentedAttribute[int]
 ) -> Select[T]:
     """
     Filters references based on the visibility of the user in the given column (the writer
@@ -27,7 +27,7 @@ def where_reference_user_visible[T: tuple[Any, ...]](
         exists(
             select(1)
             .select_from(User)
-            .where(User.id == column)
+            .where(User.id == user_id_column)
             .where(User.banned_at.is_(None))
             .where(_shadow_clause(context, User))
             .correlate_except(User)
