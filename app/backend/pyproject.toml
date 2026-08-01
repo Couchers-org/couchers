@@ -60,7 +60,7 @@ dev = [
     "types-protobuf>=6.32.1.20251105",
     "types-shapely>=2.1.0.20250917",
     "types-requests>=2.32.4.20250913",
-    "types-pyyaml>=6.0.12.20250915",
+    "types-pyyaml>=6.0.12.20260724",
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-python-dateutil>=2.9.0.20251115",
