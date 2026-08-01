@@ -329,7 +329,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=46.0.3" },
     { name = "geoalchemy2", specifier = ">=0.18.0" },
     { name = "geoip2", specifier = ">=5.1.0" },
-    { name = "growthbook", specifier = ">=1.2.0" },
+    { name = "growthbook", specifier = ">=2.3.1" },
     { name = "grpcio", specifier = ">=1.80.0" },
     { name = "http-ece", specifier = ">=1.2.1" },
     { name = "ics", specifier = ">=0.7.3" },
@@ -596,7 +596,7 @@ wheels = [
 
 [[package]]
 name = "growthbook"
-version = "2.2.2"
+version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -604,9 +604,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/ba/df89ca66d9ccbbcff8dec69fbc5edc9d8a70664d4118b5dccc6d488cfbe9/growthbook-2.2.2.tar.gz", hash = "sha256:a56c11ec29d5f870a5da82e60cc651fb5c3542c50eaf64b2406bafccea59d064", size = 73231, upload-time = "2026-05-11T21:44:10.936Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/fd/d089909e6bc7cc6ec212a28678db9ade48a6e0e7f03889912ddcb9973eee/growthbook-2.3.1.tar.gz", hash = "sha256:4b49a095a6f8f50a647d6168fd7086360d2d3c9f9c7882dc689649d89c5bc972", size = 95558, upload-time = "2026-06-18T21:24:38.286Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/58/d18619f1075046d4ab2433a4f5697f2776958529bba61c75bbe7a28f6b09/growthbook-2.2.2-py2.py3-none-any.whl", hash = "sha256:c76e8c7b139cf800a63b0650bc83489e286019a80a0f688f36c1d4c42aa631a7", size = 47222, upload-time = "2026-05-11T21:44:09.6Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/52/a06cd5bfd1eb8d5f071bd22d8491ae33dfa7020f617db606095ecc154339/growthbook-2.3.1-py2.py3-none-any.whl", hash = "sha256:b2374227838916af65749bf074789c7a53ae10e53ab2b9ede9880bc6624c29ac", size = 57748, upload-time = "2026-06-18T21:24:37.109Z" },
 ]
 
 [[package]]
