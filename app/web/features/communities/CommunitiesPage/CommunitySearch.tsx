@@ -6,12 +6,12 @@ import {
 } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
+import { CommunitySummary } from "couchers/proto/communities_pb";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
-import { CommunitySummary } from "proto/communities_pb";
 import { useEffect, useMemo, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
 import { listAllCommunities } from "service/communities";

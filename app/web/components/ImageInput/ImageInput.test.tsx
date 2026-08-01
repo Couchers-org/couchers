@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { InitiateMediaUploadRes } from "couchers/proto/api_pb";
 import { StatusCode } from "grpc-web";
-import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import client from "service/client";

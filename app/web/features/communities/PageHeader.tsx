@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import Map from "components/OldMap";
+import { Page } from "couchers/proto/pages_pb";
 import { LngLat } from "maplibre-gl";
-import { Page } from "proto/pages_pb";
 import React from "react";
 
 const StyledWrapper = styled("div")(({ theme }) => ({

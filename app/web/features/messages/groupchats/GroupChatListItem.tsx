@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { MuteIcon } from "components/Icons";
+import { GroupChat } from "couchers/proto/conversations_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   controlMessage,
@@ -30,7 +31,6 @@ import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { GroupChat } from "proto/conversations_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";

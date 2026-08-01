@@ -8,12 +8,12 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { GetAccountInfoRes, ProfilePublicVisibility } from "couchers/proto/account_pb";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { GetAccountInfoRes, ProfilePublicVisibility } from "proto/account_pb";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";

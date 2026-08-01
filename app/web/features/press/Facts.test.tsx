@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { Volunteer } from "couchers/proto/public_pb";
 import { useListVolunteers } from "features/communities/hooks";
-import { Volunteer } from "proto/public_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import useSignupPageInfo, { SignupInfo } from "utils/useSignupPageInfo";

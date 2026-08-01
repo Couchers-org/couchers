@@ -1,7 +1,7 @@
 import { Chip, styled, Tooltip } from "@mui/material";
+import { Badge as BadgeType } from "couchers/proto/resources_pb";
 import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import Link from "next/link";
-import { Badge as BadgeType } from "proto/resources_pb";
 import { routeToBadge } from "routes";
 
 interface BadgeProps {

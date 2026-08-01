@@ -1,7 +1,7 @@
 import { Link, Typography } from "@mui/material";
+import { GetAccountInfoRes } from "couchers/proto/account_pb";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { theme } from "theme";
 
 import DeleteStrongVerificationDataButton from "./DeleteStrongVerificationDataButton";

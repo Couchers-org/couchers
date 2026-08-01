@@ -1,12 +1,12 @@
-import { TFunction } from "i18next";
 import {
   HostingStatus,
   MeetupStatus,
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
-} from "proto/api_pb";
-import { ReferenceType } from "proto/references_pb";
+} from "couchers/proto/api_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
+import { TFunction } from "i18next";
 
 export const referencesFilterLabels = (t: TFunction) => ({
   [ReferenceType.REFERENCE_TYPE_FRIEND]: t(

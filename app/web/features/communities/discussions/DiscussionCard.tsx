@@ -1,5 +1,6 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import { Discussion } from "couchers/proto/discussions_pb";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
@@ -8,7 +9,6 @@ import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
-import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";

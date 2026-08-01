@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LiteUser, User } from "couchers/proto/api_pb";
+import { BlockedUser, GetBlockedUsersRes } from "couchers/proto/blocking_pb";
 import { blockedUsersKey, friendIdsKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import Sentry from "platform/sentry";
-import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { service } from "service";
-
-import { LiteUser, User } from "../../../../proto/api_pb";
 
 const useUnblockUser = () => {
   const queryClient = useQueryClient();

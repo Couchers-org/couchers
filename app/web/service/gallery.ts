@@ -5,7 +5,7 @@ import {
   MovePhotoReq,
   RemovePhotoFromGalleryReq,
   UpdatePhotoCaptionReq,
-} from "proto/galleries_pb";
+} from "couchers/proto/galleries_pb";
 
 import client from "./client";
 

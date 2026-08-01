@@ -6,9 +6,9 @@ import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import UsersList from "components/UsersList";
+import { Community } from "couchers/proto/communities_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 import { useState } from "react";
 
 import { SectionTitle } from "../CommunityPage";

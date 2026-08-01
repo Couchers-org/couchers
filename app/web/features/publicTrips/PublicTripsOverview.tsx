@@ -6,6 +6,7 @@ import FadingScrollTrack from "components/FadingScrollTrack";
 import { CouchIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
+import { Community } from "couchers/proto/communities_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { SectionTitle } from "features/communities/CommunityPage";
 import {
@@ -15,7 +16,6 @@ import {
 } from "features/dashboard/DashboardPublicTripCard";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 import { theme } from "theme";

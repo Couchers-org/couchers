@@ -4,7 +4,7 @@ import {
   GeolocationSearchInfoReq,
   ReportBugReq,
   ScreenResolution,
-} from "proto/bugs_pb";
+} from "couchers/proto/bugs_pb";
 
 import client from "./client";
 

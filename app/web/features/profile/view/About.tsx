@@ -1,9 +1,9 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
+import { User } from "couchers/proto/api_pb";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 import { useRegions } from "../hooks/useRegions";

@@ -2,10 +2,10 @@ import { styled, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import StyledLink from "components/StyledLink";
+import { UserDetails } from "couchers/proto/admin_pb";
+import { User } from "couchers/proto/api_pb";
 import { useTranslation } from "i18n";
 import { GLOBAL, MOD } from "i18n/namespaces";
-import { UserDetails } from "proto/admin_pb";
-import { User } from "proto/api_pb";
 
 interface ModPanelProps {
   user: User.AsObject;

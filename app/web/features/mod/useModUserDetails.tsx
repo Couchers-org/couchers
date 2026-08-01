@@ -1,4 +1,4 @@
-import { UserDetails } from "proto/admin_pb";
+import { UserDetails } from "couchers/proto/admin_pb";
 import * as React from "react";
 
 const ModUserDetailsContext = React.createContext<UserDetails.AsObject>(

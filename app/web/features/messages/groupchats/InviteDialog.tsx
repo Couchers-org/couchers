@@ -9,6 +9,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
+import { User } from "couchers/proto/api_pb";
+import { GroupChat } from "couchers/proto/conversations_pb";
 import useFriendList from "features/connections/friends/useFriendList";
 import {
   groupChatKey,
@@ -19,8 +21,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";

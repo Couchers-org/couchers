@@ -14,11 +14,11 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { HostRequestQuality } from "couchers/proto/requests_pb";
 import { hostRequestKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequestQuality } from "proto/requests_pb";
 import { useState } from "react";
 import { service } from "service";
 

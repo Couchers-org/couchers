@@ -36,8 +36,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-proto/**
-
 # Generated blog index and RSS feed
 markdown/blog.md
 public/blog/rss.xml

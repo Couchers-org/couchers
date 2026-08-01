@@ -21,11 +21,11 @@ import {
 import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
+import { User } from "couchers/proto/api_pb";
 import { useBlockUser } from "features/connections/friends/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { User } from "proto/api_pb";
 import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { dashboardRoute } from "routes";

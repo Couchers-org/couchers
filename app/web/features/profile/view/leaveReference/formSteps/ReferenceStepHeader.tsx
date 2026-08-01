@@ -1,11 +1,11 @@
 import { styled, Typography } from "@mui/material";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
+import { ReferenceType } from "couchers/proto/references_pb";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
 import { ReferenceStep, referenceTypeRoute, routeToUser } from "routes";
 import { theme } from "theme";
 

@@ -1,6 +1,6 @@
 import { Avatar as MuiAvatar, styled } from "@mui/material";
 import ProfileLink from "components/ProfileLink/ProfileLink";
-import { LiteUser } from "proto/api_pb";
+import { LiteUser } from "couchers/proto/api_pb";
 import React from "react";
 
 import { getProfileLinkA11yLabel } from "./constants";

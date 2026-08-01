@@ -21,6 +21,7 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
+import { HostingStatus } from "couchers/proto/api_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   StyledButton,
@@ -30,7 +31,6 @@ import {
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { HostingStatus } from "proto/api_pb";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";

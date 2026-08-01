@@ -1,6 +1,7 @@
 import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { ReferenceType } from "couchers/proto/references_pb";
 import {
   useWriteFriendReference,
   useWriteHostReference,
@@ -10,7 +11,6 @@ import { ReferenceContextFormData } from "features/profile/view/leaveReference/R
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
 import { useForm } from "react-hook-form";
 import {
   leaveReferenceBaseRoute,

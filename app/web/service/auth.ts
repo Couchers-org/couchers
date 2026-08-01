@@ -1,5 +1,4 @@
-import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus } from "proto/api_pb";
+import { HostingStatus } from "couchers/proto/api_pb";
 import {
   AntiBotReq,
   ConfirmDeleteAccountReq,
@@ -12,7 +11,8 @@ import {
   SignupMotivations,
   UnsubscribeReq,
   UsernameValidReq,
-} from "proto/auth_pb";
+} from "couchers/proto/auth_pb";
+import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { Temporal } from "temporal-polyfill";
 
 import client from "./client";

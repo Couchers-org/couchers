@@ -3,12 +3,12 @@ import { Breadcrumbs, styled, Typography } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
+import { Community } from "couchers/proto/communities_pb";
+import { CommunityParent } from "couchers/proto/groups_pb";
 import { useListSubCommunities } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Community } from "proto/communities_pb";
-import { CommunityParent } from "proto/groups_pb";
 import { ReactNode, useEffect } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 

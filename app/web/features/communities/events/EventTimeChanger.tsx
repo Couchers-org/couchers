@@ -1,9 +1,9 @@
 import { styled } from "@mui/material";
 import Datepicker from "components/Datepicker";
 import Timepicker from "components/Timepicker";
+import { Event } from "couchers/proto/events_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";

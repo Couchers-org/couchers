@@ -1,6 +1,11 @@
 import { styled, Tooltip } from "@mui/material";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
+import {
+  BirthdateVerificationStatus,
+  GenderVerificationStatus,
+  User,
+} from "couchers/proto/api_pb";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
 import {
@@ -11,11 +16,6 @@ import {
   localizeYearMonth,
 } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
-import {
-  BirthdateVerificationStatus,
-  GenderVerificationStatus,
-  User,
-} from "proto/api_pb";
 import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";

@@ -5,10 +5,10 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { User } from "couchers/proto/api_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { User } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
 import { service } from "service";

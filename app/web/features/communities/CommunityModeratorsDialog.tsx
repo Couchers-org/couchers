@@ -7,9 +7,9 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UsersList from "components/UsersList";
+import { Community } from "couchers/proto/communities_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 
 import { useListAdmins } from "./hooks";
 

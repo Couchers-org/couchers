@@ -7,8 +7,8 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
+import { User } from "couchers/proto/api_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { User } from "proto/api_pb";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import users from "test/fixtures/users.json";

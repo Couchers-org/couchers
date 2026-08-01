@@ -3,6 +3,8 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
+import { ListUserIdsRes, UserDetails } from "couchers/proto/admin_pb";
+import { User } from "couchers/proto/api_pb";
 import {
   modUserDetailsKey,
   modUserKey,
@@ -10,8 +12,6 @@ import {
 } from "features/queryKeys";
 import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
-import { ListUserIdsRes, UserDetails } from "proto/admin_pb";
-import { User } from "proto/api_pb";
 import { service } from "service";
 
 export const useNewUsers = () => {

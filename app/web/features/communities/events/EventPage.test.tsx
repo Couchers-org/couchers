@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { User } from "couchers/proto/api_pb";
+import { AttendanceState } from "couchers/proto/events_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import mockRouter from "next-router-mock";
-import { User } from "proto/api_pb";
-import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";

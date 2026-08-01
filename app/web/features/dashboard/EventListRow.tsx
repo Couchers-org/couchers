@@ -1,10 +1,10 @@
 import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
+import { Event } from "couchers/proto/events_pb";
 import { useTranslation } from "i18n";
 import { localizeDateTime, localizeMonthAbbreviation } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
 import { Temporal } from "temporal-polyfill";
 import { timestampToZonedDateTime } from "utils/date";

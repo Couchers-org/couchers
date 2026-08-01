@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
+import { GetGroupChatMessagesRes } from "couchers/proto/conversations_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, {
@@ -24,7 +25,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { GetGroupChatMessagesRes } from "proto/conversations_pb";
 import { service } from "service";
 import { useIsNativeEmbed } from "utils/nativeLink";
 

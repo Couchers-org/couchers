@@ -1,5 +1,5 @@
+import { DiagnosticInfo, ReportDiagnosticsReq } from "couchers/proto/bugs_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { DiagnosticInfo, ReportDiagnosticsReq } from "proto/bugs_pb";
 
 import client from "./client";
 

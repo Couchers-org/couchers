@@ -1,9 +1,4 @@
-import {
-  BoolValue,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
-import { StatusCode } from "grpc-web";
-import { LiteUser, User } from "proto/api_pb";
+import { LiteUser, User } from "couchers/proto/api_pb";
 import {
   CreateGroupChatReq,
   EditGroupChatReq,
@@ -20,7 +15,12 @@ import {
   SendDirectMessageReq,
   SendMessageReq,
   SetGroupChatArchiveStatusReq,
-} from "proto/conversations_pb";
+} from "couchers/proto/conversations_pb";
+import {
+  BoolValue,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
+import { StatusCode } from "grpc-web";
 import { Temporal } from "temporal-polyfill";
 import { durationToProtobuf } from "utils/date";
 

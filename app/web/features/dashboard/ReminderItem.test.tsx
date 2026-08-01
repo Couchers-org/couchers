@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ReferenceType } from "proto/references_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

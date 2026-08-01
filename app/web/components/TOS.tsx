@@ -3,11 +3,11 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
+import { GetTermsOfServiceRes } from "couchers/proto/resources_pb";
 import { tosQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { service } from "service";
 
 export default function TOS() {

@@ -1,10 +1,10 @@
 import { ArrowBack, ArrowForward, Forum } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { ListMyCommunitiesDiscussionsRes } from "couchers/proto/discussions_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { ListMyCommunitiesDiscussionsRes } from "proto/discussions_pb";
 import { useState } from "react";
 import { service } from "service";
 

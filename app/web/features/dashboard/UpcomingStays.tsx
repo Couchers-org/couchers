@@ -8,17 +8,17 @@ import { Box, IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
+import {
+  HostRequest,
+  HostRequestSortBy,
+  ListHostRequestsRes,
+} from "couchers/proto/requests_pb";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/messages_pb";
-import {
-  HostRequest,
-  HostRequestSortBy,
-  ListHostRequestsRes,
-} from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";

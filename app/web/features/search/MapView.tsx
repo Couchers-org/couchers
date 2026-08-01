@@ -1,10 +1,10 @@
 import { Button, debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
+import { SearchUser } from "couchers/proto/search_pb";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { GeoJSONSource, LngLatLike, MapLayerMouseEvent } from "maplibre-gl";
-import { SearchUser } from "proto/search_pb";
 import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 

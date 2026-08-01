@@ -1,4 +1,4 @@
-import { NativeUpdateAction } from "@/proto/bugs_pb";
+import { NativeUpdateAction } from "couchers/proto/bugs_pb";
 import {
   checkNativeStatus,
   NativeStatusPayload,

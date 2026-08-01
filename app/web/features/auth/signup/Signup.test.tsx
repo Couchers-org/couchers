@@ -7,12 +7,12 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
+import { HostingStatus } from "couchers/proto/api_pb";
+import { SignupFlowRes } from "couchers/proto/auth_pb";
 import useAuthStore from "features/auth/useAuthStore";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
-import { HostingStatus } from "proto/api_pb";
-import { SignupFlowRes } from "proto/auth_pb";
 import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";

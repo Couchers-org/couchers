@@ -7,11 +7,11 @@ import {
 } from "@mui/material";
 import Avatar from "components/Avatar";
 import UserSummary from "components/UserSummary";
+import { LiteUser } from "couchers/proto/api_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useTranslation } from "i18n";
 import { localizeDateTimeRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { HostRequest } from "proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import { daysBetween } from "utils/date";

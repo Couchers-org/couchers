@@ -1,12 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
+import { User } from "couchers/proto/api_pb";
 import { userKey, username2Id } from "features/queryKeys";
 import {
   username2IdStaleTime,
   userStaleTime,
 } from "features/userQueries/constants";
 import { RpcError, StatusCode } from "grpc-web";
-import { User } from "proto/api_pb";
 import { useEffect } from "react";
 import { service } from "service";
 

@@ -1,13 +1,13 @@
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import React from "react";
-
 import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
   User,
-} from "../../../proto/api_pb";
+} from "couchers/proto/api_pb";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import React from "react";
+
 import { HostingPreferenceData } from "../../../service/user";
 import EditHostingPreferenceForm from "./EditHostingPreferenceForm";
 

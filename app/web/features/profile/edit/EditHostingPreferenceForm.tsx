@@ -11,6 +11,11 @@ import Button from "components/Button";
 import Select from "components/Select";
 import Snackbar from "components/Snackbar";
 import {
+  ParkingDetails,
+  SleepingArrangement,
+  SmokingLocation,
+} from "couchers/proto/api_pb";
+import {
   parkingDetailsLabels,
   sleepingArrangementLabelsShort,
   smokingLocationLabels,
@@ -20,11 +25,6 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import {
-  ParkingDetails,
-  SleepingArrangement,
-  SmokingLocation,
-} from "proto/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";

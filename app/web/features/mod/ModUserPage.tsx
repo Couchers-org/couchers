@@ -3,6 +3,7 @@ import { Button, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import { UserDetails } from "couchers/proto/admin_pb";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserCard from "features/profile/view/UserCard";
 import UserOverview from "features/profile/view/UserOverview";
@@ -11,7 +12,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MOD } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { UserDetails } from "proto/admin_pb";
 import { adminPanelUserLink, routeToModUser, UserTab } from "routes";
 
 import useUserWithDetails from "./hooks";

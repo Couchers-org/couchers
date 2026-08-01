@@ -3,7 +3,7 @@ import {
   GetThreadReq,
   PostReplyReq,
   UpdateReplyReq,
-} from "proto/threads_pb";
+} from "couchers/proto/threads_pb";
 
 import client from "./client";
 

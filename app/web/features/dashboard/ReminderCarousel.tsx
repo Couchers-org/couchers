@@ -7,10 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import IconButton from "components/IconButton";
+import { GetRemindersRes, Reminder } from "couchers/proto/account_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
-import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
 

@@ -1,9 +1,9 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
 
 import { getApiBaseUrl } from "@/config/urls";
-import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
-import { BugsPromiseClient } from "@/proto/bugs_grpc_web_pb";
-import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
+import { AuthPromiseClient } from "couchers/proto/auth_grpc_web_pb";
+import { BugsPromiseClient } from "couchers/proto/bugs_grpc_web_pb";
+import { NotificationsPromiseClient } from "couchers/proto/notifications_grpc_web_pb";
 import isGrpcError from "@/service/utils/isGrpcError";
 import { getClientPlatform } from "@/utils/clientPlatform";
 import { applicationNameForUserAgent } from "@/utils/userAgent";

@@ -6,13 +6,13 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
+import { GetAccountInfoRes } from "couchers/proto/account_pb";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
 import {
   formatPhoneNumberIntl,

@@ -4,11 +4,11 @@ import Button from "components/Button";
 import CursorPagination from "components/CursorPagination";
 import { EllipsisMenuItem } from "components/EllipsisMenu";
 import UsersList from "components/UsersList";
+import { LiteUser } from "couchers/proto/api_pb";
+import { ListEventAttendeesRes } from "couchers/proto/events_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { ListEventAttendeesRes } from "proto/events_pb";
 import { theme } from "theme";
 
 const StyledWrapper = styled(Card)(() => ({

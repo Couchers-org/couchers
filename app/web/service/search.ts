@@ -1,3 +1,10 @@
+import { HostingStatus, MeetupStatus } from "couchers/proto/api_pb";
+import {
+  EventSearchReq,
+  EventSearchRes,
+  RectArea,
+  UserSearchReq,
+} from "couchers/proto/search_pb";
 import {
   Coordinates,
   DEFAULT_AGE_MAX,
@@ -10,13 +17,6 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import {
-  EventSearchReq,
-  EventSearchRes,
-  RectArea,
-  UserSearchReq,
-} from "proto/search_pb";
 import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 

@@ -7,9 +7,9 @@ import {
   ExpandMoreIcon,
 } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
+import { AttendanceState } from "couchers/proto/events_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { AttendanceState } from "proto/events_pb";
 import { useState } from "react";
 import { theme } from "theme";
 

@@ -1,8 +1,8 @@
 import { styled } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
+import { Message } from "couchers/proto/messages_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { messageElementId } from "features/messages/messagelist/MessageView";
-import { Message } from "proto/messages_pb";
 import {
   ReactNode,
   useCallback,

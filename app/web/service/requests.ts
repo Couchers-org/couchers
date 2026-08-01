@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "proto/messages_pb";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -12,7 +12,7 @@ import {
   SendHostRequestFeedbackReq,
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
-} from "proto/requests_pb";
+} from "couchers/proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 
 import client from "./client";

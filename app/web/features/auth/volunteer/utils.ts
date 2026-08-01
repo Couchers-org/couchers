@@ -4,7 +4,7 @@ import {
   GlobeIcon,
   LinkedInIcon,
 } from "components/Icons";
-import { GetMyVolunteerInfoRes } from "proto/account_pb";
+import { GetMyVolunteerInfoRes } from "couchers/proto/account_pb";
 
 // Constants
 export const LINK_TYPES = ["couchers", "email", "linkedin", "website"] as const;

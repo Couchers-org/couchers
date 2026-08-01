@@ -1,8 +1,8 @@
+import { GroupChat } from "couchers/proto/conversations_pb";
+import { Message } from "couchers/proto/messages_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
-import { GroupChat } from "proto/conversations_pb";
-import { Message } from "proto/messages_pb";
-import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
 import {

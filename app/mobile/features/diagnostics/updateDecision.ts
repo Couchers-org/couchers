@@ -1,4 +1,4 @@
-import { NativeUpdateAction, NativeUpdateInfo } from "@/proto/bugs_pb";
+import { NativeUpdateAction, NativeUpdateInfo } from "couchers/proto/bugs_pb";
 
 // How the prompt should present a given decision:
 //   block — required & past its deadline (or no deadline): full-screen, non-dismissible.

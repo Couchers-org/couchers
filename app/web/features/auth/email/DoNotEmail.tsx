@@ -3,13 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { GetNotificationSettingsRes } from "couchers/proto/notifications_pb";
 import { doNotEmailQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { service } from "service";
-
-import { GetNotificationSettingsRes } from "../../../proto/notifications_pb";
 
 interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;

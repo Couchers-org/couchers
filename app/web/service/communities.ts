@@ -14,8 +14,8 @@ import {
   ListRecentCommunitiesReq,
   ListUserCommunitiesReq,
   SearchCommunitiesReq,
-} from "proto/communities_pb";
-import { ListMyCommunitiesDiscussionsReq } from "proto/discussions_pb";
+} from "couchers/proto/communities_pb";
+import { ListMyCommunitiesDiscussionsReq } from "couchers/proto/discussions_pb";
 
 import client from "./client";
 

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Community, NodeType } from "proto/communities_pb";
+import { Community, NodeType } from "couchers/proto/communities_pb";
 import { routeToCommunity } from "routes";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

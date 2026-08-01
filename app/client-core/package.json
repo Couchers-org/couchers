@@ -1,0 +1,6 @@
+{
+  "name": "couchers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generated gRPC-Web/JS protobuf stubs shared between web and mobile"
+}

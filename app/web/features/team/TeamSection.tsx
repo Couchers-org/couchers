@@ -15,8 +15,8 @@ import {
 } from "components/Icons";
 import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
+import { Volunteer } from "couchers/proto/public_pb";
 import { GLOBAL } from "i18n/namespaces";
-import { Volunteer } from "proto/public_pb";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { teamRoute } from "routes";

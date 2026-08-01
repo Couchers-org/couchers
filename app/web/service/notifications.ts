@@ -1,4 +1,3 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
   ListNotificationsReq,
@@ -9,7 +8,8 @@ import {
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
-} from "proto/notifications_pb";
+} from "couchers/proto/notifications_pb";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import client from "./client";
 

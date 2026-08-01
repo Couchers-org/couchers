@@ -4,8 +4,8 @@ import {
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
+import { GetHostRequestReferenceStatusRes } from "couchers/proto/references_pb";
 import mockRouter from "next-router-mock";
-import { GetHostRequestReferenceStatusRes } from "proto/references_pb";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";

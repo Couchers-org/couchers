@@ -9,11 +9,11 @@ import {
 } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
+import { Community, NodeType } from "couchers/proto/communities_pb";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Community, NodeType } from "proto/communities_pb";
 import { KeyboardEvent, useState } from "react";
 import { communityCreationFormURL, routeToCommunity } from "routes";
 

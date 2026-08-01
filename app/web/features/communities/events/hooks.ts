@@ -1,5 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
+  Event,
+  ListEventAttendeesRes,
+  ListEventOrganizersRes,
+  ListMyEventsRes,
+} from "couchers/proto/events_pb";
+import { EventSearchRes } from "couchers/proto/search_pb";
+import {
   eventAttendeesKey,
   eventKey,
   eventOrganizersKey,
@@ -7,13 +14,6 @@ import {
   QueryType,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import {
-  Event,
-  ListEventAttendeesRes,
-  ListEventOrganizersRes,
-  ListMyEventsRes,
-} from "proto/events_pb";
-import { EventSearchRes } from "proto/search_pb";
 import { service } from "service";
 import type { ListMyEventsInput } from "service/events";
 import { GeocodeResult } from "utils/hooks";

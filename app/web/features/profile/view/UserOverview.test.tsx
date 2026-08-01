@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus } from "couchers/proto/api_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { addDefaultUser } from "test/utils";

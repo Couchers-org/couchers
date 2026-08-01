@@ -15,12 +15,12 @@ popd
 
 # actually build the protos
 cd ..
-mkdir -p web/proto/
+mkdir -p client-core/couchers/proto/
 find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto \
   --plugin=protoc-gen-grpc-web=/tmp/deps/protoc-gen-grpc-web \
   --plugin=protoc-gen-js=/tmp/deps/bin/protoc-gen-js \
   \
-  --js_out="import_style=commonjs,binary:web/proto" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web/proto" \
+  --js_out="import_style=commonjs,binary:client-core/couchers/proto" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:client-core/couchers/proto" \
   \
   $(xargs)

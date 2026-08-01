@@ -29,6 +29,7 @@ import {
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
+import { PublicTripStatus } from "couchers/proto/public_trips_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
@@ -36,7 +37,6 @@ import { useTranslation } from "i18n";
 import { localizeDateTimeRange } from "i18n/datetimes";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
-import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
 import { Temporal } from "temporal-polyfill";

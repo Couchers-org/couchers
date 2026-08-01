@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PhotoGallery } from "couchers/proto/galleries_pb";
 import { galleryEditInfoKey, galleryKey, userKey } from "features/queryKeys";
-import { PhotoGallery } from "proto/galleries_pb";
 import { service } from "service";
 
 export function useGallery(galleryId: number | undefined) {

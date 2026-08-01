@@ -8,6 +8,8 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Redirect from "components/Redirect";
 import Snackbar from "components/Snackbar";
+import { Community } from "couchers/proto/communities_pb";
+import { Page } from "couchers/proto/pages_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -17,8 +19,6 @@ import { routeToCommunity } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { Community } from "../../proto/communities_pb";
-import { Page } from "../../proto/pages_pb";
 import { communityKey } from "../queryKeys";
 import CommunityBase from "./CommunityBase";
 

@@ -1,10 +1,10 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { HostRequestStatus } from "proto/messages_pb";
-import { HostRequest } from "proto/requests_pb";
 import hostRequest from "test/fixtures/hostRequest.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

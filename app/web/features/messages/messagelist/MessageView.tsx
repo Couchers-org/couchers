@@ -2,13 +2,13 @@ import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Linkify from "components/Linkify";
 import TextBody from "components/TextBody";
+import { Message } from "couchers/proto/messages_pb";
 import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/messages_pb";
 import { timestampToInstant } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 

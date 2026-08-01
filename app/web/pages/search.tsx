@@ -1,4 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
+import { HostingStatus } from "couchers/proto/api_pb";
 import SearchPageComponent from "features/search/SearchPage";
 import { MapSearchProvider } from "features/search/state/mapSearchContext";
 import { Coordinates } from "features/search/utils/constants";
@@ -12,7 +13,6 @@ import {
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
-import { HostingStatus } from "proto/api_pb";
 
 export const getStaticProps: GetStaticProps = translationStaticProps([
   GLOBAL,

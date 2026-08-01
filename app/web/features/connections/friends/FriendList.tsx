@@ -1,7 +1,7 @@
 import { Alert } from "@mui/material";
+import { LiteUser } from "couchers/proto/api_pb";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 

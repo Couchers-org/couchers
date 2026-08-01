@@ -3,10 +3,10 @@ import { IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
+import { ListMyEventsRes } from "couchers/proto/events_pb";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { ListMyEventsRes } from "proto/events_pb";
 import { useState } from "react";
 import { routeToNewEvent } from "routes";
 

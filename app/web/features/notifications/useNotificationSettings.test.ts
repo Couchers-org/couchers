@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
+import { GetNotificationSettingsRes } from "couchers/proto/notifications_pb";
 import { RpcError, StatusCode } from "grpc-web";
-import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 

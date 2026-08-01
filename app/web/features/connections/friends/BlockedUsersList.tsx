@@ -1,11 +1,11 @@
 import { People } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import EllipsisMenu from "components/EllipsisMenu";
+import { BlockedUser, GetBlockedUsersRes } from "couchers/proto/blocking_pb";
 import { blockedUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { CONNECTIONS } from "i18n/namespaces";
-import { BlockedUser, GetBlockedUsersRes } from "proto/blocking_pb";
 import { useState } from "react";
 import { service } from "service";
 

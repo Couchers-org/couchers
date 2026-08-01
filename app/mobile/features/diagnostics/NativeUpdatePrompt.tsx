@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 import { UpdatePrompt } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateAction, NativeUpdateCause } from "@/proto/bugs_pb";
+import { NativeUpdateAction, NativeUpdateCause } from "couchers/proto/bugs_pb";
 import { theme } from "@/theme";
 
 const logo = require("@/assets/images/couchers_logo.png");

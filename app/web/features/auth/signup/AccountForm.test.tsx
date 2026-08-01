@@ -1,9 +1,9 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
+import { HostingStatus } from "couchers/proto/api_pb";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
-import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import wrapper from "test/hookWrapper";

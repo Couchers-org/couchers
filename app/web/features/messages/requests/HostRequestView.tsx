@@ -12,6 +12,11 @@ import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
+import {
+  GetHostRequestMessagesRes,
+  RespondHostRequestReq,
+} from "couchers/proto/requests_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
@@ -27,11 +32,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { HostRequestStatus } from "proto/messages_pb";
-import {
-  GetHostRequestMessagesRes,
-  RespondHostRequestReq,
-} from "proto/requests_pb";
 import { useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";

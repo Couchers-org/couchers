@@ -4,18 +4,18 @@ import Button from "components/Button";
 import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import StyledLink from "components/StyledLink";
+import { User } from "couchers/proto/api_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
 import { referencesFilterLabels } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
-import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import { theme } from "theme";
 
-import { User } from "../../../proto/api_pb";
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
 

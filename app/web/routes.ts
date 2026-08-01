@@ -4,7 +4,7 @@ The source of truth for URLs is
 Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
-import { ReferenceType } from "proto/references_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
 import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 
 export const baseRoute = "/";

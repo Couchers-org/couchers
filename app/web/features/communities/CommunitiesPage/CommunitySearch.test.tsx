@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { CommunitySummary, NodeType } from "couchers/proto/communities_pb";
 import Sentry from "platform/sentry";
-import { CommunitySummary, NodeType } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import * as communitiesService from "service/communities";
 import wrapper from "test/hookWrapper";

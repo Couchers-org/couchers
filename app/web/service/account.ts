@@ -1,9 +1,3 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  BoolValue,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   ChangeEmailV2Req,
   ChangeLanguagePreferenceReq,
@@ -20,13 +14,19 @@ import {
   SetProfilePublicVisibilityReq,
   UpdateMyVolunteerInfoReq,
   VerifyPhoneReq,
-} from "proto/account_pb";
+} from "couchers/proto/account_pb";
 import {
   CompletePasswordResetV2Req,
   ConfirmChangeEmailV2Req,
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
-} from "proto/auth_pb";
+} from "couchers/proto/auth_pb";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import {
+  BoolValue,
+  StringValue,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 
 import { contributorFormFromObject } from "./auth";
 import client from "./client";

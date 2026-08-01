@@ -45,6 +45,7 @@
     "@tanstack/react-query-devtools": "^5.101.2",
     "@tanstack/react-query-persist-client": "^5.101.2",
     "@toast-ui/editor": "^3.2.2",
+    "couchers": "file:../client-core",
     "dayjs": "^1.11.21",
     "frontmatter-markdown-loader": "^3.7.0",
     "geojson": "^0.5.0",

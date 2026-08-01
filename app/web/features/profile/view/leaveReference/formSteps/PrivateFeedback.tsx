@@ -15,6 +15,7 @@ import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
+import { ReferenceType } from "couchers/proto/references_pb";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
@@ -24,7 +25,6 @@ import {
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
 import {
   helpCenterPrivateFeedbackUrl,

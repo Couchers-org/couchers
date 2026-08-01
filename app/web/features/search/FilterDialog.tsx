@@ -20,10 +20,10 @@ import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import PlusMinusSelector from "components/PlusMinusSelector";
+import { HostingStatus, MeetupStatus, SleepingArrangement } from "couchers/proto/api_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
 
 import { settingsRoute } from "../../routes";

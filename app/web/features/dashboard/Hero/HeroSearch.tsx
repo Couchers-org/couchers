@@ -1,10 +1,10 @@
 import { Box, styled, Typography } from "@mui/material";
 import LocationAutocomplete from "components/LocationAutocomplete";
+import { HostingStatus } from "couchers/proto/api_pb";
 import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { HostingStatus } from "proto/api_pb";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";

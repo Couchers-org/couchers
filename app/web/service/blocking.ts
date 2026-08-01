@@ -1,5 +1,5 @@
+import { BlockUserReq } from "couchers/proto/blocking_pb";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { BlockUserReq } from "proto/blocking_pb";
 
 import client from "./client";
 

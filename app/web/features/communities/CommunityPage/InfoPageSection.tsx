@@ -2,9 +2,9 @@ import { styled } from "@mui/material";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import StyledLink from "components/StyledLink";
+import { Community } from "couchers/proto/communities_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 
 import TitleWithIcon from "./TitleWithIcon";

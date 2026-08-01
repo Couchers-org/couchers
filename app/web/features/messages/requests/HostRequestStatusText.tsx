@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/messages_pb";
 import { theme } from "theme";
 
 interface HostRequestStatusTextProps {

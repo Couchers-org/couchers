@@ -6,8 +6,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { PublicTrip, PublicTripStatus } from "couchers/proto/public_trips_pb";
 import mockRouter from "next-router-mock";
-import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";

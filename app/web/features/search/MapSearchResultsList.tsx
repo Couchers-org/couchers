@@ -1,8 +1,8 @@
 import { styled, useMediaQuery } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
+import { SearchUser } from "couchers/proto/search_pb";
 import { RpcError } from "grpc-web";
-import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
 import PreviousNextPagination from "./PreviousNextPagination";

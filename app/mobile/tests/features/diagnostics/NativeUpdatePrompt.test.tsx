@@ -8,7 +8,7 @@ import {
   NativeUpdateAction,
   NativeUpdateCause,
   NativeUpdateInfo,
-} from "@/proto/bugs_pb";
+} from "couchers/proto/bugs_pb";
 
 jest.mock("expo-updates", () => ({
   fetchUpdateAsync: jest.fn(),

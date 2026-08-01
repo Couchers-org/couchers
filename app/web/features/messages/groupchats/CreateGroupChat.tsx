@@ -17,6 +17,7 @@ import {
 } from "components/Dialog";
 import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
+import { LiteUser, User } from "couchers/proto/api_pb";
 import useFriendList from "features/connections/friends/useFriendList";
 import { groupChatsListKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
@@ -24,7 +25,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { LiteUser, User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { routeToGroupChat, routeToUser } from "routes";

@@ -1,6 +1,6 @@
 import { List, styled } from "@mui/material";
+import { ListReferencesRes } from "couchers/proto/references_pb";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
-import { ListReferencesRes } from "proto/references_pb";
 
 import ReferenceListItem from "./ReferenceListItem";
 

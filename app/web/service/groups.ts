@@ -7,7 +7,7 @@ import {
   ListGuidesReq,
   ListMembersReq,
   ListPlacesReq,
-} from "proto/groups_pb";
+} from "couchers/proto/groups_pb";
 
 import client from "./client";
 

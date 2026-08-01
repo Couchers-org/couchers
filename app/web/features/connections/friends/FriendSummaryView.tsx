@@ -1,7 +1,7 @@
 import { styled, Theme } from "@mui/material";
 import UserSummary from "components/UserSummary";
-import { LiteUser } from "proto/api_pb";
-import { BlockedUser } from "proto/blocking_pb";
+import { LiteUser } from "couchers/proto/api_pb";
+import { BlockedUser } from "couchers/proto/blocking_pb";
 
 interface FriendSummaryViewProps {
   children?: React.ReactNode;

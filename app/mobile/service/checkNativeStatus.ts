@@ -1,7 +1,7 @@
 import { Duration } from "google-protobuf/google/protobuf/duration_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
-import { CheckNativeStatusReq } from "@/proto/bugs_pb";
+import { CheckNativeStatusReq } from "couchers/proto/bugs_pb";
 import client from "@/service/client";
 
 export interface NativeStatusPayload {

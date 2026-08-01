@@ -2,10 +2,10 @@ import { Avatar, Card, CardContent, styled, Typography } from "@mui/material";
 import { PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
+import { GetMyVolunteerInfoRes } from "couchers/proto/account_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetMyVolunteerInfoRes } from "proto/account_pb";
 import { theme } from "theme";
 
 import { getLinkTypeIcon } from "./utils";

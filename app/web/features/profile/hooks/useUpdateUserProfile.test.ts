@@ -1,8 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { LanguageAbility, User } from "couchers/proto/api_pb";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { LanguageAbility, User } from "proto/api_pb";
 import { service, UpdateUserProfileData } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";

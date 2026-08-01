@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Community } from "proto/communities_pb";
+import { Community } from "couchers/proto/communities_pb";
 import { service } from "service";
 import hookWrapper from "test/hookWrapper";
 import i18n from "test/i18n";

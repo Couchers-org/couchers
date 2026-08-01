@@ -1,10 +1,10 @@
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   CreateDiscussionReq,
   DeleteDiscussionReq,
   GetDiscussionReq,
   UpdateDiscussionReq,
-} from "proto/discussions_pb";
+} from "couchers/proto/discussions_pb";
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 import client from "./client";
 

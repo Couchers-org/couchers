@@ -10,10 +10,10 @@ import {
 } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { SearchUser } from "couchers/proto/search_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";

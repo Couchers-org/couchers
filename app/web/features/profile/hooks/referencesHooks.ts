@@ -5,6 +5,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { User } from "couchers/proto/api_pb";
+import { ListReferencesRes, Reference } from "couchers/proto/references_pb";
 import {
   availableWriteReferencesKey,
   referencesGivenKey,
@@ -12,8 +14,6 @@ import {
   ReferencesReceivedKeyInputs,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { User } from "proto/api_pb";
-import { ListReferencesRes, Reference } from "proto/references_pb";
 import { service } from "service";
 import {
   WriteFriendReferenceInput,

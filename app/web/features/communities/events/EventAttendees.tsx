@@ -2,6 +2,8 @@ import { Add } from "@mui/icons-material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EllipsisMenuItem } from "components/EllipsisMenu";
 import Snackbar from "components/Snackbar";
+import { LiteUser } from "couchers/proto/api_pb";
+import { Event } from "couchers/proto/events_pb";
 import MakeCoOrganizerDialog from "features/communities/events/MakeCoOrganizerDialog";
 import { eventOrganizersKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -9,8 +11,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { Event } from "proto/events_pb";
 import { useMemo, useState } from "react";
 import { service } from "service";
 

@@ -1,10 +1,10 @@
 import { Stack } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { FriendRequest } from "couchers/proto/api_pb";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { FriendRequest } from "proto/api_pb";
 import { useEffect, useRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 

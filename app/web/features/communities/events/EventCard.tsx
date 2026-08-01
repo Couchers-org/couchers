@@ -9,12 +9,12 @@ import {
 } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Divider from "components/Divider";
+import { Event } from "couchers/proto/events_pb";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
-import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
 import { timestampToPlainDateTime } from "utils/date";

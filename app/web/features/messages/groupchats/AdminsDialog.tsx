@@ -14,6 +14,8 @@ import {
 import IconButton from "components/IconButton";
 import { AddIcon, CloseIcon } from "components/Icons";
 import TextBody from "components/TextBody";
+import { LiteUser } from "couchers/proto/api_pb";
+import { GroupChat } from "couchers/proto/conversations_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   groupChatKey,
@@ -24,8 +26,6 @@ import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
 import { service } from "service";
 import { theme } from "theme";

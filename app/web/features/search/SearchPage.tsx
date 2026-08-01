@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { HostingStatus, MeetupStatus } from "couchers/proto/api_pb";
 import { useLogEvent } from "features/analytics/hooks";
 import { SearchAnalyticsProvider } from "features/analytics/searchAnalyticsContext";
 import { getOrCreateSearchSessionId } from "features/analytics/searchAttribution";
@@ -12,7 +13,6 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 

@@ -6,6 +6,7 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
+import { HostingStatus, MeetupStatus } from "couchers/proto/api_pb";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -13,7 +14,6 @@ import {
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
 

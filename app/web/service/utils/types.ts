@@ -1,14 +1,14 @@
 import {
-  BoolValue,
-  StringValue,
-  UInt32Value,
-} from "google-protobuf/google/protobuf/wrappers_pb";
-import {
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
   RepeatedStringValue,
-} from "proto/api_pb";
+} from "couchers/proto/api_pb";
+import {
+  BoolValue,
+  StringValue,
+  UInt32Value,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 
 export type ProtoToJsTypes<T> = T extends StringValue.AsObject
   ? string

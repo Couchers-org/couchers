@@ -6,7 +6,7 @@ import {
   NativeUpdateAction,
   NativeUpdateCause,
   NativeUpdateInfo,
-} from "@/proto/bugs_pb";
+} from "couchers/proto/bugs_pb";
 
 function info(
   overrides: Partial<NativeUpdateInfo.AsObject> = {},

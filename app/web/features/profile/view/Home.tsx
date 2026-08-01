@@ -2,6 +2,7 @@ import { styled, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
+import { User } from "couchers/proto/api_pb";
 import {
   booleanConversion,
   parkingDetailsLabels,
@@ -10,7 +11,6 @@ import {
 } from "features/profile/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   display: "flex",

@@ -4,6 +4,7 @@ import {
   PendingRounded,
 } from "@mui/icons-material";
 import { styled, Typography } from "@mui/material";
+import { HostingStatus, MeetupStatus, User } from "couchers/proto/api_pb";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -11,7 +12,6 @@ import {
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
 import { theme } from "theme";
 
 const Wrapper = styled("div")(({ theme }) => ({

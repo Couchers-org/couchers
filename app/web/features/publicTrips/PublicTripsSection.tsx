@@ -6,13 +6,13 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { AddIcon, CouchIcon, EditIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { Community } from "couchers/proto/communities_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { SectionTitle } from "features/communities/CommunityPage";
 import { useTranslation } from "i18n";
 import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
-import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import { myPublicTripsRoute } from "routes";
 

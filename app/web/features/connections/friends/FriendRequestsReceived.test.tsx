@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { FriendRequest } from "couchers/proto/api_pb";
 import mockRouter from "next-router-mock";
-import { FriendRequest } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

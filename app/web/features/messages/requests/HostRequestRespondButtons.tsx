@@ -1,8 +1,8 @@
 import { Box, styled, Typography } from "@mui/material";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/messages_pb";
 
 import FieldButton from "./FieldButton";
 

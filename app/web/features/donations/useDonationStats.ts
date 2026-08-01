@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { GetDonationStatsRes } from "couchers/proto/public_pb";
 import { donationStatsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { GetDonationStatsRes } from "proto/public_pb";
 import { service } from "service";
 
 export default function useDonationStats() {

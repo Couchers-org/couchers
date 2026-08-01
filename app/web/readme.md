@@ -109,7 +109,7 @@ cd app
 docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 ```
 
-The TypeScript definitions will be generated into `app/web/proto` (all the other definitions will also be generated into the right places, for the Python backend, etc).
+The TypeScript definitions will be generated into `app/client-core/couchers/proto` (a package shared with the mobile app; all the other definitions will also be generated into the right places, for the Python backend, etc).
 
 You can always download the latest protos at <https://develop--protos.preview.couchershq.org/> for any of the languages we use if you don't want to set up Docker.
 

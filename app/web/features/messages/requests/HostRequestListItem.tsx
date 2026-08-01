@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import TextBody from "components/TextBody";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
@@ -28,7 +29,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { localizeDateTimeRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";

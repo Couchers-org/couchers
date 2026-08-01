@@ -15,12 +15,12 @@ import {
   LocationIcon,
 } from "components/Icons";
 import IconText from "components/IconText";
+import { ActiveSession } from "couchers/proto/account_pb";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
 import { localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
 import { timestampToPlainDateTime } from "utils/date";
 

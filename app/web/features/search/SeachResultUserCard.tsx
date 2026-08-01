@@ -5,6 +5,7 @@ import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
+import { SearchUser } from "couchers/proto/search_pb";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
 import {
@@ -16,7 +17,6 @@ import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";

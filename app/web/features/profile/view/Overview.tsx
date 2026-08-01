@@ -3,6 +3,7 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { HostingStatus } from "couchers/proto/api_pb";
 import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -12,7 +13,6 @@ import UserOverview from "features/profile/view/UserOverview";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
 import {
   connectionsRoute,

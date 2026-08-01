@@ -1,7 +1,7 @@
 import { Avatar, AvatarProps } from "@mui/material";
 import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
-import { HostRequestStatus } from "proto/messages_pb";
-import { HostRequest } from "proto/requests_pb";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import React from "react";
 import { theme } from "theme";
 

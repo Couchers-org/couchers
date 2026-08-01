@@ -3,14 +3,13 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import { UnsubscribeRes } from "couchers/proto/auth_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
-
-import { UnsubscribeRes } from "../../proto/auth_pb";
 
 interface UnsubscribeParams {
   payload?: string;

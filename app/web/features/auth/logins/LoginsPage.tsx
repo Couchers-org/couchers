@@ -8,11 +8,11 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { ListActiveSessionsRes } from "couchers/proto/account_pb";
 import { activeLoginsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { ListActiveSessionsRes } from "proto/account_pb";
 import { service } from "service";
 import { timestampToInstant } from "utils/date";
 

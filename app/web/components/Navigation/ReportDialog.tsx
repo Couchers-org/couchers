@@ -11,10 +11,10 @@ import {
 } from "components/Dialog";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
+import { ReportBugRes } from "couchers/proto/bugs_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { ReportBugRes } from "proto/bugs_pb";
 import { ComponentPropsWithRef, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Trans } from "react-i18next";

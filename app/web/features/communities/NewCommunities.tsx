@@ -1,11 +1,11 @@
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { Chip, Skeleton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { ListRecentCommunitiesRes } from "couchers/proto/communities_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ListRecentCommunitiesRes } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import { listRecentCommunities } from "service/communities";
 

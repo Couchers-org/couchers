@@ -7,12 +7,12 @@ import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
+import { Discussion } from "couchers/proto/discussions_pb";
+import { Group } from "couchers/proto/groups_pb";
+import { Page } from "couchers/proto/pages_pb";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { Discussion } from "proto/discussions_pb";
-import { Group } from "proto/groups_pb";
-import { Page } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import {
   routeToCommunity,

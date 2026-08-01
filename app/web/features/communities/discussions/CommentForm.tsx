@@ -5,6 +5,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { PostReplyRes } from "couchers/proto/threads_pb";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -14,7 +15,6 @@ import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
 
-import { PostReplyRes } from "../../../proto/threads_pb";
 import { threadKey } from "../../queryKeys";
 
 const StyledForm = styled("form")(() => ({

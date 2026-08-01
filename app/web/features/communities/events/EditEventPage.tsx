@@ -6,6 +6,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
+import { Event } from "couchers/proto/events_pb";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -16,7 +17,6 @@ import type { UpdateEventInput } from "service/events";
 import { theme } from "theme";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
-import { Event } from "../../../proto/events_pb";
 import { eventsRoute, routeToEvent } from "../../../routes";
 import { communityEventsBaseKey, eventKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";

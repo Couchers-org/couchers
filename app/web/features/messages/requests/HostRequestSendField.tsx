@@ -1,12 +1,12 @@
 import { styled } from "@mui/material";
 import { UseMutationResult } from "@tanstack/react-query";
 import TextField from "components/TextField";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { HostRequest } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 

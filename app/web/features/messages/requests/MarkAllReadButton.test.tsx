@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { GroupChat } from "couchers/proto/conversations_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { GroupChat } from "proto/conversations_pb";
-import { HostRequest } from "proto/requests_pb";
 import { service } from "service";
 import chat from "test/fixtures/groupChat.json";
 import request from "test/fixtures/hostRequest.json";

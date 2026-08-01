@@ -1,6 +1,8 @@
 import { TabPanel } from "@mui/lab";
 import { Box, Card, styled } from "@mui/material";
 import TabBar from "components/TabBar";
+import { GetAccountInfoRes } from "couchers/proto/account_pb";
+import { User } from "couchers/proto/api_pb";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
@@ -9,8 +11,6 @@ import References from "features/profile/view/References";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
-import { GetAccountInfoRes } from "proto/account_pb";
-import { User } from "proto/api_pb";
 import { ReactNode } from "react";
 import { UserTab } from "routes";
 

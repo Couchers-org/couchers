@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { User } from "proto/api_pb";
+import { User } from "couchers/proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions } from "test/serviceMockDefaults";

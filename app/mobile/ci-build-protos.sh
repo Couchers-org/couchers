@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Generates the gRPC-Web/JS stubs consumed by the Expo app (app/mobile/proto).
+# Generates the gRPC-Web/JS stubs consumed by the Expo app via the shared
+# client-core/couchers package (app/client-core).
 # Self-contained (downloads its own protoc/grpc-web) so it can run in environments
 # without the full dev toolchain: EAS Build's eas-build-pre-install hook, and as a
 # local fallback via `npm run build:protos`. GitLab CI instead generates these stubs
@@ -15,7 +16,7 @@ echo "Generating mobile proto stubs…"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROTO_SRC="${REPO_ROOT}/proto"
-OUT_DIR="${REPO_ROOT}/mobile/proto"
+OUT_DIR="${REPO_ROOT}/client-core/couchers/proto"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 

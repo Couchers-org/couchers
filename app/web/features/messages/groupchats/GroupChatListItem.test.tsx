@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { GroupChat } from "couchers/proto/conversations_pb";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
-import { GroupChat } from "proto/conversations_pb";
 import { service } from "service";
 import groupChat from "test/fixtures/groupChat.json";
 import wrapper from "test/hookWrapper";

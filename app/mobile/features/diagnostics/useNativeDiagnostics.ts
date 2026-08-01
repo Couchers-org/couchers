@@ -19,7 +19,7 @@ import {
   updateMode,
   UpdatePrompt,
 } from "@/features/diagnostics/updateDecision";
-import { NativeUpdateInfo } from "@/proto/bugs_pb";
+import { NativeUpdateInfo } from "couchers/proto/bugs_pb";
 import {
   appVariant,
   createdAt,

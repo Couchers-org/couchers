@@ -6,9 +6,9 @@ import {
   Typography,
 } from "@mui/material";
 import Button from "components/Button";
+import { ActivenessProbeResponse } from "couchers/proto/jail_pb";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { ActivenessProbeResponse } from "proto/jail_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";

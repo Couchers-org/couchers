@@ -3,10 +3,10 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
+import { ListBadgeUsersRes } from "couchers/proto/api_pb";
+import { Badge } from "couchers/proto/resources_pb";
 import { badgesKey, badgeUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { ListBadgeUsersRes } from "proto/api_pb";
-import { Badge } from "proto/resources_pb";
 import { service } from "service";
 
 // Badge definitions are platform-wide static metadata that change only when

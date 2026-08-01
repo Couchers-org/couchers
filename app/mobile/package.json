@@ -43,6 +43,7 @@
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/native": "^7.1.6",
     "@sentry/react-native": "~7.2.0",
+    "couchers": "file:../client-core",
     "expo": "~54.0.35",
     "expo-application": "~7.0.8",
     "expo-background-task": "~1.0.10",

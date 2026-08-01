@@ -3,11 +3,11 @@ import { useMediaQuery } from "@mui/system";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
+import { Reminder } from "couchers/proto/account_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { Reminder } from "proto/account_pb";
-import { ReferenceType } from "proto/references_pb";
 import {
   referenceTypeRoute,
   routeToEditProfile,

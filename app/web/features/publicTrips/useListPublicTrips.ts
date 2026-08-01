@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  ListPublicTripsByUserRes,
+  ListPublicTripsRes,
+  PublicTrip as PublicTripPb,
+  PublicTripStatus,
+} from "couchers/proto/public_trips_pb";
+import {
   publicTripsBaseKey,
   publicTripsByUserBaseKey,
   publicTripsByUserKey,
   publicTripsKey,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import {
-  ListPublicTripsByUserRes,
-  ListPublicTripsRes,
-  PublicTrip as PublicTripPb,
-  PublicTripStatus,
-} from "proto/public_trips_pb";
 import { service } from "service";
 
 export type PublicTrip = PublicTripPb.AsObject;

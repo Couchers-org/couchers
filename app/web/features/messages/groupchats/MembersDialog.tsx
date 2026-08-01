@@ -9,11 +9,11 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import TextBody from "components/TextBody";
+import { LiteUser } from "couchers/proto/api_pb";
+import { GroupChat } from "couchers/proto/conversations_pb";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { LiteUser } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { theme } from "theme";
 

@@ -9,13 +9,13 @@ import {
 } from "components/Dialog";
 import { PersonAddIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { User } from "couchers/proto/api_pb";
 import { doAntibot } from "features/antibot/antibot";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Trans, useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
 import React, { useState } from "react";
 import { helpCenterFriendRequestsURL } from "routes";
 import { service } from "service";

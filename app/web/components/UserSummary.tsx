@@ -11,8 +11,8 @@ import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
-import { LiteUser } from "proto/api_pb";
-import { BlockedUser } from "proto/blocking_pb";
+import { LiteUser } from "couchers/proto/api_pb";
+import { BlockedUser } from "couchers/proto/blocking_pb";
 import React, { useState } from "react";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 

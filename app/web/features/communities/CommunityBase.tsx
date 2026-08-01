@@ -1,10 +1,10 @@
 import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { Community } from "couchers/proto/communities_pb";
 import { useCommunity } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { Community } from "proto/communities_pb";
 import React from "react";
 
 interface CommunityBaseProps {

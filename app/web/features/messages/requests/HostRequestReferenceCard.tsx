@@ -1,13 +1,13 @@
 import { Box, styled, Typography } from "@mui/material";
 import Button from "components/Button";
+import { HostRequestStatus } from "couchers/proto/messages_pb";
+import { ReferenceType } from "couchers/proto/references_pb";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/messages_pb";
-import { ReferenceType } from "proto/references_pb";
-import { HostRequest } from "proto/requests_pb";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";
 
 const StyledCard = styled(Box)(({ theme }) => ({

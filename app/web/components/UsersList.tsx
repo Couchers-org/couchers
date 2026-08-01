@@ -1,8 +1,8 @@
 import { CircularProgress, styled } from "@mui/material";
 import UserSummary from "components/UserSummary";
+import { LiteUser } from "couchers/proto/api_pb";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { LiteUser } from "proto/api_pb";
 import { ReactNode } from "react";
 
 import Alert from "./Alert";

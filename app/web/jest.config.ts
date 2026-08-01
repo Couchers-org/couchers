@@ -11,7 +11,6 @@ const customJestConfig: Config = {
     "!**/*.d.ts",
     "!**/node_modules/**",
     "!jest.config.ts",
-    "!proto/**",
     "!.next/**",
     "!**/*.coverage/**",
   ],

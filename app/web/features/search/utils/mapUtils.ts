@@ -1,5 +1,5 @@
+import { SearchUser } from "couchers/proto/search_pb";
 import { FeatureCollection } from "geojson";
-import { SearchUser } from "proto/search_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
 import userPin from "../resources/userPin.png";

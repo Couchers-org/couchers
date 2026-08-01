@@ -5,11 +5,11 @@ import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
+import { PublicTripStatus } from "couchers/proto/public_trips_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { PublicTripStatus } from "proto/public_trips_pb";
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "utils/dayjs";
 

@@ -9,6 +9,19 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import {
+  Community,
+  ListAdminsRes,
+  ListCommunitiesRes,
+  ListDiscussionsRes,
+  ListEventsRes,
+  ListMembersRes,
+  ListNearbyUsersRes,
+  ListUserCommunitiesRes,
+} from "couchers/proto/communities_pb";
+import { Discussion } from "couchers/proto/discussions_pb";
+import { GetVolunteersRes } from "couchers/proto/public_pb";
+import { GetThreadRes } from "couchers/proto/threads_pb";
+import {
   communityAdminsKey,
   communityDiscussionsKey,
   communityEventsKey,
@@ -23,19 +36,6 @@ import {
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
-import {
-  Community,
-  ListAdminsRes,
-  ListCommunitiesRes,
-  ListDiscussionsRes,
-  ListEventsRes,
-  ListMembersRes,
-  ListNearbyUsersRes,
-  ListUserCommunitiesRes,
-} from "proto/communities_pb";
-import { Discussion } from "proto/discussions_pb";
-import { GetVolunteersRes } from "proto/public_pb";
-import { GetThreadRes } from "proto/threads_pb";
 import { useEffect } from "react";
 import { routeToCommunity } from "routes";
 import { service } from "service";

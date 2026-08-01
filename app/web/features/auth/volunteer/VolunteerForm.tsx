@@ -12,10 +12,10 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
+import { GetMyVolunteerInfoRes } from "couchers/proto/account_pb";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetMyVolunteerInfoRes } from "proto/account_pb";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { theme } from "theme";

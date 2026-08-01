@@ -4,7 +4,7 @@ import {
   ListPublicTripsReq,
   PublicTripStatus,
   UpdatePublicTripReq,
-} from "proto/public_trips_pb";
+} from "couchers/proto/public_trips_pb";
 
 import client from "./client";
 

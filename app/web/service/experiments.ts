@@ -1,4 +1,4 @@
-import { LogExperimentExposureReq } from "proto/bugs_pb";
+import { LogExperimentExposureReq } from "couchers/proto/bugs_pb";
 
 import client from "./client";
 

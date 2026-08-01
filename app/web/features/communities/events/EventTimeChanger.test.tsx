@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Event } from "proto/events_pb";
+import { Event } from "couchers/proto/events_pb";
 import { useForm } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";

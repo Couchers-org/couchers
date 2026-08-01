@@ -2,6 +2,7 @@ import { EventOutlined, PlaceOutlined } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Avatar from "components/Avatar";
+import { HostRequest } from "couchers/proto/requests_pb";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
@@ -11,7 +12,6 @@ import {
 } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
 import { Temporal } from "temporal-polyfill";
 import { daysBetween } from "utils/date";

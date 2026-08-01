@@ -2,9 +2,9 @@ import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import StyledLink from "components/StyledLink";
+import { GetAccountInfoRes } from "couchers/proto/account_pb";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { volunteerNotAVolunteerFormUrl } from "routes";
 import { theme } from "theme";
 
