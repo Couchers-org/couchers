@@ -32,8 +32,8 @@ From `/app/backend`:
 uv run pytest --query-log src
 ```
 
-This writes `test_artifacts/queries/data.local.json` (gitignored). Without the flag nothing is recorded and the
-overhead is nil, so ordinary runs are unaffected.
+This writes `test_artifacts/queries/data.local.json.gz` (gitignored; read it with `gunzip -c`). Without the flag
+nothing is recorded and the overhead is nil, so ordinary runs are unaffected.
 
 To render the report locally, then browse it over HTTP (the page fetches its data, so `file://` will not work):
 
@@ -48,7 +48,7 @@ Passing `--baseline path/to/other/data.json` compares two recordings, which is h
 
 | Piece | What it does |
 | --- | --- |
-| `src/tests/fixtures/query_log.py` | Records queries via a SQLAlchemy `after_cursor_execute` listener, writes `data.<node>.json` |
+| `src/tests/fixtures/query_log.py` | Records queries via a SQLAlchemy `after_cursor_execute` listener, writes `data.<node>.json.gz` |
 | `src/tests/conftest.py` | Registers `--query-log`, attributes queries to the running test, dumps at session end |
 | `app/scripts/query_log_report.py` | Merges the per-node dumps, diffs against the baseline, renders `index.html` |
 | `test:backend` | Runs pytest with `--query-log`; the existing `after_script` collects `test_artifacts` |
@@ -79,10 +79,19 @@ Queries are grouped into spans, in the order they occurred:
 
 ## Caveats worth knowing
 
-**Ordering within a span is not compared.** Background jobs are drained with
-`ORDER BY priority DESC, next_attempt_after ASC`, and jobs queued in one transaction tie on both columns, so Postgres
-is free to pick either. The diff therefore compares the multiset of queries in a span, not their sequence. The report
-still displays the real recorded order.
+**Ordering within a span is not compared.** The diff compares the multiset of queries in a span, not their sequence.
+The report still displays the real recorded order. Two sources make the sequence vary between otherwise identical
+runs:
+
+- Background jobs are drained with `ORDER BY priority DESC, next_attempt_after ASC`, and jobs queued in one
+  transaction tie on both columns, so Postgres is free to pick either.
+- SQLAlchemy emits the `selectinload()` fan-out for a query in an order that is not stable across processes.
+  `GetPublicUser` loads four relationships this way and their four `SELECT`s come out in a different order between
+  runs. It is deterministic when `test_public.py` runs on its own, so it depends on state built up earlier in the
+  session rather than on anything we pass in.
+
+Two full-suite runs currently differ in the sequence of 4 of 960 recorded tests, and in the multiset of none of
+them.
 
 **The inlined values come from a truncated test database.** `RESTART IDENTITY` runs before each test, so ids are small
 integers and a query reads `WHERE users.id = 3`. That user has no friends, no references and no messages, and may not

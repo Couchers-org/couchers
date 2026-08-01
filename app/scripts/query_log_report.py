@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """Merges the per-node SQL query logs from the backend test run, diffs them against develop's and renders a report.
 
-The recorder is src/tests/fixtures/query_log.py, which writes one data.<node>.json per pytest-split node. This script
+The recorder is src/tests/fixtures/query_log.py, which writes one data.<node>.json.gz per pytest-split node. This script
 unions those, compares against the baseline published by the last develop pipeline, and writes:
 
-  data.json    the merged log, which becomes the next baseline
+  data.json.gz the merged log, which becomes the next baseline
   index.html   a self-contained browsable report, by test and by RPC, defaulting to what changed
 
 Usage:
   query_log_report.py --input DIR --output DIR [--baseline data.json] [--summary-file FILE]
 
 Diffing canonicalises each span to a multiset of query shapes. Ordering within a span is not stable: background jobs
-are drained with ORDER BY priority DESC, next_attempt_after ASC, and jobs queued in one transaction tie on both, so
-Postgres picks freely. The report still displays the real recorded order.
+are drained with ORDER BY priority DESC, next_attempt_after ASC and jobs queued in one transaction tie on both, and
+SQLAlchemy emits a selectinload() fan-out in an order that varies between processes. The report still displays the
+real recorded order.
 """
 
 import argparse
@@ -37,11 +38,11 @@ def merge_nodes(input_dir: Path) -> dict[str, Any]:
     shapes: dict[str, dict[str, Any]] = {}
     sites: dict[str, str] = {}
     tests: dict[str, list[Span]] = {}
-    files = sorted(input_dir.glob("data.*.json"))
+    files = sorted(input_dir.glob("data.*.json.gz"))
     if not files:
-        raise SystemExit(f"no data.*.json found in {input_dir}")
+        raise SystemExit(f"no data.*.json.gz found in {input_dir}")
     for path in files:
-        data = json.loads(path.read_text())
+        data = _decode(path.read_bytes())
         for shape_id, shape in data["shapes"].items():
             existing = shapes.get(shape_id)
             # Shape ids are content hashes so nodes agree on them; pick the same `example` a single-node run
@@ -423,8 +424,8 @@ def render_html(current: dict[str, Any], report: dict[str, Any], commit: str) ->
 <h1>SQL query log</h1>
 <div class="sub">{n_tests} tests · {n_shapes} distinct query shapes · commit <code>{html.escape(commit)}</code></div>
 <div class="summary"><b>{html.escape(summarise(report))}</b><div class="sub">{baseline_note}
-Ordering within a span is not compared: background jobs tie on their queue ordering, so the drain order varies
-between runs. Query counts and shapes are compared.</div>{summary_rows}</div>
+Ordering within a span is not compared: background jobs tie on their queue ordering and SQLAlchemy varies the order
+of a selectinload() fan-out, so the sequence differs between runs. Query counts and shapes are compared.</div>{summary_rows}</div>
 <div class="bar">
   <button id="m-test">by test</button><button id="m-rpc">by RPC</button>
   <button id="changed">changed only</button><button id="runnable">runnable SQL</button>
@@ -439,8 +440,8 @@ between runs. Query counts and shapes are compared.</div>{summary_rows}</div>
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", required=True, type=Path, help="directory holding data.<node>.json files")
-    parser.add_argument("--output", required=True, type=Path, help="directory to write data.json and index.html to")
+    parser.add_argument("--input", required=True, type=Path, help="directory holding data.<node>.json.gz files")
+    parser.add_argument("--output", required=True, type=Path, help="directory to write data.json.gz and index.html to")
     parser.add_argument("--baseline", type=Path, help="develop's merged data.json, if available")
     parser.add_argument("--baseline-url", help="fetch the baseline from here instead; missing or broken is not fatal")
     parser.add_argument("--summary-file", type=Path, help="write the one-line summary here for the PR comment")

@@ -8,6 +8,7 @@ grouping and diffing) and one concrete rendering with the values inlined by psyc
 straight into a psql prompt.
 """
 
+import gzip
 import hashlib
 import json
 import os
@@ -282,10 +283,14 @@ def set_current_test(test_id: str | None) -> None:
 
 
 def dump(directory: Path) -> Path:
-    """Write this node's recording. The node suffix keeps the parallel CI jobs from overwriting each other."""
+    """Write this node's recording. The node suffix keeps the parallel CI jobs from overwriting each other.
+
+    Gzipped: it is mostly repeated SQL and compresses about fifteen-fold, and this file is carried between CI jobs as
+    an artifact. Read it with `gunzip -c`, or let query_log_report.py merge it.
+    """
     node = os.environ.get("CI_NODE_INDEX", "local")
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"data.{node}.json"
+    path = directory / f"data.{node}.json.gz"
     with _lock:
         data = {
             "shapes": {
@@ -305,5 +310,6 @@ def dump(directory: Path) -> Path:
                 for test, spans in sorted(_tests.items())
             },
         }
-    path.write_text(json.dumps(data, separators=(",", ":"), sort_keys=True))
+    # mtime=0 keeps the bytes reproducible, so two identical runs produce byte-identical dumps.
+    path.write_bytes(gzip.compress(json.dumps(data, separators=(",", ":"), sort_keys=True).encode(), mtime=0))
     return path

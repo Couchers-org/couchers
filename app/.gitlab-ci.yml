@@ -796,6 +796,9 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
+    # The per-node query logs came in from test:backend alongside preview:backend-coverage's merged data.json.gz,
+    # and only the merged one is worth publishing
+    - find artifacts/test_artifacts/queries -name 'data.*.json.gz' ! -name 'data.json.gz' -delete || true
     # Upload postcard samples
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive 2>/dev/null || true
