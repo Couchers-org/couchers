@@ -10,7 +10,12 @@ from sqlalchemy.sql import and_, delete, func, or_
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
-from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
+from couchers.db import (
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_nodes_parents_recursively,
+    is_user_in_node_geography,
+)
 from couchers.event_log import log_event
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
@@ -49,8 +54,7 @@ nodetype2api = {
 }
 
 
-def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
-    parents = get_node_parents_recursively(session, node_id)
+def _parents_list_to_pb(parents: Sequence[tuple[int, int, int, Cluster]]) -> list[groups_pb2.Parent]:
     return [
         groups_pb2.Parent(
             community=groups_pb2.CommunityParent(
@@ -62,6 +66,29 @@ def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
         )
         for node_id, parent_node_id, level, cluster in parents
     ]
+
+
+def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
+    return _parents_list_to_pb(get_node_parents_recursively(session, node_id))
+
+
+def _community_summary_to_pb(
+    node: Node,
+    cluster: Cluster,
+    member_count: int | None,
+    user_subscription: int | None,
+    parents: Sequence[tuple[int, int, int, Cluster]],
+) -> communities_pb2.CommunitySummary:
+    return communities_pb2.CommunitySummary(
+        community_id=node.id,
+        name=cluster.name,
+        slug=cluster.slug,
+        member=user_subscription is not None,
+        member_count=member_count or 1,
+        parents=_parents_list_to_pb(parents),
+        created=Timestamp_from_datetime(node.created),
+        node_type=nodetype2api[node.node_type],
+    )
 
 
 def communities_to_pb(
@@ -172,25 +199,52 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.SearchCommunitiesRes:
         raw_query = request.query.strip()
-        if len(raw_query) < 3:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "query_too_short")
-
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
-        word_similarity_score = func.word_similarity(func.unaccent(raw_query), func.immutable_unaccent(Cluster.name))
-
         query = (
-            select(Node)
+            select(
+                Node,
+                Cluster,
+                ClusterSubscriptionCount.count,
+                ClusterSubscription.cluster_id.label("user_subscription"),
+            )
             .join(Cluster, Cluster.parent_node_id == Node.id)
+            .outerjoin(ClusterSubscriptionCount, ClusterSubscriptionCount.cluster_id == Cluster.id)
+            .outerjoin(
+                ClusterSubscription,
+                (ClusterSubscription.cluster_id == Cluster.id) & (ClusterSubscription.user_id == context.user_id),
+            )
             .where(Cluster.is_official_cluster)
-            .where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
-            .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
-            .limit(page_size)
         )
 
-        rows = session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
+        if not raw_query:
+            query = query.order_by(Cluster.name.asc(), Node.id.asc()).limit(page_size)
+        elif len(raw_query) < 3:
+            query = (
+                query.where(func.immutable_unaccent(Cluster.name).ilike(func.unaccent(raw_query).concat("%")))
+                .order_by(Cluster.name.asc(), Node.id.asc())
+                .limit(page_size)
+            )
+        else:
+            word_similarity_score = func.word_similarity(
+                func.unaccent(raw_query), func.immutable_unaccent(Cluster.name)
+            )
+            query = (
+                query.where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
+                .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
+                .limit(page_size)
+            )
 
-        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
+        rows = session.execute(query).all()
+
+        parents_by_node_id = get_nodes_parents_recursively(session, [node.id for node, _, _, _ in rows])
+
+        return communities_pb2.SearchCommunitiesRes(
+            results=[
+                _community_summary_to_pb(node, cluster, member_count, user_subscription, parents_by_node_id[node.id])
+                for node, cluster, member_count, user_subscription in rows
+            ]
+        )
 
     def ListRecentCommunities(
         self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
@@ -617,18 +671,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .order_by(Node.id)
         ).all()
 
+        parents_by_node_id = get_nodes_parents_recursively(session, [node.id for node, _, _, _ in results])
+
         return communities_pb2.ListAllCommunitiesRes(
             communities=[
-                communities_pb2.CommunitySummary(
-                    community_id=node.id,
-                    name=cluster.name,
-                    slug=cluster.slug,
-                    member=user_subscription is not None,
-                    member_count=member_count or 1,
-                    parents=_parents_to_pb(session, node.id),
-                    created=Timestamp_from_datetime(node.created),
-                    node_type=nodetype2api[node.node_type],
-                )
+                _community_summary_to_pb(node, cluster, member_count, user_subscription, parents_by_node_id[node.id])
                 for node, cluster, member_count, user_subscription in results
             ],
         )

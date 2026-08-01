@@ -7,7 +7,12 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from couchers.db import is_user_in_node_geography, session_scope
+from couchers.db import (
+    get_node_parents_recursively,
+    get_nodes_parents_recursively,
+    is_user_in_node_geography,
+    session_scope,
+)
 from couchers.helpers.clusters import CHILD_NODE_TYPE
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
@@ -897,29 +902,36 @@ class TestCommunities:
             assert not res.next_page_token
 
     @staticmethod
-    def test_empty_query_aborts(testing_communities):
+    def test_empty_query_returns_all_alphabetically(testing_communities):
+        """
+        An empty query is the browse case: return every official community, name-ordered.
+        """
         with session_scope() as session:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
-                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
+            names = [c.name for c in res.results]
+            assert len(names) == 10
+            assert names == sorted(names)
 
     @staticmethod
-    def test_min_length_lt_3_aborts(testing_communities):
+    def test_short_query_prefix_matches(testing_communities):
         """
-        len(query) < 3 → return INVALID_ARGUMENT: query_too_short
+        A 1-2 char query is too short for trigram similarity, so it prefix-matches.
         """
         with session_scope() as session:
             _, token = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
-                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Co", page_size=25))
+            names = [c.name for c in res.results]
+            ids = [c.community_id for c in res.results]
+            assert names
+            assert all(name.lower().startswith("co") for name in names)
+            assert c1_id in ids
+            assert "Global" not in names
 
     @staticmethod
     def test_typo_matches_existing_name(testing_communities):
@@ -932,7 +944,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Coutri 1", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
             assert c1_id in ids
 
     @staticmethod
@@ -946,7 +958,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="city", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
             assert city1_id in ids
 
     @staticmethod
@@ -963,7 +975,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Country 1, Region", page_size=5))
-            ids = [c.community_id for c in res.communities]
+            ids = [c.community_id for c in res.results]
 
             assert region_id in ids
             assert city_id in ids
@@ -979,7 +991,7 @@ class TestCommunities:
 
         with communities_session(token) as api:
             res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="qwertyuiopasdf", page_size=5))
-            assert res.communities == []
+            assert res.results == []
 
     @staticmethod
     def test_ListAllCommunities(testing_communities):
@@ -1076,6 +1088,46 @@ class TestCommunities:
             # Global - user6 should be a member
             global_community = next(c for c in res.communities if c.community_id == w_id)
             assert global_community.member  # user6 is a member
+
+    @staticmethod
+    def test_get_nodes_parents_recursively_matches_single_id(testing_communities):
+        """
+        get_nodes_parents_recursively (the batched CTE used by SearchCommunities/ListAllCommunities to
+        avoid an N+1) must return, for every node_id, exactly what get_node_parents_recursively(session,
+        node_id) returns for that node_id individually: same length, same order, same (id, parent_node_id,
+        level, cluster) contents.
+        """
+        with session_scope() as session:
+            w_id = get_community_id(session, "Global")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
+            nonexistent_id = -1
+
+            node_ids = [w_id, c1_id, c1r1_id, c1r1c1_id, c2r1c1_id, nonexistent_id]
+            batched = get_nodes_parents_recursively(session, node_ids)
+
+            assert set(batched.keys()) == set(node_ids)
+
+            for node_id in node_ids:
+                expected = get_node_parents_recursively(session, node_id)
+                actual = batched[node_id]
+                assert len(actual) == len(expected)
+                for (a_id, a_parent_id, a_level, a_cluster), (e_id, e_parent_id, e_level, e_cluster) in zip(
+                    actual, expected
+                ):
+                    assert a_id == e_id
+                    assert a_parent_id == e_parent_id
+                    assert a_level == e_level
+                    assert a_cluster.id == e_cluster.id
+                    assert a_cluster.name == e_cluster.name
+
+            assert [row[0] for row in batched[w_id]] == [w_id]
+
+            assert [row[0] for row in batched[c1r1c1_id]] == [w_id, c1_id, c1r1_id, c1r1c1_id]
+
+            assert batched[nonexistent_id] == []
 
     @staticmethod
     def test_ListRecentCommunities(testing_communities, monkeypatch):

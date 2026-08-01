@@ -1,7 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Sentry from "platform/sentry";
-import { CommunitySummary, NodeType } from "proto/communities_pb";
+import {
+  CommunitySummary,
+  NodeType,
+  SearchCommunitiesRes,
+} from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import * as communitiesService from "service/communities";
 import wrapper from "test/hookWrapper";
@@ -29,77 +32,59 @@ jest.mock("platform/sentry", () => {
 });
 
 jest.mock("service/communities");
-const mockListAllCommunities =
-  communitiesService.listAllCommunities as jest.MockedFunction<
-    typeof communitiesService.listAllCommunities
+const mockSearchCommunities =
+  communitiesService.searchCommunities as jest.MockedFunction<
+    typeof communitiesService.searchCommunities
   >;
 
+const parentedCommunity = (
+  communityId: number,
+  name: string,
+  slug: string,
+  regionName: string,
+): CommunitySummary.AsObject => ({
+  communityId,
+  name,
+  slug,
+  parentsList: [
+    {
+      community: {
+        communityId: communityId * 100,
+        name: regionName,
+        slug: regionName.toLowerCase(),
+        description: `${regionName} region`,
+      },
+    },
+    {
+      community: {
+        communityId,
+        name,
+        slug,
+        description: `${name} community`,
+      },
+    },
+  ],
+  member: false,
+  memberCount: 10,
+  created: { seconds: 1577800000, nanos: 0 },
+  nodeType: NodeType.NODE_TYPE_LOCALITY,
+});
+
 const mockCommunities: CommunitySummary.AsObject[] = [
-  {
-    communityId: 2,
-    name: "Amsterdam",
-    slug: "amsterdam",
-    parentsList: [
-      {
-        community: {
-          communityId: 1,
-          name: "Europe",
-          slug: "europe",
-          description: "European region",
-        },
-      },
-    ],
-    member: false,
-    memberCount: 10,
-    created: { seconds: 1577800000, nanos: 0 },
-    nodeType: NodeType.NODE_TYPE_LOCALITY,
-  },
-  {
-    communityId: 3,
-    name: "Rotterdam",
-    slug: "rotterdam",
-    parentsList: [
-      {
-        community: {
-          communityId: 1,
-          name: "Europe",
-          slug: "europe",
-          description: "European region",
-        },
-      },
-    ],
-    member: false,
-    memberCount: 8,
-    created: { seconds: 1577900000, nanos: 0 },
-    nodeType: NodeType.NODE_TYPE_LOCALITY,
-  },
-  {
-    communityId: 4,
-    name: "Berlin",
-    slug: "berlin",
-    parentsList: [
-      {
-        community: {
-          communityId: 1,
-          name: "Europe",
-          slug: "europe",
-          description: "European region",
-        },
-      },
-    ],
-    member: false,
-    memberCount: 15,
-    created: { seconds: 1578000000, nanos: 0 },
-    nodeType: NodeType.NODE_TYPE_LOCALITY,
-  },
+  parentedCommunity(2, "Amsterdam", "amsterdam", "Europe"),
+  parentedCommunity(3, "Rotterdam", "rotterdam", "Europe"),
+  parentedCommunity(4, "Berlin", "berlin", "Europe"),
 ];
+
+const searchRes = (
+  communities: CommunitySummary.AsObject[],
+): SearchCommunitiesRes.AsObject =>
+  ({ resultsList: communities }) as SearchCommunitiesRes.AsObject;
 
 describe("CommunitySearch", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockListAllCommunities.mockResolvedValue({
-      communitiesList: mockCommunities,
-    });
+    mockSearchCommunities.mockResolvedValue(searchRes(mockCommunities));
   });
 
   it("renders the search input field", async () => {
@@ -124,22 +109,18 @@ describe("CommunitySearch", () => {
     });
   });
 
-  it("fetches all communities on mount", async () => {
+  it("queries the backend with an empty query on mount (browse)", async () => {
     render(<CommunitySearch />, { wrapper });
 
     await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalledTimes(1);
+      expect(mockSearchCommunities).toHaveBeenCalledWith("");
     });
   });
 
-  it("displays all communities grouped by region when opening dropdown", async () => {
+  it("shows the communities the backend returns when opening the dropdown", async () => {
     render(<CommunitySearch />, { wrapper });
 
     const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.click(input);
@@ -148,39 +129,71 @@ describe("CommunitySearch", () => {
       expect(screen.getByText("Amsterdam")).toBeInTheDocument();
       expect(screen.getByText("Rotterdam")).toBeInTheDocument();
       expect(screen.getByText("Berlin")).toBeInTheDocument();
-      expect(screen.getByText("Europe")).toBeInTheDocument();
     });
   });
 
-  it("filters communities when typing", async () => {
+  it("queries the backend as the user types", async () => {
+    mockSearchCommunities.mockResolvedValue(
+      searchRes([
+        parentedCommunity(2, "Amsterdam", "amsterdam", "Europe"),
+        parentedCommunity(3, "Rotterdam", "rotterdam", "Europe"),
+      ]),
+    );
+
     render(<CommunitySearch />, { wrapper });
-
     const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.type(input, "dam");
 
+    expect(await screen.findByText("Amsterdam")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText("Amsterdam")).toBeInTheDocument();
-      expect(screen.getByText("Rotterdam")).toBeInTheDocument();
+      expect(mockSearchCommunities).toHaveBeenCalledWith("dam");
     });
+  });
 
-    // Berlin should be filtered out
-    expect(screen.queryByText("Berlin")).not.toBeInTheDocument();
+  it("renders results in the backend-provided order (issue #9129)", async () => {
+    mockSearchCommunities.mockResolvedValue(
+      searchRes([
+        parentedCommunity(5, "Pyongyang", "pyongyang", "North Korea"),
+        parentedCommunity(6, "Sydney", "sydney", "Australia"),
+      ]),
+    );
+
+    render(<CommunitySearch />, { wrapper });
+    const user = userEvent.setup();
+
+    const input = screen.getByLabelText(t("communities:search_communities"));
+    await user.type(input, "yan");
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("option")).toHaveLength(2);
+    });
+    const options = screen.getAllByRole("option");
+    expect(options[0]).toHaveTextContent("Pyongyang");
+    expect(options[1]).toHaveTextContent("Sydney");
+  });
+
+  it("shows the region as context on each result", async () => {
+    mockSearchCommunities.mockResolvedValue(
+      searchRes([parentedCommunity(6, "Sydney", "sydney", "Australia")]),
+    );
+
+    render(<CommunitySearch />, { wrapper });
+    const user = userEvent.setup();
+
+    const input = screen.getByLabelText(t("communities:search_communities"));
+    await user.type(input, "syd");
+
+    const option = await screen.findByRole("option");
+    expect(within(option).getByText("Sydney")).toBeInTheDocument();
+    expect(within(option).getByText("Australia")).toBeInTheDocument();
   });
 
   it("navigates to community page when an option is selected", async () => {
     render(<CommunitySearch />, { wrapper });
 
     const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.click(input);
@@ -196,47 +209,37 @@ describe("CommunitySearch", () => {
     );
   });
 
-  it("shows no results message when filter returns empty", async () => {
+  it("shows no results message when the search returns empty", async () => {
+    mockSearchCommunities.mockResolvedValue(searchRes([]));
+
     render(<CommunitySearch />, { wrapper });
 
     const user = userEvent.setup();
-
-    await waitFor(() => {
-      expect(mockListAllCommunities).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText(t("communities:search_communities"));
     await user.type(input, "NonExistentCity");
 
     await waitFor(() => {
-      // Check for the no results text
       expect(screen.getByText(/No communities found\./)).toBeInTheDocument();
-
-      // Check that there's a link to request the community
       expect(
         screen.getByRole("link", { name: "Request this community!" }),
       ).toBeInTheDocument();
     });
   });
 
-  it("handles fetch errors gracefully", async () => {
-    const captureExceptionSpy = jest.spyOn(Sentry, "captureException");
-    mockListAllCommunities.mockRejectedValue(new Error("Fetch failed"));
+  it("handles a failed search gracefully", async () => {
+    mockSearchCommunities.mockRejectedValue(new Error("Search failed"));
 
     render(<CommunitySearch />, { wrapper });
+    const user = userEvent.setup();
+
+    const input = screen.getByLabelText(t("communities:search_communities"));
+    await user.type(input, "boom");
 
     await waitFor(() => {
-      expect(captureExceptionSpy).toHaveBeenCalledWith(
-        expect.any(Error),
-        expect.objectContaining({
-          tags: expect.objectContaining({
-            component: "CommunitySearch",
-            action: "fetchAllCommunities",
-          }),
-        }),
-      );
+      expect(
+        screen.getByRole("link", { name: "Request this community!" }),
+      ).toBeInTheDocument();
     });
-
-    captureExceptionSpy.mockRestore();
   });
 });
