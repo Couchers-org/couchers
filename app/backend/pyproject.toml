@@ -42,7 +42,7 @@ dependencies = [
     "stripe>=13.1.0",
     "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
-    "growthbook>=1.2.0",
+    "growthbook>=2.3.1",
     "pyroscope-io>=1.0.12",
 ]
 
