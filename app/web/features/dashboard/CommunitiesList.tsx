@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 
 const CARD_GAP = 12;
+const CARD_WIDTH = 200;
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -27,13 +28,11 @@ const SectionHeader = styled("div")({
   marginBottom: "8px",
 });
 
-const CardSlot = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "$perView",
-})<{ $perView: number }>(({ $perView }) => ({
-  flex: `0 0 calc((100% - ${($perView - 1) * CARD_GAP}px) / ${$perView})`,
+const CardSlot = styled(Box)({
+  flex: `0 0 ${CARD_WIDTH}px`,
   minWidth: 0,
   scrollSnapAlign: "start",
-}));
+});
 
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
   display: "flex",
@@ -103,7 +102,10 @@ export default function CommunitiesList() {
   const scroll = (dir: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+    el.scrollBy({
+      left: dir * (CARD_WIDTH + CARD_GAP) * cardsPerView,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -164,7 +166,7 @@ export default function CommunitiesList() {
       {isPending ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
           {Array.from({ length: cardsPerView }).map((_, i) => (
-            <CardSlot key={i} $perView={cardsPerView}>
+            <CardSlot key={i}>
               <SkeletonCard />
             </CardSlot>
           ))}
@@ -179,10 +181,7 @@ export default function CommunitiesList() {
           $canScrollRight={canScrollRight}
         >
           {communities.map((community) => (
-            <CardSlot
-              key={`community-${community.communityId}`}
-              $perView={cardsPerView}
-            >
+            <CardSlot key={`community-${community.communityId}`}>
               <CommunityCard
                 href={routeToCommunity(community.communityId, community.slug)}
               >
