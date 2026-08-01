@@ -23,6 +23,9 @@ variables:
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
+  # whether to record the SQL the backend tests issue and diff it against develop's (see docs/query-log.md).
+  # set to "false" to turn the whole thing off: the recording, the report and the PR comment item all check it
+  QUERY_LOG: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
@@ -342,9 +345,11 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
   script:
-    # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json, which the
+    # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json.gz, which the
     # after_script below already picks up along with the rest of test_artifacts
-    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= --query-log --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
+    - QUERY_LOG_FLAG=""
+    - if [ "$QUERY_LOG" = "true" ]; then QUERY_LOG_FLAG=--query-log; fi
+    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= $QUERY_LOG_FLAG --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
     # Move the stored durations to a node-specific file
     - mv src/tests/.test_durations /app/.test_durations.$CI_NODE_INDEX
   after_script:
@@ -715,12 +720,14 @@ preview:backend-coverage:
     # Merge the per-node SQL query logs, diff against the log develop last published, and render the report.
     # Writes data.json (which becomes the next baseline), index.html and summary.txt next to the node dumps.
     - |
-      python3 app/scripts/query_log_report.py \
-        --input artifacts/test_artifacts/queries \
-        --output artifacts/test_artifacts/queries \
-        --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json.gz" \
-        --summary-file artifacts/test_artifacts/queries/summary.txt \
-        --commit "$CI_COMMIT_SHORT_SHA"
+      if [ "$QUERY_LOG" = "true" ]; then
+        python3 app/scripts/query_log_report.py \
+          --input artifacts/test_artifacts/queries \
+          --output artifacts/test_artifacts/queries \
+          --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json.gz" \
+          --summary-file artifacts/test_artifacts/queries/summary.txt \
+          --commit "$CI_COMMIT_SHORT_SHA"
+      fi
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -779,7 +786,8 @@ preview:backend:
       fi
     # Upload coverage report to S3
     - |
-      BACKEND_ITEMS=schema,schema-diff,emails,queries
+      BACKEND_ITEMS=schema,schema-diff,emails
+      if [ "$QUERY_LOG" = "true" ]; then BACKEND_ITEMS=$BACKEND_ITEMS,queries; fi
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ] || [ "$DO_COVERAGE" = "true" ]; then
         aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
         aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive

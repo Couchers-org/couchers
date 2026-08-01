@@ -44,6 +44,22 @@ python3 -m http.server --directory test_artifacts/queries
 
 Passing `--baseline path/to/other/data.json` compares two recordings, which is how the CI diff works.
 
+## Turning it on and off
+
+Locally it is off unless you pass `--query-log`, and costs nothing when off.
+
+In CI it is governed by the `QUERY_LOG` pipeline variable, alongside `DO_CHECKS` and `BUILD_WEB` at the top of
+`app/.gitlab-ci.yml`. Set it to anything other than `"true"` and the recording, the report and the PR comment item
+all drop out together; nothing else in the pipeline changes. Override it for a single run from GitLab's "Run
+pipeline" form without editing the file.
+
+Turn all three off together rather than one of them. The report step treats an empty input directory as an error, so
+recording without reporting fails `preview:backend-coverage`, which blocks `preview:backend` and takes the whole
+sticky PR comment — schema, schema diff, emails, coverage — with it.
+
+Turning it off leaves the query log item sitting in the comment on any PR that already has one, since each writer
+only rewrites the items it owns. New comments simply will not have it.
+
 ## How it fits together
 
 | Piece | What it does |
@@ -51,7 +67,7 @@ Passing `--baseline path/to/other/data.json` compares two recordings, which is h
 | `src/tests/fixtures/query_log.py` | Records queries via a SQLAlchemy `after_cursor_execute` listener, writes `data.<node>.json.gz` |
 | `src/tests/conftest.py` | Registers `--query-log`, attributes queries to the running test, dumps at session end |
 | `app/scripts/query_log_report.py` | Merges the per-node dumps, diffs against the baseline, renders `index.html` |
-| `test:backend` | Runs pytest with `--query-log`; the existing `after_script` collects `test_artifacts` |
+| `test:backend` | Runs pytest with `--query-log` when `QUERY_LOG` is on; the existing `after_script` collects `test_artifacts` |
 | `preview:backend-coverage` | Merges, fetches develop's baseline, renders the report |
 | `preview:backend` | Uploads it to the preview bucket and adds the PR comment item |
 
