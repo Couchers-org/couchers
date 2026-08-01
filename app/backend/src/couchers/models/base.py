@@ -26,5 +26,7 @@ class Base(MappedAsDataclass, DeclarativeBase):
 
 communities_seq = Sequence("communities_seq")
 moderation_seq = Sequence("moderation_seq", start=2_000_000)
+# named as postgres would for a bigserial, so emails.id can become a normal pkey once backfilled
+emails_id_seq = Sequence("emails_id_seq")
 
 Geom = WKBElement | WKTElement
