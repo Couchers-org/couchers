@@ -110,8 +110,12 @@ marker so an over-long entry is visibly not runnable rather than silently invali
 dump reached 495 MB. `query_log_report.py` warns if the merged recording exceeds 50 MB.
 
 **`src/tests/test_db.py` is not recorded.** It rebuilds the schema from migrations to diff it against the models,
-which is schema plumbing rather than an access pattern, is already covered by the schema-diff artifact, and is what
-pulls in the real `timezone_areas.sql` in CI.
+which is schema plumbing rather than an access pattern and is already covered by the schema-diff artifact. This is
+not what keeps the real `timezone_areas.sql` out of the recording — `test_migrations` is skipped in `test:backend`
+regardless, since the backend image has no `pg_dump` — the statement cap above is what bounds the artifact.
+
+**The baseline is `develop`'s latest, not your merge base.** A branch that is behind will show `develop`'s own
+changes back to front, as if the branch had reverted them. Rebase before reading a diff that looks surprising.
 
 **A shared fixture change moves everything.** Adding one query to `generate_user()` shifts every test at once. That is
 real, but it drowns the report, so treat a diff that touches most tests as a signal to look at the fixture rather than

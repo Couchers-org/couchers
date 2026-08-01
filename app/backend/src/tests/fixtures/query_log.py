@@ -45,7 +45,9 @@ _MAX_SQL_CHARS = 4096
 _TRUNCATION_MARKER = " /* truncated by the query log */"
 
 # test_db rebuilds the schema from migrations to diff it against the models. That is schema plumbing rather than an
-# access pattern, it is already covered by the schema-diff artifact, and in CI it loads the real timezone_areas.sql.
+# access pattern, and it is already covered by the schema-diff artifact. Note this is not what keeps the real
+# timezone_areas.sql out of the recording: test_migrations is skipped in test:backend anyway, because the backend
+# image has no pg_dump. What bounds the artifact is _MAX_SQL_CHARS.
 _EXCLUDED_MODULES = ("src/tests/test_db.py",)
 
 # How many of our own frames to keep for a query's call site. The innermost is the line that issued it; the next
