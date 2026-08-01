@@ -13,6 +13,7 @@ import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
@@ -34,7 +35,6 @@ import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
 import DeleteDiscussionDialog from "./DeleteDiscussionDialog";
-import getDiscussionContentRef from "./getDiscussionContentRef";
 
 interface EditDiscussionFormData {
   title: string;
@@ -206,7 +206,7 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                       <StyledTitleRowButtons>
                         {!discussion.deleted && (
                           <FlagButton
-                            contentRef={getDiscussionContentRef(discussion)}
+                            contentRef={contentRefs.discussion(discussion)}
                             authorUser={discussion.creatorUserId}
                             ariaLabel={t("communities:report_discussion_button_a11y")}
                           />

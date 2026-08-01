@@ -4,7 +4,7 @@ When content is reported by the *reporting user* to admins, the report includes 
 
 The content reference, or `content_ref`, is a reference that uniquely identifies a piece of content and helps the admin or moderator find the flagged content. It is in many aspects similar to the path in a URL, but sometimes a page has several different pieces of content that are not uniquely identified by the page. For example, a discussion will have multiple comment on the same page.
 
-This page documents the `content_ref`s currently in use.
+This page documents the `content_ref`s currently in use. On the web frontend they are all built by the helpers in `app/web/features/contentRefs.ts`; keep the two in sync.
 
 ## User profile
 

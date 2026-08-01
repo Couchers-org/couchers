@@ -1,5 +1,6 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
@@ -14,7 +15,6 @@ import { routeToDiscussion } from "routes";
 import { theme } from "theme";
 
 import getContentSummary from "../getContentSummary";
-import getDiscussionContentRef from "./getDiscussionContentRef";
 
 const StyledDeletedTitle = styled(Typography)(() => ({
   color: "var(--mui-palette-text-secondary)",
@@ -86,7 +86,7 @@ export default function DiscussionCard({
     [discussion.content],
   );
 
-  const contentRef = getDiscussionContentRef(discussion);
+  const contentRef = contentRefs.discussion(discussion);
 
   return (
     <StyledCard className={className} data-testid={DISCUSSION_CARD_TEST_ID}>
