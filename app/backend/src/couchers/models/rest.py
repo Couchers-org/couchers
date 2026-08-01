@@ -28,7 +28,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.constants import GUIDELINES_VERSION
-from couchers.models.base import Base, Geom, emails_id_seq
+from couchers.models.base import Base, Geom
 from couchers.models.moderation import ModerationObjectType
 from couchers.models.users import HostingStatus
 from couchers.utils import now
@@ -374,12 +374,10 @@ class Email(Base, kw_only=True):
 
     __tablename__ = "emails"
 
-    # the X-Couchers-ID header of the sent email
-    message_id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    id: Mapped[int | None] = mapped_column(
-        BigInteger, emails_id_seq, server_default=emails_id_seq.next_value(), init=False
-    )
+    # the X-Couchers-ID header of the sent email
+    message_id: Mapped[str] = mapped_column(String, unique=True)
 
     # timezone should always be UTC
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False, index=True)
@@ -395,6 +393,8 @@ class Email(Base, kw_only=True):
 
     list_unsubscribe_header: Mapped[str | None] = mapped_column(String, default=None)
     source_data: Mapped[str | None] = mapped_column(String, default=None)
+
+    __table_args__ = (Index("ix_emails_recipient_time", recipient, time.desc()),)
 
 
 class SMS(Base, kw_only=True):
