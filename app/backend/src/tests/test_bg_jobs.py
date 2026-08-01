@@ -41,6 +41,7 @@ from couchers.models import (
     AccountDeletionToken,
     BackgroundJob,
     BackgroundJobState,
+    DeviceType,
     Email,
     HostRequest,
     HostRequestStatus,
@@ -48,12 +49,14 @@ from couchers.models import (
     Message,
     MessageType,
     PasswordResetToken,
+    PushNotificationPlatform,
+    PushNotificationSubscription,
     User,
     UserBadge,
     UserBlock,
     Volunteer,
 )
-from couchers.proto import conversations_pb2, requests_pb2
+from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
@@ -65,6 +68,32 @@ from tests.test_requests import valid_request_text
 
 def now_5_min_in_future() -> datetime:
     return now() + timedelta(minutes=5)
+
+
+def now_1_day_in_future() -> datetime:
+    return now() + timedelta(hours=25)
+
+
+def _add_mobile_push_subscription(user_id: int, *, disabled: bool = False) -> None:
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user_id,
+            platform=PushNotificationPlatform.expo,
+            token=f"ExponentPushToken[{user_id}]",
+            device_name="Test phone",
+            device_type=DeviceType.ios,
+        )
+        session.add(sub)
+        if disabled:
+            session.flush()
+            sub.disabled_at = now()
+
+
+def _count_queued_emails() -> int:
+    with session_scope() as session:
+        return session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
 
 
 @pytest.fixture(autouse=True)
@@ -661,6 +690,57 @@ def test_send_message_notifications_muted(db, moderator):
         )
 
 
+def _send_one_chat_message(token: str, recipient_id: int, moderator) -> None:
+    with conversations_session(token) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+
+def test_send_message_notifications_delayed_for_push_capable_users(db, moderator, push_collector: PushCollector):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_friends(user1, user2)
+    _add_mobile_push_subscription(user2.id)
+
+    _send_one_chat_message(token1, user2.id, moderator)
+
+    # user2 already got a push about this, so the usual 5 minute delay doesn't apply to them
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+    assert _count_queued_emails() == 0
+
+    with patch("couchers.jobs.handlers.now", now_1_day_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+    assert _count_queued_emails() == 1
+
+
+def test_send_message_notifications_not_delayed_when_push_subscription_disabled(
+    db, moderator, push_collector: PushCollector
+):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_friends(user1, user2)
+    # e.g. the device unregistered, so we can't reach user2 by push and the email is all they'll get
+    _add_mobile_push_subscription(user2.id, disabled=True)
+
+    _send_one_chat_message(token1, user2.id, moderator)
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+    assert _count_queued_emails() == 1
+
+
 def test_send_request_notifications_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -703,7 +783,7 @@ def test_send_request_notifications_host_request(db, moderator):
         requests.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Test request",
             )
         )
@@ -832,6 +912,45 @@ def test_send_request_notifications_two_requests_one_with_followup(db, moderator
             ).scalar_one()
             == 1
         )
+
+
+def test_send_request_notifications_delayed_for_push_capable_users(db, moderator, push_collector: PushCollector):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    _add_mobile_push_subscription(user1.id)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token2) as requests:
+        requests.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Test request",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_request_notifications(empty_pb2.Empty())
+        process_jobs()
+    assert _count_queued_emails() == 0
+
+    with patch("couchers.jobs.handlers.now", now_1_day_in_future):
+        send_request_notifications(empty_pb2.Empty())
+        process_jobs()
+    assert _count_queued_emails() == 1
 
 
 def test_send_message_notifications_seen(db, moderator):
@@ -1438,7 +1557,7 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
         requests.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting your request",
             )
         )

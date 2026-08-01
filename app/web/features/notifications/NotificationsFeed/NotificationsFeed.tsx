@@ -251,7 +251,7 @@ const NotificationsFeed = ({
               },
             }}
           >
-            {t("notifications:all")}
+            {t("notifications:notifications_filters.all_button")}
           </Pill>
           <Pill
             variant="rounded"
@@ -272,7 +272,7 @@ const NotificationsFeed = ({
               },
             }}
           >
-            {t("notifications:unread")}
+            {t("notifications:notifications_filters.unread_button")}
           </Pill>
         </StyledPills>
       </TopContentWrapper>
@@ -284,8 +284,10 @@ const NotificationsFeed = ({
                 key={index}
                 direction="row"
                 spacing={1}
-                alignItems="flex-start"
-                sx={{ p: 1 }}
+                sx={{
+                  alignItems: "flex-start",
+                  p: 1,
+                }}
               >
                 <Skeleton variant="circular" width={32} height={32} />
                 <Stack spacing={0.5} sx={{ flex: 1 }}>

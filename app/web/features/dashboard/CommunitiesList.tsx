@@ -189,7 +189,9 @@ export default function CommunitiesList() {
                 <Typography
                   variant="subtitle2"
                   component="span"
-                  fontWeight={600}
+                  sx={{
+                    fontWeight: 600,
+                  }}
                 >
                   {community.name}
                 </Typography>

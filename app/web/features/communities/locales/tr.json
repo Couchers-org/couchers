@@ -67,5 +67,14 @@
   "location": "Konum",
   "delete_comment": "Yorumu sil",
   "discussion_creation_date": "{{dateOnly}} tarihinde oluşturuldu",
-  "discussion_deleted": "Bu tartışma silindi."
+  "discussion_deleted": "Bu tartışma silindi.",
+  "delete_discussion_dialog": {
+    "cancel": "İptal Et"
+  },
+  "edit_discussion": "Tartışmayı düzenle",
+  "duplicate_event": "Etkinliği kopyala",
+  "community_info_page_title": "Genel bilgiler",
+  "new_discussion_topic": "Tartışma konusu",
+  "new_post_label": "Yeni gönderi",
+  "no_comments": "Bu tartışmada şu anda hiç yorum yok."
 }

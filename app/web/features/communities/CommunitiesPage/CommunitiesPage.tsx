@@ -87,10 +87,10 @@ const CommunitiesPage = () => {
       <Subtitle variant="h2">
         {t("dashboard:communities_welcome_title")}
       </Subtitle>
-      <StyledTypography variant="body1" paragraph>
+      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans i18nKey="dashboard:communities_intro" />
       </StyledTypography>
-      <StyledTypography variant="body1" paragraph>
+      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
@@ -113,7 +113,7 @@ const CommunitiesPage = () => {
 
       <MainTitle variant="h1">{t("dashboard:find_your_community")}</MainTitle>
 
-      <StyledTypography variant="body1" paragraph>
+      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans
           i18nKey="dashboard:find_your_community_intro_simplified"
           components={{

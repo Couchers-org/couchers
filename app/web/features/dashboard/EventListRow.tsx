@@ -1,16 +1,13 @@
 import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
+import { localizeDateTime, localizeMonthAbbreviation } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
 import { Temporal } from "temporal-polyfill";
-import {
-  localizeDateTime,
-  localizeMonthAbbreviation,
-  timestampToPlainDateTime,
-} from "utils/date";
+import { timestampToZonedDateTime } from "utils/date";
 
 export const EventListContainer = styled("div")({
   border: "1px solid var(--mui-palette-grey-300)",
@@ -172,16 +169,20 @@ export default function EventListRow({ event }: EventListRowProps) {
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
 
-  const now = Temporal.Now.plainDateTimeISO();
-  const startDate = timestampToPlainDateTime(event.startTime!);
+  const now = Temporal.Now.zonedDateTimeISO();
+  const startDate = timestampToZonedDateTime(event.startTime!, event.timezone);
   const endDate = event.endTime
-    ? timestampToPlainDateTime(event.endTime)
+    ? timestampToZonedDateTime(event.endTime, event.timezone)
     : null;
   const isOngoing =
     endDate !== null &&
-    Temporal.PlainDateTime.compare(startDate, now) <= 0 &&
-    Temporal.PlainDateTime.compare(endDate, now) >= 0;
-  const isToday = !isOngoing && startDate.toPlainDate() === now.toPlainDate();
+    Temporal.ZonedDateTime.compare(startDate, now) <= 0 &&
+    Temporal.ZonedDateTime.compare(endDate, now) >= 0;
+
+  // Define "today" as: starting on the current day in the current timezone.
+  const isToday =
+    !isOngoing &&
+    startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
   const todayLabel = t("dashboard:events.today_label");
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isOngoing ? nowLabel : todayLabel;

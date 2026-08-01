@@ -293,9 +293,9 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Nova solicitação de hospedagem",
         "title": "Nova solicitação de hospedagem de {{user}}",
-        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dia.",
-        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias.",
-        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias."
+        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noite.",
+        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites.",
+        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites."
       }
     },
     "message": {

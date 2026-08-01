@@ -11,11 +11,12 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { localizeDateTimeRange, timestampToPlainDateTime } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: 0,
@@ -132,11 +133,11 @@ const LongEventCard = ({
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-    timestampToPlainDateTime(event.startTime!),
-    timestampToPlainDateTime(event.endTime!),
+    timestampToPlainDateTime(event.startTime!, event.timezone),
+    timestampToPlainDateTime(event.endTime!, event.timezone),
     {
       locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
       includeTime: true,
       capitalize: true,

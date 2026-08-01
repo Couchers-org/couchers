@@ -46,16 +46,15 @@ export default function HeroSearch() {
       <Typography
         variant="h2"
         component="label"
-        display="block"
         htmlFor={searchInputId}
         sx={{
+          display: "block",
           marginBottom: "16px",
           textAlign: "center",
         }}
       >
         {t("search_input_label")}
       </Typography>
-
       <Box
         sx={{
           display: "flex",

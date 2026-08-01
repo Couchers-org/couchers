@@ -3,6 +3,7 @@ import typing
 import pytest
 
 from couchers.config import Config
+from couchers.constants import DB_POOL_SIZE
 
 
 def _complete_config(dev: bool) -> Config:
@@ -49,10 +50,10 @@ def test_load_from_env_types() -> None:
     with pytest.raises(ValueError):
         cfg.load_from_env({"IN_TEST": "not a bool"})
 
-    cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "42"})
-    assert cfg.BACKGROUND_WORKER_COUNT == 42
+    cfg.load_from_env({"BACKGROUND_WORKER_PROCESSES": "42"})
+    assert cfg.BACKGROUND_WORKER_PROCESSES == 42
     with pytest.raises(ValueError):
-        cfg.load_from_env({"BACKGROUND_WORKER_COUNT": "not an int"})
+        cfg.load_from_env({"BACKGROUND_WORKER_PROCESSES": "not an int"})
 
     cfg.load_from_env({"SECRET": bytes.hex(b"abc")})
     assert cfg.SECRET == b"abc"
@@ -105,13 +106,13 @@ def test_instances_state_are_independent() -> None:
 def test_copy() -> None:
     cfg = Config()
 
-    cfg.BACKGROUND_WORKER_COUNT = 1
+    cfg.BACKGROUND_WORKER_PROCESSES = 1
     copy1 = cfg.copy()
-    cfg.BACKGROUND_WORKER_COUNT = 2
+    cfg.BACKGROUND_WORKER_PROCESSES = 2
     copy2 = cfg.copy()
 
-    assert copy1.BACKGROUND_WORKER_COUNT == 1
-    assert copy2.BACKGROUND_WORKER_COUNT == 2
+    assert copy1.BACKGROUND_WORKER_PROCESSES == 1
+    assert copy2.BACKGROUND_WORKER_PROCESSES == 2
 
 
 @pytest.mark.parametrize("dev", [True, False])
@@ -123,3 +124,13 @@ def test_check_config_only_references_known_keys(dev):
     Config.check() only runs in app.py's startup path. Exercising it here catches that.
     """
     _complete_config(dev=dev).check()
+
+
+def test_check_rejects_too_many_worker_threads() -> None:
+    cfg = _complete_config(dev=True)
+    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2
+    cfg.check()
+
+    cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2 + 1
+    with pytest.raises(Exception, match="BACKGROUND_WORKER_THREADS_PER_PROCESS"):
+        cfg.check()

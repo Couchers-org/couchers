@@ -78,11 +78,12 @@ export default function Autocomplete<
           placeholder={placeholder}
           helperText={error || helperText}
           slotProps={{
+            ...params.slotProps,
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               endAdornment: (
                 <>
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                   {endAdornment}
                 </>
               ),

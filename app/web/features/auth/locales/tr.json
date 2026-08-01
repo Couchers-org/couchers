@@ -50,7 +50,8 @@
       "password_field_label": "Şifre",
       "forgot_password": "Şifrenizi mi unuttunuz?"
     },
-    "title": "Giriş yap"
+    "title": "Giriş yap",
+    "header": "Tekrardan hoşgeldin!"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Zaten hesabın var mı? <2>Giriş yap</2>"
@@ -63,14 +64,22 @@
     "username": {
       "required_error": "Kullanıcı adınızı girin",
       "username_taken_error": "Bu kullanıcı adı alınmış.",
-      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."
+      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır.",
+      "field_label": "Kullanıcı Adı",
+      "helper_text": "Bu profil adın değil, herkese açık kullanıcı adın."
     },
     "gender": {
-      "woman": "Kadın"
+      "woman": "Kadın",
+      "man": "Erkek"
     },
     "opt_in_newsletter": "Topluluk güncellemeleri hakkında olan haber bültenimize abone olun.",
     "tos_prompt": "Devam etmek için lütfen <1></1>'nı okuyup kabul edin.",
-    "tos_accept_label": "Hizmet Şartlarını kabul ediyorum."
+    "tos_accept_label": "Hizmet Şartlarını kabul ediyorum.",
+    "header": "Hesap bilgileriniz",
+    "password": {
+      "field_label": "Şifre",
+      "required_error": "Bir şifre girin"
+    }
   },
   "basic_form": {
     "name": {

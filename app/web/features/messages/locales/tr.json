@@ -3,7 +3,7 @@
   "close_request_button_text": "Reddet",
   "confirm_request_button_text": "Onayla",
   "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <0>rehberimizi oku</0>.",
-  "past_request_help_text": "Bu istek eskiden kalma, hala mesaj gönderebilirsin ama onun dışında değişiklik yapamazsın.",
+  "past_request_help_text": "Bu geçmişten kalma bir istek, hâlâ mesaj gönderebilirsin ancak bunun dışında bir değişiklik yapamazsın.",
   "host_pending_request_help_text": "Cevap vermeden önce <0>değerlendirmek isteyebileceğin şeyler</0>.",
   "mark_all_read_button_text": "Hepsini okundu işaretle",
   "messages_page": {
@@ -103,7 +103,9 @@
   "archive": {
     "archived": "Arşiv",
     "archive_button": "Arşivle",
-    "unarchive_button": "Arşivden Çıkar"
+    "unarchive_button": "Arşivden Çıkar",
+    "no_archived_requests": "Arşivlenmiş istek yok",
+    "no_archived_messages": "Arşivlenmiş mesaj yok"
   },
   "host_request_status": {
     "rejected": "Reddedildi"
@@ -131,5 +133,7 @@
     },
     "reason_other_placeholder": "Lütfen bize daha fazla bilgi verin...",
     "privacy_notice": "Yanıtlarınız gizlidir ve kullanıcıyla paylaşılmayacaktır. Bunları, tüm kullanıcılar için geri bildirimi iyileştirmek amacıyla, diğer birçok yanıtla birleştirilmiş, toplu ve anonim bir biçimde kullanabiliriz."
-  }
+  },
+  "surfer_confirm_box_title": "{{name}} isteğinizi kabul etti!",
+  "surfer_confirm_box_description": "Konaklamanı kesinleştirmek için onayla ya da planların değiştiyse iptal et."
 }
