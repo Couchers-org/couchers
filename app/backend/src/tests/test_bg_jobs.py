@@ -60,14 +60,10 @@ from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
-from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.misc import PushCollector, now_5_min_in_future, process_jobs
 from tests.fixtures.sessions import conversations_session, requests_session
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text
-
-
-def now_5_min_in_future() -> datetime:
-    return now() + timedelta(minutes=5)
 
 
 def now_1_day_in_future() -> datetime:
