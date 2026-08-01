@@ -23,39 +23,10 @@ from typing import Any
 import psycopg
 from sqlalchemy import Engine, event
 
-# Bind parameters as psycopg's pyformat paramstyle renders them, plus positional %s for good measure.
-_PARAM_RE = re.compile(r"%\([^)]*\)s|%s")
-# Trailing sqlcommenter-style comments. Nothing emits these in tests today (tracing is only set up in prod), but a
-# future change that turns the commenter on would otherwise invalidate every fingerprint at once.
-_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
-# Expanded IN (...) lists, whose length varies with the test data.
-_PARAM_LIST_RE = re.compile(r"\?(?:\s*,\s*\?)+")
-# Repeated VALUES tuples from a multi-row insert, whose count varies with the test data.
-_VALUES_LIST_RE = re.compile(r"\(\?\)(?:\s*,\s*\(\?\))+")
-# Literals inlined into the statement text rather than bound. Bulk resource loads do this: the real
-# timezone_areas.sql applied by the migrations is a few hundred INSERTs each carrying megabytes of WKB hex, so
-# without collapsing them every row becomes its own multi-megabyte shape.
-_LONG_LITERAL_RE = re.compile(r"'[^']{64,}'")
-_WHITESPACE_RE = re.compile(r"\s+")
-_WRITE_RE = re.compile(r"^\s*(INSERT|UPDATE|DELETE)\b", re.IGNORECASE)
-
 # Hard cap on what is stored per statement. Nothing this long is an access pattern worth diffing, and the cap is
 # what bounds the artifact: uncapped, the timezone_areas load alone took a CI node's dump to 495 MB.
 _MAX_SQL_CHARS = 4096
 _TRUNCATION_MARKER = " /* truncated by the query log */"
-
-# test_db rebuilds the schema from migrations to diff it against the models. That is schema plumbing rather than an
-# access pattern, and it is already covered by the schema-diff artifact. Note this is not what keeps the real
-# timezone_areas.sql out of the recording: test_migrations is skipped in test:backend anyway, because the backend
-# image has no pg_dump. What bounds the artifact is _MAX_SQL_CHARS.
-_EXCLUDED_MODULES = ("src/tests/test_db.py",)
-
-# How many of our own frames to keep for a query's call site. The innermost is the line that issued it; the next
-# couple show the chain that got there, which is usually what tells you whether a repeat is a loop.
-_CALLSITE_FRAMES = 3
-# Frames from these are plumbing between our code and the driver, so they never make a useful call site. The
-# recorder's own path is spelled out: a bare "query_log.py" would also swallow test_query_log.py.
-_CALLSITE_SKIP = ("/sqlalchemy/", "/psycopg", "/alembic/", "/fixtures/query_log.py")
 
 
 @dataclass(slots=True)
@@ -90,24 +61,31 @@ _sites: dict[str, str] = {}
 _site_ids: dict[str, str] = {}
 _frame_cache: dict[str, int] = {}
 
-# Everything under the backend's src/ is ours; paths are reported relative to it. couchers/ is application code,
-# anything else under src/ is test scaffolding.
-_SRC_ROOT = "/src/"
-_APP_ROOT = "/src/couchers/"
-_SKIP, _APP, _TEST = 0, 1, 2
-
 
 def _truncate(sql: str) -> str:
     return sql if len(sql) <= _MAX_SQL_CHARS else sql[:_MAX_SQL_CHARS] + _TRUNCATION_MARKER
 
 
 def _fingerprint(statement: str) -> str:
-    sql = _COMMENT_RE.sub("", statement)
-    sql = _PARAM_RE.sub("?", sql)
-    sql = _PARAM_LIST_RE.sub("?", sql)
-    sql = _VALUES_LIST_RE.sub("(?)", sql)
-    sql = _LONG_LITERAL_RE.sub("'...'", sql)
-    return _truncate(_WHITESPACE_RE.sub(" ", sql).strip())
+    """The statement with everything that varies with the test data taken out, which is the key we group and diff on.
+
+    Anything left in here that moves between two identical runs turns the whole report into noise, so each step
+    below is pinned by a test in test_query_log.py.
+    """
+    # sqlcommenter-style comments. Nothing emits these in tests today (tracing is only set up in prod), but a future
+    # change that turns the commenter on would otherwise invalidate every fingerprint at once.
+    sql = re.sub(r"/\*.*?\*/", "", statement, flags=re.DOTALL)
+    # Bind parameters, as psycopg's pyformat paramstyle renders them, plus positional %s for good measure.
+    sql = re.sub(r"%\([^)]*\)s|%s", "?", sql)
+    # An expanded IN (...) list, whose length tracks the test data.
+    sql = re.sub(r"\?(?:\s*,\s*\?)+", "?", sql)
+    # Repeated VALUES tuples from a multi-row insert, whose count tracks the batch size.
+    sql = re.sub(r"\(\?\)(?:\s*,\s*\(\?\))+", "(?)", sql)
+    # Literals inlined into the statement text rather than bound. Bulk resource loads do this: the real
+    # timezone_areas.sql is a few hundred INSERTs each carrying megabytes of WKB hex, so without collapsing them
+    # every row becomes its own multi-megabyte shape.
+    sql = re.sub(r"'[^']{64,}'", "'...'", sql)
+    return _truncate(re.sub(r"\s+", " ", sql).strip())
 
 
 def _shape_id(fingerprint: str) -> str:
@@ -142,6 +120,16 @@ def _render_example(conn: Any, statement: str, parameters: Any) -> tuple[str, st
         return _truncate(statement), params
 
 
+# Everything under the backend's src/ is ours; paths are reported relative to it. couchers/ is application code,
+# anything else under src/ is test scaffolding.
+_SRC_ROOT = "/src/"
+_APP_ROOT = "/src/couchers/"
+_SKIP, _APP, _TEST = 0, 1, 2
+# Frames from these are plumbing between our code and the driver, so they never make a useful call site. The
+# recorder's own path is spelled out: a bare "query_log.py" would also swallow test_query_log.py.
+_CALLSITE_SKIP = ("/sqlalchemy/", "/psycopg", "/alembic/", "/fixtures/query_log.py")
+
+
 def _frame_kind(code: CodeType) -> int:
     """_APP, _TEST or _SKIP. Cached by filename, which is all the answer depends on: this runs on every frame of
     every execution, and the string work is what would otherwise make stack walking too expensive to leave on.
@@ -158,6 +146,11 @@ def _frame_kind(code: CodeType) -> int:
             known = _APP if _APP_ROOT in filename else _TEST
         _frame_cache[filename] = known
     return known
+
+
+# How many of our own frames to keep. The innermost is the line that issued the query; the next couple show the
+# chain that got there, which is usually what tells you whether a repeat is a loop.
+_CALLSITE_FRAMES = 3
 
 
 def _callsite() -> str:
@@ -194,6 +187,13 @@ def _current_span() -> _Span | None:
     return getattr(_local, "span", None)
 
 
+# test_db rebuilds the schema from migrations to diff it against the models. That is schema plumbing rather than an
+# access pattern, and it is already covered by the schema-diff artifact. Note this is not what keeps the real
+# timezone_areas.sql out of the recording: test_migrations is skipped in test:backend anyway, because the backend
+# image has no pg_dump. What bounds the artifact is _MAX_SQL_CHARS.
+_EXCLUDED_MODULES = ("src/tests/test_db.py",)
+
+
 def _after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     test = _current_test
     if test is None or test.startswith(_EXCLUDED_MODULES):
@@ -203,9 +203,10 @@ def _after_cursor_execute(conn, cursor, statement, parameters, context, executem
         shape = _shapes.get(fingerprint)
         if shape is None or test < shape.first_seen_in:
             example, params = _render_example(conn, statement, parameters)
+            # The context knows for ORM-issued statements; fall back to reading the statement for the rest.
             is_write = bool(
                 (context is not None and (context.isinsert or context.isupdate or context.isdelete))
-                or _WRITE_RE.match(statement)
+                or re.match(r"^\s*(INSERT|UPDATE|DELETE)\b", statement, re.IGNORECASE)
             )
             _shapes[fingerprint] = _Shape(
                 id=_shape_id(fingerprint),
