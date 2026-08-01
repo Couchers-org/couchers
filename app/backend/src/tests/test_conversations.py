@@ -1,11 +1,13 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import func, select
 
 from couchers.db import session_scope
+from couchers.jobs.handlers import send_message_notifications
 from couchers.jobs.worker import process_job
 from couchers.models import (
     GroupChatRole,
@@ -20,7 +22,7 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, now_5_min_in_future, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
 
 
@@ -1463,6 +1465,64 @@ def test_mark_last_seen_clears_notifications(db, moderator):
         c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
 
     assert unseen_notification_count(user2.id) == 0
+
+
+def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
+    """
+    Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
+    needs to be marked seen separately from the per-chat chat__message notifications.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # this notification is email-only by default, and the in-app feed only shows push-enabled ones
+    with notifications_session(token2) as n:
+        n.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=NotificationTopicAction.chat__missed_messages.topic,
+                        action=NotificationTopicAction.chat__missed_messages.action,
+                        delivery_method="push",
+                        enabled=True,
+                    )
+                ]
+            )
+        )
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
+            )
+        ).group_chat_id
+
+    moderator.approve_group_chat(gcid)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello!"))
+
+    # the job only picks up messages that have been unseen for five minutes
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    def unseen_missed_messages():
+        with notifications_session(token2) as n:
+            res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
+        return [
+            notification
+            for notification in res.notifications
+            if notification.topic == NotificationTopicAction.chat__missed_messages.topic
+            and notification.action == NotificationTopicAction.chat__missed_messages.action
+        ]
+
+    assert len(unseen_missed_messages()) == 1
+
+    with conversations_session(token2) as c:
+        c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
+
+    assert unseen_missed_messages() == []
 
 
 def test_one_dm_per_pair(db, moderator):
