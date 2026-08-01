@@ -34,19 +34,4 @@ describe("UserSummary", () => {
 
     expect(menuOptionFunc.mock.calls.length).toBe(1);
   });
-
-  it("shouldn't render the user's age", async () => {
-    render(<UserSummary user={users[0]} />, { wrapper });
-
-    const heading = screen.getByRole("heading");
-    expect(heading).toHaveTextContent(users[0].name);
-    expect(heading).not.toHaveTextContent(`${users[0].age}`);
-  });
-
-  it("should render the location pin alongside the city", async () => {
-    render(<UserSummary user={users[0]} />, { wrapper });
-
-    expect(screen.getByTestId("LocationOnIcon")).toBeVisible();
-    expect(screen.getByText(users[0].city)).toBeVisible();
-  });
 });

@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
+import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import mockRouter from "next-router-mock";
 import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
@@ -110,7 +111,9 @@ describe("Community info page", () => {
         />,
         { wrapper },
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      await waitForElementToBeRemoved(
+        screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
+      );
 
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
@@ -147,7 +150,9 @@ describe("Community info page", () => {
         nextPageToken: "3",
       });
       render(<CommunityInfoPage community={community} />, { wrapper });
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      await waitForElementToBeRemoved(
+        screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
+      );
 
       const user = userEvent.setup();
 
