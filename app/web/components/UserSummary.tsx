@@ -40,21 +40,21 @@ const StyledListItemText = styled(ListItemText, {
   gridTemplateColumns: "minmax(0, 1fr)",
   gap: theme.spacing(0.25),
   margin: 0,
-  minHeight: isSmallAvatar ? theme.spacing(4.5) : theme.spacing(7),
-  [theme.breakpoints.up("md")]: {
-    minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
+  minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
+  [theme.breakpoints.down("md")]: {
+    minHeight: isSmallAvatar ? theme.spacing(4.5) : theme.spacing(7),
   },
 }));
 
-// mobile-first: smaller avatar on mobile, full size from md up. Kept in one place so the
-// avatar and its skeleton can't drift apart and make the row jump when the user loads.
+// shared so the avatar and its skeleton can't drift apart and make the row jump when the
+// user loads
 const avatarSize = (theme: Theme, isSmallAvatar: boolean) => ({
   marginInlineEnd: theme.spacing(2),
-  height: isSmallAvatar ? "2.25rem" : "3.5rem",
-  width: isSmallAvatar ? "2.25rem" : "3.5rem",
-  [theme.breakpoints.up("md")]: {
-    height: isSmallAvatar ? "3rem" : "4.5rem",
-    width: isSmallAvatar ? "3rem" : "4.5rem",
+  height: isSmallAvatar ? "3rem" : "4.5rem",
+  width: isSmallAvatar ? "3rem" : "4.5rem",
+  [theme.breakpoints.down("md")]: {
+    height: isSmallAvatar ? "2.25rem" : "3.5rem",
+    width: isSmallAvatar ? "2.25rem" : "3.5rem",
   },
 });
 
@@ -126,12 +126,7 @@ export default function UserSummary({
         component={headlineComponentWithRef}
         variant="h2"
         noWrap={nameOnly}
-        sx={(theme) => ({
-          marginTop: "auto",
-          fontSize: "1rem",
-          minWidth: 0,
-          [theme.breakpoints.up("md")]: { fontSize: "1.2rem" },
-        })}
+        sx={{ marginTop: "auto", minWidth: 0 }}
       >
         {!user ? (
           <Skeleton
@@ -224,8 +219,8 @@ export default function UserSummary({
                       sx={(theme) => ({
                         flexShrink: 0,
                         color: "var(--mui-palette-text-secondary)",
-                        fontSize: "1rem",
-                        [theme.breakpoints.up("md")]: { fontSize: "1.25rem" },
+                        fontSize: "1.25rem",
+                        [theme.breakpoints.down("md")]: { fontSize: "1rem" },
                       })}
                     />
                   )}
@@ -235,8 +230,8 @@ export default function UserSummary({
                     noWrap
                     sx={(theme) => ({
                       minWidth: 0,
-                      fontSize: "0.875rem",
-                      [theme.breakpoints.up("md")]: { fontSize: "1rem" },
+                      fontSize: "1rem",
+                      [theme.breakpoints.down("md")]: { fontSize: "0.875rem" },
                     })}
                   >
                     {!user ? <Skeleton /> : cityValue}
