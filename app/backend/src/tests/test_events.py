@@ -3122,16 +3122,16 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
     db, push_collector: PushCollector, moderator: Moderator
 ):
     """The user who updates or cancels an event shouldn't be notified about their own action."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    attendee_user, attendee_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+        create_community(session, 0, 2, "Community", [attendee_user], [], None)
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
-    with events_session(token1) as api:
+    with events_session(organizer_token) as api:
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Actor Test",
@@ -3150,12 +3150,12 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
     moderator.approve_event_occurrence(event_id)
     process_jobs()
 
-    # User2 subscribes so there's someone left to notify
-    with events_session(token2) as api:
+    # The attendee subscribes to notifications
+    with events_session(attendee_token) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
 
-    # User1, the organizer, updates and then cancels their own event
-    with events_session(token1) as api:
+    # The organizer updates and then cancels their own event
+    with events_session(organizer_token) as api:
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
@@ -3167,20 +3167,12 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
 
     process_jobs()
 
-    with session_scope() as session:
-        actions_for_user1 = [
-            n.topic_action.action
-            for n in session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
-        ]
-        assert "update" not in actions_for_user1
-        assert "cancel" not in actions_for_user1
+    # The organizer should not receive any notifications
+    assert push_collector.count_for_user(organizer_user.id) == 0
 
-        actions_for_user2 = [
-            n.topic_action.action
-            for n in session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
-        ]
-        assert "update" in actions_for_user2
-        assert "cancel" in actions_for_user2
+    # But the attendee should receive both the update and cancel notifications
+    assert push_collector.pop_for_user(attendee_user.id).topic_action == NotificationTopicAction.event__update.display
+    assert push_collector.pop_for_user(attendee_user.id).topic_action == NotificationTopicAction.event__cancel.display
 
 
 def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
