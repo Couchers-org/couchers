@@ -120,6 +120,12 @@ describe("localizeDateTime", () => {
         includeMinutes: "auto",
       }),
     ).toContain("10:01");
+    expect(
+      localizeDateTime(tenAM, "en", {
+        includeMinutes: "auto",
+        includeSeconds: true,
+      }),
+    ).toContain("10:00:00");
   });
 
   it("includes seconds when specified", () => {

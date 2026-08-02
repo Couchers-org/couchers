@@ -62,7 +62,6 @@ export function localizeDateTime(
   const format = getIntlDateTimeFormatUTC(locale, options, {
     year: date.year,
     minutes: date.minute,
-    seconds: date.second,
   });
   const formatted = format.format(toDateForUTCDisplay(date));
   return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
@@ -141,7 +140,6 @@ export function localizeDateTimeRange(
   const format = getIntlDateTimeFormatUTC(locale, options, {
     year: start.year == end.year ? start.year : undefined,
     minutes: start.minute == end.minute ? start.minute : undefined,
-    seconds: start.second == end.second ? start.second : undefined,
   });
   const formatted = format.formatRange(toDateForUTCDisplay(start), toDateForUTCDisplay(end));
   return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
@@ -174,7 +172,7 @@ const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
 function getIntlDateTimeFormatUTC(
   locale: string,
   options?: LocalizeDateTimeOptions,
-  dateComponents?: { year?: number; minutes?: number; seconds?: number },
+  dateComponents?: { year?: number; minutes?: number },
 ): Intl.DateTimeFormat {
   const intlOptions = getIntlDateTimeFormatOptionsUTC(options, dateComponents);
   const cacheKey = JSON.stringify({ ...intlOptions, locale });
@@ -189,15 +187,24 @@ function getIntlDateTimeFormatUTC(
 /// Creates a new Intl.DateTimeFormat object based on params.
 function getIntlDateTimeFormatOptionsUTC(
   options?: LocalizeDateTimeOptions,
-  dateComponents?: { year?: number; minutes?: number; seconds?: number },
+  dateComponents?: { year?: number; minutes?: number },
 ): Intl.DateTimeFormatOptions {
+  // Apply defaults
+  const includeDate = options?.includeDate ?? true;
+  const includeYear = options?.includeYear ?? true;
+  const includeDay = options?.includeDay ?? true;
+  const includeDayOfWeek = options?.includeDayOfWeek ?? false;
+  const includeTime = options?.includeTime ?? true;
+  const includeMinutes = options?.includeMinutes ?? true;
+  const includeSeconds = options?.includeSeconds ?? false;
+
   const intlOptions: Intl.DateTimeFormatOptions = {};
-  if (options?.includeDate !== false) {
+  if (includeDate) {
     // Year has three modes: include (default), omit, or auto (omit if current year).
-    if (options?.includeYear === undefined || options?.includeYear === true) {
+    if (includeYear === true) {
       intlOptions.year = "numeric";
     } else if (
-      options?.includeYear === "auto" &&
+      includeYear === "auto" &&
       dateComponents?.year !== undefined &&
       dateComponents.year != new Date().getFullYear()
     ) {
@@ -206,29 +213,26 @@ function getIntlDateTimeFormatOptionsUTC(
 
     intlOptions.month = options?.abbreviate ? "short" : "long";
 
-    if (options?.includeDay !== false) {
+    if (includeDay) {
       intlOptions.day = "numeric";
     }
 
-    if (options?.includeDayOfWeek) {
-      intlOptions.weekday = options.abbreviate ? "short" : "long";
+    if (includeDayOfWeek) {
+      intlOptions.weekday = options?.abbreviate ? "short" : "long";
     }
   }
 
-  if (options?.includeTime !== false) {
+  if (includeTime) {
     intlOptions.hour = "numeric";
 
     // Minutes have three modes: include (default), omit, or auto (omit if 00).
-    if (options?.includeMinutes === undefined || options?.includeMinutes === true) {
+    if (includeMinutes === true || includeSeconds) {
       intlOptions.minute = "numeric";
-    } else if (
-      options?.includeMinutes === "auto" &&
-      (dateComponents?.minutes !== 0 || (dateComponents?.seconds ?? 0) !== 0)
-    ) {
+    } else if (includeMinutes === "auto" && dateComponents?.minutes !== 0) {
       intlOptions.minute = "numeric";
     }
 
-    if (options?.includeSeconds) {
+    if (includeSeconds) {
       intlOptions.second = "numeric";
     }
   }
