@@ -8,7 +8,6 @@ import {
   useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
-import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -120,7 +119,21 @@ export default function CommunitiesList() {
           />
           {t("dashboard:your_communities_heading")}
           {!isPending && communities.length > 0 && (
-            <CountBadge count={communities.length} />
+            <Box
+              component="span"
+              sx={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--mui-palette-text-secondary)",
+                background: "var(--mui-palette-grey-50)",
+                borderRadius: 999,
+                px: 1.125,
+                lineHeight: "20px",
+                display: "inline-block",
+              }}
+            >
+              {communities.length}
+            </Box>
           )}
         </Typography>
         <div>
