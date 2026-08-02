@@ -32,7 +32,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import mark_notifications_seen, mark_notifications_seen_for_keys, notify
+from couchers.notifications.notify import mark_notifications_seen, mark_notifications_seen_bulk, notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, messages_pb2, notification_data_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
@@ -876,6 +876,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     ) -> empty_pb2.Empty:
         chat_query, host_request_query = _thread_candidate_queries(context, request)
 
+        # (topic actions, keys) groups for the notifications owned by the threads we mark seen
+        notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
+
         if chat_query is not None:
             latest_message_id_by_conversation = {
                 row.conversation_id: row.latest_message_id for row in session.execute(chat_query).all()
@@ -907,15 +910,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         .values(last_seen_message_id=latest_message_id_for_chat)
                         .execution_options(synchronize_session=False)
                     )
-                    mark_notifications_seen_for_keys(
-                        session,
-                        user_id=context.user_id,
-                        keys=[str(group_chat_id) for group_chat_id in active_group_chat_ids],
-                        topic_actions=[
-                            NotificationTopicAction.chat__message,
-                            NotificationTopicAction.chat__missed_messages,
-                        ],
+                    notification_groups.append(
+                        (
+                            [NotificationTopicAction.chat__message],
+                            [str(group_chat_id) for group_chat_id in active_group_chat_ids],
+                        )
                     )
+                    # chat__missed_messages is a summary across all chats, so it's keyed with an empty
+                    # string rather than a chat id (same as MarkLastSeenGroupChat)
+                    notification_groups.append(([NotificationTopicAction.chat__missed_messages], [""]))
 
         if host_request_query is not None:
             latest_message_id_by_conversation = {
@@ -946,12 +949,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .values(recipient_last_seen_message_id=latest_message_id_for_request)
                     .execution_options(synchronize_session=False)
                 )
-                mark_notifications_seen_for_keys(
-                    session,
-                    user_id=context.user_id,
-                    keys=[str(conversation_id) for conversation_id in conversation_ids],
-                    topic_actions=_HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
+                notification_groups.append(
+                    (
+                        _HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
+                        [str(conversation_id) for conversation_id in conversation_ids],
+                    )
                 )
+
+        mark_notifications_seen_bulk(session, user_id=context.user_id, topic_actions_and_keys=notification_groups)
 
         return empty_pb2.Empty()
 

@@ -1,8 +1,9 @@
 import logging
+from collections.abc import Sequence
 
 from google.protobuf import empty_pb2
 from google.protobuf.message import Message
-from sqlalchemy import update
+from sqlalchemy import and_, or_, update
 from sqlalchemy.orm import Session
 
 from couchers.jobs.enqueue import queue_job
@@ -75,31 +76,30 @@ def mark_notifications_seen(
     """
     Marks all unseen notifications for the given user, key, and topic actions as seen.
     """
-    session.execute(
-        update(Notification)
-        .values(is_seen=True)
-        .where(Notification.user_id == user_id)
-        .where(Notification.key == key)
-        .where(Notification.topic_action.in_(topic_actions))
-    )
+    mark_notifications_seen_bulk(session, user_id=user_id, topic_actions_and_keys=[(topic_actions, [key])])
 
 
-def mark_notifications_seen_for_keys(
+def mark_notifications_seen_bulk(
     session: Session,
     *,
     user_id: int,
-    keys: list[str],
-    topic_actions: list[NotificationTopicAction],
+    topic_actions_and_keys: Sequence[tuple[Sequence[NotificationTopicAction], Sequence[str]]],
 ) -> None:
     """
-    Bulk variant of mark_notifications_seen: marks notifications for all the given keys as seen in one update.
+    Bulk variant of mark_notifications_seen, marking several groups of notifications seen in one update.
+
+    Each group pairs topic actions with the keys those actions are keyed by. Keys are only meaningful
+    within a topic action, so they must not be pooled into one flat list: chat__message is keyed by
+    chat id while chat__missed_messages is a summary keyed with "", and unrelated topics reuse the
+    same key values for entirely different things.
     """
-    if not keys:
+    clauses = [
+        and_(Notification.topic_action.in_(topic_actions), Notification.key.in_(keys))
+        for topic_actions, keys in topic_actions_and_keys
+        if topic_actions and keys
+    ]
+    if not clauses:
         return
     session.execute(
-        update(Notification)
-        .values(is_seen=True)
-        .where(Notification.user_id == user_id)
-        .where(Notification.key.in_(keys))
-        .where(Notification.topic_action.in_(topic_actions))
+        update(Notification).values(is_seen=True).where(Notification.user_id == user_id).where(or_(*clauses))
     )
