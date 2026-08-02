@@ -19,9 +19,7 @@ const StyledLinksContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
-  component: C,
-) => {
+const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(component: C) => {
   return styled(component, {
     shouldForwardProp: (prop) => prop !== "isSelected",
   })<{ isSelected?: boolean }>(({ theme, isSelected }) => ({
@@ -52,20 +50,14 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
       padding: theme.spacing(0.5, 1),
       paddingBottom: theme.spacing(0.5),
       borderRadius: "9999px",
-      backgroundColor: isSelected
-        ? "var(--mui-palette-primary-main)"
-        : "var(--mui-palette-grey-200)",
-      color: isSelected
-        ? "var(--mui-palette-primary-contrastText)"
-        : "var(--mui-palette-text-primary)",
+      backgroundColor: isSelected ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-200)",
+      color: isSelected ? "var(--mui-palette-primary-contrastText)" : "var(--mui-palette-text-primary)",
       whiteSpace: "nowrap",
       "&::after": {
         display: "none",
       },
       "&:hover": {
-        backgroundColor: isSelected
-          ? "var(--mui-palette-primary-main)"
-          : "var(--mui-palette-grey-300)",
+        backgroundColor: isSelected ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-300)",
       },
     },
   }));

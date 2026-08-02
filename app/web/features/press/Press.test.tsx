@@ -10,9 +10,7 @@ const { t } = i18n;
 jest.mock("../dashboard/Hero/HeroImageAttribution", () => () => null);
 jest.mock("features/communities/hooks");
 
-const mockUseListVolunteers = useListVolunteers as jest.MockedFunction<
-  typeof useListVolunteers
->;
+const mockUseListVolunteers = useListVolunteers as jest.MockedFunction<typeof useListVolunteers>;
 
 describe("Press", () => {
   beforeEach(() => {
@@ -38,9 +36,7 @@ describe("Press", () => {
 
   it("renders all sections", async () => {
     render(<Press />, { wrapper });
-    expect(
-      screen.getByRole("heading", { level: 1, name: t("press:hero.title") }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: t("press:hero.title") })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 2,

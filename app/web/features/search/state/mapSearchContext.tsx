@@ -1,25 +1,13 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  useContext,
-  useReducer,
-} from "react";
+import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
 
-import {
-  initialState,
-  MapSearchAction,
-  mapSearchReducer,
-} from "./mapSearchReducers";
+import { initialState, MapSearchAction, mapSearchReducer } from "./mapSearchReducers";
 
 const MapSearchContext = createContext(initialState);
-const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(
-  () => {
-    throw new Error("MapSearchDispatchContext used outside of provider");
-  },
-);
+const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(() => {
+  throw new Error("MapSearchDispatchContext used outside of provider");
+});
 
 function useMapSearchState() {
   return useContext(MapSearchContext);
@@ -58,9 +46,7 @@ function MapSearchProvider({
 
   return (
     <MapSearchContext.Provider value={mapSearchState}>
-      <MapSearchDispatchContext.Provider value={dispatch}>
-        {children}
-      </MapSearchDispatchContext.Provider>
+      <MapSearchDispatchContext.Provider value={dispatch}>{children}</MapSearchDispatchContext.Provider>
     </MapSearchContext.Provider>
   );
 }

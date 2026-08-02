@@ -15,9 +15,7 @@ import DiscoverEventsList from "./DiscoverEventsList";
 
 const { t } = i18n;
 
-const mockEventSearch = service.search.EventSearch as jest.MockedFunction<
-  typeof service.search.EventSearch
->;
+const mockEventSearch = service.search.EventSearch as jest.MockedFunction<typeof service.search.EventSearch>;
 
 jest.mock("utils/hooks", () => ({
   ...jest.requireActual("utils/hooks"),
@@ -64,22 +62,13 @@ describe("DiscoverEventsList", () => {
 
     render(<DiscoverEventsList />, { wrapper });
 
-    expect(
-      await screen.findByText(t("communities:discover_events_title")),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(t("communities:my_communities")),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByTestId("location-autocomplete"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(t("communities:discover_events_title"))).toBeInTheDocument();
+    expect(await screen.findByText(t("communities:my_communities"))).toBeInTheDocument();
+    expect(await screen.findByTestId("location-autocomplete")).toBeInTheDocument();
     expect(
       screen.getByText((content, element) => {
         // Match text split across multiple elements by checking the full text content
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
+        return element?.textContent === "No events at the moment. Why don't you create one ✨?";
       }),
     ).toBeInTheDocument();
     // Check that there's a link to create a new event
@@ -96,9 +85,7 @@ describe("DiscoverEventsList", () => {
     render(<DiscoverEventsList />, { wrapper });
 
     await waitFor(() => {
-      expect(mockEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ excludeAttending: true }),
-      );
+      expect(mockEventSearch).toHaveBeenCalledWith(expect.objectContaining({ excludeAttending: true }));
     });
   });
 
@@ -140,9 +127,7 @@ describe("DiscoverEventsList", () => {
 
     render(<DiscoverEventsList />, { wrapper });
 
-    const communitiesFilter = await screen.getByText(
-      t("communities:my_communities"),
-    );
+    const communitiesFilter = await screen.getByText(t("communities:my_communities"));
     expect(communitiesFilter).toBeInTheDocument();
 
     const user = userEvent.setup();

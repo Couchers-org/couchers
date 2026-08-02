@@ -63,11 +63,7 @@ const MapSearchResultsList = ({
     shouldSearchByUserId,
   } = useMapSearchState();
 
-  const meetsSearchCriteria =
-    hasActiveFilters ||
-    bbox !== undefined ||
-    query !== undefined ||
-    shouldSearchByUserId;
+  const meetsSearchCriteria = hasActiveFilters || bbox !== undefined || query !== undefined || shouldSearchByUserId;
 
   return (
     <DrawerContainer>
@@ -98,8 +94,7 @@ const MapSearchResultsList = ({
             showTopSpace={
               !isMobile &&
               (mapView === MapViews.LIST_ONLY ||
-                (mapView === MapViews.MAP_AND_LIST &&
-                  drawerWidth > window.innerWidth / 2))
+                (mapView === MapViews.MAP_AND_LIST && drawerWidth > window.innerWidth / 2))
             }
             totalItems={totalItems}
             users={users}

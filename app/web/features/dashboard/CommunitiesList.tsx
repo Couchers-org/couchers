@@ -67,18 +67,13 @@ export default function CommunitiesList() {
 
   const { data, isPending, error } = useListUserCommunities();
 
-  const communities = (data?.pages ?? []).flatMap(
-    (page) => page.communitiesList,
-  );
+  const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
   const updateScrollState = () => {
     const el = scrollerRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(
-      Math.round(el.scrollLeft) <
-        el.scrollWidth - el.clientWidth - SCROLL_END_TOL,
-    );
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth - SCROLL_END_TOL);
   };
 
   useEffect(() => {
@@ -94,13 +89,8 @@ export default function CommunitiesList() {
   return (
     <div>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
-          <Groups
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
         </Typography>
         <div>
@@ -133,12 +123,7 @@ export default function CommunitiesList() {
         <Trans
           i18nKey="dashboard:your_communities_helper_text"
           components={{
-            1: (
-              <StyledBrowseCommunitiesLink
-                href="/communities"
-                underline="hover"
-              />
-            ),
+            1: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
         />
       </Typography>
@@ -161,9 +146,7 @@ export default function CommunitiesList() {
         >
           {communities.map((community) => (
             <CardSlot key={`community-${community.communityId}`}>
-              <CommunityCard
-                href={routeToCommunity(community.communityId, community.slug)}
-              >
+              <CommunityCard href={routeToCommunity(community.communityId, community.slug)}>
                 <Typography
                   variant="subtitle2"
                   component="span"

@@ -11,17 +11,11 @@ interface PendingFriendReqButtonProps {
   friendRequest: FriendRequest.AsObject;
 }
 
-function PendingFriendReqButton({
-  friendRequest,
-}: PendingFriendReqButtonProps) {
+function PendingFriendReqButton({ friendRequest }: PendingFriendReqButtonProps) {
   const { t } = useTranslation([PROFILE]);
 
   return (
-    <Button
-      component={Link}
-      startIcon={<PersonAddIcon />}
-      href={`${connectionsRoute}?from=${friendRequest.userId}`}
-    >
+    <Button component={Link} startIcon={<PersonAddIcon />} href={`${connectionsRoute}?from=${friendRequest.userId}`}>
       {t("profile:connection_pending")}
     </Button>
   );

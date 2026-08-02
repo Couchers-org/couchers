@@ -24,13 +24,9 @@ export default function HostRequestGuideLinks({
 }) {
   const { t } = useTranslation([MESSAGES]);
 
-  const isHostPending =
-    !isPast &&
-    isHost &&
-    status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+  const isHostPending = !isPast && isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
 
-  const isSurferRejected =
-    !isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+  const isSurferRejected = !isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
   if (isHostPending) {
     return (
@@ -39,12 +35,7 @@ export default function HostRequestGuideLinks({
           <Trans
             i18nKey="messages:host_pending_request_help_text"
             components={{
-              0: (
-                <StyledLink
-                  variant="body1"
-                  href={howToRespondRequestGuideUrl}
-                />
-              ),
+              0: <StyledLink variant="body1" href={howToRespondRequestGuideUrl} />,
             }}
           />
         </Typography>
@@ -57,9 +48,7 @@ export default function HostRequestGuideLinks({
           <Trans
             i18nKey="messages:surfer_declined_request_help_text"
             components={{
-              0: (
-                <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />
-              ),
+              0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
             }}
           />
         </Typography>
@@ -68,9 +57,7 @@ export default function HostRequestGuideLinks({
   } else if (isPast) {
     return (
       <StyledHelpTextContainer>
-        <Typography variant="body1">
-          {t("messages:past_request_help_text")}
-        </Typography>
+        <Typography variant="body1">{t("messages:past_request_help_text")}</Typography>
       </StyledHelpTextContainer>
     );
   } else {

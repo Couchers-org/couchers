@@ -1,27 +1,10 @@
-import {
-  BottomNavigation as MuiBottomNavigation,
-  BottomNavigationAction,
-  Paper,
-  styled,
-} from "@mui/material";
-import {
-  CalendarIcon,
-  ChatBubbleIcon,
-  HomeIcon,
-  PersonIcon,
-  SearchIcon,
-} from "components/Icons";
+import { BottomNavigation as MuiBottomNavigation, BottomNavigationAction, Paper, styled } from "@mui/material";
+import { CalendarIcon, ChatBubbleIcon, HomeIcon, PersonIcon, SearchIcon } from "components/Icons";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
-import {
-  communitiesRoute,
-  dashboardRoute,
-  eventsRoute,
-  messagesRoute,
-  searchRoute,
-} from "routes";
+import { communitiesRoute, dashboardRoute, eventsRoute, messagesRoute, searchRoute } from "routes";
 
 const StyledPaper = styled(Paper)(() => ({
   position: "fixed",
@@ -54,10 +37,7 @@ export default function BottomNavigation() {
   // Strip locale prefix from pathname to determine current route
   const currentRoute = useMemo(() => {
     // Remove locale prefix (e.g., /en/, /es/, etc.) from pathname
-    const pathWithoutLocale = router.pathname.replace(
-      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
-      "/",
-    );
+    const pathWithoutLocale = router.pathname.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/");
 
     if (pathWithoutLocale.startsWith("/messages")) return messagesRoute;
     if (pathWithoutLocale.startsWith("/communities")) return communitiesRoute;

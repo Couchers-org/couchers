@@ -20,9 +20,7 @@ jest.mock("features/donations/DonationBanner", () => ({
   ),
 }));
 
-const mockUseAuthStore = useAuthStore as jest.MockedFunction<
-  typeof useAuthStore
->;
+const mockUseAuthStore = useAuthStore as jest.MockedFunction<typeof useAuthStore>;
 
 describe("Navigation", () => {
   beforeEach(() => {

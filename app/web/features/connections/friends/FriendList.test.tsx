@@ -18,28 +18,17 @@ describe("FriendList", () => {
   });
 
   it("renders the friend list when all friends are loaded", async () => {
-    render(
-      <FriendList
-        errors={[]}
-        friends={[users[1], users[2]]}
-        isLoading={false}
-      />,
-      { wrapper },
+    render(<FriendList errors={[]} friends={[users[1], users[2]]} isLoading={false} />, { wrapper });
+
+    const [firstFriend, secondFriend] = (await screen.findAllByTestId(FRIEND_ITEM_TEST_ID)).map((element) =>
+      within(element),
     );
 
-    const [firstFriend, secondFriend] = (
-      await screen.findAllByTestId(FRIEND_ITEM_TEST_ID)
-    ).map((element) => within(element));
-
     // First friend
-    expect(
-      firstFriend.getByRole("heading", { name: /Funny Dog/ }),
-    ).toBeVisible();
+    expect(firstFriend.getByRole("heading", { name: /Funny Dog/ })).toBeVisible();
 
     // Second friend
-    expect(
-      secondFriend.getByRole("heading", { name: /Funny Kid/ }),
-    ).toBeVisible();
+    expect(secondFriend.getByRole("heading", { name: /Funny Kid/ })).toBeVisible();
   });
 
   it("renders the empty state message if the current user has no friends", async () => {
@@ -53,14 +42,7 @@ describe("FriendList", () => {
 
   it("shows an error alert if the friend list failed to load", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
-    render(
-      <FriendList
-        errors={["Error loading friends"]}
-        friends={[]}
-        isLoading={false}
-      />,
-      { wrapper },
-    );
+    render(<FriendList errors={["Error loading friends"]} friends={[]} isLoading={false} />, { wrapper });
 
     const errorAlert = await screen.findByRole("alert");
     expect(within(errorAlert).getByText("Error loading friends")).toBeVisible();

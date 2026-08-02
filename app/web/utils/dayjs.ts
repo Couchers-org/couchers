@@ -75,11 +75,7 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
 /// LocalizationProvider `adapterLocale` and for call-site formatting, e.g.
 /// `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
 export function i18nToDayjsLocale(language: string): string {
-  return (
-    I18N_TO_DAYJS_LOCALE[language] ??
-    I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ??
-    "en"
-  );
+  return I18N_TO_DAYJS_LOCALE[language] ?? I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ?? "en";
 }
 
 export { Dayjs };

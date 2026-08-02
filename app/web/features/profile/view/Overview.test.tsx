@@ -11,9 +11,7 @@ import Overview from "./Overview";
 
 const { t } = i18n;
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 
 const accountInfo = {
   username: "tester",
@@ -51,11 +49,7 @@ describe("Overview", () => {
 
     render(
       <ProfileUserProvider user={mockUsers[1]}>
-        <Overview
-          setIsRequesting={jest.fn()}
-          setIsMessaging={jest.fn()}
-          tab="about"
-        />
+        <Overview setIsRequesting={jest.fn()} setIsMessaging={jest.fn()} tab="about" />
       </ProfileUserProvider>,
       { wrapper },
     );
@@ -68,8 +62,6 @@ describe("Overview", () => {
     const user = userEvent.setup();
     await user.click(requestButton);
 
-    expect(
-      await screen.findByLabelText(t("profile:complete_profile_dialog.title")),
-    ).toBeVisible();
+    expect(await screen.findByLabelText(t("profile:complete_profile_dialog.title"))).toBeVisible();
   });
 });

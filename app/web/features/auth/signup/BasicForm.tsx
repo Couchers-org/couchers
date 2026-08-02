@@ -2,11 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
-import {
-  StyledButton,
-  StyledInputLabel,
-  StyledTextField,
-} from "features/auth/useAuthStyles";
+import { StyledButton, StyledInputLabel, StyledTextField } from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -32,11 +28,7 @@ interface BasicFormProps {
   inviteCode?: string;
 }
 
-export default function BasicForm({
-  submitText,
-  successCallback,
-  inviteCode,
-}: BasicFormProps) {
+export default function BasicForm({ submitText, successCallback, inviteCode }: BasicFormProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
 
@@ -53,11 +45,7 @@ export default function BasicForm({
     mutationFn: async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const sanitizedName = data.name.trim();
-      const state = await service.auth.startSignup(
-        sanitizedName,
-        sanitizedEmail,
-        inviteCode,
-      );
+      const state = await service.auth.startSignup(sanitizedName, sanitizedEmail, inviteCode);
       doAntibot("signup");
       return authActions.updateSignupState(state);
     },
@@ -79,13 +67,9 @@ export default function BasicForm({
 
   return (
     <>
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message || ""}</Alert>
-      )}
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <form onSubmit={onSubmit}>
-        <StyledInputLabel htmlFor="name">
-          {t("auth:basic_form.name.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="name">{t("auth:basic_form.name.field_label")}</StyledInputLabel>
         <StyledTextField
           id="name"
           {...register("name", {
@@ -115,9 +99,7 @@ export default function BasicForm({
           error={!!errors?.name?.message}
           autoComplete="name"
         />
-        <StyledInputLabel htmlFor="email">
-          {t("auth:basic_form.email.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="email">{t("auth:basic_form.email.field_label")}</StyledInputLabel>
         <StyledTextField
           id="email"
           {...register("email", {
@@ -135,12 +117,7 @@ export default function BasicForm({
           error={!!errors?.email?.message}
           autoComplete="email"
         />
-        <StyledButton
-          onClick={onSubmit}
-          type="submit"
-          loading={mutation.isPending}
-          fullWidth
-        >
+        <StyledButton onClick={onSubmit} type="submit" loading={mutation.isPending} fullWidth>
           {submitText || t("global:continue")}
         </StyledButton>
       </form>

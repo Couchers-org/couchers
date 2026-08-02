@@ -37,21 +37,13 @@ const StyledToggleContainer = styled("div")(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-export default function RequestsTab({
-  type,
-}: {
-  type: "all" | "hosting" | "surfing";
-}) {
+export default function RequestsTab({ type }: { type: "all" | "hosting" | "surfing" }) {
   const { t } = useTranslation(MESSAGES);
   const [showArchived, setShowArchived] = useState(false);
-  const {
-    data,
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
+    ListHostRequestsRes.AsObject,
+    RpcError
+  >({
     queryKey: hostRequestsListKey({
       onlyArchived: showArchived,
       type,
@@ -62,8 +54,7 @@ export default function RequestsTab({
         onlyArchived: showArchived,
         type,
       }),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
     initialPageParam: undefined,
   });
 
@@ -86,24 +77,15 @@ export default function RequestsTab({
         <StyledList>
           {data &&
             data.pages.map((hostRequestsRes, pageNumber) =>
-              pageNumber === 0 &&
-              hostRequestsRes.hostRequestsList.length === 0 ? (
+              pageNumber === 0 && hostRequestsRes.hostRequestsList.length === 0 ? (
                 <TextBody key="no-requests-text">
-                  {showArchived
-                    ? t("archive.no_archived_requests")
-                    : t("requests_tab.no_requests_message")}
+                  {showArchived ? t("archive.no_archived_requests") : t("requests_tab.no_requests_message")}
                 </TextBody>
               ) : (
                 <React.Fragment key={`host-requests-page-${pageNumber}`}>
                   {hostRequestsRes.hostRequestsList.map((hostRequest) => (
-                    <Link
-                      href={routeToHostRequest(hostRequest.hostRequestId)}
-                      key={hostRequest.hostRequestId}
-                    >
-                      <StyledListItem
-                        hostRequest={hostRequest}
-                        isArchived={showArchived}
-                      />
+                    <Link href={routeToHostRequest(hostRequest.hostRequestId)} key={hostRequest.hostRequestId}>
+                      <StyledListItem hostRequest={hostRequest} isArchived={showArchived} />
                     </Link>
                   ))}
                 </React.Fragment>

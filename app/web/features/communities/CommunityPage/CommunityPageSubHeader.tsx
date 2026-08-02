@@ -66,11 +66,8 @@ export default function CommunityPageSubHeader({
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-  const subCommunities =
-    subCommunitiesData?.pages.flatMap((page) => page.communitiesList) ?? [];
-  const communityTabBarLabels: Partial<
-    Record<CommunityTab, string | ReactNode>
-  > = {
+  const subCommunities = subCommunitiesData?.pages.flatMap((page) => page.communitiesList) ?? [];
+  const communityTabBarLabels: Partial<Record<CommunityTab, string | ReactNode>> = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
     ...(community.smallCommunityFeaturesEnabled && {
@@ -91,15 +88,10 @@ export default function CommunityPageSubHeader({
   return (
     <>
       <StyledBreadcrumbsContainer>
-        <StyledBreadcrumbs
-          aria-label={t("communities:community_breadcrumb_a11y")}
-        >
+        <StyledBreadcrumbs aria-label={t("communities:community_breadcrumb_a11y")}>
           {community.parentsList
             .map((parent) => parent.community)
-            .filter(
-              (communityParent): communityParent is CommunityParent.AsObject =>
-                !!communityParent,
-            )
+            .filter((communityParent): communityParent is CommunityParent.AsObject => !!communityParent)
             .map((communityParent, index, array) =>
               index === array.length - 1 ? (
                 <Typography
@@ -113,19 +105,14 @@ export default function CommunityPageSubHeader({
                 </Typography>
               ) : (
                 <StyledLink
-                  href={routeToCommunity(
-                    communityParent.communityId,
-                    communityParent.slug,
-                  )}
+                  href={routeToCommunity(communityParent.communityId, communityParent.slug)}
                   key={`breadcrumb-${communityParent?.communityId}`}
                 >
                   {communityParent.name}
                 </StyledLink>
               ),
             )}
-          {subCommunities.length > 0 && (
-            <SubCommunitiesDropdown subCommunities={subCommunities} />
-          )}
+          {subCommunities.length > 0 && <SubCommunitiesDropdown subCommunities={subCommunities} />}
         </StyledBreadcrumbs>
         <JoinCommunityButton community={community} />
       </StyledBreadcrumbsContainer>
@@ -134,11 +121,7 @@ export default function CommunityPageSubHeader({
           ariaLabel={t("communities:community_tabs_a11y_label")}
           setValue={(newTab) =>
             router.push(
-              `${routeToCommunity(
-                community.communityId,
-                community.slug,
-                newTab === "overview" ? undefined : newTab,
-              )}`,
+              `${routeToCommunity(community.communityId, community.slug, newTab === "overview" ? undefined : newTab)}`,
             )
           }
           labels={communityTabBarLabels}

@@ -46,12 +46,7 @@ const StyledRoot = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function Markdown({
-  className,
-  source,
-  topHeaderLevel = 2,
-  allowImages = "none",
-}: MarkdownProps) {
+export default function Markdown({ className, source, topHeaderLevel = 2, allowImages = "none" }: MarkdownProps) {
   const { mode } = useColorScheme();
   const rootEl = useRef<HTMLDivElement>(null);
   const viewer = useRef<ToastUIEditorViewer>(undefined);
@@ -62,12 +57,7 @@ export default function Markdown({
     //change images ![]() to links []()
     sanitizedSource = sanitizedSource.replace(
       allowImages === "couchers"
-        ? new RegExp(
-            `!(?=\\[.*]\\((?!${escapeRegExp(
-              process.env.NEXT_PUBLIC_MEDIA_BASE_URL,
-            )}).*\\))`,
-            "gi",
-          )
+        ? new RegExp(`!(?=\\[.*]\\((?!${escapeRegExp(process.env.NEXT_PUBLIC_MEDIA_BASE_URL)}).*\\))`, "gi")
         : /!(?=\[.*]\(.*\))/gi,
       "",
     );

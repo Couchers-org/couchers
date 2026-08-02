@@ -73,13 +73,9 @@ export default function DiscussionCard({
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
-  const { data: creator } = useLiteUser(
-    discussion.deleted ? undefined : discussion.creatorUserId,
-  );
+  const { data: creator } = useLiteUser(discussion.deleted ? undefined : discussion.creatorUserId);
 
-  const postedTime = discussion.created
-    ? localizeRelativeTime(discussion.created, locale)
-    : null;
+  const postedTime = discussion.created ? localizeRelativeTime(discussion.created, locale) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({
@@ -92,8 +88,7 @@ export default function DiscussionCard({
   const contentRef =
     (discussion.ownerCommunityId != 0
       ? `community/${discussion.ownerCommunityId}`
-      : `group/${discussion.ownerGroupId}`) +
-    `/discussion/${discussion.discussionId}`;
+      : `group/${discussion.ownerGroupId}`) + `/discussion/${discussion.discussionId}`;
 
   return (
     <StyledCard className={className} data-testid={DISCUSSION_CARD_TEST_ID}>
@@ -101,23 +96,14 @@ export default function DiscussionCard({
         <StyledCardContent>
           <StyledAvatarFlagContainer>
             <StyledAvatar user={creator} isProfileLink={false} />
-            <FlagButton
-              contentRef={contentRef}
-              authorUser={discussion.creatorUserId}
-            />
+            <FlagButton contentRef={contentRef} authorUser={discussion.creatorUserId} />
           </StyledAvatarFlagContainer>
           <StyledDiscussionSummary>
             {discussion.deleted ? (
-              <StyledDeletedTitle variant="body1">
-                {t("communities:discussion_deleted")}
-              </StyledDeletedTitle>
+              <StyledDeletedTitle variant="body1">{t("communities:discussion_deleted")}</StyledDeletedTitle>
             ) : (
               <>
-                <Typography
-                  variant="body2"
-                  component="p"
-                  sx={{ marginBottom: theme.spacing(0.5) }}
-                >
+                <Typography variant="body2" component="p" sx={{ marginBottom: theme.spacing(0.5) }}>
                   {creator ? (
                     t("communities:by_creator", { name: creator.name })
                   ) : (

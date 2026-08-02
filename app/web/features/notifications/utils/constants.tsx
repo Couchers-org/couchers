@@ -30,9 +30,7 @@ import { theme } from "theme";
 const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
   account_security: <AccountSecurityIcon fontSize="large" color="action" />,
   account_settings: <AccountSettingsIcon fontSize="large" color="action" />,
-  other_notifications: (
-    <NotificationsActiveIcon fontSize="large" color="action" />
-  ),
+  other_notifications: <NotificationsActiveIcon fontSize="large" color="action" />,
   chat: <ChatBubbleIcon fontSize="large" color="action" />,
   event: <EventIcon fontSize="large" color="action" />,
   reference: <PenIcon fontSize="large" color="action" />,

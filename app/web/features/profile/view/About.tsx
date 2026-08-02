@@ -28,9 +28,7 @@ export default function About({ user }: AboutProps) {
   const { regions } = useRegions();
   return (
     <StyledWrapper>
-      <Typography variant="h1">
-        {t("profile:heading.overview_section")}
-      </Typography>
+      <Typography variant="h1">{t("profile:heading.overview_section")}</Typography>
       <AgeGenderLanguagesLabels user={user} />
       <RemainingAboutLabels user={user} />
 
@@ -45,39 +43,29 @@ export default function About({ user }: AboutProps) {
 
       {user.aboutMe && (
         <>
-          <Typography variant="h1">
-            {t("profile:heading.who_section")}
-          </Typography>
+          <Typography variant="h1">{t("profile:heading.who_section")}</Typography>
           <Markdown source={user.aboutMe} />
           <StyledDivider />
         </>
       )}
       {user.thingsILike && (
         <>
-          <Typography variant="h1">
-            {t("profile:heading.hobbies_section")}
-          </Typography>
+          <Typography variant="h1">{t("profile:heading.hobbies_section")}</Typography>
           <Markdown source={user.thingsILike} />
           <StyledDivider />
         </>
       )}
       {user.additionalInformation && (
         <>
-          <Typography variant="h1">
-            {t("profile:heading.additional_information_section")}
-          </Typography>
+          <Typography variant="h1">{t("profile:heading.additional_information_section")}</Typography>
           <Markdown source={user.additionalInformation} />
           <StyledDivider />
         </>
       )}
-      <Typography variant="h1">
-        {t("profile:heading.travel_section")}
-      </Typography>
+      <Typography variant="h1">{t("profile:heading.travel_section")}</Typography>
       <Typography variant="body1">
         {regions && user.regionsVisitedList.length > 0
-          ? user.regionsVisitedList
-              .map((country) => regions[country])
-              .join(`, `)
+          ? user.regionsVisitedList.map((country) => regions[country]).join(`, `)
           : t("profile:regions_empty_state")}
       </Typography>
       <StyledDivider />
@@ -101,9 +89,7 @@ export default function About({ user }: AboutProps) {
                   color = theme.palette.secondary.main;
                 }
               }
-              return (
-                <Geography key={geo.rsmKey} geography={geo} fill={color} />
-              );
+              return <Geography key={geo.rsmKey} geography={geo} fill={color} />;
             })
           }
         </Geographies>

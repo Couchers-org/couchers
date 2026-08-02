@@ -33,14 +33,11 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
 
   const currentUser = useCurrentUser();
 
-  const isCreatedByCurrentUser =
-    currentUser.data?.userId === event.creatorUserId;
+  const isCreatedByCurrentUser = currentUser.data?.userId === event.creatorUserId;
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const [organizerToRemove, setOrganizerToRemove] = useState<
-    undefined | LiteUser.AsObject
-  >();
+  const [organizerToRemove, setOrganizerToRemove] = useState<undefined | LiteUser.AsObject>();
 
   const [isCoOrganizerDialogOpen, setIsCoOrganizerDialogOpen] = useState(false);
 
@@ -49,13 +46,8 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
     (isCreatedByCurrentUser && currentUser.data?.userId !== user.userId) ||
     (!isCreatedByCurrentUser && currentUser.data?.userId === user.userId);
 
-  const { mutate: removeAsEventOrganizer, error: mutationError } = useMutation<
-    Empty.AsObject,
-    RpcError,
-    number
-  >({
-    mutationFn: (userId) =>
-      service.events.removeEventOrganizer(event.eventId, userId),
+  const { mutate: removeAsEventOrganizer, error: mutationError } = useMutation<Empty.AsObject, RpcError, number>({
+    mutationFn: (userId) => service.events.removeEventOrganizer(event.eventId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
@@ -87,11 +79,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
             : undefined
         }
       />
-      <EventOrganizersDialog
-        eventId={event.eventId}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
+      <EventOrganizersDialog eventId={event.eventId} open={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
 
       <RemoveAsCoOrganizerDialog
         username={organizerToRemove?.name ?? ""}
@@ -105,9 +93,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
           setIsCoOrganizerDialogOpen(false);
         }}
       />
-      {mutationError && (
-        <Snackbar severity="error">{mutationError.message}</Snackbar>
-      )}
+      {mutationError && <Snackbar severity="error">{mutationError.message}</Snackbar>}
     </>
   );
 }

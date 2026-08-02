@@ -2,18 +2,9 @@ import { Checkbox, DialogProps, FormControlLabel } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextField from "components/TextField";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "features/queryKeys";
+import { groupChatKey, groupChatMessagesKey, groupChatsListKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -38,11 +29,7 @@ export default function GroupChatSettingsDialog({
   const queryClient = useQueryClient();
   const mutation = useMutation<Empty, RpcError, GroupChatSettingsData>({
     mutationFn: ({ title, onlyAdminsInvite }) =>
-      service.conversations.editGroupChat(
-        groupChat.groupChatId,
-        title,
-        onlyAdminsInvite,
-      ),
+      service.conversations.editGroupChat(groupChat.groupChatId, title, onlyAdminsInvite),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -64,32 +51,19 @@ export default function GroupChatSettingsDialog({
 
   return (
     <Dialog {...props} aria-labelledby="group-chat-settings-dialog-title">
-      <DialogTitle id="group-chat-settings-dialog-title">
-        {t("messages:group_chat_settings_dialog.title")}
-      </DialogTitle>
+      <DialogTitle id="group-chat-settings-dialog-title">{t("messages:group_chat_settings_dialog.title")}</DialogTitle>
       <DialogContent>
         <form onSubmit={onSubmit}>
-          {mutation.error && (
-            <Alert severity={"error"}>{mutation.error?.message}</Alert>
-          )}
+          {mutation.error && <Alert severity={"error"}>{mutation.error?.message}</Alert>}
           <TextField
             id="group-chat-settings-chat-title"
             {...register("title")}
             defaultValue={groupChat.title}
-            label={t(
-              "messages:group_chat_settings_dialog.chat_title.field_label",
-            )}
+            label={t("messages:group_chat_settings_dialog.chat_title.field_label")}
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                {...register("onlyAdminsInvite")}
-                defaultChecked={groupChat.onlyAdminsInvite}
-              />
-            }
-            label={t(
-              "messages:group_chat_settings_dialog.only_admins_invite.field_label",
-            )}
+            control={<Checkbox {...register("onlyAdminsInvite")} defaultChecked={groupChat.onlyAdminsInvite} />}
+            label={t("messages:group_chat_settings_dialog.only_admins_invite.field_label")}
           />
         </form>
       </DialogContent>
@@ -97,11 +71,7 @@ export default function GroupChatSettingsDialog({
         <Button onClick={onSubmit} loading={mutation.isPending}>
           {t("global:save")}
         </Button>
-        <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
-        >
+        <Button onClick={() => (props.onClose ? props.onClose({}, "escapeKeyDown") : null)}>
           {t("global:cancel")}
         </Button>
       </DialogActions>

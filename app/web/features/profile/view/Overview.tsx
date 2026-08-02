@@ -14,13 +14,7 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
-import {
-  connectionsRoute,
-  EditUserTab,
-  routeToEditProfile,
-  routeToUser,
-  UserTab,
-} from "routes";
+import { connectionsRoute, EditUserTab, routeToEditProfile, routeToUser, UserTab } from "routes";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
@@ -43,13 +37,7 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
   }
 };
 
-function LoggedInUserActions({
-  tab,
-  isInSheet,
-}: {
-  tab: UserTab;
-  isInSheet: boolean;
-}) {
+function LoggedInUserActions({ tab, isInSheet }: { tab: UserTab; isInSheet: boolean }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
 
@@ -92,15 +80,12 @@ function DefaultActions({
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
-  const disableHosting =
-    user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
+  const disableHosting = user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
 
   const [mutationError, setMutationError] = useState("");
-  const [showCantRequestDialog, setShowCantRequestDialog] =
-    useState<boolean>(false);
+  const [showCantRequestDialog, setShowCantRequestDialog] = useState<boolean>(false);
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   const requestButton = () => {
     doAntibot("host_request");
@@ -118,28 +103,15 @@ function DefaultActions({
         onClose={() => setShowCantRequestDialog(false)}
         attempted_action="send_request"
       />
-      <Button
-        onClick={requestButton}
-        disabled={isAccountInfoLoading || disableHosting}
-      >
-        {disableHosting
-          ? t("global:hosting_status.cant_host")
-          : t("profile:actions.request")}
+      <Button onClick={requestButton} disabled={isAccountInfoLoading || disableHosting}>
+        {disableHosting ? t("global:hosting_status.cant_host") : t("profile:actions.request")}
       </Button>
 
-      <MessageUserButton
-        user={user}
-        setMutationError={setMutationError}
-        setIsMessaging={setIsMessaging}
-      />
+      <MessageUserButton user={user} setMutationError={setMutationError} setIsMessaging={setIsMessaging} />
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
-        <ProfileReportFlagButton
-          contentRef={`profile/${user.userId}`}
-          authorUser={user.userId}
-          profileUser={user}
-        />
+        <ProfileReportFlagButton contentRef={`profile/${user.userId}`} authorUser={user.userId} profileUser={user} />
         <AdminPanelUserButton username={user.username} />
       </StyledModButtons>
 
@@ -155,12 +127,7 @@ interface OverviewProps {
   isInSheet?: boolean;
 }
 
-export default function Overview({
-  setIsRequesting,
-  setIsMessaging,
-  tab,
-  isInSheet = false,
-}: OverviewProps) {
+export default function Overview({ setIsRequesting, setIsMessaging, tab, isInSheet = false }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
   const isOwnProfile = user.userId === currentUserId;

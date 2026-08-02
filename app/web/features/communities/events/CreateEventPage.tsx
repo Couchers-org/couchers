@@ -36,18 +36,14 @@ export default function CreateEventPage() {
   const isNativeEmbed = useIsNativeEmbed();
 
   const urlCommunityIdString =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.communityId)
-      : undefined;
+    typeof window !== "undefined" ? stringOrFirstString(router.query.communityId) : undefined;
   const urlCommunityId =
     urlCommunityIdString && !isNaN(Number.parseInt(urlCommunityIdString))
       ? Number.parseInt(urlCommunityIdString)
       : undefined;
 
   const duplicateEventIdString =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.duplicateEventId)
-      : undefined;
+    typeof window !== "undefined" ? stringOrFirstString(router.query.duplicateEventId) : undefined;
   const duplicateEventId =
     duplicateEventIdString && !isNaN(Number.parseInt(duplicateEventIdString))
       ? Number.parseInt(duplicateEventIdString)
@@ -64,16 +60,10 @@ export default function CreateEventPage() {
     mutate: createEvent,
     error,
     isPending,
-  } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    { parentCommunityId?: number }
-  >({
+  } = useMutation<Event.AsObject, RpcError, CreateEventVariables, { parentCommunityId?: number }>({
     mutationFn: (data) => {
       // Use uploaded photo, or reuse photo from event being duplicated
-      const photoKey =
-        data.eventImage || eventToDuplicate?.photoKey || undefined;
+      const photoKey = data.eventImage || eventToDuplicate?.photoKey || undefined;
 
       const createEventInput: CreateEventInput = {
         title: data.title,
@@ -97,9 +87,7 @@ export default function CreateEventPage() {
     onSuccess(event, __, context) {
       queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+          context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
       router.push(routeToEvent(event.eventId, event.slug));
@@ -109,8 +97,7 @@ export default function CreateEventPage() {
     },
   });
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
@@ -149,11 +136,7 @@ export default function CreateEventPage() {
       >
         {({ isMutationLoading }) => (
           <>
-            <Button
-              loading={isMutationLoading}
-              type="submit"
-              sx={{ justifySelf: "start" }}
-            >
+            <Button loading={isMutationLoading} type="submit" sx={{ justifySelf: "start" }}>
               {t("global:create")}
             </Button>
             <Typography variant="body1" sx={{ color: theme.palette.grey[600] }}>

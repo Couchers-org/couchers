@@ -13,9 +13,7 @@ export function createForegroundTracker(): ForegroundTracker {
   const startedAt = performance.now();
   let foregroundAccumMs = 0;
   let visibleSince: number | null =
-    typeof document !== "undefined" && document.visibilityState === "visible"
-      ? startedAt
-      : null;
+    typeof document !== "undefined" && document.visibilityState === "visible" ? startedAt : null;
 
   return {
     onVisibilityChange() {

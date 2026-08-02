@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-} from "@mui/material";
+import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -18,10 +12,7 @@ interface ActivenessProbeSectionProps {
   className?: string;
 }
 
-export default function ActivenessProbeSection({
-  updateJailed,
-  className,
-}: ActivenessProbeSectionProps) {
+export default function ActivenessProbeSection({ updateJailed, className }: ActivenessProbeSectionProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   const [isSelected, setIsSelected] = useState<boolean | undefined>(undefined);
@@ -45,31 +36,14 @@ export default function ActivenessProbeSection({
       <Typography variant="h2" id="still-hosting">
         {t("auth:jail.activeness_probe.title")}
       </Typography>
-      <Typography variant="body1">
-        {t("auth:jail.activeness_probe.description")}
-      </Typography>
+      <Typography variant="body1">{t("auth:jail.activeness_probe.description")}</Typography>
       <FormControl variant="standard" component="fieldset">
-        <RadioGroup
-          value={isSelected}
-          onChange={(e, val) => setIsSelected(val === "true")}
-        >
-          <FormControlLabel
-            value={true}
-            control={<Radio />}
-            label={t("auth:jail.activeness_probe.still_hosting")}
-          />
-          <FormControlLabel
-            value={false}
-            control={<Radio />}
-            label={t("auth:jail.activeness_probe.not_hosting")}
-          />
+        <RadioGroup value={isSelected} onChange={(e, val) => setIsSelected(val === "true")}>
+          <FormControlLabel value={true} control={<Radio />} label={t("auth:jail.activeness_probe.still_hosting")} />
+          <FormControlLabel value={false} control={<Radio />} label={t("auth:jail.activeness_probe.not_hosting")} />
         </RadioGroup>
       </FormControl>
-      <Typography
-        variant="body2"
-        gutterBottom
-        sx={{ marginTop: theme.spacing(2) }}
-      >
+      <Typography variant="body2" gutterBottom sx={{ marginTop: theme.spacing(2) }}>
         {t("auth:jail.activeness_probe.note")}
       </Typography>
       <Button

@@ -6,13 +6,9 @@ import { getLanguages, getRegions } from "test/serviceMockDefaults";
 
 import About from "./About";
 
-const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
-  typeof service.resources.getLanguages
->;
+const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<typeof service.resources.getLanguages>;
 
-const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
-  typeof service.resources.getRegions
->;
+const getRegionsMock = service.resources.getRegions as jest.MockedFunction<typeof service.resources.getRegions>;
 
 beforeEach(() => {
   getLanguagesMock.mockImplementation(getLanguages);
@@ -27,13 +23,9 @@ describe("About (user)", () => {
     renderAbout();
 
     // Australia is displayed both for lived and visited regions
-    expect(
-      (await screen.findAllByText("Australia", { exact: false })).length,
-    ).toBe(2);
+    expect((await screen.findAllByText("Australia", { exact: false })).length).toBe(2);
     // Sweden is only displayed for lived regions
-    expect(
-      (await screen.findAllByText("Sweden", { exact: false })).length,
-    ).toBe(1);
+    expect((await screen.findAllByText("Sweden", { exact: false })).length).toBe(1);
   });
 
   it("should display age and gender without verification icons when unspecified ", async () => {

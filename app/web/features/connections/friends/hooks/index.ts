@@ -23,12 +23,9 @@ const useUnblockUser = () => {
       await queryClient.removeQueries({ queryKey: ["liteUsers"] });
 
       const previousBlockedUsers =
-        queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])
-          ?.blockedUsersList || [];
+        queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])?.blockedUsersList || [];
 
-      const updatedBlockedUsers = previousBlockedUsers.filter(
-        (user) => user.username !== username,
-      );
+      const updatedBlockedUsers = previousBlockedUsers.filter((user) => user.username !== username);
 
       queryClient.setQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey], {
         blockedUsersList: updatedBlockedUsers,
@@ -36,18 +33,11 @@ const useUnblockUser = () => {
 
       return { previousBlockedUsers };
     },
-    onError: (
-      error,
-      user,
-      context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined,
-    ) => {
+    onError: (error, user, context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined) => {
       if (context?.previousBlockedUsers) {
-        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
-          [blockedUsersKey],
-          {
-            blockedUsersList: context.previousBlockedUsers,
-          },
-        );
+        queryClient.setQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey], {
+          blockedUsersList: context.previousBlockedUsers,
+        });
       }
       Sentry.captureException(error, {
         tags: {
@@ -88,8 +78,7 @@ const useBlockUser = () => {
       await queryClient.removeQueries({ queryKey: ["liteUsers"] });
 
       const currentBlockedUsers =
-        queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])
-          ?.blockedUsersList || [];
+        queryClient.getQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey])?.blockedUsersList || [];
 
       const updatedBlockedUsers = [
         {
@@ -105,8 +94,7 @@ const useBlockUser = () => {
         blockedUsersList: updatedBlockedUsers,
       });
 
-      const previousFriendIds =
-        queryClient.getQueryData<number[]>([friendIdsKey]) || [];
+      const previousFriendIds = queryClient.getQueryData<number[]>([friendIdsKey]) || [];
 
       const updatedFriendIds = previousFriendIds.filter((id) => id !== userId);
 
@@ -119,18 +107,11 @@ const useBlockUser = () => {
         queryClient.removeQueries({ queryKey: userKey(userId) });
       }
     },
-    onError: (
-      err,
-      user,
-      context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined,
-    ) => {
+    onError: (err, user, context: { previousBlockedUsers?: BlockedUser.AsObject[] } | undefined) => {
       if (context?.previousBlockedUsers) {
-        queryClient.setQueryData<GetBlockedUsersRes.AsObject>(
-          [blockedUsersKey],
-          {
-            blockedUsersList: context?.previousBlockedUsers,
-          },
-        );
+        queryClient.setQueryData<GetBlockedUsersRes.AsObject>([blockedUsersKey], {
+          blockedUsersList: context?.previousBlockedUsers,
+        });
       }
 
       Sentry.captureException(error, {
@@ -164,9 +145,7 @@ const useRemoveFriend = () => {
       onError(null);
       await queryClient.cancelQueries({ queryKey: [friendIdsKey] });
 
-      const previousFriendIds = queryClient.getQueryData<number[]>([
-        friendIdsKey,
-      ]);
+      const previousFriendIds = queryClient.getQueryData<number[]>([friendIdsKey]);
       const newFriendIds = previousFriendIds?.filter((id) => id !== friendId);
 
       if (newFriendIds) {

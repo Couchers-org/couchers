@@ -14,23 +14,11 @@ import { Discussion } from "proto/discussions_pb";
 import { Group } from "proto/groups_pb";
 import { Page } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
-import {
-  routeToCommunity,
-  routeToDiscussion,
-  routeToGroup,
-  routeToGuide,
-  routeToPlace,
-} from "routes";
+import { routeToCommunity, routeToDiscussion, routeToGroup, routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 
-export default function GroupPage({
-  groupId,
-  groupSlug,
-}: {
-  groupId: number;
-  groupSlug?: string;
-}) {
+export default function GroupPage({ groupId, groupSlug }: { groupId: number; groupSlug?: string }) {
   const { t } = useTranslation(["communities", "global"]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,8 +37,7 @@ export default function GroupPage({
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
 
   const [discussionsLoading, setDiscussionsLoading] = useState(false);
-  const [discussions, setDiscussions] =
-    useState<Array<Discussion.AsObject> | null>(null);
+  const [discussions, setDiscussions] = useState<Array<Discussion.AsObject> | null>(null);
 
   const handleJoin = async () => {
     await service.groups.joinGroup(group!.groupId);
@@ -148,23 +135,14 @@ export default function GroupPage({
                   return (
                     <Link
                       key={parent.community.communityId}
-                      href={routeToCommunity(
-                        parent.community.communityId,
-                        parent.community.slug,
-                      )}
+                      href={routeToCommunity(parent.community.communityId, parent.community.slug)}
                     >
                       {parent.community.name}
                     </Link>
                   );
                 } else if (parent.group) {
                   return (
-                    <Link
-                      key={parent.group.groupId}
-                      href={routeToGroup(
-                        parent.group.groupId,
-                        parent.group.slug,
-                      )}
-                    >
+                    <Link key={parent.group.groupId} href={routeToGroup(parent.group.groupId, parent.group.slug)}>
                       {parent.group.name}
                     </Link>
                   );
@@ -193,17 +171,14 @@ export default function GroupPage({
             You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.
           </p>
           <p>
-            Last edited at {group.mainPage!.lastEdited?.seconds} by{" "}
-            {group.mainPage!.lastEditorUserId}
+            Last edited at {group.mainPage!.lastEdited?.seconds} by {group.mainPage!.lastEditorUserId}
           </p>
           <p>
-            Created at {group.created?.seconds} by{" "}
-            {group.mainPage!.creatorUserId}
+            Created at {group.created?.seconds} by {group.mainPage!.creatorUserId}
           </p>
           <Markdown source={group.mainPage!.content} />
           <p>
-            You <b>{group.mainPage!.canEdit ? "can" : "cannot"}</b> edit this
-            page.
+            You <b>{group.mainPage!.canEdit ? "can" : "cannot"}</b> edit this page.
           </p>
           <h1>Admins</h1>
           <p>Total {group.adminCount} admins.</p>
@@ -244,9 +219,7 @@ export default function GroupPage({
             places.map((place) => {
               return (
                 <>
-                  <Link href={routeToPlace(place.pageId, place.slug)}>
-                    {place.title}
-                  </Link>
+                  <Link href={routeToPlace(place.pageId, place.slug)}>{place.title}</Link>
                   <br />
                 </>
               );
@@ -261,9 +234,7 @@ export default function GroupPage({
             guides.map((guide) => {
               return (
                 <>
-                  <Link href={routeToGuide(guide.pageId, guide.slug)}>
-                    {guide.title}
-                  </Link>
+                  <Link href={routeToGuide(guide.pageId, guide.slug)}>{guide.title}</Link>
                   <br />
                 </>
               );
@@ -278,14 +249,7 @@ export default function GroupPage({
             discussions.map((discussion) => {
               return (
                 <>
-                  <Link
-                    href={routeToDiscussion(
-                      discussion.discussionId,
-                      discussion.slug,
-                    )}
-                  >
-                    {discussion.title}
-                  </Link>
+                  <Link href={routeToDiscussion(discussion.discussionId, discussion.slug)}>{discussion.title}</Link>
                   <br />
                 </>
               );

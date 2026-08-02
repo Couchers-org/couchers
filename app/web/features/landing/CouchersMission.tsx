@@ -1,12 +1,5 @@
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import {
-  Box,
-  Grid,
-  IconButton,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Grid, IconButton, styled, Typography, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
@@ -19,12 +12,8 @@ interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
 const StyledBubble = styled(Box, {
   shouldForwardProp: (prop) => prop !== "selected",
 })<StyledBubbleProps>(({ theme, selected }) => ({
-  color: selected
-    ? "var(--mui-palette-common-white)"
-    : "var(--mui-palette-text-primary)",
-  backgroundColor: selected
-    ? theme.palette.primary.main
-    : "var(--mui-palette-grey-50)",
+  color: selected ? "var(--mui-palette-common-white)" : "var(--mui-palette-text-primary)",
+  backgroundColor: selected ? theme.palette.primary.main : "var(--mui-palette-grey-50)",
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
   display: "flex",
@@ -85,9 +74,7 @@ const CouchersMission = () => {
     const container = scrollRef.current;
     if (!container) return;
     setCanScrollLeft(container.scrollLeft > 0);
-    setCanScrollRight(
-      container.scrollLeft + container.clientWidth < container.scrollWidth,
-    );
+    setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
   };
 
   const missionBubble = (itemName: string) => {
@@ -215,9 +202,7 @@ const CouchersMission = () => {
           width: "100%",
         }}
       >
-        <Typography gutterBottom>
-          {t(`landing:${selectedItem}_description`)}
-        </Typography>
+        <Typography gutterBottom>{t(`landing:${selectedItem}_description`)}</Typography>
         <Typography sx={{ marginTop: 2 }}>
           <b>{t("landing:why")}</b> {t(`landing:${selectedItem}_why`)}
         </Typography>

@@ -1,7 +1,4 @@
-import {
-  BoolValue,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { BoolValue, StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { StatusCode } from "grpc-web";
 import { LiteUser, User } from "proto/api_pb";
 import {
@@ -27,11 +24,7 @@ import { durationToProtobuf } from "utils/date";
 import client from "./client";
 import isGrpcError from "./utils/isGrpcError";
 
-export async function listGroupChats(
-  lastMessageId = 0,
-  count = 10,
-  onlyArchived?: boolean,
-) {
+export async function listGroupChats(lastMessageId = 0, count = 10, onlyArchived?: boolean) {
   const req = new ListGroupChatsReq();
   req.setLastMessageId(lastMessageId);
   req.setNumber(count);
@@ -51,11 +44,7 @@ export async function getGroupChat(id: number) {
   return response.toObject();
 }
 
-export async function getGroupChatMessages(
-  groupChatId: number,
-  lastMessageId = 0,
-  count = 20,
-) {
+export async function getGroupChatMessages(groupChatId: number, lastMessageId = 0, count = 20) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);
   req.setLastMessageId(lastMessageId);
@@ -66,10 +55,7 @@ export async function getGroupChatMessages(
   return response.toObject();
 }
 
-export async function createGroupChat(
-  title: string,
-  users: User.AsObject[],
-): Promise<number> {
+export async function createGroupChat(title: string, users: User.AsObject[]): Promise<number> {
   const req = new CreateGroupChatReq();
   req.setRecipientUserIdsList(users.map((user) => user.userId));
   req.setTitle(new StringValue().setValue(title));
@@ -86,10 +72,7 @@ export async function sendMessage(groupChatId: number, text: string) {
   return await client.conversations.sendMessage(req);
 }
 
-export async function sendDirectMessage(
-  recipientUserId: number,
-  text: string,
-): Promise<number> {
+export async function sendDirectMessage(recipientUserId: number, text: string): Promise<number> {
   const req = new SendDirectMessageReq();
   req.setRecipientUserId(recipientUserId);
   req.setText(text);
@@ -113,43 +96,29 @@ export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
   return Promise.all(promises);
 }
 
-export function makeGroupChatAdmin(
-  groupChatId: number,
-  user: LiteUser.AsObject,
-) {
+export function makeGroupChatAdmin(groupChatId: number, user: LiteUser.AsObject) {
   const req = new MakeGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
   req.setUserId(user.userId);
   return client.conversations.makeGroupChatAdmin(req);
 }
 
-export function removeGroupChatAdmin(
-  groupChatId: number,
-  user: LiteUser.AsObject,
-) {
+export function removeGroupChatAdmin(groupChatId: number, user: LiteUser.AsObject) {
   const req = new RemoveGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
   req.setUserId(user.userId);
   return client.conversations.removeGroupChatAdmin(req);
 }
 
-export function editGroupChat(
-  groupChatId: number,
-  title?: string,
-  onlyAdminsInvite?: boolean,
-) {
+export function editGroupChat(groupChatId: number, title?: string, onlyAdminsInvite?: boolean) {
   const req = new EditGroupChatReq();
   req.setGroupChatId(groupChatId);
   if (title !== undefined) req.setTitle(new StringValue().setValue(title));
-  if (onlyAdminsInvite !== undefined)
-    req.setOnlyAdminsInvite(new BoolValue().setValue(onlyAdminsInvite));
+  if (onlyAdminsInvite !== undefined) req.setOnlyAdminsInvite(new BoolValue().setValue(onlyAdminsInvite));
   return client.conversations.editGroupChat(req);
 }
 
-export function markLastSeenGroupChat(
-  groupChatId: number,
-  lastSeenMessageId: number,
-) {
+export function markLastSeenGroupChat(groupChatId: number, lastSeenMessageId: number) {
   const req = new MarkLastSeenGroupChatReq();
   req.setGroupChatId(groupChatId);
   req.setLastSeenMessageId(lastSeenMessageId);
@@ -180,15 +149,11 @@ export async function muteChat(options: MuteChatOptions) {
   req.setGroupChatId(options.groupChatId);
   if (options.unmute) req.setUnmute(true);
   if (options.forever) req.setForever(true);
-  if (options.forDuration)
-    req.setForDuration(durationToProtobuf(options.forDuration));
+  if (options.forDuration) req.setForDuration(durationToProtobuf(options.forDuration));
   return client.conversations.muteGroupChat(req);
 }
 
-export async function setGroupChatArchiveStatus(
-  groupChatId: number,
-  isArchived: boolean,
-) {
+export async function setGroupChatArchiveStatus(groupChatId: number, isArchived: boolean) {
   const req = new SetGroupChatArchiveStatusReq();
   req.setGroupChatId(groupChatId);
   req.setIsArchived(isArchived);
