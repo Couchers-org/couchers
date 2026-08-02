@@ -138,14 +138,14 @@ def datetime_to_iso8601_local(value: datetime) -> str:
     return value.replace(tzinfo=None).isoformat()
 
 
-def _real_now() -> datetime:
+def _mockable_now() -> datetime:
     return datetime.now(tz=UTC)
 
 
 def now() -> datetime:
     # everything that reads the clock goes through this call, so tests can move it in one place
-    # by swapping _real_now; see the timewarp fixture
-    return _real_now()
+    # by swapping _mockable_now; see the timewarp fixture
+    return _mockable_now()
 
 
 def minimum_allowed_birthdate() -> date:

@@ -43,30 +43,6 @@ from couchers.utils import create_coordinate, now
 from tests.fixtures.sessions import _MockCouchersContext
 
 
-def create_mock_clock(conn: Connection) -> None:
-    """
-    Installs mock.now(), the postgres half of the timewarp fixture.
-
-    This lives outside create_schema_from_models because it has to exist before *either* way of
-    building the schema runs, and survive drop_database() in between, so that migrations and
-    models bake the same function into their column defaults.
-    """
-    conn.execute(
-        text("""
-        CREATE SCHEMA mock;
-
-        CREATE FUNCTION mock.now() RETURNS timestamptz
-        LANGUAGE sql STABLE AS $$
-          SELECT pg_catalog.now() + coalesce(
-            nullif(current_setting('mock.offset', true), '')::interval,
-            interval '0'
-          );
-        $$;
-        """)
-    )
-    conn.commit()
-
-
 def create_schema_from_models(engine: Engine | None = None) -> None:
     """
     Create everything from the current models, not incrementally
