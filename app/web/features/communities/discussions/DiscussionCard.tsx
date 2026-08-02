@@ -1,5 +1,6 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
@@ -85,10 +86,7 @@ export default function DiscussionCard({
     [discussion.content],
   );
 
-  const contentRef =
-    (discussion.ownerCommunityId != 0
-      ? `community/${discussion.ownerCommunityId}`
-      : `group/${discussion.ownerGroupId}`) + `/discussion/${discussion.discussionId}`;
+  const contentRef = contentRefs.discussion(discussion);
 
   return (
     <StyledCard className={className} data-testid={DISCUSSION_CARD_TEST_ID}>

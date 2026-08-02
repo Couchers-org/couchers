@@ -8,6 +8,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import Markdown from "components/Markdown";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
@@ -228,7 +229,7 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
         {!comment.deleted && (
           <StyledButtonsContainer>
             <StyledAvatar user={user} />
-            <FlagButton contentRef={`comment/${comment.threadId}`} authorUser={comment.authorUserId} />
+            <FlagButton contentRef={contentRefs.comment(comment)} authorUser={comment.authorUserId} />
           </StyledButtonsContainer>
         )}
         <StyledCommentContent sx={comment.deleted ? { gridColumn: "1 / -1" } : undefined}>

@@ -2,6 +2,7 @@ import { Group } from "@mui/icons-material";
 import { Card, CardContent, CardMedia, styled, Tooltip, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { localizeDateTimeRange } from "i18n/datetimes";
@@ -147,7 +148,7 @@ const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: numb
           }}
         />
         <FlagWrapper>
-          <FlagButton contentRef={`event/${event.eventId}`} authorUser={event.creatorUserId} />
+          <FlagButton contentRef={contentRefs.event(event)} authorUser={event.creatorUserId} />
         </FlagWrapper>
 
         <StyledCardContent>
