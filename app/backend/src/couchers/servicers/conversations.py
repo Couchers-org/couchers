@@ -389,13 +389,6 @@ def _mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInf
     )
 
 
-def _host_request_viewer_last_seen(host_request: HostRequest, user_id: int) -> int:
-    """The viewer's role-specific last-seen message id for a host request."""
-    if host_request.initiator_user_id == user_id:
-        return host_request.initiator_last_seen_message_id
-    return host_request.recipient_last_seen_message_id
-
-
 def _host_request_thread_to_pb(
     host_request: HostRequest,
     conversation: Conversation,
@@ -421,7 +414,11 @@ def _host_request_thread_to_pb(
         created=Timestamp_from_datetime(conversation.created),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
-        last_seen_message_id=_host_request_viewer_last_seen(host_request, user_id),
+        last_seen_message_id=(
+            host_request.initiator_last_seen_message_id
+            if host_request.initiator_user_id == user_id
+            else host_request.recipient_last_seen_message_id
+        ),
         latest_message=_message_to_pb(message) if message else None,
         hosting_city=host_request.hosting_city,
         hosting_lat=lat,
