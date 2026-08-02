@@ -155,7 +155,7 @@ def _set_datetime_with_timezone(event: Event, name: str, dt: datetime) -> None:
 
 def ics_event_to_calendar(event: Event, method: str | None, loc_context: LocalizationContext) -> Calendar:
     # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
-    calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
+    calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.preferred_locale.upper()}")
     if method:
         calendar.method = method
     calendar.events.add(event)
