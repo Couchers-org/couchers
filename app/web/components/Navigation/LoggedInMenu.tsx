@@ -19,6 +19,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { AccessibleDialogProps } from "../Dialog";
 import { CloseIcon, MenuIcon } from "../Icons";
+import { BOTTOM_NAV_BASE_HEIGHT } from "./constants";
 
 type LoggedInMenuLinkItem = {
   type: "link";
@@ -44,13 +45,13 @@ const StyledMenu = styled(Menu, {
 })<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Native embed: full height (native tabs handle safe area)
   // Mobile web: subtract bottom nav + safe area
-  const menuHeight = $isNativeEmbed ? "100vh" : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
+  const menuHeight = $isNativeEmbed ? "100vh" : `calc(100vh - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`;
 
   return {
     "& .MuiPaper-root": {
       boxShadow: theme.shadows[1],
       minWidth: "12rem",
-      maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
+      maxHeight: `calc(100vh - ${100 + BOTTOM_NAV_BASE_HEIGHT}px)`, // Leave space for header, margins, and menu padding
 
       [theme.breakpoints.down("md")]: {
         width: "100vw",
@@ -346,7 +347,7 @@ export default function LoggedInMenu({
             style: isMobile
               ? undefined
               : {
-                  maxHeight: "calc(100vh - 156px)",
+                  maxHeight: `calc(100vh - ${100 + BOTTOM_NAV_BASE_HEIGHT}px)`,
                 },
           },
         }}
