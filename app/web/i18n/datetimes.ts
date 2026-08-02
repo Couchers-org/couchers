@@ -112,7 +112,7 @@ export function localizeYearMonth(
   });
 }
 
-/** Localizes the name of a month (e.g. "January", "May" in German). */
+/** Localizes the name of a month (e.g. "Januar", "Mai" in German). */
 export function localizeMonthName(
   month: number | Temporal.PlainYearMonth | Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
