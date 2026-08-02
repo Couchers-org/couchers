@@ -128,6 +128,7 @@ export default function EventCard({ event, className }: EventCardProps) {
     {
       includeYear: "auto",
       includeDayOfWeek: true,
+      includeMinutes: "auto",
       abbreviate: true,
       capitalize: true,
     },

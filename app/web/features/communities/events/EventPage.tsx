@@ -365,6 +365,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
                     {
                       includeYear: "auto",
                       includeDayOfWeek: true,
+                      includeMinutes: "auto",
                       capitalize: true,
                     },
                   )}

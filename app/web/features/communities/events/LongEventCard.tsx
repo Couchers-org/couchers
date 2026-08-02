@@ -126,6 +126,7 @@ const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: numb
     {
       includeYear: "auto",
       includeDayOfWeek: true,
+      includeMinutes: "auto",
       capitalize: true,
     },
   );

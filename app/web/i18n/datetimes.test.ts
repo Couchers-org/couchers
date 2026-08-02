@@ -95,6 +95,33 @@ describe("localizeDateTime", () => {
     ).not.toContain("11");
   });
 
+  it("includes minutes when specified", () => {
+    const tenAM = janFirst2000.add({ hours: 10 });
+
+    expect(
+      localizeDateTime(tenAM, "en", {
+        includeMinutes: true,
+      }),
+    ).toContain("10:00");
+    expect(
+      localizeDateTime(tenAM, "en", {
+        includeMinutes: false,
+      }),
+    ).not.toContain("10:00");
+
+    // includeMinutes: "auto" depends on minutes == 0
+    expect(
+      localizeDateTime(tenAM, "en", {
+        includeMinutes: "auto",
+      }),
+    ).not.toContain("10:00");
+    expect(
+      localizeDateTime(tenAM.add({ minutes: 1 }), "en", {
+        includeMinutes: "auto",
+      }),
+    ).toContain("10:01");
+  });
+
   it("includes seconds when specified", () => {
     expect(
       localizeDateTime(janFirst2000.add({ seconds: 42 }), "en", {
