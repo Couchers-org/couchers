@@ -1,4 +1,4 @@
-import { ExpandMoreOutlined, ExploreOutlined,Search } from "@mui/icons-material";
+import { ExpandMoreOutlined, ExploreOutlined, Search } from "@mui/icons-material";
 import { Button, Collapse, styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
@@ -102,9 +102,12 @@ const CommunitiesPage = () => {
 
       <CommunitiesList />
 
-      <StyledTypography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1, 'margin-top': '16px' }}>
-          <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:find_your_community")}
+      <StyledTypography
+        variant="h2"
+        sx={{ display: "inline-flex", alignItems: "center", gap: 1, "margin-top": "16px" }}
+      >
+        <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
+        {t("dashboard:find_your_community")}
       </StyledTypography>
       <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans
