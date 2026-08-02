@@ -75,6 +75,11 @@ export default function EventTimeChanger({
       shouldValidate: true,
     });
     const endTime = getValues("endTime");
+    //if endTime has a value, don't autofill
+    //except for when user toggles 'AM'/'PM', do autofill endTime
+    //example: a user clicks then 8, then 00, then PM...
+    //...this function will make endTime in 08:00 AM after the second click,
+    //but we still want it to fill in 8:00 PM
     const userChangedMeridiem =
       endTime && value != undefined
         ? Math.abs(value.until(endTime).total("hours")) == 12
