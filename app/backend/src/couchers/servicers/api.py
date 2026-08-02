@@ -1067,7 +1067,7 @@ def user_model_to_pb(
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
-            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+            f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
     num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)
