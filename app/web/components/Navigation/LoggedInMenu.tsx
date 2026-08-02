@@ -45,7 +45,9 @@ const StyledMenu = styled(Menu, {
 })<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Native embed: full height (native tabs handle safe area)
   // Mobile web: subtract bottom nav + safe area
-  const menuHeight = $isNativeEmbed ? "100vh" : `calc(100vh - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`;
+  const menuHeight = $isNativeEmbed
+    ? "100vh"
+    : `calc(100vh - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`;
 
   return {
     "& .MuiPaper-root": {
