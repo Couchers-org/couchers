@@ -6,10 +6,7 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
-import {
-  hostingStatusLabels,
-  meetupStatusLabels,
-} from "features/profile/constants";
+import { hostingStatusLabels, meetupStatusLabels } from "features/profile/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
@@ -116,17 +113,12 @@ export default function UserOverview({
         </Tooltip>
       ) : (
         <StyledAvatarContainer>
-          <Avatar
-            user={user}
-            highRes
-            grow
-            isProfileLink={isAvatarProfileLink}
-          />
+          <Avatar user={user} highRes grow isProfileLink={isAvatarProfileLink} />
         </StyledAvatarContainer>
       )}
 
       <StyledWrapper>
-        <StyledIntro variant="h1" gap={0.5}>
+        <StyledIntro variant="h1" sx={{ gap: 0.5 }}>
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
@@ -152,26 +144,16 @@ export default function UserOverview({
         <>
           <IconText
             icon={CouchIcon}
-            text={
-              hostingStatusLabels(t)[
-                user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
-              ]
-            }
+            text={hostingStatusLabels(t)[user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN]}
           />
           <IconText
             icon={LocationIcon}
-            text={
-              meetupStatusLabels(t)[
-                user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
-              ]
-            }
+            text={meetupStatusLabels(t)[user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN]}
           />
         </>
       )}
 
-      {Boolean(showHostAndMeetAvailability || actions) && (
-        <Divider spacing={3} />
-      )}
+      {Boolean(showHostAndMeetAvailability || actions) && <Divider spacing={3} />}
 
       {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
         <>

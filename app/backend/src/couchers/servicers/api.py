@@ -19,7 +19,7 @@ from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.host_requests import is_hosting_party, is_public_trip_offer_party, is_surfing_party
-from couchers.helpers.references import where_references_not_hidden_by_reciprocity
+from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -1068,12 +1068,9 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     )
     # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
     query = where_references_not_hidden_by_reciprocity(query)
-    query = (
-        query.where(Reference.to_user_id.in_(user_ids))
-        .join(User, User.id == Reference.from_user_id)
-        .where(User.is_visible)
-        .group_by(Reference.to_user_id)
-    )
+    query = where_reference_user_visible(
+        query.where(Reference.to_user_id.in_(user_ids)), context, Reference.from_user_id
+    ).group_by(Reference.to_user_id)
     return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
@@ -1110,7 +1107,7 @@ def user_model_to_pb(
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
-            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+            f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
     num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)

@@ -36,19 +36,12 @@ const growthbook = new GrowthBook({
   },
 });
 
-export default function FeatureFlagProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
 
   useEffect(() => {
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
-    const id = setInterval(
-      () => void growthbook.refreshFeatures(),
-      REFRESH_INTERVAL_MS,
-    );
+    const id = setInterval(() => void growthbook.refreshFeatures(), REFRESH_INTERVAL_MS);
     return () => clearInterval(id);
   }, []);
 
@@ -57,7 +50,5 @@ export default function FeatureFlagProvider({
     growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
   }, [authState.userId]);
 
-  return (
-    <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
-  );
+  return <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>;
 }

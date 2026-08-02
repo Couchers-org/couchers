@@ -23,11 +23,9 @@ export default function MessageUserButton({
     setIsMessaging,
   });
 
-  const [showCantMessageDialog, setShowCantMessageDialog] =
-    useState<boolean>(false);
+  const [showCantMessageDialog, setShowCantMessageDialog] = useState<boolean>(false);
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   const onClick = () => {
     if (!accountInfo?.profileComplete) {
@@ -44,11 +42,7 @@ export default function MessageUserButton({
         onClose={() => setShowCantMessageDialog(false)}
         attempted_action="send_message"
       />
-      <Button
-        loading={isPending}
-        onClick={onClick}
-        disabled={isAccountInfoLoading}
-      >
+      <Button loading={isPending} onClick={onClick} disabled={isAccountInfoLoading}>
         {t("actions.message_label")}
       </Button>
     </>

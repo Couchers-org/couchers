@@ -1,13 +1,10 @@
+import { lookupAcceptLanguage } from "i18n/acceptLanguage";
+import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
 import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
-import {
-  fetchWeblateStats,
-  WeblateLanguage,
-} from "./features/weblate/useWeblateStats";
-import { allLanguages } from "./i18n/allLanguages";
-import { getBrowserLocaleFromHeader } from "./utils/getBrowserLocaleFromHeader";
+import { fetchWeblateStats, WeblateLanguage } from "./features/weblate/useWeblateStats";
 
 // In-memory cache for Weblate stats
 let statsCache: {
@@ -41,28 +38,28 @@ async function getCachedWeblateStats(): Promise<WeblateLanguage[]> {
 }
 
 /**
- * Check if a language is production-ready (>= 80% translated)
+ * Get the list of locale codes that are production-ready (>= 80% translated)
  * Uses server-side Weblate stats with caching
  */
-async function isLanguageProductionReady(locale: string): Promise<boolean> {
-  // English is always production-ready
-  if (locale === "en") {
-    return true;
-  }
-
+async function getProductionReadyLocales(): Promise<string[]> {
   const languages = await getCachedWeblateStats();
-  if (!languages.length) {
-    // If stats fail to load, only allow English to be safe
-    return false;
-  }
 
-  // Convert locale format (e.g., "es-419" to "es_419" for Weblate)
-  const weblateCode = locale.replace("-", "_");
-  const languageStats = languages.find((lang) => lang.code === weblateCode);
+  // Convert locale format (e.g., "es_419" to "es-419" to match allLanguages)
+  const productionReadyLocales = languages
+    .filter((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF)
+    .map((lang) => lang.code.replace("_", "-"));
 
-  return (
-    !!languageStats && languageStats.translated_percent >= ALMOST_DONE_CUTOFF
-  );
+  // English is always production-ready
+  return allLanguages.filter((locale) => locale === "en" || productionReadyLocales.includes(locale));
+}
+
+/**
+ * Check if a locale is production-ready (>= 80% translated)
+ * Uses server-side Weblate stats with caching
+ */
+async function isLocaleProductionReady(locale: string): Promise<boolean> {
+  const productionReadyLocales = await getProductionReadyLocales();
+  return productionReadyLocales.includes(locale);
 }
 
 /**
@@ -89,6 +86,16 @@ export function shouldBlockIncompleteLanguage(
   return !isProductionReady; // Browser detection: only allow >= 80%
 }
 
+/** Detects the user's preferred locale from the Accept-Language header */
+export function getBrowserLocaleFromHeader(
+  acceptLanguage: string | undefined,
+  supportedLocales: string[],
+): string | undefined {
+  if (!acceptLanguage) return undefined;
+
+  return lookupAcceptLanguage(acceptLanguage, supportedLocales);
+}
+
 async function getBestLocale(request: NextRequest): Promise<string> {
   // Priority 1: NEXT_LOCALE cookie (set by backend or language picker)
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
@@ -97,18 +104,11 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   }
 
   // Priority 2: Accept-Language header (browser language)
-  // Only use if language is production-ready (>= 80% translated)
+  // Only consider languages that are production-ready (>= 80% translated),
+  // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
-  const browserLocale = getBrowserLocaleFromHeader(
-    acceptLanguage || undefined,
-    allLanguages,
-  );
-  if (browserLocale && (await isLanguageProductionReady(browserLocale))) {
-    return browserLocale;
-  }
-
-  // Priority 3: Default to English
-  return "en";
+  const productionReadyLocales = await getProductionReadyLocales();
+  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || "en";
 }
 
 export async function middleware(request: NextRequest) {
@@ -121,12 +121,8 @@ export async function middleware(request: NextRequest) {
   const isClientNavigation = request.headers.get("x-nextjs-data");
 
   // Check if current locale should be blocked
-  const isProductionReady = await isLanguageProductionReady(currentLocale);
-  const shouldBlock = shouldBlockIncompleteLanguage(
-    currentLocale,
-    cookieLocale,
-    isProductionReady,
-  );
+  const isProductionReady = await isLocaleProductionReady(currentLocale);
+  const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
 
   if (shouldBlock) {
     const url = request.nextUrl.clone();

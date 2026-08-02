@@ -349,5 +349,6 @@
   "open_full_profile": "Abrir perfil completo",
   "about_me_textbox_placeholder": "p. ej. Tu misión actual, por qué usas Couchers.org, tu anécdota de viaje favorita...",
   "hobbies_textbox_placeholder": "p. ej. Actividades, libros, películas, música...",
-  "edit_profile_pronouns_placeholder": "p. ej. ella/la"
+  "edit_profile_pronouns_placeholder": "p. ej. ella/la",
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
 }

@@ -1,8 +1,8 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
+import { localizeTimeOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTime } from "utils/date";
 
 interface TimezoneProps {
   className?: string;
@@ -17,9 +17,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("account_settings_page.timezone_section.title")}
-      </Typography>
+      <Typography variant="h2">{t("account_settings_page.timezone_section.title")}</Typography>
       <Typography variant="body1">
         <Trans
           t={t}
@@ -30,16 +28,11 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           }}
           values={{
             timezone: timezone,
-            time: localizeDateTime(Temporal.Now.plainDateTimeISO(timezone), {
-              locale,
-              includeDate: false,
-            }),
+            time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(timezone), locale),
           }}
         />
       </Typography>
-      <Typography variant="body1">
-        {t("account_settings_page.timezone_section.explanation")}
-      </Typography>
+      <Typography variant="body1">{t("account_settings_page.timezone_section.explanation")}</Typography>
     </div>
   );
 }

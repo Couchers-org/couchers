@@ -58,6 +58,8 @@
     "do_not_email_cannot_meet": "You cannot enable meeting up while you have emails turned off in your settings.",
     "donation_too_small": "We can't accept donations less than $2, sorry!",
     "donations_disabled": "Donations are currently disabled.",
+    "duplicate_host_request_one": "You already sent this person a host request for overlapping dates in the past hour. Check your messages, it may have gone through even if you didn't see it.",
+    "duplicate_host_request_other": "You already sent this person a host request for overlapping dates in the past {{count}} hours. Check your messages, it may have gone through even if you didn't see it.",
     "event_cant_cancel_old_event": "You can't cancel an event that's more than 1 day old.",
     "event_cant_overlap": "An event cannot have overlapping occurrences.",
     "event_cant_remove_owner_as_organizer": "You cannot remove the event owner as an organizer.",

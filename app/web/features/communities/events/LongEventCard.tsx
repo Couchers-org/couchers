@@ -1,21 +1,16 @@
 import { Group } from "@mui/icons-material";
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, CardMedia, styled, Tooltip, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { localizeDateTimeRange, timestampToPlainDateTime } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: 0,
@@ -119,13 +114,7 @@ const CancelledPill = styled(Pill)(({ theme }) => ({
   color: "var(--mui-palette-common-white)",
 }));
 
-const LongEventCard = ({
-  event,
-  userId,
-}: {
-  event: Event.AsObject;
-  userId?: number | null | undefined;
-}) => {
+const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: number | null | undefined }) => {
   const {
     t,
     i18n: { language: locale },
@@ -134,10 +123,10 @@ const LongEventCard = ({
   const dateTimeRangeText = localizeDateTimeRange(
     timestampToPlainDateTime(event.startTime!, event.timezone),
     timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
-      includeTime: true,
       capitalize: true,
     },
   );
@@ -159,10 +148,7 @@ const LongEventCard = ({
           }}
         />
         <FlagWrapper>
-          <FlagButton
-            contentRef={`event/${event.eventId}`}
-            authorUser={event.creatorUserId}
-          />
+          <FlagButton contentRef={contentRefs.event(event)} authorUser={event.creatorUserId} />
         </FlagWrapper>
 
         <StyledCardContent>
@@ -171,14 +157,8 @@ const LongEventCard = ({
               <Title variant="h3">{event.title}</Title>
             </Tooltip>
             <Tags>
-              {isCreatedByMe && (
-                <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
-              )}
-              {isCancelled && (
-                <CancelledPill variant="rounded">
-                  {t("communities:cancelled")}
-                </CancelledPill>
-              )}
+              {isCreatedByMe && <Pill variant="rounded">{t("communities:created_by_me")}</Pill>}
+              {isCancelled && <CancelledPill variant="rounded">{t("communities:cancelled")}</CancelledPill>}
             </Tags>
           </Row>
 

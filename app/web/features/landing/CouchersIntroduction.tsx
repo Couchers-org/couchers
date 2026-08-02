@@ -3,12 +3,7 @@ import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import {
-  couchersAppStoreURL,
-  couchersGooglePlayURL,
-  signupRoute,
-  whatIsCouchSurfingRoute,
-} from "routes";
+import { couchersAppStoreURL, couchersGooglePlayURL, signupRoute, whatIsCouchSurfingRoute } from "routes";
 import { theme } from "theme";
 
 function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
@@ -80,9 +75,9 @@ const CouchersIntroduction = () => {
   return (
     <StyledIntroduction>
       <Typography
-        lineHeight={1.1}
-        fontWeight="bold"
         sx={{
+          lineHeight: 1.1,
+          fontWeight: "bold",
           fontSize: "3.5rem",
 
           [theme.breakpoints.down("md")]: {

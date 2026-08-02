@@ -63,10 +63,7 @@ type LanguagePickerSelectProps = {
   onNavigate?: () => void;
 };
 
-export default function LanguagePickerSelect({
-  displayMode = "round",
-  onNavigate,
-}: LanguagePickerSelectProps) {
+export default function LanguagePickerSelect({ displayMode = "round", onNavigate }: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
@@ -82,8 +79,7 @@ export default function LanguagePickerSelect({
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const { mutate: changeLanguageMutation } = useMutation({
-    mutationFn: (newLanguage: string) =>
-      service.account.changeLanguage(newLanguage),
+    mutationFn: (newLanguage: string) => service.account.changeLanguage(newLanguage),
   });
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
@@ -124,11 +120,7 @@ export default function LanguagePickerSelect({
 
   // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
   // Languages with < 80% translated are greyed out
-  const availableLanguages = getAvailableLanguages(
-    languages,
-    showAllLanguages,
-    i18n.language,
-  );
+  const availableLanguages = getAvailableLanguages(languages, showAllLanguages, i18n.language);
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
@@ -153,18 +145,17 @@ export default function LanguagePickerSelect({
             }}
           >
             <Stack
-              sx={{ width: "100%" }}
               direction="row"
-              alignItems="center"
-              justifyContent="space-between"
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
             >
               <Stack direction="row">
                 <ListItemText
                   sx={{
-                    opacity:
-                      language.translated_percent < ALMOST_DONE_CUTOFF
-                        ? 0.4
-                        : 1,
+                    opacity: language.translated_percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
                     fontWeight: "bold",
                     display: "inline",
                   }}
@@ -174,10 +165,7 @@ export default function LanguagePickerSelect({
               </Stack>
               <div>
                 {locale === languageCode && (
-                  <CheckIcon
-                    fontSize="small"
-                    sx={{ color: "var(--mui-palette-primary-main)" }}
-                  />
+                  <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
                 )}
               </div>
             </Stack>
@@ -207,21 +195,12 @@ export default function LanguagePickerSelect({
 
   return (
     <>
-      {error && (
-        <Snackbar severity="error">
-          {t("global:language_preference.error_loading_languages")}
-        </Snackbar>
-      )}
+      {error && <Snackbar severity="error">{t("global:language_preference.error_loading_languages")}</Snackbar>}
       <Box sx={{ minWidth: 40 }}>
         <FormControl
           variant="outlined"
           sx={{
-            width:
-              displayMode === "round"
-                ? "fit-content"
-                : !isMobile
-                  ? "241px"
-                  : "100%",
+            width: displayMode === "round" ? "fit-content" : !isMobile ? "241px" : "100%",
           }}
         >
           {displayMode === "round" ? (
@@ -254,9 +233,11 @@ export default function LanguagePickerSelect({
                 }}
               >
                 <Typography
-                  color="var(--mui-palette-primary-main)"
-                  sx={{ fontWeight: "bold" }}
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                    fontWeight: "bold",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>
@@ -291,8 +272,10 @@ export default function LanguagePickerSelect({
               >
                 <Typography
                   variant="body2"
-                  color="var(--mui-palette-primary-main)"
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>

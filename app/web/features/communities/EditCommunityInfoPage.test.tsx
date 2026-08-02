@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToCommunity, routeToEditCommunityPage } from "routes";
@@ -18,11 +14,10 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const getCommunityMock = service.communities
-  .getCommunity as jest.MockedFunction<typeof service.communities.getCommunity>;
-const updatePageMock = service.pages.updatePage as jest.MockedFunction<
-  typeof service.pages.updatePage
+const getCommunityMock = service.communities.getCommunity as jest.MockedFunction<
+  typeof service.communities.getCommunity
 >;
+const updatePageMock = service.pages.updatePage as jest.MockedFunction<typeof service.pages.updatePage>;
 
 function renderEditCommunityPage() {
   mockRouter.setCurrentUrl(routeToEditCommunityPage(2, "amsterdam"));
@@ -48,15 +43,9 @@ describe("Edit community page", () => {
         name: t("communities:edit_info_page_title"),
       }),
     ).toBeVisible();
-    expect(
-      screen.getByLabelText(t("communities:page_content_field_label")),
-    ).toBeVisible();
-    expect(
-      screen.getByLabelText(t("communities:page_content_field_label")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("global:save") }),
-    ).toBeVisible();
+    expect(screen.getByLabelText(t("communities:page_content_field_label"))).toBeVisible();
+    expect(screen.getByLabelText(t("communities:page_content_field_label"))).toBeVisible();
+    expect(screen.getByRole("button", { name: t("global:save") })).toBeVisible();
   });
 
   it("redirects the user back to the community page if they do not have permission", async () => {
@@ -80,17 +69,12 @@ describe("Edit community page", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(t("communities:page_content_field_label")),
-      " are great!",
-    );
+    await user.type(screen.getByLabelText(t("communities:page_content_field_label")), " are great!");
     await user.click(screen.getByRole("button", { name: t("global:save") }));
 
     const successAlert = await screen.findByRole("alert");
     expect(successAlert).toBeVisible();
-    expect(successAlert).toHaveTextContent(
-      t("communities:edit_info_page_success_message"),
-    );
+    expect(successAlert).toHaveTextContent(t("communities:edit_info_page_success_message"));
     expect(updatePageMock).toHaveBeenCalledTimes(1);
     expect(updatePageMock).toHaveBeenCalledWith({
       content: newContent,

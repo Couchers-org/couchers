@@ -10,11 +10,11 @@ import Avatar from "components/Avatar";
 import { useCommunity } from "features/communities/hooks";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
+import { localizeDateRange, localizeRelativeTimeUnit } from "i18n/datetimes";
 import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { myPublicTripsRoute, routeToCommunity } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { localizeDateTimeRange, localizeRelativeTimeUnit } from "utils/date";
 import dayjs from "utils/dayjs";
 
 export const CARD_WIDTH = 220;
@@ -98,22 +98,13 @@ const MetaRow = styled("div")(({ theme }) => ({
   borderTop: "1px dashed var(--mui-palette-divider)",
 }));
 
-function WhenChip({
-  fromDate,
-  toDate,
-  locale,
-}: {
-  fromDate: string;
-  toDate: string;
-  locale: string;
-}) {
+function WhenChip({ fromDate, toDate, locale }: { fromDate: string; toDate: string; locale: string }) {
   const { t } = useTranslation([DASHBOARD]);
   const todayStart = dayjs().startOf("day");
   const fromStart = dayjs(fromDate).startOf("day");
   const toStart = dayjs(toDate).startOf("day");
 
-  const isOngoing =
-    fromStart.isBefore(todayStart) && !toStart.isBefore(todayStart);
+  const isOngoing = fromStart.isBefore(todayStart) && !toStart.isBefore(todayStart);
   const daysUntil = fromStart.diff(todayStart, "day");
 
   let label: string | null = null;
@@ -164,9 +155,7 @@ function OffersChip({ count }: { count: number }) {
         fontSize: "12px",
         fontWeight: 700,
         whiteSpace: "nowrap",
-        color: hasOffers
-          ? "var(--mui-palette-primary-dark)"
-          : "var(--mui-palette-text-secondary)",
+        color: hasOffers ? "var(--mui-palette-primary-dark)" : "var(--mui-palette-text-secondary)",
         flexShrink: 0,
       }}
     >
@@ -175,9 +164,7 @@ function OffersChip({ count }: { count: number }) {
       ) : (
         <HourglassEmptyOutlined sx={{ fontSize: "15px" }} />
       )}
-      {hasOffers
-        ? t("dashboard:public_trips.offers_count", { count })
-        : t("dashboard:public_trips.no_offers")}
+      {hasOffers ? t("dashboard:public_trips.offers_count", { count }) : t("dashboard:public_trips.no_offers")}
     </Box>
   );
 }
@@ -198,18 +185,16 @@ export function DashboardPublicTripCard({
   // avatar instead of pin tile, user name instead of community name, no MetaRow.
   const communityMode = isOwnTrip !== undefined;
 
-  const { data: community, isLoading: communityLoading } = useCommunity(
-    communityMode ? 0 : trip.communityId,
-  );
+  const { data: community, isLoading: communityLoading } = useCommunity(communityMode ? 0 : trip.communityId);
 
-  const dateRange = localizeDateTimeRange(
+  const dateRange = localizeDateRange(
     Temporal.PlainDateTime.from(trip.fromDate),
     Temporal.PlainDateTime.from(trip.toDate),
-    { locale, includeTime: false, abbreviate: true },
+    locale,
+    { abbreviate: true },
   );
 
-  const hasFooter =
-    !communityMode && (offersCount !== undefined || trip.sameGenderOnly);
+  const hasFooter = !communityMode && (offersCount !== undefined || trip.sameGenderOnly);
 
   const href = communityMode
     ? `${routeToCommunity(trip.communityId, trip.communitySlug, "public-trips")}#trip-${trip.tripId}`
@@ -270,24 +255,12 @@ export function DashboardPublicTripCard({
             </Box>
           ) : (
             <PinTile>
-              <PlaceOutlined
-                sx={{ fontSize: 22, color: "var(--mui-palette-primary-main)" }}
-              />
+              <PlaceOutlined sx={{ fontSize: 22, color: "var(--mui-palette-primary-main)" }} />
             </PinTile>
           )}
           <TextBlock>
-            <Typography
-              variant="h3"
-              noWrap
-              sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}
-            >
-              {communityMode ? (
-                user!.name
-              ) : communityLoading ? (
-                <Skeleton width={80} />
-              ) : (
-                (community?.name ?? "—")
-              )}
+            <Typography variant="h3" noWrap sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
+              {communityMode ? user!.name : communityLoading ? <Skeleton width={80} /> : (community?.name ?? "—")}
             </Typography>
             <Typography
               variant="body2"
@@ -313,11 +286,7 @@ export function DashboardPublicTripCard({
               </span>
             </Typography>
           </TextBlock>
-          <WhenChip
-            fromDate={trip.fromDate}
-            toDate={trip.toDate}
-            locale={locale}
-          />
+          <WhenChip fromDate={trip.fromDate} toDate={trip.toDate} locale={locale} />
         </IdentityRow>
         <DescriptionText variant="body2">{trip.description}</DescriptionText>
         {hasFooter && (
@@ -342,12 +311,7 @@ export function DashboardPublicTripCardSkeleton() {
       }}
     >
       <Box sx={{ display: "flex", gap: 1.25, alignItems: "center" }}>
-        <Skeleton
-          variant="rectangular"
-          width={40}
-          height={40}
-          sx={{ borderRadius: "10px", flexShrink: 0 }}
-        />
+        <Skeleton variant="rectangular" width={40} height={40} sx={{ borderRadius: "10px", flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Skeleton height={16} sx={{ mb: 0.5 }} />
           <Skeleton height={12} width="70%" />

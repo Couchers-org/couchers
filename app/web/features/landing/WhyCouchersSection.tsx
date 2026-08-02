@@ -1,8 +1,4 @@
-import {
-  Diversity2Outlined,
-  LoyaltyOutlined,
-  VerifiedUserOutlined,
-} from "@mui/icons-material";
+import { Diversity2Outlined, LoyaltyOutlined, VerifiedUserOutlined } from "@mui/icons-material";
 import { Box, Grid, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
@@ -25,8 +21,8 @@ const WhyCouchersSection = () => {
       </Typography>
       <Grid
         container
-        gap={2}
         sx={{
+          gap: 2,
           padding: theme.spacing(3, 0),
           width: "100%",
           flexWrap: { xs: "wrap", md: "nowrap" },
@@ -34,8 +30,8 @@ const WhyCouchersSection = () => {
       >
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -44,26 +40,24 @@ const WhyCouchersSection = () => {
             marginLeft: { xs: 0, md: 2 },
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
-            <Diversity2Outlined
-              color="primary"
-              sx={{ fontSize: "35px", marginBottom: 1 }}
-            />
-            <Typography
-              gutterBottom
-              sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
-            >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
+            <Diversity2Outlined color="primary" sx={{ fontSize: "35px", marginBottom: 1 }} />
+            <Typography gutterBottom sx={{ fontSize: "1.4rem", fontWeight: "bold" }}>
               {t("community_first")}
             </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              {t("community_first_description")}
-            </Typography>
+            <Typography sx={{ marginTop: 1 }}>{t("community_first_description")}</Typography>
           </Box>
         </Grid>
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -71,26 +65,24 @@ const WhyCouchersSection = () => {
             minWidth: 0,
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
-            <VerifiedUserOutlined
-              color="primary"
-              sx={{ fontSize: "35px", marginBottom: 1 }}
-            />
-            <Typography
-              gutterBottom
-              sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
-            >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
+            <VerifiedUserOutlined color="primary" sx={{ fontSize: "35px", marginBottom: 1 }} />
+            <Typography gutterBottom sx={{ fontSize: "1.4rem", fontWeight: "bold" }}>
               {t("safer_stronger")}
             </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              {t("safer_stronger_description")}
-            </Typography>
+            <Typography sx={{ marginTop: 1 }}>{t("safer_stronger_description")}</Typography>
           </Box>
         </Grid>
         <Grid
           size={{ xs: 12, md: 4 }}
-          display="flex"
           sx={{
+            display: "flex",
             backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
@@ -99,20 +91,18 @@ const WhyCouchersSection = () => {
             marginRight: { xs: 0, md: 2 },
           }}
         >
-          <Box display="flex" flexDirection="column" width="100%">
-            <LoyaltyOutlined
-              color="primary"
-              sx={{ fontSize: "35px", marginBottom: 1 }}
-            />
-            <Typography
-              gutterBottom
-              sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
-            >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+            }}
+          >
+            <LoyaltyOutlined color="primary" sx={{ fontSize: "35px", marginBottom: 1 }} />
+            <Typography gutterBottom sx={{ fontSize: "1.4rem", fontWeight: "bold" }}>
               {t("built_by_travelers")}
             </Typography>
-            <Typography sx={{ marginTop: 1 }}>
-              {t("built_by_travelers_description")}
-            </Typography>
+            <Typography sx={{ marginTop: 1 }}>{t("built_by_travelers_description")}</Typography>
           </Box>
         </Grid>
       </Grid>

@@ -1,15 +1,4 @@
-import {
-  AppBar,
-  Box,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  styled,
-  Theme,
-  Toolbar,
-  useMediaQuery,
-} from "@mui/material";
+import { AppBar, Box, Drawer, IconButton, List, ListItem, styled, Theme, Toolbar, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
@@ -64,10 +53,7 @@ interface MenuItemProps {
 type PingData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
-const loggedInDrawerMenu = (
-  t: TFunction<"global", undefined>,
-  pingData: PingData,
-): Array<MenuItemProps> => [
+const loggedInDrawerMenu = (t: TFunction<"global", undefined>, pingData: PingData): Array<MenuItemProps> => [
   {
     name: t("nav.messages"),
     route: messagesRoute,
@@ -91,10 +77,7 @@ const loggedInDrawerMenu = (
 ];
 
 // shown on desktop and big screens on top of the screen
-const loggedInNavMenu = (
-  t: TFunction<"global", undefined>,
-  pingData: PingData,
-): Array<MenuItemProps> => [
+const loggedInNavMenu = (t: TFunction<"global", undefined>, pingData: PingData): Array<MenuItemProps> => [
   {
     name: t("nav.messages"),
     route: messagesRoute,
@@ -117,9 +100,7 @@ const loggedInNavMenu = (
   },
 ];
 
-const loggedOutNavMenu = (
-  t: TFunction<"global", undefined>,
-): Array<MenuItemProps> => [
+const loggedOutNavMenu = (t: TFunction<"global", undefined>): Array<MenuItemProps> => [
   {
     name: t("nav.blog"),
     route: blogRoute,
@@ -134,9 +115,7 @@ const loggedOutNavMenu = (
   },
 ];
 
-const loggedOutDrawerMenu = (
-  t: TFunction<"global", undefined>,
-): Array<MenuItemProps> => [
+const loggedOutDrawerMenu = (t: TFunction<"global", undefined>): Array<MenuItemProps> => [
   {
     name: t("nav.blog"),
     route: blogRoute,
@@ -152,10 +131,7 @@ const loggedOutDrawerMenu = (
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
-const loggedInMenuDropDown = (
-  t: TFunction<"global", undefined>,
-  isNativeEmbed: boolean,
-): Array<LoggedInMenuItem> => [
+const loggedInMenuDropDown = (t: TFunction<"global", undefined>, isNativeEmbed: boolean): Array<LoggedInMenuItem> => [
   {
     type: "link",
     name: t("nav.profile"),
@@ -315,49 +291,37 @@ export default function Navigation() {
       }}
     >
       <List>
-        {(isAuthenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
-          t,
-          pingData,
-        ).map(({ name, route, notificationCount, externalLink }) => (
-          <ListItem
-            component="button"
-            key={name}
-            sx={{
-              background: "transparent",
-              border: "none",
+        {(isAuthenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(t, pingData).map(
+          ({ name, route, notificationCount, externalLink }) => (
+            <ListItem
+              component="button"
+              key={name}
+              sx={{
+                background: "transparent",
+                border: "none",
 
-              "&:hover": {
-                backgroundColor: (theme) => theme.palette.grey[200],
-              },
-            }}
-          >
-            {externalLink ? (
-              <ExternalNavButton route={route} label={name} labelVariant="h2" />
-            ) : (
-              <NavButton
-                route={route}
-                label={name}
-                labelVariant="h2"
-                notificationCount={notificationCount}
-              />
-            )}
-          </ListItem>
-        ))}
+                "&:hover": {
+                  backgroundColor: (theme) => theme.palette.grey[200],
+                },
+              }}
+            >
+              {externalLink ? (
+                <ExternalNavButton route={route} label={name} labelVariant="h2" />
+              ) : (
+                <NavButton route={route} label={name} labelVariant="h2" notificationCount={notificationCount} />
+              )}
+            </ListItem>
+          ),
+        )}
       </List>
 
-      <Box
-        sx={{ marginX: "auto", marginBottom: theme.spacing(2) }}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <Box sx={{ marginX: "auto", marginBottom: theme.spacing(2) }} onClick={(e) => e.stopPropagation()}>
         <LanguagePickerSelect />
       </Box>
     </Box>
   );
 
-  const loggedInMenuItems = useMemo(
-    () => loggedInMenuDropDown(t, isNativeEmbed),
-    [t, isNativeEmbed],
-  );
+  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t, isNativeEmbed), [t, isNativeEmbed]);
 
   return (
     <StyledAppBar position="sticky" color="inherit">
@@ -365,11 +329,7 @@ export default function Navigation() {
         <StyledNav sx={{ marginLeft: 2 }}>
           {isMobile && !isAuthenticated && (
             <>
-              <IconButton
-                aria-label={t("nav.open_drawer_a11y")}
-                onClick={handleDrawerOpen}
-                edge="start"
-              >
+              <IconButton aria-label={t("nav.open_drawer_a11y")} onClick={handleDrawerOpen} edge="start">
                 <MenuIcon
                   sx={{
                     color: "var(--mui-palette-text-primary)",
@@ -407,25 +367,18 @@ export default function Navigation() {
 
           {!isMobile && (
             <StyledFlexbox>
-              {(isAuthenticated ? loggedInNavMenu : loggedOutNavMenu)(
-                t,
-                pingData,
-              ).map(({ name, route, notificationCount, externalLink }) =>
-                externalLink ? (
-                  <ExternalNavButton
-                    route={route}
-                    label={name}
-                    labelVariant="h3"
-                    key={`${name}-nav-button`}
-                  />
-                ) : (
-                  <NavButton
-                    route={route}
-                    label={name}
-                    key={`${name}-nav-button`}
-                    notificationCount={notificationCount}
-                  />
-                ),
+              {(isAuthenticated ? loggedInNavMenu : loggedOutNavMenu)(t, pingData).map(
+                ({ name, route, notificationCount, externalLink }) =>
+                  externalLink ? (
+                    <ExternalNavButton route={route} label={name} labelVariant="h3" key={`${name}-nav-button`} />
+                  ) : (
+                    <NavButton
+                      route={route}
+                      label={name}
+                      key={`${name}-nav-button`}
+                      notificationCount={notificationCount}
+                    />
+                  ),
               )}
             </StyledFlexbox>
           )}
@@ -461,8 +414,7 @@ export default function Navigation() {
                   sx={{
                     fontSize: "1.3rem",
                     borderRadius: theme.spacing(1),
-                    border: (theme: Theme) =>
-                      `1.5px solid var(--mui-palette-primary-main)`,
+                    border: (theme: Theme) => `1.5px solid var(--mui-palette-primary-main)`,
                   }}
                   onClick={() => router.push(loginRoute)}
                 >

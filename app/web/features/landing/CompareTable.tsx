@@ -1,14 +1,7 @@
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutlined";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import { Box, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRef, useState } from "react";
@@ -57,9 +50,7 @@ export default function CompareTable() {
           p: 1.5,
         }}
         ref={tableRef}
-        onScroll={(e) =>
-          setTableNudge((e.currentTarget as HTMLDivElement).scrollLeft === 0)
-        }
+        onScroll={(e) => setTableNudge((e.currentTarget as HTMLDivElement).scrollLeft === 0)}
       >
         <Table
           size="small"
@@ -135,9 +126,7 @@ export default function CompareTable() {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>
-                {t("what_is_cs.table.professionally_managed")}
-              </TableCell>
+              <TableCell>{t("what_is_cs.table.professionally_managed")}</TableCell>
               <TableCell>
                 <CloseIcon color="disabled" fontSize="small" />
               </TableCell>
@@ -191,9 +180,7 @@ export default function CompareTable() {
               <TableCell>{t("what_is_cs.table.dollars_range")}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>
-                {t("what_is_cs.table.no_investor_pressure")}
-              </TableCell>
+              <TableCell>{t("what_is_cs.table.no_investor_pressure")}</TableCell>
               <TableCell>
                 <CheckCircleOutlineIcon color="primary" fontSize="small" />
               </TableCell>

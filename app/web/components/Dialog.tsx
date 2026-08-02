@@ -56,23 +56,14 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
 }
 
 export function DialogContentText(props: DialogContentTextProps) {
-  return (
-    <MuiDialogContentText
-      {...props}
-      sx={{ padding: theme.spacing(2), ...props.sx }}
-    />
-  );
+  return <MuiDialogContentText {...props} sx={{ padding: theme.spacing(2), ...props.sx }} />;
 }
 
 interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
   onClose?: () => void;
 }
 
-export function DialogTitle({
-  children,
-  onClose,
-  ...dialogTitleProps
-}: DialogTitleProps) {
+export function DialogTitle({ children, onClose, ...dialogTitleProps }: DialogTitleProps) {
   const { t } = useTranslation(GLOBAL);
 
   return (

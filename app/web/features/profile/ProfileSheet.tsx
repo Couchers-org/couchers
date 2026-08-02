@@ -1,11 +1,5 @@
 import { ArrowBack } from "@mui/icons-material";
-import {
-  Collapse,
-  IconButton,
-  Skeleton,
-  styled,
-  SwipeableDrawer,
-} from "@mui/material";
+import { Collapse, IconButton, Skeleton, styled, SwipeableDrawer } from "@mui/material";
 import Snackbar from "components/Snackbar";
 import BadgeDetail from "features/badges/BadgeDetail";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
@@ -24,9 +18,7 @@ import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 import { ProfileUserProvider } from "./hooks/useProfileUser";
 import { useProfileSheet } from "./ProfileSheetContext";
 
-const iOS =
-  typeof navigator !== "undefined" &&
-  /iPad|iPhone|iPod/.test(navigator.userAgent);
+const iOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 const StyledDrawer = styled(SwipeableDrawer)({
   "& .MuiDrawer-paper": {
@@ -72,12 +64,7 @@ function ProfileSheetSkeleton() {
   return (
     <ScrollContent>
       {/* Overview card */}
-      <Skeleton
-        variant="circular"
-        width={120}
-        height={120}
-        sx={{ mx: "auto", mt: 2 }}
-      />
+      <Skeleton variant="circular" width={120} height={120} sx={{ mx: "auto", mt: 2 }} />
       <Skeleton width="50%" height={32} sx={{ mx: "auto", mt: 1 }} />
       <Skeleton width="35%" height={20} sx={{ mx: "auto" }} />
       <Skeleton width="40%" height={20} sx={{ mx: "auto", mb: 2 }} />
@@ -176,8 +163,7 @@ export default function ProfileSheet() {
   // without re-registering the listener on every profile navigation.
   const goBackOrCloseRef = useRef<() => void>(() => {});
   useEffect(() => {
-    goBackOrCloseRef.current =
-      profileHistory.length > 0 ? goBackProfile : closeProfileSheet;
+    goBackOrCloseRef.current = profileHistory.length > 0 ? goBackProfile : closeProfileSheet;
   }, [profileHistory, goBackProfile, closeProfileSheet]);
 
   useEffect(() => {
@@ -233,30 +219,18 @@ export default function ProfileSheet() {
         </ScrollContent>
       ) : (
         <ScrollContent ref={scrollRef}>
-          {isSuccessRequest && (
-            <Snackbar severity="success">
-              {t("profile:request_form.success")}
-            </Snackbar>
-          )}
+          {isSuccessRequest && <Snackbar severity="success">{t("profile:request_form.success")}</Snackbar>}
           {isLoading && <ProfileSheetSkeleton />}
           {user && (
             <ProfileUserProvider user={user}>
-              <Overview
-                setIsRequesting={setIsRequesting}
-                setIsMessaging={setIsMessaging}
-                tab={tab}
-                isInSheet
-              />
+              <Overview setIsRequesting={setIsRequesting} setIsMessaging={setIsMessaging} tab={tab} isInSheet />
               <UserCard
                 tab={tab}
                 onTabChange={setTab}
                 top={
                   <>
                     <Collapse in={isRequesting}>
-                      <NewHostRequest
-                        setIsRequesting={setIsRequesting}
-                        setIsRequestSuccess={setIsSuccessRequest}
-                      />
+                      <NewHostRequest setIsRequesting={setIsRequesting} setIsRequestSuccess={setIsSuccessRequest} />
                     </Collapse>
                     <Collapse in={isMessaging}>
                       <NewMessage setIsMessaging={setIsMessaging} />

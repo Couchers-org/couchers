@@ -16,9 +16,7 @@ export default function ResendVerificationEmailForm() {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const state = await service.auth.signupFlowResendVerificationEmail(
-        authState.flowState!.flowToken,
-      );
+      const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       authActions.updateSignupState(state);
       setResent(true);
     },
@@ -26,9 +24,7 @@ export default function ResendVerificationEmailForm() {
 
   return (
     <>
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message || ""}</Alert>
-      )}
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
         {t("auth:sign_up_completed_prompt")}
       </Typography>

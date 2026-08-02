@@ -1,14 +1,5 @@
 import TranslateIcon from "@mui/icons-material/Translate";
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Link,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
@@ -17,12 +8,7 @@ import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
 
-import {
-  ALMOST_DONE_CUTOFF,
-  COMPLETE_CUTOFF,
-  HIDDEN_CUTOFF,
-  SELECTOR_CUTOFF,
-} from "./constants";
+import { ALMOST_DONE_CUTOFF, COMPLETE_CUTOFF, HIDDEN_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
@@ -50,44 +36,34 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   },
 }));
 
-const LargeLanguageCard = styled(Card)<{ percent: number }>(
-  ({ theme, percent }) => ({
-    width: "100%",
-    transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity:
-      percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
-    marginBottom: theme.spacing(2),
+const LargeLanguageCard = styled(Card)<{ percent: number }>(({ theme, percent }) => ({
+  width: "100%",
+  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+  opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
+  marginBottom: theme.spacing(2),
 
-    "&:hover": {
-      transform: "translateY(-1px)",
-      boxShadow: theme.shadows[2],
-    },
-  }),
-);
+  "&:hover": {
+    transform: "translateY(-1px)",
+    boxShadow: theme.shadows[2],
+  },
+}));
 
-const SmallLanguageCard = styled(Card)<{ percent: number }>(
-  ({ theme, percent }) => ({
-    width: "100%",
-    transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-    opacity:
-      percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
-    marginBottom: theme.spacing(2),
-  }),
-);
+const SmallLanguageCard = styled(Card)<{ percent: number }>(({ theme, percent }) => ({
+  width: "100%",
+  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+  opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
+  marginBottom: theme.spacing(2),
+}));
 
-const getStatusColor = (
-  percent: number,
-): "success" | "info" | "warning" | "error" | "default" => {
+const getStatusColor = (percent: number): "success" | "info" | "warning" | "error" | "default" => {
   if (percent >= ALMOST_DONE_CUTOFF) return "success"; // 80-100%: Green
-  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
-    return "warning"; // 50-80%: Orange/Yellow
+  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF) return "warning"; // 50-80%: Orange/Yellow
   if (percent >= HIDDEN_CUTOFF) return "error"; // 20-50%: Red
   return "default"; // <20%: Grey
 };
 
 const getStatusText = (percent: number, t: (key: string) => string) => {
-  if (percent >= COMPLETE_CUTOFF)
-    return t("global:language_preference.translation_progress.complete");
+  if (percent >= COMPLETE_CUTOFF) return t("global:language_preference.translation_progress.complete");
   if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF)
     return t("global:language_preference.translation_progress.almost_there");
   if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
@@ -135,7 +111,13 @@ export default function TranslationProgress() {
   if (!languages || languages.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("global:language_preference.translation_progress.no_data")}
         </Typography>
       </Box>
@@ -144,26 +126,24 @@ export default function TranslationProgress() {
 
   // Filter and sort languages - show all with any progress
   const availableLanguages = languages
-    .filter(
-      (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent > 0,
-    )
+    .filter((language) => LANGUAGE_MAP[language.code.replace("_", "-")] && language.translated_percent > 0)
     .sort((a, b) => b.translated_percent - a.translated_percent); // Sort by completion percentage
 
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
         <TranslateIcon sx={{ fontSize: 28, color: "primary.main" }} />
-        <Typography variant="h1" fontWeight="bold">
+        <Typography
+          variant="h1"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           {t("global:language_preference.translation_progress.title")}
         </Typography>
       </Box>
-
       <Box sx={{ mb: 3 }}>
-        <Typography sx={{ mb: 2 }}>
-          {t("global:language_preference.translation_progress.description")}
-        </Typography>
+        <Typography sx={{ mb: 2 }}>{t("global:language_preference.translation_progress.description")}</Typography>
         <Link
           href={translateJobURL}
           target="_blank"
@@ -171,17 +151,18 @@ export default function TranslationProgress() {
           underline="hover"
           sx={{ fontWeight: "bold" }}
         >
-          {t("global:language_preference.translation_progress.help_translate")}{" "}
-          →
+          {t("global:language_preference.translation_progress.help_translate")} →
         </Link>
       </Box>
-
       <Box sx={{ mb: 3, p: 2, bgcolor: "grey.50", borderRadius: 2 }}>
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
-
       {availableLanguages.map((language) => {
         const languageCode = language.code.replace("_", "-");
         const languageInfo = LANGUAGE_MAP[languageCode];
@@ -210,7 +191,12 @@ export default function TranslationProgress() {
                     }}
                   >
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      <Typography variant="subtitle2" fontWeight="bold">
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {languageInfo.nativeName}
                       </Typography>
                     </Box>
@@ -238,14 +224,14 @@ export default function TranslationProgress() {
                   >
                     <Typography
                       variant="h5"
-                      fontWeight="bold"
-                      color={
-                        percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
-                      }
+                      sx={{
+                        color: percent < HIDDEN_CUTOFF ? "text.secondary" : "primary.main",
+                        fontWeight: "bold",
+                      }}
                     >
                       {percent.toFixed(1)}%
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
                       {languageCode.toUpperCase()}
                     </Typography>
                   </Box>
@@ -266,10 +252,21 @@ export default function TranslationProgress() {
                       width: "100%",
                     }}
                   >
-                    <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                    <Typography
+                      variant="subtitle1"
+                      noWrap
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
                       {languageInfo.nativeName}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {languageCode.toUpperCase()}
                     </Typography>
 
@@ -285,10 +282,10 @@ export default function TranslationProgress() {
                     >
                       <Typography
                         variant="h5"
-                        fontWeight="bold"
-                        color={
-                          percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
-                        }
+                        sx={{
+                          color: percent < HIDDEN_CUTOFF ? "text.secondary" : "primary.main",
+                          fontWeight: "bold",
+                        }}
                       >
                         {percent.toFixed(1)}%
                       </Typography>

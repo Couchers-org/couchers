@@ -19,34 +19,21 @@ interface CommunityInfoPageProps {
   community: Community.AsObject;
 }
 
-export default function CommunityInfoPage({
-  community,
-}: CommunityInfoPageProps) {
+export default function CommunityInfoPage({ community }: CommunityInfoPageProps) {
   const { t } = useTranslation([COMMUNITIES, GLOBAL]);
 
   return (
     <>
       <section>
         <StyledTitleContainer>
-          <SectionTitle icon={<InfoIcon />}>
-            {t("communities:local_info_title", { name: community.name })}
-          </SectionTitle>
+          <SectionTitle icon={<InfoIcon />}>{t("communities:local_info_title", { name: community.name })}</SectionTitle>
           {community.mainPage?.canEdit && (
-            <StyledLink
-              href={routeToEditCommunityPage(
-                community.communityId,
-                community.slug,
-              )}
-            >
+            <StyledLink href={routeToEditCommunityPage(community.communityId, community.slug)}>
               {t("global:edit")}
             </StyledLink>
           )}
         </StyledTitleContainer>
-        <Markdown
-          topHeaderLevel={3}
-          source={community.mainPage?.content || ""}
-          allowImages="couchers"
-        />
+        <Markdown topHeaderLevel={3} source={community.mainPage?.content || ""} allowImages="couchers" />
       </section>
       <CommunityModeratorsSection community={community} />
     </>

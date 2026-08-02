@@ -20,21 +20,13 @@ export default function DoNotEmail() {
 
   const queryClient = useQueryClient();
 
-  const { data, error, isPending } = useQuery<
-    GetNotificationSettingsRes.AsObject,
-    RpcError
-  >({
+  const { data, error, isPending } = useQuery<GetNotificationSettingsRes.AsObject, RpcError>({
     queryKey: [doNotEmailQueryKey],
     queryFn: service.notifications.getNotificationSettings,
   });
 
-  const mutation = useMutation<
-    GetNotificationSettingsRes.AsObject,
-    RpcError,
-    DoNotEmailFormData
-  >({
-    mutationFn: ({ doNotEmailEnabled }) =>
-      service.notifications.setNotificationSettings(doNotEmailEnabled),
+  const mutation = useMutation<GetNotificationSettingsRes.AsObject, RpcError, DoNotEmailFormData>({
+    mutationFn: ({ doNotEmailEnabled }) => service.notifications.setNotificationSettings(doNotEmailEnabled),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [doNotEmailQueryKey] });
@@ -54,9 +46,7 @@ export default function DoNotEmail() {
       <Typography variant="body1" gutterBottom>
         {t("do_not_email.caveat")}
       </Typography>
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message}</Alert>
-      )}
+      {mutation.error && <Alert severity="error">{mutation.error.message}</Alert>}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isPending || !data ? (
         <CenteredSpinner />
@@ -71,15 +61,11 @@ export default function DoNotEmail() {
                   : "do_not_email.status.no_emails_disabled_message"
               }
             >
-              Emails are currently <strong>disabled/enabled</strong> for your
-              account.
+              Emails are currently <strong>disabled/enabled</strong> for your account.
             </Trans>
           </Typography>
           <Typography variant="body1">
-            <Button
-              onClick={() => toggleDoNotEmail()}
-              loading={mutation.isPending}
-            >
+            <Button onClick={() => toggleDoNotEmail()} loading={mutation.isPending}>
               {data.doNotEmailEnabled
                 ? t("do_not_email.action_button.no_emails_disable_text")
                 : t("do_not_email.action_button.no_emails_enable_text")}

@@ -27,11 +27,15 @@ export const sectionLabels = (
     about: t("profile:heading.about_me"),
     home: t("profile:heading.home"),
     references: (
-      <Box display="flex" alignItems="center" gap={1}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         {t("profile:heading.references")}
-        {!!user?.numReferences && (
-          <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
-        )}
+        {!!user?.numReferences && <StyledNumReferences>{user?.numReferences}</StyledNumReferences>}
       </Box>
     ),
     ...(isSuperuser ? { mod: t("global:mod") } : {}),

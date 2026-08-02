@@ -1,11 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, FormControl, FormControlLabel, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Select from "components/Select";
@@ -20,11 +13,7 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import {
-  ParkingDetails,
-  SleepingArrangement,
-  SmokingLocation,
-} from "proto/api_pb";
+import { ParkingDetails, SleepingArrangement, SmokingLocation } from "proto/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
@@ -44,15 +33,11 @@ const StyledAlert = styled(Alert)(() => ({
   marginBottom: theme.spacing(3),
 }));
 
-const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(
-  () => ({
-    display: "block",
-  }),
-);
+const StyledHostingPreferenceCheckbox = styled(HostingPreferenceCheckbox)(() => ({
+  display: "block",
+}));
 
-const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
-  component: C,
-) => {
+const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(component: C) => {
   return styled(component)(() => ({
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
@@ -209,13 +194,7 @@ const KeyText = styled(Typography)({
   lineHeight: 1.4,
 });
 
-function HostingPreferenceCheckbox({
-  className,
-  label,
-  name,
-  register,
-  checked,
-}: HostingPreferenceCheckboxProps) {
+function HostingPreferenceCheckbox({ className, label, name, register, checked }: HostingPreferenceCheckboxProps) {
   return (
     <FormControl variant="standard" className={className} margin="dense">
       <FormControlLabel
@@ -228,11 +207,7 @@ function HostingPreferenceCheckbox({
   );
 }
 
-export default function HostingPreferenceForm({
-  user,
-}: {
-  user: HostingPreferenceData;
-}) {
+export default function HostingPreferenceForm({ user }: { user: HostingPreferenceData }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -245,20 +220,12 @@ export default function HostingPreferenceForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState,
-    watch,
-    setValue,
-    reset,
-    getValues,
-  } = useForm<HostingPreferenceData>({
-    mode: "onBlur",
-    shouldFocusError: true,
-    defaultValues: user,
-  });
+  const { control, register, handleSubmit, formState, watch, setValue, reset, getValues } =
+    useForm<HostingPreferenceData>({
+      mode: "onBlur",
+      shouldFocusError: true,
+      defaultValues: user,
+    });
 
   const lastMinute = watch("lastMinute");
   const acceptsKids = watch("acceptsKids");
@@ -333,21 +300,13 @@ export default function HostingPreferenceForm({
 
   return (
     <>
-      {updateError && (
-        <StyledAlert severity="error">
-          {errorMessage || "Unknown error"}
-        </StyledAlert>
-      )}
+      {updateError && <StyledAlert severity="error">{errorMessage || "Unknown error"}</StyledAlert>}
 
       <form onSubmit={onSubmit}>
         {/* Hosting Preferences Section */}
         <ProfileSection>
-          <SectionTitle>
-            {t("profile:home_info_headings.hosting_preferences")}
-          </SectionTitle>
-          <SectionSubtitle>
-            {t("profile:home_info_headings.hosting_preferences_subtitle")}
-          </SectionSubtitle>
+          <SectionTitle>{t("profile:home_info_headings.hosting_preferences")}</SectionTitle>
+          <SectionSubtitle>{t("profile:home_info_headings.hosting_preferences_subtitle")}</SectionSubtitle>
 
           <CheckboxGrid>
             <StyledHostingPreferenceCheckbox
@@ -420,9 +379,7 @@ export default function HostingPreferenceForm({
         {/* About Your Home Section */}
         <ProfileSection>
           <SectionTitle>{t("profile:home_info_headings.my_home")}</SectionTitle>
-          <SectionSubtitle>
-            {t("profile:home_info_headings.about_home_subtitle")}
-          </SectionSubtitle>
+          <SectionSubtitle>{t("profile:home_info_headings.about_home_subtitle")}</SectionSubtitle>
 
           <FieldGroup>
             <StyledProfileMarkdownInput
@@ -458,27 +415,21 @@ export default function HostingPreferenceForm({
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>
-                          {t("profile:sleeping_arrangement.private_short")}
-                        </strong>{" "}
+                        <strong>{t("profile:sleeping_arrangement.private_short")}</strong>{" "}
                         {`(${t("profile:sleeping_arrangement.private")})`}
                       </KeyText>
                     </KeyItem>
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>
-                          {t("profile:sleeping_arrangement.common_short")}
-                        </strong>{" "}
+                        <strong>{t("profile:sleeping_arrangement.common_short")}</strong>{" "}
                         {`(${t("profile:sleeping_arrangement.common")})`}
                       </KeyText>
                     </KeyItem>
                     <KeyItem>
                       <KeyBullet />
                       <KeyText>
-                        <strong>
-                          {t("profile:sleeping_arrangement.shared_room_short")}:
-                        </strong>{" "}
+                        <strong>{t("profile:sleeping_arrangement.shared_room_short")}:</strong>{" "}
                         {`(${t("profile:sleeping_arrangement.shared_room")})`}
                       </KeyText>
                     </KeyItem>
@@ -491,12 +442,8 @@ export default function HostingPreferenceForm({
 
         {/* Household Details Section */}
         <ProfileSection>
-          <SectionTitle>
-            {t("profile:home_info_headings.household_details")}
-          </SectionTitle>
-          <SectionSubtitle>
-            {t("profile:home_info_headings.household_details_subtitle")}
-          </SectionSubtitle>
+          <SectionTitle>{t("profile:home_info_headings.household_details")}</SectionTitle>
+          <SectionSubtitle>{t("profile:home_info_headings.household_details_subtitle")}</SectionSubtitle>
 
           {/* Household Members */}
           <FieldGroup>
@@ -643,9 +590,7 @@ export default function HostingPreferenceForm({
         {/* Additional Information Section */}
         <ProfileSection>
           <SectionTitle>{t("profile:home_info_headings.general")}</SectionTitle>
-          <SectionSubtitle>
-            {t("profile:home_info_headings.general_subtitle")}
-          </SectionSubtitle>
+          <SectionSubtitle>{t("profile:home_info_headings.general_subtitle")}</SectionSubtitle>
 
           <FieldGroup>
             <StyledProfileMarkdownInput
@@ -689,10 +634,7 @@ export default function HostingPreferenceForm({
         </ProfileSection>
 
         {showSuccessToast && (
-          <Snackbar
-            severity="success"
-            onClose={() => setShowSuccessToast(false)}
-          >
+          <Snackbar severity="success" onClose={() => setShowSuccessToast(false)}>
             {t("profile:hosting_preferences_success_message")}
           </Snackbar>
         )}

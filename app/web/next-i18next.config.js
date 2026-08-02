@@ -67,11 +67,7 @@ if (debugLogging) {
   // so we're left with patching console.log.
   const originalLog = console.log;
   console.log = (...args) => {
-    if (
-      args[0] &&
-      typeof args[0] === "string" &&
-      args[0].startsWith("i18next:")
-    ) {
+    if (args[0] && typeof args[0] === "string" && args[0].startsWith("i18next:")) {
       // Filter out i18next debug logs
       return;
     }
@@ -98,18 +94,12 @@ module.exports = {
     // eslint-disable-next-line
     const path = require("path");
     if (namespace === "global") {
-      return path.resolve(
-        process.cwd(),
-        `resources/locales/${locale.replace("-", "_")}.json`,
-      );
+      return path.resolve(process.cwd(), `resources/locales/${locale.replace("-", "_")}.json`);
     }
     if (namespace == "mod") {
       // Localization is not supported for the moderation namespace.
       locale = "en";
     }
-    return path.resolve(
-      process.cwd(),
-      `features/${namespace}/locales/${locale.replace("-", "_")}.json`,
-    );
+    return path.resolve(process.cwd(), `features/${namespace}/locales/${locale.replace("-", "_")}.json`);
   },
 };

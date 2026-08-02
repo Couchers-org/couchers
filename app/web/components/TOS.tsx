@@ -12,10 +12,7 @@ import { service } from "service";
 
 export default function TOS() {
   const { t } = useTranslation(GLOBAL);
-  const { data, error, isLoading } = useQuery<
-    GetTermsOfServiceRes.AsObject,
-    RpcError
-  >({
+  const { data, error, isLoading } = useQuery<GetTermsOfServiceRes.AsObject, RpcError>({
     queryKey: [tosQueryKey],
     queryFn: () => service.resources.getTermsOfService(),
   });

@@ -1,7 +1,7 @@
 import "utils/dayjs"; // ensure dayjs timezone plugin is registered
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent, { PointerEventsCheckLevel } from "@testing-library/user-event";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -33,8 +33,7 @@ jest.mock("features/userQueries/useLiteUsers", () => ({
   useLiteUser: () => ({ isLoading: false, error: null }),
 }));
 
-const createHostRequestMock = service.requests
-  .createHostRequest as MockedService<
+const createHostRequestMock = service.requests.createHostRequest as MockedService<
   typeof service.requests.createHostRequest
 >;
 
@@ -45,10 +44,7 @@ const LONG_TEXT = "a".repeat(250);
 function renderNewHostRequest() {
   render(
     <ProfileUserProvider user={hostUser}>
-      <NewHostRequest
-        setIsRequestSuccess={jest.fn()}
-        setIsRequesting={jest.fn()}
-      />
+      <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
     </ProfileUserProvider>,
     { wrapper },
   );
@@ -87,7 +83,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("06052026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    fireEvent.change(textArea, { target: { value: LONG_TEXT } });
+    await user.click(textArea);
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -105,10 +102,7 @@ describe("NewHostRequest", () => {
     createHostRequestMock.mockResolvedValue(1);
     render(
       <ProfileUserProvider user={hostUser}>
-        <NewHostRequest
-          setIsRequestSuccess={jest.fn()}
-          setIsRequesting={jest.fn()}
-        />
+        <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },
     );
@@ -132,7 +126,8 @@ describe("NewHostRequest", () => {
     await user.keyboard("05282026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
-    fireEvent.change(textArea, { target: { value: LONG_TEXT } });
+    await user.click(textArea);
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
@@ -152,10 +147,7 @@ describe("NewHostRequest", () => {
     const hostBehindTimezone = { ...users[1], timezone: "America/Los_Angeles" };
     render(
       <ProfileUserProvider user={hostBehindTimezone}>
-        <NewHostRequest
-          setIsRequestSuccess={jest.fn()}
-          setIsRequesting={jest.fn()}
-        />
+        <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },
     );
@@ -176,13 +168,55 @@ describe("NewHostRequest", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("05302026");
 
-    fireEvent.change(screen.getByLabelText(t("profile:request_form.request")), {
-      target: { value: LONG_TEXT },
-    });
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
 
     await user.click(screen.getByRole("button", { name: t("global:send") }));
 
     await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("only sends one request when Send is tapped repeatedly before the response arrives", async () => {
+    // On a slow connection the user gets no feedback and keeps tapping; each tap used to create
+    // another host request.
+    createHostRequestMock.mockImplementation(() => new Promise<number>(() => {}));
+    renderNewHostRequest();
+
+    // a real finger keeps tapping a disabled button, so don't refuse taps over its
+    // `pointer-events: none`
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+      pointerEventsCheck: PointerEventsCheckLevel.Never,
+    });
+
+    const arrivalGroup = await screen.findByRole("group", {
+      name: t("profile:request_form.arrival_date"),
+    });
+    await user.click(arrivalGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06012026");
+
+    const departureGroup = screen.getByRole("group", {
+      name: t("profile:request_form.departure_date"),
+    });
+    await user.click(departureGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06052026");
+
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+
+    const send = screen.getByRole("button", { name: t("global:send") });
+    for (let tap = 0; tap < 6; tap++) {
+      await user.click(send);
+      // let the submit handler settle between taps, as it would between real taps
+      await act(async () => {
+        await Promise.resolve();
+      });
+    }
+
+    expect(createHostRequestMock).toHaveBeenCalledTimes(1);
+    expect(send).toBeDisabled();
   });
 });

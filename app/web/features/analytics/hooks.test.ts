@@ -28,11 +28,7 @@ describe("useLogEvent", () => {
       result.current("button.clicked", { id: "cta" }, 5);
     });
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "button.clicked",
-      { id: "cta" },
-      5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("button.clicked", { id: "cta" }, 5);
   });
 });
 
@@ -49,9 +45,7 @@ describe("useDurationEvent", () => {
   });
 
   it("logs duration in seconds when stop is called after start", () => {
-    const { result } = renderHook(() =>
-      useDurationEvent("page.time_spent", { path: "/" }),
-    );
+    const { result } = renderHook(() => useDurationEvent("page.time_spent", { path: "/" }));
 
     const [start, stop] = result.current;
 
@@ -66,11 +60,7 @@ describe("useDurationEvent", () => {
       stop();
     });
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "page.time_spent",
-      { path: "/" },
-      2.5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("page.time_spent", { path: "/" }, 2.5);
   });
 
   it("does nothing if stop is called without start", () => {
@@ -86,9 +76,7 @@ describe("useDurationEvent", () => {
   });
 
   it("merges extraProperties provided to stop()", () => {
-    const { result } = renderHook(() =>
-      useDurationEvent("form.completed", { form: "signup" }),
-    );
+    const { result } = renderHook(() => useDurationEvent("form.completed", { form: "signup" }));
 
     const [start, stop] = result.current;
 
@@ -102,18 +90,12 @@ describe("useDurationEvent", () => {
       stop({ success: true, fields_filled: 5 });
     });
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "form.completed",
-      { form: "signup", success: true, fields_filled: 5 },
-      5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("form.completed", { form: "signup", success: true, fields_filled: 5 }, 5);
   });
 
   it("returns stable callbacks — stop does not change when properties change", () => {
     let props = { path: "/a" };
-    const { result, rerender } = renderHook(() =>
-      useDurationEvent("nav.duration", props),
-    );
+    const { result, rerender } = renderHook(() => useDurationEvent("nav.duration", props));
 
     const [firstStart, firstStop] = result.current;
 
@@ -136,11 +118,7 @@ describe("useDurationEvent", () => {
       secondStop();
     });
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "nav.duration",
-      { path: "/b" },
-      1,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("nav.duration", { path: "/b" }, 1);
   });
 
   it("resets after stop so start/stop can be reused", () => {
@@ -197,9 +175,7 @@ describe("useImpressionRef", () => {
   });
 
   it("observes the element when the ref is attached", () => {
-    const { result } = renderHook(() =>
-      useImpressionRef("card.viewed", { card_id: "123" }),
-    );
+    const { result } = renderHook(() => useImpressionRef("card.viewed", { card_id: "123" }));
 
     const node = document.createElement("div");
     act(() => {
@@ -210,9 +186,7 @@ describe("useImpressionRef", () => {
   });
 
   it("fires the event once when the element becomes visible", () => {
-    const { result } = renderHook(() =>
-      useImpressionRef("card.viewed", { card_id: "123" }),
-    );
+    const { result } = renderHook(() => useImpressionRef("card.viewed", { card_id: "123" }));
 
     const node = document.createElement("div");
     act(() => {
@@ -221,10 +195,7 @@ describe("useImpressionRef", () => {
 
     // Simulate intersection
     act(() => {
-      lastCallback(
-        [{ isIntersecting: true } as IntersectionObserverEntry],
-        {} as IntersectionObserver,
-      );
+      lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
     });
 
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
@@ -244,10 +215,7 @@ describe("useImpressionRef", () => {
 
     // First intersection
     act(() => {
-      lastCallback(
-        [{ isIntersecting: true } as IntersectionObserverEntry],
-        {} as IntersectionObserver,
-      );
+      lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
     });
 
     // Reset disconnect mock and simulate re-attaching
@@ -269,9 +237,7 @@ describe("useImpressionRef", () => {
     const node = document.createElement("div");
 
     // We need to get the callbackRef from the hook result
-    const { result } = renderHook(() =>
-      useImpressionRef("hero.viewed", {}, { threshold: 0.8 }),
-    );
+    const { result } = renderHook(() => useImpressionRef("hero.viewed", {}, { threshold: 0.8 }));
 
     act(() => {
       result.current(node);
@@ -284,9 +250,7 @@ describe("useImpressionRef", () => {
 
   it("returns a stable callback ref when properties change", () => {
     let props = { card_id: "1" };
-    const { result, rerender } = renderHook(() =>
-      useImpressionRef("card.viewed", props),
-    );
+    const { result, rerender } = renderHook(() => useImpressionRef("card.viewed", props));
 
     const firstRef = result.current;
 
@@ -299,9 +263,7 @@ describe("useImpressionRef", () => {
 
   it("uses latest properties from ref when firing", () => {
     let props = { card_id: "1" };
-    const { result, rerender } = renderHook(() =>
-      useImpressionRef("card.viewed", props),
-    );
+    const { result, rerender } = renderHook(() => useImpressionRef("card.viewed", props));
 
     const node = document.createElement("div");
     act(() => {
@@ -314,10 +276,7 @@ describe("useImpressionRef", () => {
 
     // Simulate intersection
     act(() => {
-      lastCallback(
-        [{ isIntersecting: true } as IntersectionObserverEntry],
-        {} as IntersectionObserver,
-      );
+      lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
     });
 
     // Should use the latest properties
@@ -325,9 +284,7 @@ describe("useImpressionRef", () => {
   });
 
   it("disconnects on unmount", () => {
-    const { result, unmount } = renderHook(() =>
-      useImpressionRef("card.viewed"),
-    );
+    const { result, unmount } = renderHook(() => useImpressionRef("card.viewed"));
 
     const node = document.createElement("div");
     act(() => {
@@ -347,10 +304,7 @@ describe("useImpressionRef", () => {
     });
 
     act(() => {
-      lastCallback(
-        [{ isIntersecting: false } as IntersectionObserverEntry],
-        {} as IntersectionObserver,
-      );
+      lastCallback([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
     });
 
     expect(mockLogEvent).not.toHaveBeenCalled();
@@ -366,13 +320,7 @@ describe("useImpressionRef", () => {
     });
 
     it("fires after the element is continuously visible for the duration", () => {
-      const { result } = renderHook(() =>
-        useImpressionRef(
-          "card.viewed",
-          { card_id: "1" },
-          { minDurationMs: 250 },
-        ),
-      );
+      const { result } = renderHook(() => useImpressionRef("card.viewed", { card_id: "1" }, { minDurationMs: 250 }));
 
       const node = document.createElement("div");
       act(() => {
@@ -380,10 +328,7 @@ describe("useImpressionRef", () => {
       });
 
       act(() => {
-        lastCallback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
 
       expect(mockLogEvent).not.toHaveBeenCalled();
@@ -400,9 +345,7 @@ describe("useImpressionRef", () => {
     });
 
     it("does not fire if the element leaves before the duration elapses", () => {
-      const { result } = renderHook(() =>
-        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
-      );
+      const { result } = renderHook(() => useImpressionRef("card.viewed", {}, { minDurationMs: 250 }));
 
       const node = document.createElement("div");
       act(() => {
@@ -410,10 +353,7 @@ describe("useImpressionRef", () => {
       });
 
       act(() => {
-        lastCallback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
 
       act(() => {
@@ -421,10 +361,7 @@ describe("useImpressionRef", () => {
       });
 
       act(() => {
-        lastCallback(
-          [{ isIntersecting: false } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
 
       act(() => {
@@ -435,9 +372,7 @@ describe("useImpressionRef", () => {
     });
 
     it("restarts the timer when the element re-enters after leaving", () => {
-      const { result } = renderHook(() =>
-        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
-      );
+      const { result } = renderHook(() => useImpressionRef("card.viewed", {}, { minDurationMs: 250 }));
 
       const node = document.createElement("div");
       act(() => {
@@ -445,27 +380,18 @@ describe("useImpressionRef", () => {
       });
 
       act(() => {
-        lastCallback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
       act(() => {
         jest.advanceTimersByTime(100);
       });
       act(() => {
-        lastCallback(
-          [{ isIntersecting: false } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
 
       // Re-enter — timer should restart from zero
       act(() => {
-        lastCallback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
       act(() => {
         jest.advanceTimersByTime(249);
@@ -479,19 +405,14 @@ describe("useImpressionRef", () => {
     });
 
     it("clears the pending timer on unmount", () => {
-      const { result, unmount } = renderHook(() =>
-        useImpressionRef("card.viewed", {}, { minDurationMs: 250 }),
-      );
+      const { result, unmount } = renderHook(() => useImpressionRef("card.viewed", {}, { minDurationMs: 250 }));
 
       const node = document.createElement("div");
       act(() => {
         result.current(node);
       });
       act(() => {
-        lastCallback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        );
+        lastCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
       });
 
       unmount();

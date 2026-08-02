@@ -1,17 +1,5 @@
-import {
-  alpha,
-  ButtonBase,
-  Checkbox,
-  IconButton,
-  InputBase,
-  Paper,
-  Popper,
-  styled,
-  Typography,
-} from "@mui/material";
-import Autocomplete, {
-  AutocompleteCloseReason,
-} from "@mui/material/Autocomplete";
+import { alpha, ButtonBase, Checkbox, IconButton, InputBase, Paper, Popper, styled, Typography } from "@mui/material";
+import Autocomplete, { AutocompleteCloseReason } from "@mui/material/Autocomplete";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -175,10 +163,7 @@ export default function ProfileTagInput({
     setOpen(true);
   };
 
-  const handleClose = (
-    _: React.ChangeEvent<unknown>,
-    reason: AutocompleteCloseReason,
-  ) => {
+  const handleClose = (_: React.ChangeEvent<unknown>, reason: AutocompleteCloseReason) => {
     if (reason === "toggleInput") {
       return;
     }
@@ -197,12 +182,7 @@ export default function ProfileTagInput({
 
   return (
     <>
-      <StyledButtonBase
-        aria-describedby={popperId}
-        onClick={handleClick}
-        ref={anchorEl}
-        className={className}
-      >
+      <StyledButtonBase aria-describedby={popperId} onClick={handleClick} ref={anchorEl} className={className}>
         <Typography variant="body1">{label}</Typography>
         <ExpandMoreIcon />
       </StyledButtonBase>
@@ -235,12 +215,7 @@ export default function ProfileTagInput({
         })}
       </StyledTagsContainer>
       {open && anchorEl.current && (
-        <StyledPopper
-          id={popperId}
-          open={open}
-          anchorEl={anchorEl.current}
-          placement="bottom-start"
-        >
+        <StyledPopper id={popperId} open={open} anchorEl={anchorEl.current} placement="bottom-start">
           <Autocomplete<ProfileTagOption, true>
             {...inputFieldProps}
             open
@@ -250,9 +225,7 @@ export default function ProfileTagInput({
               if (Array.isArray(newValue) && newValue.length) {
                 // For some reason I came across situations when there were undefined values in this array.
                 newValue = newValue.filter((element) => element !== undefined);
-                setPendingValue(
-                  Array.from(new Set(newValue.map((o) => o.key))),
-                );
+                setPendingValue(Array.from(new Set(newValue.map((o) => o.key))));
               } else {
                 setPendingValue([]);
               }
@@ -264,11 +237,7 @@ export default function ProfileTagInput({
             isOptionEqualToValue={(option, val) => option.key === val.key}
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
-              <StyledInputBase
-                ref={params.InputProps.ref}
-                inputProps={params.inputProps}
-                autoFocus
-              />
+              <StyledInputBase ref={params.slotProps.input.ref} inputProps={params.slotProps.htmlInput} autoFocus />
             )}
             disableCloseOnSelect
             disablePortal
@@ -280,11 +249,7 @@ export default function ProfileTagInput({
 
               return (
                 <StyledAutocompleteOption key={key} {...rest}>
-                  <StyledCheckbox
-                    color="primary"
-                    size="small"
-                    checked={selected}
-                  />
+                  <StyledCheckbox color="primary" size="small" checked={selected} />
 
                   {option.label}
                 </StyledAutocompleteOption>

@@ -2,13 +2,7 @@ import { DialogProps } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import { eventKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -17,10 +11,7 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { service } from "service";
 
-export default function CancelEventDialog({
-  eventId,
-  ...props
-}: DialogProps & { eventId: number }) {
+export default function CancelEventDialog({ eventId, ...props }: DialogProps & { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const cancelEventMutation = useMutation<Empty, RpcError, void>({
@@ -37,31 +28,20 @@ export default function CancelEventDialog({
 
   return (
     <Dialog {...props} aria-labelledby="cancel-event-dialog-title">
-      <DialogTitle id="cancel-event-dialog-title">
-        {t("communities:cancel_event_dialog.title")}
-      </DialogTitle>
+      <DialogTitle id="cancel-event-dialog-title">{t("communities:cancel_event_dialog.title")}</DialogTitle>
       <DialogContent>
-        {cancelEventMutation.error && (
-          <Alert severity="error">{cancelEventMutation.error?.message}</Alert>
-        )}
-        <DialogContentText>
-          {t("communities:cancel_event_dialog.message")}
-        </DialogContentText>
+        {cancelEventMutation.error && <Alert severity="error">{cancelEventMutation.error?.message}</Alert>}
+        <DialogContentText>{t("communities:cancel_event_dialog.message")}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
           variant="outlined"
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => (props.onClose ? props.onClose({}, "escapeKeyDown") : null)}
           loading={cancelEventMutation.isPending}
         >
           {t("global:no")}
         </Button>
-        <Button
-          onClick={handleCancelEvent}
-          loading={cancelEventMutation.isPending}
-        >
+        <Button onClick={handleCancelEvent} loading={cancelEventMutation.isPending}>
           {t("global:yes")}
         </Button>
       </DialogActions>

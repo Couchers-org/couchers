@@ -118,9 +118,7 @@ export default function Donations() {
         <StyledLogoWrapper>
           <StyledLogo />
           <StyledLogoText>
-            <Typography variant="h2">
-              {t("donations:donations_banner.title")}
-            </Typography>
+            <Typography variant="h2">{t("donations:donations_banner.title")}</Typography>
             <Typography>{t("donations:donations_banner.body")}</Typography>
           </StyledLogoText>
         </StyledLogoWrapper>
@@ -137,13 +135,7 @@ export default function Donations() {
               <Trans
                 i18nKey="donations:donations_info"
                 components={{
-                  1: (
-                    <Link
-                      key={"foundation-route-link"}
-                      href={foundationRoute}
-                      underline="hover"
-                    />
-                  ),
+                  1: <Link key={"foundation-route-link"} href={foundationRoute} underline="hover" />,
                 }}
                 values={{ legal_name: t("global:legal_name") }}
               />
@@ -153,13 +145,7 @@ export default function Donations() {
                 t={t}
                 i18nKey="donations:benefactor_contact"
                 components={{
-                  1: (
-                    <Link
-                      key="benefactor-email-link"
-                      href={`mailto:${BENEFACTOR_EMAIL}`}
-                      underline="hover"
-                    />
-                  ),
+                  1: <Link key="benefactor-email-link" href={`mailto:${BENEFACTOR_EMAIL}`} underline="hover" />,
                 }}
                 values={{ email: BENEFACTOR_EMAIL }}
               />
@@ -171,9 +157,7 @@ export default function Donations() {
           <Markdown source={t("donations:donations_text")} />
         </StyledPrimarySection>
         <StyledSecondarySection>
-          <Typography variant="h2">
-            {t("donations:donations_title2")}
-          </Typography>
+          <Typography variant="h2">{t("donations:donations_title2")}</Typography>
           <Markdown source={t("donations:donations_text2")} />
           <Typography variant="body1">
             <Link href={latestFinancialsURL} underline="hover">

@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import Any, cast
 from zoneinfo import ZoneInfo
@@ -8,8 +9,8 @@ from geoalchemy2 import WKBElement
 from google.protobuf import empty_pb2
 from psycopg.types.range import TimestamptzRange
 from sqlalchemy import Select, func, select
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, func, or_, update
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.sql import and_, func, or_, tuple_, update
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
@@ -44,14 +45,19 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    users_visible,
+    users_visible_to_each_other,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     datetime_to_iso8601_local,
-    dt_from_millis,
-    millis_from_dt,
+    dt_id_from_page_token,
+    dt_id_to_page_token,
     not_none,
     now,
 )
@@ -290,6 +296,37 @@ def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, co
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_far_in_future")
 
 
+def apply_occurrence_pagination(
+    query: Select[tuple[EventOccurrence]], page_token: str, past: bool
+) -> Select[tuple[EventOccurrence]]:
+    """
+    Restricts to upcoming (not yet ended) or past occurrences, orders by start time (with id as
+    tiebreaker), and seeks to the (start_time, id) cursor from the page token, if given.
+    """
+    if not past:
+        query = query.where(EventOccurrence.end_time > now()).order_by(
+            EventOccurrence.start_time.asc(), EventOccurrence.id.asc()
+        )
+        if page_token:
+            start_time, occurrence_id = dt_id_from_page_token(page_token)
+            query = query.where(tuple_(EventOccurrence.start_time, EventOccurrence.id) >= (start_time, occurrence_id))
+    else:
+        query = query.where(EventOccurrence.end_time < now()).order_by(
+            EventOccurrence.start_time.desc(), EventOccurrence.id.desc()
+        )
+        if page_token:
+            start_time, occurrence_id = dt_id_from_page_token(page_token)
+            query = query.where(tuple_(EventOccurrence.start_time, EventOccurrence.id) <= (start_time, occurrence_id))
+    return query
+
+
+def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_size: int) -> str | None:
+    if len(occurrences) <= page_size:
+        return None
+    next_occurrence = occurrences[page_size]
+    return dt_id_to_page_token(next_occurrence.start_time, next_occurrence.id)
+
+
 def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurrence) -> tuple[list[User], int | None]:
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
@@ -302,18 +339,32 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     )
 
     cluster = occurrence.event.parent_node.official_cluster
+    creator = aliased(User)
     if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
         logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible).where(not_already_involved)), occurrence.event.parent_node_id
+        members = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
+                .where(not_already_involved)
+            )
+            .scalars()
+            .all()
+        )
+        return list(members), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where(User.is_visible)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
                 .where(not_already_involved)
@@ -335,7 +386,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
 
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
-        creator = occurrence.creator_user
 
         users, node_id = get_users_to_notify_for_new_event(session, occurrence)
 
@@ -346,8 +396,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             return
 
         for user in users:
-            if is_not_visible(session, user.id, creator.id):
-                continue
             context = make_notification_user_context(user_id=user.id)
             topic_action = (
                 NotificationTopicAction.event__create_approved
@@ -888,8 +936,6 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListEventOccurrencesReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListEventOccurrencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
         initial_query = (
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         )
@@ -910,19 +956,14 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return events_pb2.ListEventOccurrencesRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def ListEventAttendees(
@@ -1158,10 +1199,8 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListMyEventsReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListMyEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
+        # the page token is ignored when a page number is given
+        page_token = request.page_token if not request.page_number else ""
         # the page number is the page number we are on
         page_number = request.page_number or 1
         # Calculate the offset for pagination
@@ -1236,12 +1275,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, page_token, request.past)
         # Count the total number of items for pagination
         total_items = session.execute(select(func.count()).select_from(query.subquery())).scalar()
         # Apply pagination by page number
@@ -1250,7 +1284,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return events_pb2.ListMyEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
             total_items=total_items,
         )
 
@@ -1258,8 +1292,6 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListAllEventsReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListAllEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
         query = select(EventOccurrence).where(~EventOccurrence.is_deleted)
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
@@ -1267,19 +1299,14 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return events_pb2.ListAllEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def InviteEventOrganizer(

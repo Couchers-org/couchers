@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -15,13 +9,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 
-const MOTIVATION_OPTIONS = [
-  "surfing",
-  "hosting",
-  "events",
-  "community_organizing",
-  "something_else",
-] as const;
+const MOTIVATION_OPTIONS = ["surfing", "hosting", "events", "community_organizing", "something_else"] as const;
 
 type MotivationKey = (typeof MOTIVATION_OPTIONS)[number];
 
@@ -52,10 +40,7 @@ export default function MotivationsForm() {
   const mutation = useMutation<void, RpcError, MotivationsFormInputs>({
     mutationFn: async (data) => {
       const selectedMotivations = MOTIVATION_OPTIONS.filter((key) => data[key]);
-      const state = await service.auth.signupFlowMotivations(
-        authState.flowState!.flowToken,
-        selectedMotivations,
-      );
+      const state = await service.auth.signupFlowMotivations(authState.flowState!.flowToken, selectedMotivations);
       authActions.updateSignupState(state);
     },
     onMutate() {
@@ -72,9 +57,7 @@ export default function MotivationsForm() {
 
   return (
     <>
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message || ""}</Alert>
-      )}
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <StyledForm onSubmit={submit}>
         {MOTIVATION_OPTIONS.map((key) => (
           <Controller
@@ -83,19 +66,23 @@ export default function MotivationsForm() {
             control={control}
             render={({ field }) => (
               <StyledFormControlLabel
-                control={
-                  <Checkbox
-                    checked={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  />
-                }
+                control={<Checkbox checked={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
                 label={
                   <Box>
-                    <Typography variant="body1" fontWeight="bold">
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
                       {t(`auth:motivations_form.${key}`)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {t(`auth:motivations_form.${key}_description`)}
                     </Typography>
                   </Box>
@@ -104,12 +91,7 @@ export default function MotivationsForm() {
             )}
           />
         ))}
-        <StyledButton
-          onClick={submit}
-          type="submit"
-          loading={authState.loading || mutation.isPending}
-          fullWidth
-        >
+        <StyledButton onClick={submit} type="submit" loading={authState.loading || mutation.isPending} fullWidth>
           {t("global:continue")}
         </StyledButton>
       </StyledForm>

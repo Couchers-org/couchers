@@ -3,11 +3,12 @@ import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
+import { localizeYearMonth } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { LiteUser } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
-import { localizeYearMonth, timestampToPlainDateTime } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
 
@@ -41,11 +42,7 @@ const StyledReferencesBodyContainer = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-export default function ReferenceListItem({
-  isReceived,
-  user,
-  reference,
-}: ReferenceListItemProps) {
+export default function ReferenceListItem({ isReceived, user, reference }: ReferenceListItemProps) {
   const {
     t,
     i18n: { language: locale },
@@ -56,21 +53,13 @@ export default function ReferenceListItem({
       <UserSummary user={user} />
       <StyledReferencesBodyContainer>
         <StyledBadgesContainer>
-          {isReceived && (
-            <Pill variant="rounded">
-              {referenceBadgeLabel(t)[reference.referenceType]}
-            </Pill>
-          )}
+          {isReceived && <Pill variant="rounded">{referenceBadgeLabel(t)[reference.referenceType]}</Pill>}
           {reference.writtenTime && (
             <Pill variant="rounded">
-              {localizeYearMonth(
-                timestampToPlainDateTime(reference.writtenTime).toPlainDate(),
-                {
-                  locale,
-                  abbreviate: true,
-                  capitalize: true,
-                },
-              )}
+              {localizeYearMonth(timestampToPlainDateTime(reference.writtenTime), locale, {
+                abbreviate: true,
+                capitalize: true,
+              })}
             </Pill>
           )}
         </StyledBadgesContainer>

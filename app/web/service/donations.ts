@@ -3,11 +3,7 @@ import { InitiateDonationReq } from "proto/donations_pb";
 
 import client from "./client";
 
-export async function initiateDonation(
-  amount: number,
-  recurring: boolean,
-  source?: string,
-) {
+export async function initiateDonation(amount: number, recurring: boolean, source?: string) {
   const req = new InitiateDonationReq();
 
   req.setAmount(amount);

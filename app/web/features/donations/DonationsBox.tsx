@@ -13,10 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import {
-  DONATIONS_BOX_CURRENCY,
-  DONATIONS_BOX_VALUES,
-} from "features/donations/constants";
+import { DONATIONS_BOX_CURRENCY, DONATIONS_BOX_VALUES } from "features/donations/constants";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
@@ -49,9 +46,9 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
   marginBottom: theme.spacing(2),
 }));
 
-const RadioFormControlLabel = (
-  props: Omit<FormControlLabelProps, "control">,
-) => <FormControlLabel {...props} control={<Radio />} />;
+const RadioFormControlLabel = (props: Omit<FormControlLabelProps, "control">) => (
+  <FormControlLabel {...props} control={<Radio />} />
+);
 
 const StyledLabelledRadioButton = styled(RadioFormControlLabel)(() => ({
   boxShadow: "initial",
@@ -119,9 +116,7 @@ const StyledAmountButton = styled("button", {
   alignItems: "center",
   border: `2px solid ${isActive ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-200)"}`,
   borderRadius: "0.5rem",
-  backgroundColor: isActive
-    ? "var(--mui-palette-background-paper)"
-    : "var(--mui-palette-grey-200)",
+  backgroundColor: isActive ? "var(--mui-palette-background-paper)" : "var(--mui-palette-grey-200)",
   margin: "initial",
   height: "100%",
   width: "100%",
@@ -178,10 +173,7 @@ function AmountGrid(props: PropsWithChildren) {
     .fill(0)
     .map((_, index) => (
       <StyledAmountSubGrid key={index}>
-        {children.slice(
-          index * SUB_GRID_ITEM_AMOUNT,
-          (index + 1) * SUB_GRID_ITEM_AMOUNT,
-        )}
+        {children.slice(index * SUB_GRID_ITEM_AMOUNT, (index + 1) * SUB_GRID_ITEM_AMOUNT)}
       </StyledAmountSubGrid>
     ));
 
@@ -256,11 +248,7 @@ export default function DonationsBox() {
       }
       const source = router.query.utm_source as string;
 
-      const sessionUrl = await service.donations.initiateDonation(
-        amount,
-        recurring === "monthly",
-        source,
-      );
+      const sessionUrl = await service.donations.initiateDonation(amount, recurring === "monthly", source);
 
       // Redirect to Stripe Checkout
       window.location.href = sessionUrl;
@@ -276,13 +264,7 @@ export default function DonationsBox() {
   });
 
   const handleDonationAmountClick =
-    ({
-      amount,
-      onChange,
-    }: {
-      amount: number;
-      onChange: (...event: unknown[]) => void;
-    }) =>
+    ({ amount, onChange }: { amount: number; onChange: (...event: unknown[]) => void }) =>
     () => {
       if (customAmountInput.current) customAmountInput.current.value = "";
       onChange(amount);
@@ -299,16 +281,8 @@ export default function DonationsBox() {
   return (
     <StyledForm onSubmit={onSubmit}>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {success && (
-        <Alert severity="success">
-          {t("donations_box.alert.success_message")}
-        </Alert>
-      )}
-      {cancelled && (
-        <Alert severity="warning">
-          {t("donations_box.alert.warning_message")}
-        </Alert>
-      )}
+      {success && <Alert severity="success">{t("donations_box.alert.success_message")}</Alert>}
+      {cancelled && <Alert severity="warning">{t("donations_box.alert.warning_message")}</Alert>}
       <Typography variant="h3">{t("donations_box.title")}</Typography>
       <Controller
         control={control}
@@ -327,18 +301,10 @@ export default function DonationsBox() {
               onChange={(_, value) => field.onChange(value)}
               value={field.value}
             >
-              <StyledLabelledRadioButton
-                value="monthly"
-                label={t("donations_box.monthly_button_label")}
-              />
-              <StyledLabelledRadioButton
-                value="one-time"
-                label={t("donations_box.one_time_button_label")}
-              />
+              <StyledLabelledRadioButton value="monthly" label={t("donations_box.monthly_button_label")} />
+              <StyledLabelledRadioButton value="one-time" label={t("donations_box.one_time_button_label")} />
             </StyledRadioGroup>
-            <FormHelperText error={!!errors?.recurring?.message}>
-              {errors?.recurring?.message}
-            </FormHelperText>
+            <FormHelperText error={!!errors?.recurring?.message}>{errors?.recurring?.message}</FormHelperText>
           </StyledFormGroup>
         )}
       />
@@ -378,9 +344,7 @@ export default function DonationsBox() {
                   min="1"
                   onChange={(e) => {
                     field.onChange(
-                      typeof e.target.valueAsNumber === "number"
-                        ? e.target.valueAsNumber
-                        : DONATIONS_BOX_VALUES[0],
+                      typeof e.target.valueAsNumber === "number" ? e.target.valueAsNumber : DONATIONS_BOX_VALUES[0],
                     );
                     setIsPredefinedAmount(false);
                   }}

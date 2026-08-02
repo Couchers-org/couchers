@@ -16,12 +16,7 @@ describe("UserSummary", () => {
     const menuOptionFunc = jest.fn();
 
     render(
-      <UserSummary
-        user={users[0]}
-        menuItems={[
-          { icon: Add, label: menuOptionText, onClick: menuOptionFunc },
-        ]}
-      />,
+      <UserSummary user={users[0]} menuItems={[{ icon: Add, label: menuOptionText, onClick: menuOptionFunc }]} />,
       { wrapper },
     );
 

@@ -128,5 +128,6 @@
     "count_references_one": "{{count}} referans",
     "count_references_other": "{{count}} referans"
   },
-  "do_not_email_error_link": "Bunu yeniden etkinleştirmek için e-posta ayarlarınızı güncelleyin."
+  "do_not_email_error_link": "Bunu yeniden etkinleştirmek için e-posta ayarlarınızı güncelleyin.",
+  "hobbies_textbox_placeholder": "örn. Aktiviteler, kitaplar, filmler, müzik..."
 }

@@ -8,9 +8,7 @@ if (!cluster.isPrimary) {
 } else {
   let shuttingDown = false;
 
-  console.log(
-    `[cluster] primary ${process.pid} starting ${WEB_WORKER_COUNT} worker(s)`,
-  );
+  console.log(`[cluster] primary ${process.pid} starting ${WEB_WORKER_COUNT} worker(s)`);
   for (let i = 0; i < WEB_WORKER_COUNT; i++) {
     cluster.fork();
   }

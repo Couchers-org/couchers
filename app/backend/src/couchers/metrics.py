@@ -1,6 +1,6 @@
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Any, cast
@@ -17,9 +17,10 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
-from sqlalchemy import Engine, and_, case, select
+from sqlalchemy import Engine, and_, select
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import distinct, func
+from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import Select
 
 from couchers import experimentation
@@ -51,6 +52,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.models.uploads import PhotoGalleryItem
 from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
@@ -359,15 +361,11 @@ def _make_labeled_gauge_from_query(
     description: str,
     labelname: str,
     statement: Select[Any],
-    default_label_values: list[str] | None = None,
 ) -> Gauge:
     """
     Given a name, description, label name and statement, creates a gauge with one label set from the statement.
 
     statement should be a sqlalchemy SELECT statement that returns rows of (label_value, count).
-
-    default_label_values, if given, are seeded to zero before the query results are applied, so that label
-    values with no matching rows are still emitted.
     """
 
     gauge = Gauge(name, description, labelnames=[labelname], multiprocess_mode="mostrecent")
@@ -376,13 +374,54 @@ def _make_labeled_gauge_from_query(
         with tracer.start_as_current_span(f"metric.{name}"):
             with session_scope() as session:
                 rows = session.execute(statement).all()
-        for label_value in default_label_values or []:
-            g.labels(label_value).set(0)
         for label_value, count in rows:
             g.labels(str(label_value)).set(count)
 
     _set_hacky_labeled_gauges_funcs.append((gauge, f))
     return gauge
+
+
+# list of functions that each run one query and populate several gauges from the single result row
+_set_hacky_multi_gauges_funcs: list[Callable[[], None]] = []
+
+
+def _make_gauges_from_single_pass(
+    span_name: str,
+    make_statement: Callable[[list[Any]], Select[Any]],
+    specs: Sequence[tuple[str, str, ColumnElement[bool] | None]],
+    labeled_specs: Sequence[tuple[Gauge, str, ColumnElement[bool]]] = (),
+) -> list[Gauge]:
+    """
+    Creates a gauge per spec, plus label values on already-created labeled gauges, all from one pass over the table.
+
+    Each spec is (name, description, condition) and counts the rows matching that condition, or every row if it is
+    None; each labeled spec is (gauge, label value, condition). make_statement is handed the count columns and
+    returns the statement to run them in, so the caller owns the FROM and any joins.
+
+    Counting with count(*) FILTER in a single statement rather than one statement per gauge is the whole point: as
+    separate queries these were a full sequential scan of the table each, on every scrape.
+    """
+    conditions = [condition for _, _, condition in specs] + [condition for _, _, condition in labeled_specs]
+    keys = [f"c{i}" for i in range(len(conditions))]
+    statement = make_statement(
+        [
+            (func.count() if condition is None else func.count().filter(condition)).label(key)
+            for key, condition in zip(keys, conditions)
+        ]
+    )
+    gauges = [Gauge(name, description, multiprocess_mode="mostrecent") for name, description, _ in specs]
+
+    def f() -> None:
+        with tracer.start_as_current_span(f"metric.{span_name}"):
+            with session_scope() as session:
+                row = session.execute(statement).one()._mapping
+        for gauge, key in zip(gauges, keys):
+            gauge.set(row[key])
+        for (labeled_gauge, label_value, _), labeled_key in zip(labeled_specs, keys[len(specs) :]):
+            labeled_gauge.labels(label_value).set(row[labeled_key])
+
+    _set_hacky_multi_gauges_funcs.append(f)
+    return gauges
 
 
 _active_user_periods: list[tuple[str, str, timedelta]] = [
@@ -394,18 +433,102 @@ _active_user_periods: list[tuple[str, str, timedelta]] = [
     ("12month", "12 months", timedelta(days=365)),
 ]
 
-active_users_gauges: list[Gauge] = [
-    _make_gauge_from_query(
-        f"couchers_active_users_{name}",
-        f"Number of active users in the last {description}",
-        (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
-    )
-    for name, description, interval in _active_user_periods
+# Number of users bucketed by how recently they were last active. Ordered upper bounds, made mutually exclusive by
+# _active_users_bucket_specs so every bucket can be counted in the same pass.
+_active_users_buckets: list[tuple[str, timedelta | None]] = [
+    ("<1d", timedelta(days=1)),
+    ("1d-1w", timedelta(days=7)),
+    ("1w-1m", timedelta(weeks=4)),
+    ("1m-6m", timedelta(weeks=26)),
+    ("6m-12m", timedelta(days=365)),
+    ("12m-24m", timedelta(days=730)),
+    ("24m+", None),
 ]
+_active_users_age = func.now() - User.last_active
 
-users_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users", "Total number of users", select(func.count()).select_from(User).where(User.is_visible)
+active_users_by_recency_gauge: Gauge = Gauge(
+    "couchers_active_users_by_recency",
+    "Number of users bucketed by how recently they were last active",
+    labelnames=["period"],
+    multiprocess_mode="mostrecent",
 )
+
+
+def _active_users_bucket_specs() -> list[tuple[Gauge, str, ColumnElement[bool]]]:
+    specs = []
+    lower: timedelta | None = None
+    for label, upper in _active_users_buckets:
+        bounds = []
+        if lower is not None:
+            bounds.append(_active_users_age >= lower)
+        if upper is not None:
+            bounds.append(_active_users_age < upper)
+        specs.append((active_users_by_recency_gauge, label, and_(*bounds)))
+        lower = upper
+    return specs
+
+
+def _make_users_gauges() -> list[Gauge]:
+    # Galleries holding at least one photo, outer joined below so the avatar check in the completed profile spec is a
+    # hash join rather than a subplan run once per user inside the FILTER clause.
+    galleries_with_photos = select(PhotoGalleryItem.gallery_id).distinct().subquery("galleries_with_photos")
+
+    specs: list[tuple[str, str, ColumnElement[bool] | None]] = [
+        ("couchers_users", "Total number of users", None),
+        *[
+            (
+                f"couchers_active_users_{name}",
+                f"Number of active users in the last {description}",
+                _active_users_age < interval,
+            )
+            for name, description, interval in _active_user_periods
+        ],
+        ("couchers_users_man", "Total number of users with gender 'Man'", User.gender == "Man"),
+        ("couchers_users_woman", "Total number of users with gender 'Woman'", User.gender == "Woman"),
+        ("couchers_users_nonbinary", "Total number of users with gender 'Non-binary'", User.gender == "Non-binary"),
+        (
+            "couchers_users_can_host",
+            "Total number of users with hosting status 'can_host'",
+            User.hosting_status == HostingStatus.can_host,
+        ),
+        (
+            "couchers_users_cant_host",
+            "Total number of users with hosting status 'cant_host'",
+            User.hosting_status == HostingStatus.cant_host,
+        ),
+        (
+            "couchers_users_maybe",
+            "Total number of users with hosting status 'maybe'",
+            User.hosting_status == HostingStatus.maybe,
+        ),
+        (
+            "couchers_users_completed_profile",
+            "Total number of users with a completed profile",
+            has_completed_profile_expression(galleries_with_photos),
+        ),
+        (
+            "couchers_users_completed_my_home",
+            "Total number of users with a completed my home section",
+            cast(ColumnElement[bool], User.has_completed_my_home),
+        ),
+    ]
+
+    return _make_gauges_from_single_pass(
+        "couchers_users",
+        lambda columns: (
+            select(*columns)
+            .select_from(User)
+            .outerjoin(galleries_with_photos, galleries_with_photos.c.gallery_id == User.profile_gallery_id)
+            .where(User.is_visible)
+        ),
+        specs,
+        _active_users_bucket_specs(),
+    )
+
+
+# Each of these was its own SELECT count(*) FROM users, which added up to roughly sixteen full scans of the table on
+# every scrape and dominated all sequential tuple reads in the database.
+users_gauges: list[Gauge] = _make_users_gauges()
 
 # Number of users per community, labeled by community name. Only includes communities at the region level or
 # broader (world, macroregion, region).
@@ -420,36 +543,6 @@ users_per_community_gauge: Gauge = _make_labeled_gauge_from_query(
         .outerjoin(ClusterSubscriptionCount, ClusterSubscriptionCount.cluster_id == Cluster.id)
         .where(Node.node_type <= NodeType.region)
     ),
-)
-
-# Number of users bucketed by how recently they were last active.
-_active_users_buckets: list[tuple[str, timedelta | None]] = [
-    ("<1d", timedelta(days=1)),
-    ("1d-1w", timedelta(days=7)),
-    ("1w-1m", timedelta(weeks=4)),
-    ("1m-6m", timedelta(weeks=26)),
-    ("6m-12m", timedelta(days=365)),
-    ("12m-24m", timedelta(days=730)),
-    ("24m+", None),
-]
-_active_users_age = func.now() - User.last_active
-active_users_by_recency_gauge: Gauge = _make_labeled_gauge_from_query(
-    "couchers_active_users_by_recency",
-    "Number of users bucketed by how recently they were last active",
-    "period",
-    (
-        select(
-            case(
-                *[(_active_users_age < interval, label) for label, interval in _active_users_buckets if interval],
-                else_=_active_users_buckets[-1][0],
-            ).label("period"),
-            func.count(),
-        )
-        .select_from(User)
-        .where(User.is_visible)
-        .group_by("period")
-    ),
-    default_label_values=[label for label, _ in _active_users_buckets],
 )
 
 # Window for the per-platform daily-active-user metrics. Kept to 24h so the user_activity scan stays cheap (an index
@@ -508,54 +601,6 @@ def _set_active_users_by_platform(gauge: Gauge) -> None:
 
 
 _set_hacky_labeled_gauges_funcs.append((active_users_by_platform_gauge, _set_active_users_by_platform))
-
-man_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_man",
-    "Total number of users with gender 'Man'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Man"),
-)
-
-woman_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_woman",
-    "Total number of users with gender 'Woman'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Woman"),
-)
-
-nonbinary_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_nonbinary",
-    "Total number of users with gender 'Non-binary'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Non-binary"),
-)
-
-can_host_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_can_host",
-    "Total number of users with hosting status 'can_host'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.can_host),
-)
-
-cant_host_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_cant_host",
-    "Total number of users with hosting status 'cant_host'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.cant_host),
-)
-
-maybe_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_maybe",
-    "Total number of users with hosting status 'maybe'",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.maybe),
-)
-
-completed_profile_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_completed_profile",
-    "Total number of users with a completed profile",
-    select(func.count()).select_from(User).where(User.is_visible).where(has_completed_profile_expression()),
-)
-
-completed_my_home_gauge: Gauge = _make_gauge_from_query(
-    "couchers_users_completed_my_home",
-    "Total number of users with a completed my home section",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_my_home),
-)
 
 sent_message_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_message",
@@ -1150,6 +1195,8 @@ def create_prometheus_server(port: int) -> Any:
             gauge.set(f())
         for gauge, labeled_f in _set_hacky_labeled_gauges_funcs:
             labeled_f(gauge)
+        for multi_f in _set_hacky_multi_gauges_funcs:
+            multi_f()
 
         data = generate_latest(registry)
         start_response("200 OK", [("Content-type", CONTENT_TYPE_LATEST), ("Content-Length", str(len(data)))])

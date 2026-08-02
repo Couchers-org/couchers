@@ -1,14 +1,7 @@
 import NfcIcon from "@mui/icons-material/Nfc";
 import PhonelinkSetupIcon from "@mui/icons-material/PhonelinkSetup";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import {
-  Box,
-  Container,
-  Divider,
-  List,
-  ListItem,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Divider, List, ListItem, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -77,14 +70,8 @@ export default function StrongVerificationInstructions() {
               marginBottom: theme.spacing(1),
             }}
           >
-            <PhonelinkSetupIcon
-              sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }}
-            />
-            <Typography variant="h3">
-              {t(
-                "auth:strong_verification.instructions.before_you_start.heading",
-              )}
-            </Typography>
+            <PhonelinkSetupIcon sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }} />
+            <Typography variant="h3">{t("auth:strong_verification.instructions.before_you_start.heading")}</Typography>
           </Box>
           <Box
             component="ul"
@@ -107,10 +94,7 @@ export default function StrongVerificationInstructions() {
           </Box>
         </Box>
 
-        <Typography
-          variant="h2"
-          sx={{ marginBottom: theme.spacing(2), marginTop: theme.spacing(3) }}
-        >
+        <Typography variant="h2" sx={{ marginBottom: theme.spacing(2), marginTop: theme.spacing(3) }}>
           {t("auth:strong_verification.instructions.title")}
         </Typography>
 
@@ -127,8 +111,11 @@ export default function StrongVerificationInstructions() {
             </Typography>
             <Typography
               variant="body2"
-              color="text.secondary"
-              sx={{ marginTop: 1, marginBottom: 1 }}
+              sx={{
+                color: "text.secondary",
+                marginTop: 1,
+                marginBottom: 1,
+              }}
             >
               <Trans i18nKey="auth:strong_verification.instructions.step1_apple_note" />
             </Typography>
@@ -141,16 +128,10 @@ export default function StrongVerificationInstructions() {
                 alignItems: "center",
               }}
             >
-              <a
-                href="https://apps.apple.com/app/id1575142357"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://apps.apple.com/app/id1575142357" target="_blank" rel="noopener noreferrer">
                 <img
                   src={`/img/app-store-badge/${locale}.svg`}
-                  alt={t(
-                    "auth:strong_verification.instructions.download_app_store",
-                  )}
+                  alt={t("auth:strong_verification.instructions.download_app_store")}
                   style={{ height: "30px", width: "auto" }}
                 />
               </a>
@@ -161,9 +142,7 @@ export default function StrongVerificationInstructions() {
               >
                 <img
                   src={`/img/google-play-badge/${locale}.svg`}
-                  alt={t(
-                    "auth:strong_verification.instructions.download_google_play",
-                  )}
+                  alt={t("auth:strong_verification.instructions.download_google_play")}
                   style={{ height: "30px", width: "auto" }}
                 />
               </a>
@@ -175,14 +154,10 @@ export default function StrongVerificationInstructions() {
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
-              {t("auth:strong_verification.instructions.step3")}
-            </Typography>
+            <Typography variant="body1">{t("auth:strong_verification.instructions.step3")}</Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
-              {t("auth:strong_verification.instructions.step4")}
-            </Typography>
+            <Typography variant="body1">{t("auth:strong_verification.instructions.step4")}</Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
@@ -190,9 +165,7 @@ export default function StrongVerificationInstructions() {
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
-              {t("auth:strong_verification.instructions.step6")}
-            </Typography>
+            <Typography variant="body1">{t("auth:strong_verification.instructions.step6")}</Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
             <Typography variant="body1">
@@ -200,9 +173,7 @@ export default function StrongVerificationInstructions() {
             </Typography>
           </ListItem>
           <ListItem sx={{ display: "list-item", paddingY: 0.5 }}>
-            <Typography variant="body1">
-              {t("auth:strong_verification.instructions.step8")}
-            </Typography>
+            <Typography variant="body1">{t("auth:strong_verification.instructions.step8")}</Typography>
           </ListItem>
         </List>
 
@@ -223,17 +194,11 @@ export default function StrongVerificationInstructions() {
               marginBottom: theme.spacing(1),
             }}
           >
-            <NfcIcon
-              sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }}
-            />
-            <Typography variant="h3">
-              {t("auth:strong_verification.instructions.chip_location.heading")}
-            </Typography>
+            <NfcIcon sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }} />
+            <Typography variant="h3">{t("auth:strong_verification.instructions.chip_location.heading")}</Typography>
           </Box>
           <Typography variant="body1" sx={{ marginBottom: theme.spacing(1) }}>
-            {t(
-              "auth:strong_verification.instructions.chip_location.description",
-            )}
+            {t("auth:strong_verification.instructions.chip_location.description")}
           </Typography>
           <Box
             component="ul"
@@ -271,17 +236,11 @@ export default function StrongVerificationInstructions() {
               marginBottom: theme.spacing(1),
             }}
           >
-            <TipsAndUpdatesIcon
-              sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }}
-            />
-            <Typography variant="h3">
-              {t("auth:strong_verification.instructions.scanning_tips.heading")}
-            </Typography>
+            <TipsAndUpdatesIcon sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }} />
+            <Typography variant="h3">{t("auth:strong_verification.instructions.scanning_tips.heading")}</Typography>
           </Box>
           <Typography variant="body1" sx={{ marginBottom: theme.spacing(1) }}>
-            {t(
-              "auth:strong_verification.instructions.scanning_tips.description",
-            )}
+            {t("auth:strong_verification.instructions.scanning_tips.description")}
           </Typography>
           <Box
             component="ul"
@@ -307,9 +266,7 @@ export default function StrongVerificationInstructions() {
             <li>
               <Trans i18nKey="auth:strong_verification.instructions.scanning_tips.no_metal" />
             </li>
-            <li>
-              {t("auth:strong_verification.instructions.scanning_tips.retry")}
-            </li>
+            <li>{t("auth:strong_verification.instructions.scanning_tips.retry")}</li>
           </Box>
         </Box>
 
@@ -326,26 +283,16 @@ export default function StrongVerificationInstructions() {
               "& li": { marginBottom: theme.spacing(1) },
             }}
           >
-            <li>
-              {t("auth:strong_verification.instructions.didnt_work.tip1")}
-            </li>
-            <li>
-              {t("auth:strong_verification.instructions.didnt_work.tip2")}
-            </li>
-            <li>
-              {t("auth:strong_verification.instructions.didnt_work.tip3")}
-            </li>
-            <li>
-              {t("auth:strong_verification.instructions.didnt_work.tip4")}
-            </li>
+            <li>{t("auth:strong_verification.instructions.didnt_work.tip1")}</li>
+            <li>{t("auth:strong_verification.instructions.didnt_work.tip2")}</li>
+            <li>{t("auth:strong_verification.instructions.didnt_work.tip3")}</li>
+            <li>{t("auth:strong_verification.instructions.didnt_work.tip4")}</li>
           </Box>
           <Typography variant="body1">
             <Trans
               i18nKey="auth:strong_verification.instructions.didnt_work.contact"
               components={{
-                1: (
-                  <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help" />
-                ),
+                1: <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help" />,
               }}
             />
           </Typography>
@@ -364,12 +311,7 @@ export default function StrongVerificationInstructions() {
             marginBottom: theme.spacing(4),
           }}
         >
-          <Button
-            onClick={startStrongVerification}
-            loading={isPending}
-            size="large"
-            endIcon={<OpenInNewIcon />}
-          >
+          <Button onClick={startStrongVerification} loading={isPending} size="large" endIcon={<OpenInNewIcon />}>
             {t("auth:strong_verification.start_button")}
           </Button>
         </Box>

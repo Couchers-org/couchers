@@ -10,10 +10,7 @@ import { PingRes } from "../proto/api_pb";
 export default function useNotifications() {
   const { authenticated, jailed } = useAuthContext().authState;
 
-  const { data, isPending, isError, error } = useQuery<
-    PingRes.AsObject,
-    RpcError
-  >({
+  const { data, isPending, isError, error } = useQuery<PingRes.AsObject, RpcError>({
     queryKey: [pingQueryKey],
     queryFn: () => service.api.ping(),
     enabled: authenticated && !jailed,

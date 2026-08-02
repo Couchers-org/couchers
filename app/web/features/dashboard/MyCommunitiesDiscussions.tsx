@@ -9,10 +9,7 @@ import { useState } from "react";
 import { service } from "service";
 
 import { listMyCommunitiesDiscussionsKey } from "../queryKeys";
-import DiscussionListRow, {
-  DiscussionListContainer,
-  DiscussionListRowSkeleton,
-} from "./DiscussionListRow";
+import DiscussionListRow, { DiscussionListContainer, DiscussionListRowSkeleton } from "./DiscussionListRow";
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -36,22 +33,22 @@ export default function MyCommunitiesDiscussions() {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery<ListMyCommunitiesDiscussionsRes.AsObject, RpcError>({
-      queryKey: [listMyCommunitiesDiscussionsKey],
-      queryFn: ({ pageParam: pageToken }) =>
-        service.communities.listMyCommunitiesDiscussions({
-          pageToken: pageToken as string | undefined,
-          pageSize: 3,
-        }),
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      initialPageParam: undefined as string | undefined,
-    });
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
+    ListMyCommunitiesDiscussionsRes.AsObject,
+    RpcError
+  >({
+    queryKey: [listMyCommunitiesDiscussionsKey],
+    queryFn: ({ pageParam: pageToken }) =>
+      service.communities.listMyCommunitiesDiscussions({
+        pageToken: pageToken as string | undefined,
+        pageSize: 3,
+      }),
+    getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
+    initialPageParam: undefined as string | undefined,
+  });
 
   const pages = data?.pages ?? [];
-  const isLastLoadedPage =
-    pages.length === 0 || currentPageIndex === pages.length - 1;
+  const isLastLoadedPage = pages.length === 0 || currentPageIndex === pages.length - 1;
   const currentItems = pages[currentPageIndex]?.discussionsList;
 
   const hasPrev = currentPageIndex > 0;
@@ -66,19 +63,13 @@ export default function MyCommunitiesDiscussions() {
     }
   };
 
-  const showingSkeleton =
-    isLoading || (isFetchingNextPage && currentItems === undefined);
+  const showingSkeleton = isLoading || (isFetchingNextPage && currentItems === undefined);
 
   return (
     <div>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
-          <Forum
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Forum sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:discussions.community_header")}
         </Typography>
         <div>
@@ -116,10 +107,7 @@ export default function MyCommunitiesDiscussions() {
         </DiscussionListContainer>
       ) : (
         <EmptyStateRow>
-          <Typography
-            variant="body2"
-            sx={{ color: "var(--mui-palette-text-secondary)" }}
-          >
+          <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
             {t("dashboard:discussions.community_empty_message")}
           </Typography>
         </EmptyStateRow>

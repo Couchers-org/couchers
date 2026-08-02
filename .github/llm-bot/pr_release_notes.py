@@ -7,14 +7,18 @@ summary in the appropriate format.
 """
 
 import os
+import random
 import sys
 import re
 from typing import Optional, List, Dict, Any
 from enum import Enum
 
+import requests
 from pydantic import BaseModel, Field
 from a5.ai import LLM
 from github import Github, Auth
+
+from slack import send_slack_message
 
 
 # ============================================================================
@@ -23,6 +27,34 @@ from github import Github, Auth
 
 RELEASE_NOTES_PENDING_LABEL = "release notes: pending"
 RELEASE_NOTES_NOT_NEEDED_LABEL = "release notes: not needed"
+
+SLACK_INTROS = [
+    "Ooh la la",
+    "Would you look at that",
+    "Hey, check this out",
+    "Stop the press",
+    "Hot off the couch",
+    "Big news, everyone",
+    "Well well well",
+    "Ding ding ding",
+    "Fresh out of the oven",
+    "Guess what",
+    "Drumroll please",
+    "You love to see it",
+    "Another one",
+    "Couch update incoming",
+    "Breaking",
+]
+
+SLACK_VERBS = [
+    "shipped something new",
+    "just shipped something",
+    "has been busy",
+    "landed a thing",
+    "cooked something up",
+    "made the site a bit better",
+    "pushed something worth knowing about",
+]
 
 SYSTEM_PROMPT = """You are the Release Note Bot for Couchers.org, a non-profit couch surfing platform.
 
@@ -324,7 +356,6 @@ class PRReleaseNotesBot:
         """Get the PR diff, truncated if necessary."""
         # Get the diff using the GitHub API
         # We need to make a raw request with the diff media type
-        import requests
         headers = {
             'Authorization': f'token {os.environ["GITHUB_TOKEN"]}',
             'Accept': 'application/vnd.github.v3.diff'
@@ -498,12 +529,29 @@ This PR does not need to be included in release notes.
 
         print(f"\n✅ Successfully processed PR #{self.pr_number}")
 
+    def announce_to_slack(self, decision: BotDecision):
+        """Announce an included PR to Slack."""
+
+        if decision.decision != ReleaseNotesDecision.INCLUDE or not decision.release_note:
+            return
+
+        # Seeded on the PR number so a re-run of the job doesn't reword the same announcement
+        rng = random.Random(self.pr_number)
+        intro = rng.choice(SLACK_INTROS)
+        verb = rng.choice(SLACK_VERBS)
+
+        send_slack_message(
+            f"{intro}! @{self.pr.user.login} {verb} "
+            f"(PR: <{self.pr.html_url}|#{self.pr_number}: {self.pr.title}>):\n\n"
+            f"{decision.release_note}"
+        )
+
     def run(self):
         """Main execution flow."""
-        try:
-            if not self.should_process():
-                return
+        if not self.should_process():
+            return
 
+        try:
             decision = self.analyze_pr()
             self.apply_decision(decision)
         except Exception as e:
@@ -517,6 +565,10 @@ This PR does not need to be included in release notes.
                 f"Error: `{type(e).__name__}: {str(e)}`"
             )
             sys.exit(1)
+
+        # Outside the handler above: the labelling and comment have already landed, so a
+        # Slack failure should fail the job loudly rather than claim the PR needs a human
+        self.announce_to_slack(decision)
 
 
 # ============================================================================

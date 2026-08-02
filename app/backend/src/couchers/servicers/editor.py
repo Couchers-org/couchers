@@ -6,7 +6,7 @@ from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, update
 
@@ -28,7 +28,15 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import generate_event_create_notifications, get_users_to_notify_for_new_event
 from couchers.servicers.postal_verification import postalverificationstatus2pb
 from couchers.servicers.public import format_volunteer_link
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from couchers.utils import (
+    Timestamp_from_datetime,
+    date_to_api,
+    dt_id_from_page_token,
+    dt_id_to_page_token,
+    not_none,
+    now,
+    parse_date,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +166,48 @@ class Editor(editor_pb2_grpc.EditorServicer):
         return editor_pb2.ListEventCommunityInviteRequestsRes(
             requests=[_request_to_pb(request) for request in requests[:page_size]],
             next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
+        )
+
+    def ListDecidedEventCommunityInviteRequests(
+        self, request: editor_pb2.ListDecidedEventCommunityInviteRequestsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListDecidedEventCommunityInviteRequestsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        query = (
+            select(EventCommunityInviteRequest)
+            .where(EventCommunityInviteRequest.decided.is_not(None))
+            .order_by(EventCommunityInviteRequest.decided.desc(), EventCommunityInviteRequest.id.desc())
+            .limit(page_size + 1)
+        )
+
+        if request.HasField("approved"):
+            query = query.where(EventCommunityInviteRequest.approved == request.approved.value)
+
+        if request.page_token:
+            decided, request_id = dt_id_from_page_token(request.page_token)
+            query = query.where(
+                tuple_(EventCommunityInviteRequest.decided, EventCommunityInviteRequest.id) <= (decided, request_id)
+            )
+
+        requests = session.execute(query).scalars().all()
+
+        return editor_pb2.ListDecidedEventCommunityInviteRequestsRes(
+            requests=[
+                editor_pb2.DecidedEventCommunityInviteRequest(
+                    event_community_invite_request_id=req.id,
+                    user_id=req.user_id,
+                    event_url=urls.event_link(occurrence_id=req.occurrence.id, slug=req.occurrence.event.slug),
+                    community_id=req.occurrence.event.parent_node_id,
+                    created=Timestamp_from_datetime(req.created),
+                    decided=Timestamp_from_datetime(not_none(req.decided)),
+                    decided_by_user_id=not_none(req.decided_by_user_id),
+                    approved=not_none(req.approved),
+                )
+                for req in requests[:page_size]
+            ],
+            next_page_token=dt_id_to_page_token(not_none(requests[page_size].decided), requests[page_size].id)
+            if len(requests) > page_size
+            else None,
         )
 
     def DecideEventCommunityInviteRequest(

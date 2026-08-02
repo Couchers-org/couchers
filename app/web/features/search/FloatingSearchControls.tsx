@@ -31,11 +31,7 @@ interface FloatingSearchNavigationProps {
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
-  onZoomIn: (
-    newZoom: number,
-    center?: LngLatLike,
-    isLocationSearch?: boolean,
-  ) => void;
+  onZoomIn: (newZoom: number, center?: LngLatLike, isLocationSearch?: boolean) => void;
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
@@ -86,9 +82,7 @@ const sharedInputStyles = () => ({
   },
 });
 
-const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
-  sharedInputStyles,
-);
+const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(sharedInputStyles);
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   ...sharedInputStyles(),
@@ -125,9 +119,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
 const StyledTuneIcon = styled(Tune, {
   shouldForwardProp: (prop) => prop !== "hasActiveFilters",
 })<{ hasActiveFilters: boolean }>(({ hasActiveFilters }) => ({
-  color: hasActiveFilters
-    ? "var(--mui-palette-primary-main)"
-    : "var(--mui-palette-grey-500)",
+  color: hasActiveFilters ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-500)",
   fontSize: "38px",
   cursor: "pointer",
   height: "20px",
@@ -138,9 +130,7 @@ const StyledTuneIcon = styled(Tune, {
 const StyledClearIcon = styled(Clear, {
   shouldForwardProp: (prop) => prop !== "hasActiveFilters",
 })<{ hasActiveFilters?: boolean }>(({ theme, hasActiveFilters }) => ({
-  color: hasActiveFilters
-    ? "var(--mui-palette-primary-main)"
-    : "var(--mui-palette-grey-500)",
+  color: hasActiveFilters ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-500)",
   fontSize: "30px",
   paddingRight: theme.spacing(1),
   height: "18px",
@@ -199,9 +189,7 @@ const FloatingSearchControls = ({
     }
   };
 
-  const handleKeyWordEnterPress = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ): void => {
+  const handleKeyWordEnterPress = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter") {
       handleKeywordSubmit();
     }
@@ -261,54 +249,47 @@ const FloatingSearchControls = ({
                 onChange={handleKeywordChange}
                 value={keyword}
                 onKeyDown={handleKeyWordEnterPress}
-                InputProps={
-                  keyword.length < 1
-                    ? {}
-                    : {
-                        endAdornment: (
-                          <>
-                            <InputAdornment
-                              position="end"
-                              sx={{
-                                marginRight:
-                                  query === "" ? theme.spacing(1) : 0,
-                              }}
-                            >
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.search_this_keyword_a11y_label",
-                                )}
-                                onClick={handleKeywordSubmit}
-                                size="small"
-                                sx={{ marginRight: theme.spacing(1) }}
-                              >
-                                <SearchIcon />
-                              </IconButton>
-                              <IconButton
-                                aria-label={t(
-                                  "search:form.keywords.clear_field_action_a11y_label",
-                                )}
-                                onClick={handleClearKeyword}
-                                size="small"
+                slotProps={{
+                  input:
+                    keyword.length < 1
+                      ? {}
+                      : {
+                          endAdornment: (
+                            <>
+                              <InputAdornment
+                                position="end"
                                 sx={{
-                                  backgroundColor: alpha(
-                                    theme.palette.primary.light,
-                                    0.2,
-                                  ), // Adjust opacity as needed
+                                  marginRight: query === "" ? theme.spacing(1) : 0,
                                 }}
                               >
-                                <Clear
+                                <IconButton
+                                  aria-label={t("search:form.keywords.search_this_keyword_a11y_label")}
+                                  onClick={handleKeywordSubmit}
+                                  size="small"
+                                  sx={{ marginRight: theme.spacing(1) }}
+                                >
+                                  <SearchIcon />
+                                </IconButton>
+                                <IconButton
+                                  aria-label={t("search:form.keywords.clear_field_action_a11y_label")}
+                                  onClick={handleClearKeyword}
+                                  size="small"
                                   sx={{
-                                    color: "var(--mui-palette-primary-main)",
-                                    fontSize: "20px",
+                                    backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
                                   }}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          </>
-                        ),
-                      }
-                }
+                                >
+                                  <Clear
+                                    sx={{
+                                      color: "var(--mui-palette-primary-main)",
+                                      fontSize: "20px",
+                                    }}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            </>
+                          ),
+                        },
+                }}
               />
             )}
 

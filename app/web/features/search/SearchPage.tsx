@@ -80,13 +80,8 @@ export default function SearchPage() {
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const mapSearchState = useMapSearchState();
-  const {
-    setPageNumber,
-    setMapQueryArea,
-    setMoveMapUIOnly,
-    setShowSearchThisAreaButton,
-    setSelectedUserId,
-  } = useMapSearchActions();
+  const { setPageNumber, setMapQueryArea, setMoveMapUIOnly, setShowSearchThisAreaButton, setSelectedUserId } =
+    useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
@@ -94,19 +89,10 @@ export default function SearchPage() {
       ...mapSearchState.filters,
       ...mapSearchState.search,
       // Don't send query when bbox is present (location search vs keyword search)
-      query: mapSearchState.search.bbox
-        ? undefined
-        : mapSearchState.search.query,
-      selectedUserId: mapSearchState.shouldSearchByUserId
-        ? mapSearchState.selectedUserId
-        : undefined,
+      query: mapSearchState.search.bbox ? undefined : mapSearchState.search.query,
+      selectedUserId: mapSearchState.shouldSearchByUserId ? mapSearchState.selectedUserId : undefined,
     }),
-    [
-      mapSearchState.filters,
-      mapSearchState.search,
-      mapSearchState.selectedUserId,
-      mapSearchState.shouldSearchByUserId,
-    ],
+    [mapSearchState.filters, mapSearchState.search, mapSearchState.selectedUserId, mapSearchState.shouldSearchByUserId],
   );
 
   const {
@@ -177,14 +163,9 @@ export default function SearchPage() {
     setMapView(view);
   };
 
-  const handleZoomIn = (
-    newZoom: number,
-    center?: LngLatLike,
-    isLocationSearch: boolean = false,
-  ) => {
+  const handleZoomIn = (newZoom: number, center?: LngLatLike, isLocationSearch: boolean = false) => {
     const didCrossSearchThreshold =
-      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
     // If it's the first zoom within threshold, set the map bounds so the user pins load
     if (
@@ -236,10 +217,7 @@ export default function SearchPage() {
             onZoomIn={handleZoomIn}
           />
         </SearchControlsWrapper>
-        <SearchAnalyticsProvider
-          searchQueryId={searchQueryId}
-          pageNumber={mapSearchState.pageNumber}
-        >
+        <SearchAnalyticsProvider searchQueryId={searchQueryId} pageNumber={mapSearchState.pageNumber}>
           <MapSearchContent
             error={error}
             drawerWidth={drawerWidth}

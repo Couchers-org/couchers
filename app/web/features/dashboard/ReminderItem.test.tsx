@@ -60,9 +60,7 @@ describe("ReminderItem", () => {
       { wrapper },
     );
 
-    expect(
-      screen.getByText(t("dashboard:reminder.write_reference.title")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.write_reference.title"))).toBeVisible();
     expect(
       screen.getByText(
         t("dashboard:reminder.write_reference.description_hosted", {
@@ -74,10 +72,7 @@ describe("ReminderItem", () => {
       screen.getByRole("link", {
         name: t("dashboard:reminder.write_reference.button"),
       }),
-    ).toHaveAttribute(
-      "href",
-      `/leave-reference/hosted/${surferUser.userId}/99`,
-    );
+    ).toHaveAttribute("href", `/leave-reference/hosted/${surferUser.userId}/99`);
   });
 
   it("renders a 'complete my home' card with a link to the home edit tab", () => {
@@ -85,12 +80,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_my_home.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_my_home.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_my_home.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_my_home.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.complete_my_home.button"),
@@ -103,12 +94,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_profile.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_profile.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_profile.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_profile.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.complete_profile.button"),
@@ -121,12 +108,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.strong_verification.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.strong_verification.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.strong_verification.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.strong_verification.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.strong_verification.button"),
@@ -143,13 +126,7 @@ describe("ReminderItem", () => {
   it("calls onDismiss when the dismiss button is clicked", async () => {
     const user = userEvent.setup();
     const onDismiss = jest.fn();
-    render(
-      <ReminderItem
-        reminder={{ completeProfileReminder: {} }}
-        onDismiss={onDismiss}
-      />,
-      { wrapper },
-    );
+    render(<ReminderItem reminder={{ completeProfileReminder: {} }} onDismiss={onDismiss} />, { wrapper });
 
     await user.click(
       screen.getByRole("button", {

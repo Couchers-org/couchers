@@ -1,9 +1,4 @@
-import {
-  CancelOutlined,
-  ContentCopyOutlined,
-  EditOutlined,
-  LinkOutlined,
-} from "@mui/icons-material";
+import { CancelOutlined, ContentCopyOutlined, EditOutlined, LinkOutlined } from "@mui/icons-material";
 import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -18,27 +13,21 @@ import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
+import { contentRefs } from "features/contentRefs";
+import FlagButton from "features/FlagButton";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import {
-  eventsRoute,
-  routeToDuplicateEvent,
-  routeToEditEvent,
-  routeToEvent,
-} from "routes";
+import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import {
-  localizeDateTimeRange,
-  timestampToInstant,
-  timestampToPlainDateTime,
-} from "utils/date";
+import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -109,6 +98,7 @@ const StyledIconButtonGroup = styled("div")(() => ({
 const StyledInviteAndAttendanceRow = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(1),
+  justifyContent: "flex-end",
   alignItems: "center",
   flexWrap: "wrap",
 }));
@@ -122,7 +112,7 @@ const StyledActionButtonsContainer = styled("div")(() => ({
 
   [theme.breakpoints.down("md")]: {
     gridAutoFlow: "row",
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, max-content))",
+    gridTemplateColumns: "max-content 1fr",
     gap: theme.spacing(1),
     width: "100%",
   },
@@ -170,13 +160,7 @@ const StyledDiscussionContainer = styled("div")(() => ({
   marginBlockEnd: theme.spacing(5),
 }));
 
-export default function EventPage({
-  eventId,
-  eventSlug,
-}: {
-  eventId: number;
-  eventSlug: string;
-}) {
+export default function EventPage({ eventId, eventSlug }: { eventId: number; eventSlug: string }) {
   const {
     t,
     i18n: { language: locale },
@@ -185,12 +169,7 @@ export default function EventPage({
   const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
-  const {
-    data: event,
-    error: eventError,
-    isLoading,
-    isValidEventId,
-  } = useEvent({ eventId });
+  const { data: event, error: eventError, isLoading, isValidEventId } = useEvent({ eventId });
 
   const {
     isPending: isSetEventAttendanceLoading,
@@ -216,18 +195,13 @@ export default function EventPage({
   });
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =
-    useState(false);
-  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
-    useState(false);
-  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
-    useState<Element | null>(null);
+  const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] = useState(false);
+  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] = useState<Element | null>(null);
   const [showCopyLinkSuccess, setShowCopyLinkSuccess] = useState(false);
   const isEllipsisMenuOpen = Boolean(ellipsisMenuAnchorEl);
 
-  const handleEllipsisMenuOpen = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleEllipsisMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setEllipsisMenuAnchorEl(event.currentTarget);
   };
 
@@ -236,10 +210,7 @@ export default function EventPage({
   };
 
   const isPastEvent = event?.endTime
-    ? Temporal.Instant.compare(
-        timestampToInstant(event.endTime),
-        Temporal.Now.instant(),
-      ) < 0
+    ? Temporal.Instant.compare(timestampToInstant(event.endTime), Temporal.Now.instant()) < 0
     : false;
 
   const isCreator = currentUserId === event?.creatorUserId;
@@ -277,8 +248,7 @@ export default function EventPage({
           {
             icon: EditOutlined,
             label: t("communities:edit_event"),
-            onClick: () =>
-              router.push(routeToEditEvent(event!.eventId, event!.slug)),
+            onClick: () => router.push(routeToEditEvent(event!.eventId, event!.slug)),
             id: "edit-event",
           },
         ] as EllipsisMenuItem[])
@@ -313,48 +283,34 @@ export default function EventPage({
     <>
       <HtmlMeta title={event?.title} />
       {(eventError || setEventAttendanceError) && (
-        <Alert severity="error">
-          {eventError?.message || setEventAttendanceError?.message || ""}
-        </Alert>
+        <Alert severity="error">{eventError?.message || setEventAttendanceError?.message || ""}</Alert>
       )}
       {showInviteCommunitySuccess && (
-        <Snackbar severity="success">
-          {t("communities:invite_community_dialog.toast_success")}
-        </Snackbar>
+        <Snackbar severity="success">{t("communities:invite_community_dialog.toast_success")}</Snackbar>
       )}
-      {showCopyLinkSuccess && (
-        <Snackbar severity="success">
-          {t("communities:copy_link_success")}
-        </Snackbar>
-      )}
+      {showCopyLinkSuccess && <Snackbar severity="success">{t("communities:copy_link_success")}</Snackbar>}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
         event && (
           <>
-            <StyledCoverPhoto
-              src={event.photoUrl || eventImagePlaceholderUrl}
-              alt=""
-              data-testid="event-cover-photo"
-            />
+            <StyledCoverPhoto src={event.photoUrl || eventImagePlaceholderUrl} alt="" data-testid="event-cover-photo" />
             <StyledHeader>
-              <StyledBackButton
-                onClick={handleBackClick}
-                aria-label={t("communities:previous_page")}
-              >
+              <StyledBackButton onClick={handleBackClick} aria-label={t("communities:previous_page")}>
                 <BackIcon />
               </StyledBackButton>
               <StyledTitle>
                 <Typography variant="h1">{event.title}</Typography>
-                <StyledEventTypeText variant="body1">
-                  {event.location?.address}
-                </StyledEventTypeText>
-                {event.isCancelled && (
-                  <StyledCancelledChip label={t("communities:cancelled")} />
-                )}
+                <StyledEventTypeText variant="body1">{event.location?.address}</StyledEventTypeText>
+                {event.isCancelled && <StyledCancelledChip label={t("communities:cancelled")} />}
               </StyledTitle>
               <StyledActionButtonsContainer>
                 <StyledIconButtonGroup>
+                  <FlagButton
+                    contentRef={contentRefs.event(event)}
+                    authorUser={event.creatorUserId}
+                    ariaLabel={t("communities:report_event_button_a11y")}
+                  />
                   <EllipsisMenu
                     idName="event-page"
                     isMenuOpen={isEllipsisMenuOpen}
@@ -371,9 +327,7 @@ export default function EventPage({
                       variant="contained"
                       color="primary"
                       disabled={event.isCancelled || isPastEvent}
-                      aria-label={t(
-                        "communities:invite_community_dialog_buttons.open",
-                      )}
+                      aria-label={t("communities:invite_community_dialog_buttons.open")}
                       sx={{
                         [theme.breakpoints.down("md")]: {
                           ...ActionButtonSx,
@@ -385,9 +339,7 @@ export default function EventPage({
                   )}
                   <AttendanceMenu
                     loading={isSetEventAttendanceLoading}
-                    onChangeAttendanceState={(attendanceState) =>
-                      setEventAttendance(attendanceState)
-                    }
+                    onChangeAttendanceState={(attendanceState) => setEventAttendance(attendanceState)}
                     attendanceState={event.attendanceState}
                     id="event-page-attendance"
                     disabled={event.isCancelled || isPastEvent}
@@ -416,8 +368,9 @@ export default function EventPage({
                   {localizeDateTimeRange(
                     timestampToPlainDateTime(event.startTime!, event.timezone),
                     timestampToPlainDateTime(event.endTime!, event.timezone),
+                    locale,
                     {
-                      locale,
+                      includeYear: "auto",
                       includeDayOfWeek: true,
                       capitalize: true,
                     },
@@ -427,18 +380,14 @@ export default function EventPage({
             </StyledHeader>
             <StyledEventDetailsContainer>
               <StyledCardSection>
-                <Typography variant="h2">
-                  {t("communities:details_subheading_colon")}
-                </Typography>
+                <Typography variant="h2">{t("communities:details_subheading_colon")}</Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </StyledCardSection>
               <EventOrganizers event={event} />
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
             <StyledDiscussionContainer>
-              <Typography variant="h2">
-                {t("communities:event_discussion")}
-              </Typography>
+              <Typography variant="h2">{t("communities:event_discussion")}</Typography>
               <CommentTree threadId={event.thread!.threadId} />
             </StyledDiscussionContainer>
           </>

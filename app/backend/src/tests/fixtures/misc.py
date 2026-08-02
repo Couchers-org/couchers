@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 
@@ -11,12 +12,17 @@ from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.threads import unpack_thread_id
+from couchers.utils import now
 from tests.fixtures.sessions import real_moderation_session
 
 
 def process_jobs() -> None:
     while process_job():
         pass
+
+
+def now_5_min_in_future() -> datetime:
+    return now() + timedelta(minutes=5)
 
 
 class EmailCollector:
@@ -302,6 +308,25 @@ class Moderator:
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
                     object_id=reference_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                    clear_flags=True,
+                )
+            )
+
+    def approve_public_trip(self, public_trip_id: int, reason: str = "Test approval") -> None:
+        """Approve a PublicTrip using the moderation API."""
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
+                    object_id=public_trip_id,
                 )
             )
             api.ModerateContent(

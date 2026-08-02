@@ -9,8 +9,6 @@ export default function StartStrongVerificationButton() {
   const router = useRouter();
 
   return (
-    <Button onClick={() => router.push(strongVerificationRoute)}>
-      {t("auth:strong_verification.start_button")}
-    </Button>
+    <Button onClick={() => router.push(strongVerificationRoute)}>{t("auth:strong_verification.start_button")}</Button>
   );
 }

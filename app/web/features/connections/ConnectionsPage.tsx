@@ -1,66 +1,37 @@
-import { TabContext, TabPanel } from "@mui/lab";
-import { styled } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
-import useNotifications from "features/useNotifications";
 import { CONNECTIONS } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React from "react";
-import { connectionsRoute } from "routes";
 
-import { FriendsTab } from "./friends";
+import BlockedUsersList from "./friends/BlockedUsersList";
+import FriendList from "./friends/FriendList";
+import FriendRequestsReceived from "./friends/FriendRequestsReceived";
+import FriendRequestsSent from "./friends/FriendRequestsSent";
+import useFriendList from "./friends/useFriendList";
 
-const StyledLabelWrapper = styled("span")({
-  paddingRight: "1.8rem", // visually compensate for NotificationBadge's right offset
-});
-
-function FriendsNotification() {
-  const { data } = useNotifications();
+function ConnectionsPage() {
   const { t } = useTranslation([CONNECTIONS]);
-
-  return (
-    <NotificationBadge count={data?.pendingFriendRequestCount}>
-      {t("connections:friends")}
-    </NotificationBadge>
-  );
-}
-
-const labels = {
-  friends: (
-    <StyledLabelWrapper>
-      <FriendsNotification />
-    </StyledLabelWrapper>
-  ),
-};
-
-type ConnectionType = keyof typeof labels;
-
-function ConnectionsPage({ type }: { type: "friends" }) {
-  const router = useRouter();
-  const connectionType = type in labels ? (type as ConnectionType) : "friends";
-  const { t } = useTranslation([CONNECTIONS]);
+  const { errors, isLoading, data: friends, refetchFriends } = useFriendList();
 
   return (
     <>
       <HtmlMeta title={t("connections:my_connections")} />
       <PageTitle>{t("connections:my_connections")}</PageTitle>
-      <TabContext value={connectionType}>
-        <TabBar
-          ariaLabel="Tabs for different connection types"
-          setValue={(newType) =>
-            router.push(
-              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`,
-            )
-          }
-          labels={labels}
-        />
-        <TabPanel value="friends">
-          <FriendsTab />
-        </TabPanel>
-      </TabContext>
+      {/* Your friends is the main content, so it gets the larger share and the
+          rest stack beside it. */}
+      <Grid container spacing={2} sx={{ width: "100%", alignItems: "flex-start" }}>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <FriendList errors={errors} friends={friends} isLoading={isLoading} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Stack spacing={2}>
+            <FriendRequestsReceived />
+            <FriendRequestsSent />
+            <BlockedUsersList refetchFriends={refetchFriends} />
+          </Stack>
+        </Grid>
+      </Grid>
     </>
   );
 }

@@ -2,12 +2,13 @@ import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { Trans, useTranslation } from "i18n";
+import { localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
 import { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestampToPlainDateTime } from "utils/date";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledNoteContainer = styled("div")(() => ({
   marginBottom: theme.spacing(4),
@@ -33,20 +34,13 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const formattedTime = localizeDateTime(
-    timestampToPlainDateTime(note.created!),
-    {
-      locale,
-      abbreviate: true,
-    },
-  );
+  const formattedTime = localizeDateTime(timestampToPlainDateTime(note.created!), locale, {
+    abbreviate: true,
+  });
 
   const acknowledge = async () => {
     setLoading(true);
-    const info = await service.jail.acknowledgePendingModNote(
-      note.noteId,
-      true,
-    );
+    const info = await service.jail.acknowledgePendingModNote(note.noteId, true);
     if (!info.isJailed) {
       updateJailed();
     } else {
@@ -67,9 +61,7 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
         <Markdown source={note.noteContent} topHeaderLevel={3} />
       </StyledNoteCard>
       <Button loading={loading} onClick={acknowledge} disabled={acknowledged}>
-        {acknowledged
-          ? t("global:thanks")
-          : t("auth:jail.mod_note_section.acknowledge")}
+        {acknowledged ? t("global:thanks") : t("auth:jail.mod_note_section.acknowledge")}
       </Button>
     </StyledNoteContainer>
   );

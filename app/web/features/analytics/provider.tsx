@@ -27,11 +27,7 @@
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useRef } from "react";
 
-import {
-  destroyCollector,
-  initializeCollector,
-  logEvent,
-} from "./eventCollector";
+import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
 
 /**
  * Extract UTM parameters from the URL for marketing attribution.
@@ -40,13 +36,7 @@ import {
 function getUtmParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
   const utm: Record<string, string> = {};
-  for (const key of [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-  ]) {
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
     const val = params.get(key);
     if (val) utm[key] = val;
   }
@@ -80,11 +70,7 @@ function getFilteredSearch(queryString: string): string | null {
  *
  * @param children - Your app's components
  */
-export default function AnalyticsProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AnalyticsProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const previousPathRef = useRef<string | null>(null);
   const previousTimestampRef = useRef<number>(Date.now());

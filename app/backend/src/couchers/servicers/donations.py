@@ -151,16 +151,20 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config.MERCH_SHOP_URL:
                 # merch shop. look up this email and give them the swagster badge
-                customer_email = metadata["customer_email"]
+                customer_email = metadata.get("customer_email") or data_object["billing_details"].get("email")
                 observe_revenue("merch", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
-                user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
+                user = (
+                    session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
+                    if customer_email
+                    else None
+                )
                 if user:
                     user_add_badge(session, user.id, "swagster")
                     user_link = urls.user_link(username=user.username)
                     customer_info = f"<{user_link}|{user.name}>"
                 else:
-                    customer_info = customer_email
+                    customer_info = customer_email or "unknown email"
                 try:
                     send_slack_message(
                         config.SLACK_MERCH_CHANNEL,

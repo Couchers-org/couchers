@@ -1,32 +1,21 @@
 import { Circle, MoreHoriz } from "@mui/icons-material";
-import {
-  Avatar,
-  Box,
-  Menu,
-  MenuItem,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Avatar, Box, Menu, MenuItem, styled, Typography, useMediaQuery } from "@mui/material";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
-import { localizeRelativeTime } from "utils/date";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;
   onClose: () => void;
-  onMarkIsSeen: (args: {
-    notificationId: Notification.AsObject["notificationId"];
-    isSeen: boolean;
-  }) => void;
+  onMarkIsSeen: (args: { notificationId: Notification.AsObject["notificationId"]; isSeen: boolean }) => void;
 }
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -68,11 +57,7 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const NotificationItem = ({
-  notification,
-  onClose,
-  onMarkIsSeen,
-}: NotificationItemProps) => {
+const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationItemProps) => {
   const {
     t,
     i18n: { language: locale },
@@ -80,8 +65,7 @@ const NotificationItem = ({
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
+  const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const isMarkUnreadMenuOpen = Boolean(markUnreadMenuAnchorEl);
 
@@ -96,16 +80,12 @@ const NotificationItem = ({
     onClose();
   };
 
-  const handleMarkUnreadMenuOpen = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleMarkUnreadMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setMarkUnseedMenuAnchorEl(event.currentTarget);
   };
 
-  const handleMarkUnreadMenuClose = (
-    event: React.MouseEvent<HTMLDivElement>,
-  ) => {
+  const handleMarkUnreadMenuClose = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     setMarkUnseedMenuAnchorEl(null);
   };
@@ -134,9 +114,7 @@ const NotificationItem = ({
     >
       <AvatarWrapper>
         <Avatar alt={userName} src={notification.icon} />
-        <BottomRightIconWrapper>
-          {mapNotificationFeedTypeToIcon[notification.topic]}
-        </BottomRightIconWrapper>
+        <BottomRightIconWrapper>{mapNotificationFeedTypeToIcon[notification.topic]}</BottomRightIconWrapper>
       </AvatarWrapper>
       <FlexColumn>
         <LinesEllipsis
@@ -236,10 +214,7 @@ const NotificationItem = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem
-          data-testid="mark-unread-menu-item"
-          onClick={handleMarkItemUnread}
-        >
+        <MenuItem data-testid="mark-unread-menu-item" onClick={handleMarkItemUnread}>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {t("notifications:mark_unread")}
           </Typography>

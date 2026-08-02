@@ -4,10 +4,7 @@ import mediaQuery from "css-mediaquery";
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
   window.localStorage.setItem("auth.jailed", JSON.stringify(false));
-  window.localStorage.setItem(
-    "auth.userId",
-    JSON.stringify(userId ?? defaultUser.userId),
-  );
+  window.localStorage.setItem("auth.userId", JSON.stringify(userId ?? defaultUser.userId));
 }
 
 export async function assertErrorAlert(message: string) {
@@ -25,15 +22,9 @@ export function wait(milliSeconds: number) {
 }
 
 //eslint-disable-next-line
-export type MockedService<T extends (...args: any) => any> = jest.Mock<
-  ReturnType<T>,
-  Parameters<T>
->;
+export type MockedService<T extends (...args: any) => any> = jest.Mock<ReturnType<T>, Parameters<T>>;
 
-export function keyPress(
-  element: Window | Document | Node | Element,
-  keyEvent: { code: string; key: string },
-) {
+export function keyPress(element: Window | Document | Node | Element, keyEvent: { code: string; key: string }) {
   fireEvent.keyDown(element, keyEvent);
   fireEvent.keyUp(element, keyEvent);
 }

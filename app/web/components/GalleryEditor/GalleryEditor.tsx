@@ -1,12 +1,5 @@
 import { AddPhotoAlternate, InfoOutlined } from "@mui/icons-material";
-import {
-  Box,
-  ImageList,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, ImageList, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import BetaFlag from "components/BetaFlag";
 import Button from "components/Button";
@@ -151,8 +144,7 @@ export default function GalleryEditor({
   const { isNative, pickImage } = useNativeImagePicker();
 
   const { data: gallery, isLoading: galleryLoading } = useGallery(galleryId);
-  const { data: editInfo, isLoading: editInfoLoading } =
-    useGalleryEditInfo(galleryId);
+  const { data: editInfo, isLoading: editInfoLoading } = useGalleryEditInfo(galleryId);
 
   const addPhotoMutation = useAddPhotoToGallery(galleryId || 0, userId);
   const removePhotoMutation = useRemovePhotoFromGallery(galleryId || 0, userId);
@@ -178,8 +170,7 @@ export default function GalleryEditor({
   }, [showUploadSuccess]);
 
   const canEdit = gallery?.canEdit ?? false;
-  const photos: GalleryItemData[] = (gallery?.photosList ??
-    []) as GalleryItemData[];
+  const photos: GalleryItemData[] = (gallery?.photosList ?? []) as GalleryItemData[];
   const maxPhotos = editInfo?.maxPhotos ?? 0;
   const currentPhotoCount = photos.length;
   const canAddMore = currentPhotoCount < maxPhotos;
@@ -213,8 +204,7 @@ export default function GalleryEditor({
           setUploadError(result.error || "Upload failed");
         }
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Upload failed";
+        const errorMessage = error instanceof Error ? error.message : "Upload failed";
         setUploadError(errorMessage);
         Sentry.captureException(error, {
           tags: { component: "GalleryEditor", native: true },
@@ -245,8 +235,7 @@ export default function GalleryEditor({
       await addPhotoMutation.mutateAsync({ uploadKey: uploadResult.key });
       setShowUploadSuccess(true);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Upload failed";
+      const errorMessage = error instanceof Error ? error.message : "Upload failed";
       setUploadError(errorMessage);
       Sentry.captureException(error, {
         tags: { component: "GalleryEditor" },
@@ -280,11 +269,7 @@ export default function GalleryEditor({
     setDropIndex(null);
   };
 
-  const handleDragOver = (
-    e: React.DragEvent,
-    targetItemId: number,
-    targetIndex: number,
-  ) => {
+  const handleDragOver = (e: React.DragEvent, targetItemId: number, targetIndex: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
@@ -338,10 +323,7 @@ export default function GalleryEditor({
     } else {
       // Get the item that will be before our dropped item
       // If dragging forward, account for the shift
-      const beforeIndex =
-        draggedIndex < currentDropIndex
-          ? currentDropIndex
-          : currentDropIndex - 1;
+      const beforeIndex = draggedIndex < currentDropIndex ? currentDropIndex : currentDropIndex - 1;
       afterItemId = photos[beforeIndex].itemId;
     }
 
@@ -432,10 +414,7 @@ export default function GalleryEditor({
     if (currentDropIndex === 0) {
       afterItemId = 0;
     } else {
-      const beforeIndex =
-        draggedIndex < currentDropIndex
-          ? currentDropIndex
-          : currentDropIndex - 1;
+      const beforeIndex = draggedIndex < currentDropIndex ? currentDropIndex : currentDropIndex - 1;
       afterItemId = photos[beforeIndex].itemId;
     }
 
@@ -480,8 +459,10 @@ export default function GalleryEditor({
             {description && (
               <Typography
                 variant="body2"
-                color="var(--mui-palette-text-secondary)"
-                sx={{ mt: 1 }}
+                sx={{
+                  color: "var(--mui-palette-text-secondary)",
+                  mt: 1,
+                }}
               >
                 {description}
               </Typography>
@@ -523,7 +504,9 @@ export default function GalleryEditor({
                 <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
                 <Typography
                   variant="body2"
-                  color="var(--mui-palette-text-secondary)"
+                  sx={{
+                    color: "var(--mui-palette-text-secondary)",
+                  }}
                 >
                   {t("profile:gallery.verification_required_for_more_photos")}{" "}
                   <a
@@ -540,7 +523,6 @@ export default function GalleryEditor({
           </>
         )}
       </Header>
-
       <HiddenInput
         ref={inputRef}
         type="file"
@@ -548,50 +530,36 @@ export default function GalleryEditor({
         onChange={handleFileChange}
         aria-label={t("profile:gallery.select_photo")}
       />
-
       {showReorderSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {t("profile:gallery.reorder_success")}
         </Alert>
       )}
-
       {showUploadSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {t("profile:gallery.upload_success")}
         </Alert>
       )}
-
       {uploadError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {uploadError}
         </Alert>
       )}
-
       {photos.length === 0 ? (
         canEdit ? (
           <EmptyState onClick={handleUploadClick}>
             <EmptyStateIcon />
-            <Typography
-              variant="h3"
-              gutterBottom
-              sx={{ color: "var(--mui-palette-text-primary)" }}
-            >
+            <Typography variant="h3" gutterBottom sx={{ color: "var(--mui-palette-text-primary)" }}>
               {t("profile:gallery.empty_title")}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "var(--mui-palette-text-secondary)" }}
-            >
+            <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
               {t("profile:gallery.empty_description")}
             </Typography>
           </EmptyState>
         ) : (
           <EmptyState sx={{ cursor: "default" }}>
             <EmptyStateIcon />
-            <Typography
-              variant="body2"
-              sx={{ color: "var(--mui-palette-text-secondary)" }}
-            >
+            <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
               {t("profile:gallery.no_photos")}
             </Typography>
           </EmptyState>
@@ -607,9 +575,7 @@ export default function GalleryEditor({
           onTouchEnd={handleTouchEnd}
         >
           {(() => {
-            const draggedIndex = draggedItemId
-              ? photos.findIndex((p) => p.itemId === draggedItemId)
-              : -1;
+            const draggedIndex = draggedItemId ? photos.findIndex((p) => p.itemId === draggedItemId) : -1;
 
             // Determine if this is a touch drag (simpler preview) or mouse drag (full reorder preview)
             const isTouchDrag = touchStartItemId !== null;
@@ -638,24 +604,15 @@ export default function GalleryEditor({
               }
 
               // Find index of first real item (not placeholder)
-              const firstRealItemIndex = reorderedItems.findIndex(
-                (i) => i !== "placeholder",
-              );
+              const firstRealItemIndex = reorderedItems.findIndex((i) => i !== "placeholder");
 
               return reorderedItems.map((item, renderIndex) => {
                 if (item === "placeholder") {
-                  return (
-                    <DropPlaceholder
-                      key="drop-placeholder"
-                      onDragOver={(e) => e.preventDefault()}
-                    />
-                  );
+                  return <DropPlaceholder key="drop-placeholder" onDragOver={(e) => e.preventDefault()} />;
                 }
 
                 // Find original index for drag handlers
-                const originalIndex = photos.findIndex(
-                  (p) => p.itemId === item.itemId,
-                );
+                const originalIndex = photos.findIndex((p) => p.itemId === item.itemId);
 
                 return (
                   <GalleryItem
@@ -668,9 +625,7 @@ export default function GalleryEditor({
                     onDelete={handleDelete}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
-                    onDragOver={(e) =>
-                      handleDragOver(e, item.itemId, originalIndex)
-                    }
+                    onDragOver={(e) => handleDragOver(e, item.itemId, originalIndex)}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
@@ -684,9 +639,7 @@ export default function GalleryEditor({
             const items = photos.map((item, index) => (
               <React.Fragment key={item.itemId}>
                 {/* Show placeholder before this item if dropIndex matches */}
-                {isTouchDrag && dropIndex === index && (
-                  <DropPlaceholder key={`drop-placeholder-${index}`} />
-                )}
+                {isTouchDrag && dropIndex === index && <DropPlaceholder key={`drop-placeholder-${index}`} />}
                 <GalleryItem
                   item={item}
                   isFirst={index === 0}

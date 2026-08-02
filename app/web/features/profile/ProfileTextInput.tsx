@@ -7,10 +7,7 @@ interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
 }
 
 const ProfileTextInput = forwardRef(
-  (
-    props: ProfileTextInputProps,
-    ref: RefObject<HTMLInputElement | null> | Ref<HTMLDivElement> | undefined,
-  ) => {
+  (props: ProfileTextInputProps, ref: RefObject<HTMLInputElement | null> | Ref<HTMLDivElement> | undefined) => {
     return <TextField ref={ref} {...props} margin="normal" />;
   },
 );

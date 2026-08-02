@@ -1,10 +1,10 @@
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
+import { getMuiTimeFormat } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
-import { getMuiTimeFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
@@ -47,10 +47,7 @@ const Timepicker = ({
   testId,
 }: TimepickerProps) => {
   const { t, i18n } = useTranslation([GLOBAL]);
-  const format = useMemo(
-    () => getMuiTimeFormat(i18n.language),
-    [i18n.language],
-  );
+  const format = useMemo(() => getMuiTimeFormat(i18n.language), [i18n.language]);
 
   return (
     <Controller
@@ -65,10 +62,7 @@ const Timepicker = ({
           label={label}
           value={field.value ? temporalToDayjs(field.value) : null}
           onChange={(valueDayjs: Dayjs | null) => {
-            const valueTemporal =
-              valueDayjs && valueDayjs.isValid()
-                ? dayjsToTemporal(valueDayjs)
-                : null;
+            const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
             field.onChange(valueTemporal);
             onPostChange?.(valueTemporal);
           }}
@@ -79,15 +73,8 @@ const Timepicker = ({
               fullWidth: true,
               id,
               error,
-              helperText: (
-                <span data-testid={`${name}-helper-text`}>{helperText}</span>
-              ),
+              helperText: <span data-testid={`${name}-helper-text`}>{helperText}</span>,
               variant: "standard",
-              InputProps: {
-                className,
-                "aria-label": t("global:change_time"),
-              },
-              slotProps: { inputLabel: { shrink: true } },
               sx: {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "var(--mui-palette-primary-main)",
@@ -96,6 +83,13 @@ const Timepicker = ({
                 "& .MuiPaper-root": {
                   backgroundColor: "var(--mui-palette-primary-main)",
                   color: "var(--mui-palette-text-primary)",
+                },
+              },
+              slotProps: {
+                inputLabel: { shrink: true },
+                input: {
+                  className,
+                  "aria-label": t("global:change_time"),
                 },
               },
             },

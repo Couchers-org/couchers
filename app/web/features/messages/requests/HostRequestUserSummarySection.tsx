@@ -1,19 +1,14 @@
-import {
-  Skeleton,
-  styled,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Skeleton, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
+import { localizeDateRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { daysBetween, localizeDateTimeRange } from "utils/date";
+import { daysBetween } from "utils/date";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
@@ -67,20 +62,14 @@ const HostRequestUserSummarySection = ({
       {!otherUser ? (
         <Skeleton variant="circular" sx={{ height: "2rem", width: "2rem" }} />
       ) : (
-        <Avatar
-          style={{ height: "2rem", width: "2rem" }}
-          user={otherUser}
-          isProfileLink
-        />
+        <Avatar style={{ height: "2rem", width: "2rem" }} user={otherUser} isProfileLink />
       )}
       <StyledShortUserInfo>
         <Typography component="div" variant="body2">
           {!otherUser ? (
             <Skeleton />
           ) : (
-            <Tooltip
-              title={`${otherUser.name}, ${otherUser.age}, ${otherUser.city}`}
-            >
+            <Tooltip title={`${otherUser.name}, ${otherUser.age}, ${otherUser.city}`}>
               <div>
                 {`${truncateTextEllipsis(otherUser.name, 25)}, ${
                   otherUser.age
@@ -90,17 +79,13 @@ const HostRequestUserSummarySection = ({
           )}
         </Typography>
         {hostRequest && (
-          <Typography
-            component="p"
-            variant="h3"
-            sx={{ paddingRight: theme.spacing(1) }}
-          >
-            {localizeDateTimeRange(
+          <Typography component="p" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
+            {localizeDateRange(
               Temporal.PlainDateTime.from(hostRequest.fromDate),
               Temporal.PlainDateTime.from(hostRequest.toDate),
+              locale,
               {
-                locale,
-                includeTime: false,
+                includeYear: "auto",
                 abbreviate: true,
               },
             )}
@@ -115,25 +100,17 @@ const HostRequestUserSummarySection = ({
       <UserSummary user={otherUser} smallAvatar={isMobile}>
         {hostRequest && (
           <StyledRequestedDatesWrapper>
-            <Typography
-              component="p"
-              variant="h3"
-              sx={{ paddingRight: theme.spacing(1) }}
-            >
-              {localizeDateTimeRange(
+            <Typography component="p" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
+              {localizeDateRange(
                 Temporal.PlainDateTime.from(hostRequest.fromDate),
                 Temporal.PlainDateTime.from(hostRequest.toDate),
+                locale,
                 {
-                  locale,
-                  includeTime: false,
+                  includeYear: "auto",
                 },
               )}
             </Typography>
-            <Typography
-              component="p"
-              variant="h3"
-              sx={{ fontWeight: "initial" }}
-            >
+            <Typography component="p" variant="h3" sx={{ fontWeight: "initial" }}>
               (
               {t("host_request_view.request_duration", {
                 count: daysBetween(

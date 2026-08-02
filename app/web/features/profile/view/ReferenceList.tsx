@@ -18,26 +18,15 @@ const ReferencesList = styled(List)(({ theme }) => ({
   overflow: "hidden",
 }));
 
-export default function ReferenceList({
-  isReceived,
-  referencePages,
-  referenceUsers,
-}: ReferenceListProps) {
+export default function ReferenceList({ isReceived, referencePages, referenceUsers }: ReferenceListProps) {
   return (
     <ReferencesList>
       {referencePages
         .map((page) =>
           page.referencesList.map((reference) => {
-            const userToShow = referenceUsers?.get(
-              isReceived ? reference.fromUserId : reference.toUserId,
-            );
+            const userToShow = referenceUsers?.get(isReceived ? reference.fromUserId : reference.toUserId);
             return userToShow ? (
-              <ReferenceListItem
-                key={reference.referenceId}
-                isReceived
-                user={userToShow}
-                reference={reference}
-              />
+              <ReferenceListItem key={reference.referenceId} isReceived user={userToShow} reference={reference} />
             ) : null;
           }),
         )

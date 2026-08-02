@@ -1,11 +1,4 @@
-import {
-  Box,
-  ListItemAvatar,
-  ListItemText,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
@@ -19,9 +12,7 @@ import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
 // It could be BlockedUser.AsObject or LiteUser.AsObject and only LiteUser has hasStrongVerification
-function isLiteUser(
-  user: LiteUser.AsObject | BlockedUser.AsObject,
-): user is LiteUser.AsObject {
+function isLiteUser(user: LiteUser.AsObject | BlockedUser.AsObject): user is LiteUser.AsObject {
   return "hasStrongVerification" in user;
 }
 
@@ -40,11 +31,13 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
   width: "1.25rem",
 }));
 
-const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+const StyledListItemText = styled(ListItemText, {
+  shouldForwardProp: (prop) => prop !== "isSmallAvatar",
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
   display: "grid",
   gap: theme.spacing(0.25),
   margin: 0,
-  minHeight: theme.spacing(9),
+  minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
 }));
 
 const StyledSkeleton = styled(Skeleton, {
@@ -86,16 +79,12 @@ export default function UserSummary({
   isProfileLink = true,
   menuItems,
 }: UserSummaryProps) {
-  const headlineComponentWithRef = React.forwardRef(
-    function HeadlineComponentWithRef(props, ref) {
-      return React.createElement(headlineComponent, { ...props, ref });
-    },
-  );
+  const headlineComponentWithRef = React.forwardRef(function HeadlineComponentWithRef(props, ref) {
+    return React.createElement(headlineComponent, { ...props, ref });
+  });
 
   const isMobile = useIsScreenSizeOrSmaller("mobile");
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -105,12 +94,7 @@ export default function UserSummary({
     setMenuAnchorEl(null);
   };
 
-  const nameValue =
-    user && user.name
-      ? user.name.length > 20
-        ? user.name.slice(0, 20) + "..."
-        : user.name
-      : "";
+  const nameValue = user && user.name ? (user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name) : "";
 
   const cityValue =
     user && "city" in user && typeof user.city === "string"
@@ -128,18 +112,11 @@ export default function UserSummary({
         sx={{ marginTop: "auto", fontSize: "1.2rem" }}
       >
         {!user ? (
-          <Skeleton
-            data-testid={USER_TITLE_SKELETON_TEST_ID}
-            sx={{ maxWidth: 300 }}
-          />
+          <Skeleton data-testid={USER_TITLE_SKELETON_TEST_ID} sx={{ maxWidth: 300 }} />
         ) : (
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {nameOnly
-              ? nameValue
-              : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
-            {isLiteUser(user) && user.hasStrongVerification && (
-              <StrongVerificationBadge />
-            )}
+            {nameOnly ? nameValue : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
+            {isLiteUser(user) && user.hasStrongVerification && <StrongVerificationBadge />}
           </Box>
         )}
       </Typography>
@@ -152,15 +129,12 @@ export default function UserSummary({
         {!user ? (
           <StyledSkeleton variant="circular" isSmallAvatar={smallAvatar} />
         ) : (
-          <StyledAvatar
-            user={user}
-            isProfileLink={isProfileLink}
-            isSmallAvatar={smallAvatar}
-          />
+          <StyledAvatar user={user} isProfileLink={isProfileLink} isSmallAvatar={smallAvatar} />
         )}
       </ListItemAvatar>
       <StyledListItemText
         disableTypography
+        isSmallAvatar={smallAvatar}
         primary={
           titleIsLink && user ? (
             <ProfileLink
@@ -183,16 +157,8 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Tooltip
-                title={(user as LiteUser.AsObject)?.city}
-                arrow
-                placement="top"
-              >
-                <Typography
-                  color="textSecondary"
-                  variant="body1"
-                  noWrap={nameOnly}
-                >
+              <Tooltip title={(user as LiteUser.AsObject)?.city} arrow placement="top">
+                <Typography color="textSecondary" variant="body1" noWrap={nameOnly}>
                   {!user ? <Skeleton /> : cityValue}
                 </Typography>
               </Tooltip>
