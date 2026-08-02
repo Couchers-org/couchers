@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import ColumnElement, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, case, delete, exists, func, intersect, or_, union
 
@@ -191,80 +191,56 @@ class API(api_pb2_grpc.APIServicer):
             )
         ).scalar_one()
 
-        # TODO: collapse these 5 host-request counts into one query (select requests where I'm a party,
-        # then count sent/received/hosting/surfing/offers with func.count().filter()) — follow-up PR
-        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
-            HostRequest.initiator_user_id == context.user_id
+        # One pass over the requests the viewer is a party to that have unread messages, tallied both by
+        # direction (sent/received) and by stay-role. The role-based tallies bucket public-trip offers
+        # correctly despite the role reversal: the offering host counts under hosting, the traveller
+        # under surfing.
+        viewer_last_seen_message_id = case(
+            (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
+            else_=HostRequest.recipient_last_seen_message_id,
         )
-        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.recipient_user_id)
-        sent_reqs_query = where_moderated_content_visible(sent_reqs_query, context, HostRequest, is_list_operation=True)
-        sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
-
-        unseen_sent_host_request_count = session.execute(
-            select(func.count())
-            .select_from(sent_reqs_last_seen_message_ids)
+        other_party_user_id = case(
+            (HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id),
+            else_=HostRequest.initiator_user_id,
+        )
+        unseen_host_request_counts_query = (
+            select(
+                func.count().filter(HostRequest.initiator_user_id == context.user_id),
+                func.count().filter(HostRequest.recipient_user_id == context.user_id),
+                func.count().filter(is_hosting_party(context.user_id)),
+                func.count().filter(is_surfing_party(context.user_id)),
+                func.count().filter(is_public_trip_offer_party(context.user_id)),
+            )
+            .select_from(HostRequest)
+            .where(
+                or_(
+                    HostRequest.initiator_user_id == context.user_id,
+                    HostRequest.recipient_user_id == context.user_id,
+                )
+            )
             .where(
                 exists(
                     select(1)
-                    .where(Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id)
-                    .where(Message.id > sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id)
+                    .where(Message.conversation_id == HostRequest.conversation_id)
+                    .where(Message.id > viewer_last_seen_message_id)
                 )
             )
-        ).scalar_one()
-
-        received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
-            HostRequest.recipient_user_id == context.user_id
         )
-        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.initiator_user_id)
-        received_reqs_query = where_moderated_content_visible(
-            received_reqs_query, context, HostRequest, is_list_operation=True
+        unseen_host_request_counts_query = where_users_column_visible(
+            unseen_host_request_counts_query, context, other_party_user_id
         )
-        received_reqs_last_seen_message_ids = received_reqs_query.subquery()
+        unseen_host_request_counts_query = where_moderated_content_visible(
+            unseen_host_request_counts_query, context, HostRequest, is_list_operation=True
+        )
+        (
+            unseen_sent_host_request_count,
+            unseen_received_host_request_count,
+            unseen_hosting_host_request_count,
+            unseen_surfing_host_request_count,
+            unseen_public_trip_offer_count,
+        ) = session.execute(unseen_host_request_counts_query).one()
 
-        unseen_received_host_request_count = session.execute(
-            select(func.count())
-            .select_from(received_reqs_last_seen_message_ids)
-            .where(
-                exists(
-                    select(1)
-                    .where(Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id)
-                    .where(Message.id > received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id)
-                )
-            )
-        ).scalar_one()
-
-        # Role-based unread host-request counts. Unlike sent/received above, these
-        # classify by stay-role, so public-trip offers (role reversal) bucket
-        # correctly: the offering host counts under hosting, the traveller under surfing.
-        def role_based_unseen_host_request_count(role_filter: ColumnElement[bool]) -> int:
-            viewer_last_seen = case(
-                (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
-                else_=HostRequest.recipient_last_seen_message_id,
-            )
-            reqs_query = select(HostRequest.conversation_id, viewer_last_seen.label("last_seen")).where(role_filter)
-            reqs_query = where_users_column_visible(reqs_query, context, HostRequest.initiator_user_id)
-            reqs_query = where_users_column_visible(reqs_query, context, HostRequest.recipient_user_id)
-            reqs_query = where_moderated_content_visible(reqs_query, context, HostRequest, is_list_operation=True)
-            reqs = reqs_query.subquery()
-            return session.execute(
-                select(func.count())
-                .select_from(reqs)
-                .where(
-                    exists(
-                        select(1)
-                        .where(Message.conversation_id == reqs.c.conversation_id)
-                        .where(Message.id > reqs.c.last_seen)
-                    )
-                )
-            ).scalar_one()
-
-        unseen_hosting_host_request_count = role_based_unseen_host_request_count(is_hosting_party(context.user_id))
-        unseen_surfing_host_request_count = role_based_unseen_host_request_count(is_surfing_party(context.user_id))
-        if context.get_boolean_value("public_trips_enabled", False):
-            unseen_public_trip_offer_count = role_based_unseen_host_request_count(
-                is_public_trip_offer_party(context.user_id)
-            )
-        else:
+        if not context.get_boolean_value("public_trips_enabled", False):
             unseen_public_trip_offer_count = 0
 
         unseen_message_query = (
