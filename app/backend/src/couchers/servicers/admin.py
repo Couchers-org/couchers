@@ -870,6 +870,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             job=generate_event_delete_notifications,
             payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
                 occurrence_id=occurrence.id,
+                deleting_user_id=context.user_id,
             ),
         )
 

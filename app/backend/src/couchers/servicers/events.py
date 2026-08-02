@@ -426,7 +426,8 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-        for user_id in set(subscribed_user_ids + attending_user_ids):
+        # no need to tell the updating user about their own update
+        for user_id in set(subscribed_user_ids + attending_user_ids) - {updating_user.id}:
             if is_not_visible(session, user_id, updating_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
@@ -455,7 +456,8 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-        for user_id in set(subscribed_user_ids + attending_user_ids):
+        # no need to tell the cancelling user about their own cancellation
+        for user_id in set(subscribed_user_ids + attending_user_ids) - {cancelling_user.id}:
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
@@ -481,7 +483,8 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-        for user_id in set(subscribed_user_ids + attending_user_ids):
+        # no need to tell the deleting user about their own deletion
+        for user_id in set(subscribed_user_ids + attending_user_ids) - {payload.deleting_user_id}:
             context = make_notification_user_context(user_id=user_id)
             notify(
                 session,

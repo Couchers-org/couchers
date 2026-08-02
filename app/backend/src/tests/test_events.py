@@ -25,12 +25,12 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import editor_pb2, events_pb2, threads_pb2
+from couchers.proto import admin_pb2, editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
-from tests.fixtures.sessions import events_session, real_editor_session, threads_session
+from tests.fixtures.sessions import events_session, real_admin_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
 
 
@@ -3116,6 +3116,114 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
         cancel_notifs = [n for n in notifications if n.topic_action.action == "cancel"]
         assert len(cancel_notifs) == 1
         assert cancel_notifs[0].moderation_state_id == occurrence.moderation_state_id
+
+
+def test_event_update_and_cancel_notifications_not_sent_to_actor(
+    db, push_collector: PushCollector, moderator: Moderator
+):
+    """The user who updates or cancels an event shouldn't be notified about their own action."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+    process_jobs()
+
+    # user2 subscribes so that there's someone left to notify
+    with events_session(token2) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    # user1, the creator, is both subscribed and attending, and updates then cancels the event
+    with events_session(token1) as api:
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                title=wrappers_pb2.StringValue(value="Updated Title"),
+                should_notify=True,
+            )
+        )
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+    process_jobs()
+
+    with session_scope() as session:
+        actor_notifs = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
+        assert [n.topic_action.action for n in actor_notifs if n.topic_action.action in ("update", "cancel")] == []
+
+        other_notifs = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        other_actions = [n.topic_action.action for n in other_notifs]
+        assert other_actions.count("update") == 1
+        assert other_actions.count("cancel") == 1
+
+
+def test_event_delete_notification_not_sent_to_actor(db, push_collector: PushCollector, moderator: Moderator):
+    """The admin who deletes an event shouldn't be notified about their own deletion."""
+    user1, token1 = generate_user()
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+    process_jobs()
+
+    # the admin is subscribed to the event they're about to delete
+    with events_session(super_token) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    with real_admin_session(super_token) as api:
+        api.DeleteEvent(admin_pb2.DeleteEventReq(event_id=event_id))
+
+    process_jobs()
+
+    with session_scope() as session:
+        actor_notifs = (
+            session.execute(select(Notification).where(Notification.user_id == super_user.id)).scalars().all()
+        )
+        assert [n.topic_action.action for n in actor_notifs if n.topic_action.action == "delete"] == []
+
+        other_notifs = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
+        assert [n.topic_action.action for n in other_notifs].count("delete") == 1
 
 
 def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
