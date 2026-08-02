@@ -6,8 +6,10 @@ import { Temporal } from "temporal-polyfill";
 import { approxDateDuration, timestampToInstant, UTC_TIMEZONE } from "utils/date";
 import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 
-/// Converts a Temporal date/time object to a Date
-/// such that it displays as expected in the UTC timezone.
+/**
+ * Converts a Temporal date/time object to a Date
+ * such that it displays as expected in the UTC timezone.
+ */
 function toDateForUTCDisplay(temporal: Temporal.ZonedDateTime | Temporal.PlainDate | Temporal.PlainDateTime): Date {
   if (temporal instanceof Temporal.ZonedDateTime) {
     // Discard the timezone, we'll reinterpret it in UTC,
@@ -23,34 +25,40 @@ function toDateForUTCDisplay(temporal: Temporal.ZonedDateTime | Temporal.PlainDa
 }
 
 interface LocalizeDateOptions {
-  /// Whether to include the year (defaults to true).
-  /// "auto" omits the year if it matches the current year (browser timezone).
+  /**
+   * Whether to include the year (defaults to true).
+   * "auto" omits the year if it matches the current year (browser timezone).
+   */
   includeYear?: boolean | "auto";
-  /// Whether to include the day (defaults to true).
+  /** Whether to include the day (defaults to true). */
   includeDay?: boolean;
-  /// Whether to include the day of week (defaults to false).
+  /** Whether to include the day of week (defaults to false). */
   includeDayOfWeek?: boolean;
-  /// Whether to abbreviate days of the week and month names (defaults to false).
+  /** Whether to abbreviate days of the week and month names (defaults to false). */
   abbreviate?: boolean;
-  /// Whether to uppercase the first letter (defaults to false). Set this only when
-  /// the date stands alone (not interpolated into a larger sentence) so it reads
-  /// like the start of a sentence. Day/month names are never otherwise capitalized.
+  /**
+   * Whether to uppercase the first letter (defaults to false). Set this only when
+   * the date stands alone (not interpolated into a larger sentence) so it reads
+   * like the start of a sentence. Day/month names are never otherwise capitalized.
+   */
   capitalize?: boolean;
 }
 
 interface LocalizeTimeOptions {
-  /// Whether to include seconds (defaults to false).
+  /** Whether to include seconds (defaults to false). */
   includeSeconds?: boolean;
 }
 interface LocalizeDateTimeOptions extends LocalizeDateOptions, LocalizeTimeOptions {
-  /// Whether to include the date (defaults to true).
+  /** Whether to include the date (defaults to true). */
   includeDate?: boolean;
-  /// Whether to include the time (defaults to true).
+  /** Whether to include the time (defaults to true). */
   includeTime?: boolean;
 }
 
-/// Localizes a date and time, in full or partially (specific components),
-/// optionally with the day of the week and seconds.
+/**
+ * Localizes a date and time, in full or partially (specific components),
+ * optionally with the day of the week and seconds.
+ */
 export function localizeDateTime(
   date: Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
@@ -61,7 +69,7 @@ export function localizeDateTime(
   return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
 }
 
-/// Localizes a date only (no time), optionally with the day of the week.
+/** Localizes a date only (no time), optionally with the day of the week. */
 export function localizeDateOnly(
   date: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
@@ -73,7 +81,7 @@ export function localizeDateOnly(
   return localizeDateTime(date, locale, { ...options, includeTime: false });
 }
 
-/// Localizes a time only (no date), optionally with seconds.
+/** Localizes a time only (no date), optionally with seconds. */
 export function localizeTimeOnly(
   time: Temporal.PlainTime | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
@@ -85,7 +93,7 @@ export function localizeTimeOnly(
   return localizeDateTime(time, locale, { ...options, includeDate: false });
 }
 
-/// Localizes only the year and month of a date.
+/** Localizes only the year and month of a date. */
 export function localizeYearMonth(
   date: Temporal.PlainYearMonth | Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
@@ -104,7 +112,7 @@ export function localizeYearMonth(
   });
 }
 
-/// Localizes the name of a month (e.g. "January", "May" in German).
+/** Localizes the name of a month (e.g. "January", "May" in German). */
 export function localizeMonthName(
   month: number | Temporal.PlainYearMonth | Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   locale: string,
@@ -124,7 +132,7 @@ export function localizeMonthName(
   });
 }
 
-/// Localizes a range of date and times as a string.
+/** Localizes a range of date and times as a string. */
 export function localizeDateTimeRange(
   start: Temporal.PlainDateTime | Temporal.ZonedDateTime,
   end: Temporal.PlainDateTime | Temporal.ZonedDateTime,
@@ -138,7 +146,7 @@ export function localizeDateTimeRange(
   return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
 }
 
-/// Localizes a range of dates (no times) as a string.
+/** Localizes a range of dates (no times) as a string. */
 export function localizeDateRange(
   start: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
   end: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
@@ -161,7 +169,7 @@ export function localizeDateRange(
 // Key: stringified (Intl.DateTimeFormatOptions & { locale: string })
 const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
 
-/// Gets an Intl.DateTimeFormat based on options.
+/** Gets an Intl.DateTimeFormat based on options. */
 function getIntlDateTimeFormatUTC(
   locale: string,
   options?: LocalizeDateTimeOptions,
@@ -177,7 +185,7 @@ function getIntlDateTimeFormatUTC(
   return format;
 }
 
-/// Creates a new Intl.DateTimeFormat object based on params.
+/** Creates a new Intl.DateTimeFormat object based on params. */
 function getIntlDateTimeFormatOptionsUTC(
   options?: LocalizeDateTimeOptions,
   dateComponents?: { year?: number },
@@ -219,7 +227,7 @@ function getIntlDateTimeFormatOptionsUTC(
 
 const timeZoneNameCache = new Map<string, string>();
 
-/// Localizes the name of a time zone.
+/** Localizes the name of a time zone. */
 export function localizeTimeZone(
   timeZone: string,
   locale: string,
@@ -244,7 +252,7 @@ export function localizeTimeZone(
 
 const isoMuiDateFormat = "YYYY-MM-DD";
 
-/// Gets the date format for a locale using Material UI placeholders.
+/** Gets the date format for a locale using Material UI placeholders. */
 export function getMuiDateFormat(locale: string): string {
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
     return isoMuiDateFormat;
@@ -266,7 +274,7 @@ export function getMuiDateFormat(locale: string): string {
 
 const defaultMuiTimeFormat = "HH:mm";
 
-/// Gets a localized time format string compatible with Material UI time pickers.
+/** Gets a localized time format string compatible with Material UI time pickers. */
 export function getMuiTimeFormat(locale: string): string {
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
     return defaultMuiTimeFormat;
@@ -301,16 +309,16 @@ export function getMuiTimeFormat(locale: string): string {
 
 export interface LocalizeRelativeTimeOptions {
   style?: Intl.RelativeTimeFormatStyle;
-  /// We override the default to "auto"
+  /** We override the default to "auto" */
   numeric?: Intl.RelativeTimeFormatNumeric;
-  /// If true, capitalize if the script supports it. By default uses running text capitalization.
+  /** If true, capitalize if the script supports it. By default uses running text capitalization. */
   capitalize?: boolean;
 }
 
 // Creating Intl objects every time is slow, so cache them.
 const relativeTimeFormatCache = new Map<string, Intl.RelativeTimeFormat>();
 
-/// Localizes a time offset expressed in a given unit, e.g. "in 4 minutes".
+/** Localizes a time offset expressed in a given unit, e.g. "in 4 minutes". */
 export function localizeRelativeTimeUnit(
   value: number,
   unit: Intl.RelativeTimeFormatUnit,
@@ -332,9 +340,11 @@ export function localizeRelativeTimeUnit(
   return result;
 }
 
-/// Localizes a time offset (positive or negative),
-/// expressing it in the largest possible unit,
-/// e.g. "in 4 days" for a duration of 4 days and 3 minutes.
+/**
+ * Localizes a time offset (positive or negative),
+ * expressing it in the largest possible unit,
+ * e.g. "in 4 days" for a duration of 4 days and 3 minutes.
+ */
 export function localizeTimeOffset(
   duration: Temporal.Duration,
   locale: string,
@@ -367,7 +377,7 @@ export function localizeTimeOffset(
   return localizeRelativeTimeUnit(duration.seconds, "seconds", locale, options);
 }
 
-/// Localizes a point in time as a duration relative to some other point in time (by default, now).
+/** Localizes a point in time as a duration relative to some other point in time (by default, now). */
 export function localizeRelativeTime(
   instant: Temporal.Instant | Timestamp.AsObject,
   locale: string,
@@ -385,8 +395,10 @@ export function localizeRelativeTime(
   return localizeTimeOffset(duration, locale, options);
 }
 
-/// Localizes a duration (amount of time), expressing it in the largest possible unit,
-/// e.g. "4 days" for a duration of 4 days and 3 minutes. (no "in " prefix)
+/**
+ * Localizes a duration (amount of time), expressing it in the largest possible unit,
+ * e.g. "4 days" for a duration of 4 days and 3 minutes. (no "in " prefix)
+ */
 export function localizeDuration(duration: Temporal.Duration, locale: string) {
   duration = approxDateDuration(duration);
 
