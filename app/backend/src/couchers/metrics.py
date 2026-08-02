@@ -26,7 +26,7 @@ from sqlalchemy.sql.selectable import Select
 from couchers import experimentation
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.helpers.completed_profile import galleries_with_photos, has_completed_profile_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.models import (
     BackgroundJob,
@@ -52,6 +52,7 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
+from couchers.models.uploads import PhotoGalleryItem
 from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
@@ -467,59 +468,67 @@ def _active_users_bucket_specs() -> list[tuple[Gauge, str, ColumnElement[bool]]]
     return specs
 
 
-_users_gauge_specs: list[tuple[str, str, ColumnElement[bool] | None]] = [
-    ("couchers_users", "Total number of users", None),
-    *[
+def _make_users_gauges() -> list[Gauge]:
+    # Galleries holding at least one photo, outer joined below so the avatar check in the completed profile spec is a
+    # hash join rather than a subplan run once per user inside the FILTER clause.
+    galleries_with_photos = select(PhotoGalleryItem.gallery_id).distinct().subquery("galleries_with_photos")
+
+    specs: list[tuple[str, str, ColumnElement[bool] | None]] = [
+        ("couchers_users", "Total number of users", None),
+        *[
+            (
+                f"couchers_active_users_{name}",
+                f"Number of active users in the last {description}",
+                _active_users_age < interval,
+            )
+            for name, description, interval in _active_user_periods
+        ],
+        ("couchers_users_man", "Total number of users with gender 'Man'", User.gender == "Man"),
+        ("couchers_users_woman", "Total number of users with gender 'Woman'", User.gender == "Woman"),
+        ("couchers_users_nonbinary", "Total number of users with gender 'Non-binary'", User.gender == "Non-binary"),
         (
-            f"couchers_active_users_{name}",
-            f"Number of active users in the last {description}",
-            _active_users_age < interval,
-        )
-        for name, description, interval in _active_user_periods
-    ],
-    ("couchers_users_man", "Total number of users with gender 'Man'", User.gender == "Man"),
-    ("couchers_users_woman", "Total number of users with gender 'Woman'", User.gender == "Woman"),
-    ("couchers_users_nonbinary", "Total number of users with gender 'Non-binary'", User.gender == "Non-binary"),
-    (
-        "couchers_users_can_host",
-        "Total number of users with hosting status 'can_host'",
-        User.hosting_status == HostingStatus.can_host,
-    ),
-    (
-        "couchers_users_cant_host",
-        "Total number of users with hosting status 'cant_host'",
-        User.hosting_status == HostingStatus.cant_host,
-    ),
-    (
-        "couchers_users_maybe",
-        "Total number of users with hosting status 'maybe'",
-        User.hosting_status == HostingStatus.maybe,
-    ),
-    (
-        "couchers_users_completed_profile",
-        "Total number of users with a completed profile",
-        has_completed_profile_expression(prejoined_avatar=True),
-    ),
-    (
-        "couchers_users_completed_my_home",
-        "Total number of users with a completed my home section",
-        cast(ColumnElement[bool], User.has_completed_my_home),
-    ),
-]
+            "couchers_users_can_host",
+            "Total number of users with hosting status 'can_host'",
+            User.hosting_status == HostingStatus.can_host,
+        ),
+        (
+            "couchers_users_cant_host",
+            "Total number of users with hosting status 'cant_host'",
+            User.hosting_status == HostingStatus.cant_host,
+        ),
+        (
+            "couchers_users_maybe",
+            "Total number of users with hosting status 'maybe'",
+            User.hosting_status == HostingStatus.maybe,
+        ),
+        (
+            "couchers_users_completed_profile",
+            "Total number of users with a completed profile",
+            has_completed_profile_expression(galleries_with_photos),
+        ),
+        (
+            "couchers_users_completed_my_home",
+            "Total number of users with a completed my home section",
+            cast(ColumnElement[bool], User.has_completed_my_home),
+        ),
+    ]
+
+    return _make_gauges_from_single_pass(
+        "couchers_users",
+        lambda columns: (
+            select(*columns)
+            .select_from(User)
+            .outerjoin(galleries_with_photos, galleries_with_photos.c.gallery_id == User.profile_gallery_id)
+            .where(User.is_visible)
+        ),
+        specs,
+        _active_users_bucket_specs(),
+    )
+
 
 # Each of these was its own SELECT count(*) FROM users, which added up to roughly sixteen full scans of the table on
 # every scrape and dominated all sequential tuple reads in the database.
-users_gauges: list[Gauge] = _make_gauges_from_single_pass(
-    "couchers_users",
-    lambda columns: (
-        select(*columns)
-        .select_from(User)
-        .outerjoin(galleries_with_photos, galleries_with_photos.c.gallery_id == User.profile_gallery_id)
-        .where(User.is_visible)
-    ),
-    _users_gauge_specs,
-    _active_users_bucket_specs(),
-)
+users_gauges: list[Gauge] = _make_users_gauges()
 
 # Number of users per community, labeled by community name. Only includes communities at the region level or
 # broader (world, macroregion, region).
