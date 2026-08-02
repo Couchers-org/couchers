@@ -57,13 +57,8 @@ export default function ArchivedTab() {
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
     queryKey: [groupChatsListKey({ onlyArchived: true })],
     queryFn: ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(
-        lastMessageId as number | undefined,
-        10,
-        true,
-      ),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+      service.conversations.listGroupChats(lastMessageId as number | undefined, 10, true),
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.lastMessageId),
     initialPageParam: undefined,
   });
 
@@ -84,8 +79,7 @@ export default function ArchivedTab() {
         onlyActive: false,
         onlyArchived: true,
       }),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
     initialPageParam: undefined,
   });
 
@@ -93,8 +87,7 @@ export default function ArchivedTab() {
   const error = chatsError || requestsError;
 
   const hasNoArchivedItems =
-    chatsData?.pages[0]?.groupChatsList.length === 0 &&
-    requestsData?.pages[0]?.hostRequestsList.length === 0;
+    chatsData?.pages[0]?.groupChatsList.length === 0 && requestsData?.pages[0]?.hostRequestsList.length === 0;
 
   return (
     <StyledWrapper>
@@ -106,79 +99,54 @@ export default function ArchivedTab() {
       ) : (
         <>
           {/* Archived Chats Section */}
-          {chatsData &&
-            chatsData.pages.some((page) => page.groupChatsList.length > 0) && (
-              <StyledSection>
-                <Typography variant="h3" gutterBottom>
-                  {t("messages_page.tabs.chats")}
-                </Typography>
-                <StyledList>
-                  {chatsData.pages.map((groupChatsRes, pageNumber) => (
-                    <React.Fragment key={`archived-chats-page-${pageNumber}`}>
-                      {groupChatsRes.groupChatsList.map((groupChat) => (
-                        <Link
-                          key={groupChat.groupChatId}
-                          href={routeToGroupChat(groupChat.groupChatId)}
-                        >
-                          <StyledGroupChatListItem
-                            groupChat={groupChat}
-                            isArchived
-                          />
-                        </Link>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                  {chatsHasNextPage && (
-                    <Button
-                      onClick={() => chatsFetchNextPage()}
-                      loading={chatsIsFetchingNextPage}
-                    >
-                      {t("group_chats_tab.load_more_button_label")}
-                    </Button>
-                  )}
-                </StyledList>
-              </StyledSection>
-            )}
+          {chatsData && chatsData.pages.some((page) => page.groupChatsList.length > 0) && (
+            <StyledSection>
+              <Typography variant="h3" gutterBottom>
+                {t("messages_page.tabs.chats")}
+              </Typography>
+              <StyledList>
+                {chatsData.pages.map((groupChatsRes, pageNumber) => (
+                  <React.Fragment key={`archived-chats-page-${pageNumber}`}>
+                    {groupChatsRes.groupChatsList.map((groupChat) => (
+                      <Link key={groupChat.groupChatId} href={routeToGroupChat(groupChat.groupChatId)}>
+                        <StyledGroupChatListItem groupChat={groupChat} isArchived />
+                      </Link>
+                    ))}
+                  </React.Fragment>
+                ))}
+                {chatsHasNextPage && (
+                  <Button onClick={() => chatsFetchNextPage()} loading={chatsIsFetchingNextPage}>
+                    {t("group_chats_tab.load_more_button_label")}
+                  </Button>
+                )}
+              </StyledList>
+            </StyledSection>
+          )}
 
           {/* Archived Host Requests Section */}
-          {requestsData &&
-            requestsData.pages.some(
-              (page) => page.hostRequestsList.length > 0,
-            ) && (
-              <StyledSection>
-                <Typography variant="h3" gutterBottom>
-                  {t("messages_page.tabs.hosting")} &{" "}
-                  {t("messages_page.tabs.surfing")}
-                </Typography>
-                <StyledList>
-                  {requestsData.pages.map((hostRequestsRes, pageNumber) => (
-                    <React.Fragment
-                      key={`archived-requests-page-${pageNumber}`}
-                    >
-                      {hostRequestsRes.hostRequestsList.map((hostRequest) => (
-                        <Link
-                          key={hostRequest.hostRequestId}
-                          href={routeToHostRequest(hostRequest.hostRequestId)}
-                        >
-                          <StyledHostRequestListItem
-                            hostRequest={hostRequest}
-                            isArchived
-                          />
-                        </Link>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                  {requestsHasNextPage && (
-                    <Button
-                      onClick={() => requestsFetchNextPage()}
-                      loading={requestsIsFetchingNextPage}
-                    >
-                      {t("requests_tab.load_more_button_label")}
-                    </Button>
-                  )}
-                </StyledList>
-              </StyledSection>
-            )}
+          {requestsData && requestsData.pages.some((page) => page.hostRequestsList.length > 0) && (
+            <StyledSection>
+              <Typography variant="h3" gutterBottom>
+                {t("messages_page.tabs.hosting")} & {t("messages_page.tabs.surfing")}
+              </Typography>
+              <StyledList>
+                {requestsData.pages.map((hostRequestsRes, pageNumber) => (
+                  <React.Fragment key={`archived-requests-page-${pageNumber}`}>
+                    {hostRequestsRes.hostRequestsList.map((hostRequest) => (
+                      <Link key={hostRequest.hostRequestId} href={routeToHostRequest(hostRequest.hostRequestId)}>
+                        <StyledHostRequestListItem hostRequest={hostRequest} isArchived />
+                      </Link>
+                    ))}
+                  </React.Fragment>
+                ))}
+                {requestsHasNextPage && (
+                  <Button onClick={() => requestsFetchNextPage()} loading={requestsIsFetchingNextPage}>
+                    {t("requests_tab.load_more_button_label")}
+                  </Button>
+                )}
+              </StyledList>
+            </StyledSection>
+          )}
         </>
       )}
     </StyledWrapper>

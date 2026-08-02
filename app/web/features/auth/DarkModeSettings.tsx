@@ -1,8 +1,4 @@
-import {
-  DarkModeOutlined,
-  LightModeOutlined,
-  SettingsBrightnessOutlined,
-} from "@mui/icons-material";
+import { DarkModeOutlined, LightModeOutlined, SettingsBrightnessOutlined } from "@mui/icons-material";
 import { Box, Button, styled, Typography } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
 import { useTranslation } from "i18n";
@@ -53,21 +49,15 @@ export default function DarkModeSettings() {
   };
 
   const getModeText = () => {
-    if (mode === "light")
-      return t("account_settings_page.appearance_section.modes.light");
-    if (mode === "dark")
-      return t("account_settings_page.appearance_section.modes.dark");
+    if (mode === "light") return t("account_settings_page.appearance_section.modes.light");
+    if (mode === "dark") return t("account_settings_page.appearance_section.modes.dark");
     return t("account_settings_page.appearance_section.modes.system");
   };
 
   return (
     <div>
-      <Typography variant="h2">
-        {t("account_settings_page.appearance_section.title")}
-      </Typography>
-      <Typography variant="body1">
-        {t("account_settings_page.appearance_section.current_mode")}
-      </Typography>
+      <Typography variant="h2">{t("account_settings_page.appearance_section.title")}</Typography>
+      <Typography variant="body1">{t("account_settings_page.appearance_section.current_mode")}</Typography>
       <ModeDisplay>
         {getModeIcon()}
         <Typography
@@ -83,12 +73,7 @@ export default function DarkModeSettings() {
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t("account_settings_page.appearance_section.click_to_change")}
       </Typography>
-      <Button
-        variant="contained"
-        onClick={handleToggle}
-        disabled={isTransitioning}
-        startIcon={getModeIcon()}
-      >
+      <Button variant="contained" onClick={handleToggle} disabled={isTransitioning} startIcon={getModeIcon()}>
         {t("account_settings_page.appearance_section.change_mode")}
       </Button>
     </div>

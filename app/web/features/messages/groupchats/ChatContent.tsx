@@ -7,15 +7,13 @@ import { GetGroupChatMessagesRes } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
 import { ReactNode } from "react";
 
-const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
-  ({ theme }) => ({
-    padding: theme.spacing(2, 2),
+const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(({ theme }) => ({
+  padding: theme.spacing(2, 2),
 
-    [theme.breakpoints.down("md")]: {
-      padding: theme.spacing(1, 1),
-    },
-  }),
-);
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(1, 1),
+  },
+}));
 
 const ChatContent = ({
   isHostRequest,
@@ -52,9 +50,7 @@ const ChatContent = ({
 
   return (
     <StyledInfiniteMessageLoader
-      earliestMessageId={
-        messages.pages[messages.pages.length - 1].lastMessageId
-      }
+      earliestMessageId={messages.pages[messages.pages.length - 1].lastMessageId}
       latestMessage={messages.pages[0].messagesList[0]}
       fetchNextPage={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}

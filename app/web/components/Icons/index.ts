@@ -17,10 +17,7 @@ export { default as CheckCircleIcon } from "@mui/icons-material/CheckCircle";
 export { default as CheckIcon } from "@mui/icons-material/CheckOutlined";
 export { default as ChevronRightIcon } from "@mui/icons-material/ChevronRightOutlined";
 export { default as ClockIcon } from "@mui/icons-material/ScheduleOutlined";
-export {
-  default as CloseIcon,
-  default as CrossIcon,
-} from "@mui/icons-material/CloseOutlined";
+export { default as CloseIcon, default as CrossIcon } from "@mui/icons-material/CloseOutlined";
 export { default as CommunityLeadersIcon } from "@mui/icons-material/SportsSoccerOutlined";
 export { default as CouchersIcon } from "./CouchersIcon";
 export { default as CouchFilledIcon } from "@mui/icons-material/Weekend";

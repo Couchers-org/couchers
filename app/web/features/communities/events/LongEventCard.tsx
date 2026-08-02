@@ -1,12 +1,5 @@
 import { Group } from "@mui/icons-material";
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, CardMedia, styled, Tooltip, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import FlagButton from "features/FlagButton";
@@ -120,13 +113,7 @@ const CancelledPill = styled(Pill)(({ theme }) => ({
   color: "var(--mui-palette-common-white)",
 }));
 
-const LongEventCard = ({
-  event,
-  userId,
-}: {
-  event: Event.AsObject;
-  userId?: number | null | undefined;
-}) => {
+const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: number | null | undefined }) => {
   const {
     t,
     i18n: { language: locale },
@@ -161,10 +148,7 @@ const LongEventCard = ({
           }}
         />
         <FlagWrapper>
-          <FlagButton
-            contentRef={`event/${event.eventId}`}
-            authorUser={event.creatorUserId}
-          />
+          <FlagButton contentRef={`event/${event.eventId}`} authorUser={event.creatorUserId} />
         </FlagWrapper>
 
         <StyledCardContent>
@@ -173,14 +157,8 @@ const LongEventCard = ({
               <Title variant="h3">{event.title}</Title>
             </Tooltip>
             <Tags>
-              {isCreatedByMe && (
-                <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
-              )}
-              {isCancelled && (
-                <CancelledPill variant="rounded">
-                  {t("communities:cancelled")}
-                </CancelledPill>
-              )}
+              {isCreatedByMe && <Pill variant="rounded">{t("communities:created_by_me")}</Pill>}
+              {isCancelled && <CancelledPill variant="rounded">{t("communities:cancelled")}</CancelledPill>}
             </Tags>
           </Row>
 

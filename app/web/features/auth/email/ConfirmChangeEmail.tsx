@@ -34,14 +34,10 @@ export default function ConfirmChangeEmail() {
   }, [confirmChangeEmail, changeToken]);
 
   return isPending ? (
-    <Typography variant="body1">
-      {t("change_email_confirmation.change_in_progress")}
-    </Typography>
+    <Typography variant="body1">{t("change_email_confirmation.change_in_progress")}</Typography>
   ) : isSuccess ? (
     <>
-      <Alert severity="success">
-        {t("change_email_confirmation.success_message")}
-      </Alert>
+      <Alert severity="success">{t("change_email_confirmation.success_message")}</Alert>
       <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
     </>
   ) : (

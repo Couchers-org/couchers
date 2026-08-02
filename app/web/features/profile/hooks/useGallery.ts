@@ -23,13 +23,8 @@ export function useAddPhotoToGallery(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      uploadKey,
-      caption,
-    }: {
-      uploadKey: string;
-      caption?: string;
-    }) => service.gallery.addPhotoToGallery(galleryId, uploadKey, caption),
+    mutationFn: ({ uploadKey, caption }: { uploadKey: string; caption?: string }) =>
+      service.gallery.addPhotoToGallery(galleryId, uploadKey, caption),
     onSuccess: (updatedGallery) => {
       queryClient.setQueryData(galleryKey(galleryId), updatedGallery);
       queryClient.invalidateQueries({
@@ -49,8 +44,7 @@ export function useRemovePhotoFromGallery(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (itemId: number) =>
-      service.gallery.removePhotoFromGallery(galleryId, itemId),
+    mutationFn: (itemId: number) => service.gallery.removePhotoFromGallery(galleryId, itemId),
     onSuccess: (updatedGallery) => {
       queryClient.setQueryData(galleryKey(galleryId), updatedGallery);
       queryClient.invalidateQueries({
@@ -70,13 +64,8 @@ export function useMovePhoto(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      itemId,
-      afterItemId,
-    }: {
-      itemId: number;
-      afterItemId: number;
-    }) => service.gallery.movePhoto(galleryId, itemId, afterItemId),
+    mutationFn: ({ itemId, afterItemId }: { itemId: number; afterItemId: number }) =>
+      service.gallery.movePhoto(galleryId, itemId, afterItemId),
     onSuccess: (updatedGallery) => {
       queryClient.setQueryData(galleryKey(galleryId), updatedGallery);
       // Invalidate user query to update avatar

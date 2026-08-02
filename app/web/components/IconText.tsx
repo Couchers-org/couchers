@@ -26,9 +26,7 @@ export default function IconText({ icon, text }: IconTextProps) {
     <StyledWrapper>
       <Icon />
       {typeof text === "string" ? (
-        <Typography sx={{ marginInlineStart: theme.spacing(1) }}>
-          {text}
-        </Typography>
+        <Typography sx={{ marginInlineStart: theme.spacing(1) }}>{text}</Typography>
       ) : (
         <StyledLabel>{text}</StyledLabel>
       )}

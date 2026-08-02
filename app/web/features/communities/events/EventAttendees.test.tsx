@@ -17,21 +17,15 @@ const { t } = i18n;
 
 const [event] = events;
 
-const listEventAttendeesMock = service.events
-  .listEventAttendees as jest.MockedFunction<
+const listEventAttendeesMock = service.events.listEventAttendees as jest.MockedFunction<
   typeof service.events.listEventAttendees
 >;
-const listEventOrganizersMock = service.events
-  .listEventOrganizers as jest.MockedFunction<
+const listEventOrganizersMock = service.events.listEventOrganizers as jest.MockedFunction<
   typeof service.events.listEventOrganizers
 >;
-const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
-  typeof service.user.getLiteUsers
->;
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
 jest.mock("features/userQueries/useCurrentUser");
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 
 describe("Event attendees", () => {
   beforeEach(() => {
@@ -57,17 +51,13 @@ describe("Event attendees", () => {
   it("renders the attendees successfully", async () => {
     render(<EventAttendees event={event} />, { wrapper });
 
-    expect(
-      await screen.findByRole("heading", { name: t("communities:attendees") }),
-    ).toBeVisible();
+    expect(await screen.findByRole("heading", { name: t("communities:attendees") })).toBeVisible();
     expect(
       await screen.findByRole("heading", {
         name: "Funny Cat current User",
       }),
     ).toBeVisible();
-    expect(
-      await screen.findByRole("heading", { name: "Funny Chicken" }),
-    ).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "Funny Chicken" })).toBeVisible();
   });
 
   describe("when there are multiple pages of attendees", () => {
@@ -91,18 +81,10 @@ describe("Event attendees", () => {
 
       const user = userEvent.setup();
 
-      expect(
-        await screen.findByRole("heading", { name: "Funny Dog" }),
-      ).toBeVisible();
-      expect(
-        await screen.findByRole("heading", { name: "Funny Chicken" }),
-      ).toBeVisible();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Kid" }),
-      ).not.toBeInTheDocument();
+      expect(await screen.findByRole("heading", { name: "Funny Dog" })).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Chicken" })).toBeVisible();
+      expect(screen.queryByRole("heading", { name: "Funny Cat current User" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Kid" })).not.toBeInTheDocument();
 
       await user.click(await screen.findByRole("button", { name: t("next") }));
 
@@ -111,30 +93,16 @@ describe("Event attendees", () => {
           name: "Funny Cat current User",
         }),
       ).toBeVisible();
-      expect(
-        await screen.findByRole("heading", { name: "Funny Kid" }),
-      ).toBeVisible();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Dog" }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Chicken" }),
-      ).not.toBeInTheDocument();
+      expect(await screen.findByRole("heading", { name: "Funny Kid" })).toBeVisible();
+      expect(screen.queryByRole("heading", { name: "Funny Dog" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Chicken" })).not.toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: t("previous") }));
 
-      expect(
-        await screen.findByRole("heading", { name: "Funny Dog" }),
-      ).toBeVisible();
-      expect(
-        await screen.findByRole("heading", { name: "Funny Chicken" }),
-      ).toBeVisible();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Kid" }),
-      ).not.toBeInTheDocument();
+      expect(await screen.findByRole("heading", { name: "Funny Dog" })).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Chicken" })).toBeVisible();
+      expect(screen.queryByRole("heading", { name: "Funny Cat current User" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Kid" })).not.toBeInTheDocument();
     });
 
     it("does not render unknown users on page 2 and clears skeletons after loading", async () => {
@@ -154,24 +122,14 @@ describe("Event attendees", () => {
 
       const user = userEvent.setup();
 
-      expect(
-        await screen.findByRole("heading", { name: "Funny Chicken" }),
-      ).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Chicken" })).toBeVisible();
 
       await user.click(await screen.findByRole("button", { name: t("next") }));
 
-      await waitFor(() =>
-        expect(
-          screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).toHaveLength(0),
-      );
+      await waitFor(() => expect(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID)).toHaveLength(0));
 
-      expect(
-        screen.queryByRole("heading", { name: "Funny Kid" }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Kid" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Cat current User" })).not.toBeInTheDocument();
     });
 
     it("shows an error alert when the second page fetch fails", async () => {
@@ -190,12 +148,8 @@ describe("Event attendees", () => {
 
       const user = userEvent.setup();
 
-      expect(
-        await screen.findByRole("heading", { name: "Funny Dog" }),
-      ).toBeVisible();
-      expect(
-        await screen.findByRole("heading", { name: "Funny Chicken" }),
-      ).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Dog" })).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Chicken" })).toBeVisible();
 
       await user.click(await screen.findByRole("button", { name: t("next") }));
 
@@ -207,17 +161,13 @@ describe("Event attendees", () => {
 
       const spy = jest.spyOn(service.events, "inviteEventOrganizer");
 
-      const menuButton = await screen.findByTestId(
-        "funnydog-summary-menu-more-options",
-      );
+      const menuButton = await screen.findByTestId("funnydog-summary-menu-more-options");
 
       const user = userEvent.setup();
 
       await user.click(menuButton);
 
-      const menuItem = await screen.findByText(
-        t("communities:make_co_organizer.title"),
-      );
+      const menuItem = await screen.findByText(t("communities:make_co_organizer.title"));
 
       await user.click(menuItem);
 

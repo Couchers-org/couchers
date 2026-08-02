@@ -21,10 +21,7 @@ function parseFrontmatter(content) {
     const key = line.slice(0, colonIndex).trim();
     let value = line.slice(colonIndex + 1).trim();
     // Remove surrounding quotes
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
     frontmatter[key] = value;
@@ -83,9 +80,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 `;
 
   for (const post of posts) {
-    const byline = post.author
-      ? `${post.date} by ${post.author}.`
-      : `${post.date}.`;
+    const byline = post.author ? `${post.date} by ${post.author}.` : `${post.date}.`;
 
     output += `
 <div class="blog-entry">

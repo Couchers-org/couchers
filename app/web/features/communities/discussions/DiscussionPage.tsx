@@ -94,11 +94,7 @@ const StyledActionButtons = styled("div")(() => ({
 
 export const CREATOR_TEST_ID = "creator";
 
-export default function DiscussionPage({
-  discussionId,
-}: {
-  discussionId: number;
-}) {
+export default function DiscussionPage({ discussionId }: { discussionId: number }) {
   const {
     t,
     i18n: { language: locale },
@@ -107,8 +103,7 @@ export default function DiscussionPage({
   const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
 
-  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
-    useState<Element | null>(null);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] = useState<Element | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -127,21 +122,17 @@ export default function DiscussionPage({
     discussion?.deleted ? undefined : discussion?.creatorUserId,
   );
 
-  const { control, handleSubmit, register, reset } =
-    useForm<EditDiscussionFormData>({
-      mode: "onBlur",
-      values: discussion
-        ? { title: discussion.title, content: discussion.content }
-        : undefined,
-    });
+  const { control, handleSubmit, register, reset } = useForm<EditDiscussionFormData>({
+    mode: "onBlur",
+    values: discussion ? { title: discussion.title, content: discussion.content } : undefined,
+  });
 
   const {
     mutate: updateDiscussion,
     error: updateError,
     isPending: isUpdating,
   } = useMutation<Discussion.AsObject, RpcError, EditDiscussionFormData>({
-    mutationFn: ({ title, content }) =>
-      service.discussions.updateDiscussion(discussionId, title, content),
+    mutationFn: ({ title, content }) => service.discussions.updateDiscussion(discussionId, title, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discussionKey(discussionId) });
       setIsEditing(false);
@@ -195,34 +186,20 @@ export default function DiscussionPage({
           <CommunityBase communityId={discussion.ownerCommunityId}>
             {({ community }) => (
               <>
-                {community.mainPage && (
-                  <StyledPageHeader page={community.mainPage} />
-                )}
-                <CommunityPageSubHeader
-                  community={community}
-                  tab="discussions"
-                />
+                {community.mainPage && <StyledPageHeader page={community.mainPage} />}
+                <CommunityPageSubHeader community={community} tab="discussions" />
                 <StyledDiscussionBodyWrapper>
-                  <HeaderButton
-                    onClick={handleBackClick}
-                    aria-label={t("communities:previous_page")}
-                  >
+                  <HeaderButton onClick={handleBackClick} aria-label={t("communities:previous_page")}>
                     <BackIcon />
                   </HeaderButton>
                   <StyledTitleRow>
-                    <PageTitle>
-                      {discussion.deleted
-                        ? t("communities:discussion_deleted")
-                        : discussion.title}
-                    </PageTitle>
+                    <PageTitle>{discussion.deleted ? t("communities:discussion_deleted") : discussion.title}</PageTitle>
                     {ellipsisMenuItems.length > 0 && !isEditing && (
                       <EllipsisMenu
                         idName="discussion-page"
                         isMenuOpen={isEllipsisMenuOpen}
                         menuAnchorEl={ellipsisMenuAnchorEl}
-                        onMenuOpen={(e) =>
-                          setEllipsisMenuAnchorEl(e.currentTarget)
-                        }
+                        onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
                         onMenuClose={() => setEllipsisMenuAnchorEl(null)}
                         items={ellipsisMenuItems}
                       />
@@ -230,18 +207,10 @@ export default function DiscussionPage({
                   </StyledTitleRow>
                   <div>
                     {discussion.deleted ? (
-                      <StyledDeletedMessage variant="body1">
-                        {t("communities:discussion_deleted")}
-                      </StyledDeletedMessage>
+                      <StyledDeletedMessage variant="body1">{t("communities:discussion_deleted")}</StyledDeletedMessage>
                     ) : isEditing ? (
-                      <StyledEditForm
-                        onSubmit={handleSubmit((data) =>
-                          updateDiscussion(data),
-                        )}
-                      >
-                        {updateError && (
-                          <Alert severity="error">{updateError.message}</Alert>
-                        )}
+                      <StyledEditForm onSubmit={handleSubmit((data) => updateDiscussion(data))}>
+                        {updateError && <Alert severity="error">{updateError.message}</Alert>}
                         <TextField
                           id="title"
                           {...register("title", { required: true })}
@@ -277,8 +246,7 @@ export default function DiscussionPage({
                               <Skeleton width={100} />
                             ) : (
                               <Typography variant="body1">
-                                {discussionCreator?.name ??
-                                  t("communities:unknown_user")}
+                                {discussionCreator?.name ?? t("communities:unknown_user")}
                               </Typography>
                             )}
                             {isCreatorLoading ? (
@@ -286,25 +254,17 @@ export default function DiscussionPage({
                             ) : (
                               <Typography variant="body2">
                                 {t("communities:discussion_creation_date", {
-                                  dateOnly: localizeDateTime(
-                                    timestampToPlainDateTime(
-                                      discussion.created!,
-                                    ),
-                                    {
-                                      locale,
-                                      includeTime: false,
-                                    },
-                                  ),
+                                  dateOnly: localizeDateTime(timestampToPlainDateTime(discussion.created!), {
+                                    locale,
+                                    includeTime: false,
+                                  }),
                                 })}
                               </Typography>
                             )}
                             {discussion.lastEdited && (
                               <Typography variant="body2">
                                 {t("communities:discussion_edited_date", {
-                                  timeAgo: localizeRelativeTime(
-                                    discussion.lastEdited,
-                                    locale,
-                                  ),
+                                  timeAgo: localizeRelativeTime(discussion.lastEdited, locale),
                                 })}
                               </Typography>
                             )}
@@ -313,13 +273,8 @@ export default function DiscussionPage({
                       </>
                     )}
                   </div>
-                  <Typography variant="h2">
-                    {t("communities:comments")}
-                  </Typography>
-                  <CommentTree
-                    threadId={discussion.thread!.threadId}
-                    discussionId={discussionId}
-                  />
+                  <Typography variant="h2">{t("communities:comments")}</Typography>
+                  <CommentTree threadId={discussion.thread!.threadId} discussionId={discussionId} />
                 </StyledDiscussionBodyWrapper>
                 <DeleteDiscussionDialog
                   discussionId={discussionId}

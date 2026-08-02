@@ -1,14 +1,7 @@
 import { appGetLayout } from "components/AppRoute";
 import Dashboard from "features/dashboard/Dashboard";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import {
-  COMMUNITIES,
-  DASHBOARD,
-  GLOBAL,
-  LANDING,
-  NOTIFICATIONS,
-  PROFILE,
-} from "i18n/namespaces";
+import { COMMUNITIES, DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

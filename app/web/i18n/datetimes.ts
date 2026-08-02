@@ -8,12 +8,7 @@ import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 
 /// Converts a Temporal date/time object to a Date
 /// such that it displays as expected in the UTC timezone.
-function toDateForUTCDisplay(
-  temporal:
-    | Temporal.ZonedDateTime
-    | Temporal.PlainDate
-    | Temporal.PlainDateTime,
-): Date {
+function toDateForUTCDisplay(temporal: Temporal.ZonedDateTime | Temporal.PlainDate | Temporal.PlainDateTime): Date {
   if (temporal instanceof Temporal.ZonedDateTime) {
     // Discard the timezone, we'll reinterpret it in UTC,
     // which results in an incorrect timestamp but correct
@@ -58,9 +53,7 @@ export function localizeDateTime(
 ): string {
   const format = getIntlDateTimeFormatUTC(args, { year: date.year });
   const formatted = format.format(toDateForUTCDisplay(date));
-  return args.capitalize
-    ? capitalizeFirstLetter(formatted, args.locale)
-    : formatted;
+  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
 }
 
 /// Localizes only the year and month of a date.
@@ -90,13 +83,8 @@ export function localizeDateTimeRange(
   const format = getIntlDateTimeFormatUTC(args, {
     year: start.year == end.year ? start.year : undefined,
   });
-  const formatted = format.formatRange(
-    toDateForUTCDisplay(start),
-    toDateForUTCDisplay(end),
-  );
-  return args.capitalize
-    ? capitalizeFirstLetter(formatted, args.locale)
-    : formatted;
+  const formatted = format.formatRange(toDateForUTCDisplay(start), toDateForUTCDisplay(end));
+  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
 }
 
 // Creating Intl.DateTimeFormat every time is 40x slower.
@@ -111,8 +99,7 @@ function getIntlDateTimeFormatUTC(
   if (args.includeYear === "auto") {
     args = {
       ...args,
-      includeYear:
-        options.year === undefined || options.year != new Date().getFullYear(),
+      includeYear: options.year === undefined || options.year != new Date().getFullYear(),
     };
   }
 
@@ -128,9 +115,7 @@ function getIntlDateTimeFormatUTC(
 }
 
 /// Creates a new Intl.DateTimeFormat object based on params.
-function createIntlDateTimeFormatUTC(
-  args: LocalizeDateTimeParams,
-): Intl.DateTimeFormat {
+function createIntlDateTimeFormatUTC(args: LocalizeDateTimeParams): Intl.DateTimeFormat {
   const options: Intl.DateTimeFormatOptions = {};
   if (args.includeDate !== false) {
     if (args.includeYear !== false) {
@@ -172,9 +157,7 @@ export function localizeMonthAbbreviation(
     intlDateTimeFormatCache.set(cacheKey, format);
   }
   const formatted = format.format(toDateForUTCDisplay(date));
-  return args.capitalize
-    ? capitalizeFirstLetter(formatted, args.locale)
-    : formatted;
+  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
 }
 
 const timeZoneNameCache = new Map<string, string>();
@@ -196,9 +179,7 @@ export function localizeTimeZone(
   let name = timeZoneNameCache.get(cacheKey);
   if (!name) {
     const format = new Intl.DateTimeFormat(locale, intlOptions);
-    name = format
-      .formatToParts(Date.now())
-      .find((part) => part.type === "timeZoneName")!.value;
+    name = format.formatToParts(Date.now()).find((part) => part.type === "timeZoneName")!.value;
     timeZoneNameCache.set(cacheKey, name);
   }
   return options?.capitalize ? capitalizeFirstLetter(name, locale) : name;
@@ -219,11 +200,7 @@ export function getMuiDateFormat(locale: string): string {
     year: "numeric",
   }).format(new Date(3333, 10, 22));
 
-  const format = referenceDate
-    .replace("3333", "YYYY")
-    .replace("33", "YY")
-    .replace("11", "MM")
-    .replace("22", "DD");
+  const format = referenceDate.replace("3333", "YYYY").replace("33", "YY").replace("11", "MM").replace("22", "DD");
 
   // Sanity check: There should be no digits left
   if (/[0-9]/.test(format)) return isoMuiDateFormat;
@@ -246,16 +223,10 @@ export function getMuiTimeFormat(locale: string): string {
 
   // Sniff the format using example dates.
   // Assume formats only vary by hour-minute separator, 12h vs 24h, and leading zeroes.
-  const hourMinuteSeparatorMatch = /10(\W+)10/.exec(
-    intlFormat.format(new Date(1970, 0, 1, 10, 10)),
-  );
-  const hourMinuteSeparator = hourMinuteSeparatorMatch
-    ? hourMinuteSeparatorMatch[1]
-    : ":";
+  const hourMinuteSeparatorMatch = /10(\W+)10/.exec(intlFormat.format(new Date(1970, 0, 1, 10, 10)));
+  const hourMinuteSeparator = hourMinuteSeparatorMatch ? hourMinuteSeparatorMatch[1] : ":";
   const uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
-  const usesLeadingZeroes = intlFormat
-    .format(new Date(1970, 0, 1, 3, 0))
-    .includes("03");
+  const usesLeadingZeroes = intlFormat.format(new Date(1970, 0, 1, 3, 0)).includes("03");
 
   let format = "";
   if (uses24h) {
@@ -300,8 +271,7 @@ export function localizeRelativeTimeUnit(
     relativeTimeFormatCache.set(cacheKey, formatter);
   }
   let result = formatter.format(value, unit);
-  if (options?.capitalize === true)
-    result = capitalizeFirstLetter(result, locale);
+  if (options?.capitalize === true) result = capitalizeFirstLetter(result, locale);
   return result;
 }
 
@@ -318,40 +288,23 @@ export function localizeTimeOffset(
 ) {
   duration = approxDateDuration(duration);
 
-  if (duration.years != 0)
-    return localizeRelativeTimeUnit(duration.years, "years", locale, options);
-  if (duration.months != 0)
-    return localizeRelativeTimeUnit(duration.months, "months", locale, options);
-  if (duration.weeks != 0)
-    return localizeRelativeTimeUnit(duration.weeks, "weeks", locale, options);
-  if (duration.days != 0)
-    return localizeRelativeTimeUnit(duration.days, "days", locale, options);
+  if (duration.years != 0) return localizeRelativeTimeUnit(duration.years, "years", locale, options);
+  if (duration.months != 0) return localizeRelativeTimeUnit(duration.months, "months", locale, options);
+  if (duration.weeks != 0) return localizeRelativeTimeUnit(duration.weeks, "weeks", locale, options);
+  if (duration.days != 0) return localizeRelativeTimeUnit(duration.days, "days", locale, options);
 
   // Support "less than one hour ago"
-  if (
-    duration.hours != 0 ||
-    options?.smallestUnit == "hour" ||
-    options?.smallestUnit == "hours"
-  ) {
+  if (duration.hours != 0 || options?.smallestUnit == "hour" || options?.smallestUnit == "hours") {
     if (duration.hours == 0 && duration.sign <= 0 && options?.t)
       return options.t("global:relative_time.less_than_one_hour_ago");
     return localizeRelativeTimeUnit(duration.hours, "hours", locale, options);
   }
 
   // Support "less than one minute ago"
-  if (
-    duration.minutes != 0 ||
-    options?.smallestUnit == "minute" ||
-    options?.smallestUnit == "minutes"
-  ) {
+  if (duration.minutes != 0 || options?.smallestUnit == "minute" || options?.smallestUnit == "minutes") {
     if (duration.minutes == 0 && duration.sign <= 0 && options?.t)
       return options.t("global:relative_time.less_than_a_minute_ago");
-    return localizeRelativeTimeUnit(
-      duration.minutes,
-      "minutes",
-      locale,
-      options,
-    );
+    return localizeRelativeTimeUnit(duration.minutes, "minutes", locale, options);
   }
 
   return localizeRelativeTimeUnit(duration.seconds, "seconds", locale, options);
@@ -383,18 +336,12 @@ export function localizeDuration(duration: Temporal.Duration, locale: string) {
   // Intl.RelativeTimeFormat only supports formatting "in 4 days" / "4 days ago", not "4 days"
   // so we have to depend on dayjs.
   let dayjsDuration;
-  if (duration.years > 0)
-    dayjsDuration = dayjs.duration(duration.years, "years");
-  else if (duration.months > 0)
-    dayjsDuration = dayjs.duration(duration.months, "months");
-  else if (duration.weeks > 0)
-    dayjsDuration = dayjs.duration(duration.weeks, "weeks");
-  else if (duration.days > 0)
-    dayjsDuration = dayjs.duration(duration.days, "days");
-  else if (duration.hours > 0)
-    dayjsDuration = dayjs.duration(duration.hours, "hours");
-  else if (duration.minutes > 0)
-    dayjsDuration = dayjs.duration(duration.minutes, "minutes");
+  if (duration.years > 0) dayjsDuration = dayjs.duration(duration.years, "years");
+  else if (duration.months > 0) dayjsDuration = dayjs.duration(duration.months, "months");
+  else if (duration.weeks > 0) dayjsDuration = dayjs.duration(duration.weeks, "weeks");
+  else if (duration.days > 0) dayjsDuration = dayjs.duration(duration.days, "days");
+  else if (duration.hours > 0) dayjsDuration = dayjs.duration(duration.hours, "hours");
+  else if (duration.minutes > 0) dayjsDuration = dayjs.duration(duration.minutes, "minutes");
   else dayjsDuration = dayjs.duration(duration.seconds, "seconds");
 
   return dayjsDuration.locale(i18nToDayjsLocale(locale)).humanize();

@@ -36,11 +36,7 @@ export default function NotFoundPage() {
         <Typography>
           <Trans t={t} i18nKey="not_found_text_2">
             Do you just want to
-            <StyledLink
-              href={!authenticated || !isMounted ? baseRoute : dashboardRoute}
-            >
-              go home?
-            </StyledLink>
+            <StyledLink href={!authenticated || !isMounted ? baseRoute : dashboardRoute}>go home?</StyledLink>
           </Trans>
         </Typography>
       </StyledWrapper>

@@ -19,9 +19,7 @@ import { User } from "../../../proto/api_pb";
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
 
-export type ReferenceTypeState = keyof ReturnType<
-  typeof referencesFilterLabels
->;
+export type ReferenceTypeState = keyof ReturnType<typeof referencesFilterLabels>;
 
 const StyledReferencesContainer = styled("div")({
   display: "flex",
@@ -61,13 +59,11 @@ export default function References() {
   const { userId, friends } = useProfileUser();
   const { data: availableReferences } = useListAvailableReferences(userId);
 
-  const hasPendingHostRefs =
-    (availableReferences?.availableWriteReferencesList?.length ?? 0) > 0;
+  const hasPendingHostRefs = (availableReferences?.availableWriteReferencesList?.length ?? 0) > 0;
 
   // Determine if there are pending host-request references to write, and their type
   // Makes an assumption that there will never be more than one pending host-request reference for this user at a time
-  const pendingHostRequestForThisUser =
-    availableReferences?.availableWriteReferencesList?.[0];
+  const pendingHostRequestForThisUser = availableReferences?.availableWriteReferencesList?.[0];
 
   const handleChange = (event: SelectChangeEvent<ReferenceTypeState>) => {
     setReferenceType(event.target.value as ReferenceTypeState);
@@ -91,8 +87,7 @@ export default function References() {
             sx={{ paddingInlineStart: theme.spacing(1) }}
           >
             {Object.entries(referencesFilterLabels(t)).map(([key, label]) => {
-              const value =
-                key === "all" || key === "given" ? key : Number(key);
+              const value = key === "all" || key === "given" ? key : Number(key);
               return (
                 <MenuItem key={value} value={value}>
                   {label}
@@ -110,23 +105,18 @@ export default function References() {
               {t("profile:have_pending_reference_text")}
             </StyledLink>
           )}
-          {availableReferences?.canWriteFriendReference &&
-            friends === User.FriendshipStatus.FRIENDS && (
-              <Button
-                component={Link}
-                startIcon={<AddIcon />}
-                href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
-              >
-                {t("profile:write_friend_reference")}
-              </Button>
-            )}
+          {availableReferences?.canWriteFriendReference && friends === User.FriendshipStatus.FRIENDS && (
+            <Button
+              component={Link}
+              startIcon={<AddIcon />}
+              href={`${leaveReferenceBaseRoute}/${referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]}/${userId}`}
+            >
+              {t("profile:write_friend_reference")}
+            </Button>
+          )}
         </StyledButtonContainer>
       </StyledHeaderParentContainer>
-      {referenceType !== "given" ? (
-        <ReferencesReceivedList referenceType={referenceType} />
-      ) : (
-        <ReferencesGivenList />
-      )}
+      {referenceType !== "given" ? <ReferencesReceivedList referenceType={referenceType} /> : <ReferencesGivenList />}
     </StyledReferencesContainer>
   );
 }

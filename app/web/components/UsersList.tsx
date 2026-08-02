@@ -34,9 +34,7 @@ interface UsersListProps {
   error?: RpcError | null;
   titleIsLink?: boolean;
   layout?: "list" | "grid";
-  getUserMenuItems?: (
-    user: LiteUser.AsObject,
-  ) => EllipsisMenuItem[] | undefined;
+  getUserMenuItems?: (user: LiteUser.AsObject) => EllipsisMenuItem[] | undefined;
 }
 
 /**
@@ -57,18 +55,11 @@ export default function UsersList({
   layout = "list",
   getUserMenuItems,
 }: UsersListProps) {
-  const {
-    data: users,
-    isLoading: isLoadingLiteUsers,
-    error: usersError,
-  } = useLiteUsers(userIds);
+  const { data: users, isLoading: isLoadingLiteUsers, error: usersError } = useLiteUsers(userIds);
 
   // this is undefined if userIds is undefined or users hasn't loaded, otherwise it's an actual list
   const foundUsers =
-    userIds &&
-    (userIds.length > 0
-      ? userIds.map((userId) => users?.get(userId)).filter((user) => !!user)
-      : []);
+    userIds && (userIds.length > 0 ? userIds.map((userId) => users?.get(userId)).filter((user) => !!user) : []);
 
   const inner = () => {
     if (error) {

@@ -23,9 +23,7 @@ const StyledFilterTagContainer = styled("div")(() => ({
 const StyledFilterTag = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isSelected",
 })<{ isSelected: boolean }>(({ isSelected }) => ({
-  backgroundColor: isSelected
-    ? theme.palette.secondary.main
-    : theme.palette.grey[200],
+  backgroundColor: isSelected ? theme.palette.secondary.main : theme.palette.grey[200],
   color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
   padding: theme.spacing(1, 2),
   textAlign: "center",
@@ -66,10 +64,7 @@ const MyEventsList = () => {
   const hasEvents = data && data.eventsList && data.eventsList.length > 0;
   const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize) ?? 1;
 
-  const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageNumberChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPageNumber(value);
   };
 
@@ -90,18 +85,10 @@ const MyEventsList = () => {
   return (
     <>
       <StyledFilterTagContainer>
-        <StyledFilterTag
-          isSelected={eventType === "past"}
-          variant="body2"
-          onClick={handleFilterPastClick}
-        >
+        <StyledFilterTag isSelected={eventType === "past"} variant="body2" onClick={handleFilterPastClick}>
           {t("communities:past")}
         </StyledFilterTag>
-        <StyledFilterTag
-          isSelected={showCancelled}
-          variant="body2"
-          onClick={handleFilterShowCancelledClick}
-        >
+        <StyledFilterTag isSelected={showCancelled} variant="body2" onClick={handleFilterShowCancelledClick}>
           {t("communities:show_cancelled_events")}
         </StyledFilterTag>
       </StyledFilterTagContainer>
@@ -110,9 +97,7 @@ const MyEventsList = () => {
           <Trans
             t={t}
             i18nKey="communities:events_empty_state"
-            components={[
-              <StyledLink key="create-link" href={routeToNewEvent()} />,
-            ]}
+            components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
           />
         </StyledEmptyBody>
       )}

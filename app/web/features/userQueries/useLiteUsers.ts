@@ -24,12 +24,7 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
   const usersById =
     query.isLoading || isDataUndefined
       ? undefined
-      : new Map(
-          query?.data?.responsesList.map((response) => [
-            response?.user?.userId,
-            response.user,
-          ]),
-        );
+      : new Map(query?.data?.responsesList.map((response) => [response?.user?.userId, response.user]));
 
   return {
     ...query,
@@ -40,9 +35,7 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
 // Like above, but returns users in a list of the same size in same order
 function useLiteUsersList(ids: (number | undefined)[] | undefined) {
   const liteUsersMap = useLiteUsers(ids);
-  const usersList = ids
-    ?.map((id) => liteUsersMap.data?.get(id))
-    .filter((user): user is LiteUser.AsObject => !!user); // Type guard to remove undefined
+  const usersList = ids?.map((id) => liteUsersMap.data?.get(id)).filter((user): user is LiteUser.AsObject => !!user); // Type guard to remove undefined
 
   return {
     ...liteUsersMap,
@@ -60,9 +53,7 @@ function useLiteUser(id: number | undefined) {
     enabled: id !== undefined,
     retry: (failureCount, error) => {
       // don't retry if the user isn't found
-      return (
-        error.code !== StatusCode.NOT_FOUND && failureCount < reactQueryRetries
-      );
+      return error.code !== StatusCode.NOT_FOUND && failureCount < reactQueryRetries;
     },
   });
 

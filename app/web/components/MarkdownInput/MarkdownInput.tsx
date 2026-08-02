@@ -2,12 +2,9 @@ import ToastUIEditor from "@toast-ui/editor";
 import dynamic from "next/dynamic";
 import { Control } from "react-hook-form";
 
-const MarkdownInput = dynamic(
-  () => import("components/MarkdownInput/MarkdownInputNoSSR"),
-  {
-    ssr: false,
-  },
-);
+const MarkdownInput = dynamic(() => import("components/MarkdownInput/MarkdownInputNoSSR"), {
+  ssr: false,
+});
 
 export default MarkdownInput;
 

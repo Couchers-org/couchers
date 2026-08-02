@@ -44,11 +44,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
             thread.repliesList.map(async (reply) => {
               return {
                 ...reply,
-                replies:
-                  reply.numReplies > 0
-                    ? (await service.threads.getThread(reply.threadId))
-                        .repliesList
-                    : [],
+                replies: reply.numReplies > 0 ? (await service.threads.getThread(reply.threadId)).repliesList : [],
               };
             }),
           ),
@@ -71,11 +67,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
           thread.repliesList.map(async (reply) => {
             return {
               ...reply,
-              replies:
-                reply.numReplies > 0
-                  ? (await service.threads.getThread(reply.threadId))
-                      .repliesList
-                  : [],
+              replies: reply.numReplies > 0 ? (await service.threads.getThread(reply.threadId)).repliesList : [],
             };
           }),
         ),
@@ -93,22 +85,19 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       {comments.map((comment) => (
         <>
           <StyledCard>
-            Comment: by user id {comment.authorUserId}, posted at{" "}
-            {comment.createdTime!.seconds}, {comment.numReplies} replies.
+            Comment: by user id {comment.authorUserId}, posted at {comment.createdTime!.seconds}, {comment.numReplies}{" "}
+            replies.
             <Markdown source={comment.content} />
             Replies:
             {comment.replies.map((reply) => (
               <>
                 <StyledCard>
-                  Reply: by user id {reply.authorUserId}, posted at{" "}
-                  {reply.createdTime!.seconds}.
+                  Reply: by user id {reply.authorUserId}, posted at {reply.createdTime!.seconds}.
                   <Markdown source={reply.content} />
                 </StyledCard>
               </>
             ))}
-            <NewComment
-              onComment={(content) => handleComment(comment.threadId, content)}
-            />
+            <NewComment onComment={(content) => handleComment(comment.threadId, content)} />
           </StyledCard>
         </>
       ))}

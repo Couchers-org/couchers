@@ -37,12 +37,8 @@ describe("FriendRequestsReceived with no ?from query param", () => {
   it("shows the empty state message when there are no pending requests", async () => {
     render(<FriendRequestsReceived />, { wrapper });
 
-    expect(
-      await screen.findByText(t("connections:no_friend_requests")),
-    ).toBeVisible();
-    expect(
-      screen.queryByText(t("connections:friend_request_no_longer_available")),
-    ).not.toBeInTheDocument();
+    expect(await screen.findByText(t("connections:no_friend_requests"))).toBeVisible();
+    expect(screen.queryByText(t("connections:friend_request_no_longer_available"))).not.toBeInTheDocument();
   });
 
   it("shows pending requests without an alert", async () => {
@@ -53,12 +49,8 @@ describe("FriendRequestsReceived with no ?from query param", () => {
 
     render(<FriendRequestsReceived />, { wrapper });
 
-    expect(
-      await screen.findByRole("heading", { name: /Funny Kid/ }),
-    ).toBeVisible();
-    expect(
-      screen.queryByText(t("connections:friend_request_no_longer_available")),
-    ).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Funny Kid/ })).toBeVisible();
+    expect(screen.queryByText(t("connections:friend_request_no_longer_available"))).not.toBeInTheDocument();
   });
 });
 
@@ -73,9 +65,7 @@ describe("FriendRequestsReceived with ?from=<userId> query param", () => {
     render(<FriendRequestsReceived />, { wrapper });
 
     await screen.findByRole("heading", { name: /Funny Kid/ });
-    expect(
-      screen.queryByText(t("connections:friend_request_no_longer_available")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("connections:friend_request_no_longer_available"))).not.toBeInTheDocument();
   });
 
   it("shows an info alert when the expected request is not in the list", async () => {
@@ -83,11 +73,7 @@ describe("FriendRequestsReceived with ?from=<userId> query param", () => {
 
     render(<FriendRequestsReceived />, { wrapper });
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(t("connections:friend_request_no_longer_available")),
-      ).toBeVisible(),
-    );
+    await waitFor(() => expect(screen.getByText(t("connections:friend_request_no_longer_available"))).toBeVisible());
   });
 
   it("shows an alert when requests exist but none are from the expected user", async () => {
@@ -106,14 +92,8 @@ describe("FriendRequestsReceived with ?from=<userId> query param", () => {
 
     render(<FriendRequestsReceived />, { wrapper });
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(t("connections:friend_request_no_longer_available")),
-      ).toBeVisible(),
-    );
+    await waitFor(() => expect(screen.getByText(t("connections:friend_request_no_longer_available"))).toBeVisible());
     // The other (unrelated) request still renders
-    expect(
-      await screen.findByRole("heading", { name: /Funny Dog/ }),
-    ).toBeVisible();
+    expect(await screen.findByRole("heading", { name: /Funny Dog/ })).toBeVisible();
   });
 });

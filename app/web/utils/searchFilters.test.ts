@@ -1,9 +1,6 @@
 import { parse } from "querystring";
 
-import {
-  parsedQueryToSearchFilters,
-  parseSearchFiltersToQuery,
-} from "./searchFilters";
+import { parsedQueryToSearchFilters, parseSearchFiltersToQuery } from "./searchFilters";
 
 function overrideConsoleWarn() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,9 +24,7 @@ describe("parsedQueryToSearchFilters", () => {
     expect(parsedQueryToSearchFilters(parse("a=1&b=2"))).toEqual({});
   });
   it("should return a SearchFilters object parsing the URL parameters that a simple search produces", () => {
-    const parsedQuery = parse(
-      "location=City+of+Albany%2C+New+York%2C+United+States",
-    );
+    const parsedQuery = parse("location=City+of+Albany%2C+New+York%2C+United+States");
     expect(parsedQueryToSearchFilters(parsedQuery)).toEqual({
       location: "City of Albany, New York, United States",
     });

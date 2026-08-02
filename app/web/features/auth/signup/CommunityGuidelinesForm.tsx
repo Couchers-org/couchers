@@ -11,10 +11,7 @@ export default function CommunityGuidelinesForm() {
 
   const mutation = useMutation<void, RpcError, boolean>({
     mutationFn: async (accept) => {
-      const state = await service.auth.signupFlowCommunityGuidelines(
-        authState.flowState!.flowToken,
-        accept,
-      );
+      const state = await service.auth.signupFlowCommunityGuidelines(authState.flowState!.flowToken, accept);
       TagManager.dataLayer({
         dataLayer: {
           event: "sign_up",
@@ -35,12 +32,8 @@ export default function CommunityGuidelinesForm() {
 
   return (
     <>
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message || ""}</Alert>
-      )}
-      <CommunityGuidelines
-        onSubmit={(accept) => mutation.mutateAsync(accept)}
-      />
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
+      <CommunityGuidelines onSubmit={(accept) => mutation.mutateAsync(accept)} />
     </>
   );
 }

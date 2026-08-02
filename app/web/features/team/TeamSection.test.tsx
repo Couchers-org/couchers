@@ -7,10 +7,7 @@ import TeamSection from "./TeamSection";
 
 const { t } = i18n;
 
-const makeVolunteer = (
-  name: string,
-  isBoardMember: boolean,
-): Volunteer.AsObject => ({
+const makeVolunteer = (name: string, isBoardMember: boolean): Volunteer.AsObject => ({
   name,
   username: name.toLowerCase().replace(" ", ""),
   isBoardMember,
@@ -27,26 +24,13 @@ const regularMember = makeVolunteer("Bob Regular", false);
 
 describe("TeamSection", () => {
   it("renders both board members and regular volunteers by default", () => {
-    render(
-      <TeamSection
-        variant="current"
-        volunteers={[boardMember, regularMember]}
-      />,
-      { wrapper },
-    );
+    render(<TeamSection variant="current" volunteers={[boardMember, regularMember]} />, { wrapper });
     expect(screen.getByText("Alice Board")).toBeInTheDocument();
     expect(screen.getByText("Bob Regular")).toBeInTheDocument();
   });
 
   it("shows only board members when boardMembersOnly is true", () => {
-    render(
-      <TeamSection
-        variant="current"
-        volunteers={[boardMember, regularMember]}
-        boardMembersOnly
-      />,
-      { wrapper },
-    );
+    render(<TeamSection variant="current" volunteers={[boardMember, regularMember]} boardMembersOnly />, { wrapper });
     expect(screen.getByText("Alice Board")).toBeInTheDocument();
     expect(screen.queryByText("Bob Regular")).not.toBeInTheDocument();
   });
@@ -65,9 +49,7 @@ describe("TeamSection", () => {
       { wrapper },
     );
     expect(screen.getByText("Join our team")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "More about the team" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "More about the team" })).toBeInTheDocument();
   });
 
   it("does not render the extra card when hasExtraCard is false", () => {
@@ -87,10 +69,7 @@ describe("TeamSection", () => {
   });
 
   it("renders nothing when volunteers list is empty", () => {
-    const { container } = render(
-      <TeamSection variant="current" volunteers={[]} />,
-      { wrapper },
-    );
+    const { container } = render(<TeamSection variant="current" volunteers={[]} />, { wrapper });
     expect(container.querySelector(".MuiCard-root")).not.toBeInTheDocument();
   });
 
@@ -102,10 +81,7 @@ describe("TeamSection", () => {
   });
 
   it("renders all past volunteers exactly once, without duplicating board members", () => {
-    render(
-      <TeamSection variant="past" volunteers={[boardMember, regularMember]} />,
-      { wrapper },
-    );
+    render(<TeamSection variant="past" volunteers={[boardMember, regularMember]} />, { wrapper });
     // A past volunteer who still holds the board-member badge must not be
     // rendered twice (regression: past used to render board + full lists).
     expect(screen.getAllByText("Alice Board")).toHaveLength(1);

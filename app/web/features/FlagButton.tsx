@@ -1,21 +1,8 @@
-import {
-  FormControl,
-  IconButton,
-  IconButtonProps,
-  InputLabel,
-  Portal,
-  Select,
-} from "@mui/material";
+import { FormControl, IconButton, IconButtonProps, InputLabel, Portal, Select } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
@@ -34,9 +21,7 @@ interface FlagButtonProps {
   authorUser: string | number;
   className?: string;
   size?: IconButtonProps["size"];
-  renderButton?: (
-    onClick: (event: React.MouseEvent) => void,
-  ) => React.ReactNode;
+  renderButton?: (onClick: (event: React.MouseEvent) => void) => React.ReactNode;
 }
 
 export default function FlagButton({
@@ -60,21 +45,14 @@ export default function FlagButton({
   const reason = watch("reason");
   const description = watch("description");
   const requiredReasons = useMemo(
-    () => [
-      t("report.flag.reason.other"),
-      t("report.flag.reason.safety"),
-      t("report.flag.reason.guidelines_breach"),
-    ],
+    () => [t("report.flag.reason.other"), t("report.flag.reason.safety"), t("report.flag.reason.guidelines_breach")],
     [t],
   );
 
   // Reset errors when reason changes
   useEffect(() => {
     if (!requiredReasons.includes(reason)) {
-      resetForm(
-        { description: "", reason: "" },
-        { keepValues: true, keepErrors: false, keepDirty: false },
-      );
+      resetForm({ description: "", reason: "" }, { keepValues: true, keepErrors: false, keepDirty: false });
     }
   }, [reason, requiredReasons, resetForm]);
 
@@ -85,17 +63,13 @@ export default function FlagButton({
     mutate: reportContent,
     reset: resetMutation,
   } = useMutation<Empty, RpcError, ReportInput>({
-    mutationFn: (formData) =>
-      service.reporting.reportContent({ ...formData, contentRef, authorUser }),
+    mutationFn: (formData) => service.reporting.reportContent({ ...formData, contentRef, authorUser }),
     onSuccess: () => {
       setIsOpen(false);
     },
   });
 
-  const handleClose = (
-    event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button",
-  ) => {
+  const handleClose = (event: unknown, reason: "backdropClick" | "escapeKeyDown" | "button") => {
     if (reason !== "button") return;
     resetForm();
     resetMutation();
@@ -126,10 +100,7 @@ export default function FlagButton({
       [t("report.flag.reason.harassment")]: t("report.flag.reason.harassment", {
         lng: "en",
       }),
-      [t("report.flag.reason.guidelines_breach")]: t(
-        "report.flag.reason.guidelines_breach",
-        { lng: "en" },
-      ),
+      [t("report.flag.reason.guidelines_breach")]: t("report.flag.reason.guidelines_breach", { lng: "en" }),
       [t("report.flag.reason.other")]: t("report.flag.reason.other", {
         lng: "en",
       }),
@@ -147,9 +118,7 @@ export default function FlagButton({
     <>
       {report && (
         <Portal>
-          <Snackbar severity="success">
-            {t("report.content.success_message")}
-          </Snackbar>
+          <Snackbar severity="success">{t("report.content.success_message")}</Snackbar>
         </Portal>
       )}
       {renderButton ? (
@@ -176,9 +145,7 @@ export default function FlagButton({
           event.stopPropagation();
         }}
       >
-        <DialogTitle id="content-reporter">
-          {t("report.flag.title")}
-        </DialogTitle>
+        <DialogTitle id="content-reporter">{t("report.flag.title")}</DialogTitle>
         <form onSubmit={onSubmit}>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
@@ -193,9 +160,7 @@ export default function FlagButton({
                 },
               }}
             >
-              <InputLabel htmlFor="content-report-reason">
-                {t("report.flag.reason_label")}
-              </InputLabel>
+              <InputLabel htmlFor="content-report-reason">{t("report.flag.reason_label")}</InputLabel>
               <Controller
                 control={control}
                 defaultValue={""}
@@ -255,11 +220,7 @@ export default function FlagButton({
                   id="content-report-description"
                   {...field}
                   error={!!errors?.description?.message}
-                  helperText={
-                    !errors?.description?.message
-                      ? t("report.flag.description_helper")
-                      : undefined
-                  }
+                  helperText={!errors?.description?.message ? t("report.flag.description_helper") : undefined}
                   label={t("report.flag.description_label")}
                   fullWidth
                   multiline
@@ -276,17 +237,12 @@ export default function FlagButton({
             />
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => handleClose({}, "button")}
-              variant="outlined"
-            >
+            <Button onClick={() => handleClose({}, "button")} variant="outlined">
               {t("cancel")}
             </Button>
             <Button
               type="submit"
-              disabled={
-                !reason || (requiredReasons.includes(reason) && !description)
-              }
+              disabled={!reason || (requiredReasons.includes(reason) && !description)}
               loading={isPending}
               onClick={onSubmit}
             >

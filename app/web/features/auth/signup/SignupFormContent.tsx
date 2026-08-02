@@ -13,11 +13,7 @@ import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
 import MotivationsForm from "./MotivationsForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
-export default function SignupFormContent({
-  inviteCode,
-}: {
-  inviteCode?: string;
-}) {
+export default function SignupFormContent({ inviteCode }: { inviteCode?: string }) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -28,19 +24,12 @@ export default function SignupFormContent({
   if (!state || state.needBasic) {
     return (
       <>
-        <Typography
-          gutterBottom
-          sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
-        >
+        <Typography gutterBottom sx={{ fontSize: "1.4rem", fontWeight: "bold" }}>
           {t("landing:signup_header")}
         </Typography>
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
           <Trans
-            i18nKey={
-              isNativeEmbed
-                ? "landing:signup_description_no_link2"
-                : "landing:signup_description2"
-            }
+            i18nKey={isNativeEmbed ? "landing:signup_description_no_link2" : "landing:signup_description2"}
             values={{
               // Number(...) returns NaN on bad input, and || treats it as false
               count: Number(signupInfo?.userCount) || 65000,
@@ -54,10 +43,7 @@ export default function SignupFormContent({
             }
           />
         </Typography>
-        <BasicForm
-          inviteCode={inviteCode}
-          submitText={t("global:create_account")}
-        />
+        <BasicForm inviteCode={inviteCode} submitText={t("global:create_account")} />
         <Typography variant="caption">
           <Trans
             i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer"
@@ -117,9 +103,7 @@ export default function SignupFormContent({
         <Typography variant="h2" gutterBottom>
           {t("auth:sign_up_completed_title")}
         </Typography>
-        <Typography variant="body1">
-          {t("auth:sign_up_confirmed_prompt")}
-        </Typography>
+        <Typography variant="body1">{t("auth:sign_up_confirmed_prompt")}</Typography>
       </>
     );
   } else {

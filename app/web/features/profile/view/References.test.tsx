@@ -16,19 +16,14 @@ import References from "./References";
 
 const { t } = i18n;
 
-const getLiteUsersMock = service.user.getLiteUsers as MockedService<
-  typeof service.user.getLiteUsers
->;
-const getReferencesReceivedMock = service.references
-  .getReferencesReceivedForUser as MockedService<
+const getLiteUsersMock = service.user.getLiteUsers as MockedService<typeof service.user.getLiteUsers>;
+const getReferencesReceivedMock = service.references.getReferencesReceivedForUser as MockedService<
   typeof service.references.getReferencesReceivedForUser
 >;
-const getReferencesGivenMock = service.references
-  .getReferencesGivenByUser as MockedService<
+const getReferencesGivenMock = service.references.getReferencesGivenByUser as MockedService<
   typeof service.references.getReferencesGivenByUser
 >;
-const getAvailableReferencesMock = service.references
-  .getAvailableReferences as MockedService<
+const getAvailableReferencesMock = service.references.getAvailableReferences as MockedService<
   typeof service.references.getAvailableReferences
 >;
 
@@ -45,13 +40,7 @@ function renderReferences() {
   );
 }
 
-const [
-  friendReference,
-  guestReference1,
-  guestReference2,
-  givenReference,
-  hostReference,
-] = references;
+const [friendReference, guestReference1, guestReference2, givenReference, hostReference] = references;
 
 describe("References", () => {
   beforeEach(() => {
@@ -73,13 +62,9 @@ describe("References", () => {
   it("shows all references with references received first by default", async () => {
     renderReferences();
 
-    expect(
-      screen.getByRole("heading", { name: t("profile:heading.references") }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("profile:heading.references") })).toBeVisible();
 
-    const referenceListItems = await screen.findAllByTestId(
-      REFERENCE_LIST_ITEM_TEST_ID,
-    );
+    const referenceListItems = await screen.findAllByTestId(REFERENCE_LIST_ITEM_TEST_ID);
 
     // References received
     for (let i = 0; i < 3; i++) {
@@ -87,14 +72,10 @@ describe("References", () => {
       const referenceType = references[i].referenceType as ReferenceType;
       const reference = within(referenceListItems[i]);
 
-      expect(reference.getByRole("heading")).toHaveTextContent(
-        new RegExp(user!.name, "i"),
-      );
+      expect(reference.getByRole("heading")).toHaveTextContent(new RegExp(user!.name, "i"));
       expect(reference.getByText(references[i].text)).toBeVisible();
       // Reference type badge
-      expect(
-        reference.getByText(referenceBadgeLabel(t)[referenceType]),
-      ).toBeVisible();
+      expect(reference.getByText(referenceBadgeLabel(t)[referenceType])).toBeVisible();
       assertDateBadgeIsVisible(reference);
     }
 
@@ -114,9 +95,7 @@ describe("References", () => {
     renderReferences();
 
     expect(await screen.findByText(t("profile:no_references"))).toBeVisible();
-    expect(
-      screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)).not.toBeInTheDocument();
   });
 
   describe("When a specific reference type is selected", () => {
@@ -149,17 +128,11 @@ describe("References", () => {
         }),
       );
 
-      const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
-      );
+      const reference = within(await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID));
       expect(reference.getByRole("heading")).toHaveTextContent(/Funny Dog/i);
-      expect(
-        reference.getByText("Funny person with dark sense of humour"),
-      ).toBeVisible();
+      expect(reference.getByText("Funny person with dark sense of humour")).toBeVisible();
       // Reference type badge
-      expect(
-        reference.getByText(t("profile:reference_badge_label.friend")),
-      ).toBeVisible();
+      expect(reference.getByText(t("profile:reference_badge_label.friend"))).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
       expect(getReferencesReceivedMock).toHaveBeenCalledWith({
@@ -183,9 +156,7 @@ describe("References", () => {
         }),
       );
 
-      const references = await screen.findAllByTestId(
-        REFERENCE_LIST_ITEM_TEST_ID,
-      );
+      const references = await screen.findAllByTestId(REFERENCE_LIST_ITEM_TEST_ID);
 
       references.forEach(async (referenceElement, i) => {
         const reference = within(referenceElement);
@@ -193,9 +164,7 @@ describe("References", () => {
         expect(reference.getByRole("heading")).toHaveTextContent(user.name);
         expect(reference.getByText(referencesList[i].text)).toBeVisible();
         // Reference type badge
-        expect(
-          reference.getByText(t("profile:reference_badge_label.surfed")),
-        ).toBeVisible();
+        expect(reference.getByText(t("profile:reference_badge_label.surfed"))).toBeVisible();
         assertDateBadgeIsVisible(reference);
       });
 
@@ -220,17 +189,9 @@ describe("References", () => {
         }),
       );
 
-      const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
-      );
-      expect(
-        await screen.findByText(t("profile:reference_badge_label.hosted")),
-      ).toBeVisible();
-      expect(
-        reference.getByText(
-          "Hosting cat was a pleasure - there was never a dull moment!",
-        ),
-      ).toBeVisible();
+      const reference = within(await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID));
+      expect(await screen.findByText(t("profile:reference_badge_label.hosted"))).toBeVisible();
+      expect(reference.getByText("Hosting cat was a pleasure - there was never a dull moment!")).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
       expect(getReferencesReceivedMock).toHaveBeenCalledWith({
@@ -253,12 +214,8 @@ describe("References", () => {
         }),
       );
 
-      const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
-      );
-      expect(reference.getByRole("heading")).toHaveTextContent(
-        /Funny Chicken/i,
-      );
+      const reference = within(await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID));
+      expect(reference.getByRole("heading")).toHaveTextContent(/Funny Chicken/i);
       expect(reference.getByText(/Staying with Chicken/)).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesGivenMock).toHaveBeenCalledTimes(1);
@@ -288,9 +245,7 @@ describe("References", () => {
       );
 
       // Simpler checks here since the more thorough checks have been done in previous tests already
-      expect(
-        screen.getByText(/Funny person with dark sense of humour/i),
-      ).toBeVisible();
+      expect(screen.getByText(/Funny person with dark sense of humour/i)).toBeVisible();
       expect(screen.getByText(/I had a great time with cat/i)).toBeVisible();
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(2);
       expect(getReferencesReceivedMock).toHaveBeenNthCalledWith(1, {
@@ -317,9 +272,7 @@ describe("References", () => {
           })
           .mockResolvedValueOnce({
             nextPageToken: "",
-            referencesList: [
-              { ...friendReference, referenceId: 2, text: "Cat is great!" },
-            ],
+            referencesList: [{ ...friendReference, referenceId: 2, text: "Cat is great!" }],
           });
         renderReferences();
 
@@ -344,9 +297,7 @@ describe("References", () => {
           }),
         );
 
-        expect(
-          screen.getByText("Funny person with dark sense of humour"),
-        ).toBeVisible();
+        expect(screen.getByText("Funny person with dark sense of humour")).toBeVisible();
         expect(screen.getByText("Cat is great!")).toBeVisible();
         expect(getReferencesReceivedMock).toHaveBeenCalledTimes(2);
         expect(getReferencesReceivedMock).toHaveBeenNthCalledWith(1, {
@@ -368,9 +319,7 @@ describe("References", () => {
     });
 
     it("shows an error alert", async () => {
-      getReferencesReceivedMock.mockRejectedValue(
-        new Error("Error loading references"),
-      );
+      getReferencesReceivedMock.mockRejectedValue(new Error("Error loading references"));
 
       renderReferences();
       const errorAlert = await screen.findByRole("alert");
@@ -386,18 +335,14 @@ describe("References", () => {
         }),
       );
       await user.click(screen.getByRole("option", { name: "From hosts" }));
-      expect(await screen.findByRole("alert")).toHaveTextContent(
-        "Error loading references",
-      );
+      expect(await screen.findByRole("alert")).toHaveTextContent("Error loading references");
     });
 
     it("shows an error alert if the second page of data errored", async () => {
-      getReferencesReceivedMock
-        .mockRejectedValue(new Error("Connection error"))
-        .mockResolvedValueOnce({
-          nextPageToken: "2",
-          referencesList: [friendReference],
-        });
+      getReferencesReceivedMock.mockRejectedValue(new Error("Connection error")).mockResolvedValueOnce({
+        nextPageToken: "2",
+        referencesList: [friendReference],
+      });
       renderReferences();
 
       const user = userEvent.setup();
@@ -412,9 +357,7 @@ describe("References", () => {
       const errorAlert = await screen.findByRole("alert");
       expect(errorAlert).toBeVisible();
       expect(errorAlert).toHaveTextContent("Connection error");
-      expect(
-        screen.getByText("Funny person with dark sense of humour"),
-      ).toBeVisible();
+      expect(screen.getByText("Funny person with dark sense of humour")).toBeVisible();
     });
   });
 });

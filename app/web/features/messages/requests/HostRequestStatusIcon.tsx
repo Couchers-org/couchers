@@ -9,10 +9,7 @@ interface HostRequestStatusIconProps extends AvatarProps {
   hostRequest: HostRequest.AsObject;
 }
 
-export default function HostRequestStatusIcon({
-  hostRequest,
-  ...props
-}: HostRequestStatusIconProps) {
+export default function HostRequestStatusIcon({ hostRequest, ...props }: HostRequestStatusIconProps) {
   const s = hostRequest.status;
   let icon = null;
   let color = null;

@@ -1,9 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import EditLocationMap, {
-  ApproximateLocation,
-} from "components/EditLocationMap";
+import EditLocationMap, { ApproximateLocation } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -22,10 +20,7 @@ interface LocationSectionProps {
   className?: string;
 }
 
-export default function LocationSection({
-  updateJailed,
-  className,
-}: LocationSectionProps) {
+export default function LocationSection({ updateJailed, className }: LocationSectionProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
@@ -60,13 +55,9 @@ export default function LocationSection({
 
   return (
     <>
-      <Typography variant="h2">
-        {t("auth:jail.location_section.title")}
-      </Typography>
+      <Typography variant="h2">{t("auth:jail.location_section.title")}</Typography>
       <div className={className}>
-        <Alert severity="warning">
-          {t("auth:jail.location_section.explanation")}
-        </Alert>
+        <Alert severity="warning">{t("auth:jail.location_section.explanation")}</Alert>
         {error && <Alert severity="error">{error}</Alert>}
         <Controller
           name="location"

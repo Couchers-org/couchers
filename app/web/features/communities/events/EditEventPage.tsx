@@ -45,24 +45,14 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     }
   };
 
-  const {
-    data: event,
-    error: eventError,
-    isLoading: isEventLoading,
-    isValidEventId,
-  } = useEvent({ eventId });
+  const { data: event, error: eventError, isLoading: isEventLoading, isValidEventId } = useEvent({ eventId });
 
   const queryClient = useQueryClient();
   const {
     mutate: updateEvent,
     error,
     isPending,
-  } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    { parentCommunityId?: number }
-  >({
+  } = useMutation<Event.AsObject, RpcError, CreateEventVariables, { parentCommunityId?: number }>({
     mutationFn: (data) => {
       const updateEventInput: UpdateEventInput = {
         eventId,
@@ -74,9 +64,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
             ? data.startDate.toPlainDateTime(data.startTime)
             : undefined,
         endTime:
-          data.dirtyFields.endDate || data.dirtyFields.endTime
-            ? data.endDate.toPlainDateTime(data.endTime)
-            : undefined,
+          data.dirtyFields.endDate || data.dirtyFields.endTime ? data.endDate.toPlainDateTime(data.endTime) : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
         address: data.dirtyFields.location ? data.location.name : undefined,
         lat: data.dirtyFields.location ? data.location.location.lat : undefined,
@@ -97,9 +85,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       });
       queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+          context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
       router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
@@ -117,10 +103,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     ) : (
       <>
         <HtmlMeta title={t("communities:edit_event")} />
-        <StyledBackButton
-          onClick={handleBackClick}
-          aria-label={t("communities:previous_page")}
-        >
+        <StyledBackButton onClick={handleBackClick} aria-label={t("communities:previous_page")}>
           <BackIcon />
         </StyledBackButton>
         <EventForm
@@ -132,11 +115,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           isEdit
         >
           {({ isMutationLoading }) => (
-            <Button
-              loading={isMutationLoading}
-              type="submit"
-              sx={{ justifySelf: "start" }}
-            >
+            <Button loading={isMutationLoading} type="submit" sx={{ justifySelf: "start" }}>
               {t("global:update")}
             </Button>
           )}

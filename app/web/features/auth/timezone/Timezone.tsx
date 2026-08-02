@@ -17,9 +17,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("account_settings_page.timezone_section.title")}
-      </Typography>
+      <Typography variant="h2">{t("account_settings_page.timezone_section.title")}</Typography>
       <Typography variant="body1">
         <Trans
           t={t}
@@ -37,9 +35,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           }}
         />
       </Typography>
-      <Typography variant="body1">
-        {t("account_settings_page.timezone_section.explanation")}
-      </Typography>
+      <Typography variant="body1">{t("account_settings_page.timezone_section.explanation")}</Typography>
     </div>
   );
 }

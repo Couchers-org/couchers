@@ -1,19 +1,8 @@
-import {
-  Card,
-  CardActions,
-  CardContent,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CardActions, CardContent, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  CalendarIcon,
-  ClockIcon,
-  InfoIcon,
-  LocationIcon,
-} from "components/Icons";
+import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
@@ -29,31 +18,21 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function LoginsPage({
-  session,
-}: {
-  session: ActiveSession.AsObject;
-}) {
+export default function LoginsPage({ session }: { session: ActiveSession.AsObject }) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
   const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
-  const createdDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.created!),
-    {
-      locale,
-      includeSeconds: true,
-    },
-  );
-  const expiryDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.expiry!),
-    {
-      locale,
-      includeTime: false,
-    },
-  );
+  const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), {
+    locale,
+    includeSeconds: true,
+  });
+  const expiryDisplay = localizeDateTime(timestampToPlainDateTime(session.expiry!), {
+    locale,
+    includeTime: false,
+  });
   const queryClient = useQueryClient();
 
   const {
@@ -97,11 +76,7 @@ export default function LoginsPage({
         <IconText
           icon={ClockIcon}
           text={
-            <Trans
-              t={t}
-              i18nKey="auth:active_logins.last_activity"
-              values={{ last_activity_ago: lastSeenDisplay }}
-            >
+            <Trans t={t} i18nKey="auth:active_logins.last_activity" values={{ last_activity_ago: lastSeenDisplay }}>
               Last activity <strong>{lastSeenDisplay}</strong>
             </Trans>
           }
@@ -109,11 +84,7 @@ export default function LoginsPage({
         <IconText
           icon={CalendarIcon}
           text={
-            <Trans
-              t={t}
-              i18nKey="auth:active_logins.expiry"
-              values={{ expiry_datetime: expiryDisplay }}
-            >
+            <Trans t={t} i18nKey="auth:active_logins.expiry" values={{ expiry_datetime: expiryDisplay }}>
               {`Expires on `}
               <strong>{expiryDisplay}</strong>
             </Trans>

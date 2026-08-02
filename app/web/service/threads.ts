@@ -1,9 +1,4 @@
-import {
-  DeleteReplyReq,
-  GetThreadReq,
-  PostReplyReq,
-  UpdateReplyReq,
-} from "proto/threads_pb";
+import { DeleteReplyReq, GetThreadReq, PostReplyReq, UpdateReplyReq } from "proto/threads_pb";
 
 import client from "./client";
 
