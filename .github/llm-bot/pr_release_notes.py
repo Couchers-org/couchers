@@ -7,6 +7,7 @@ summary in the appropriate format.
 """
 
 import os
+import random
 import sys
 import re
 from typing import Optional, List, Dict, Any
@@ -26,6 +27,34 @@ from slack import send_slack_message
 
 RELEASE_NOTES_PENDING_LABEL = "release notes: pending"
 RELEASE_NOTES_NOT_NEEDED_LABEL = "release notes: not needed"
+
+SLACK_INTROS = [
+    "Ooh la la",
+    "Would you look at that",
+    "Hey, check this out",
+    "Stop the press",
+    "Hot off the couch",
+    "Big news, everyone",
+    "Well well well",
+    "Ding ding ding",
+    "Fresh out of the oven",
+    "Guess what",
+    "Drumroll please",
+    "You love to see it",
+    "Another one",
+    "Couch update incoming",
+    "Breaking",
+]
+
+SLACK_VERBS = [
+    "shipped something new",
+    "just shipped something",
+    "has been busy",
+    "landed a thing",
+    "cooked something up",
+    "made the site a bit better",
+    "pushed something worth knowing about",
+]
 
 SYSTEM_PROMPT = """You are the Release Note Bot for Couchers.org, a non-profit couch surfing platform.
 
@@ -506,9 +535,15 @@ This PR does not need to be included in release notes.
         if decision.decision != ReleaseNotesDecision.INCLUDE or not decision.release_note:
             return
 
+        # Seeded on the PR number so a re-run of the job doesn't reword the same announcement
+        rng = random.Random(self.pr_number)
+        intro = rng.choice(SLACK_INTROS)
+        verb = rng.choice(SLACK_VERBS)
+
         send_slack_message(
-            f"{decision.release_note}\n\n"
-            f"<{self.pr.html_url}|#{self.pr_number}: {self.pr.title}> by {self.pr.user.login}"
+            f"{intro}! @{self.pr.user.login} {verb} "
+            f"(PR: <{self.pr.html_url}|#{self.pr_number}: {self.pr.title}>):\n\n"
+            f"{decision.release_note}"
         )
 
     def run(self):

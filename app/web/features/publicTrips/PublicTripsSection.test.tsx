@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
@@ -31,21 +25,17 @@ jest.mock("@mui/x-date-pickers", () => ({
   DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
 }));
 
-const listPublicTripsMock = service.publicTrips
-  .listPublicTrips as MockedService<typeof service.publicTrips.listPublicTrips>;
-const createPublicTripMock = service.publicTrips
-  .createPublicTrip as MockedService<
+const listPublicTripsMock = service.publicTrips.listPublicTrips as MockedService<
+  typeof service.publicTrips.listPublicTrips
+>;
+const createPublicTripMock = service.publicTrips.createPublicTrip as MockedService<
   typeof service.publicTrips.createPublicTrip
 >;
-const updatePublicTripMock = service.publicTrips
-  .updatePublicTrip as MockedService<
+const updatePublicTripMock = service.publicTrips.updatePublicTrip as MockedService<
   typeof service.publicTrips.updatePublicTrip
 >;
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
-const createHostRequestMock = service.requests
-  .createHostRequest as MockedService<
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
+const createHostRequestMock = service.requests.createHostRequest as MockedService<
   typeof service.requests.createHostRequest
 >;
 
@@ -109,9 +99,7 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
 
       // Trips 1 and 4 in the fixture both have sameGenderOnly: true
-      const indicators = await screen.findAllByText(
-        t("publicTrips:same_gender_only_indicator"),
-      );
+      const indicators = await screen.findAllByText(t("publicTrips:same_gender_only_indicator"));
       expect(indicators).toHaveLength(2);
       indicators.forEach((el) => expect(el).toBeVisible());
     });
@@ -124,9 +112,7 @@ describe("PublicTripsSection", () => {
 
       render(<PublicTripsSection community={community} />, { wrapper });
 
-      expect(
-        await screen.findByText(t("publicTrips:empty_state")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("publicTrips:empty_state"))).toBeVisible();
     });
   });
 
@@ -189,9 +175,7 @@ describe("PublicTripsSection", () => {
       // The create-trip form should NOT be present (description textarea is
       // unique to it, unlike the "Create public trip" text which also labels
       // the button that triggered this flow).
-      expect(
-        screen.queryByLabelText(t("publicTrips:description_label")),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(t("publicTrips:description_label"))).not.toBeInTheDocument();
     });
 
     it("blocks submission of a description shorter than the minimum", async () => {
@@ -204,9 +188,7 @@ describe("PublicTripsSection", () => {
         }),
       );
 
-      const descriptionField = await screen.findByLabelText(
-        t("publicTrips:description_label"),
-      );
+      const descriptionField = await screen.findByLabelText(t("publicTrips:description_label"));
       await user.type(descriptionField, "too short");
 
       await user.click(
@@ -248,10 +230,7 @@ describe("PublicTripsSection", () => {
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard(departure.keystrokes);
 
-      await user.type(
-        screen.getByLabelText(t("publicTrips:description_label")),
-        VALID_DESCRIPTION,
-      );
+      await user.type(screen.getByLabelText(t("publicTrips:description_label")), VALID_DESCRIPTION);
 
       await user.click(
         screen.getByRole("button", {
@@ -285,14 +264,10 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
       const user = userEvent.setup();
 
-      const moreButton = await screen.findByTestId(
-        "public-trip-6-more-options",
-      );
+      const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
 
-      expect(
-        await screen.findByRole("menuitem", { name: t("publicTrips:edit") }),
-      ).toBeVisible();
+      expect(await screen.findByRole("menuitem", { name: t("publicTrips:edit") })).toBeVisible();
     });
 
     it.skip("submits updated dates/description to updatePublicTrip and refetches the list", async () => {
@@ -300,20 +275,14 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
       const user = userEvent.setup();
 
-      const moreButton = await screen.findByTestId(
-        "public-trip-6-more-options",
-      );
+      const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
-      await user.click(
-        await screen.findByRole("menuitem", { name: t("publicTrips:edit") }),
-      );
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:edit") }));
 
       const dialog = await screen.findByRole("dialog");
       expect(dialog).toHaveTextContent(t("publicTrips:edit_dialog_title"));
 
-      const descriptionField = within(dialog).getByLabelText(
-        t("publicTrips:description_label"),
-      );
+      const descriptionField = within(dialog).getByLabelText(t("publicTrips:description_label"));
       await user.clear(descriptionField);
       await user.type(descriptionField, VALID_DESCRIPTION);
 
@@ -345,18 +314,12 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
       const user = userEvent.setup();
 
-      const moreButton = await screen.findByTestId(
-        "public-trip-6-more-options",
-      );
+      const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
-      await user.click(
-        await screen.findByRole("menuitem", { name: t("publicTrips:close") }),
-      );
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:close") }));
 
       const confirmDialog = await screen.findByRole("dialog");
-      expect(confirmDialog).toHaveTextContent(
-        t("publicTrips:close_dialog_title"),
-      );
+      expect(confirmDialog).toHaveTextContent(t("publicTrips:close_dialog_title"));
 
       await user.click(
         within(confirmDialog).getByRole("button", {
@@ -399,9 +362,7 @@ describe("PublicTripsSection", () => {
       const user = userEvent.setup();
 
       await user.click(await screen.findByTestId("public-trip-6-more-options"));
-      await user.click(
-        await screen.findByRole("menuitem", { name: t("publicTrips:reopen") }),
-      );
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:reopen") }));
 
       await waitFor(() => {
         expect(updatePublicTripMock).toHaveBeenCalledWith({
@@ -414,12 +375,8 @@ describe("PublicTripsSection", () => {
       // "Reopen" back to "Mark as closed".
       await waitFor(() => expect(listPublicTripsMock).toHaveBeenCalledTimes(2));
       await user.click(screen.getByTestId("public-trip-6-more-options"));
-      expect(
-        await screen.findByRole("menuitem", { name: t("publicTrips:close") }),
-      ).toBeVisible();
-      expect(
-        screen.queryByRole("menuitem", { name: t("publicTrips:reopen") }),
-      ).not.toBeInTheDocument();
+      expect(await screen.findByRole("menuitem", { name: t("publicTrips:close") })).toBeVisible();
+      expect(screen.queryByRole("menuitem", { name: t("publicTrips:reopen") })).not.toBeInTheDocument();
     });
   });
 
@@ -450,10 +407,7 @@ describe("PublicTripsSection", () => {
       const link = within(tripAlreadyOffered).getByRole("link", {
         name: t("publicTrips:already_offered"),
       });
-      expect(link).toHaveAttribute(
-        "href",
-        routeToHostRequest(VIEWER_HOST_REQUEST_ID),
-      );
+      expect(link).toHaveAttribute("href", routeToHostRequest(VIEWER_HOST_REQUEST_ID));
       expect(
         within(tripAlreadyOffered).queryByRole("button", {
           name: t("publicTrips:offer_to_host"),
@@ -495,10 +449,9 @@ describe("PublicTripsSection", () => {
 
       const dialog = await screen.findByRole("dialog");
       // Dates are pre-filled from the trip; just supply a long enough message.
-      const message = within(dialog).getByLabelText(
-        t("publicTrips:offer_dialog_message_label"),
-        { selector: "textarea" },
-      );
+      const message = within(dialog).getByLabelText(t("publicTrips:offer_dialog_message_label"), {
+        selector: "textarea",
+      });
       const text = "a".repeat(260);
       fireEvent.change(message, { target: { value: text } });
 

@@ -24,12 +24,8 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const getEventMock = service.events.getEvent as jest.MockedFunction<
-  typeof service.events.getEvent
->;
-const updateEventMock = service.events.updateEvent as jest.MockedFunction<
-  typeof service.events.updateEvent
->;
+const getEventMock = service.events.getEvent as jest.MockedFunction<typeof service.events.getEvent>;
+const updateEventMock = service.events.updateEvent as jest.MockedFunction<typeof service.events.updateEvent>;
 
 function renderPage() {
   mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
@@ -63,9 +59,7 @@ describe("Edit event page", () => {
     renderPage();
 
     // Brief sanity check that the form has existing data
-    const titleField = await screen.findByLabelText(
-      t("communities:event_title_label"),
-    );
+    const titleField = await screen.findByLabelText(t("communities:event_title_label"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -74,18 +68,14 @@ describe("Edit event page", () => {
 
     expect(titleField).toHaveValue("Weekly Meetup in the dam");
 
-    const locationInput = screen.getByLabelText(
-      t("communities:location"),
-    ) as HTMLInputElement;
+    const locationInput = screen.getByLabelText(t("communities:location")) as HTMLInputElement;
 
     await user.clear(locationInput);
     await user.type(locationInput, "tes{enter}");
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
@@ -191,9 +181,7 @@ describe("Edit event page", () => {
     renderPage();
 
     await assertErrorAlert(errorMessage);
-    expect(
-      screen.queryByLabelText(t("communities:event_title_label")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(t("communities:event_title_label"))).not.toBeInTheDocument();
   });
 
   it("should show error if startDate after endDate", async () => {

@@ -60,9 +60,4 @@ export {
   truncateWithEllipsis,
 };
 
-export type {
-  Coordinates,
-  MapSearchTypes,
-  MapViewOptions,
-  SleepingArrangementOptions,
-};
+export type { Coordinates, MapSearchTypes, MapViewOptions, SleepingArrangementOptions };

@@ -18,12 +18,6 @@
     "incremental": true,
     "types": ["jest"]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "i18n/namespaces.js",
-    "i18n/allLanguages.js"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "i18n/namespaces.js", "i18n/allLanguages.js"],
   "exclude": ["node_modules", ".next", "jest.config.ts"]
 }

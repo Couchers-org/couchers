@@ -22,10 +22,7 @@ const StyledContainer = styled("div")(() => ({
 }));
 
 interface EventTimeChangerProps
-  extends Pick<
-    UseFormReturn<CreateEventData>,
-    "control" | "getValues" | "setValue" | "register"
-  > {
+  extends Pick<UseFormReturn<CreateEventData>, "control" | "getValues" | "setValue" | "register"> {
   dirtyFields: UseFormReturn<CreateEventData>["formState"]["dirtyFields"];
   event?: Event.AsObject;
   errors: UseFormReturn<CreateEventData>["formState"]["errors"];
@@ -44,9 +41,7 @@ export default function EventTimeChanger({
   const defaultStartDateTime = event?.startTime
     ? timestampToPlainDateTime(event.startTime, event?.timezone)
     : undefined;
-  const defaultEndDateTime = event?.endTime
-    ? timestampToPlainDateTime(event.endTime, event?.timezone)
-    : undefined;
+  const defaultEndDateTime = event?.endTime ? timestampToPlainDateTime(event.endTime, event?.timezone) : undefined;
 
   const handleStartDateChange = (value: Temporal.PlainDate) => {
     setValue("startDate", value, {
@@ -96,10 +91,8 @@ export default function EventTimeChanger({
                 return true;
               }
               return (
-                Temporal.PlainDate.compare(
-                  startDate,
-                  Temporal.Now.plainDateISO(),
-                ) >= 0 || t("communities:past_date_error")
+                Temporal.PlainDate.compare(startDate, Temporal.Now.plainDateISO()) >= 0 ||
+                t("communities:past_date_error")
               );
             },
           }}
@@ -133,10 +126,8 @@ export default function EventTimeChanger({
 
               const startDateTime = startDate.toPlainDateTime(startTime);
               return (
-                Temporal.PlainDateTime.compare(
-                  startDateTime,
-                  Temporal.Now.plainDateTimeISO(),
-                ) >= 0 || t("communities:past_time_error")
+                Temporal.PlainDateTime.compare(startDateTime, Temporal.Now.plainDateTimeISO()) >= 0 ||
+                t("communities:past_time_error")
               );
             },
           }}
@@ -164,18 +155,13 @@ export default function EventTimeChanger({
               }
 
               const startDate = getValues("startDate");
-              if (
-                startDate &&
-                Temporal.PlainDate.compare(endDate, startDate) < 0
-              ) {
+              if (startDate && Temporal.PlainDate.compare(endDate, startDate) < 0) {
                 return t("communities:end_date_error");
               }
 
               return (
-                Temporal.PlainDate.compare(
-                  endDate,
-                  Temporal.Now.plainDateISO(),
-                ) >= 0 || t("communities:past_date_error")
+                Temporal.PlainDate.compare(endDate, Temporal.Now.plainDateISO()) >= 0 ||
+                t("communities:past_date_error")
               );
             },
           }}
@@ -213,17 +199,13 @@ export default function EventTimeChanger({
 
               const startDateTime = startDate.toPlainDateTime(startTime);
               const endDateTime = endDate.toPlainDateTime(endTime);
-              if (
-                Temporal.PlainDateTime.compare(endDateTime, startDateTime) <= 0
-              ) {
+              if (Temporal.PlainDateTime.compare(endDateTime, startDateTime) <= 0) {
                 return t("communities:end_time_error");
               }
 
               return (
-                Temporal.PlainDateTime.compare(
-                  endDateTime,
-                  Temporal.Now.plainDateTimeISO(),
-                ) >= 0 || t("communities:past_time_error")
+                Temporal.PlainDateTime.compare(endDateTime, Temporal.Now.plainDateTimeISO()) >= 0 ||
+                t("communities:past_time_error")
               );
             },
           }}

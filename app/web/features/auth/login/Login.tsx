@@ -67,10 +67,7 @@ export default function Login() {
       <StyledContent>
         <CouchersTextLogo />
         <StyledFormWrapper>
-          <Typography
-            gutterBottom
-            sx={{ fontSize: "1.4rem", fontWeight: "bold" }}
-          >
+          <Typography gutterBottom sx={{ fontSize: "1.4rem", fontWeight: "bold" }}>
             {t("auth:login_page.header")}
           </Typography>
           {error && error !== "logged_out_message" && (
@@ -81,8 +78,7 @@ export default function Login() {
           <LoginForm />
           <Typography sx={{ marginTop: 2 }}>
             <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-              No account yet?{" "}
-              <StyledLink href={signupRoute}>Sign up</StyledLink>
+              No account yet? <StyledLink href={signupRoute}>Sign up</StyledLink>
             </Trans>
           </Typography>
         </StyledFormWrapper>

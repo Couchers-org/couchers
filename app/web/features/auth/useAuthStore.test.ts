@@ -18,46 +18,34 @@ const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 describe("useClearablePersistedState hook", () => {
   it("uses a default value", () => {
     const defaultValue = "Test string";
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", defaultValue),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", defaultValue));
     expect(result.current[0]).toBe(defaultValue);
   });
 
   it("saves then loads a value", () => {
     const value = { test: "Test string" };
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
-    const { result: result2 } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }),
-    );
+    const { result: result2 } = renderHook(() => useClearablePersistedState("key", { test: "" }));
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("saves then loads a value from sessionStorage", () => {
     const value = { test: "session test" };
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
-    const { result: result2 } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result: result2 } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("clears a value", () => {
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[2]());
     expect(result.current[0]).toStrictEqual(undefined);
@@ -140,9 +128,7 @@ describe("passwordLogin action", () => {
       }),
     );
 
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax");
   });
 
   it("does not update NEXT_LOCALE cookie if it matches user's language preference", async () => {
@@ -207,9 +193,7 @@ describe("passwordLogin action", () => {
       }),
     );
     expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe(
-      "Invalid username or password.",
-    );
+    expect(result.current.authState.error).toBe("Invalid username or password.");
   });
 });
 
@@ -254,9 +238,7 @@ describe("firstLogin action", () => {
       }),
     );
 
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=de; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=de; path=/; max-age=31536000; samesite=lax");
   });
 });
 

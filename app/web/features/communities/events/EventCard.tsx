@@ -1,12 +1,5 @@
 import { Group } from "@mui/icons-material";
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, CardMedia, Chip, styled, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Divider from "components/Divider";
 import FlagButton from "features/FlagButton";
@@ -131,8 +124,8 @@ export default function EventCard({ event, className }: EventCardProps) {
   const dateTimeRangeText = localizeDateTimeRange(
     timestampToPlainDateTime(event.startTime!, event.timezone),
     timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      locale,
       includeYear: "auto",
       includeDayOfWeek: true,
       abbreviate: true,
@@ -140,19 +133,12 @@ export default function EventCard({ event, className }: EventCardProps) {
     },
   );
 
-  const strippedContent = useMemo(
-    () => stripMarkdown(event.content),
-    [event.content],
-  );
+  const strippedContent = useMemo(() => stripMarkdown(event.content), [event.content]);
 
   const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
 
   return (
-    <StyledCard
-      className={className}
-      isCancelled={event.isCancelled}
-      data-testid={EVENT_CARD_TEST_ID}
-    >
+    <StyledCard className={className} isCancelled={event.isCancelled} data-testid={EVENT_CARD_TEST_ID}>
       <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
           component="div"
@@ -162,26 +148,17 @@ export default function EventCard({ event, className }: EventCardProps) {
             backgroundColor: "var(--mui-palette-grey-200)",
             height: { xs: 80, sm: 100, md: 120 },
             backgroundImage: `url(${eventImageSrc})`,
-            backgroundSize:
-              eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
+            backgroundSize: eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
           }}
         >
           <FlagButtonWrapper>
-            <FlagButton
-              contentRef={`event/${event.eventId}`}
-              authorUser={event.creatorUserId}
-            />
+            <FlagButton contentRef={`event/${event.eventId}`} authorUser={event.creatorUserId} />
           </FlagButtonWrapper>
         </CardMedia>
         <StyledCardContent>
-          <EventTime
-            variant="body2"
-            color="textSecondary"
-            gutterBottom
-            title={dateTimeRangeText}
-          >
+          <EventTime variant="body2" color="textSecondary" gutterBottom title={dateTimeRangeText}>
             {dateTimeRangeText}
           </EventTime>
           <Title variant="h3" gutterBottom>
@@ -197,19 +174,13 @@ export default function EventCard({ event, className }: EventCardProps) {
           >
             {event.location?.address}
           </Typography>
-          {event.isCancelled && (
-            <CancelledChip label={t("communities:cancelled")} />
-          )}
+          {event.isCancelled && <CancelledChip label={t("communities:cancelled")} />}
           <Divider spacing={1} />
           <ContentWrapper>
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                sx={{ display: "flex", alignItems: "center" }}
-              >
+              <Typography variant="body2" color="textSecondary" sx={{ display: "flex", alignItems: "center" }}>
                 <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
                 {event.goingCount}
               </Typography>

@@ -1,18 +1,9 @@
 import { BugReportFormData } from "components/Navigation/ReportDialog";
-import {
-  GeolocationClickInfoReq,
-  GeolocationSearchInfoReq,
-  ReportBugReq,
-  ScreenResolution,
-} from "proto/bugs_pb";
+import { GeolocationClickInfoReq, GeolocationSearchInfoReq, ReportBugReq, ScreenResolution } from "proto/bugs_pb";
 
 import client from "./client";
 
-export async function reportBug({
-  description,
-  results,
-  subject,
-}: BugReportFormData) {
+export async function reportBug({ description, results, subject }: BugReportFormData) {
   const req = new ReportBugReq();
 
   const screenResolution = new ScreenResolution();

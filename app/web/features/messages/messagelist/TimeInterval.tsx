@@ -14,10 +14,7 @@ interface TimeIntervalProps {
   className?: string;
 }
 
-export default function TimeInterval({
-  instant,
-  className,
-}: TimeIntervalProps) {
+export default function TimeInterval({ instant, className }: TimeIntervalProps) {
   const {
     i18n: { language: locale },
   } = useTranslation(GLOBAL);

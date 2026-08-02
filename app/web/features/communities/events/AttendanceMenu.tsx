@@ -1,11 +1,6 @@
 import { ListItemText, styled } from "@mui/material";
 import Button from "components/Button";
-import {
-  CheckCircleIcon,
-  CheckIcon,
-  ExpandLessIcon,
-  ExpandMoreIcon,
-} from "components/Icons";
+import { CheckCircleIcon, CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -35,8 +30,7 @@ export default function AttendanceMenu({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const isAttending =
-    attendanceState === AttendanceState.ATTENDANCE_STATE_GOING;
+  const isAttending = attendanceState === AttendanceState.ATTENDANCE_STATE_GOING;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!isAttending) {
@@ -69,24 +63,10 @@ export default function AttendanceMenu({
         variant={isAttending ? "outlined" : "contained"}
         color="primary"
         disabled={disabled}
-        startIcon={
-          isAttending ? (
-            <CheckCircleIcon sx={{ color: theme.palette.primary.main }} />
-          ) : undefined
-        }
-        endIcon={
-          isAttending ? (
-            open ? (
-              <ExpandLessIcon />
-            ) : (
-              <ExpandMoreIcon />
-            )
-          ) : undefined
-        }
+        startIcon={isAttending ? <CheckCircleIcon sx={{ color: theme.palette.primary.main }} /> : undefined}
+        endIcon={isAttending ? open ? <ExpandLessIcon /> : <ExpandMoreIcon /> : undefined}
       >
-        {isAttending
-          ? t("communities:going_to_event")
-          : t("communities:join_event")}
+        {isAttending ? t("communities:going_to_event") : t("communities:join_event")}
       </Button>
 
       <Menu
@@ -115,21 +95,15 @@ export default function AttendanceMenu({
           }}
         >
           <ListItemText primary={t("communities:going_to_event")} />
-          {attendanceState === AttendanceState.ATTENDANCE_STATE_GOING && (
-            <CheckIcon />
-          )}
+          {attendanceState === AttendanceState.ATTENDANCE_STATE_GOING && <CheckIcon />}
         </StyledMenuListItem>
         <StyledMenuListItem
           onClick={() => {
-            handleChangeAttendanceState(
-              AttendanceState.ATTENDANCE_STATE_NOT_GOING,
-            );
+            handleChangeAttendanceState(AttendanceState.ATTENDANCE_STATE_NOT_GOING);
           }}
         >
           <ListItemText primary={t("communities:not_going_to_event")} />
-          {attendanceState === AttendanceState.ATTENDANCE_STATE_NOT_GOING && (
-            <CheckIcon />
-          )}
+          {attendanceState === AttendanceState.ATTENDANCE_STATE_NOT_GOING && <CheckIcon />}
         </StyledMenuListItem>
       </Menu>
     </>

@@ -9,18 +9,13 @@ import { addDefaultUser, MockedService } from "test/utils";
 
 jest.mock("features/userQueries/useCurrentUser");
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
->;
+const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
 
-const updateHostingPreferenceMock = service.user
-  .updateHostingPreference as MockedService<
+const updateHostingPreferenceMock = service.user.updateHostingPreference as MockedService<
   typeof service.user.updateHostingPreference
 >;
 
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 beforeEach(() => {
   useCurrentUserMock.mockReturnValue({
     data: {
@@ -80,9 +75,7 @@ describe("useUpdateHostingPreference hook", () => {
     await waitFor(() => result.current.status === "success");
 
     expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
-    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
-      newHostingPreferenceData,
-    );
+    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(newHostingPreferenceData);
   });
 
   it("does not update the existing user if the API call failed", async () => {

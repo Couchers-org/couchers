@@ -16,7 +16,7 @@ from sqlalchemy.sql import and_, literal, or_, union_all
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
 from couchers.event_log import log_event
-from couchers.helpers.references import where_references_not_hidden_by_reciprocity
+from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, ModerationObjectType, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
@@ -178,28 +178,16 @@ class References(references_pb2_grpc.ReferencesServicer):
         if not request.from_user_id and not request.to_user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "need_to_specify_at_least_one_user")
 
-        to_users = aliased(User)
-        from_users = aliased(User)
         statement = where_moderated_content_visible(select(Reference), context, Reference, is_list_operation=True)
         if request.from_user_id:
-            # join the to_users, because only interested if the recipient is visible
-            statement = (
-                statement.join(to_users, Reference.to_user_id == to_users.id)
-                .where(
-                    to_users.banned_at.is_(None)
-                )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                .where(or_(to_users.shadowed_at.is_(None), to_users.id == context.user_id))
-                .where(Reference.from_user_id == request.from_user_id)
+            # only interested if the recipient is visible
+            statement = where_reference_user_visible(statement, context, Reference.to_user_id).where(
+                Reference.from_user_id == request.from_user_id
             )
         if request.to_user_id:
-            # join the from_users, because only interested if the writer is visible
-            statement = (
-                statement.join(from_users, Reference.from_user_id == from_users.id)
-                .where(
-                    from_users.banned_at.is_(None)
-                )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                .where(or_(from_users.shadowed_at.is_(None), from_users.id == context.user_id))
-                .where(Reference.to_user_id == request.to_user_id)
+            # only interested if the writer is visible
+            statement = where_reference_user_visible(statement, context, Reference.from_user_id).where(
+                Reference.to_user_id == request.to_user_id
             )
         if len(request.reference_type_filter) > 0:
             statement = statement.where(

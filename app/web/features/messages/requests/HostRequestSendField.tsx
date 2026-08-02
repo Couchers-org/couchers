@@ -29,10 +29,7 @@ const StyledContainer = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(3),
 }));
 
-export default function HostRequestSendField({
-  hostRequest,
-  sendMutation,
-}: HostRequestSendFieldProps) {
+export default function HostRequestSendField({ hostRequest, sendMutation }: HostRequestSendFieldProps) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
   const { authState } = useAuthContext();
 
@@ -58,11 +55,7 @@ export default function HostRequestSendField({
 
   return (
     <form onSubmit={onSubmit}>
-      <HostRequestGuideLinks
-        isPast={isPast}
-        isHost={isHost}
-        status={hostRequest.status}
-      />
+      <HostRequestGuideLinks isPast={isPast} isHost={isHost} status={hostRequest.status} />
       <StyledContainer>
         <TextField
           {...register("text")}
@@ -76,12 +69,7 @@ export default function HostRequestSendField({
           size="small"
           sx={{ background: "var(--mui-palette-background-paper)" }}
         />
-        <FieldButton
-          callback={onSubmit}
-          disabled={!messageText.trim()}
-          isLoading={isPending}
-          isSubmit
-        >
+        <FieldButton callback={onSubmit} disabled={!messageText.trim()} isLoading={isPending} isSubmit>
           {t("global:send")}
         </FieldButton>
       </StyledContainer>

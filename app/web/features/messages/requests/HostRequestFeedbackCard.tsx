@@ -22,11 +22,7 @@ import { HostRequestQuality } from "proto/requests_pb";
 import { useState } from "react";
 import { service } from "service";
 
-type DeclineReason =
-  | "didnt_read_profile"
-  | "dont_want_to_host"
-  | "not_available"
-  | "other";
+type DeclineReason = "didnt_read_profile" | "dont_want_to_host" | "not_available" | "other";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
@@ -43,18 +39,12 @@ const StyledActions = styled(Box)({
   gap: 8,
 });
 
-export default function HostRequestFeedbackCard({
-  hostRequestId,
-}: {
-  hostRequestId: number;
-}) {
+export default function HostRequestFeedbackCard({ hostRequestId }: { hostRequestId: number }) {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
 
   const [quality, setQuality] = useState<HostRequestQuality | null>(null);
-  const [declineReasons, setDeclineReasons] = useState<Set<DeclineReason>>(
-    new Set(),
-  );
+  const [declineReasons, setDeclineReasons] = useState<Set<DeclineReason>>(new Set());
   const [otherText, setOtherText] = useState("");
 
   const toggleReason = (reason: DeclineReason) => {
@@ -73,17 +63,8 @@ export default function HostRequestFeedbackCard({
     mutate: submitFeedback,
     isPending,
     error,
-  } = useMutation<
-    void,
-    RpcError,
-    { quality: HostRequestQuality; declineReason: string }
-  >({
-    mutationFn: (data) =>
-      service.requests.sendHostRequestFeedback(
-        hostRequestId,
-        data.quality,
-        data.declineReason,
-      ),
+  } = useMutation<void, RpcError, { quality: HostRequestQuality; declineReason: string }>({
+    mutationFn: (data) => service.requests.sendHostRequestFeedback(hostRequestId, data.quality, data.declineReason),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
@@ -99,9 +80,7 @@ export default function HostRequestFeedbackCard({
   };
 
   const handleSubmit = () => {
-    const reasons = Array.from(declineReasons).map((r) =>
-      r === "other" ? otherText : r,
-    );
+    const reasons = Array.from(declineReasons).map((r) => (r === "other" ? otherText : r));
     submitFeedback({
       quality: quality ?? HostRequestQuality.HOST_REQUEST_QUALITY_UNSPECIFIED,
       declineReason: reasons.join(","),
@@ -178,26 +157,13 @@ export default function HostRequestFeedbackCard({
           {t("private_feedback_card.decline_reason_label")}
         </Typography>
         <FormGroup>
-          {(
-            [
-              "didnt_read_profile",
-              "dont_want_to_host",
-              "not_available",
-              "other",
-            ] as DeclineReason[]
-          ).map((reason) => (
+          {(["didnt_read_profile", "dont_want_to_host", "not_available", "other"] as DeclineReason[]).map((reason) => (
             <FormControlLabel
               key={reason}
               control={
-                <Checkbox
-                  size="small"
-                  checked={declineReasons.has(reason)}
-                  onChange={() => toggleReason(reason)}
-                />
+                <Checkbox size="small" checked={declineReasons.has(reason)} onChange={() => toggleReason(reason)} />
               }
-              label={t(
-                `private_feedback_card.decline_reason_options.${reason}`,
-              )}
+              label={t(`private_feedback_card.decline_reason_options.${reason}`)}
             />
           ))}
         </FormGroup>
@@ -224,20 +190,10 @@ export default function HostRequestFeedbackCard({
         {t("private_feedback_card.privacy_notice")}
       </Typography>
       <StyledActions>
-        <Button
-          variant="text"
-          size="small"
-          onClick={handleSkip}
-          disabled={isPending}
-        >
+        <Button variant="text" size="small" onClick={handleSkip} disabled={isPending}>
           {t("private_feedback_card.skip_button")}
         </Button>
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleSubmit}
-          loading={isPending}
-        >
+        <Button variant="contained" size="small" onClick={handleSubmit} loading={isPending}>
           {t("private_feedback_card.submit_button")}
         </Button>
       </StyledActions>

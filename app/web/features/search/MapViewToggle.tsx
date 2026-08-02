@@ -13,10 +13,7 @@ interface MapViewToggleProps {
 const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
   const { t } = useTranslation([SEARCH]);
 
-  const handleSetMapViewChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newMapView: MapViewOptions,
-  ) => {
+  const handleSetMapViewChange = (event: React.MouseEvent<HTMLElement>, newMapView: MapViewOptions) => {
     event?.preventDefault();
 
     onMapViewChange(newMapView);

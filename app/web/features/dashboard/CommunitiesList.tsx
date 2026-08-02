@@ -81,9 +81,7 @@ export default function CommunitiesList() {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const communities = (data?.pages ?? []).flatMap(
-    (page) => page.communitiesList,
-  );
+  const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
   const updateScrollState = () => {
     const el = scrollerRef.current;
@@ -110,13 +108,8 @@ export default function CommunitiesList() {
   return (
     <div>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
-          <Groups
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
           {!isPending && communities.length > 0 && (
             <Box
@@ -166,12 +159,7 @@ export default function CommunitiesList() {
         <Trans
           i18nKey="dashboard:your_communities_helper_text"
           components={{
-            1: (
-              <StyledBrowseCommunitiesLink
-                href="/communities"
-                underline="hover"
-              />
-            ),
+            1: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
         />
       </Typography>
@@ -195,9 +183,7 @@ export default function CommunitiesList() {
         >
           {communities.map((community) => (
             <CardSlot key={`community-${community.communityId}`}>
-              <CommunityCard
-                href={routeToCommunity(community.communityId, community.slug)}
-              >
+              <CommunityCard href={routeToCommunity(community.communityId, community.slug)}>
                 <Typography
                   variant="subtitle2"
                   component="span"

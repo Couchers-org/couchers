@@ -5,9 +5,7 @@ describe("getLocalizedListComparer", () => {
     const collator = getLocaleCollator("zh-Hans");
 
     if (collator.resolvedOptions().locale.includes("-pinyin")) {
-      expect(["中国", "法国", "德国", "阿富汗"].sort(collator.compare)).toEqual(
-        ["阿富汗", "德国", "法国", "中国"],
-      );
+      expect(["中国", "法国", "德国", "阿富汗"].sort(collator.compare)).toEqual(["阿富汗", "德国", "法国", "中国"]);
     }
   });
 
@@ -15,15 +13,11 @@ describe("getLocalizedListComparer", () => {
     const collator = getLocaleCollator("zh-Hant");
 
     if (collator.resolvedOptions().locale.includes("-stroke")) {
-      expect(["德國", "法國", "中國", "加拿大"].sort(collator.compare)).toEqual(
-        ["中國", "加拿大", "法國", "德國"],
-      );
+      expect(["德國", "法國", "中國", "加拿大"].sort(collator.compare)).toEqual(["中國", "加拿大", "法國", "德國"]);
     }
   });
 
   it("sorts other locales normally", () => {
-    expect(
-      ["Zulu", "Alpha", "Echo"].sort(getLocalizedListComparer("en")),
-    ).toEqual(["Alpha", "Echo", "Zulu"]);
+    expect(["Zulu", "Alpha", "Echo"].sort(getLocalizedListComparer("en"))).toEqual(["Alpha", "Echo", "Zulu"]);
   });
 });

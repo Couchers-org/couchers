@@ -36,11 +36,7 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
         {label}
       </Typography>
       {typeof text === "string" ? (
-        <TextBody
-          sx={{ flex: "1 1 50%", display: "flex", alignItems: "center" }}
-        >
-          {text}
-        </TextBody>
+        <TextBody sx={{ flex: "1 1 50%", display: "flex", alignItems: "center" }}>{text}</TextBody>
       ) : (
         <StyledFlexItem>{text}</StyledFlexItem> // AgeAndGenderRenderer is a div not string
       )}

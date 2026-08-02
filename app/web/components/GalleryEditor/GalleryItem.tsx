@@ -1,13 +1,5 @@
 import { Close, DragIndicator, Star } from "@mui/icons-material";
-import {
-  Box,
-  IconButton,
-  ImageListItem,
-  ImageListItemBar,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, ImageListItem, ImageListItemBar, styled, Tooltip, Typography } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -95,8 +87,7 @@ const PrimaryBadge = styled(Box)(({ theme }) => ({
 }));
 
 const StyledImageListItemBar = styled(ImageListItemBar)(({ theme }) => ({
-  background:
-    "linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%)",
+  background: "linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%)",
   opacity: 0,
   transition: "opacity 0.2s ease",
   "& .MuiImageListItemBar-titleWrap": {
@@ -200,10 +191,7 @@ export default function GalleryItem({
       {isFirst && (
         <PrimaryBadge>
           <Star fontSize="small" sx={{ color: "common.white", fontSize: 14 }} />
-          <Typography
-            variant="caption"
-            sx={{ color: "common.white", fontWeight: 600 }}
-          >
+          <Typography variant="caption" sx={{ color: "common.white", fontWeight: 600 }}>
             {t("profile:gallery.profile_photo")}
           </Typography>
         </PrimaryBadge>

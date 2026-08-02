@@ -37,12 +37,7 @@ interface MessageListProps {
   isDm?: boolean;
 }
 
-export default function MessageList({
-  markLastSeen,
-  messages,
-  className,
-  isDm = false,
-}: MessageListProps) {
+export default function MessageList({ markLastSeen, messages, className, isDm = false }: MessageListProps) {
   const { t } = useTranslation(MESSAGES);
 
   return (

@@ -1,14 +1,5 @@
 import { Check, MoreHoriz, Settings } from "@mui/icons-material";
-import {
-  Alert,
-  IconButton,
-  Menu,
-  MenuItem,
-  Skeleton,
-  Stack,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Alert, IconButton, Menu, MenuItem, Skeleton, Stack, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Pill from "components/Pill";
 import { listNotificationsQueryKey } from "features/queryKeys";
@@ -22,10 +13,7 @@ import { notificationSettingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import {
-  useMarkAllNotificationsSeen,
-  useMarkSingleNotificationIsSeen,
-} from "../utils/helpers";
+import { useMarkAllNotificationsSeen, useMarkSingleNotificationIsSeen } from "../utils/helpers";
 import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
@@ -60,26 +48,16 @@ const StyledPills = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-const NotificationsFeed = ({
-  anchorEl,
-  isOpen,
-  onClose,
-}: NotificationsFeedProps) => {
+const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
 
-  const [internalMenuAnchorEl, setInternalMenuAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
-  const [notificationsFilter, setNotificationsFilter] = useState<
-    "all" | "unread"
-  >("all");
+  const [internalMenuAnchorEl, setInternalMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [notificationsFilter, setNotificationsFilter] = useState<"all" | "unread">("all");
 
   const isInternalMenuOpen = Boolean(internalMenuAnchorEl);
 
-  const { data, error, isRefetching, isLoading } = useQuery<
-    ListNotificationsRes.AsObject,
-    RpcError
-  >({
+  const { data, error, isRefetching, isLoading } = useQuery<ListNotificationsRes.AsObject, RpcError>({
     queryKey: [listNotificationsQueryKey, notificationsFilter],
     queryFn: () =>
       service.notifications.listNotifications({
@@ -93,19 +71,15 @@ const NotificationsFeed = ({
     isPending: isMarkingAllSeen,
   } = useMarkAllNotificationsSeen();
 
-  const {
-    error: markSingleNotificationIsSeenError,
-    markSingleNotificationIsSeenMutation,
-  } = useMarkSingleNotificationIsSeen();
+  const { error: markSingleNotificationIsSeenError, markSingleNotificationIsSeenMutation } =
+    useMarkSingleNotificationIsSeen();
 
   const handleNotificationSettingsClick = () => {
     router.push(notificationSettingsRoute);
     onClose();
   };
 
-  const handleMarkAllReadClick = async (
-    event: React.MouseEvent<HTMLLIElement>,
-  ) => {
+  const handleMarkAllReadClick = async (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
 
     const latestNotificationId = data?.notificationsList?.[0]?.notificationId;
@@ -117,9 +91,7 @@ const NotificationsFeed = ({
     markAllNotificationsSeenMutation({ latestNotificationId });
   };
 
-  const handleInternalMenuOpen = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ): void => {
+  const handleInternalMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
     setInternalMenuAnchorEl(event.currentTarget);
   };
 
@@ -162,11 +134,7 @@ const NotificationsFeed = ({
         <StyledHeader>
           <Typography variant="h3">{t("global:nav.notifications")}</Typography>
           <IconButton
-            aria-controls={
-              isInternalMenuOpen
-                ? "notifications-feed--more-options"
-                : undefined
-            }
+            aria-controls={isInternalMenuOpen ? "notifications-feed--more-options" : undefined}
             aria-haspopup="true"
             aria-expanded={isInternalMenuOpen ? "true" : undefined}
             id="notifications-feed--more-options"
@@ -215,19 +183,13 @@ const NotificationsFeed = ({
         >
           <MenuItem onClick={handleMarkAllReadClick}>
             <Check fontSize="small" />
-            <Typography
-              variant="body2"
-              sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-            >
+            <Typography variant="body2" sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}>
               {t("notifications:mark_all_read")}
             </Typography>
           </MenuItem>
           <MenuItem onClick={handleNotificationSettingsClick}>
             <Settings fontSize="small" />
-            <Typography
-              variant="body2"
-              sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-            >
+            <Typography variant="body2" sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}>
               {t("notifications:notification_settings.title")}
             </Typography>
           </MenuItem>
@@ -235,19 +197,13 @@ const NotificationsFeed = ({
         <StyledPills>
           <Pill
             variant="rounded"
-            backgroundColor={
-              notificationsFilter === "all"
-                ? "var(--mui-palette-primary-light)"
-                : undefined
-            }
+            backgroundColor={notificationsFilter === "all" ? "var(--mui-palette-primary-light)" : undefined}
             onClick={() => handleNotificationsFilterChange("all")}
             sx={{
               cursor: "pointer",
               "&:hover": {
                 backgroundColor:
-                  notificationsFilter === "all"
-                    ? "var(--mui-palette-primary-dark)"
-                    : "var(--mui-palette-grey-300)",
+                  notificationsFilter === "all" ? "var(--mui-palette-primary-dark)" : "var(--mui-palette-grey-300)",
               },
             }}
           >
@@ -255,20 +211,14 @@ const NotificationsFeed = ({
           </Pill>
           <Pill
             variant="rounded"
-            backgroundColor={
-              notificationsFilter === "unread"
-                ? "var(--mui-palette-primary-light)"
-                : undefined
-            }
+            backgroundColor={notificationsFilter === "unread" ? "var(--mui-palette-primary-light)" : undefined}
             onClick={() => handleNotificationsFilterChange("unread")}
             sx={{
               cursor: "pointer",
 
               "&:hover": {
                 backgroundColor:
-                  notificationsFilter === "unread"
-                    ? "var(--mui-palette-primary-dark)"
-                    : "var(--mui-palette-grey-300)",
+                  notificationsFilter === "unread" ? "var(--mui-palette-primary-dark)" : "var(--mui-palette-grey-300)",
               },
             }}
           >

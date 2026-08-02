@@ -21,9 +21,7 @@ export interface NotificationPreferenceData {
 }
 
 export async function getNotificationSettings() {
-  const res = await client.notifications.getNotificationSettings(
-    new GetNotificationSettingsReq(),
-  );
+  const res = await client.notifications.getNotificationSettings(new GetNotificationSettingsReq());
   return res.toObject();
 }
 
@@ -34,9 +32,7 @@ export async function setNotificationSettings(enableDoNotEmail: boolean) {
   return res.toObject();
 }
 
-export async function setNotificationSettingsPreference(
-  preferenceData: NotificationPreferenceData,
-) {
+export async function setNotificationSettingsPreference(preferenceData: NotificationPreferenceData) {
   const req = new SetNotificationSettingsReq();
   const preference = new SingleNotificationPreference();
   preference.setTopic(preferenceData.topic);
@@ -55,14 +51,11 @@ export async function getVapidPublicKey() {
   return res.toObject();
 }
 
-export async function registerPushNotificationSubscription(
-  subscription: PushSubscription,
-) {
+export async function registerPushNotificationSubscription(subscription: PushSubscription) {
   const req = new RegisterPushNotificationSubscriptionReq();
   req.setFullSubscriptionJson(JSON.stringify(subscription));
   req.setUserAgent(navigator.userAgent);
-  const res =
-    await client.notifications.registerPushNotificationSubscription(req);
+  const res = await client.notifications.registerPushNotificationSubscription(req);
 
   return res.toObject();
 }
@@ -91,11 +84,7 @@ export async function sendTestMobilePushNotification() {
   await client.notifications.sendTestMobilePushNotification(new Empty());
 }
 
-export async function listNotifications({
-  onlyUnread = false,
-}: {
-  onlyUnread: boolean;
-}) {
+export async function listNotifications({ onlyUnread = false }: { onlyUnread: boolean }) {
   const req = new ListNotificationsReq();
 
   if (onlyUnread) {
@@ -106,9 +95,7 @@ export async function listNotifications({
   return res.toObject();
 }
 
-export async function markAllNotificationsSeen(
-  lastestNotificationId: Notification.AsObject["notificationId"],
-) {
+export async function markAllNotificationsSeen(lastestNotificationId: Notification.AsObject["notificationId"]) {
   const req = new MarkAllNotificationsSeenReq();
 
   req.setLatestNotificationId(lastestNotificationId);
@@ -124,9 +111,7 @@ export async function markNotificationSeen(
   const req = new MarkNotificationSeenReq();
 
   if (!notificationId) {
-    throw new Error(
-      "Notification ID is required to mark notification as seen.",
-    );
+    throw new Error("Notification ID is required to mark notification as seen.");
   }
 
   if (setSeen) {

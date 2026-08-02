@@ -16,12 +16,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
   fallback: "blocking",
 });
 
-export const getStaticProps: GetStaticProps = translationStaticProps([
-  GLOBAL,
-  MESSAGES,
-  NOTIFICATIONS,
-  PROFILE,
-]);
+export const getStaticProps: GetStaticProps = translationStaticProps([GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE]);
 function MessagesPageContent() {
   const router = useRouter();
   const slugs =

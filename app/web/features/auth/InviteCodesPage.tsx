@@ -31,11 +31,7 @@ export default function InviteCodesPage() {
   } = useTranslation(GLOBAL);
   const queryClient = useQueryClient();
 
-  const { data, error, isLoading } = useQuery<
-    ListInviteCodesRes.AsObject,
-    RpcError,
-    ListInviteCodesRes.AsObject
-  >({
+  const { data, error, isLoading } = useQuery<ListInviteCodesRes.AsObject, RpcError, ListInviteCodesRes.AsObject>({
     queryKey: [inviteCodesKey],
     queryFn: service.account.listInviteCodes,
     select: (res) => ({
@@ -48,16 +44,13 @@ export default function InviteCodesPage() {
 
   const { isPending: isCreatePending, mutate: createInviteCode } = useMutation({
     mutationFn: service.account.createInviteCode,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
   });
 
-  const { isPending: isDisablePending, mutate: disableInviteCode } =
-    useMutation({
-      mutationFn: (code: string) => service.account.disableInviteCode(code),
-      onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
-    });
+  const { isPending: isDisablePending, mutate: disableInviteCode } = useMutation({
+    mutationFn: (code: string) => service.account.disableInviteCode(code),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
+  });
 
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
   const copiedTimerRef = React.useRef<number | null>(null);
@@ -85,11 +78,7 @@ export default function InviteCodesPage() {
       </Typography>
 
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-        <Button
-          variant="contained"
-          onClick={() => createInviteCode()}
-          disabled={isCreatePending}
-        >
+        <Button variant="contained" onClick={() => createInviteCode()} disabled={isCreatePending}>
           {t("global:create")}
         </Button>
       </Box>
@@ -102,9 +91,7 @@ export default function InviteCodesPage() {
             <ListItem
               key={`sk-${i}`}
               divider
-              secondaryAction={
-                <Skeleton variant="circular" sx={{ width: 24, height: 24 }} />
-              }
+              secondaryAction={<Skeleton variant="circular" sx={{ width: 24, height: 24 }} />}
             >
               <ListItemText
                 primary={<Skeleton variant="text" sx={{ width: "15%" }} />}
@@ -116,8 +103,7 @@ export default function InviteCodesPage() {
       ) : (
         <List>
           {(data?.inviteCodesList ?? []).map((c) => {
-            const origin =
-              typeof window !== "undefined" ? window.location.origin : "";
+            const origin = typeof window !== "undefined" ? window.location.origin : "";
             const shareUrl = `${origin}${inviteRoute}?code=${c.code}`;
             return (
               <ListItem
@@ -155,22 +141,16 @@ export default function InviteCodesPage() {
                 }
               >
                 <ListItemText
-                  primary={
-                    <span data-testid="invite-code-link">{shareUrl}</span>
-                  }
+                  primary={<span data-testid="invite-code-link">{shareUrl}</span>}
                   sx={c.disabled ? { color: "text.disabled" } : undefined}
                   secondary={
                     <>
                       {c.created?.seconds && (
                         <>
                           {t("global:invites.created_datetime", {
-                            datetime: localizeDateTime(
-                              timestampToPlainDateTime(c.created),
-                              {
-                                locale: locale,
-                                abbreviate: true,
-                              },
-                            ),
+                            datetime: localizeDateTime(timestampToPlainDateTime(c.created), locale, {
+                              abbreviate: true,
+                            }),
                           })}
                         </>
                       )}
@@ -178,13 +158,9 @@ export default function InviteCodesPage() {
                         <>
                           {" • "}
                           {t("global:invites.disabled_datetime", {
-                            datetime: localizeDateTime(
-                              timestampToPlainDateTime(c.disabled),
-                              {
-                                locale,
-                                abbreviate: true,
-                              },
-                            ),
+                            datetime: localizeDateTime(timestampToPlainDateTime(c.disabled), locale, {
+                              abbreviate: true,
+                            }),
                           })}
                         </>
                       )}
@@ -203,9 +179,7 @@ export default function InviteCodesPage() {
             );
           })}
           {!(data?.inviteCodesList?.length ?? 0) && (
-            <Typography color="textSecondary">
-              {t("global:invites.no_codes_message")}
-            </Typography>
+            <Typography color="textSecondary">{t("global:invites.no_codes_message")}</Typography>
           )}
         </List>
       )}

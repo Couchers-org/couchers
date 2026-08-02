@@ -76,11 +76,7 @@ export async function sendHostRequestMessage(id: number, text: string) {
   return messageId;
 }
 
-export async function respondHostRequest(
-  id: number,
-  status: HostRequestStatus,
-  text: string,
-) {
+export async function respondHostRequest(id: number, status: HostRequestStatus, text: string) {
   const req = new RespondHostRequestReq();
   req.setHostRequestId(id);
   req.setStatus(status);
@@ -88,11 +84,7 @@ export async function respondHostRequest(
   await client.requests.respondHostRequest(req);
 }
 
-export async function getHostRequestMessages(
-  id: number,
-  lastMessageId = 0,
-  count = 20,
-) {
+export async function getHostRequestMessages(id: number, lastMessageId = 0, count = 20) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
   req.setLastMessageId(lastMessageId);
@@ -156,10 +148,7 @@ export async function sendHostRequestFeedback(
   await client.requests.sendHostRequestFeedback(req);
 }
 
-export async function setHostRequestArchiveStatus(
-  hostRequestId: number,
-  isArchived: boolean,
-) {
+export async function setHostRequestArchiveStatus(hostRequestId: number, isArchived: boolean) {
   const req = new SetHostRequestArchiveStatusReq();
   req.setHostRequestId(hostRequestId);
   req.setIsArchived(isArchived);

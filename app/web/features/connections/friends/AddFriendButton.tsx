@@ -1,12 +1,7 @@
 import { Link } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import { PersonAddIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { doAntibot } from "features/antibot/antibot";
@@ -27,24 +22,15 @@ interface AddFriendButtonProps {
   userId: number;
 }
 
-export default function AddFriendButton({
-  setMutationError,
-  userId,
-}: AddFriendButtonProps) {
+export default function AddFriendButton({ setMutationError, userId }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation([PROFILE, CONNECTIONS, GLOBAL]);
-  const [showCantFriendDialog, setShowCantFriendDialog] =
-    useState<boolean>(false);
+  const [showCantFriendDialog, setShowCantFriendDialog] = useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
-  const { isPending, mutate: sendFriendRequest } = useMutation<
-    Empty,
-    Error,
-    AddFriendButtonProps
-  >({
+  const { isPending, mutate: sendFriendRequest } = useMutation<Empty, Error, AddFriendButtonProps>({
     mutationFn: ({ userId }) => service.api.sendFriendRequest(userId),
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
@@ -54,9 +40,7 @@ export default function AddFriendButton({
         queryKey: userKey(userId),
       });
 
-      const cachedUser = queryClient.getQueryData<User.AsObject>(
-        userKey(userId),
-      );
+      const cachedUser = queryClient.getQueryData<User.AsObject>(userKey(userId));
 
       if (cachedUser) {
         queryClient.setQueryData<User.AsObject>(userKey(userId), {
@@ -113,21 +97,12 @@ export default function AddFriendButton({
           <Trans
             i18nKey="connections:add_friend_confirmation_dialog.message"
             components={{
-              helpCenterLink: (
-                <Link
-                  href={helpCenterFriendRequestsURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              ),
+              helpCenterLink: <Link href={helpCenterFriendRequestsURL} target="_blank" rel="noopener noreferrer" />,
             }}
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="outlined"
-            onClick={() => setShowConfirmDialog(false)}
-          >
+          <Button variant="outlined" onClick={() => setShowConfirmDialog(false)}>
             {t("global:cancel")}
           </Button>
           <Button variant="contained" loading={isPending} onClick={onConfirm}>
@@ -135,12 +110,7 @@ export default function AddFriendButton({
           </Button>
         </DialogActions>
       </Dialog>
-      <Button
-        startIcon={<PersonAddIcon />}
-        onClick={onClick}
-        loading={isPending}
-        disabled={isAccountInfoLoading}
-      >
+      <Button startIcon={<PersonAddIcon />} onClick={onClick} loading={isPending} disabled={isAccountInfoLoading}>
         {t("profile:actions.add_friend")}
       </Button>
     </>

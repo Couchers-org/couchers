@@ -4,12 +4,7 @@ import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
-import {
-  Coordinates,
-  DEFAULT_AGE_MAX,
-  DEFAULT_AGE_MIN,
-  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-} from "../utils/constants";
+import { Coordinates, DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "../utils/constants";
 import { getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
@@ -155,30 +150,19 @@ const initialState: MapSearchState = {
   },
 };
 
-const mapSearchReducer = (
-  state: MapSearchState,
-  action: MapSearchAction,
-): MapSearchState => {
+const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSearchState => {
   // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
   // Instead, always return new objects from your reducer ✅.
   switch (action.type) {
     case mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE:
       const meetsCriteriaAfterKeywordClear =
-        state.hasActiveFilters ||
-        state.search.bbox !== undefined ||
-        state.shouldSearchByUserId;
+        state.hasActiveFilters || state.search.bbox !== undefined || state.shouldSearchByUserId;
 
       const defaultFiltersActive =
         state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(
-          HostingStatus.HOSTING_STATUS_CAN_HOST,
-        ) &&
-          state.filters.hostingStatus?.includes(
-            HostingStatus.HOSTING_STATUS_MAYBE,
-          ) &&
-          !state.filters.hostingStatus.includes(
-            HostingStatus.HOSTING_STATUS_CANT_HOST,
-          ));
+        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
 
       return {
         ...state,
@@ -196,9 +180,7 @@ const mapSearchReducer = (
         },
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: state.selectedUserId !== undefined,
-        showSearchThisAreaButton:
-          !meetsCriteriaAfterKeywordClear &&
-          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+        showSearchThisAreaButton: !meetsCriteriaAfterKeywordClear && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE:
@@ -217,15 +199,9 @@ const mapSearchReducer = (
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
       const areDefaultFiltersActive =
         state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(
-          HostingStatus.HOSTING_STATUS_CAN_HOST,
-        ) &&
-          state.filters.hostingStatus?.includes(
-            HostingStatus.HOSTING_STATUS_MAYBE,
-          ) &&
-          !state.filters.hostingStatus.includes(
-            HostingStatus.HOSTING_STATUS_CANT_HOST,
-          ));
+        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
 
       const clearedState = {
         ...state,
@@ -252,9 +228,7 @@ const mapSearchReducer = (
       return {
         ...clearedState,
         hasActiveFilters: getHasActiveFilters(clearedState, initialState),
-        showSearchThisAreaButton:
-          !meetsCriteriaAfterSearchClear &&
-          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+        showSearchThisAreaButton: !meetsCriteriaAfterSearchClear && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_SEARCH_INPUT_VALUE:
@@ -271,10 +245,7 @@ const mapSearchReducer = (
         ...state,
         filters: {
           ...state.filters,
-          hostingStatus: [
-            HostingStatus.HOSTING_STATUS_CAN_HOST,
-            HostingStatus.HOSTING_STATUS_MAYBE,
-          ], // Default to can host and maybe when searching a location
+          hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE], // Default to can host and maybe when searching a location
           showEmptyProfile: false, // Default to not showing empty profiles when searching a location
         },
         search: {
@@ -301,8 +272,7 @@ const mapSearchReducer = (
     case mapSearchActionTypes.SET_MAP_QUERY_AREA: {
       const didCrossSearchThreshold = action.payload.didCrossSearchThreshold;
       const didZoomBelowThreshold =
-        action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-        state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+        action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
       // If we zoom out below the threshold, reset the state to initial
       if (didZoomBelowThreshold) {
@@ -315,10 +285,7 @@ const mapSearchReducer = (
           hasActiveFilters: true,
           filters: {
             ...state.filters,
-            hostingStatus: [
-              HostingStatus.HOSTING_STATUS_CAN_HOST,
-              HostingStatus.HOSTING_STATUS_MAYBE,
-            ],
+            hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE],
             showEmptyProfile: false,
           },
         }),
@@ -342,25 +309,17 @@ const mapSearchReducer = (
 
       for (const key in action.payload) {
         if (key === "ageMin") {
-          updatedFilters.ageMin =
-            action.payload[key] === DEFAULT_AGE_MIN
-              ? undefined
-              : action.payload[key];
+          updatedFilters.ageMin = action.payload[key] === DEFAULT_AGE_MIN ? undefined : action.payload[key];
         }
         if (key === "ageMax") {
-          updatedFilters.ageMax =
-            action.payload[key] === DEFAULT_AGE_MAX
-              ? undefined
-              : action.payload[key];
+          updatedFilters.ageMax = action.payload[key] === DEFAULT_AGE_MAX ? undefined : action.payload[key];
         }
 
         if (key === "acceptsKids") {
-          updatedFilters.acceptsKids =
-            action.payload[key] === false ? undefined : action.payload[key];
+          updatedFilters.acceptsKids = action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "acceptsLastMinRequests") {
-          updatedFilters.acceptsLastMinRequests =
-            action.payload[key] === false ? undefined : action.payload[key];
+          updatedFilters.acceptsLastMinRequests = action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "showEmptyProfile") {
           updatedFilters.showEmptyProfile = action.payload[key];
@@ -369,25 +328,19 @@ const mapSearchReducer = (
           updatedFilters.drinkingAllowed = action.payload[key];
         }
         if (key === "hasReferences") {
-          updatedFilters.hasReferences =
-            action.payload[key] === false ? undefined : action.payload[key];
+          updatedFilters.hasReferences = action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hasStrongVerification") {
-          updatedFilters.hasStrongVerification =
-            action.payload[key] === false ? undefined : action.payload[key];
+          updatedFilters.hasStrongVerification = action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "hostingStatus") {
           updatedFilters.hostingStatus =
-            action.payload[key] && action.payload[key].length === 0
-              ? undefined
-              : action.payload[key];
+            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
         }
 
         if (key === "meetupStatus") {
           updatedFilters.meetupStatus =
-            action.payload[key] && action.payload[key].length === 0
-              ? undefined
-              : action.payload[key];
+            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
         }
 
         if (key === "lastActive") {
@@ -395,21 +348,17 @@ const mapSearchReducer = (
         }
 
         if (key === "numGuests") {
-          updatedFilters.numGuests =
-            action.payload[key] === 0 ? undefined : action.payload[key];
+          updatedFilters.numGuests = action.payload[key] === 0 ? undefined : action.payload[key];
         }
         if (key === "sleepingArrangement") {
           updatedFilters.sleepingArrangement =
-            action.payload[key] && action.payload[key].length === 0
-              ? undefined
-              : action.payload[key];
+            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
         }
         if (key === "smokesAtHome") {
           updatedFilters.smokesAtHome = action.payload[key];
         }
         if (key === "sameGenderOnly") {
-          updatedFilters.sameGenderOnly =
-            action.payload[key] === false ? undefined : action.payload[key];
+          updatedFilters.sameGenderOnly = action.payload[key] === false ? undefined : action.payload[key];
         }
       }
 
@@ -447,8 +396,7 @@ const mapSearchReducer = (
       const center = action.payload.center;
       const bbox = action.payload.bbox;
       const didZoomBelowThreshold =
-        zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-        state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+        zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
       // If we zoom out below the threshold, reset the state to initial
       if (didZoomBelowThreshold) {
@@ -465,32 +413,24 @@ const mapSearchReducer = (
         },
         shouldSearchByUserId: initialState.shouldSearchByUserId,
         showSearchThisAreaButton:
-          zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
-            ? initialState.showSearchThisAreaButton
-            : state.showSearchThisAreaButton,
+          zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ? initialState.showSearchThisAreaButton : state.showSearchThisAreaButton,
       };
 
     case mapSearchActionTypes.SET_SELECTED_USER_ID:
       const currentSelectedUserId = state.selectedUserId;
 
       const meetsCriteriaAfterSelectedUserIdClear =
-        state.hasActiveFilters ||
-        state.search.bbox !== undefined ||
-        state.search.query !== undefined;
+        state.hasActiveFilters || state.search.bbox !== undefined || state.search.query !== undefined;
 
       return {
         ...state,
-        selectedUserId:
-          currentSelectedUserId === action.payload.userId
-            ? undefined
-            : action.payload.userId,
+        selectedUserId: currentSelectedUserId === action.payload.userId ? undefined : action.payload.userId,
         shouldSearchByUserId:
           currentSelectedUserId !== action.payload.userId &&
           action.payload.userId !== undefined &&
           !meetsCriteriaAfterSelectedUserIdClear,
         showSearchThisAreaButton:
-          !meetsCriteriaAfterSelectedUserIdClear &&
-          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+          !meetsCriteriaAfterSelectedUserIdClear && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON:

@@ -31,56 +31,38 @@ const calculateCurrentRange = ({
   return `${startRange}-${endRange}`;
 };
 
-export function useUserSearch(
-  searchParams: FilterOptions,
-  mapSearchState: MapSearchState,
-) {
+export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSearchState) {
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
     mapSearchState.search.bbox !== undefined ||
     mapSearchState.search.query !== undefined ||
     mapSearchState.shouldSearchByUserId;
 
-  const {
-    error,
-    data,
-    isLoading,
-    isFetching,
-    fetchNextPage,
-    fetchPreviousPage,
-  } = useInfiniteQuery<UserSearchV2Res.AsObject, RpcError>({
+  const { error, data, isLoading, isFetching, fetchNextPage, fetchPreviousPage } = useInfiniteQuery<
+    UserSearchV2Res.AsObject,
+    RpcError
+  >({
     queryKey: ["userSearch", searchParams],
-    queryFn: ({ pageParam }) =>
-      service.search.userSearchV2(
-        searchParams,
-        pageParam as string | undefined,
-      ),
+    queryFn: ({ pageParam }) => service.search.userSearchV2(searchParams, pageParam as string | undefined),
     initialPageParam: mapSearchState.pageNumber > 1,
     placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
-  const users = !meetsSearchCriteria
-    ? undefined
-    : data?.pages[mapSearchState.pageNumber - 1]?.resultsList || [];
+  const users = !meetsSearchCriteria ? undefined : data?.pages[mapSearchState.pageNumber - 1]?.resultsList || [];
 
   /** We don't have a previousPageToken on the backend, so for now we deterine
    *  if we have a previous page by checking if the current page is greater than 0
    *  and if the previous page has a nextPageToken.
    */
-  const hasPreviousPage =
-    (users ?? []).length > 0 &&
-    data?.pages[mapSearchState.pageNumber - 2] !== undefined;
+  const hasPreviousPage = (users ?? []).length > 0 && data?.pages[mapSearchState.pageNumber - 2] !== undefined;
 
-  const hasNextPage =
-    (users ?? []).length > 0 &&
-    data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== "";
+  const hasNextPage = (users ?? []).length > 0 && data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== "";
 
   const totalItems = data?.pages[0]?.totalItems ?? 0;
 
-  const currentPageNumItems =
-    data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
+  const currentPageNumItems = data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
 
   const currentRange = calculateCurrentRange({
     pageNumber: mapSearchState.pageNumber,
@@ -92,10 +74,7 @@ export function useUserSearch(
   // the same intent. searchParams keeps a stable reference across pagination.
   const searchQueryIdRef = useRef<string | null>(null);
   const prevSearchParamsRef = useRef<FilterOptions | null>(null);
-  if (
-    searchQueryIdRef.current === null ||
-    prevSearchParamsRef.current !== searchParams
-  ) {
+  if (searchQueryIdRef.current === null || prevSearchParamsRef.current !== searchParams) {
     prevSearchParamsRef.current = searchParams;
     searchQueryIdRef.current = makeSearchQueryId();
   }

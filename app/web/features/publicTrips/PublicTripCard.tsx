@@ -1,17 +1,5 @@
-import {
-  HourglassEmptyOutlined,
-  PlaceOutlined,
-  WavingHandOutlined,
-} from "@mui/icons-material";
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { HourglassEmptyOutlined, PlaceOutlined, WavingHandOutlined } from "@mui/icons-material";
+import { Box, Card, CardContent, Chip, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
@@ -33,7 +21,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange } from "i18n/datetimes";
+import { localizeDateRange } from "i18n/datetimes";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
@@ -154,11 +142,7 @@ const Description = styled(Typography, {
   }),
 }));
 
-export default function PublicTripCard({
-  trip,
-  ownerView = false,
-  id,
-}: PublicTripCardProps) {
+export default function PublicTripCard({ trip, ownerView = false, id }: PublicTripCardProps) {
   const {
     t,
     i18n: { language: locale },
@@ -173,9 +157,7 @@ export default function PublicTripCard({
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { data: accountInfo } = useAccountInfo();
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
@@ -212,11 +194,7 @@ export default function PublicTripCard({
   return (
     <>
       {showIncompleteDialog && (
-        <ProfileIncompleteDialog
-          open
-          onClose={() => setShowIncompleteDialog(false)}
-          attempted_action="send_request"
-        />
+        <ProfileIncompleteDialog open onClose={() => setShowIncompleteDialog(false)} attempted_action="send_request" />
       )}
       {!ownerView && user && (
         <OfferToHostDialog
@@ -230,12 +208,7 @@ export default function PublicTripCard({
         />
       )}
       {ownerView && (
-        <PublicTripDialog
-          mode="edit"
-          trip={trip}
-          open={showEditDialog}
-          onClose={() => setShowEditDialog(false)}
-        />
+        <PublicTripDialog mode="edit" trip={trip} open={showEditDialog} onClose={() => setShowEditDialog(false)} />
       )}
       <StyledCard id={id} elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
         {ownerView && (
@@ -274,8 +247,7 @@ export default function PublicTripCard({
                         onClick: () =>
                           updateTrip({
                             tripId: trip.tripId,
-                            status:
-                              PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+                            status: PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
                           }),
                       },
                     ]
@@ -352,12 +324,11 @@ export default function PublicTripCard({
             <MetaRow>
               <MetaItem>
                 <CalendarIcon />
-                {localizeDateTimeRange(
+                {localizeDateRange(
                   Temporal.PlainDateTime.from(trip.fromDate),
                   Temporal.PlainDateTime.from(trip.toDate),
+                  locale,
                   {
-                    locale,
-                    includeTime: false,
                     abbreviate: true,
                   },
                 )}
@@ -365,12 +336,7 @@ export default function PublicTripCard({
               {trip.communityName && (
                 <MetaItem>
                   <PlaceOutlined sx={{ fontSize: "1rem" }} />
-                  <StyledLink
-                    href={routeToCommunity(
-                      trip.communityId,
-                      trip.communitySlug,
-                    )}
-                  >
+                  <StyledLink href={routeToCommunity(trip.communityId, trip.communitySlug)}>
                     {trip.communityName}
                   </StyledLink>
                 </MetaItem>
@@ -386,11 +352,7 @@ export default function PublicTripCard({
               variant="body1"
               ref={descriptionRef}
               expanded={expanded}
-              onClick={
-                isOverflowing || expanded
-                  ? () => setExpanded((e) => !e)
-                  : undefined
-              }
+              onClick={isOverflowing || expanded ? () => setExpanded((e) => !e) : undefined}
               sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
             >
               {trip.description}
@@ -408,9 +370,7 @@ export default function PublicTripCard({
                   mt: 0.5,
                 }}
               >
-                {expanded
-                  ? t("publicTrips:show_less")
-                  : t("publicTrips:show_more")}
+                {expanded ? t("publicTrips:show_less") : t("publicTrips:show_more")}
                 {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </Typography>
             )}
@@ -427,19 +387,11 @@ export default function PublicTripCard({
                 {ownerView ? (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {isClosed ? (
-                      <Chip
-                        label={t("publicTrips:status_closed")}
-                        size="small"
-                      />
+                      <Chip label={t("publicTrips:status_closed")} size="small" />
                     ) : isPast ? (
                       <Chip label={t("publicTrips:status_past")} size="small" />
                     ) : (
-                      <Chip
-                        label={t("publicTrips:status_active")}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
+                      <Chip label={t("publicTrips:status_active")} size="small" color="primary" variant="outlined" />
                     )}
                     {trip.offersCount !== undefined && (
                       <Box
@@ -471,17 +423,11 @@ export default function PublicTripCard({
                   </Box>
                 ) : (
                   <>
-                    <StyledLink
-                      href={routeToUser(user.username)}
-                      target={isNativeEmbed ? undefined : "_blank"}
-                    >
+                    <StyledLink href={routeToUser(user.username)} target={isNativeEmbed ? undefined : "_blank"}>
                       {t("publicTrips:view_profile")}
                     </StyledLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <FlagButton
-                        contentRef={`public_trip/${trip.tripId}`}
-                        authorUser={user.userId}
-                      />
+                      <FlagButton contentRef={`public_trip/${trip.tripId}`} authorUser={user.userId} />
                       {alreadyOffered ? (
                         // Link to the existing offer thread.
                         <Button
@@ -506,10 +452,7 @@ export default function PublicTripCard({
                           </span>
                         </Tooltip>
                       ) : (
-                        <Button
-                          startIcon={<CouchIcon />}
-                          onClick={handleOfferToHost}
-                        >
+                        <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
                           {t("publicTrips:offer_to_host")}
                         </Button>
                       )}

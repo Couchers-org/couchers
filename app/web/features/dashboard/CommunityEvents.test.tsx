@@ -12,9 +12,7 @@ const { t } = i18n;
 
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
-const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
-  typeof service.events.listMyEvents
->;
+const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
 
 describe("Community events", () => {
   beforeEach(() => {
@@ -57,10 +55,7 @@ describe("Community events", () => {
     expect(
       await screen.findByText(
         (_content, element) => {
-          return (
-            element?.textContent ===
-            "No events at the moment. Why don't you create one ✨?"
-          );
+          return element?.textContent === "No events at the moment. Why don't you create one ✨?";
         },
         { selector: "p" },
       ),

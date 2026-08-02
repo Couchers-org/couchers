@@ -8,11 +8,7 @@ import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { SectionTitle } from "features/communities/CommunityPage";
-import {
-  CARD_GAP,
-  CARD_WIDTH,
-  DashboardPublicTripCard,
-} from "features/dashboard/DashboardPublicTripCard";
+import { CARD_GAP, CARD_WIDTH, DashboardPublicTripCard } from "features/dashboard/DashboardPublicTripCard";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -43,21 +39,14 @@ const FooterRow = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-export default function PublicTripsOverview({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function PublicTripsOverview({ community }: { community: Community.AsObject }) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([PUBLIC_TRIPS]);
   const { authState } = useAuthContext();
 
-  const { data, error, isLoading } = useListPublicTrips(
-    community.communityId,
-    "",
-  );
+  const { data, error, isLoading } = useListPublicTrips(community.communityId, "");
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -67,9 +56,7 @@ export default function PublicTripsOverview({
     const el = scrollerRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(
-      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
-    );
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
   };
 
   const allTrips = data?.publicTripsList ?? [];
@@ -136,11 +123,7 @@ export default function PublicTripsOverview({
                 scrollSnapAlign: "start",
               }}
             >
-              <DashboardPublicTripCard
-                trip={trip}
-                locale={locale}
-                isOwnTrip={trip.user?.userId === authState.userId}
-              />
+              <DashboardPublicTripCard trip={trip} locale={locale} isOwnTrip={trip.user?.userId === authState.userId} />
             </div>
           ))}
         </FadingScrollTrack>
@@ -150,13 +133,7 @@ export default function PublicTripsOverview({
 
       <FooterRow>
         {trips.length > 0 && (
-          <StyledLink
-            href={routeToCommunity(
-              community.communityId,
-              community.slug,
-              "public-trips",
-            )}
-          >
+          <StyledLink href={routeToCommunity(community.communityId, community.slug, "public-trips")}>
             {t("publicTrips:see_all")}
           </StyledLink>
         )}

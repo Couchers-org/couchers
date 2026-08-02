@@ -27,14 +27,7 @@ const MenuWrapper = styled("div")(() => ({
   flexDirection: "column",
 }));
 
-const EllipsisMenu = ({
-  idName,
-  isMenuOpen,
-  menuAnchorEl,
-  onMenuOpen,
-  onMenuClose,
-  items,
-}: EllipsisMenuProps) => {
+const EllipsisMenu = ({ idName, isMenuOpen, menuAnchorEl, onMenuOpen, onMenuClose, items }: EllipsisMenuProps) => {
   return (
     <MenuWrapper>
       <>
@@ -105,10 +98,7 @@ const EllipsisMenu = ({
                 : {})}
             >
               <item.icon fontSize="small" />
-              <Typography
-                variant="body2"
-                sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}
-              >
+              <Typography variant="body2" sx={{ marginLeft: theme.spacing(1), fontWeight: 500 }}>
                 {item.label}
               </Typography>
             </MenuItem>

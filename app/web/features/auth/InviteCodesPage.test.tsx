@@ -9,14 +9,11 @@ import InviteCodesPage from "./InviteCodesPage";
 
 const { t } = i18n;
 
-const listInviteCodesMock = service.account.listInviteCodes as MockedService<
-  typeof service.account.listInviteCodes
+const listInviteCodesMock = service.account.listInviteCodes as MockedService<typeof service.account.listInviteCodes>;
+const createInviteCodeMock = service.account.createInviteCode as MockedService<typeof service.account.createInviteCode>;
+const disableInviteCodeMock = service.account.disableInviteCode as MockedService<
+  typeof service.account.disableInviteCode
 >;
-const createInviteCodeMock = service.account.createInviteCode as MockedService<
-  typeof service.account.createInviteCode
->;
-const disableInviteCodeMock = service.account
-  .disableInviteCode as MockedService<typeof service.account.disableInviteCode>;
 
 describe("InviteCodesPage", () => {
   beforeEach(() => {
@@ -55,20 +52,12 @@ describe("InviteCodesPage", () => {
 
     // Verify order by DOM sequence of code labels
     const codeLabels = await screen.findAllByTestId("invite-code-link");
-    expect(codeLabels[0]).toHaveTextContent(
-      `${window.location.origin}/invite?code=NEW456`,
-    );
-    expect(codeLabels[1]).toHaveTextContent(
-      `${window.location.origin}/invite?code=OLD123`,
-    );
-    expect(codeLabels[2]).toHaveTextContent(
-      `${window.location.origin}/invite?code=DISABLED`,
-    );
+    expect(codeLabels[0]).toHaveTextContent(`${window.location.origin}/invite?code=NEW456`);
+    expect(codeLabels[1]).toHaveTextContent(`${window.location.origin}/invite?code=OLD123`);
+    expect(codeLabels[2]).toHaveTextContent(`${window.location.origin}/invite?code=DISABLED`);
 
     // Active codes have Disable action, disabled does not
-    expect(
-      screen.getAllByRole("button", { name: t("global:invites.disable_link") }),
-    ).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: t("global:invites.disable_link") })).toHaveLength(2);
   });
 
   it("creates a new invite code when clicking Create", async () => {
@@ -78,9 +67,7 @@ describe("InviteCodesPage", () => {
     render(<InviteCodesPage />, { wrapper });
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByRole("button", { name: t("global:create") }),
-    );
+    await user.click(await screen.findByRole("button", { name: t("global:create") }));
 
     await waitFor(() => expect(createInviteCodeMock).toHaveBeenCalled());
   });
@@ -107,14 +94,10 @@ describe("InviteCodesPage", () => {
     render(<InviteCodesPage />, { wrapper });
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByLabelText(t("global:copy_button.a11y")),
-    );
+    await user.click(await screen.findByLabelText(t("global:copy_button.a11y")));
 
     // Feedback tooltip appears
-    expect(
-      await screen.findByText(t("global:copy_button.copied_tooltip")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("global:copy_button.copied_tooltip"))).toBeVisible();
   });
 
   it("disables an active code when clicking Disable", async () => {

@@ -20,11 +20,7 @@ const StyledTypography = styled(Typography)(() => ({
   marginTop: 0,
 }));
 
-export default function ExternalNavButton({
-  route,
-  label,
-  labelVariant,
-}: ExternalNavButtonProps) {
+export default function ExternalNavButton({ route, label, labelVariant }: ExternalNavButtonProps) {
   return (
     <StyledLink href={route} target="_blank" rel="noreferrer noopener">
       <StyledTypography variant={labelVariant} noWrap>
