@@ -9,7 +9,6 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { communityCreationFormURL, helpCenterCommunityBuilderURL } from "routes";
-
 import NewCommunities from "../NewCommunities";
 import CommunitySearch from "./CommunitySearch";
 
