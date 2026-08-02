@@ -122,11 +122,10 @@ const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: numb
   const dateTimeRangeText = localizeDateTimeRange(
     timestampToPlainDateTime(event.startTime!, event.timezone),
     timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      locale,
       includeYear: "auto",
       includeDayOfWeek: true,
-      includeTime: true,
       capitalize: true,
     },
   );

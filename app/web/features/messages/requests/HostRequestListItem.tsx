@@ -12,7 +12,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange } from "i18n/datetimes";
+import { localizeDateRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
@@ -204,13 +204,12 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
                     display: "inline",
                   }}
                 >
-                  {localizeDateTimeRange(
+                  {localizeDateRange(
                     Temporal.PlainDateTime.from(hostRequest.fromDate),
                     Temporal.PlainDateTime.from(hostRequest.toDate),
+                    locale,
                     {
-                      locale,
                       includeYear: "auto",
-                      includeTime: false,
                     },
                   )}
                 </Typography>

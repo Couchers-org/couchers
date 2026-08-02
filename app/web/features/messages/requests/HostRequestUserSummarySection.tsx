@@ -2,7 +2,7 @@ import { Skeleton, styled, Tooltip, Typography, useMediaQuery } from "@mui/mater
 import Avatar from "components/Avatar";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange } from "i18n/datetimes";
+import { localizeDateRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
@@ -80,13 +80,12 @@ const HostRequestUserSummarySection = ({
         </Typography>
         {hostRequest && (
           <Typography component="p" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
-            {localizeDateTimeRange(
+            {localizeDateRange(
               Temporal.PlainDateTime.from(hostRequest.fromDate),
               Temporal.PlainDateTime.from(hostRequest.toDate),
+              locale,
               {
-                locale,
                 includeYear: "auto",
-                includeTime: false,
                 abbreviate: true,
               },
             )}
@@ -102,13 +101,12 @@ const HostRequestUserSummarySection = ({
         {hostRequest && (
           <StyledRequestedDatesWrapper>
             <Typography component="p" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
-              {localizeDateTimeRange(
+              {localizeDateRange(
                 Temporal.PlainDateTime.from(hostRequest.fromDate),
                 Temporal.PlainDateTime.from(hostRequest.toDate),
+                locale,
                 {
-                  locale,
                   includeYear: "auto",
-                  includeTime: false,
                 },
               )}
             </Typography>

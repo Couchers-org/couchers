@@ -2,6 +2,8 @@ import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Temporal } from "temporal-polyfill";
 
+export const UTC_TIMEZONE = "Etc/UTC";
+
 /// Computes the number of days/nights between two dates.
 /// E.g. there's one day/night between 2020-01-01 and 2020-01-02.
 export function daysBetween(date1: Temporal.PlainDate, date2: Temporal.PlainDate): number {

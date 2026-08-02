@@ -56,8 +56,7 @@ export default function ReferenceListItem({ isReceived, user, reference }: Refer
           {isReceived && <Pill variant="rounded">{referenceBadgeLabel(t)[reference.referenceType]}</Pill>}
           {reference.writtenTime && (
             <Pill variant="rounded">
-              {localizeYearMonth(timestampToPlainDateTime(reference.writtenTime).toPlainDate(), {
-                locale,
+              {localizeYearMonth(timestampToPlainDateTime(reference.writtenTime), locale, {
                 abbreviate: true,
                 capitalize: true,
               })}

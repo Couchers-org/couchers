@@ -4,9 +4,9 @@ import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
 import {
-  localizeDateTime,
   localizeDuration,
   localizeRelativeTime,
+  localizeTimeOnly,
   localizeTimeZone,
   localizeYearMonth,
 } from "i18n/datetimes";
@@ -220,8 +220,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? localizeYearMonth(timestampToPlainDateTime(user.joined).toPlainDate(), {
-                locale,
+            ? localizeYearMonth(timestampToPlainDateTime(user.joined), locale, {
                 capitalize: true,
               })
             : ""
@@ -234,10 +233,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             <Trans
               i18nKey="profile:local_time_with_time_zone_text"
               values={{
-                time: localizeDateTime(Temporal.Now.plainDateTimeISO(user.timezone), {
-                  locale,
-                  includeDate: false,
-                }),
+                time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(user.timezone), locale),
               }}
               components={{
                 timeZone: (

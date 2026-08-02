@@ -21,7 +21,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
-import { localizeDateTimeRange } from "i18n/datetimes";
+import { localizeDateRange } from "i18n/datetimes";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
@@ -324,12 +324,11 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
             <MetaRow>
               <MetaItem>
                 <CalendarIcon />
-                {localizeDateTimeRange(
+                {localizeDateRange(
                   Temporal.PlainDateTime.from(trip.fromDate),
                   Temporal.PlainDateTime.from(trip.toDate),
+                  locale,
                   {
-                    locale,
-                    includeTime: false,
                     abbreviate: true,
                   },
                 )}

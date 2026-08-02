@@ -361,8 +361,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
                   {localizeDateTimeRange(
                     timestampToPlainDateTime(event.startTime!, event.timezone),
                     timestampToPlainDateTime(event.endTime!, event.timezone),
+                    locale,
                     {
-                      locale,
                       includeYear: "auto",
                       includeDayOfWeek: true,
                       capitalize: true,

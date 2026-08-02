@@ -34,8 +34,7 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const formattedTime = localizeDateTime(timestampToPlainDateTime(note.created!), {
-    locale,
+  const formattedTime = localizeDateTime(timestampToPlainDateTime(note.created!), locale, {
     abbreviate: true,
   });
 

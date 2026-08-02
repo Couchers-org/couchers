@@ -3,7 +3,7 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { capitalizeFirstLetter } from "i18n/casing";
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
-import { approxDateDuration, timestampToInstant } from "utils/date";
+import { approxDateDuration, timestampToInstant, UTC_TIMEZONE } from "utils/date";
 import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
 
 /// Converts a Temporal date/time object to a Date
@@ -18,26 +18,18 @@ function toDateForUTCDisplay(temporal: Temporal.ZonedDateTime | Temporal.PlainDa
   if (temporal instanceof Temporal.PlainDate) {
     temporal = temporal.toPlainDateTime();
   }
-  const zoned = temporal.toZonedDateTime("Etc/UTC");
+  const zoned = temporal.toZonedDateTime(UTC_TIMEZONE);
   return new Date(zoned.epochMilliseconds);
 }
 
-interface LocalizeDateTimeParams {
-  /// The locale to localize in.
-  locale: string;
-  /// Whether to include the date (defaults to true).
-  includeDate?: boolean;
+interface LocalizeDateOptions {
   /// Whether to include the year (defaults to true).
   /// "auto" omits the year if it matches the current year (browser timezone).
   includeYear?: boolean | "auto";
-  /// If including the date, whether to include the day (defaults to true).
+  /// Whether to include the day (defaults to true).
   includeDay?: boolean;
-  /// If including the date, whether to include the day of week (defaults to false).
+  /// Whether to include the day of week (defaults to false).
   includeDayOfWeek?: boolean;
-  /// Whether to include the time (defaults to true).
-  includeTime?: boolean;
-  /// If including the time, whether to include seconds (defaults to false).
-  includeSeconds?: boolean;
   /// Whether to abbreviate days of the week and month names (defaults to false).
   abbreviate?: boolean;
   /// Whether to uppercase the first letter (defaults to false). Set this only when
@@ -46,118 +38,183 @@ interface LocalizeDateTimeParams {
   capitalize?: boolean;
 }
 
-/// Localizes a date and time, optionally with the day of the week.
+interface LocalizeTimeOptions {
+  /// Whether to include seconds (defaults to false).
+  includeSeconds?: boolean;
+}
+interface LocalizeDateTimeOptions extends LocalizeDateOptions, LocalizeTimeOptions {
+  /// Whether to include the date (defaults to true).
+  includeDate?: boolean;
+  /// Whether to include the time (defaults to true).
+  includeTime?: boolean;
+}
+
+/// Localizes a date and time, in full or partially (specific components),
+/// optionally with the day of the week and seconds.
 export function localizeDateTime(
-  date: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
-  args: LocalizeDateTimeParams,
+  date: Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: LocalizeDateTimeOptions,
 ): string {
-  const format = getIntlDateTimeFormatUTC(args, { year: date.year });
+  const format = getIntlDateTimeFormatUTC(locale, options, { year: date.year });
   const formatted = format.format(toDateForUTCDisplay(date));
-  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
+  return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
+}
+
+/// Localizes a date only (no time), optionally with the day of the week.
+export function localizeDateOnly(
+  date: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: LocalizeDateOptions,
+): string {
+  if (date instanceof Temporal.PlainDate) {
+    date = date.toPlainDateTime();
+  }
+  return localizeDateTime(date, locale, { ...options, includeTime: false });
+}
+
+/// Localizes a time only (no date), optionally with seconds.
+export function localizeTimeOnly(
+  time: Temporal.PlainTime | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: LocalizeTimeOptions,
+): string {
+  if (time instanceof Temporal.PlainTime) {
+    time = new Temporal.PlainDate(2000, 1, 1).toPlainDateTime(time);
+  }
+  return localizeDateTime(time, locale, { ...options, includeDate: false });
 }
 
 /// Localizes only the year and month of a date.
 export function localizeYearMonth(
-  date: Temporal.PlainDate,
-  args: {
-    locale: string;
-    abbreviate?: boolean;
-    capitalize?: boolean;
+  date: Temporal.PlainYearMonth | Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: {
+    abbreviate?: boolean; // Defaults to false
+    capitalize?: boolean; // Defaults to false
   },
 ): string {
-  return localizeDateTime(date.toPlainDateTime(), {
-    locale: args.locale,
-    abbreviate: args.abbreviate,
-    capitalize: args.capitalize,
+  if (date instanceof Temporal.PlainYearMonth) {
+    date = date.toPlainDate({ day: 1 });
+  }
+
+  return localizeDateOnly(date, locale, {
+    ...options,
     includeDay: false,
-    includeTime: false,
+  });
+}
+
+/// Localizes the name of a month (e.g. "January", "May" in German).
+export function localizeMonthName(
+  month: number | Temporal.PlainYearMonth | Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: {
+    abbreviate?: boolean; // Defaults to false
+    capitalize?: boolean; // Defaults to false
+  },
+): string {
+  if (typeof month !== "number") {
+    month = month.month;
+  }
+  const dummyDate = new Temporal.PlainDate(2000, month, 1);
+  return localizeDateOnly(dummyDate, locale, {
+    ...options,
+    includeYear: false,
+    includeDay: false,
   });
 }
 
 /// Localizes a range of date and times as a string.
 export function localizeDateTimeRange(
-  start: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
-  end: Temporal.ZonedDateTime | Temporal.PlainDateTime | Temporal.PlainDate,
-  args: LocalizeDateTimeParams,
+  start: Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  end: Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: LocalizeDateTimeOptions,
 ): string {
-  const format = getIntlDateTimeFormatUTC(args, {
+  const format = getIntlDateTimeFormatUTC(locale, options, {
     year: start.year == end.year ? start.year : undefined,
   });
   const formatted = format.formatRange(toDateForUTCDisplay(start), toDateForUTCDisplay(end));
-  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
+  return options?.capitalize ? capitalizeFirstLetter(formatted, locale) : formatted;
+}
+
+/// Localizes a range of dates (no times) as a string.
+export function localizeDateRange(
+  start: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  end: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  locale: string,
+  options?: LocalizeDateOptions,
+): string {
+  if (start instanceof Temporal.PlainDate) {
+    start = start.toPlainDateTime();
+  }
+  if (end instanceof Temporal.PlainDate) {
+    end = end.toPlainDateTime();
+  }
+  return localizeDateTimeRange(start, end, locale, {
+    ...options,
+    includeTime: false,
+  });
 }
 
 // Creating Intl.DateTimeFormat every time is 40x slower.
+// Key: stringified (Intl.DateTimeFormatOptions & { locale: string })
 const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
 
-/// Gets an Intl.DateTimeFormat based on params.
+/// Gets an Intl.DateTimeFormat based on options.
 function getIntlDateTimeFormatUTC(
-  args: LocalizeDateTimeParams,
-  options: { year: number | undefined },
+  locale: string,
+  options?: LocalizeDateTimeOptions,
+  dateComponents?: { year?: number },
 ): Intl.DateTimeFormat {
-  // Resolve the auto option since the Intl.DateTimeFormat needs a boolean.
-  if (args.includeYear === "auto") {
-    args = {
-      ...args,
-      includeYear: options.year === undefined || options.year != new Date().getFullYear(),
-    };
+  const intlOptions = getIntlDateTimeFormatOptionsUTC(options, dateComponents);
+  const cacheKey = JSON.stringify({ ...intlOptions, locale });
+  let format = intlDateTimeFormatCache.get(cacheKey);
+  if (!format) {
+    format = new Intl.DateTimeFormat(locale, intlOptions);
+    intlDateTimeFormatCache.set(cacheKey, format);
   }
-
-  // We can't use args as the Map key as it uses reference equality.
-  // Convert it to a json string.
-  const cacheKey = JSON.stringify(args);
-  const cached = intlDateTimeFormatCache.get(cacheKey);
-  if (cached) return cached;
-
-  const format = createIntlDateTimeFormatUTC(args);
-  intlDateTimeFormatCache.set(cacheKey, format);
   return format;
 }
 
 /// Creates a new Intl.DateTimeFormat object based on params.
-function createIntlDateTimeFormatUTC(args: LocalizeDateTimeParams): Intl.DateTimeFormat {
-  const options: Intl.DateTimeFormatOptions = {};
-  if (args.includeDate !== false) {
-    if (args.includeYear !== false) {
-      options.year = "numeric";
+function getIntlDateTimeFormatOptionsUTC(
+  options?: LocalizeDateTimeOptions,
+  dateComponents?: { year?: number },
+): Intl.DateTimeFormatOptions {
+  const intlOptions: Intl.DateTimeFormatOptions = {};
+  if (options?.includeDate !== false) {
+    if (options?.includeYear === undefined || options?.includeYear === true) {
+      intlOptions.year = "numeric";
+    } else if (
+      options?.includeYear === "auto" &&
+      dateComponents?.year !== undefined &&
+      dateComponents.year != new Date().getFullYear()
+    ) {
+      intlOptions.year = "numeric";
     }
-    options.month = args.abbreviate ? "short" : "long";
-    if (args.includeDay !== false) {
-      options.day = "numeric";
-    }
-    if (args.includeDayOfWeek) {
-      options.weekday = args.abbreviate ? "short" : "long";
-    }
-  }
-  if (args.includeTime !== false) {
-    options.hour = "numeric";
-    options.minute = "numeric";
-    if (args.includeSeconds) {
-      options.second = "numeric";
-    }
-  }
-  options.timeZone = "Etc/UTC";
-  return Intl.DateTimeFormat(args.locale, options);
-}
 
-/// Localizes just the abbreviated month name of a date (e.g. "Jan", "Mai" in German).
-export function localizeMonthAbbreviation(
-  date: Temporal.PlainDate,
-  args: {
-    locale: string;
-    capitalize?: boolean;
-  },
-): string {
-  const cacheKey = JSON.stringify(args);
-  let format = intlDateTimeFormatCache.get(cacheKey);
-  if (!format) {
-    const options: Intl.DateTimeFormatOptions = { month: "short" };
-    options.timeZone = "Etc/UTC";
-    format = Intl.DateTimeFormat(args.locale, options);
-    intlDateTimeFormatCache.set(cacheKey, format);
+    intlOptions.month = options?.abbreviate ? "short" : "long";
+
+    if (options?.includeDay !== false) {
+      intlOptions.day = "numeric";
+    }
+
+    if (options?.includeDayOfWeek) {
+      intlOptions.weekday = options.abbreviate ? "short" : "long";
+    }
   }
-  const formatted = format.format(toDateForUTCDisplay(date));
-  return args.capitalize ? capitalizeFirstLetter(formatted, args.locale) : formatted;
+
+  if (options?.includeTime !== false) {
+    intlOptions.hour = "numeric";
+    intlOptions.minute = "numeric";
+    if (options?.includeSeconds) {
+      intlOptions.second = "numeric";
+    }
+  }
+
+  intlOptions.timeZone = UTC_TIMEZONE;
+  return intlOptions;
 }
 
 const timeZoneNameCache = new Map<string, string>();

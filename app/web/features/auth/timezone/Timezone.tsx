@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
-import { localizeDateTime } from "i18n/datetimes";
+import { localizeTimeOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 
@@ -28,10 +28,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           }}
           values={{
             timezone: timezone,
-            time: localizeDateTime(Temporal.Now.plainDateTimeISO(timezone), {
-              locale,
-              includeDate: false,
-            }),
+            time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(timezone), locale),
           }}
         />
       </Typography>
