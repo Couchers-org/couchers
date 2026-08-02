@@ -476,7 +476,11 @@ def test_job_retry(db):
                 == 0
             )
 
-            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
+            # 15 * 2**1 seconds of backoff after the first failure; the resets below step over the later waits
+            job = session.execute(select(BackgroundJob)).scalar_one()
+            assert job.next_attempt_after > now() + timedelta(seconds=25)
+
+            job.next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
             session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
@@ -504,6 +508,35 @@ def test_job_retry(db):
 
     _check_job_counter("mock_job", "error", "4", "Exception")
     _check_job_counter("mock_job", "failed", "5", "Exception")
+
+
+def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        raise Exception()
+
+    MOCK_JOBS: dict[str, Job[Any]] = {"mock_job": Job(mock_job)}
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        session.flush()
+        # the job sat in a backlog for an hour before a worker got round to it
+        session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = now() - timedelta(hours=1)
+
+    new_config = config.copy()
+    new_config.IN_TEST = False
+
+    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+        assert process_job()
+
+        with session_scope() as session:
+            job = session.execute(select(BackgroundJob)).scalar_one()
+            assert job.state == BackgroundJobState.error
+            assert job.try_count == 1
+            # 15 * 2**1 seconds from now, rather than from the hour-old value, which would leave it in the past
+            assert now() + timedelta(seconds=25) < job.next_attempt_after < now() + timedelta(seconds=35)
+
+        # so the job is not immediately due again and doesn't burn through its remaining tries
+        assert not process_job()
 
 
 def test_job_dequeue_steps_over_other_workers_jobs(db):

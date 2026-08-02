@@ -56,12 +56,13 @@ class BackgroundJob(Base, kw_only=True):
 
     __table_args__ = (
         # used in looking up background jobs to attempt
-        # create index on background_jobs(priority desc, next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
+        # create index on background_jobs(priority desc, next_attempt_after) where state = 'pending' OR state = 'error';
+        # the worker's try_count < max_tries predicate is deliberately not indexed: a job that runs out of tries is
+        # moved to the failed state, which this partial index already excludes, so no indexed row can fail that test
         Index(
             "ix_background_jobs_lookup",
             priority.desc(),
             next_attempt_after,
-            (max_tries - try_count),
             postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
         ),
     )
