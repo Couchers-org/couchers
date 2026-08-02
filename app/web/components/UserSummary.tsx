@@ -1,11 +1,4 @@
-import {
-  Box,
-  ListItemAvatar,
-  ListItemText,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from "@mui/material";
 import { styled, type Theme } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
@@ -58,15 +51,11 @@ const avatarSize = (theme: Theme, isSmallAvatar: boolean) => ({
 
 const StyledSkeleton = styled(Skeleton, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
-})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) =>
-  avatarSize(theme, isSmallAvatar),
-);
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => avatarSize(theme, isSmallAvatar));
 
 const StyledAvatar = styled(Avatar, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
-})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) =>
-  avatarSize(theme, isSmallAvatar),
-);
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => avatarSize(theme, isSmallAvatar));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
@@ -95,9 +84,7 @@ export default function UserSummary({
     return React.createElement(headlineComponent, { ...props, ref });
   });
 
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -190,11 +177,7 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Tooltip
-                title={(user as LiteUser.AsObject)?.city}
-                arrow
-                placement="top"
-              >
+              <Tooltip title={(user as LiteUser.AsObject)?.city} arrow placement="top">
                 <Box
                   sx={{
                     display: "flex",

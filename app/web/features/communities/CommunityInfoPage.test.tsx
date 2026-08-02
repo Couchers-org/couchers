@@ -32,9 +32,7 @@ async function assertAdminsShown(element: typeof screen | ReturnType<typeof with
       name: getProfileLinkA11yLabel(secondAdmin.name),
     }),
   ).toBeVisible();
-  expect(
-    element.getByRole("heading", { name: secondAdmin.name }),
-  ).toBeVisible();
+  expect(element.getByRole("heading", { name: secondAdmin.name })).toBeVisible();
 }
 
 describe("Community info page", () => {
@@ -95,9 +93,7 @@ describe("Community info page", () => {
         />,
         { wrapper },
       );
-      await waitForElementToBeRemoved(
-        screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-      );
+      await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
@@ -130,9 +126,7 @@ describe("Community info page", () => {
         nextPageToken: "3",
       });
       render(<CommunityInfoPage community={community} />, { wrapper });
-      await waitForElementToBeRemoved(
-        screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-      );
+      await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
       const user = userEvent.setup();
 
@@ -214,9 +208,7 @@ describe("Community info page", () => {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         }),
       ).toBeVisible();
-      expect(
-        adminDialog.getByRole("heading", { name: thirdAdmin.name }),
-      ).toBeVisible();
+      expect(adminDialog.getByRole("heading", { name: thirdAdmin.name })).toBeVisible();
 
       // Check it doesn't affect the underlying page
       await user.click(document.querySelector(".MuiBackdrop-root")!);
