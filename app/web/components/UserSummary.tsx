@@ -1,12 +1,5 @@
-import {
-  Box,
-  ListItemAvatar,
-  ListItemText,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { styled, type Theme } from "@mui/system";
+import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from "@mui/material";
+import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { PinIcon } from "components/Icons";
@@ -39,34 +32,23 @@ const StyledListItemText = styled(ListItemText, {
   gap: theme.spacing(0.25),
   margin: 0,
   minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
-  [theme.breakpoints.down("md")]: {
-    minHeight: isSmallAvatar ? theme.spacing(4.5) : theme.spacing(7),
-  },
 }));
-
-// shared so the avatar and its skeleton can't drift apart and make the row jump when the
-// user loads
-const avatarSize = (theme: Theme, isSmallAvatar: boolean) => ({
-  marginInlineEnd: theme.spacing(2),
-  height: isSmallAvatar ? "3rem" : "4.5rem",
-  width: isSmallAvatar ? "3rem" : "4.5rem",
-  [theme.breakpoints.down("md")]: {
-    height: isSmallAvatar ? "2.25rem" : "3.5rem",
-    width: isSmallAvatar ? "2.25rem" : "3.5rem",
-  },
-});
 
 const StyledSkeleton = styled(Skeleton, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
-})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) =>
-  avatarSize(theme, isSmallAvatar),
-);
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
+  marginInlineEnd: theme.spacing(2),
+  height: isSmallAvatar ? "3rem" : "4.5rem",
+  width: isSmallAvatar ? "3rem" : "4.5rem",
+}));
 
 const StyledAvatar = styled(Avatar, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
-})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) =>
-  avatarSize(theme, isSmallAvatar),
-);
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
+  marginInlineEnd: theme.spacing(2),
+  height: isSmallAvatar ? "3rem" : "4.5rem",
+  width: isSmallAvatar ? "3rem" : "4.5rem",
+}));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
@@ -95,9 +77,7 @@ export default function UserSummary({
     return React.createElement(headlineComponent, { ...props, ref });
   });
 
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -190,11 +170,7 @@ export default function UserSummary({
         secondary={
           <>
             {!nameOnly && (
-              <Tooltip
-                title={(user as LiteUser.AsObject)?.city}
-                arrow
-                placement="top"
-              >
+              <Tooltip title={(user as LiteUser.AsObject)?.city} arrow placement="top">
                 <Box
                   sx={{
                     display: "flex",
