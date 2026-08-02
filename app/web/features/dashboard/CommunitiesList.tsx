@@ -61,11 +61,7 @@ export default function CommunitiesList() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const { data, isPending, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useListUserCommunities();
-
-  useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const { data, isPending, error } = useListUserCommunities();
 
   const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
