@@ -57,24 +57,20 @@ const globalStylesNoOverflow = (
 );
 
 const PageWrapper = styled(Box, {
-  shouldForwardProp: (prop) =>
-    prop !== "isNoOverflow" && prop !== "hasBottomNav",
-})<{ isNoOverflow?: boolean; hasBottomNav?: boolean }>(
-  ({ isNoOverflow, hasBottomNav }) => ({
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-    paddingBottom: "var(--cookie-banner-height, 0px)",
-    ...(isNoOverflow && {
-      overflow: "hidden",
-      minHeight: 0,
-    }),
-    ...(hasBottomNav && {
-      paddingBottom:
-        "calc(56px + env(safe-area-inset-bottom, 0px) + var(--cookie-banner-height, 0px))",
-    }),
+  shouldForwardProp: (prop) => prop !== "isNoOverflow" && prop !== "hasBottomNav",
+})<{ isNoOverflow?: boolean; hasBottomNav?: boolean }>(({ isNoOverflow, hasBottomNav }) => ({
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  paddingBottom: "var(--cookie-banner-height, 0px)",
+  ...(isNoOverflow && {
+    overflow: "hidden",
+    minHeight: 0,
   }),
-);
+  ...(hasBottomNav && {
+    paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px) + var(--cookie-banner-height, 0px))",
+  }),
+}));
 
 const ContentWrapper = styled(
   Container,
@@ -96,13 +92,7 @@ const ContentWrapper = styled(
   }),
 }));
 
-function AppRoute({
-  children,
-  isPrivate,
-  noFooter = false,
-  variant = "standard",
-  bottomMargin,
-}: AppRouteProps) {
+function AppRoute({ children, isPrivate, noFooter = false, variant = "standard", bottomMargin }: AppRouteProps) {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { pathname } = router;
@@ -116,10 +106,7 @@ function AppRoute({
   useLayoutEffect(() => {
     const updateNavHeight = () => {
       if (headerRef.current) {
-        document.documentElement.style.setProperty(
-          "--nav-height",
-          `${headerRef.current.offsetHeight}px`,
-        );
+        document.documentElement.style.setProperty("--nav-height", `${headerRef.current.offsetHeight}px`);
       }
     };
     updateNavHeight();
@@ -145,8 +132,7 @@ function AppRoute({
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
-  const isPrivateRouteNotReady =
-    isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
+  const isPrivateRouteNotReady = isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
 
   return (
     <ErrorBoundary>
@@ -170,21 +156,11 @@ function AppRoute({
             <ContentWrapper
               disableGutters
               variant={variant}
-              maxWidth={
-                variant === "full-width" || variant === "no-overflow"
-                  ? false
-                  : STANDARD_PAGE_MAX_WIDTH
-              }
+              maxWidth={variant === "full-width" || variant === "no-overflow" ? false : STANDARD_PAGE_MAX_WIDTH}
             >
               {children}
             </ContentWrapper>
-            {!noFooter && (
-              <Footer
-                bottomMargin={
-                  isMobile && !isAuthenticated ? bottomMargin : undefined
-                }
-              />
-            )}
+            {!noFooter && <Footer bottomMargin={isMobile && !isAuthenticated ? bottomMargin : undefined} />}
           </PageWrapper>
         </>
       )}
@@ -200,12 +176,7 @@ const appGetLayout = ({
 }: Partial<AppRouteProps> = {}) => {
   return function AppLayout(page: ReactNode) {
     return (
-      <AppRoute
-        isPrivate={isPrivate}
-        noFooter={noFooter}
-        variant={variant}
-        bottomMargin={bottomMargin}
-      >
+      <AppRoute isPrivate={isPrivate} noFooter={noFooter} variant={variant} bottomMargin={bottomMargin}>
         {page}
       </AppRoute>
     );

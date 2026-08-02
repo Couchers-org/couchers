@@ -2,6 +2,7 @@ import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Linkify from "components/Linkify";
 import TextBody from "components/TextBody";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -30,43 +31,37 @@ const StyledAvatar = styled(Avatar)(() => ({
 }));
 
 const StyledCard = styled(Card, {
-  shouldForwardProp: (prop) =>
-    prop !== "isLoading" && prop !== "isCurrentUser" && prop !== "isDm",
-})<{ isLoading: boolean; isCurrentUser: boolean; isDm: boolean }>(
-  ({ theme, isCurrentUser, isDm, isLoading }) => ({
-    width: "fit-content",
-    minWidth: 150,
-    [theme.breakpoints.up("xs")]: {
-      // Only group-chat received messages have a left (avatar) column to offset.
-      maxWidth:
-        !isCurrentUser && !isDm
-          ? `calc(85% - ${AVATAR_SIZE}px - ${theme.spacing(1)})`
-          : "85%",
-    },
-    [theme.breakpoints.up("md")]: {
-      maxWidth: "min(70%, 75rem)",
-    },
-    border: "1px solid",
-    borderRadius: theme.shape.borderRadius * 3,
+  shouldForwardProp: (prop) => prop !== "isLoading" && prop !== "isCurrentUser" && prop !== "isDm",
+})<{ isLoading: boolean; isCurrentUser: boolean; isDm: boolean }>(({ theme, isCurrentUser, isDm, isLoading }) => ({
+  width: "fit-content",
+  minWidth: 150,
+  [theme.breakpoints.up("xs")]: {
+    // Only group-chat received messages have a left (avatar) column to offset.
+    maxWidth: !isCurrentUser && !isDm ? `calc(85% - ${AVATAR_SIZE}px - ${theme.spacing(1)})` : "85%",
+  },
+  [theme.breakpoints.up("md")]: {
+    maxWidth: "min(70%, 75rem)",
+  },
+  border: "1px solid",
+  borderRadius: theme.shape.borderRadius * 3,
 
-    ...(isLoading && {
-      borderColor: "var(--mui-palette-text-secondary)",
+  ...(isLoading && {
+    borderColor: "var(--mui-palette-text-secondary)",
+  }),
+
+  ...(isCurrentUser &&
+    !isLoading && {
+      borderColor: "var(--mui-palette-primary-main)",
+      backgroundColor: "var(--mui-palette-primary-main)",
+      color: "var(--mui-palette-common-white)",
     }),
 
-    ...(isCurrentUser &&
-      !isLoading && {
-        borderColor: "var(--mui-palette-primary-main)",
-        backgroundColor: "var(--mui-palette-primary-main)",
-        color: "var(--mui-palette-common-white)",
-      }),
-
-    ...(!isCurrentUser &&
-      !isLoading && {
-        borderColor: "var(--mui-palette-grey-300)",
-        backgroundColor: "var(--mui-palette-grey-200)",
-      }),
-  }),
-);
+  ...(!isCurrentUser &&
+    !isLoading && {
+      borderColor: "var(--mui-palette-grey-300)",
+      backgroundColor: "var(--mui-palette-grey-200)",
+    }),
+}));
 
 const StyledLeftOfMessage = styled("div")(({ theme }) => ({
   display: "flex",
@@ -134,19 +129,11 @@ export interface MessageProps {
   isDm?: boolean;
 }
 
-export default function MessageView({
-  className,
-  message,
-  onVisible,
-  isDm = false,
-}: MessageProps) {
+export default function MessageView({ className, message, onVisible, isDm = false }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
 
-  const { data: author, isLoading: isAuthorLoading } = useLiteUser(
-    message.authorUserId,
-  );
-  const { data: currentUser, isLoading: isCurrentUserLoading } =
-    useCurrentUser();
+  const { data: author, isLoading: isAuthorLoading } = useLiteUser(message.authorUserId);
+  const { data: currentUser, isLoading: isCurrentUserLoading } = useCurrentUser();
   const isLoading = isAuthorLoading || isCurrentUserLoading;
   const isCurrentUser = message.authorUserId === currentUser?.userId;
 
@@ -163,45 +150,28 @@ export default function MessageView({
     >
       {author && !isCurrentUser && !isDm && (
         <StyledLeftOfMessage>
-          {isAuthorLoading ? (
-            <Skeleton variant="rounded" width={40} height={40} />
-          ) : (
-            <StyledAvatar user={author} />
-          )}
+          {isAuthorLoading ? <Skeleton variant="rounded" width={40} height={40} /> : <StyledAvatar user={author} />}
         </StyledLeftOfMessage>
       )}
-      <StyledCard
-        isLoading={isLoading}
-        isCurrentUser={isCurrentUser}
-        isDm={isDm}
-      >
+      <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser} isDm={isDm}>
         {!isCurrentUser && !isDm && (
           <StyledHeader>
             {isAuthorLoading ? (
               <Skeleton width={100} />
             ) : (
-              <StyledNameTypography variant="h5">
-                {author ? author.name : t("unknown_user")}
-              </StyledNameTypography>
+              <StyledNameTypography variant="h5">{author ? author.name : t("unknown_user")}</StyledNameTypography>
             )}
           </StyledHeader>
         )}
         <StyledMessageBody>
           <TextBody>
-            <Linkify
-              text={message.text?.text || ""}
-              isCurrentUser={isCurrentUser}
-            />
+            <Linkify text={message.text?.text || ""} isCurrentUser={isCurrentUser} />
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
           <StyledTimeInterval instant={timestampToInstant(message.time!)} />
           {author && !isCurrentUser && (
-            <StyledFlagButton
-              contentRef={`chat/message/${message.messageId}`}
-              authorUser={author.userId}
-              size="small"
-            />
+            <StyledFlagButton contentRef={contentRefs.chatMessage(message)} authorUser={author.userId} size="small" />
           )}
         </StyledFooter>
       </StyledCard>

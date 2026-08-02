@@ -5,18 +5,14 @@ import { useCallback, useEffect, useRef } from "react";
 import { service } from "service";
 import { arrayEq } from "utils/arrayEq";
 
-export default function useUsers(
-  ids: (number | undefined)[],
-  invalidate = false,
-) {
+export default function useUsers(ids: (number | undefined)[], invalidate = false) {
   const queryClient = useQueryClient();
   const idsRef = useRef(ids);
   const handleInvalidation = useCallback(() => {
     if (invalidate) {
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === userKey()[0] &&
-          !!idsRef.current.includes(query.queryKey[1] as number),
+          query.queryKey[0] === userKey()[0] && !!idsRef.current.includes(query.queryKey[1] as number),
         // tells v5 to immediately refetch active observers after invalidation
         refetchType: "active",
       });
@@ -46,9 +42,7 @@ export default function useUsers(
 
   const errors = queries
     .map((query) =>
-      query.error && typeof (query.error as Error).message === "string"
-        ? (query.error as Error).message
-        : undefined,
+      query.error && typeof (query.error as Error).message === "string" ? (query.error as Error).message : undefined,
     )
     .filter((e): e is string => typeof e === "string");
   const isPending = queries.some((query) => query.isPending);
@@ -59,9 +53,7 @@ export default function useUsers(
   const isRefetching = !queries.every((query) => query.isLoading) && isFetching;
   const isError = !!errors.length;
 
-  const usersById = isPending
-    ? undefined
-    : new Map(queries.map((q, index) => [ids[index], q.data]));
+  const usersById = isPending ? undefined : new Map(queries.map((q, index) => [ids[index], q.data]));
 
   return {
     data: usersById,

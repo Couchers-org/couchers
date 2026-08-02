@@ -59,9 +59,7 @@ export default function DashboardMyPublicTrips() {
     const el = scrollerRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(
-      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
-    );
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
   };
 
   const activeTrips = (data?.publicTripsList ?? []).filter(
@@ -84,13 +82,8 @@ export default function DashboardMyPublicTrips() {
   return (
     <section>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
-          <TravelExplore
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <TravelExplore sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:public_trips.my_trips_header")}
           {!isLoading && activeTrips.length > 0 && (
             <Box
@@ -150,10 +143,7 @@ export default function DashboardMyPublicTrips() {
       {isLoading ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
           {[0, 1, 2].map((i) => (
-            <Box
-              key={i}
-              sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}
-            >
+            <Box key={i} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
               <DashboardPublicTripCardSkeleton />
             </Box>
           ))}
@@ -168,15 +158,8 @@ export default function DashboardMyPublicTrips() {
           $canScrollRight={canScrollRight}
         >
           {activeTrips.map((trip) => (
-            <Box
-              key={trip.tripId}
-              sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}
-            >
-              <DashboardPublicTripCard
-                trip={trip}
-                locale={locale}
-                offersCount={trip.offersCount}
-              />
+            <Box key={trip.tripId} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
+              <DashboardPublicTripCard trip={trip} locale={locale} offersCount={trip.offersCount} />
             </Box>
           ))}
         </FadingScrollTrack>
@@ -190,10 +173,7 @@ export default function DashboardMyPublicTrips() {
                 flexShrink: 0,
               }}
             />
-            <Typography
-              variant="body2"
-              sx={{ flex: 1, color: "var(--mui-palette-text-secondary)" }}
-            >
+            <Typography variant="body2" sx={{ flex: 1, color: "var(--mui-palette-text-secondary)" }}>
               {t("dashboard:public_trips.empty_description")}
             </Typography>
           </EmptyStateRow>

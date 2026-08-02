@@ -1,13 +1,5 @@
 import { MailOutlined } from "@mui/icons-material";
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemProps,
-  ListItemText,
-  styled,
-  Typography,
-} from "@mui/material";
+import { List, ListItem, ListItemIcon, ListItemProps, ListItemText, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { NotificationNewIcon } from "components/Icons";
@@ -57,8 +49,7 @@ export default function NotificationSettingsSubListItem({
 }: NotificationSettingsSubListItemProps) {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
 
-  const { updateNotificationSettings, status } =
-    useUpdateNotificationSettings();
+  const { updateNotificationSettings, status } = useUpdateNotificationSettings();
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [isPushLoading, setIsPushLoading] = useState(false);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
@@ -115,22 +106,14 @@ export default function NotificationSettingsSubListItem({
 
   return (
     <>
-      {mutationError && (
-        <Alert severity="error">
-          {mutationError || t("global:error.unknown")}
-        </Alert>
-      )}
+      {mutationError && <Alert severity="error">{mutationError || t("global:error.unknown")}</Alert>}
       <StyledDescriptionText>{description}</StyledDescriptionText>
       <List component="div" disablePadding>
         <StyledListItem component="button">
           <ListItemIcon>
             <NotificationNewIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={t(
-              "notifications:notification_settings.edit_preferences.channels.push_label",
-            )}
-          />
+          <ListItemText primary={t("notifications:notification_settings.edit_preferences.channels.push_label")} />
           <CustomColorSwitch
             customColor={theme.palette.primary.main}
             checked={push}
@@ -143,11 +126,7 @@ export default function NotificationSettingsSubListItem({
           <ListItemIcon>
             <MailOutlined fontSize="medium" />
           </ListItemIcon>
-          <ListItemText
-            primary={t(
-              "notifications:notification_settings.edit_preferences.channels.email_label",
-            )}
-          />
+          <ListItemText primary={t("notifications:notification_settings.edit_preferences.channels.email_label")} />
           <CustomColorSwitch
             customColor={theme.palette.primary.main}
             checked={email}

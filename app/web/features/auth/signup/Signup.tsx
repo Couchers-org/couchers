@@ -62,18 +62,14 @@ export default function Signup() {
       if (urlToken) {
         setLoading(true);
         try {
-          authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken),
-          );
+          authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
         } catch (err) {
           Sentry.captureException(err, {
             tags: {
               component: "auth/signup/Signup",
             },
           });
-          authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
-          );
+          authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
           router.push(signupRoute);
           return;
         } finally {
@@ -174,11 +170,7 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {!isClient || loading ? (
-            <CenteredSpinner />
-          ) : (
-            <SignupFormContent inviteCode={inviteCode || undefined} />
-          )}
+          {!isClient || loading ? <CenteredSpinner /> : <SignupFormContent inviteCode={inviteCode || undefined} />}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
             <Trans
               i18nKey="auth:basic_sign_up_form.existing_user_prompt"

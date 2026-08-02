@@ -12,13 +12,7 @@ import {
 import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
 import React, { useRef } from "react";
-import {
-  Layer,
-  Map as MaplibreMap,
-  MapRef,
-  Source,
-  ViewStateChangeEvent,
-} from "react-map-gl/maplibre";
+import { Layer, Map as MaplibreMap, MapRef, Source, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;

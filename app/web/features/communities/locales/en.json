@@ -44,6 +44,7 @@
     "cancel": "Cancel"
   },
   "edit_discussion": "Edit discussion",
+  "report_discussion_button_a11y": "Report this discussion",
   "create_new_discussion_title": "Create new post",
   "discussions_empty_state": "No discussions at the moment.",
   "discussions_label": "Discussions",
@@ -52,6 +53,7 @@
   "copy_link_success": "Link copied to clipboard",
   "duplicate_event": "Duplicate event",
   "edit_event": "Edit event",
+  "report_event_button_a11y": "Report this event",
   "edit_info_page_title": "Edit local info",
   "error_loading_community": "Error loading the community.",
   "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",

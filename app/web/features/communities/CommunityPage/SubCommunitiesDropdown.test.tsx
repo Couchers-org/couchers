@@ -26,9 +26,7 @@ jest.mock("platform/sentry", () => {
   };
 });
 
-const mockChildCommunity = (
-  overrides: Partial<Community.AsObject>,
-): Community.AsObject => ({
+const mockChildCommunity = (overrides: Partial<Community.AsObject>): Community.AsObject => ({
   communityId: 100,
   name: "Amsterdam",
   slug: "amsterdam",
@@ -59,12 +57,9 @@ describe("SubCommunitiesDropdown", () => {
   });
 
   it("labels the trigger button for the children's node type", async () => {
-    render(
-      <SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />,
-      {
-        wrapper,
-      },
-    );
+    render(<SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />, {
+      wrapper,
+    });
 
     expect(
       await screen.findByRole("button", {
@@ -94,40 +89,27 @@ describe("SubCommunitiesDropdown", () => {
     expect(await screen.findByRole("menuitem", { name: "Amsterdam" }));
     expect(screen.getByRole("menuitem", { name: "Berlin" }));
 
-    const searchInput = screen.getByPlaceholderText(
-      t("communities:sub_community_search_placeholder"),
-    );
+    const searchInput = screen.getByPlaceholderText(t("communities:sub_community_search_placeholder"));
     await user.type(searchInput, "ams");
 
     expect(searchInput).toHaveValue("ams");
     expect(screen.getByRole("menuitem", { name: "Amsterdam" }));
-    expect(
-      screen.queryByRole("menuitem", { name: "Berlin" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "Berlin" })).not.toBeInTheDocument();
   });
 
   it("closes the menu when Escape is pressed from the search input", async () => {
     const user = userEvent.setup();
-    render(
-      <SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />,
-      {
-        wrapper,
-      },
-    );
+    render(<SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />, {
+      wrapper,
+    });
 
     await openMenu(user);
 
-    const searchInput = screen.getByPlaceholderText(
-      t("communities:sub_community_search_placeholder"),
-    );
+    const searchInput = screen.getByPlaceholderText(t("communities:sub_community_search_placeholder"));
     searchInput.focus();
     await user.keyboard("{Escape}");
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole("menuitem", { name: "Amsterdam" }),
-      ).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.queryByRole("menuitem", { name: "Amsterdam" })).not.toBeInTheDocument());
   });
 
   it("navigates to the selected child community", async () => {
@@ -153,35 +135,21 @@ describe("SubCommunitiesDropdown", () => {
 
     await openMenu(user);
 
-    await user.click(
-      await screen.findByRole("menuitem", { name: "Amsterdam" }),
-    );
+    await user.click(await screen.findByRole("menuitem", { name: "Amsterdam" }));
 
-    expect(mockPush).toHaveBeenCalledWith(
-      routeToCommunity(amsterdam.communityId, amsterdam.slug),
-    );
+    expect(mockPush).toHaveBeenCalledWith(routeToCommunity(amsterdam.communityId, amsterdam.slug));
   });
 
   it("shows a request-community link when the search has no matches", async () => {
     const user = userEvent.setup();
-    render(
-      <SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />,
-      {
-        wrapper,
-      },
-    );
+    render(<SubCommunitiesDropdown subCommunities={[mockChildCommunity({})]} />, {
+      wrapper,
+    });
 
     await openMenu(user);
 
-    await user.type(
-      screen.getByPlaceholderText(
-        t("communities:sub_community_search_placeholder"),
-      ),
-      "NonExistentCity",
-    );
+    await user.type(screen.getByPlaceholderText(t("communities:sub_community_search_placeholder")), "NonExistentCity");
 
-    expect(
-      await screen.findByRole("link", { name: "Request this community!" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Request this community!" })).toBeInTheDocument();
   });
 });

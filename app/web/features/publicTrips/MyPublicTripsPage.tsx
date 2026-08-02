@@ -99,8 +99,7 @@ export default function MyPublicTripsPage() {
     const trips = data?.publicTripsList ?? [];
     const startOfToday = dayjs().startOf("day");
     return trips.filter((trip) => {
-      const isClosed =
-        trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
+      const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
       const isPast = dayjs(trip.toDate).isBefore(startOfToday);
       switch (filter) {
         case "active":
@@ -150,10 +149,7 @@ export default function MyPublicTripsPage() {
     <PageWrapper>
       <HtmlMeta title={t("publicTrips:my_title")} />
       <TitleRow>
-        <StyledBackButton
-          onClick={() => router.back()}
-          aria-label={t("communities:previous_page")}
-        >
+        <StyledBackButton onClick={() => router.back()} aria-label={t("communities:previous_page")}>
           <BackIcon />
         </StyledBackButton>
         <Typography variant="h1">{t("publicTrips:my_title")}</Typography>
@@ -163,12 +159,7 @@ export default function MyPublicTripsPage() {
       {isLoading ? (
         <TripsList>
           {[0, 1, 2].map((i) => (
-            <Skeleton
-              key={i}
-              variant="rounded"
-              height={180}
-              sx={{ borderRadius: 1 }}
-            />
+            <Skeleton key={i} variant="rounded" height={180} sx={{ borderRadius: 1 }} />
           ))}
         </TripsList>
       ) : (
@@ -189,34 +180,21 @@ export default function MyPublicTripsPage() {
           <TripsList>
             {!hasResults ? (
               <EmptyState>
-                <Typography variant="body1">
-                  {t("publicTrips:my_empty_state")}
-                </Typography>
+                <Typography variant="body1">{t("publicTrips:my_empty_state")}</Typography>
               </EmptyState>
             ) : filteredTrips.length === 0 ? (
               <EmptyState>
-                <Typography variant="body1">
-                  {t("publicTrips:my_filter_empty_state")}
-                </Typography>
+                <Typography variant="body1">{t("publicTrips:my_filter_empty_state")}</Typography>
               </EmptyState>
             ) : (
               filteredTrips.map((trip) => (
-                <PublicTripCard
-                  key={trip.tripId}
-                  id={`public-trip-${trip.tripId}`}
-                  trip={trip}
-                  ownerView
-                />
+                <PublicTripCard key={trip.tripId} id={`public-trip-${trip.tripId}`} trip={trip} ownerView />
               ))
             )}
           </TripsList>
           {hasResults && (
             <PaginationRow>
-              <Button
-                onClick={goPrev}
-                disabled={pageIndex === 0}
-                startIcon={<ChevronLeft />}
-              >
+              <Button onClick={goPrev} disabled={pageIndex === 0} startIcon={<ChevronLeft />}>
                 {t("publicTrips:previous")}
               </Button>
               <Typography variant="body2">
@@ -224,11 +202,7 @@ export default function MyPublicTripsPage() {
                   current: pageIndex + 1,
                 })}
               </Typography>
-              <Button
-                onClick={goNext}
-                disabled={!data?.nextPageToken}
-                endIcon={<ChevronRight />}
-              >
+              <Button onClick={goNext} disabled={!data?.nextPageToken} endIcon={<ChevronRight />}>
                 {t("publicTrips:next")}
               </Button>
             </PaginationRow>

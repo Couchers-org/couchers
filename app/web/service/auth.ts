@@ -17,11 +17,7 @@ import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
-export async function startSignup(
-  name: string,
-  email: string,
-  inviteCode?: string,
-) {
+export async function startSignup(name: string, email: string, inviteCode?: string) {
   const req = new SignupFlowReq();
   const basic = new SignupBasic();
 
@@ -106,10 +102,7 @@ export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
   return formData;
 }
 
-export async function signupFlowFeedback(
-  flowToken: string,
-  form: ContributorFormPb.AsObject,
-) {
+export async function signupFlowFeedback(flowToken: string, form: ContributorFormPb.AsObject) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const formData = contributorFormFromObject(form);
@@ -125,10 +118,7 @@ export async function signupFlowEmailToken(emailToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowMotivations(
-  flowToken: string,
-  motivations: string[],
-) {
+export async function signupFlowMotivations(flowToken: string, motivations: string[]) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const signupMotivations = new SignupMotivations();
@@ -138,10 +128,7 @@ export async function signupFlowMotivations(
   return res.toObject();
 }
 
-export async function signupFlowCommunityGuidelines(
-  flowToken: string,
-  accept: boolean,
-) {
+export async function signupFlowCommunityGuidelines(flowToken: string, accept: boolean) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setAcceptCommunityGuidelines(new BoolValue().setValue(accept));

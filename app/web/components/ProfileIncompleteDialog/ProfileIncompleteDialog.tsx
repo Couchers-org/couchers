@@ -1,11 +1,5 @@
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -28,26 +22,14 @@ interface ProfileIncompleteDialogProps {
   attempted_action: ProfileIncompleteAction;
 }
 
-export default function ProfileIncompleteDialog({
-  open,
-  onClose,
-  attempted_action,
-}: ProfileIncompleteDialogProps) {
+export default function ProfileIncompleteDialog({ open, onClose, attempted_action }: ProfileIncompleteDialogProps) {
   const { t } = useTranslation([PROFILE]);
 
-  const action_text = t(
-    `profile:complete_profile_dialog.actions.${attempted_action}`,
-  );
+  const action_text = t(`profile:complete_profile_dialog.actions.${attempted_action}`);
 
   return (
-    <Dialog
-      aria-labelledby="profile-incomplete-dialog-title"
-      open={open}
-      onClose={onClose}
-    >
-      <DialogTitle id="profile-incomplete-dialog-title">
-        {t("profile:complete_profile_dialog.title")}
-      </DialogTitle>
+    <Dialog aria-labelledby="profile-incomplete-dialog-title" open={open} onClose={onClose}>
+      <DialogTitle id="profile-incomplete-dialog-title">{t("profile:complete_profile_dialog.title")}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Trans
@@ -64,18 +46,10 @@ export default function ProfileIncompleteDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="outlined"
-          onClick={onClose}
-          sx={{ textAlign: "center" }}
-        >
+        <Button variant="outlined" onClick={onClose} sx={{ textAlign: "center" }}>
           {t("profile:complete_profile_dialog.cancel_button")}
         </Button>
-        <Button
-          component={Link}
-          href={routeToEditProfile()}
-          sx={{ textAlign: "center" }}
-        >
+        <Button component={Link} href={routeToEditProfile()} sx={{ textAlign: "center" }}>
           {t("profile:complete_profile_dialog.edit_profile_button")}
         </Button>
       </DialogActions>

@@ -24,20 +24,9 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function PageHeader({
-  page,
-  className,
-}: {
-  page: Page.AsObject;
-  className?: string;
-}) {
+export default function PageHeader({ page, className }: { page: Page.AsObject; className?: string }) {
   if (page.photoUrl) {
-    return (
-      <StyledWrapper
-        className={className}
-        style={{ backgroundImage: `url(${page.photoUrl})` }}
-      />
-    );
+    return <StyledWrapper className={className} style={{ backgroundImage: `url(${page.photoUrl})` }} />;
   }
 
   //display a map if there's no image

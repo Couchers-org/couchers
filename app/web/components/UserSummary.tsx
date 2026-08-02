@@ -18,9 +18,7 @@ import React, { useState } from "react";
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
 // It could be BlockedUser.AsObject or LiteUser.AsObject and only LiteUser has hasStrongVerification
-function isLiteUser(
-  user: LiteUser.AsObject | BlockedUser.AsObject,
-): user is LiteUser.AsObject {
+function isLiteUser(user: LiteUser.AsObject | BlockedUser.AsObject): user is LiteUser.AsObject {
   return "hasStrongVerification" in user;
 }
 
@@ -93,11 +91,9 @@ export default function UserSummary({
   isProfileLink = true,
   menuItems,
 }: UserSummaryProps) {
-  const headlineComponentWithRef = React.forwardRef(
-    function HeadlineComponentWithRef(props, ref) {
-      return React.createElement(headlineComponent, { ...props, ref });
-    },
-  );
+  const headlineComponentWithRef = React.forwardRef(function HeadlineComponentWithRef(props, ref) {
+    return React.createElement(headlineComponent, { ...props, ref });
+  });
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
     null,
@@ -129,10 +125,7 @@ export default function UserSummary({
         sx={{ marginTop: "auto", minWidth: 0 }}
       >
         {!user ? (
-          <Skeleton
-            data-testid={USER_TITLE_SKELETON_TEST_ID}
-            sx={{ maxWidth: 300 }}
-          />
+          <Skeleton data-testid={USER_TITLE_SKELETON_TEST_ID} sx={{ maxWidth: 300 }} />
         ) : (
           <Box
             sx={{
@@ -170,11 +163,7 @@ export default function UserSummary({
         {!user ? (
           <StyledSkeleton variant="circular" isSmallAvatar={smallAvatar} />
         ) : (
-          <StyledAvatar
-            user={user}
-            isProfileLink={isProfileLink}
-            isSmallAvatar={smallAvatar}
-          />
+          <StyledAvatar user={user} isProfileLink={isProfileLink} isSmallAvatar={smallAvatar} />
         )}
       </ListItemAvatar>
       <StyledListItemText

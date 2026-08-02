@@ -8,18 +8,7 @@ const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   eslint: {
-    dirs: [
-      "components",
-      "features",
-      "i18n",
-      "markdown",
-      "pages",
-      "resources",
-      "service",
-      "test",
-      "types",
-      "utils",
-    ],
+    dirs: ["components", "features", "i18n", "markdown", "pages", "resources", "service", "test", "types", "utils"],
   },
   i18n,
   productionBrowserSourceMaps: true,
@@ -43,8 +32,7 @@ const nextConfig = {
       headers: [
         {
           key: "x-help-wanted",
-          value:
-            "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
+          value: "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
         },
         {
           key: "strict-transport-security",

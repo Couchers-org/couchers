@@ -96,29 +96,24 @@ const themeOptions: ThemeOptions = {
         root: {
           // Target autofill on the input element with high specificity
           "& input:-webkit-autofill": {
-            WebkitBoxShadow:
-              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitBoxShadow: "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
             WebkitTextFillColor: "var(--mui-palette-text-primary)",
             caretColor: "var(--mui-palette-text-primary)",
             borderRadius: "inherit",
-            transition:
-              "background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s",
+            transition: "background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s",
           },
           "& input:-webkit-autofill:hover": {
-            WebkitBoxShadow:
-              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitBoxShadow: "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
             WebkitTextFillColor: "var(--mui-palette-text-primary)",
             caretColor: "var(--mui-palette-text-primary)",
           },
           "& input:-webkit-autofill:focus": {
-            WebkitBoxShadow:
-              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitBoxShadow: "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
             WebkitTextFillColor: "var(--mui-palette-text-primary)",
             caretColor: "var(--mui-palette-text-primary)",
           },
           "& input:-webkit-autofill:active": {
-            WebkitBoxShadow:
-              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitBoxShadow: "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
             WebkitTextFillColor: "var(--mui-palette-text-primary)",
             caretColor: "var(--mui-palette-text-primary)",
           },

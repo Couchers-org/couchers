@@ -5,10 +5,7 @@ import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
-import {
-  makeResultId,
-  setSearchReferrer,
-} from "features/analytics/searchAttribution";
+import { makeResultId, setSearchReferrer } from "features/analytics/searchAttribution";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
@@ -39,12 +36,8 @@ function responseRateBucket(user: SearchUser.AsObject): string | null {
   return null;
 }
 
-function displayedAttributes(
-  user: SearchUser.AsObject,
-): Record<string, unknown> {
-  const lastActive = user.lastActive
-    ? timestampToInstant(user.lastActive).epochMilliseconds
-    : null;
+function displayedAttributes(user: SearchUser.AsObject): Record<string, unknown> {
+  const lastActive = user.lastActive ? timestampToInstant(user.lastActive).epochMilliseconds : null;
   return {
     has_avatar: user.avatarUrl.length > 0,
     has_about: user.profileSnippet.length > 0,
@@ -66,9 +59,7 @@ const StyledCard = styled("div", {
 })<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
   flexDirection: "column",
-  border: isHighlighted
-    ? `2px solid var(--mui-palette-secondary-main)`
-    : "none",
+  border: isHighlighted ? `2px solid var(--mui-palette-secondary-main)` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px var(--mui-palette-divider)",
   paddingTop: theme.spacing(1),
@@ -144,11 +135,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const generateAboutText = (
-  user: SearchUser.AsObject,
-  t: TFunction,
-  isMobile: boolean,
-) => {
+const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: boolean) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -198,9 +185,7 @@ const SearchResultUserCard = ({
   const analytics = useSearchAnalytics();
   const logEvent = useLogEvent();
   const attrs = displayedAttributes(user);
-  const resultId = analytics
-    ? makeResultId(analytics.searchQueryId, user.userId, position)
-    : null;
+  const resultId = analytics ? makeResultId(analytics.searchQueryId, user.userId, position) : null;
 
   const impressionProps = analytics
     ? {
@@ -214,11 +199,10 @@ const SearchResultUserCard = ({
         ...attrs,
       }
     : {};
-  const impressionRef = useImpressionRef(
-    "search.result_impressed",
-    impressionProps,
-    { threshold: 0.5, minDurationMs: 250 },
-  );
+  const impressionRef = useImpressionRef("search.result_impressed", impressionProps, {
+    threshold: 0.5,
+    minDurationMs: 250,
+  });
 
   const handleUserCardClick = () => {
     onUserCardClick(user.userId);
@@ -243,11 +227,7 @@ const SearchResultUserCard = ({
       user_id: user.userId,
       position,
       surface: "list",
-      opened_in_new_tab:
-        anchor.getAttribute("target") === "_blank" ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.button === 1,
+      opened_in_new_tab: anchor.getAttribute("target") === "_blank" || e.metaKey || e.ctrlKey || e.button === 1,
       was_selected_on_map: isHighlighted,
       ...attrs,
     });
@@ -302,11 +282,7 @@ const SearchResultUserCard = ({
           numberReferences={user.numReferences}
         />
         {generateAboutText(user, t, isMobile)}
-        <FlexRow
-          alignItems="flex-end"
-          justifyContent="space-between"
-          sx={{ marginTop: 1.5 }}
-        >
+        <FlexRow alignItems="flex-end" justifyContent="space-between" sx={{ marginTop: 1.5 }}>
           <UserDetailsRow>
             <Typography variant="body2">
               {user.lastActive

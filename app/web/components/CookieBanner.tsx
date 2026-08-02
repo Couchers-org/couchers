@@ -45,10 +45,7 @@ export default function CookieBanner() {
     const el = bannerRef.current;
     if (!el) return;
     const updateHeight = () => {
-      document.documentElement.style.setProperty(
-        "--cookie-banner-height",
-        `${el.offsetHeight}px`,
-      );
+      document.documentElement.style.setProperty("--cookie-banner-height", `${el.offsetHeight}px`);
     };
     updateHeight();
     const observer = new ResizeObserver(updateHeight);
@@ -64,22 +61,15 @@ export default function CookieBanner() {
   //specifically not using our snackbar, which is designed for alerts
   return isMounted && !hasSeen ? (
     <StyledWrapper ref={bannerRef} aria-live="polite">
-      <StyledCloseButton
-        aria-label={t("close")}
-        onClick={() => setHasSeen(true)}
-      >
+      <StyledCloseButton aria-label={t("close")} onClick={() => setHasSeen(true)}>
         <CloseIcon />
       </StyledCloseButton>
       <div className="content">
         <Typography variant="body2">
           <Trans t={t} i18nKey="cookie_message">
-            We use cookies to ensure that we give you the best experience on our
-            website. If you continue to use this site, we will assume that you
-            are happy with it. You can read more about our
-            <StyledLink
-              href={tosRoute}
-              sx={{ color: "var(--mui-palette-secondary-light)" }}
-            >
+            We use cookies to ensure that we give you the best experience on our website. If you continue to use this
+            site, we will assume that you are happy with it. You can read more about our
+            <StyledLink href={tosRoute} sx={{ color: "var(--mui-palette-secondary-light)" }}>
               Terms of Service
             </StyledLink>
             .

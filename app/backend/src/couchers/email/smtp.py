@@ -124,7 +124,7 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
         server.sendmail(payload.sender_email, payload.recipient, msg.as_string())
 
     return Email(
-        id=message_id,
+        message_id=message_id,
         sender_name=payload.sender_name,
         sender_email=payload.sender_email,
         recipient=payload.recipient,

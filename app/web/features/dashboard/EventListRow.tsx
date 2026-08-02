@@ -1,7 +1,7 @@
 import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
-import { localizeDateTime, localizeMonthAbbreviation } from "i18n/datetimes";
+import { localizeMonthName, localizeTimeOnly } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
@@ -49,19 +49,17 @@ const DateChip = styled("div")({
   },
 });
 
-const DateMonth = styled("div")<{ $labelFontSize?: number }>(
-  ({ $labelFontSize }) => ({
-    fontSize: $labelFontSize ? `${$labelFontSize}px` : "9px",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    color: "var(--mui-palette-secondary-main)",
-    fontWeight: 700,
-    lineHeight: 1.2,
-    "[data-today] &": {
-      color: "var(--mui-palette-primary-main)",
-    },
-  }),
-);
+const DateMonth = styled("div")<{ $labelFontSize?: number }>(({ $labelFontSize }) => ({
+  fontSize: $labelFontSize ? `${$labelFontSize}px` : "9px",
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  color: "var(--mui-palette-secondary-main)",
+  fontWeight: 700,
+  lineHeight: 1.2,
+  "[data-today] &": {
+    color: "var(--mui-palette-primary-main)",
+  },
+}));
 
 const DateDay = styled("div")({
   fontSize: "16px",
@@ -145,12 +143,7 @@ const SkeletonRow = styled("div")({
 export function EventListRowSkeleton() {
   return (
     <SkeletonRow>
-      <Skeleton
-        variant="rectangular"
-        width={40}
-        height={52}
-        sx={{ borderRadius: "5px", flexShrink: 0 }}
-      />
+      <Skeleton variant="rectangular" width={40} height={52} sx={{ borderRadius: "5px", flexShrink: 0 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <Skeleton width="60%" height={20} />
         <Skeleton width="80%" height={16} sx={{ marginTop: "4px" }} />
@@ -171,41 +164,30 @@ export default function EventListRow({ event }: EventListRowProps) {
 
   const now = Temporal.Now.zonedDateTimeISO();
   const startDate = timestampToZonedDateTime(event.startTime!, event.timezone);
-  const endDate = event.endTime
-    ? timestampToZonedDateTime(event.endTime, event.timezone)
-    : null;
+  const endDate = event.endTime ? timestampToZonedDateTime(event.endTime, event.timezone) : null;
   const isOngoing =
     endDate !== null &&
     Temporal.ZonedDateTime.compare(startDate, now) <= 0 &&
     Temporal.ZonedDateTime.compare(endDate, now) >= 0;
 
   // Define "today" as: starting on the current day in the current timezone.
-  const isToday =
-    !isOngoing &&
-    startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
+  const isToday = !isOngoing && startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
   const todayLabel = t("dashboard:events.today_label");
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isOngoing ? nowLabel : todayLabel;
-  const chipFontSize =
-    chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
-  const month = localizeMonthAbbreviation(startDate.toPlainDate(), {
-    locale,
+  const chipFontSize = chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
+  const month = localizeMonthName(startDate.month, locale, {
+    abbreviate: true,
     capitalize: true,
   });
   const day = startDate.day;
 
-  const timeStr = localizeDateTime(startDate, {
-    locale,
-    includeDate: false,
-    includeTime: true,
-  });
+  const timeStr = localizeTimeOnly(startDate, locale);
 
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
       <DateChip data-today={isToday || isOngoing || undefined}>
-        <DateMonth
-          $labelFontSize={isToday || isOngoing ? chipFontSize : undefined}
-        >
+        <DateMonth $labelFontSize={isToday || isOngoing ? chipFontSize : undefined}>
           {isOngoing ? nowLabel : isToday ? todayLabel : month}
         </DateMonth>
         {!isToday && !isOngoing && <DateDay>{day}</DateDay>}

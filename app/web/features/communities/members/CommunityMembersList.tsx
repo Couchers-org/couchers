@@ -71,9 +71,7 @@ export default function CommunityMembersList({
           isLoading={isLoading}
         />
       </PaginationWrapper>
-      {!error && !isFetching && data?.pages.length === 0 && (
-        <TextBody>{t("communities:members_empty_state")}</TextBody>
-      )}
+      {!error && !isFetching && data?.pages.length === 0 && <TextBody>{t("communities:members_empty_state")}</TextBody>}
     </>
   );
 }

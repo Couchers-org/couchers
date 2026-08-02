@@ -14,14 +14,11 @@ const { t } = i18n;
 
 const setErrorMock = jest.fn();
 const setIsMessagingMock = jest.fn();
-const getDirectMessageMock = service.conversations
-  .getDirectMessage as MockedService<
+const getDirectMessageMock = service.conversations.getDirectMessage as MockedService<
   typeof service.conversations.getDirectMessage
 >;
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 
 const accountInfo = {
   username: "tester",
@@ -55,16 +52,9 @@ describe("MessageUserButton", () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(99);
     const mockUser = users[0];
-    render(
-      <MessageUserButton
-        user={mockUser}
-        setMutationError={setErrorMock}
-        setIsMessaging={setIsMessagingMock}
-      />,
-      {
-        wrapper,
-      },
-    );
+    render(<MessageUserButton user={mockUser} setMutationError={setErrorMock} setIsMessaging={setIsMessagingMock} />, {
+      wrapper,
+    });
 
     const button = screen.getByRole("button");
 
@@ -83,16 +73,9 @@ describe("MessageUserButton", () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
     const mockUser = users[0];
-    render(
-      <MessageUserButton
-        user={mockUser}
-        setMutationError={setErrorMock}
-        setIsMessaging={setIsMessagingMock}
-      />,
-      {
-        wrapper,
-      },
-    );
+    render(<MessageUserButton user={mockUser} setMutationError={setErrorMock} setIsMessaging={setIsMessagingMock} />, {
+      wrapper,
+    });
 
     const button = screen.getByRole("button");
 
@@ -111,16 +94,9 @@ describe("MessageUserButton", () => {
     getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
     const mockUser = users[0];
-    render(
-      <MessageUserButton
-        user={mockUser}
-        setMutationError={setErrorMock}
-        setIsMessaging={setIsMessagingMock}
-      />,
-      {
-        wrapper,
-      },
-    );
+    render(<MessageUserButton user={mockUser} setMutationError={setErrorMock} setIsMessaging={setIsMessagingMock} />, {
+      wrapper,
+    });
 
     const button = screen.getByRole("button");
 
@@ -133,11 +109,7 @@ describe("MessageUserButton", () => {
     await user.click(button);
 
     await waitFor(async () =>
-      expect(
-        await screen.findByLabelText(
-          t("profile:complete_profile_dialog.title"),
-        ),
-      ).toBeVisible(),
+      expect(await screen.findByLabelText(t("profile:complete_profile_dialog.title"))).toBeVisible(),
     );
   });
 });

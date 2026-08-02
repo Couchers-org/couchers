@@ -1,14 +1,7 @@
 import { Facebook, GitHub, Instagram, Reddit } from "@mui/icons-material";
 import { Link } from "@mui/material";
 import { BlueSkyIcon, TikTokIcon } from "components/Icons";
-import {
-  blueskyURL,
-  facebookURL,
-  githubURL,
-  instagramURL,
-  redditURL,
-  tiktokURL,
-} from "routes";
+import { blueskyURL, facebookURL, githubURL, instagramURL, redditURL, tiktokURL } from "routes";
 
 const socialLinks = [
   {

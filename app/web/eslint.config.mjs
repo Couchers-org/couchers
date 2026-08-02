@@ -35,10 +35,7 @@ const config = [
   // plugin" otherwise)
 
   // Come back to this after we upgrade next.js https://github.com/Couchers-org/couchers/issues/9280
-  ...compat.extends(
-    "plugin:@typescript-eslint/recommended",
-    "next/core-web-vitals",
-  ),
+  ...compat.extends("plugin:@typescript-eslint/recommended", "next/core-web-vitals"),
   prettier,
   {
     plugins: {

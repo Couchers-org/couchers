@@ -27,8 +27,7 @@ const MAX_BATCH_SIZE = 100;
 const INITIAL_FLUSH_DELAY_MS = 150;
 const MAX_BACKOFF_MS = 60_000;
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.EXPO_PUBLIC_API_BASE_URL)!;
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL)!;
 
 const FRONTEND_VERSION = process.env.NEXT_PUBLIC_VERSION ?? "unknown";
 
@@ -49,10 +48,7 @@ let consecutiveFailures = 0;
 // Calculate backoff interval based on consecutive failures
 function getFlushInterval(): number {
   if (consecutiveFailures === 0) return FLUSH_INTERVAL_MS;
-  return Math.min(
-    FLUSH_INTERVAL_MS * Math.pow(2, consecutiveFailures),
-    MAX_BACKOFF_MS,
-  );
+  return Math.min(FLUSH_INTERVAL_MS * Math.pow(2, consecutiveFailures), MAX_BACKOFF_MS);
 }
 
 // Schedule the next flush with current interval
@@ -178,11 +174,7 @@ function cleanupListeners(): void {
  * logEvent("search.performed", { query: "Paris", results: 42 });
  * logEvent("button.clicked", { button_id: "submit" });
  */
-export function logEvent(
-  eventType: string,
-  properties: Record<string, unknown> = {},
-  value = 1,
-): void {
+export function logEvent(eventType: string, properties: Record<string, unknown> = {}, value = 1): void {
   if (isDestroyed) return;
 
   eventQueue.push({

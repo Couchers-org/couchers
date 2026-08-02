@@ -1,10 +1,4 @@
-import {
-  Chip,
-  keyframes,
-  styled,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Chip, keyframes, styled, useMediaQuery, useTheme } from "@mui/material";
 import React, { useState } from "react";
 
 // Define the keyframes animation
@@ -30,9 +24,7 @@ const Banner = styled(Chip)(({ theme }) => ({
 export function EnvironmentBanner() {
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("md"));
-  const [isShown, setIsShown] = useState(
-    process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
-  );
+  const [isShown, setIsShown] = useState(process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod");
 
   return isShown ? (
     <Banner

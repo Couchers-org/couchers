@@ -13,8 +13,7 @@ module.exports = {
     },
     {
       source: "/volunteer/form",
-      destination:
-        "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
+      destination: "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
       permanent: false,
     },
     {
@@ -31,14 +30,12 @@ module.exports = {
     },
     {
       source: "/foundation/constitution.pdf",
-      destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
+      destination: "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
       permanent: false,
     },
     {
       source: "/foundation/bylaws.pdf",
-      destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
+      destination: "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
       permanent: false,
     },
     {
@@ -73,20 +70,17 @@ module.exports = {
     },
     {
       source: "/community-builder-form",
-      destination:
-        "https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1",
+      destination: "https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1",
       permanent: false,
     },
     {
       source: "/community-creation-form",
-      destination:
-        "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
+      destination: "https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1",
       permanent: false,
     },
     {
       source: "/community-builder-chat",
-      destination:
-        "https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1",
+      destination: "https://forms.monday.com/forms/1e84199578bc028b282a88b9e325d646?r=use1",
       permanent: false,
     },
     {
@@ -137,20 +131,17 @@ module.exports = {
     },
     {
       source: "/zoom",
-      destination:
-        "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
+      destination: "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
       permanent: false,
     },
     {
       source: "/zoom/general",
-      destination:
-        "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
+      destination: "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
       permanent: false,
     },
     {
       source: "/zoom/recruiting",
-      destination:
-        "https://zoom.us/j/2482842881?pwd=NWt3dit6cXRvbmcycUt0Mm1TMVdydz09",
+      destination: "https://zoom.us/j/2482842881?pwd=NWt3dit6cXRvbmcycUt0Mm1TMVdydz09",
       permanent: false,
     },
     {
@@ -161,20 +152,17 @@ module.exports = {
     },
     {
       source: "/legal-agreements",
-      destination:
-        "https://esignatures.com/signl/ebacb634-e915-4c6a-8ac8-4991b3839ef1",
+      destination: "https://esignatures.com/signl/ebacb634-e915-4c6a-8ac8-4991b3839ef1",
       permanent: false,
     },
     {
       source: "/contributor-data-policy",
-      destination:
-        "https://docs.google.com/document/d/18N0uFUzNAh-tmv_Doiq3ESJ9wX8AyQXbiuhuUOrVYiw/edit",
+      destination: "https://docs.google.com/document/d/18N0uFUzNAh-tmv_Doiq3ESJ9wX8AyQXbiuhuUOrVYiw/edit",
       permanent: false,
     },
     {
       source: "/contribute",
-      destination:
-        "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
+      destination: "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
       permanent: false,
     },
     {
@@ -184,8 +172,7 @@ module.exports = {
     },
     {
       source: "/translator-guide",
-      destination:
-        "https://docs.google.com/document/d/1SQgp3-FvpewJFAPkJ65LruVB9dCPQzyyWjvLTUtszw4",
+      destination: "https://docs.google.com/document/d/1SQgp3-FvpewJFAPkJ65LruVB9dCPQzyyWjvLTUtszw4",
       permanent: false,
     },
   ],

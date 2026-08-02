@@ -1,11 +1,4 @@
-import {
-  getByAltText,
-  getByRole,
-  queryByAltText,
-  queryByRole,
-  render,
-  screen,
-} from "@testing-library/react";
+import { getByAltText, getByRole, queryByAltText, queryByRole, render, screen } from "@testing-library/react";
 import wrapper from "test/hookWrapper";
 
 import Markdown, { increaseMarkdownHeaderLevel } from "./Markdown";
@@ -29,10 +22,7 @@ describe("Markdown widget", () => {
   it("strips html except <br>", () => {
     render(
       <div data-testid="root">
-        <Markdown
-          source={'# <div data-testid="bad">text\n<br></div>\nmore text'}
-          topHeaderLevel={1}
-        />
+        <Markdown source={'# <div data-testid="bad">text\n<br></div>\nmore text'} topHeaderLevel={1} />
       </div>,
       { wrapper },
     );
@@ -42,17 +32,15 @@ describe("Markdown widget", () => {
   it("converts markdown image to link", () => {
     render(
       <div data-testid="root">
-        <Markdown
-          source={"# MD\nan image: ![image](https://example.com)"}
-          topHeaderLevel={1}
-        />
+        <Markdown source={"# MD\nan image: ![image](https://example.com)"} topHeaderLevel={1} />
       </div>,
       { wrapper },
     );
     expect(screen.queryByAltText("image")).not.toBeInTheDocument();
-    expect(
-      getByRole(screen.getByTestId("root"), "link", { name: "image" }),
-    ).toHaveAttribute("href", "https://example.com");
+    expect(getByRole(screen.getByTestId("root"), "link", { name: "image" })).toHaveAttribute(
+      "href",
+      "https://example.com",
+    );
   });
 
   it("doesn't convert markdown image to link for allowed domain for allowImages='couchers'", () => {
@@ -68,12 +56,11 @@ describe("Markdown widget", () => {
       </div>,
       { wrapper },
     );
-    expect(
-      getByAltText(screen.getByTestId("allowed"), "image"),
-    ).toHaveAttribute("src", "https://mymedia.com/image.png");
-    expect(
-      queryByRole(screen.getByTestId("allowed"), "link", { name: "image" }),
-    ).not.toBeInTheDocument();
+    expect(getByAltText(screen.getByTestId("allowed"), "image")).toHaveAttribute(
+      "src",
+      "https://mymedia.com/image.png",
+    );
+    expect(queryByRole(screen.getByTestId("allowed"), "link", { name: "image" })).not.toBeInTheDocument();
   });
 
   it("does convert markdown image to link for allowed domain for allowImages='none'", () => {
@@ -81,20 +68,15 @@ describe("Markdown widget", () => {
     process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
     render(
       <div data-testid="not-allowed">
-        <Markdown
-          source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
-          topHeaderLevel={1}
-          allowImages="none"
-        />
+        <Markdown source={`# MD\nan image: ![image](${mediaURL}/image.png)`} topHeaderLevel={1} allowImages="none" />
       </div>,
       { wrapper },
     );
-    expect(
-      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" }),
-    ).toHaveAttribute("href", "https://mymedia.com/image.png");
-    expect(
-      queryByAltText(screen.getByTestId("not-allowed"), "image"),
-    ).not.toBeInTheDocument();
+    expect(getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })).toHaveAttribute(
+      "href",
+      "https://mymedia.com/image.png",
+    );
+    expect(queryByAltText(screen.getByTestId("not-allowed"), "image")).not.toBeInTheDocument();
   });
 
   it("does convert markdown image to link for non-allowed domain for allowImages='couchers'", () => {
@@ -110,11 +92,10 @@ describe("Markdown widget", () => {
       </div>,
       { wrapper },
     );
-    expect(
-      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" }),
-    ).toHaveAttribute("href", "https://otherdomain.com/image.png");
-    expect(
-      queryByAltText(screen.getByTestId("not-allowed"), "image"),
-    ).not.toBeInTheDocument();
+    expect(getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })).toHaveAttribute(
+      "href",
+      "https://otherdomain.com/image.png",
+    );
+    expect(queryByAltText(screen.getByTestId("not-allowed"), "image")).not.toBeInTheDocument();
   });
 });

@@ -1,12 +1,6 @@
 import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
@@ -16,22 +10,14 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen from "features/messages/useMarkLastSeen";
-import {
-  hostRequestKey,
-  hostRequestMessagesKey,
-  hostRequestsListKey,
-  pingQueryKey,
-} from "features/queryKeys";
+import { hostRequestKey, hostRequestMessagesKey, hostRequestsListKey, pingQueryKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { HostRequestStatus } from "proto/messages_pb";
-import {
-  GetHostRequestMessagesRes,
-  RespondHostRequestReq,
-} from "proto/requests_pb";
+import { GetHostRequestMessagesRes, RespondHostRequestReq } from "proto/requests_pb";
 import { useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
@@ -77,22 +63,20 @@ const StyledPageTitle = styled(PageTitle)({
   },
 });
 
-const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(
-  ({ theme, isNativeEmbed }) => ({
-    display: "flex",
-    flexDirection: "column",
-    // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-    // Use CSS custom property set by Navigation component for actual height
-    height: isNativeEmbed
-      ? "calc(100dvh - var(--nav-height, 3.5rem))"
-      : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
+const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(({ theme, isNativeEmbed }) => ({
+  display: "flex",
+  flexDirection: "column",
+  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+  // Use CSS custom property set by Navigation component for actual height
+  height: isNativeEmbed
+    ? "calc(100dvh - var(--nav-height, 3.5rem))"
+    : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
 
-    [theme.breakpoints.up("md")]: {
-      // On desktop, only subtract top nav (no bottom nav)
-      height: "calc(100dvh - var(--nav-height, 4rem))",
-    },
-  }),
-);
+  [theme.breakpoints.up("md")]: {
+    // On desktop, only subtract top nav (no bottom nav)
+    height: "calc(100dvh - var(--nav-height, 4rem))",
+  },
+}));
 
 // Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
@@ -109,11 +93,7 @@ const StyledFooter = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function HostRequestView({
-  hostRequestId,
-}: {
-  hostRequestId: number;
-}) {
+export default function HostRequestView({ hostRequestId }: { hostRequestId: number }) {
   const { t } = useTranslation([MESSAGES]);
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -140,12 +120,10 @@ export default function HostRequestView({
     number
   >({
     queryKey: hostRequestMessagesKey(hostRequestId),
-    queryFn: ({ pageParam: lastMessageId }) =>
-      service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
+    queryFn: ({ pageParam: lastMessageId }) => service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
     enabled: !!hostRequestId,
     initialPageParam: 0,
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.lastMessageId),
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
 
@@ -156,29 +134,18 @@ export default function HostRequestView({
   const otherUser = isHost ? surfer : host;
   const isRequestPast =
     hostRequest &&
-    Temporal.PlainDate.compare(
-      Temporal.PlainDate.from(hostRequest.toDate),
-      Temporal.Now.plainDateISO(),
-    ) < 0;
+    Temporal.PlainDate.compare(Temporal.PlainDate.from(hostRequest.toDate), Temporal.Now.plainDateISO()) < 0;
 
   let title =
     otherUser && hostRequest
       ? isHost
         ? t("host_request_view.title_for_host", {
             user: firstName(otherUser.name),
-            status: t(
-              requestStatusToTransKey[
-                hostRequest.status as keyof typeof requestStatusToTransKey
-              ],
-            ),
+            status: t(requestStatusToTransKey[hostRequest.status as keyof typeof requestStatusToTransKey]),
           })
         : t("host_request_view.title_for_surfer", {
             user: firstName(otherUser.name),
-            status: t(
-              requestStatusToTransKey[
-                hostRequest.status as keyof typeof requestStatusToTransKey
-              ],
-            ),
+            status: t(requestStatusToTransKey[hostRequest.status as keyof typeof requestStatusToTransKey]),
           })
       : undefined;
 
@@ -188,8 +155,7 @@ export default function HostRequestView({
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<string | undefined, RpcError, string>({
-    mutationFn: (text: string) =>
-      service.requests.sendHostRequestMessage(hostRequestId, text),
+    mutationFn: (text: string) => service.requests.sendHostRequestMessage(hostRequestId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: hostRequestMessagesKey(hostRequestId),
@@ -197,17 +163,8 @@ export default function HostRequestView({
       queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
   });
-  const respondMutation = useMutation<
-    void,
-    RpcError,
-    Required<RespondHostRequestReq.AsObject>
-  >({
-    mutationFn: (req) =>
-      service.requests.respondHostRequest(
-        req.hostRequestId,
-        req.status,
-        req.text,
-      ),
+  const respondMutation = useMutation<void, RpcError, Required<RespondHostRequestReq.AsObject>>({
+    mutationFn: (req) => service.requests.respondHostRequest(req.hostRequestId, req.status, req.text),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -221,8 +178,7 @@ export default function HostRequestView({
   });
 
   const { mutate: markLastRequestSeen } = useMutation({
-    mutationFn: (messageId: number) =>
-      service.requests.markLastRequestSeen(hostRequestId, messageId),
+    mutationFn: (messageId: number) => service.requests.markLastRequestSeen(hostRequestId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: hostRequestKey(hostRequestId),
@@ -230,17 +186,11 @@ export default function HostRequestView({
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
-  const { markLastSeen } = useMarkLastSeen(
-    markLastRequestSeen,
-    hostRequest?.lastSeenMessageId,
-  );
+  const { markLastSeen } = useMarkLastSeen(markLastRequestSeen, hostRequest?.lastSeenMessageId);
 
   const archiveMutation = useMutation<void, RpcError>({
     mutationFn: async () => {
-      await service.requests.setHostRequestArchiveStatus(
-        hostRequestId,
-        !hostRequest?.isArchived,
-      );
+      await service.requests.setHostRequestArchiveStatus(hostRequestId, !hostRequest?.isArchived);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
@@ -261,13 +211,10 @@ export default function HostRequestView({
 
   const handleBack = () => router.push(messagesRoute);
 
-  const hasError =
-    respondMutation.error || sendMutation.error || hostRequestError;
+  const hasError = respondMutation.error || sendMutation.error || hostRequestError;
 
   if (!hostRequestId) {
-    return (
-      <Alert severity="error">{t("host_request_view.error_message")}</Alert>
-    );
+    return <Alert severity="error">{t("host_request_view.error_message")}</Alert>;
   }
 
   return (
@@ -281,9 +228,7 @@ export default function HostRequestView({
           <BackIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
         </HeaderButton>
 
-        <StyledPageTitle>
-          {!title || hostRequestError ? <Skeleton width="100" /> : title}
-        </StyledPageTitle>
+        <StyledPageTitle>{!title || hostRequestError ? <Skeleton width="100" /> : title}</StyledPageTitle>
 
         <HeaderButton
           onClick={() => setIsMenuOpen(true)}
@@ -325,33 +270,21 @@ export default function HostRequestView({
           )}
         </Menu>
       </StyledHeader>
-      <HostRequestUserSummarySection
-        hostRequest={hostRequest}
-        otherUser={otherUser}
-      />
+      <HostRequestUserSummarySection hostRequest={hostRequest} otherUser={otherUser} />
       {hostRequest && !isRequestPast && (
         <HostRequestStatusBanner
           isHost={isHost}
           status={hostRequest.status}
           isLoading={respondMutation.isPending}
-          onAccept={handleBannerRespond(
-            HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-          )}
-          onDecline={handleBannerRespond(
-            HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
-          )}
-          onCancel={handleBannerRespond(
-            HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
-          )}
+          onAccept={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED)}
+          onDecline={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
+          onCancel={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
           hostName={otherUser ? firstName(otherUser.name) : undefined}
         />
       )}
       {hasError && (
         <Alert severity={"error"}>
-          {respondMutation.error?.message ||
-            sendMutation.error?.message ||
-            hostRequestError?.message ||
-            ""}
+          {respondMutation.error?.message || sendMutation.error?.message || hostRequestError?.message || ""}
         </Alert>
       )}
       {messagesError && <Alert severity="error">{messagesError.message}</Alert>}
@@ -386,12 +319,7 @@ export default function HostRequestView({
         }
       />
       <StyledFooter>
-        {hostRequest && (
-          <HostRequestSendField
-            hostRequest={hostRequest}
-            sendMutation={sendMutation}
-          />
-        )}
+        {hostRequest && <HostRequestSendField hostRequest={hostRequest} sendMutation={sendMutation} />}
       </StyledFooter>
     </StyledPageWrapper>
   );

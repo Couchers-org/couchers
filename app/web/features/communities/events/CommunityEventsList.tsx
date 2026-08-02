@@ -33,27 +33,20 @@ const StyledCreateResourceButton = styled(Button)(() => ({
   margin: theme.spacing(2, 0),
 }));
 
-export default function CommunityEventsList({
-  community,
-}: CommunityEventsListProps) {
+export default function CommunityEventsList({ community }: CommunityEventsListProps) {
   const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
 
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListCommunityEvents({
-      communityId: community.communityId,
-      pageSize: 5,
-      type: "all",
-    });
+  const { data, error, hasNextPage, fetchNextPage, isLoading } = useListCommunityEvents({
+    communityId: community.communityId,
+    pageSize: 5,
+    type: "all",
+  });
 
   return (
     <>
-      <SectionTitle icon={<CalendarIcon />}>
-        {t("communities:events_title")}
-      </SectionTitle>
-      <StyledCreateResourceButton
-        onClick={() => router.push(routeToNewEvent(community.communityId))}
-      >
+      <SectionTitle icon={<CalendarIcon />}>{t("communities:events_title")}</SectionTitle>
+      <StyledCreateResourceButton onClick={() => router.push(routeToNewEvent(community.communityId))}>
         {t("communities:create_an_event")}
       </StyledCreateResourceButton>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -71,9 +64,7 @@ export default function CommunityEventsList({
               <Trans
                 t={t}
                 i18nKey="communities:events_empty_state"
-                components={[
-                  <StyledLink key="create-link" href={routeToNewEvent()} />,
-                ]}
+                components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
               />
             </TextBody>
           )

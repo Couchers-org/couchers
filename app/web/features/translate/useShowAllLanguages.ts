@@ -4,9 +4,7 @@ import { useCallback } from "react";
 
 const STORAGE_KEY = "showAllLanguages";
 
-const isNonProduction =
-  process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" &&
-  process.env.NODE_ENV !== "test";
+const isNonProduction = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && process.env.NODE_ENV !== "test";
 
 /**
  * Hook to manage the "show all languages" setting for translators.

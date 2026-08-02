@@ -11,8 +11,7 @@ export function capitalizeFirstLetter(value: string, locale: string): string {
     segmenter = new Intl.Segmenter(locale, { granularity: "grapheme" });
     segmenterCache.set(locale, segmenter);
   }
-  const first = segmenter.segment(value)[Symbol.iterator]().next()
-    .value?.segment;
+  const first = segmenter.segment(value)[Symbol.iterator]().next().value?.segment;
   if (!first) return value;
   return first.toLocaleUpperCase(locale) + value.slice(first.length);
 }

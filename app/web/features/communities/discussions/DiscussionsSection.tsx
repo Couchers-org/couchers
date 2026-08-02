@@ -46,11 +46,7 @@ const StyledDiscussionsContainer = styled("div")(() => ({
   paddingBlockEnd: theme.spacing(5),
 }));
 
-export default function DiscussionsSection({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function DiscussionsSection({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {
@@ -67,18 +63,12 @@ export default function DiscussionsSection({
           {t("communities:discussions_title")}
         </SectionTitle>
       </StyledDiscussionsHeader>
-      {discussionsError && (
-        <Alert severity="error">{discussionsError.message}</Alert>
-      )}
+      {discussionsError && <Alert severity="error">{discussionsError.message}</Alert>}
 
       <StyledCreateResourceButton
         size="small"
         component={Link}
-        href={`${routeToCommunity(
-          community.communityId,
-          community.slug,
-          "discussions",
-        )}#${composingDiscussionHash}`}
+        href={`${routeToCommunity(community.communityId, community.slug, "discussions")}#${composingDiscussionHash}`}
       >
         {t("communities:new_post_label")}
       </StyledCreateResourceButton>
@@ -89,10 +79,7 @@ export default function DiscussionsSection({
           discussions.pages
             .flatMap((res) => res.discussionsList)
             .map((discussion) => (
-              <DiscussionCard
-                discussion={discussion}
-                key={`discussioncard-${discussion.thread!.threadId}`}
-              />
+              <DiscussionCard discussion={discussion} key={`discussioncard-${discussion.thread!.threadId}`} />
             ))
         ) : (
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
@@ -102,11 +89,7 @@ export default function DiscussionsSection({
             <MuiLink
               component={Link}
               underline="hover"
-              href={routeToCommunity(
-                community.communityId,
-                community.slug,
-                "discussions",
-              )}
+              href={routeToCommunity(community.communityId, community.slug, "discussions")}
             >
               {t("communities:see_more_discussions_label")}
             </MuiLink>

@@ -44,9 +44,7 @@ export default function HostRequestRespondButtons({
     return (
       <StyledCard>
         <div>
-          <Typography variant="subtitle2">
-            {t("messages:respond_box_title")}
-          </Typography>
+          <Typography variant="subtitle2">{t("messages:respond_box_title")}</Typography>
           <Typography
             variant="body2"
             sx={{
@@ -59,19 +57,12 @@ export default function HostRequestRespondButtons({
         <StyledButtonRow>
           <FieldButton
             isLoading={isLoading}
-            callback={handleStatus(
-              HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
-            )}
+            callback={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
             variant="outlined"
           >
             {t("messages:close_request_button_text")}
           </FieldButton>
-          <FieldButton
-            callback={handleStatus(
-              HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-            )}
-            isLoading={isLoading}
-          >
+          <FieldButton callback={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED)} isLoading={isLoading}>
             {t("global:accept")}
           </FieldButton>
         </StyledButtonRow>
@@ -84,9 +75,7 @@ export default function HostRequestRespondButtons({
   return (
     <StyledCard>
       <div>
-        <Typography variant="subtitle2">
-          {t("messages:surfer_confirm_box_title", { name })}
-        </Typography>
+        <Typography variant="subtitle2">{t("messages:surfer_confirm_box_title", { name })}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -100,30 +89,17 @@ export default function HostRequestRespondButtons({
         <ConfirmationDialogWrapper
           title={t("messages:cancel_request_dialog_title")}
           message={t("messages:cancel_request_dialog_message")}
-          confirmButtonLabel={t(
-            "messages:cancel_request_dialog_confirm_button",
-          )}
+          confirmButtonLabel={t("messages:cancel_request_dialog_confirm_button")}
           cancelButtonLabel={t("messages:cancel_request_dialog_dismiss_button")}
-          onConfirm={handleStatus(
-            HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
-          )}
+          onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
         >
           {(setIsOpen) => (
-            <FieldButton
-              isLoading={isLoading}
-              callback={() => setIsOpen(true)}
-              variant="outlined"
-            >
+            <FieldButton isLoading={isLoading} callback={() => setIsOpen(true)} variant="outlined">
               {t("messages:cancel_request_button")}
             </FieldButton>
           )}
         </ConfirmationDialogWrapper>
-        <FieldButton
-          callback={handleStatus(
-            HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-          )}
-          isLoading={isLoading}
-        >
+        <FieldButton callback={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED)} isLoading={isLoading}>
           {t("messages:confirm_request_button_text")}
         </FieldButton>
       </StyledButtonRow>

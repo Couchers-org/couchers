@@ -9,20 +9,15 @@ interface ReferencesReceivedListProps {
   referenceType: Exclude<ReferenceTypeState, "given">;
 }
 
-export default function ReferencesReceivedList({
-  referenceType,
-}: ReferencesReceivedListProps) {
+export default function ReferencesReceivedList({ referenceType }: ReferencesReceivedListProps) {
   const user = useProfileUser();
   const referencesReceivedQuery = useReferencesReceived(user, referenceType);
 
   const userIds =
     referencesReceivedQuery.data?.pages
-      .map((page) =>
-        page.referencesList.map((reference) => reference.fromUserId),
-      )
+      .map((page) => page.referencesList.map((reference) => reference.fromUserId))
       .flat() ?? [];
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
-    useLiteUsers(userIds);
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useLiteUsers(userIds);
 
   return (
     <ReferencesView

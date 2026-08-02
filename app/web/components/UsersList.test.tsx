@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
@@ -13,9 +9,7 @@ import { assertErrorAlert } from "test/utils";
 
 import UsersList from "./UsersList";
 
-const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
-  typeof service.user.getLiteUsers
->;
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
 
 describe("UsersList", () => {
   beforeEach(() => {
@@ -25,9 +19,7 @@ describe("UsersList", () => {
   it("shows the users in a list if the user IDs and users map have loaded", async () => {
     render(<UsersList userIds={[1, 2]} />, { wrapper });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
@@ -67,9 +59,7 @@ describe("UsersList", () => {
     ).toBeGreaterThan(0);
 
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("I show up when the map is empty!"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("I show up when the map is empty!")).not.toBeInTheDocument();
   });
 
   it("shows a loading skeleton while map is fetching", () => {
@@ -87,9 +77,7 @@ describe("UsersList", () => {
     expect(screen.getByTestId(USER_TITLE_SKELETON_TEST_ID)).toBeVisible();
 
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("I show up when the map is empty!"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("I show up when the map is empty!")).not.toBeInTheDocument();
   });
 
   it("hides skeleton when map is done fetching", () => {
@@ -105,9 +93,7 @@ describe("UsersList", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     // have user 2
     expect(
@@ -122,9 +108,7 @@ describe("UsersList", () => {
     ).toBeVisible();
 
     // don't have non-existent user 99
-    expect(
-      screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID)).not.toBeInTheDocument();
   });
 
   it("shows endChildren but not emptyListChildren when map is not empty", async () => {
@@ -139,9 +123,7 @@ describe("UsersList", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     // have user 2
     expect(
@@ -156,16 +138,12 @@ describe("UsersList", () => {
     ).toBeVisible();
 
     // don't have non-existent user 99
-    expect(
-      screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID)).not.toBeInTheDocument();
 
     // have end children
     expect(await screen.findByText("I'm at the end!")).toBeVisible();
     // don't have empty children
-    expect(
-      screen.queryByText("I show up when the map is empty!"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("I show up when the map is empty!")).not.toBeInTheDocument();
   });
 
   it("shows emptyListChildren but not endChildren when map is empty", async () => {
@@ -180,16 +158,12 @@ describe("UsersList", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    expect(
-      screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID)).not.toBeInTheDocument();
 
     // don't have end children
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
     // have empty children
-    expect(
-      await screen.findByText("I show up when the map is empty!"),
-    ).toBeVisible();
+    expect(await screen.findByText("I show up when the map is empty!")).toBeVisible();
   });
 
   it("shows emptyListChildren but not endChildren when map is not empty but no users were found", async () => {
@@ -204,16 +178,12 @@ describe("UsersList", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     // don't have end children
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
     // have empty children
-    expect(
-      await screen.findByText("I show up when the map is empty!"),
-    ).toBeVisible();
+    expect(await screen.findByText("I show up when the map is empty!")).toBeVisible();
   });
 
   it("shows an error alert if the event user IDs failed to load", async () => {
@@ -233,8 +203,6 @@ describe("UsersList", () => {
 
     await assertErrorAlert(errorMessage);
     // Empty state should not be shown if there is an error
-    expect(
-      screen.queryByText("There aren't any users for this event yet!"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("There aren't any users for this event yet!")).not.toBeInTheDocument();
   });
 });

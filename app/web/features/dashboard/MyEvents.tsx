@@ -12,10 +12,7 @@ import { routeToNewEvent } from "routes";
 
 import { service } from "../../service";
 import { myEventsKey } from "../queryKeys";
-import EventListRow, {
-  EventListContainer,
-  EventListRowSkeleton,
-} from "./EventListRow";
+import EventListRow, { EventListContainer, EventListRowSkeleton } from "./EventListRow";
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -39,28 +36,22 @@ export default function MyUpcomingEvents() {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const {
-    data,
-    error,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
+  const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
+    ListMyEventsRes.AsObject,
+    RpcError
+  >({
     queryKey: myEventsKey("upcoming"),
     queryFn: ({ pageParam: pageToken }) =>
       service.events.listMyEvents({
         pageToken: pageToken as string | undefined,
         pageSize: 3,
       }),
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
     initialPageParam: undefined as string | undefined,
   });
 
   const pages = data?.pages ?? [];
-  const isLastLoadedPage =
-    pages.length === 0 || currentPageIndex === pages.length - 1;
+  const isLastLoadedPage = pages.length === 0 || currentPageIndex === pages.length - 1;
   const currentItems = pages[currentPageIndex]?.eventsList;
 
   const hasPrev = currentPageIndex > 0;
@@ -75,19 +66,13 @@ export default function MyUpcomingEvents() {
     }
   };
 
-  const showingSkeleton =
-    isLoading || (isFetchingNextPage && currentItems === undefined);
+  const showingSkeleton = isLoading || (isFetchingNextPage && currentItems === undefined);
 
   return (
     <div>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
-          <Event
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Event sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:events.your_upcoming_header")}
         </Typography>
         <div>
@@ -127,16 +112,11 @@ export default function MyUpcomingEvents() {
       ) : (
         !error && (
           <EmptyStateRow>
-            <Typography
-              variant="body2"
-              sx={{ color: "var(--mui-palette-text-secondary)" }}
-            >
+            <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
               <Trans
                 t={t}
                 i18nKey="dashboard:events.your_upcoming_empty_message"
-                components={[
-                  <StyledLink key="create-link" href={routeToNewEvent()} />,
-                ]}
+                components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
               />
             </Typography>
           </EmptyStateRow>

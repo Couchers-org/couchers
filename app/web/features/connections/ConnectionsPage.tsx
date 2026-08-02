@@ -20,11 +20,7 @@ function ConnectionsPage() {
       <PageTitle>{t("connections:my_connections")}</PageTitle>
       {/* Your friends is the main content, so it gets the larger share and the
           rest stack beside it. */}
-      <Grid
-        container
-        spacing={2}
-        sx={{ width: "100%", alignItems: "flex-start" }}
-      >
+      <Grid container spacing={2} sx={{ width: "100%", alignItems: "flex-start" }}>
         <Grid size={{ xs: 12, md: 7 }}>
           <FriendList errors={errors} friends={friends} isLoading={isLoading} />
         </Grid>

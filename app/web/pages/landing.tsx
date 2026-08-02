@@ -1,24 +1,12 @@
 import { appGetLayout } from "components/AppRoute";
 import LandingPage from "features/landing/LandingPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import {
-  AUTH,
-  DASHBOARD,
-  GLOBAL,
-  LANDING,
-  NOTIFICATIONS,
-} from "i18n/namespaces";
+import { AUTH, DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      AUTH,
-      DASHBOARD,
-      GLOBAL,
-      LANDING,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? "en", [AUTH, DASHBOARD, GLOBAL, LANDING, NOTIFICATIONS])),
   },
 });
 

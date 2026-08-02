@@ -22,18 +22,10 @@ describe("HostRequestStatusBanner — host view", () => {
 
   it("shows accepted message with Decline button", () => {
     render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED} />,
       { wrapper },
     );
-    expect(
-      screen.getByText(
-        t("messages:host_request_item.host_status.accepted_waiting"),
-      ),
-    ).toBeVisible();
+    expect(screen.getByText(t("messages:host_request_item.host_status.accepted_waiting"))).toBeVisible();
     expect(
       screen.getByRole("button", {
         name: t("messages:close_request_button_text"),
@@ -43,33 +35,19 @@ describe("HostRequestStatusBanner — host view", () => {
 
   it("shows declined message with Accept button", () => {
     render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED} />,
       { wrapper },
     );
-    expect(
-      screen.getByText(t("messages:host_request_item.host_status.rejected")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("global:accept") }),
-    ).toBeVisible();
+    expect(screen.getByText(t("messages:host_request_item.host_status.rejected"))).toBeVisible();
+    expect(screen.getByRole("button", { name: t("global:accept") })).toBeVisible();
   });
 
   it("shows confirmed message with Decline button", () => {
     render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED} />,
       { wrapper },
     );
-    expect(
-      screen.getByText(t("messages:host_request_item.host_status.confirmed")),
-    ).toBeVisible();
+    expect(screen.getByText(t("messages:host_request_item.host_status.confirmed"))).toBeVisible();
     expect(
       screen.getByRole("button", {
         name: t("messages:close_request_button_text"),
@@ -79,11 +57,7 @@ describe("HostRequestStatusBanner — host view", () => {
 
   it("renders nothing for pending status", () => {
     const { container } = render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING} />,
       { wrapper },
     );
     expect(container).toBeEmptyDOMElement();
@@ -91,11 +65,7 @@ describe("HostRequestStatusBanner — host view", () => {
 
   it("calls onDecline when Decline is clicked on accepted", async () => {
     render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED} />,
       { wrapper },
     );
     const user = userEvent.setup();
@@ -109,11 +79,7 @@ describe("HostRequestStatusBanner — host view", () => {
 
   it("calls onAccept when Accept is clicked on declined", async () => {
     render(
-      <HostRequestStatusBanner
-        {...defaultCallbacks}
-        isHost
-        status={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
-      />,
+      <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED} />,
       { wrapper },
     );
     const user = userEvent.setup();
@@ -135,12 +101,8 @@ describe("HostRequestStatusBanner — surfer view", () => {
       />,
       { wrapper },
     );
-    expect(
-      screen.getByText(t("messages:surfer_bar_pending", { name: HOST_NAME })),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    ).toBeVisible();
+    expect(screen.getByText(t("messages:surfer_bar_pending", { name: HOST_NAME }))).toBeVisible();
+    expect(screen.getByRole("button", { name: t("messages:cancel_request_button") })).toBeVisible();
   });
 
   it("shows confirmation dialog when Cancel request is clicked", async () => {
@@ -154,13 +116,9 @@ describe("HostRequestStatusBanner — surfer view", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("messages:cancel_request_button") }));
     expect(screen.getByRole("dialog")).toBeVisible();
-    expect(
-      screen.getByText(t("messages:cancel_request_dialog_message")),
-    ).toBeVisible();
+    expect(screen.getByText(t("messages:cancel_request_dialog_message"))).toBeVisible();
   });
 
   it("calls onCancel when confirmation dialog is confirmed", async () => {
@@ -174,9 +132,7 @@ describe("HostRequestStatusBanner — surfer view", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("messages:cancel_request_button") }));
     await user.click(
       screen.getByRole("button", {
         name: t("messages:cancel_request_dialog_confirm_button"),
@@ -214,9 +170,7 @@ describe("HostRequestStatusBanner — surfer view", () => {
         }),
       ),
     ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    ).toBeVisible();
+    expect(screen.getByRole("button", { name: t("messages:cancel_request_button") })).toBeVisible();
     expect(
       screen.queryByRole("button", {
         name: t("messages:confirm_request_button_text"),

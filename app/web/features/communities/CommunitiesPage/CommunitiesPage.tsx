@@ -8,10 +8,7 @@ import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
-import {
-  communityCreationFormURL,
-  helpCenterCommunityBuilderURL,
-} from "routes";
+import { communityCreationFormURL, helpCenterCommunityBuilderURL } from "routes";
 
 import NewCommunities from "../NewCommunities";
 import CommunitySearch from "./CommunitySearch";
@@ -84,9 +81,7 @@ const CommunitiesPage = () => {
           <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
-      <Subtitle variant="h2">
-        {t("dashboard:communities_welcome_title")}
-      </Subtitle>
+      <Subtitle variant="h2">{t("dashboard:communities_welcome_title")}</Subtitle>
       <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans i18nKey="dashboard:communities_intro" />
       </StyledTypography>
@@ -106,9 +101,7 @@ const CommunitiesPage = () => {
         />
       </StyledTypography>
 
-      <MainTitle variant="h1">
-        {t("dashboard:my_communities_heading")}
-      </MainTitle>
+      <MainTitle variant="h1">{t("dashboard:my_communities_heading")}</MainTitle>
       <CommunitiesList />
 
       <MainTitle variant="h1">{t("dashboard:find_your_community")}</MainTitle>
@@ -153,9 +146,7 @@ const CommunitiesPage = () => {
           className={browserExpanded ? "expanded" : ""}
           variant="text"
         >
-          {browserExpanded
-            ? t("dashboard:hide_all_communities")
-            : t("dashboard:show_all_communities")}
+          {browserExpanded ? t("dashboard:hide_all_communities") : t("dashboard:show_all_communities")}
         </ExpandButton>
       </BrowserContainer>
     </>

@@ -14,9 +14,7 @@ describe("Event card", () => {
   it("renders an event card details correctly with the same start and end day", async () => {
     render(<EventCard event={firstEvent} />, { wrapper });
 
-    expect(
-      screen.getByRole("heading", { name: firstEvent.title }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: firstEvent.title })).toBeVisible();
     expect(screen.getByText(firstEvent.location!.address)).toBeVisible();
     expect(
       screen.getByText("Tue, Jun 29, 2021, 4:37 – 5:37 AM", {
@@ -37,17 +35,12 @@ describe("Event card", () => {
   it("renders an event card details correctly with a different start and end day", async () => {
     render(<EventCard event={secondEvent} />, { wrapper });
 
-    expect(
-      screen.getByRole("heading", { name: secondEvent.title }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: secondEvent.title })).toBeVisible();
     expect(screen.getByText(secondEvent.location!.address)).toBeVisible();
     expect(
-      screen.getByText(
-        "Tue, Jun 29, 2021, 11:00 PM – Wed, Jun 30, 2021, 4:00 AM",
-        {
-          normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
-        },
-      ),
+      screen.getByText("Tue, Jun 29, 2021, 11:00 PM – Wed, Jun 30, 2021, 4:00 AM", {
+        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+      }),
     ).toBeVisible();
     expect(screen.getByText(String(secondEvent.goingCount))).toBeVisible();
     expect(
@@ -63,9 +56,7 @@ describe("Event card", () => {
   it("does not render a badge for if the event is not cancelled", () => {
     const { container } = render(<EventCard event={firstEvent} />, { wrapper });
 
-    expect(
-      screen.getByRole("heading", { name: firstEvent.title }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: firstEvent.title })).toBeVisible();
 
     expect(container.getElementsByClassName("MuiChip-root")).toHaveLength(0);
   });
@@ -75,9 +66,7 @@ describe("Event card", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByRole("heading", { name: cancelledEvent.title }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: cancelledEvent.title })).toBeVisible();
 
     const chip = container.getElementsByClassName("MuiChip-root")[0];
     expect(chip).toBeVisible();
