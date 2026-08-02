@@ -1,12 +1,5 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import {
-  Box,
-  IconButton,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
@@ -68,14 +61,7 @@ export default function CommunitiesList() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const {
-    data,
-    isPending,
-    error,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useListUserCommunities();
+  const { data, isPending, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useListUserCommunities();
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -87,9 +73,7 @@ export default function CommunitiesList() {
     const el = scrollerRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(
-      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
-    );
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
   };
 
   useEffect(() => {
