@@ -235,7 +235,7 @@
     "send_message": "Enviar uma mensagem para {{name}}",
     "message": "Mensagem",
     "message_description": "Escreva sua mensagem...",
-    "message_empty": "Por favor, escreva uma mensagem.",
+    "message_empty": "Escreva uma mensagem.",
     "success": "Mensagem enviada!"
   },
   "reference_filter_label": {
@@ -330,7 +330,7 @@
     "report_photo": "Reportar foto"
   },
   "complete_profile_dialog": {
-    "title": "Quase lá: por favor, conclua seu perfil para continuar!",
+    "title": "Quase lá: conclua seu perfil para continuar!",
     "description_1": "Antes de poder {{action_name}}, você precisa <4>escrever alguma coisa sobre si</4> em seu perfil e <7>carregar uma foto de perfil</7>.",
     "description_2": "Isso ajuda a criar uma comunidade confiável e reduzir spam. Para mais informações, <2>consulte esta página de ajuda</2>. Agradecemos pela ajuda!",
     "actions": {
