@@ -877,79 +877,72 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
 
         if chat_query is not None:
-            latest_message_id_by_conversation = {
-                row.conversation_id: row.latest_message_id for row in session.execute(chat_query).all()
-            }
-            if latest_message_id_by_conversation:
-                # candidates can include chats the viewer has left (with historical messages); only chats
-                # the viewer is still in (left == None) get advanced / marked seen, as before
-                active_group_chat_ids = (
+            # correlated, so it resolves per row of the update: every subscription advances to its own
+            # chat's newest message without listing them out
+            latest_message_id = (
+                select(func.max(Message.id))
+                .where(Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .scalar_subquery()
+            )
+            marked_group_chat_ids = (
+                session.execute(
+                    update(GroupChatSubscription)
+                    .where(GroupChatSubscription.user_id == context.user_id)
+                    # candidates can include chats the viewer has left (with historical messages); only
+                    # chats the viewer is still in get advanced / marked seen, as before
+                    .where(GroupChatSubscription.left == None)
+                    .where(GroupChatSubscription.group_chat_id.in_(select(chat_query.subquery().c.conversation_id)))
+                    .where(GroupChatSubscription.last_seen_message_id < latest_message_id)
+                    .values(last_seen_message_id=latest_message_id)
+                    .returning(GroupChatSubscription.group_chat_id)
+                    .execution_options(synchronize_session=False)
+                )
+                .scalars()
+                .all()
+            )
+            if marked_group_chat_ids:
+                notification_groups.append(
+                    (
+                        [NotificationTopicAction.chat__message],
+                        [str(group_chat_id) for group_chat_id in marked_group_chat_ids],
+                    )
+                )
+                # chat__missed_messages is a summary across all chats, so it's keyed with an empty
+                # string rather than a chat id (same as MarkLastSeenGroupChat)
+                notification_groups.append(([NotificationTopicAction.chat__missed_messages], [""]))
+
+        if host_request_query is not None:
+            # the viewer's last-seen column depends on their role, so one update per role
+            # (a user is never both initiator and recipient of the same request, so these are disjoint)
+            candidate_ids = select(host_request_query.subquery().c.conversation_id)
+            latest_message_id = (
+                select(func.max(Message.id))
+                .where(Message.conversation_id == HostRequest.conversation_id)
+                .scalar_subquery()
+            )
+            marked_conversation_ids: list[int] = []
+            for user_id_column, last_seen_column in (
+                (HostRequest.initiator_user_id, HostRequest.initiator_last_seen_message_id),
+                (HostRequest.recipient_user_id, HostRequest.recipient_last_seen_message_id),
+            ):
+                marked_conversation_ids += (
                     session.execute(
-                        select(GroupChatSubscription.group_chat_id)
-                        .where(GroupChatSubscription.user_id == context.user_id)
-                        .where(GroupChatSubscription.group_chat_id.in_(latest_message_id_by_conversation.keys()))
-                        .where(GroupChatSubscription.left == None)
+                        update(HostRequest)
+                        .where(user_id_column == context.user_id)
+                        .where(HostRequest.conversation_id.in_(candidate_ids))
+                        .where(last_seen_column < latest_message_id)
+                        .values({last_seen_column: latest_message_id})
+                        .returning(HostRequest.conversation_id)
+                        .execution_options(synchronize_session=False)
                     )
                     .scalars()
                     .all()
                 )
-                if active_group_chat_ids:
-                    # bulk-advance each subscription's last-seen to its chat's latest message in one update
-                    latest_message_id_for_chat = case(
-                        latest_message_id_by_conversation, value=GroupChatSubscription.group_chat_id
-                    )
-                    session.execute(
-                        update(GroupChatSubscription)
-                        .where(GroupChatSubscription.user_id == context.user_id)
-                        .where(GroupChatSubscription.group_chat_id.in_(active_group_chat_ids))
-                        .where(GroupChatSubscription.left == None)
-                        .where(GroupChatSubscription.last_seen_message_id < latest_message_id_for_chat)
-                        .values(last_seen_message_id=latest_message_id_for_chat)
-                        .execution_options(synchronize_session=False)
-                    )
-                    notification_groups.append(
-                        (
-                            [NotificationTopicAction.chat__message],
-                            [str(group_chat_id) for group_chat_id in active_group_chat_ids],
-                        )
-                    )
-                    # chat__missed_messages is a summary across all chats, so it's keyed with an empty
-                    # string rather than a chat id (same as MarkLastSeenGroupChat)
-                    notification_groups.append(([NotificationTopicAction.chat__missed_messages], [""]))
-
-        if host_request_query is not None:
-            latest_message_id_by_conversation = {
-                row.conversation_id: row.latest_message_id for row in session.execute(host_request_query).all()
-            }
-            if latest_message_id_by_conversation:
-                # the viewer's last-seen column depends on their role, so one bulk update per role
-                # (a user is never both initiator and recipient of the same request, so these are disjoint)
-                latest_message_id_for_request = case(
-                    latest_message_id_by_conversation, value=HostRequest.conversation_id
-                )
-                conversation_ids = list(latest_message_id_by_conversation.keys())
-                # requests where the viewer is the initiator (surfer)
-                session.execute(
-                    update(HostRequest)
-                    .where(HostRequest.conversation_id.in_(conversation_ids))
-                    .where(HostRequest.initiator_user_id == context.user_id)
-                    .where(HostRequest.initiator_last_seen_message_id < latest_message_id_for_request)
-                    .values(initiator_last_seen_message_id=latest_message_id_for_request)
-                    .execution_options(synchronize_session=False)
-                )
-                # requests where the viewer is the recipient (host)
-                session.execute(
-                    update(HostRequest)
-                    .where(HostRequest.conversation_id.in_(conversation_ids))
-                    .where(HostRequest.recipient_user_id == context.user_id)
-                    .where(HostRequest.recipient_last_seen_message_id < latest_message_id_for_request)
-                    .values(recipient_last_seen_message_id=latest_message_id_for_request)
-                    .execution_options(synchronize_session=False)
-                )
+            if marked_conversation_ids:
                 notification_groups.append(
                     (
                         _HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
-                        [str(conversation_id) for conversation_id in conversation_ids],
+                        [str(conversation_id) for conversation_id in marked_conversation_ids],
                     )
                 )
 
