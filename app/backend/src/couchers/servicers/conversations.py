@@ -482,6 +482,9 @@ def _host_request_role_filter(context: CouchersContext, categories: set[int]) ->
         clauses.append(is_surfing_party(viewer_id))
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS in categories:
         clauses.append(is_public_trip_offer_party(viewer_id))
+    if not clauses:
+        # an empty or_() renders as no condition at all, which would match every host request
+        raise ValueError(f"No role filter for host request categories: {categories}")
     return or_(*clauses)
 
 
