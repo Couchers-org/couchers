@@ -12,9 +12,9 @@ export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
   const handleRestartSignup = async () => {
-      let state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
-      state.needBasic = true;
-      authActions.updateSignupState(state);
+    const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
+    state.needBasic = true;
+    authActions.updateSignupState(state);
   };
   const [resent, setResent] = useState<boolean>(false);
 
@@ -51,18 +51,13 @@ export default function ResendVerificationEmailForm() {
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}
       </Typography>
-      <Typography variant="body1" >
-          <Trans
-            i18nKey="auth:sign_up_restart_signup"
-            components={{
-              2: (
-                <StyledLink
-                  href="#"
-                    onClick={handleRestartSignup}
-                />
-              ),
-            }}
-          />
+      <Typography variant="body1">
+        <Trans
+          i18nKey="auth:sign_up_restart_signup"
+          components={{
+            2: <StyledLink href="#" onClick={handleRestartSignup} />,
+          }}
+        />
       </Typography>
     </>
   );
