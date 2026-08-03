@@ -144,6 +144,14 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
   return res.toObject();
 }
 
+export async function signupFlowRestartSignup(flowToken: string) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+
 export async function validateUsername(username: string) {
   const req = new UsernameValidReq();
   req.setUsername(username);
