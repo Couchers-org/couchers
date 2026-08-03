@@ -91,5 +91,6 @@
     "back_button": "Zpět",
     "submit_button": "Odeslat",
     "quality_low": "Nízká kvalita"
-  }
+  },
+  "unknown_user": "Neznámý uživatel"
 }

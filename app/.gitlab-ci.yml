@@ -18,6 +18,8 @@ stages:
 variables:
   # whether to do checks or only build & deploy
   DO_CHECKS: "true"
+  # whether to publish coverage reports to S3 (always on for the release branch)
+  DO_COVERAGE: "false"
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
@@ -764,11 +766,18 @@ preview:backend:
         python3 app/scripts/schema_diff_html.py develop-schema.sql artifacts/schema_dumps/schema.sql artifacts/schema_dumps/diff.html
       fi
     # Upload coverage report to S3
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
+    - |
+      BACKEND_ITEMS=schema,schema-diff,emails
+      if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ] || [ "$DO_COVERAGE" = "true" ]; then
+        aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+        aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+        aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
+        aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
+        echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
+        BACKEND_ITEMS=$BACKEND_ITEMS,bcov
+      else
+        echo "Skipping bcov upload, set DO_COVERAGE=true to publish it"
+      fi
     # Upload schema dumps
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
@@ -783,7 +792,7 @@ preview:backend:
     - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
     - echo "Sample emails index at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/emails/index.html and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/emails/index.html"
     # write the backend items into the sticky PR comment (no-op off a PR)
-    - python3 app/scripts/pr_preview_comment.py --items schema,schema-diff,emails,bcov
+    - python3 app/scripts/pr_preview_comment.py --items $BACKEND_ITEMS
   artifacts:
     paths:
       - artifacts/schema_dumps
@@ -855,7 +864,7 @@ preview:wcov:
     - python3 app/scripts/pr_preview_comment.py --items wcov
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($DO_COVERAGE == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/web/**/*
