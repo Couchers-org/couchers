@@ -78,9 +78,7 @@ const HostRequestUserSummarySection = ({
           ) : (
             <StyledNameCityRow>
               <Tooltip title={`${otherUser.name}, ${otherUser.city}`}>
-                <div>
-                  {`${truncateTextEllipsis(otherUser.name, 25)}, ${truncateTextEllipsis(otherUser.city, 25)}`}
-                </div>
+                <div>{`${truncateTextEllipsis(otherUser.name, 25)}, ${truncateTextEllipsis(otherUser.city, 25)}`}</div>
               </Tooltip>
               {otherUser.hasStrongVerification && <StrongVerificationBadge />}
             </StyledNameCityRow>

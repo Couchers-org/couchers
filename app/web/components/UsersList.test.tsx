@@ -54,9 +54,7 @@ describe("UsersList", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    expect(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID).length,
-    ).toBeGreaterThan(0);
+    expect(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID).length).toBeGreaterThan(0);
 
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
     expect(screen.queryByText("I show up when the map is empty!")).not.toBeInTheDocument();
