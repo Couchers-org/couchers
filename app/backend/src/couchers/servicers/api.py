@@ -18,6 +18,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.group_chats import current_subscription_ids, in_subscription_window
 from couchers.helpers.host_requests import is_hosting_party, is_public_trip_offer_party, is_surfing_party
 from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -253,8 +254,8 @@ class API(api_pb2_grpc.APIServicer):
         )
         unseen_message_query = (
             unseen_message_query.where(GroupChatSubscription.user_id == context.user_id)
-            .where(Message.time >= GroupChatSubscription.joined)
-            .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+            .where(GroupChatSubscription.id.in_(current_subscription_ids(context.user_id)))
+            .where(in_subscription_window())
             .where(Message.id > GroupChatSubscription.last_seen_message_id)
         )
         unseen_message_count = session.execute(unseen_message_query).scalar_one()

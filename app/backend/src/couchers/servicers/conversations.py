@@ -15,6 +15,7 @@ from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.group_chats import current_subscription_ids, in_subscription_window
 from couchers.helpers.host_requests import (
     HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
     is_hosting_party,
@@ -308,25 +309,13 @@ def _get_visible_message_subscription(
     return cast(GroupChatSubscription, subscription)
 
 
-def _in_subscription_window() -> ColumnElement[bool]:
-    """
-    Restricts Message to what the joined GroupChatSubscription's user is entitled to see: messages
-    sent while they were in the chat. Unseen counts have to agree with the Ping badge, which applies
-    the same window, or a chat the user has left shows unread messages they can never read.
-    """
-    return and_(
-        Message.time >= GroupChatSubscription.joined,
-        or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None),
-    )
-
-
 def _unseen_message_count(session: Session, subscription_id: int) -> int:
     query = (
         select(func.count())
         .select_from(Message)
         .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
         .where(GroupChatSubscription.id == subscription_id)
-        .where(_in_subscription_window())
+        .where(in_subscription_window())
         .where(Message.id > GroupChatSubscription.last_seen_message_id)
     )
     return session.execute(query).scalar_one()
@@ -404,7 +393,8 @@ def _group_chat_candidate_query(
         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
         .where(GroupChatSubscription.user_id == context.user_id)
-        .where(_in_subscription_window())
+        .where(GroupChatSubscription.id.in_(current_subscription_ids(context.user_id)))
+        .where(in_subscription_window())
         .group_by(GroupChatSubscription.group_chat_id)
     )
     if only_archived is not None:
@@ -590,7 +580,7 @@ def _build_group_chats_pb(
             select(GroupChatSubscription.id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.id.in_(viewer_subscription_ids))
-            .where(_in_subscription_window())
+            .where(in_subscription_window())
             .where(Message.id > GroupChatSubscription.last_seen_message_id)
             .group_by(GroupChatSubscription.id)
         ).all()
@@ -730,7 +720,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(GroupChatSubscription.id, func.count(Message.id))
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.id.in_(subscription_ids))
-                .where(_in_subscription_window())
+                .where(in_subscription_window())
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .group_by(GroupChatSubscription.id)
             ).all()
@@ -835,13 +825,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message_id = (
                 select(func.max(Message.id))
                 .where(Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .where(_in_subscription_window())
+                .where(in_subscription_window())
                 .scalar_subquery()
             )
             marked_group_chat_ids = (
                 session.execute(
                     update(GroupChatSubscription)
                     .where(GroupChatSubscription.user_id == context.user_id)
+                    .where(GroupChatSubscription.id.in_(current_subscription_ids(context.user_id)))
                     .where(GroupChatSubscription.group_chat_id.in_(select(chat_query.subquery().c.conversation_id)))
                     .where(GroupChatSubscription.last_seen_message_id < latest_message_id)
                     .values(last_seen_message_id=latest_message_id)

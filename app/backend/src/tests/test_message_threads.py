@@ -352,6 +352,51 @@ def test_departed_group_chat_unseen_count_agrees_with_ping_and_clears(db, modera
     assert unseen_counts() == (0, 0)
 
 
+def test_rejoined_group_chat_reads_the_current_subscription(db, moderator):
+    """
+    Regression test: rejoining a chat leaves the earlier subscription behind, with its own last-seen
+    state. The unread filter and the Ping badge used to match on any of the viewer's subscriptions,
+    so the stale one held the chat unread and kept the badge up, while the count the list showed and
+    the row MarkAllThreadsSeen advanced came from the current subscription and could never clear it.
+    """
+    user1, token1 = generate_user()
+    _user2, token2 = generate_user()
+    user3, _token3 = generate_user()
+
+    chat_id = _create_group_chat(token2, [user1.id, user3.id], moderator)
+
+    # removed rather than leaving, so user1's first subscription is left behind with unread messages
+    with conversations_session(token2) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="while you were away"))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="welcome back"))
+
+    def unread_chat_ids() -> list[int]:
+        with conversations_session(token1) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_unread=True))
+        return [t.group_chat.group_chat_id for t in res.threads]
+
+    def unseen_counts() -> tuple[int, int]:
+        with real_api_session(token1) as api:
+            ping_count = api.Ping(api_pb2.PingReq()).unseen_message_count
+        with conversations_session(token1) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        threads = [t for t in res.threads if t.group_chat.group_chat_id == chat_id]
+        # the two subscriptions must not surface the chat twice
+        assert len(threads) == 1
+        return threads[0].group_chat.unseen_message_count, ping_count
+
+    # only the invite notice and "welcome back" are in reach; the first stint's messages are not
+    assert unseen_counts() == (2, 2)
+    assert unread_chat_ids() == [chat_id]
+
+    with conversations_session(token1) as c:
+        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    assert unseen_counts() == (0, 0)
+    assert unread_chat_ids() == []
+
+
 def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator):
     """
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
