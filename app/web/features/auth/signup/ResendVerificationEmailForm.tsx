@@ -12,6 +12,12 @@ export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
 
+  console.log("INRYO", authState, authActions);
+  const handleRestartSignup = async () => {
+      let state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
+      state.needBasic = true;
+      authActions.updateSignupState(state);
+  };
   const [resent, setResent] = useState<boolean>(false);
 
   const mutation = useMutation({
@@ -21,14 +27,13 @@ export default function ResendVerificationEmailForm() {
       setResent(true);
     },
   });
-
   return (
     <>
       {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
         {t("auth:sign_up_completed_prompt")}
       </Typography>
-      <Typography variant="body1">
+      <Typography variant="body1" gutterBottom>
         {!resent ? (
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
@@ -47,6 +52,19 @@ export default function ResendVerificationEmailForm() {
         ) : (
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}
+      </Typography>
+      <Typography variant="body1" >
+          <Trans
+            i18nKey="auth:sign_up_restart_signup"
+            components={{
+              2: (
+                <StyledLink
+                  href="#"
+                    onClick={handleRestartSignup}
+                />
+              ),
+            }}
+          />
       </Typography>
     </>
   );
