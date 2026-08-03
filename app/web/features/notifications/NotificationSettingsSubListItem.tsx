@@ -14,7 +14,7 @@ import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
-  /// The localized description string.
+  /** The localized description string.*/
   description: string;
   email: boolean;
   push: boolean;

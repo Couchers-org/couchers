@@ -135,7 +135,7 @@ def push_to_subscription(
             topic_action=topic_action,
             key=key or "",
         ),
-        priority=7,
+        priority=17,
     )
 
 
