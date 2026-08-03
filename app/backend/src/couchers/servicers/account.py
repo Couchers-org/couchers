@@ -914,7 +914,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
                 session,
                 job=finalize_strong_verification,
                 payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
-                priority=8,
+                priority=18,
             )
         elif iris_status in ["FAILED", "ABORTED", "REJECTED"]:
             verification_attempt.status = StrongVerificationAttemptStatus.failed

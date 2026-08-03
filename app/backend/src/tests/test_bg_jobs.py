@@ -476,7 +476,10 @@ def test_job_retry(db):
                 == 0
             )
 
-            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
+            job = session.execute(select(BackgroundJob)).scalar_one()
+            assert job.next_attempt_after > now() + timedelta(seconds=25)
+
+            job.next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
             session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
@@ -504,6 +507,32 @@ def test_job_retry(db):
 
     _check_job_counter("mock_job", "error", "4", "Exception")
     _check_job_counter("mock_job", "failed", "5", "Exception")
+
+
+def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        raise Exception()
+
+    MOCK_JOBS: dict[str, Job[Any]] = {"mock_job": Job(mock_job)}
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        session.flush()
+        session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = now() - timedelta(hours=1)
+
+    new_config = config.copy()
+    new_config.IN_TEST = False
+
+    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+        assert process_job()
+
+        with session_scope() as session:
+            job = session.execute(select(BackgroundJob)).scalar_one()
+            assert job.state == BackgroundJobState.error
+            assert job.try_count == 1
+            assert now() + timedelta(seconds=25) < job.next_attempt_after < now() + timedelta(seconds=35)
+
+        assert not process_job()
 
 
 def test_job_dequeue_steps_over_other_workers_jobs(db):
