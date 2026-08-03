@@ -70,7 +70,7 @@ def _get_base_engine() -> Engine:
         poolclass=QueuePool,
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
         # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _store_log,
-        # or worker_repeatable_read + the handler's own session_scope).
+        # or the jobs worker's own session_scope + the handler's).
         pool_size=DB_POOL_SIZE,
         max_overflow=0,
     )
@@ -105,42 +105,6 @@ def session_scope() -> Generator[Session]:
             finally:
                 if logger.isEnabledFor(logging.DEBUG):
                     logger.debug(f"SScope: closed {backend_pid=}")
-
-
-@contextmanager
-def worker_repeatable_read_session_scope() -> Generator[Session]:
-    """
-    This is a separate session scope that is isolated from the main one since otherwise we end up nesting transactions,
-    this causes two different connections to be used
-
-    This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
-    background worker, effectively using postgres as a queueing system.
-    """
-    with tracer.start_as_current_span("worker_session_scope") as rollspan:
-        with Session(_get_base_engine().execution_options(isolation_level="REPEATABLE READ")) as session:
-            session.begin()
-            try:
-                if logger.isEnabledFor(logging.DEBUG):
-                    try:
-                        frame = inspect.stack()[2]
-                        filename_line = f"{frame.filename}:{frame.lineno}"
-                    except Exception as e:
-                        filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
-                    logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
-                    rollspan.set_attribute("db.backend_pid", backend_pid)
-                    rollspan.set_attribute("db.filename_line", filename_line)
-                rollspan.set_attribute("rpc.thread", get_ident())
-                rollspan.set_attribute("rpc.pid", getpid())
-
-                yield session
-                session.commit()
-            except:
-                session.rollback()
-                raise
-            finally:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f"SScope (worker): closed {backend_pid=}")
 
 
 def db_post_fork() -> None:

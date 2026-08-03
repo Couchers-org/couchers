@@ -13,13 +13,12 @@ from time import monotonic, perf_counter_ns, sleep
 from typing import Any
 
 import sentry_sdk
-import sqlalchemy.exc
 from google.protobuf import empty_pb2
 from opentelemetry import trace
 from sqlalchemy import select
 
 from couchers.config import config
-from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
+from couchers.db import db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
 from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.definitions import JOBS, Job
@@ -27,7 +26,6 @@ from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     background_jobs_got_job_counter,
     background_jobs_no_jobs_counter,
-    background_jobs_serialization_errors_counter,
     jobs_queued_histogram,
     observe_in_jobs_duration_histogram,
 )
@@ -47,27 +45,23 @@ def process_job() -> bool:
     """
     logger.debug("Looking for a job")
 
-    with worker_repeatable_read_session_scope() as session:
-        # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
-        # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
-        # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
-        # psycopg2 that's quite annoying to catch and deal with
-        try:
-            job = (
-                session.execute(
-                    select(BackgroundJob)
-                    .where(BackgroundJob.ready_for_retry)
-                    .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
-                    .limit(1)
-                    .with_for_update(skip_locked=True)
-                )
-                .scalars()
-                .one_or_none()
+    with session_scope() as session:
+        # SELECT ... FOR UPDATE is what makes sure only one worker handles a given job: no two transactions can hold
+        # the row lock at once. SKIP LOCKED means an already-claimed job is passed over rather than waited on, so
+        # workers spread out across the queue. This must run at READ COMMITTED (the default): a stricter isolation
+        # level can't follow the update chain of a row another worker just committed, and aborts the whole dequeue
+        # with a serialization error instead of skipping the row
+        job = (
+            session.execute(
+                select(BackgroundJob)
+                .where(BackgroundJob.ready_for_retry)
+                .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
+                .limit(1)
+                .with_for_update(skip_locked=True)
             )
-        except sqlalchemy.exc.OperationalError:
-            background_jobs_serialization_errors_counter.inc()
-            logger.debug("Serialization error")
-            return False
+            .scalars()
+            .one_or_none()
+        )
 
         if not job:
             background_jobs_no_jobs_counter.inc()
