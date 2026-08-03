@@ -1,12 +1,5 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import {
-  Box,
-  IconButton,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
@@ -69,14 +62,7 @@ export default function CommunitiesList() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const {
-    data,
-    isPending,
-    error,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useListUserCommunities();
+  const { data, isPending, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useListUserCommunities();
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -110,9 +96,7 @@ export default function CommunitiesList() {
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
-          {!isPending && communities.length > 0 && (
-            <CountBadge count={communities.length} />
-          )}
+          {!isPending && communities.length > 0 && <CountBadge count={communities.length} />}
         </Typography>
         <div>
           <IconButton

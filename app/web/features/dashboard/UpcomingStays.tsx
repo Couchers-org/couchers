@@ -89,9 +89,7 @@ function UpcomingStaysWidget({
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           {icon}
           {title}
-          {!isLoading && requests.length > 0 && (
-            <CountBadge count={requests.length} />
-          )}
+          {!isLoading && requests.length > 0 && <CountBadge count={requests.length} />}
         </Typography>
         <div>
           <IconButton
