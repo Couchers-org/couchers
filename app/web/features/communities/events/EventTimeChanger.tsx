@@ -43,7 +43,7 @@ export default function EventTimeChanger({
     : undefined;
   const defaultEndDateTime = event?.endTime ? timestampToPlainDateTime(event.endTime, event?.timezone) : undefined;
 
-  const handleStartDateChange = (value: Temporal.PlainDate) => {
+  const handleStartDateAccept = (value: Temporal.PlainDate) => {
     const endDate = getValues("endDate");
     if (!endDate) {
       setValue("endDate", value, {
@@ -51,6 +51,9 @@ export default function EventTimeChanger({
         shouldValidate: true,
       });
     }
+  };
+
+  const handleStartDateChange = (value: Temporal.PlainDate) => {
     setValue("startDate", value, {
       shouldDirty: true,
       shouldValidate: true,
@@ -64,25 +67,21 @@ export default function EventTimeChanger({
     });
   };
 
-  const handleStartTimeChange = (value: Temporal.PlainTime) => {
-    setValue("startTime", value, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+  const handleStartTimeAccept = (value: Temporal.PlainTime) => {
     const endTime = getValues("endTime");
-    //if endTime has a value, don't autofill
-    //except for when user toggles 'AM'/'PM', do autofill endTime
-    //example: a user clicks then 8, then 00, then PM...
-    //...this function will make endTime in 08:00 AM after the second click,
-    //but we still want it to fill in 8:00 PM
-    const userChangedMeridiem =
-      endTime && value != undefined ? Math.abs(value.until(endTime).total("hours")) == 12 : false;
-    if (!endTime || userChangedMeridiem) {
+    if (!endTime) {
       setValue("endTime", value, {
         shouldDirty: true,
         shouldValidate: true,
       });
     }
+  };
+
+  const handleStartTimeChange = (value: Temporal.PlainTime) => {
+    setValue("startTime", value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const handleEndTimeChange = (value: Temporal.PlainTime) => {
@@ -103,6 +102,7 @@ export default function EventTimeChanger({
           id="startDate"
           label={t("communities:start_date")}
           name="startDate"
+          onAccept={handleStartDateAccept}
           onPostChange={handleStartDateChange}
           rules={{
             required: t("communities:date_required"),
@@ -124,6 +124,7 @@ export default function EventTimeChanger({
           control={control}
           name="startTime"
           onPostChange={handleStartTimeChange}
+          onAccept={handleStartTimeAccept}
           defaultValue={defaultStartDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
