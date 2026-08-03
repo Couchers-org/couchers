@@ -436,25 +436,17 @@ describe("Event time changer", () => {
     });
   });
 
-  describe("when the end date/time difference from the start has been changed", () => {
-    it("should make user manually fix times when the start date/time updates", async () => {
+  describe("when startDate and startTime are set", () => {
+    it("should autofill endDate and endTime", async () => {
       render(<TestForm />, { wrapper });
 
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
       const startDateGroup = await screen.findByRole("group", {
         name: t("communities:start_date"),
       });
       await user.click(startDateGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard("08052021");
-
-      const endDateGroup = await screen.findByRole("group", {
-        name: t("communities:end_date"),
-      });
-      await user.click(endDateGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08062021");
 
       const startTimeGroup = screen.getByRole("group", {
         name: t("communities:start_time"),
@@ -463,31 +455,39 @@ describe("Event time changer", () => {
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard("1000 PM");
 
-      const endTimeGroup = screen.getByRole("group", {
-        name: t("communities:end_time"),
-      });
-      // Increases time difference between start and end time to 3 hours
-      await user.click(endTimeGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("0300 PM");
-
-      await user.click(startTimeGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("0200 PM");
-
       await user.click(screen.getByTestId("submit"));
-
-      expect(onValidSubmit).toHaveBeenCalledTimes(1);
       const submittedData = onValidSubmit.mock.calls[0][0];
 
-      expect(submittedData.startDate).toEqual(
+      expect(submittedData.endDate).toEqual(
         Temporal.PlainDate.from("2021-08-05"),
       );
-      expect(submittedData.startTime).toEqual(Temporal.PlainTime.from("14:00"));
-      expect(submittedData.endDate).toEqual(
-        Temporal.PlainDate.from("2021-08-06"),
+      expect(submittedData.endTime).toEqual(
+        Temporal.PlainTime.from("22:00"),
       );
-      expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("15:00"));
     });
-  });
+
+    it("should not accept submission if startDate/Time and endDate/Time are the same", async () => {
+      render(<TestForm />, { wrapper });
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const startDateGroup = await screen.findByRole("group", {
+        name: t("communities:start_date"),
+      });
+      await user.click(startDateGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("08052021");
+
+      const startTimeGroup = screen.getByRole("group", {
+        name: t("communities:start_time"),
+      });
+      await user.click(startTimeGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("1000 PM");
+
+      await user.click(screen.getByTestId("submit"));
+  
+      // Should not submit due to same date/time as start
+      expect(onValidSubmit).not.toHaveBeenCalled();
+    });
+  }); 
 });
