@@ -144,7 +144,7 @@ class Message(Base, kw_only=True):
     __table_args__ = (
         # serves "is there anything in this conversation newer than X", which the unread badge counts ask
         # once per host request. can't be the partial index below: those counts include control messages
-        Index("ix_messages_conversation_id_id", "conversation_id", "id"),
+        Index("ix_messages_conversation_id_id_time", "conversation_id", "id", postgresql_include=["time"]),
         # send_request_notifications only wakes users for text messages; time is included so it can decide
         # the "older than 5 minutes" cutoff without leaving the index
         Index(
