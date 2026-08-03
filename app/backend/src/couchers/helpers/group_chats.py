@@ -5,7 +5,6 @@ speaks for a chat and which of that chat's messages the user is entitled to see.
 """
 
 from sqlalchemy import ColumnElement, Select, and_, func, or_, select
-from sqlalchemy.orm import aliased
 
 from couchers.models import GroupChatSubscription, Message
 
@@ -27,6 +26,14 @@ def current_subscription_ids(user_id: int) -> Select[tuple[int]]:
     The user's newest subscription to each chat they've been in. Rejoining a chat leaves the earlier
     subscription behind, and it's the newest one that carries the archived and last-seen state the
     API reads, so only that one may decide what a chat counts, shows, or marks as seen.
+
+    Built on the bare GroupChatSubscription rather than aliased(): aliasing the entity per call
+    rebuilds the ORM proxy index, and Ping runs this on every poll. correlate_except keeps this
+    table local to the subquery so it doesn't bind to the enclosing query's GroupChatSubscription.
     """
-    subscription = aliased(GroupChatSubscription)
-    return select(func.max(subscription.id)).where(subscription.user_id == user_id).group_by(subscription.group_chat_id)
+    return (
+        select(func.max(GroupChatSubscription.id))
+        .where(GroupChatSubscription.user_id == user_id)
+        .group_by(GroupChatSubscription.group_chat_id)
+        .correlate_except(GroupChatSubscription)
+    )
