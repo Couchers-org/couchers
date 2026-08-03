@@ -70,23 +70,10 @@ def mark_notifications_seen(
     session: Session,
     *,
     user_id: int,
-    key: str,
-    topic_actions: list[NotificationTopicAction],
-) -> None:
-    """
-    Marks all unseen notifications for the given user, key, and topic actions as seen.
-    """
-    mark_notifications_seen_bulk(session, user_id=user_id, topic_actions_and_keys=[(topic_actions, [key])])
-
-
-def mark_notifications_seen_bulk(
-    session: Session,
-    *,
-    user_id: int,
     topic_actions_and_keys: Sequence[tuple[Sequence[NotificationTopicAction], Sequence[str]]],
 ) -> None:
     """
-    Bulk variant of mark_notifications_seen, marking several groups of notifications seen in one update.
+    Marks the user's unseen notifications matching any of the given topic action and key groups as seen.
     """
     clauses = [
         and_(Notification.topic_action.in_(topic_actions), Notification.key.in_(keys))

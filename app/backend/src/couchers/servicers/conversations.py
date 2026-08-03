@@ -32,7 +32,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import mark_notifications_seen, mark_notifications_seen_bulk, notify
+from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, messages_pb2, notification_data_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
@@ -946,7 +946,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                 )
 
-        mark_notifications_seen_bulk(session, user_id=context.user_id, topic_actions_and_keys=notification_groups)
+        mark_notifications_seen(session, user_id=context.user_id, topic_actions_and_keys=notification_groups)
 
         return empty_pb2.Empty()
 
@@ -1137,16 +1137,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         mark_notifications_seen(
             session,
             user_id=context.user_id,
-            key=str(request.group_chat_id),
-            topic_actions=[NotificationTopicAction.chat__message],
-        )
-        # chat__missed_messages is a summary across all chats, so it's keyed with an empty string
-        # rather than a chat id: reading any chat counts as acting on it, and it gets marked seen
-        mark_notifications_seen(
-            session,
-            user_id=context.user_id,
-            key="",
-            topic_actions=[NotificationTopicAction.chat__missed_messages],
+            topic_actions_and_keys=[
+                ([NotificationTopicAction.chat__message], [str(request.group_chat_id)]),
+                # chat__missed_messages is a summary across all chats, so it's keyed with an empty string
+                # rather than a chat id: reading any chat counts as acting on it, and it gets marked seen
+                ([NotificationTopicAction.chat__missed_messages], [""]),
+            ],
         )
 
         return empty_pb2.Empty()

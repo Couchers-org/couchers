@@ -1018,16 +1018,20 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         mark_notifications_seen(
             session,
             user_id=context.user_id,
-            key=str(host_request.conversation_id),
-            topic_actions=[
-                NotificationTopicAction.host_request__create,
-                NotificationTopicAction.host_request__accept,
-                NotificationTopicAction.host_request__reject,
-                NotificationTopicAction.host_request__confirm,
-                NotificationTopicAction.host_request__cancel,
-                NotificationTopicAction.host_request__message,
-                NotificationTopicAction.host_request__missed_messages,
-                NotificationTopicAction.host_request__reminder,
+            topic_actions_and_keys=[
+                (
+                    [
+                        NotificationTopicAction.host_request__create,
+                        NotificationTopicAction.host_request__accept,
+                        NotificationTopicAction.host_request__reject,
+                        NotificationTopicAction.host_request__confirm,
+                        NotificationTopicAction.host_request__cancel,
+                        NotificationTopicAction.host_request__message,
+                        NotificationTopicAction.host_request__missed_messages,
+                        NotificationTopicAction.host_request__reminder,
+                    ],
+                    [str(host_request.conversation_id)],
+                ),
             ],
         )
 
