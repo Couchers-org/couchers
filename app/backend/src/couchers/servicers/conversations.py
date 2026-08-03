@@ -436,6 +436,12 @@ def _host_request_candidate_query(
             literal(_KIND_HOST_REQUEST).label("kind"),
         )
         .join(Message, Message.conversation_id == HostRequest.conversation_id)
+        .where(
+            or_(
+                HostRequest.initiator_user_id == context.user_id,
+                HostRequest.recipient_user_id == context.user_id,
+            )
+        )
         .where(role_filter)
         .group_by(HostRequest.conversation_id)
     )

@@ -1,6 +1,5 @@
 """
-Shared host request helpers, kept out of the servicers so the Ping counts, the thread list and the
-requests API can't drift apart.
+Shared host request helpers.
 
 The role-based party predicates below exist because a host request has a fixed direction
 (initiator -> recipient), but the *stay-role* of each party depends on how the request came about:
