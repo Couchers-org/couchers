@@ -11,8 +11,6 @@ import { service } from "service";
 export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
-
-  console.log("INRYO", authState, authActions);
   const handleRestartSignup = async () => {
       let state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       state.needBasic = true;
