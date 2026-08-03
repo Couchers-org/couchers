@@ -1,8 +1,4 @@
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
+import { InfiniteData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { badgesKey, badgeUsersKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { ListBadgeUsersRes } from "proto/api_pb";
@@ -46,8 +42,7 @@ export function useBadgeUsers(badgeId: string) {
     string
   >({
     queryKey: badgeUsersKey({ badgeId }),
-    queryFn: ({ pageParam }) =>
-      service.api.listBadgeUsers({ badgeId, pageToken: pageParam }),
+    queryFn: ({ pageParam }) => service.api.listBadgeUsers({ badgeId, pageToken: pageParam }),
     initialPageParam: "0",
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });

@@ -10,12 +10,13 @@ from couchers.context import CouchersContext
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import Node, User
+from couchers.models import ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
+from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import to_bool, where_users_column_visible
+from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today, today_in_timezone
 
 logger = logging.getLogger(__name__)
@@ -160,16 +161,30 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if existing:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
 
-        public_trip = PublicTrip(
-            user_id=context.user_id,
-            node_id=node.id,
-            from_date=from_date,
-            to_date=to_date,
-            description=request.description,
-            same_gender_only=request.same_gender_only,
+        public_trip: PublicTrip | None = None
+
+        def create_object(moderation_state_id: int) -> int:
+            nonlocal public_trip
+            public_trip = PublicTrip(
+                user_id=context.user_id,
+                node_id=node.id,
+                from_date=from_date,
+                to_date=to_date,
+                description=request.description,
+                same_gender_only=request.same_gender_only,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(public_trip)
+            session.flush()
+            return public_trip.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.public_trip,
+            object_id=create_object,
+            creator_user_id=context.user_id,
         )
-        session.add(public_trip)
-        session.flush()
+        assert public_trip is not None
 
         log_event(
             context,
@@ -198,7 +213,12 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         viewer_is_moderator = trip_node_id is not None and can_moderate_node(session, context.user_id, trip_node_id)
 
         statement = (
-            where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=False,
+            )
             .where(PublicTrip.id == request.trip_id)
             .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
@@ -227,7 +247,12 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         viewer_is_moderator = can_moderate_node(session, context.user_id, node.id)
 
         statement = (
-            where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=True,
+            )
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
             .where(PublicTrip.to_date >= today())
@@ -256,9 +281,12 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         ascending = request.ascending
         is_self = request.user_id == context.user_id
 
-        statement = where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id).where(
-            PublicTrip.user_id == request.user_id
-        )
+        statement = where_moderated_content_visible(
+            where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+            context,
+            PublicTrip,
+            is_list_operation=True,
+        ).where(PublicTrip.user_id == request.user_id)
 
         if not is_self:
             # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.

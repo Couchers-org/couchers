@@ -7,10 +7,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
+from couchers.models.moderation import ModerationObjectType
 
 if TYPE_CHECKING:
     from couchers.models import Node, User
     from couchers.models.host_requests import HostRequest
+    from couchers.models.moderation import ModerationState
 
 
 class PublicTripStatus(enum.Enum):
@@ -24,6 +26,8 @@ class PublicTrip(Base, kw_only=True):
     """
 
     __tablename__ = "public_trips"
+    __moderation_author_column__ = "user_id"
+    __moderation_object_type__ = ModerationObjectType.public_trip
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -48,6 +52,8 @@ class PublicTrip(Base, kw_only=True):
     # If true, only users with the same gender as the poster can see this trip
     same_gender_only: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     # Timestamps
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
@@ -55,6 +61,7 @@ class PublicTrip(Base, kw_only=True):
     user: Mapped[User] = relationship(init=False, back_populates="public_trips")
     node: Mapped[Node] = relationship(init=False, back_populates="public_trips")
     host_requests: Mapped[list[HostRequest]] = relationship(init=False, back_populates="public_trip")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Ensure from_date is not after to_date

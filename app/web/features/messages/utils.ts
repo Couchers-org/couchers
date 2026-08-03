@@ -5,10 +5,7 @@ import { Message } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
-import {
-  requestStatusChangedMessageToSelfTransKey,
-  requestStatusChangedMessageToTransKey,
-} from "./constants";
+import { requestStatusChangedMessageToSelfTransKey, requestStatusChangedMessageToTransKey } from "./constants";
 
 type Conversation = GroupChat.AsObject | HostRequest.AsObject;
 
@@ -16,8 +13,7 @@ export function hasUnreadMessages<T extends Conversation>(
   conversation: T,
 ): conversation is T & { latestMessage: Message.AsObject } {
   return (
-    conversation.latestMessage !== undefined &&
-    conversation.lastSeenMessageId < conversation.latestMessage.messageId
+    conversation.latestMessage !== undefined && conversation.lastSeenMessageId < conversation.latestMessage.messageId
   );
 }
 
@@ -71,9 +67,7 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    const map = isCurrentUser
-      ? requestStatusChangedMessageToSelfTransKey
-      : requestStatusChangedMessageToTransKey;
+    const map = isCurrentUser ? requestStatusChangedMessageToSelfTransKey : requestStatusChangedMessageToTransKey;
     const transKey = map[message.hostRequestStatusChanged.status];
     if (transKey == null) {
       throw Error(t("control_message.unknown_message_text"));
@@ -98,23 +92,16 @@ export function groupChatTitleText(
           .filter((user) => user?.userId !== currentUserId)
           .map((user) => {
             const firstNameUser = firstName(user?.name);
-            return firstNameUser === ""
-              ? t("messages:unknown_user")
-              : firstNameUser;
+            return firstNameUser === "" ? t("messages:unknown_user") : firstNameUser;
           })
           .join(", ");
 }
 
 /** Returns the other user's username, or null if there are more than 2 users. */
-export function getDmUsername(
-  groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
-  currentUserId: number,
-) {
+export function getDmUsername(groupChatMembersQuery: ReturnType<typeof useLiteUsers>, currentUserId: number) {
   const users = Array.from(groupChatMembersQuery.data?.values() ?? []);
   if (users.length === 2) {
-    const username = users.find(
-      (user) => user?.userId !== currentUserId,
-    )?.username;
+    const username = users.find((user) => user?.userId !== currentUserId)?.username;
     return username ?? null;
   } else {
     return null;

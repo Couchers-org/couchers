@@ -4,9 +4,7 @@ import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { FriendRequest } from "proto/api_pb";
 import { service } from "service";
 
-export default function useFriendRequests(
-  friendRequestType: FriendRequestType,
-) {
+export default function useFriendRequests(friendRequestType: FriendRequestType) {
   const {
     data: friendRequestLists,
     isLoading: isFriendReqLoading,
@@ -15,21 +13,13 @@ export default function useFriendRequests(
     queryKey: friendRequestKey(friendRequestType),
     queryFn: async () => {
       const friendRequests = await service.api.listFriendRequests();
-      return friendRequestType === "sent"
-        ? friendRequests.sentList
-        : friendRequests.receivedList;
+      return friendRequestType === "sent" ? friendRequests.sentList : friendRequests.receivedList;
     },
   });
 
-  const userIds = (friendRequestLists ?? []).map(
-    (friendReq) => friendReq.userId,
-  );
+  const userIds = (friendRequestLists ?? []).map((friendReq) => friendReq.userId);
 
-  const {
-    data: liteUsersData,
-    isLoading: isLiteUsersLoading,
-    error: liteUserError,
-  } = useLiteUsers(userIds);
+  const { data: liteUsersData, isLoading: isLiteUsersLoading, error: liteUserError } = useLiteUsers(userIds);
 
   const errors = error
     ? [error.message, liteUserError?.message]

@@ -12,9 +12,7 @@ const updateProfileMock = service.user.updateProfile as jest.Mock;
 
 jest.mock("features/userQueries/useCurrentUser");
 
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 beforeEach(() => {
   useCurrentUserMock.mockReturnValue({
     data: {

@@ -12,11 +12,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
   fallback: "blocking",
 });
 
-export const getStaticProps: GetStaticProps = translationStaticProps([
-  GLOBAL,
-  PROFILE,
-  NOTIFICATIONS,
-]);
+export const getStaticProps: GetStaticProps = translationStaticProps([GLOBAL, PROFILE, NOTIFICATIONS]);
 export default function LeaveReferencePage() {
   const router = useRouter();
 
@@ -28,9 +24,7 @@ export default function LeaveReferencePage() {
   if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
   const referenceType = slug[0];
 
-  const parsedReferenceType = referenceTypeRouteStrings.find(
-    (valid) => referenceType === valid,
-  );
+  const parsedReferenceType = referenceTypeRouteStrings.find((valid) => referenceType === valid);
 
   if (!parsedReferenceType) return <NotFoundPage />;
   const parsedUserId = Number.parseInt(slug[1]);
@@ -46,9 +40,7 @@ export default function LeaveReferencePage() {
   }
   const parsedStep = referenceStepStrings.find((s) => s === step);
 
-  const parsedHostRequestId = hostRequestId
-    ? Number.parseInt(hostRequestId)
-    : undefined;
+  const parsedHostRequestId = hostRequestId ? Number.parseInt(hostRequestId) : undefined;
 
   return (
     <LeaveReferencePageComponent

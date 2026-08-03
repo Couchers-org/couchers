@@ -27,20 +27,13 @@ import { getClientPlatform } from "utils/clientPlatform";
 
 import isGrpcError from "./utils/isGrpcError";
 
-const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.EXPO_PUBLIC_API_BASE_URL)!;
-const IS_PROD =
-  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
+const URL = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL)!;
+const IS_PROD = (process.env.NEXT_PUBLIC_COUCHERS_ENV || process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
 
 const grpcTimeout = 10000; //milliseconds
 
-let _unauthenticatedErrorHandler: (
-  e: RpcError,
-) => Promise<void> = async () => {};
-export const setUnauthenticatedErrorHandler = (
-  f: (e: RpcError) => Promise<void>,
-) => {
+let _unauthenticatedErrorHandler: (e: RpcError) => Promise<void> = async () => {};
+export const setUnauthenticatedErrorHandler = (f: (e: RpcError) => Promise<void>) => {
   _unauthenticatedErrorHandler = f;
 };
 
@@ -61,10 +54,7 @@ export class AuthInterceptor {
 }
 
 class TimeoutInterceptor {
-  async intercept(
-    request: Request<unknown, unknown>,
-    invoker: (request: unknown) => unknown,
-  ) {
+  async intercept(request: Request<unknown, unknown>, invoker: (request: unknown) => unknown) {
     const deadline = Date.now() + grpcTimeout;
     const metadata = request.getMetadata();
     metadata.deadline = deadline.toString();
@@ -76,10 +66,7 @@ class TimeoutInterceptor {
 // Tells the backend which client platform a request came from (web desktop/mobile, iOS, Android),
 // so it can attribute usage metrics.
 class PlatformInterceptor {
-  async intercept(
-    request: Request<unknown, unknown>,
-    invoker: (request: unknown) => unknown,
-  ) {
+  async intercept(request: Request<unknown, unknown>, invoker: (request: unknown) => unknown) {
     const platform = getClientPlatform();
     if (platform) {
       request.getMetadata()["x-couchers-client-platform"] = platform;

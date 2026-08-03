@@ -374,10 +374,13 @@ class Email(Base, kw_only=True):
 
     __tablename__ = "emails"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # the X-Couchers-ID header of the sent email
+    message_id: Mapped[str] = mapped_column(String, unique=True)
 
     # timezone should always be UTC
-    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False, index=True)
 
     sender_name: Mapped[str] = mapped_column(String)
     sender_email: Mapped[str] = mapped_column(String)
@@ -390,6 +393,8 @@ class Email(Base, kw_only=True):
 
     list_unsubscribe_header: Mapped[str | None] = mapped_column(String, default=None)
     source_data: Mapped[str | None] = mapped_column(String, default=None)
+
+    __table_args__ = (Index("ix_emails_recipient_time", recipient, time.desc()),)
 
 
 class SMS(Base, kw_only=True):

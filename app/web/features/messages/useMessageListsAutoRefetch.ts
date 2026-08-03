@@ -12,8 +12,7 @@ export default function useMessageListsAutoRefetch() {
   const { data: notifications } = useNotifications();
   const queryClient = useQueryClient();
   const unseenMessageCount = notifications?.unseenMessageCount;
-  const unseenReceivedHostRequestCount =
-    notifications?.unseenReceivedHostRequestCount;
+  const unseenReceivedHostRequestCount = notifications?.unseenReceivedHostRequestCount;
   const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
 
   useEffect(() => {

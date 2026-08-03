@@ -21,9 +21,7 @@ import { ProtoToJsTypes } from "./utils/types";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 type ProfileFormData = {
-  [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<
-    RequiredUpdateProfileReq[K]
-  >;
+  [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<RequiredUpdateProfileReq[K]>;
 };
 
 export type UpdateUserProfileData = Pick<
@@ -47,19 +45,12 @@ export type UpdateUserProfileData = Pick<
   | "additionalInformation"
 >;
 
-export type HostingPreferenceData = Omit<
-  ProfileFormData,
-  keyof UpdateUserProfileData | "gender"
->;
+export type HostingPreferenceData = Omit<ProfileFormData, keyof UpdateUserProfileData | "gender">;
 
 /**
  * Login user using password
  */
-export async function passwordLogin(
-  username: string,
-  password: string,
-  rememberDevice: boolean,
-) {
+export async function passwordLogin(username: string, password: string, rememberDevice: boolean) {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
@@ -134,9 +125,7 @@ export async function getLiteUsers(userIdsOrUsernames: number[] | string[]) {
 /**
  * Updates user profile
  */
-export async function updateProfile(
-  profile: UpdateUserProfileData,
-): Promise<Empty> {
+export async function updateProfile(profile: UpdateUserProfileData): Promise<Empty> {
   const req = new UpdateProfileReq();
 
   const name = new wrappers.StringValue().setValue(profile.name);
@@ -153,21 +142,13 @@ export async function updateProfile(
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
 
-  const regionsVisited = new RepeatedStringValue().setValueList(
-    profile.regionsVisited,
-  );
-  const regionsLived = new RepeatedStringValue().setValueList(
-    profile.regionsLived,
-  );
-  const additionalInformation = new NullableStringValue().setValue(
-    profile.additionalInformation,
-  );
+  const regionsVisited = new RepeatedStringValue().setValueList(profile.regionsVisited);
+  const regionsLived = new RepeatedStringValue().setValueList(profile.regionsLived);
+  const additionalInformation = new NullableStringValue().setValue(profile.additionalInformation);
 
   const languageAbilities = new RepeatedLanguageAbilityValue().setValueList(
     profile.languageAbilities.valueList.map((languageAbility) =>
-      new LanguageAbility()
-        .setCode(languageAbility.code)
-        .setFluency(languageAbility.fluency),
+      new LanguageAbility().setCode(languageAbility.code).setFluency(languageAbility.fluency),
     ),
   );
 
@@ -199,58 +180,28 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const maxGuests = preferences.maxGuests
     ? new NullableUInt32Value().setValue(preferences.maxGuests).setIsNull(false)
     : new NullableUInt32Value().setIsNull(true);
-  const lastMinute = new NullableBoolValue()
-    .setValue(preferences.lastMinute)
-    .setIsNull(false);
-  const hasPets = new NullableBoolValue()
-    .setValue(preferences.hasPets)
-    .setIsNull(false);
-  const acceptsPets = new NullableBoolValue()
-    .setValue(preferences.acceptsPets)
-    .setIsNull(false);
+  const lastMinute = new NullableBoolValue().setValue(preferences.lastMinute).setIsNull(false);
+  const hasPets = new NullableBoolValue().setValue(preferences.hasPets).setIsNull(false);
+  const acceptsPets = new NullableBoolValue().setValue(preferences.acceptsPets).setIsNull(false);
   const petDetails = new NullableStringValue().setValue(preferences.petDetails);
-  const hasKids = new NullableBoolValue()
-    .setValue(preferences.hasKids)
-    .setIsNull(false);
-  const acceptsKids = new NullableBoolValue()
-    .setValue(preferences.acceptsKids)
-    .setIsNull(false);
+  const hasKids = new NullableBoolValue().setValue(preferences.hasKids).setIsNull(false);
+  const acceptsKids = new NullableBoolValue().setValue(preferences.acceptsKids).setIsNull(false);
   const kidDetails = new NullableStringValue().setValue(preferences.kidDetails);
-  const hasHousemates = new NullableBoolValue()
-    .setValue(preferences.hasHousemates)
-    .setIsNull(false);
-  const housemateDetails = new NullableStringValue().setValue(
-    preferences.housemateDetails,
-  );
-  const wheelchairAccessible = new NullableBoolValue()
-    .setValue(preferences.wheelchairAccessible)
-    .setIsNull(false);
+  const hasHousemates = new NullableBoolValue().setValue(preferences.hasHousemates).setIsNull(false);
+  const housemateDetails = new NullableStringValue().setValue(preferences.housemateDetails);
+  const wheelchairAccessible = new NullableBoolValue().setValue(preferences.wheelchairAccessible).setIsNull(false);
   const smokingAllowed = preferences.smokingAllowed;
-  const smokesAtHome = new NullableBoolValue()
-    .setValue(preferences.smokesAtHome)
-    .setIsNull(false);
-  const drinkingAllowed = new NullableBoolValue()
-    .setValue(preferences.drinkingAllowed)
-    .setIsNull(false);
-  const drinksAtHome = new NullableBoolValue()
-    .setValue(preferences.drinksAtHome)
-    .setIsNull(false);
-  const otherHostInfo = new NullableStringValue().setValue(
-    preferences.otherHostInfo,
-  );
+  const smokesAtHome = new NullableBoolValue().setValue(preferences.smokesAtHome).setIsNull(false);
+  const drinkingAllowed = new NullableBoolValue().setValue(preferences.drinkingAllowed).setIsNull(false);
+  const drinksAtHome = new NullableBoolValue().setValue(preferences.drinksAtHome).setIsNull(false);
+  const otherHostInfo = new NullableStringValue().setValue(preferences.otherHostInfo);
   const sleepingArrangement = preferences.sleepingArrangement;
-  const sleepingDetails = new NullableStringValue().setValue(
-    preferences.sleepingDetails,
-  );
+  const sleepingDetails = new NullableStringValue().setValue(preferences.sleepingDetails);
   const area = new NullableStringValue().setValue(preferences.area);
   const houseRules = new NullableStringValue().setValue(preferences.houseRules);
-  const parking = new NullableBoolValue()
-    .setValue(preferences.parking)
-    .setIsNull(false);
+  const parking = new NullableBoolValue().setValue(preferences.parking).setIsNull(false);
   const parkingDetails = preferences.parkingDetails;
-  const campingOk = new NullableBoolValue()
-    .setValue(preferences.campingOk)
-    .setIsNull(false);
+  const campingOk = new NullableBoolValue().setValue(preferences.campingOk).setIsNull(false);
   const aboutPlace = new NullableStringValue().setValue(preferences.aboutPlace);
 
   req

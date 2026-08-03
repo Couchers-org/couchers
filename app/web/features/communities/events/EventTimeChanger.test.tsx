@@ -66,18 +66,10 @@ describe("Event time changer", () => {
 
     // In MUI X v8, empty date/time fields don't have easily testable values
     // So we just check that the fields exist and are rendered
-    expect(
-      await screen.findByRole("group", { name: t("communities:start_date") }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("group", { name: t("communities:start_date") }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("group", { name: t("communities:end_date") }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("group", { name: t("communities:end_time") }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("group", { name: t("communities:start_date") })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: t("communities:start_date") })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: t("communities:end_date") })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: t("communities:end_time") })).toBeInTheDocument();
   });
 
   it("should show proper error and not submit if the start date is null", async () => {
@@ -106,13 +98,9 @@ describe("Event time changer", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("07302021");
 
-    const startDateErrorText = await screen.findByTestId(
-      "startDate-helper-text",
-    );
+    const startDateErrorText = await screen.findByTestId("startDate-helper-text");
 
-    expect(startDateErrorText).toHaveTextContent(
-      t("communities:past_date_error"),
-    );
+    expect(startDateErrorText).toHaveTextContent(t("communities:past_date_error"));
 
     await user.click(screen.getByTestId("submit"));
 
@@ -145,13 +133,9 @@ describe("Event time changer", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("1000 PM");
 
-    const startTimeErrorText = await screen.findByTestId(
-      "startTime-helper-text",
-    );
+    const startTimeErrorText = await screen.findByTestId("startTime-helper-text");
 
-    expect(startTimeErrorText).toHaveTextContent(
-      t("communities:past_time_error"),
-    );
+    expect(startTimeErrorText).toHaveTextContent(t("communities:past_time_error"));
 
     expect(onValidSubmit).not.toHaveBeenCalled();
   });
@@ -169,19 +153,11 @@ describe("Event time changer", () => {
 
     expect(onValidSubmit).not.toHaveBeenCalled();
 
-    await waitFor(() =>
-      expect(endDateErrorText).toHaveTextContent(
-        t("communities:date_required"),
-      ),
-    );
+    await waitFor(() => expect(endDateErrorText).toHaveTextContent(t("communities:date_required")));
 
-    const startDateErrorText = await screen.findByTestId(
-      "startDate-helper-text",
-    );
+    const startDateErrorText = await screen.findByTestId("startDate-helper-text");
 
-    expect(startDateErrorText).toHaveTextContent(
-      t("communities:date_required"),
-    );
+    expect(startDateErrorText).toHaveTextContent(t("communities:date_required"));
 
     await user.click(screen.getByTestId("submit"));
   });
@@ -198,13 +174,9 @@ describe("Event time changer", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("07302021");
 
-    const startDateErrorText = await screen.findByTestId(
-      "startDate-helper-text",
-    );
+    const startDateErrorText = await screen.findByTestId("startDate-helper-text");
 
-    expect(startDateErrorText).toHaveTextContent(
-      t("communities:past_date_error"),
-    );
+    expect(startDateErrorText).toHaveTextContent(t("communities:past_date_error"));
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),
@@ -215,11 +187,7 @@ describe("Event time changer", () => {
 
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
 
-    await waitFor(() =>
-      expect(endDateErrorText).toHaveTextContent(
-        t("communities:past_date_error"),
-      ),
-    );
+    await waitFor(() => expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error")));
   });
 
   it("should show proper error if endDate is before startDate", async () => {
@@ -292,9 +260,7 @@ describe("Event time changer", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("1005 PM");
 
-    expect(endTimeErrorText).toHaveTextContent(
-      t("communities:past_time_error"),
-    );
+    expect(endTimeErrorText).toHaveTextContent(t("communities:past_time_error"));
 
     await user.click(screen.getByTestId("submit"));
 
@@ -318,9 +284,7 @@ describe("Event time changer", () => {
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
     expect(endDateErrorText).toBeVisible();
 
-    expect(endDateErrorText).toHaveTextContent(
-      t("communities:past_date_error"),
-    );
+    expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error"));
 
     const endTimeErrorText = await screen.findByTestId("endTime-helper-text");
     expect(endTimeErrorText).toBeEmptyDOMElement();
@@ -400,22 +364,14 @@ describe("Event time changer", () => {
 
       const endTimeErrorText = await screen.findByTestId("endTime-helper-text");
       expect(endTimeErrorText).toBeVisible();
-      expect(endTimeErrorText).toHaveTextContent(
-        t("communities:past_time_error"),
-      );
+      expect(endTimeErrorText).toHaveTextContent(t("communities:past_time_error"));
 
       const endDateErrorText = await screen.findByTestId("endDate-helper-text");
       expect(endDateErrorText).toBeVisible();
-      expect(endDateErrorText).toHaveTextContent(
-        t("communities:past_date_error"),
-      );
+      expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error"));
 
-      expect(
-        await screen.findByTestId("startDate-helper-text"),
-      ).toBeEmptyDOMElement();
-      expect(
-        await screen.findByTestId("startTime-helper-text"),
-      ).toBeEmptyDOMElement();
+      expect(await screen.findByTestId("startDate-helper-text")).toBeEmptyDOMElement();
+      expect(await screen.findByTestId("startTime-helper-text")).toBeEmptyDOMElement();
     });
 
     it("should submit successfully if no date/time fields are touched even if they are in the past", async () => {

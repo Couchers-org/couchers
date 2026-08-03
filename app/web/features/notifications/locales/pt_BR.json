@@ -63,5 +63,9 @@
   "mark_all_read": "Marcar todas como lidas",
   "no_new_notifications": "Nenhuma nova notificação",
   "error_loading": "Erro ao carregar notificações",
-  "error_updating_notifications": "Erro ao atualizar notificações"
+  "error_updating_notifications": "Erro ao atualizar notificações",
+  "notifications_filters": {
+    "all_button": "Todas",
+    "unread_button": "Não lidas"
+  }
 }

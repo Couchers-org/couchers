@@ -1,10 +1,4 @@
-import {
-  Container,
-  ContainerProps,
-  LinearProgress,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Container, ContainerProps, LinearProgress, styled, Typography } from "@mui/material";
 import React from "react";
 
 interface ScoreBarProps extends ContainerProps {

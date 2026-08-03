@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-} from "@mui/material";
+import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -23,10 +17,7 @@ type ProfileVisibilityProps = {
   className?: string;
 };
 
-export default function ProfileVisibility({
-  className,
-  accountInfo,
-}: ProfileVisibilityProps) {
+export default function ProfileVisibility({ className, accountInfo }: ProfileVisibilityProps) {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
   const { handleSubmit, reset, control } = useForm<{
@@ -38,11 +29,7 @@ export default function ProfileVisibility({
   });
 
   const queryClient = useQueryClient();
-  const { error, isPending, mutate } = useMutation<
-    Empty,
-    RpcError,
-    ProfilePublicVisibility
-  >({
+  const { error, isPending, mutate } = useMutation<Empty, RpcError, ProfilePublicVisibility>({
     mutationFn: (choice) => service.account.setProfilePublicVisibility(choice),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -52,10 +39,7 @@ export default function ProfileVisibility({
   });
 
   const choices: [number, string][] = [
-    [
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
-      "auth:profile_visibility.visiblility_options.nothing",
-    ],
+    [ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING, "auth:profile_visibility.visiblility_options.nothing"],
     [
       ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
       "auth:profile_visibility.visiblility_options.map_only",
@@ -81,9 +65,7 @@ export default function ProfileVisibility({
   return (
     <div className={className}>
       <Typography variant="h2">{t("auth:profile_visibility.title")}</Typography>
-      <Typography variant="body1">
-        {t("auth:profile_visibility.choose")}
-      </Typography>
+      <Typography variant="body1">{t("auth:profile_visibility.choose")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       <form onSubmit={onSubmit}>
         <Controller
@@ -103,25 +85,14 @@ export default function ProfileVisibility({
                     key={setting}
                     value={setting}
                     control={<Radio />}
-                    label={
-                      <Trans
-                        t={t}
-                        i18nKey={translationKey}
-                        components={{ "1": <strong /> }}
-                      />
-                    }
+                    label={<Trans t={t} i18nKey={translationKey} components={{ "1": <strong /> }} />}
                   />
                 ))}
               </RadioGroup>
             </FormControl>
           )}
         />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          loading={isPending}
-        >
+        <Button type="submit" variant="contained" color="primary" loading={isPending}>
           {t("global:save")}
         </Button>
       </form>

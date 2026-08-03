@@ -10,10 +10,7 @@ export interface WeblateLanguage {
 /**
  * Check if a language is production-ready (>= 80% translated)
  */
-export function isLanguageProductionReady(
-  locale: string,
-  languages: WeblateLanguage[] | undefined,
-): boolean {
+export function isLanguageProductionReady(locale: string, languages: WeblateLanguage[] | undefined): boolean {
   // English is always production-ready
   if (locale === "en") {
     return true;
@@ -27,9 +24,7 @@ export function isLanguageProductionReady(
   const weblateCode = locale.replace("-", "_");
   const languageStats = languages.find((lang) => lang.code === weblateCode);
 
-  return (
-    !!languageStats && languageStats.translated_percent >= ALMOST_DONE_CUTOFF
-  );
+  return !!languageStats && languageStats.translated_percent >= ALMOST_DONE_CUTOFF;
 }
 
 /**
@@ -49,21 +44,12 @@ export function getAvailableLanguages(
   return languages
     .filter(
       (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        (showAll || language.translated_percent >= SELECTOR_CUTOFF),
+        LANGUAGE_MAP[language.code.replace("_", "-")] && (showAll || language.translated_percent >= SELECTOR_CUTOFF),
     )
     .sort((a, b) => {
       // Sort by translation percentage (>= 80% first), then alphabetically
-      if (
-        a.translated_percent >= ALMOST_DONE_CUTOFF &&
-        b.translated_percent < ALMOST_DONE_CUTOFF
-      )
-        return -1;
-      if (
-        a.translated_percent < ALMOST_DONE_CUTOFF &&
-        b.translated_percent >= ALMOST_DONE_CUTOFF
-      )
-        return 1;
+      if (a.translated_percent >= ALMOST_DONE_CUTOFF && b.translated_percent < ALMOST_DONE_CUTOFF) return -1;
+      if (a.translated_percent < ALMOST_DONE_CUTOFF && b.translated_percent >= ALMOST_DONE_CUTOFF) return 1;
       return a.code.localeCompare(b.code, locale);
     });
 }

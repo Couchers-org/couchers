@@ -287,7 +287,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if public_trip_id is not None:
             public_trip = session.execute(
-                select(PublicTrip).where(PublicTrip.id == public_trip_id)
+                where_moderated_content_visible(select(PublicTrip), context, PublicTrip, is_list_operation=False).where(
+                    PublicTrip.id == public_trip_id
+                )
             ).scalar_one_or_none()
             if not public_trip:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")

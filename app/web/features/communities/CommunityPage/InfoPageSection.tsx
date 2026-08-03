@@ -31,9 +31,7 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
       <Markdown topHeaderLevel={3} source={community.description} />
 
       <StyledLoadMoreButton>
-        <StyledLink
-          href={routeToCommunity(community.communityId, community.slug, "info")}
-        >
+        <StyledLink href={routeToCommunity(community.communityId, community.slug, "info")}>
           {t("communities:see_more_information")}
         </StyledLink>
       </StyledLoadMoreButton>

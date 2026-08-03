@@ -1,9 +1,5 @@
 import { ALMOST_DONE_CUTOFF } from "./constants";
-import {
-  getAvailableLanguages,
-  isLanguageProductionReady,
-  WeblateLanguage,
-} from "./utils";
+import { getAvailableLanguages, isLanguageProductionReady, WeblateLanguage } from "./utils";
 
 describe("translate/utils", () => {
   describe("isLanguageProductionReady", () => {
@@ -48,25 +44,17 @@ describe("translate/utils", () => {
     });
 
     it("should handle locale format conversion (hyphen to underscore)", () => {
-      const languagesWithUnderscore: WeblateLanguage[] = [
-        { code: "es_419", translated_percent: 90 },
-      ];
-      expect(isLanguageProductionReady("es-419", languagesWithUnderscore)).toBe(
-        true,
-      );
+      const languagesWithUnderscore: WeblateLanguage[] = [{ code: "es_419", translated_percent: 90 }];
+      expect(isLanguageProductionReady("es-419", languagesWithUnderscore)).toBe(true);
     });
 
     it("should return false for language exactly at 79%", () => {
-      const borderlineLanguages: WeblateLanguage[] = [
-        { code: "ja", translated_percent: 79 },
-      ];
+      const borderlineLanguages: WeblateLanguage[] = [{ code: "ja", translated_percent: 79 }];
       expect(isLanguageProductionReady("ja", borderlineLanguages)).toBe(false);
     });
 
     it("should return true for language exactly at 80%", () => {
-      const borderlineLanguages: WeblateLanguage[] = [
-        { code: "ja", translated_percent: 80 },
-      ];
+      const borderlineLanguages: WeblateLanguage[] = [{ code: "ja", translated_percent: 80 }];
       expect(isLanguageProductionReady("ja", borderlineLanguages)).toBe(true);
     });
   });
@@ -125,20 +113,12 @@ describe("translate/utils", () => {
       const result = getAvailableLanguages(mockLanguages);
 
       // Languages >= 80% should come first
-      const highCompleteLanguages = result.filter(
-        (lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF,
-      );
-      const lowerCompleteLanguages = result.filter(
-        (lang) => lang.translated_percent < ALMOST_DONE_CUTOFF,
-      );
+      const highCompleteLanguages = result.filter((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF);
+      const lowerCompleteLanguages = result.filter((lang) => lang.translated_percent < ALMOST_DONE_CUTOFF);
 
       // Verify >= 80% languages come first
-      const firstHighIndex = result.findIndex(
-        (lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF,
-      );
-      const firstLowIndex = result.findIndex(
-        (lang) => lang.translated_percent < ALMOST_DONE_CUTOFF,
-      );
+      const firstHighIndex = result.findIndex((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF);
+      const firstLowIndex = result.findIndex((lang) => lang.translated_percent < ALMOST_DONE_CUTOFF);
 
       if (firstHighIndex >= 0 && firstLowIndex >= 0) {
         expect(firstHighIndex).toBeLessThan(firstLowIndex);
@@ -153,9 +133,7 @@ describe("translate/utils", () => {
     });
 
     it("should include language exactly at 50% threshold", () => {
-      const borderlineLanguages: WeblateLanguage[] = [
-        { code: "pt", translated_percent: 50 },
-      ];
+      const borderlineLanguages: WeblateLanguage[] = [{ code: "pt", translated_percent: 50 }];
 
       const result = getAvailableLanguages(borderlineLanguages);
       expect(result).toHaveLength(1);
@@ -163,9 +141,7 @@ describe("translate/utils", () => {
     });
 
     it("should exclude language at 49%", () => {
-      const borderlineLanguages: WeblateLanguage[] = [
-        { code: "pt", translated_percent: 49 },
-      ];
+      const borderlineLanguages: WeblateLanguage[] = [{ code: "pt", translated_percent: 49 }];
 
       const result = getAvailableLanguages(borderlineLanguages);
       expect(result).toHaveLength(0);

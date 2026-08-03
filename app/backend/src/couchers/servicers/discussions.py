@@ -3,7 +3,7 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
@@ -18,9 +18,8 @@ from couchers.notifications.notify import notify
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import where_moderated_content_visible
+from couchers.sql import users_visible_to_each_other, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
@@ -75,9 +74,19 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         if not cluster.is_official_cluster:
             raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
-        for user in list(cluster.members.where(User.is_visible)):
-            if is_not_visible(session, user.id, discussion.creator_user_id):
-                continue
+        creator = aliased(User)
+        members = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .join_from(User, creator, creator.id == discussion.creator_user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
+            )
+            .scalars()
+            .all()
+        )
+        for user in members:
             context = make_notification_user_context(user_id=user.id)
             notify(
                 session,

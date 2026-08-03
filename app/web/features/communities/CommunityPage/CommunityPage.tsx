@@ -45,15 +45,11 @@ export default function CommunityPage({
 
             {tab === "overview" ? (
               <>
-                <StyledTitle variant="h1">
-                  {t("communities:community_header", { name: community.name })}
-                </StyledTitle>
+                <StyledTitle variant="h1">{t("communities:community_header", { name: community.name })}</StyledTitle>
                 <InfoPageSection community={community} />
                 {community.smallCommunityFeaturesEnabled && (
                   <>
-                    {isPublicTripsEnabled && (
-                      <PublicTripsOverview community={community} />
-                    )}
+                    {isPublicTripsEnabled && <PublicTripsOverview community={community} />}
                     <EventsSection community={community} />
                     <DiscussionsSection community={community} />
                   </>
@@ -72,10 +68,7 @@ export default function CommunityPage({
             ) : tab === "events" ? (
               <CommunityEventsList community={community} />
             ) : tab === "members" ? (
-              <CommunityMembersList
-                communityId={community.communityId}
-                memberCount={community.memberCount}
-              />
+              <CommunityMembersList communityId={community.communityId} memberCount={community.memberCount} />
             ) : null}
           </>
         );

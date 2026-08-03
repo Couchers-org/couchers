@@ -10,6 +10,7 @@ from sqlalchemy.sql import func, union_all
 
 from couchers import experimentation, urls
 from couchers.context import CouchersContext, make_logged_out_context
+from couchers.i18n import LocalizationContext
 from couchers.materialized_views import LiteUser
 from couchers.models import (
     Cluster,
@@ -27,6 +28,7 @@ from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
+from couchers.sql import users_visible
 from couchers.utils import Timestamp_from_datetime, not_none, now
 
 logger = logging.getLogger(__name__)
@@ -50,16 +52,20 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
 
 @cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None, lock=threading.Lock())
 def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
+    # the response is cached and shared between all callers, so it must not depend on who is asking; logged-in users
+    # get the per-viewer map from Gis.GetUsers instead
+    context = make_logged_out_context(localization=LocalizationContext.en_utc())
+
     with_geom = (
         select(User.username, User.geom)
-        .where(User.is_visible)
+        .where(users_visible(context, User))
         .where(User.public_visibility != ProfilePublicVisibility.nothing)
         .where(User.public_visibility != ProfilePublicVisibility.map_only)
     )
 
     without_geom = (
         select(null(), User.randomized_geom)
-        .where(User.is_visible)
+        .where(users_visible(context, User))
         .where(User.randomized_geom != None)
         .where(User.public_visibility == ProfilePublicVisibility.map_only)
     )
@@ -184,7 +190,7 @@ class Public(public_pb2_grpc.PublicServicer):
     ) -> public_pb2.GetPublicUserRes:
         user = session.execute(
             select(User)
-            .where(User.is_visible)
+            .where(users_visible(context, User))
             .where(User.username == request.user)
             .where(
                 User.public_visibility.in_(
@@ -211,7 +217,7 @@ class Public(public_pb2_grpc.PublicServicer):
             select(func.count())
             .select_from(Reference)
             .join(User, User.id == Reference.from_user_id)
-            .where(User.is_visible)
+            .where(users_visible(context, User))
             .where(Reference.to_user_id == user.id)
         ).scalar_one()
 

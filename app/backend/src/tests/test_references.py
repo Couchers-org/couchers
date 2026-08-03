@@ -506,11 +506,39 @@ def test_ListReference_banned_deleted_users(db):
         assert len(refs_rec) == 1
         assert len(refs_sent) == 1
 
-    # note: this assert currently fails due to a pre-existing divergence: get_num_references
-    # excludes deleted authors' references (via User.is_visible) while ListReferences keeps
-    # showing them, so the count here says 0 while the list shows 1
-    # with api_session(token1) as api:
-    #     assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+
+
+def test_ListReference_blocked_shadowed_users(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        create_friend_reference(session, user2.id, user1.id, timedelta(days=15))
+        create_friend_reference(session, user3.id, user1.id, timedelta(days=16))
+
+    # user1 blocks user2: reference from blocked user remains in both list and count
+    make_user_block(user1, user2)
+
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 2
+
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 2
+
+    # shadow user3: their reference is hidden from both list and count
+    with session_scope() as session:
+        session.execute(update(User).where(User.username == user3.username).values(shadowed_at=func.now()))
+
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 1
+
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
 
 
 def test_WriteFriendReference(db, moderator):

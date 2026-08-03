@@ -13,8 +13,7 @@ interface MenuItemProps extends Omit<MuiMenuItemProps, "className"> {
 }
 
 const StyledMenuItem = styled(MuiMenuItem, {
-  shouldForwardProp: (prop) =>
-    prop !== "hasNotification" && prop !== "hasBottomDivider",
+  shouldForwardProp: (prop) => prop !== "hasNotification" && prop !== "hasBottomDivider",
 })<MenuItemProps>(({ theme, hasBottomDivider, hasNotification }) => ({
   paddingInline: theme.spacing(2),
   ...(hasNotification && {
@@ -35,19 +34,12 @@ export default function Menu(props: Omit<MenuProps, "className">) {
 //forwarding ref is necessary because Menu
 //injects refs into MenuItems
 
-export const MenuItem = React.forwardRef(
-  (props: MenuItemProps, ref: React.ForwardedRef<HTMLLIElement>) => {
-    const { hasNotification, hasBottomDivider, ...restProps } = props;
+export const MenuItem = React.forwardRef((props: MenuItemProps, ref: React.ForwardedRef<HTMLLIElement>) => {
+  const { hasNotification, hasBottomDivider, ...restProps } = props;
 
-    return (
-      <StyledMenuItem
-        {...restProps}
-        hasNotification={hasNotification}
-        hasBottomDivider={hasBottomDivider}
-        ref={ref}
-      />
-    );
-  },
-);
+  return (
+    <StyledMenuItem {...restProps} hasNotification={hasNotification} hasBottomDivider={hasBottomDivider} ref={ref} />
+  );
+});
 
 MenuItem.displayName = "MenuItem";

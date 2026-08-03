@@ -29,10 +29,9 @@ jest.mock("platform/sentry", () => {
 });
 
 jest.mock("service/communities");
-const mockListAllCommunities =
-  communitiesService.listAllCommunities as jest.MockedFunction<
-    typeof communitiesService.listAllCommunities
-  >;
+const mockListAllCommunities = communitiesService.listAllCommunities as jest.MockedFunction<
+  typeof communitiesService.listAllCommunities
+>;
 
 const mockCommunities: CommunitySummary.AsObject[] = [
   {
@@ -106,9 +105,7 @@ describe("CommunitySearch", () => {
     render(<CommunitySearch />, { wrapper });
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText(t("communities:search_communities")),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(t("communities:search_communities"))).toBeInTheDocument();
     });
   });
 
@@ -117,10 +114,7 @@ describe("CommunitySearch", () => {
 
     await waitFor(() => {
       const input = screen.getByLabelText(t("communities:search_communities"));
-      expect(input).toHaveAttribute(
-        "placeholder",
-        t("communities:search_communities_placeholder"),
-      );
+      expect(input).toHaveAttribute("placeholder", t("communities:search_communities_placeholder"));
     });
   });
 
@@ -191,9 +185,7 @@ describe("CommunitySearch", () => {
 
     await user.click(screen.getByText("Amsterdam"));
 
-    expect(mockPush).toHaveBeenCalledWith(
-      routeToCommunity(mockCommunities[0].communityId, mockCommunities[0].slug),
-    );
+    expect(mockPush).toHaveBeenCalledWith(routeToCommunity(mockCommunities[0].communityId, mockCommunities[0].slug));
   });
 
   it("shows no results message when filter returns empty", async () => {
@@ -213,9 +205,7 @@ describe("CommunitySearch", () => {
       expect(screen.getByText(/No communities found\./)).toBeInTheDocument();
 
       // Check that there's a link to request the community
-      expect(
-        screen.getByRole("link", { name: "Request this community!" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Request this community!" })).toBeInTheDocument();
     });
   });
 

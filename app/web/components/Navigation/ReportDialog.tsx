@@ -2,15 +2,8 @@ import { DialogProps, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import Snackbar from "components/Snackbar";
-import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -35,16 +28,9 @@ const StyledTextField = styled(TextField)(() => ({
 
 // If onKeyDown event propagation isn't stopped, rendering inside menu will cause
 // focus issues
-const ReportDialogTextField = forwardRef<
-  HTMLInputElement,
-  Omit<ComponentPropsWithRef<typeof TextField>, "onKeyDown">
->((props, ref) => (
-  <StyledTextField
-    ref={ref}
-    {...props}
-    onKeyDown={(e) => e.stopPropagation()}
-  />
-));
+const ReportDialogTextField = forwardRef<HTMLInputElement, Omit<ComponentPropsWithRef<typeof TextField>, "onKeyDown">>(
+  (props, ref) => <StyledTextField ref={ref} {...props} onKeyDown={(e) => e.stopPropagation()} />,
+);
 
 ReportDialogTextField.displayName = "ReportDialogTextField";
 
@@ -60,11 +46,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
   const { t } = useTranslation(GLOBAL);
 
   const [type, setType] = useState<"initial" | "bug">("initial");
-  const {
-    register,
-    handleSubmit,
-    reset: resetForm,
-  } = useForm<BugReportFormData>();
+  const { register, handleSubmit, reset: resetForm } = useForm<BugReportFormData>();
   const {
     data: bug,
     error,
@@ -78,18 +60,12 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
     },
   });
 
-  const handleClose = (
-    event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button",
-  ) => {
+  const handleClose = (event: unknown, reason: "backdropClick" | "escapeKeyDown" | "button") => {
     if (reason !== "button") return;
     resetForm();
     resetMutation();
     onClose?.({}, "escapeKeyDown");
-    setTimeout(
-      () => setType("initial"),
-      theme.transitions.duration.leavingScreen,
-    );
+    setTimeout(() => setType("initial"), theme.transitions.duration.leavingScreen);
   };
 
   const onSubmit = handleSubmit((data) => {
@@ -105,11 +81,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
             i18nKey="report.bug.success_message2"
             t={t}
             components={{
-              id: (
-                <StyledLink variant="body2" href={bug.bugUrl}>
-                  {bug.bugId}
-                </StyledLink>
-              ),
+              id: <span>{bug.bugId}</span>,
             }}
           />
         </Snackbar>
@@ -134,10 +106,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={() => handleClose({}, "button")}
-                variant="outlined"
-              >
+              <Button onClick={() => handleClose({}, "button")} variant="outlined">
                 {t("cancel")}
               </Button>
             </DialogActions>
@@ -146,9 +115,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
-              <DialogContentText>
-                {t("report.bug.warning_message")}
-              </DialogContentText>
+              <DialogContentText>{t("report.bug.warning_message")}</DialogContentText>
               <ReportDialogTextField
                 id="bug-report-subject"
                 {...register("subject", { required: true })}
@@ -180,10 +147,7 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               />
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={() => handleClose({}, "button")}
-                variant="outlined"
-              >
+              <Button onClick={() => handleClose({}, "button")} variant="outlined">
                 {t("cancel")}
               </Button>
               <Button type="submit" loading={isPending} onClick={onSubmit}>

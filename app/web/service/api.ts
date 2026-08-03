@@ -9,12 +9,7 @@ import {
 } from "proto/api_pb";
 
 import client from "./client";
-import {
-  FETCH_FAILED,
-  IMAGE_TOO_LARGE,
-  INTERNAL_ERROR,
-  SERVER_ERROR,
-} from "./constants";
+import { FETCH_FAILED, IMAGE_TOO_LARGE, INTERNAL_ERROR, SERVER_ERROR } from "./constants";
 
 export function cancelFriendRequest(friendRequestId: number) {
   const req = new CancelFriendRequestReq();
@@ -109,11 +104,7 @@ export interface ListBadgeUsersInput {
   pageToken?: string;
 }
 
-export async function listBadgeUsers({
-  badgeId,
-  pageSize,
-  pageToken,
-}: ListBadgeUsersInput) {
+export async function listBadgeUsers({ badgeId, pageSize, pageToken }: ListBadgeUsersInput) {
   const req = new ListBadgeUsersReq();
   req.setBadgeId(badgeId);
   if (pageSize) {

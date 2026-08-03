@@ -13,9 +13,7 @@ const DISMISSED_REMINDERS_KEY = "dismissedReminders";
 
 const { t } = i18n;
 
-const getReminders = service.account.getReminders as jest.MockedFunction<
-  typeof service.account.getReminders
->;
+const getReminders = service.account.getReminders as jest.MockedFunction<typeof service.account.getReminders>;
 
 describe("ReminderCarousel", () => {
   beforeEach(() => {
@@ -33,20 +31,13 @@ describe("ReminderCarousel", () => {
 
   it("renders one card per reminder returned by the backend", async () => {
     getReminders.mockResolvedValue({
-      remindersList: [
-        { completeProfileReminder: {} },
-        { completeVerificationReminder: {} },
-      ],
+      remindersList: [{ completeProfileReminder: {} }, { completeVerificationReminder: {} }],
     });
 
     render(<ReminderCarousel />, { wrapper });
 
-    expect(
-      await screen.findByText(t("dashboard:reminder.complete_profile.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.strong_verification.title")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("dashboard:reminder.complete_profile.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.strong_verification.title"))).toBeVisible();
   });
 
   it("shows an error alert when the API call fails", async () => {
@@ -66,9 +57,7 @@ describe("ReminderCarousel", () => {
 
     render(<ReminderCarousel />, { wrapper });
 
-    expect(
-      await screen.findByText(t("dashboard:reminder.complete_profile.title")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("dashboard:reminder.complete_profile.title"))).toBeVisible();
 
     await user.click(
       screen.getByRole("button", {
@@ -76,13 +65,9 @@ describe("ReminderCarousel", () => {
       }),
     );
 
-    expect(
-      screen.queryByText(t("dashboard:reminder.complete_profile.title")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("dashboard:reminder.complete_profile.title"))).not.toBeInTheDocument();
 
-    const stored: Record<string, number> = JSON.parse(
-      localStorage.getItem(DISMISSED_REMINDERS_KEY) ?? "{}",
-    );
+    const stored: Record<string, number> = JSON.parse(localStorage.getItem(DISMISSED_REMINDERS_KEY) ?? "{}");
     expect(typeof stored.complete_profile).toBe("number");
   });
 
@@ -122,9 +107,7 @@ describe("ReminderCarousel", () => {
 
     render(<ReminderCarousel />, { wrapper });
 
-    expect(
-      await screen.findByText(t("dashboard:reminder.complete_profile.title")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("dashboard:reminder.complete_profile.title"))).toBeVisible();
   });
 
   it("prunes stale dismiss entries from storage when a reminder is dismissed", async () => {
@@ -151,9 +134,7 @@ describe("ReminderCarousel", () => {
       }),
     );
 
-    const stored: Record<string, number> = JSON.parse(
-      localStorage.getItem(DISMISSED_REMINDERS_KEY) ?? "{}",
-    );
+    const stored: Record<string, number> = JSON.parse(localStorage.getItem(DISMISSED_REMINDERS_KEY) ?? "{}");
     expect(stored["write_reference:7"]).toBeUndefined();
     expect(stored.complete_profile).toBe(now);
   });

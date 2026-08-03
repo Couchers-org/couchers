@@ -1,18 +1,15 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
 import { FlagIcon } from "components/Icons";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import type { PhotoGalleryItem } from "proto/galleries_pb";
 import { useCallback, useEffect, useState } from "react";
 
 interface PhotoLightboxProps {
-  photos: Array<{
-    fullUrl: string;
-    thumbnailUrl: string;
-    caption?: string;
-    itemId?: number;
-  }>;
+  photos: Array<PhotoGalleryItem.AsObject>;
   initialIndex: number;
   open: boolean;
   onClose: () => void;
@@ -164,29 +161,25 @@ const ThumbnailStrip = styled(Box)(({ theme }) => ({
   },
 }));
 
-const ThumbnailImage = styled("img")<{ isActive: boolean }>(
-  ({ theme, isActive }) => ({
-    width: 80,
-    height: 80,
-    objectFit: "cover",
-    borderRadius: theme.shape.borderRadius,
-    cursor: "pointer",
-    border: isActive
-      ? `3px solid ${theme.palette.primary.main}`
-      : "3px solid transparent",
-    opacity: isActive ? 1 : 0.6,
-    transition: "all 0.2s ease",
-    flexShrink: 0,
-    "&:hover": {
-      opacity: 1,
-      transform: "scale(1.05)",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: 60,
-      height: 60,
-    },
-  }),
-);
+const ThumbnailImage = styled("img")<{ isActive: boolean }>(({ theme, isActive }) => ({
+  width: 80,
+  height: 80,
+  objectFit: "cover",
+  borderRadius: theme.shape.borderRadius,
+  cursor: "pointer",
+  border: isActive ? `3px solid ${theme.palette.primary.main}` : "3px solid transparent",
+  opacity: isActive ? 1 : 0.6,
+  transition: "all 0.2s ease",
+  flexShrink: 0,
+  "&:hover": {
+    opacity: 1,
+    transform: "scale(1.05)",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: 60,
+    height: 60,
+  },
+}));
 
 const ReportButtonContainer = styled("div")(({ theme }) => ({
   position: "absolute",
@@ -254,11 +247,7 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
   const showNavigation = photos.length > 1;
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby={t("gallery.photo_viewer_aria")}
-    >
+    <Modal open={open} onClose={onClose} aria-labelledby={t("gallery.photo_viewer_aria")}>
       <Backdrop onClick={onClose}>
         <ContentContainer onClick={(e) => e.stopPropagation()}>
           <StyledImage
@@ -314,7 +303,7 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
 
         {galleryOwnerId && currentPhoto.itemId && (
           <FlagButton
-            contentRef={`photo/${currentPhoto.itemId}`}
+            contentRef={contentRefs.photo(currentPhoto)}
             authorUser={galleryOwnerId}
             renderButton={(onClick) => (
               <ReportButtonContainer
@@ -323,12 +312,8 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
                   onClick(e);
                 }}
               >
-                <FlagIcon
-                  sx={{ color: "primary.main", marginRight: 1, fontSize: 20 }}
-                />
-                <Typography sx={{ color: "common.white", fontSize: ".875rem" }}>
-                  {t("gallery.report_photo")}
-                </Typography>
+                <FlagIcon sx={{ color: "primary.main", marginRight: 1, fontSize: 20 }} />
+                <Typography sx={{ color: "common.white", fontSize: ".875rem" }}>{t("gallery.report_photo")}</Typography>
               </ReportButtonContainer>
             )}
           />

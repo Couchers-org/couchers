@@ -20,27 +20,27 @@ babel_zh = babel.Locale.parse("zh")
 
 
 def test_localize_language_name() -> None:
-    assert try_localize_language_name_from_iso639("en", babel_en) == "English"
-    assert try_localize_language_name_from_iso639("es", babel_en) == "Spanish"
+    assert try_localize_language_name_from_iso639("en", [babel_en]) == "English"
+    assert try_localize_language_name_from_iso639("es", [babel_en]) == "Spanish"
 
-    assert try_localize_language_name_from_iso639("en", babel_es) == "inglés"
-    assert try_localize_language_name_from_iso639("es", babel_es) == "español"
+    assert try_localize_language_name_from_iso639("en", [babel_es]) == "inglés"
+    assert try_localize_language_name_from_iso639("es", [babel_es]) == "español"
 
-    assert try_localize_language_name_from_iso639("en", babel_es, standalone=True) == "Inglés"  # Sentence case
-    assert try_localize_language_name_from_iso639("eng", babel_es) == "inglés"  # ISO639-3 code
-    assert try_localize_language_name_from_iso639("xx", babel_en) is None
+    assert try_localize_language_name_from_iso639("en", [babel_es], standalone=True) == "Inglés"  # Sentence case
+    assert try_localize_language_name_from_iso639("eng", [babel_es]) == "inglés"  # ISO639-3 code
+    assert try_localize_language_name_from_iso639("xx", [babel_en]) is None
 
 
 def test_localize_region_name() -> None:
-    assert try_localize_region_name_from_iso3166("US", babel_en) == "United States"
-    assert try_localize_region_name_from_iso3166("DE", babel_en) == "Germany"
+    assert try_localize_region_name_from_iso3166("US", [babel_en]) == "United States"
+    assert try_localize_region_name_from_iso3166("DE", [babel_en]) == "Germany"
 
-    assert try_localize_region_name_from_iso3166("US", babel_es) == "Estados Unidos"
-    assert try_localize_region_name_from_iso3166("DE", babel_es) == "Alemania"
+    assert try_localize_region_name_from_iso3166("US", [babel_es]) == "Estados Unidos"
+    assert try_localize_region_name_from_iso3166("DE", [babel_es]) == "Alemania"
 
-    assert try_localize_region_name_from_iso3166("USA", babel_en) == "United States"  # alpha3 code
+    assert try_localize_region_name_from_iso3166("USA", [babel_en]) == "United States"  # alpha3 code
 
-    assert try_localize_region_name_from_iso3166("xx", babel_en) is None
+    assert try_localize_region_name_from_iso3166("xx", [babel_en]) is None
 
 
 def test_localize_date() -> None:
@@ -72,12 +72,12 @@ def test_localize_datetime() -> None:
 
 
 def test_localize_timezone() -> None:
-    assert localize_timezone(ZoneInfo("Europe/London"), babel_en) == "United Kingdom Time"
-    assert localize_timezone(ZoneInfo("Europe/London"), babel_es) == "hora de Reino Unido"
+    assert localize_timezone(ZoneInfo("Europe/London"), [babel_en]) == "United Kingdom Time"
+    assert localize_timezone(ZoneInfo("Europe/London"), [babel_es]) == "hora de Reino Unido"
 
 
 def test_localize_list() -> None:
     abc = ["a", "b", "c"]
-    assert localize_list(abc, babel_en) == "a, b, and c"
-    assert localize_list(abc, babel_es) == "a, b y c"
-    assert localize_list(abc, babel_zh) == "a、b和c"
+    assert localize_list(abc, [babel_en]) == "a, b, and c"
+    assert localize_list(abc, [babel_es]) == "a, b y c"
+    assert localize_list(abc, [babel_zh]) == "a、b和c"

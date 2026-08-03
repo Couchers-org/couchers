@@ -52,19 +52,11 @@ export default function CompleteResetPassword() {
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
-  const isResetTokenOk =
-    !!resetToken && typeof resetToken === "string" && resetToken !== "";
+  const isResetTokenOk = !!resetToken && typeof resetToken === "string" && resetToken !== "";
 
-  const { error, isPending, isSuccess, mutate } = useMutation<
-    AuthRes,
-    RpcError,
-    string
-  >({
+  const { error, isPending, isSuccess, mutate } = useMutation<AuthRes, RpcError, string>({
     mutationFn: async (newPassword) => {
-      const res = await service.account.CompletePasswordResetV2(
-        resetToken as string,
-        newPassword,
-      );
+      const res = await service.account.CompletePasswordResetV2(resetToken as string, newPassword);
       return res;
     },
     onSuccess: (authRes) => {
@@ -91,9 +83,7 @@ export default function CompleteResetPassword() {
   if (authState.authenticated && !isSuccess) {
     return (
       <StyledContainer>
-        <Alert severity="error">
-          {t("auth:change_password_form.user_logged_error")}
-        </Alert>
+        <Alert severity="error">{t("auth:change_password_form.user_logged_error")}</Alert>
       </StyledContainer>
     );
   }
@@ -102,11 +92,7 @@ export default function CompleteResetPassword() {
     <StyledContainer>
       <HtmlMeta title={t("auth:change_password_form.title")} />
 
-      {!isResetTokenOk && (
-        <Alert severity="error">
-          {t("auth:change_password_form.token_error")}
-        </Alert>
-      )}
+      {!isResetTokenOk && <Alert severity="error">{t("auth:change_password_form.token_error")}</Alert>}
 
       {error && (
         <Alert severity="error">
@@ -116,11 +102,7 @@ export default function CompleteResetPassword() {
         </Alert>
       )}
 
-      {isSuccess && (
-        <Alert severity="success">
-          {t("auth:change_password_form.reset_password_success")}
-        </Alert>
-      )}
+      {isSuccess && <Alert severity="success">{t("auth:change_password_form.reset_password_success")}</Alert>}
 
       <Typography variant="h1" gutterBottom>
         {t("auth:change_password_form.title")}
@@ -175,9 +157,7 @@ export default function CompleteResetPassword() {
                         ? t("auth:change_password_form.hide_confirm_password")
                         : t("auth:change_password_form.show_confirm_password")
                     }
-                    onClick={() =>
-                      setShowNewPasswordCheck(!showNewPasswordCheck)
-                    }
+                    onClick={() => setShowNewPasswordCheck(!showNewPasswordCheck)}
                     edge="end"
                   >
                     {showNewPasswordCheck ? <VisibilityOff /> : <Visibility />}
@@ -188,11 +168,7 @@ export default function CompleteResetPassword() {
           }}
         />
 
-        <Button
-          loading={isPending}
-          type="submit"
-          disabled={isPending || !isResetTokenOk || authState.authenticated}
-        >
+        <Button loading={isPending} type="submit" disabled={isPending || !isResetTokenOk || authState.authenticated}>
           {t("global:submit")}
         </Button>
       </StyledForm>

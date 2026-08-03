@@ -1,9 +1,5 @@
 import { SearchOutlined } from "@mui/icons-material";
-import {
-  Autocomplete as MuiAutocomplete,
-  InputAdornment,
-  styled,
-} from "@mui/material";
+import { Autocomplete as MuiAutocomplete, InputAdornment, styled } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -20,9 +16,7 @@ interface GroupedCommunity extends CommunitySummary.AsObject {
   regionName?: string;
 }
 
-const StyledAutocomplete = styled(
-  MuiAutocomplete<GroupedCommunity, false, false, false>,
-)(({ theme }) => ({
+const StyledAutocomplete = styled(MuiAutocomplete<GroupedCommunity, false, false, false>)(({ theme }) => ({
   marginBottom: theme.spacing(3),
   maxWidth: 600,
   "& .MuiOutlinedInput-root": {
@@ -36,9 +30,7 @@ export default function CommunitySearch() {
   const { data: accountInfo } = useAccountInfo();
   const [inputValue, setInputValue] = useState("");
   const [allCommunities, setAllCommunities] = useState<GroupedCommunity[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<GroupedCommunity[]>(
-    [],
-  );
+  const [filteredOptions, setFilteredOptions] = useState<GroupedCommunity[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch all communities on mount
@@ -50,15 +42,13 @@ export default function CommunitySearch() {
         const response = await listAllCommunities();
 
         // Map communities and extract immediate parent name from parents (last parent is the immediate parent)
-        const communitiesWithRegion: GroupedCommunity[] =
-          response.communitiesList.map((community) => ({
-            ...community,
-            regionName:
-              community.parentsList && community.parentsList.length > 0
-                ? community.parentsList[community.parentsList.length - 1]
-                    .community?.name || ""
-                : "",
-          }));
+        const communitiesWithRegion: GroupedCommunity[] = response.communitiesList.map((community) => ({
+          ...community,
+          regionName:
+            community.parentsList && community.parentsList.length > 0
+              ? community.parentsList[community.parentsList.length - 1].community?.name || ""
+              : "",
+        }));
 
         setAllCommunities(communitiesWithRegion);
       } catch (error) {
@@ -88,12 +78,8 @@ export default function CommunitySearch() {
         if (depthCompare !== 0) return depthCompare;
 
         // Then sort by the full path through the hierarchy
-        const aPath = a.parentsList
-          .map((p) => p.community?.name || "")
-          .join("/");
-        const bPath = b.parentsList
-          .map((p) => p.community?.name || "")
-          .join("/");
+        const aPath = a.parentsList.map((p) => p.community?.name || "").join("/");
+        const bPath = b.parentsList.map((p) => p.community?.name || "").join("/");
         const pathCompare = aPath.localeCompare(bPath, i18n.language);
         if (pathCompare !== 0) return pathCompare;
 
@@ -114,8 +100,7 @@ export default function CommunitySearch() {
     const filtered = sortedCommunities.filter(
       (community) =>
         community.name.toLowerCase().includes(lowercaseInput) ||
-        (community.regionName &&
-          community.regionName.toLowerCase().includes(lowercaseInput)),
+        (community.regionName && community.regionName.toLowerCase().includes(lowercaseInput)),
     );
     setFilteredOptions(filtered);
   }, [inputValue, sortedCommunities]);
@@ -124,10 +109,7 @@ export default function CommunitySearch() {
     setInputValue(value);
   };
 
-  const handleChange = (
-    _event: React.SyntheticEvent,
-    value: GroupedCommunity | null,
-  ) => {
+  const handleChange = (_event: React.SyntheticEvent, value: GroupedCommunity | null) => {
     if (value) {
       router.push(routeToCommunity(value.communityId, value.slug));
     }

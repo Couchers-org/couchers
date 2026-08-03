@@ -11,17 +11,13 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      CONNECTIONS,
-      GLOBAL,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? "en", [CONNECTIONS, GLOBAL, NOTIFICATIONS])),
   },
 });
 
 //[[...slug]] will be used when we have connections other than friends
 export default function ConnectionsPage() {
-  return <ConnectionsPageComponent type="friends" />;
+  return <ConnectionsPageComponent />;
 }
 
 ConnectionsPage.getLayout = appGetLayout();

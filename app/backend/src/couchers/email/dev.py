@@ -21,7 +21,7 @@ def print_dev_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     logger.info(payload.plain)
 
     return Email(
-        id=message_id,
+        message_id=message_id,
         sender_name=payload.sender_name,
         sender_email=payload.sender_email,
         recipient=payload.recipient,

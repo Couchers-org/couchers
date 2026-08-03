@@ -23,12 +23,7 @@ export default function HeroButton() {
     <StyledButtonContainer>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={heroTheme}>
-          <Button
-            component={Link}
-            href={searchRoute}
-            variant="contained"
-            size="large"
-          >
+          <Button component={Link} href={searchRoute} variant="contained" size="large">
             {t("show_map")}
           </Button>
         </ThemeProvider>

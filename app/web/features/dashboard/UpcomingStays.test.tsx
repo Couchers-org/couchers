@@ -8,8 +8,7 @@ import UpcomingStays from "./UpcomingStays";
 
 const { t } = i18n;
 
-const listHostRequestsMock = service.requests
-  .listHostRequests as jest.MockedFunction<
+const listHostRequestsMock = service.requests.listHostRequests as jest.MockedFunction<
   typeof service.requests.listHostRequests
 >;
 
@@ -24,12 +23,8 @@ describe("UpcomingStays", () => {
   it("shows empty state for both sections when there are no upcoming stays", async () => {
     render(<UpcomingStays />, { wrapper });
 
-    expect(
-      await screen.findByText(t("dashboard:stays.no_upcoming_trips")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:stays.no_upcoming_guests")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("dashboard:stays.no_upcoming_trips"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:stays.no_upcoming_guests"))).toBeVisible();
   });
 
   it("filters past and pending stays via API parameters", async () => {

@@ -13,12 +13,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PingRes } from "proto/api_pb";
-import React, {
-  Dispatch,
-  FunctionComponent,
-  SetStateAction,
-  useState,
-} from "react";
+import React, { Dispatch, FunctionComponent, SetStateAction, useState } from "react";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
@@ -49,9 +44,7 @@ const StyledMenu = styled(Menu, {
 })<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Native embed: full height (native tabs handle safe area)
   // Mobile web: subtract bottom nav + safe area
-  const menuHeight = $isNativeEmbed
-    ? "100vh"
-    : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
+  const menuHeight = $isNativeEmbed ? "100vh" : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
 
   return {
     "& .MuiPaper-root": {
@@ -114,9 +107,7 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
   },
 }));
 
-const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
-  component: C,
-) => {
+const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(component: C) => {
   return styled(component)(() => ({
     width: "100%",
     color: "var(--mui-palette-text-primary)",
@@ -233,11 +224,7 @@ function MenuItemView(
       {props.type === "link" ? (
         <LinkMenuItemView {...props} closeMenu={props.closeMenu} />
       ) : (
-        <DialogMenuItemView
-          {...props}
-          closeMenu={props.closeMenu}
-          onOpenDialog={props.onOpenDialog!}
-        />
+        <DialogMenuItemView {...props} closeMenu={props.closeMenu} onOpenDialog={props.onOpenDialog!} />
       )}
     </MenuItem>
   );
@@ -268,15 +255,12 @@ export default function LoggedInMenu({
   const isNativeEmbed = useIsNativeEmbed();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [notificationsAnchorEl, setNotificationsAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<HTMLButtonElement | null>(null);
   const isNotificationsFeedOpen = Boolean(notificationsAnchorEl);
 
   const [openDialogName, setOpenDialogName] = useState<string | null>(null);
 
-  const handleNotificationsFeedOpen = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleNotificationsFeedOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setNotificationsAnchorEl(event.currentTarget);
   };
 
@@ -285,9 +269,7 @@ export default function LoggedInMenu({
   };
 
   // Find dialog items ("Report a problem")
-  const dialogItems = items.filter(
-    (item): item is LoggedInMenuDialogItem => item.type === "dialog",
-  );
+  const dialogItems = items.filter((item): item is LoggedInMenuDialogItem => item.type === "dialog");
 
   return (
     <>
@@ -352,18 +334,13 @@ export default function LoggedInMenu({
         onBlur={(e) => {
           const target = e.relatedTarget as HTMLElement | null;
           // Don't close if focus moves within the menu or to a Select dropdown portal
-          if (target?.closest("[role='listbox'], [role='presentation']"))
-            return;
+          if (target?.closest("[role='listbox'], [role='presentation']")) return;
           if (e.currentTarget.contains(target)) return;
           setMenuOpen(false);
         }}
         $isNativeEmbed={isNativeEmbed}
-        anchorOrigin={
-          isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
-        }
-        transformOrigin={
-          isMobile ? undefined : { vertical: "top", horizontal: "right" }
-        }
+        anchorOrigin={isMobile ? undefined : { vertical: "bottom", horizontal: "right" }}
+        transformOrigin={isMobile ? undefined : { vertical: "top", horizontal: "right" }}
         slotProps={{
           paper: {
             style: isMobile
@@ -414,11 +391,7 @@ export default function LoggedInMenu({
               key={item.name}
               {...item}
               closeMenu={() => setMenuOpen(false)}
-              onOpenDialog={
-                item.type === "dialog"
-                  ? () => setOpenDialogName(item.name)
-                  : undefined
-              }
+              onOpenDialog={item.type === "dialog" ? () => setOpenDialogName(item.name) : undefined}
             />
           ))}
           {isMobile && (

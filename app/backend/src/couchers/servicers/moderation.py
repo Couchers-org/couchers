@@ -33,6 +33,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    PublicTrip,
     Reference,
     Reply,
     User,
@@ -111,6 +112,7 @@ moderationobjecttype2api = {
     ModerationObjectType.reply: moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
     ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
     ModerationObjectType.reference: moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
+    ModerationObjectType.public_trip: moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
 }
 
 moderationobjecttype2sql = {
@@ -123,6 +125,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_REPLY: ModerationObjectType.reply,
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
     moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE: ModerationObjectType.reference,
+    moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP: ModerationObjectType.public_trip,
 }
 
 
@@ -291,6 +294,10 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     elif object_type == ModerationObjectType.reference:
         author_user_id, content = session.execute(
             select(Reference.from_user_id, Reference.text).where(Reference.id == object_id)
+        ).one()
+    elif object_type == ModerationObjectType.public_trip:
+        author_user_id, content = session.execute(
+            select(PublicTrip.user_id, PublicTrip.description).where(PublicTrip.id == object_id)
         ).one()
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")

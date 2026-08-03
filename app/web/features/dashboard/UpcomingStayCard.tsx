@@ -5,10 +5,7 @@ import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import {
-  localizeDateTimeRange,
-  localizeRelativeTimeUnit,
-} from "i18n/datetimes";
+import { localizeDateRange, localizeRelativeTimeUnit } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
@@ -35,23 +32,17 @@ const StyledCard = styled(Box)(({ theme }) => ({
   },
 }));
 
-const DaysChip = styled("span")<{ imminent: boolean }>(
-  ({ theme, imminent }) => ({
-    fontSize: 11,
-    fontWeight: 700,
-    borderRadius: 999,
-    padding: "2px 8px",
-    whiteSpace: "nowrap",
-    flexShrink: 0,
-    marginLeft: "auto",
-    background: imminent
-      ? alpha(theme.palette.secondary.main, 0.12)
-      : "var(--mui-palette-grey-50)",
-    color: imminent
-      ? "var(--mui-palette-secondary-dark)"
-      : "var(--mui-palette-text-secondary)",
-  }),
-);
+const DaysChip = styled("span")<{ imminent: boolean }>(({ theme, imminent }) => ({
+  fontSize: 11,
+  fontWeight: 700,
+  borderRadius: 999,
+  padding: "2px 8px",
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+  marginLeft: "auto",
+  background: imminent ? alpha(theme.palette.secondary.main, 0.12) : "var(--mui-palette-grey-50)",
+  color: imminent ? "var(--mui-palette-secondary-dark)" : "var(--mui-palette-text-secondary)",
+}));
 
 const IdentityRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -99,12 +90,7 @@ export function UpcomingStayCardSkeleton() {
       }}
     >
       <Box sx={{ display: "flex", gap: 1.25, pr: 7.5, mb: 1.5 }}>
-        <Skeleton
-          variant="circular"
-          width={40}
-          height={40}
-          sx={{ flexShrink: 0 }}
-        />
+        <Skeleton variant="circular" width={40} height={40} sx={{ flexShrink: 0 }} />
         <Box sx={{ flex: 1 }}>
           <Skeleton height={16} sx={{ mb: 0.5 }} />
           <Skeleton height={12} width="60%" />
@@ -125,9 +111,7 @@ export function UpcomingStayCardSkeleton() {
   );
 }
 
-export default function UpcomingStayCard({
-  hostRequest,
-}: UpcomingStayCardProps) {
+export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps) {
   const { authState } = useAuthContext();
   const {
     t,
@@ -135,9 +119,7 @@ export default function UpcomingStayCard({
   } = useTranslation([DASHBOARD]);
 
   const isHost = authState.userId === hostRequest.hostUserId;
-  const otherUserId = isHost
-    ? hostRequest.surferUserId
-    : hostRequest.hostUserId;
+  const otherUserId = isHost ? hostRequest.surferUserId : hostRequest.hostUserId;
   const { data: otherUser, isLoading } = useLiteUser(otherUserId);
 
   const fromDate = Temporal.PlainDate.from(hostRequest.fromDate);
@@ -148,27 +130,16 @@ export default function UpcomingStayCard({
   const daysUntilEnd = daysBetween(today, toDate);
   const isOngoing = daysUntil <= 0 && daysUntilEnd >= 0;
   const isImminent = daysUntil <= 3;
-  const relativeDaysLabel = localizeRelativeTimeUnit(
-    daysUntil,
-    "days",
-    locale,
-    {
-      capitalize: true,
-    },
-  );
+  const relativeDaysLabel = localizeRelativeTimeUnit(daysUntil, "days", locale, {
+    capitalize: true,
+  });
 
-  const dateRange = localizeDateTimeRange(fromDate, toDate, {
-    locale,
+  const dateRange = localizeDateRange(fromDate, toDate, locale, {
     includeYear: "auto",
-    includeTime: false,
     abbreviate: true,
   });
 
-  const primary = isLoading ? (
-    <Skeleton width={80} />
-  ) : (
-    (otherUser?.name ?? "—")
-  );
+  const primary = isLoading ? <Skeleton width={80} /> : (otherUser?.name ?? "—");
 
   return (
     <Link
@@ -185,11 +156,7 @@ export default function UpcomingStayCard({
         <IdentityRow>
           <Avatar user={otherUser} isProfileLink={false} />
           <TextBlock>
-            <Typography
-              variant="h3"
-              noWrap
-              sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}
-            >
+            <Typography variant="h3" noWrap sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
               {primary}
             </Typography>
             <Typography
@@ -221,11 +188,7 @@ export default function UpcomingStayCard({
               )}
             </Typography>
           </TextBlock>
-          {isImminent && (
-            <DaysChip imminent>
-              {isOngoing ? t("dashboard:now_label") : relativeDaysLabel}
-            </DaysChip>
-          )}
+          {isImminent && <DaysChip imminent>{isOngoing ? t("dashboard:now_label") : relativeDaysLabel}</DaysChip>}
         </IdentityRow>
         <MetaRow>
           <MetaDate>

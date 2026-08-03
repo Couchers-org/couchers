@@ -7,6 +7,7 @@ import landing from "features/landing/locales/en.json";
 import messages from "features/messages/locales/en.json";
 import mod from "features/mod/locales/en.json";
 import notifications from "features/notifications/locales/en.json";
+import press from "features/press/locales/en.json";
 import profile from "features/profile/locales/en.json";
 import publicTrips from "features/publicTrips/locales/en.json";
 import search from "features/search/locales/en.json";
@@ -22,6 +23,7 @@ const resources = {
   messages,
   mod,
   notifications,
+  press,
   profile,
   publicTrips,
   search,

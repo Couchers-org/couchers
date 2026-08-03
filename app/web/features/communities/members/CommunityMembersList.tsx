@@ -62,9 +62,7 @@ export default function CommunityMembersList({
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner />}
       <Box sx={{ width: "100%", maxWidth: "450px" }}>
-        {data?.pages && data?.pages.length > 0 && (
-          <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
-        )}
+        {data?.pages && data?.pages.length > 0 && <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />}
       </Box>
       <PaginationWrapper>
         <CursorPagination
@@ -75,9 +73,7 @@ export default function CommunityMembersList({
           isLoading={isLoading}
         />
       </PaginationWrapper>
-      {!error && !isFetching && data?.pages.length === 0 && (
-        <TextBody>{t("communities:members_empty_state")}</TextBody>
-      )}
+      {!error && !isFetching && data?.pages.length === 0 && <TextBody>{t("communities:members_empty_state")}</TextBody>}
     </>
   );
 }

@@ -30,7 +30,7 @@ def _get_regions_res(locale: babel.Locale) -> resources_pb2.GetRegionsRes:
         regions=[
             resources_pb2.Region(
                 alpha3=alpha3,
-                name=try_localize_region_name_from_iso3166(alpha3, locale) or english_name,
+                name=try_localize_region_name_from_iso3166(alpha3, [locale]) or english_name,
             )
             for alpha3, english_name in sorted(get_region_dict().items())
         ]
@@ -43,7 +43,7 @@ def _get_languages_res(locale: babel.Locale) -> resources_pb2.GetLanguagesRes:
         languages=[
             resources_pb2.Language(
                 code=code,
-                name=try_localize_language_name_from_iso639(code, locale, standalone=True) or english_name,
+                name=try_localize_language_name_from_iso639(code, [locale], standalone=True) or english_name,
             )
             for code, english_name in sorted(get_language_dict().items())
         ]
@@ -73,12 +73,12 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetRegions(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> resources_pb2.GetRegionsRes:
-        return _get_regions_res(context.localization.babel_locale)
+        return _get_regions_res(context.localization.preferred_babel_locale)
 
     def GetLanguages(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> resources_pb2.GetLanguagesRes:
-        return _get_languages_res(context.localization.babel_locale)
+        return _get_languages_res(context.localization.preferred_babel_locale)
 
     def GetBadges(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session

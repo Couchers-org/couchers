@@ -56,11 +56,7 @@ const StyledSelfCenteredButton = styled(Button)(() => ({
   justifySelf: "center",
 }));
 
-export default function EventsSection({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function EventsSection({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
 
@@ -91,13 +87,7 @@ export default function EventsSection({
           </StyledCardContainer>
           {hasNextPage && (
             <StyledLoadMoreButton>
-              <StyledLink
-                href={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "events",
-                )}
-              >
+              <StyledLink href={routeToCommunity(community.communityId, community.slug, "events")}>
                 {t("global:nav.show_all_events")}
               </StyledLink>
             </StyledLoadMoreButton>
@@ -109,16 +99,12 @@ export default function EventsSection({
             <Trans
               t={t}
               i18nKey="communities:events_empty_state"
-              components={[
-                <StyledLink key="create-link" href={routeToNewEvent()} />,
-              ]}
+              components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
             />
           </TextBody>
         )
       )}
-      <StyledSelfCenteredButton
-        onClick={() => router.push(routeToNewEvent(community.communityId))}
-      >
+      <StyledSelfCenteredButton onClick={() => router.push(routeToNewEvent(community.communityId))}>
         {t("communities:create_an_event")}
       </StyledSelfCenteredButton>
     </StyledSection>

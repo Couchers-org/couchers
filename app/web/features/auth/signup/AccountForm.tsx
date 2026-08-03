@@ -16,17 +16,11 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { PickerOnlyDatepicker } from "components/Datepicker";
-import EditLocationMap, {
-  ApproximateLocation,
-} from "components/EditLocationMap";
+import EditLocationMap, { ApproximateLocation } from "components/EditLocationMap";
 import Select from "components/Select";
 import TOSLink from "components/TOSLink";
 import { useAuthContext } from "features/auth/AuthProvider";
-import {
-  StyledButton,
-  StyledInputLabel,
-  StyledTextField,
-} from "features/auth/useAuthStyles";
+import { StyledButton, StyledInputLabel, StyledTextField } from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -35,11 +29,7 @@ import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
-import {
-  lowercaseAndTrimField,
-  usernameValidationPattern,
-  validatePassword,
-} from "utils/validation";
+import { lowercaseAndTrimField, usernameValidationPattern, validatePassword } from "utils/validation";
 
 export type SignupAccountInputs = {
   username: string;
@@ -181,16 +171,10 @@ export default function AccountForm() {
 
   return (
     <>
-      {errors.location && (
-        <Alert severity="error">{errors.location?.message || ""}</Alert>
-      )}
-      {mutation.error && (
-        <Alert severity="error">{mutation.error.message || ""}</Alert>
-      )}
+      {errors.location && <Alert severity="error">{errors.location?.message || ""}</Alert>}
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <StyledForm onSubmit={submit}>
-        <StyledInputLabel htmlFor="username">
-          {t("auth:account_form.username.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="username">{t("auth:account_form.username.field_label")}</StyledInputLabel>
         <StyledTextField
           id="username"
           {...register("username", {
@@ -200,12 +184,8 @@ export default function AccountForm() {
             },
             required: t("auth:account_form.username.required_error"),
             validate: async (username: string) => {
-              const valid = await service.auth.validateUsername(
-                lowercaseAndTrimField(username),
-              );
-              return (
-                valid || t("auth:account_form.username.username_taken_error")
-              );
+              const valid = await service.auth.validateUsername(lowercaseAndTrimField(username));
+              return valid || t("auth:account_form.username.username_taken_error");
             },
           })}
           variant="outlined"
@@ -214,23 +194,16 @@ export default function AccountForm() {
             if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
           }}
-          helperText={
-            errors?.username?.message ??
-            t("auth:account_form.username.helper_text")
-          }
+          helperText={errors?.username?.message ?? t("auth:account_form.username.helper_text")}
           error={!!errors?.username?.message}
           autoComplete="username"
         />
-        <StyledInputLabel htmlFor="password">
-          {t("auth:account_form.password.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="password">{t("auth:account_form.password.field_label")}</StyledInputLabel>
         <StyledTextField
           id="password"
           {...register("password", {
             required: t("auth:account_form.password.required_error"),
-            validate: (password) =>
-              validatePassword(password) ||
-              t("auth:account_form.password.validation_error"),
+            validate: (password) => validatePassword(password) || t("auth:account_form.password.validation_error"),
           })}
           variant="outlined"
           type={showPassword ? "text" : "password"}
@@ -244,9 +217,7 @@ export default function AccountForm() {
                 <InputAdornment position="end" sx={{ marginRight: 1 }}>
                   <IconButton
                     aria-label={
-                      showPassword
-                        ? t("auth:login_page.form.hide_password")
-                        : t("auth:login_page.form.show_password")
+                      showPassword ? t("auth:login_page.form.hide_password") : t("auth:login_page.form.show_password")
                     }
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
@@ -258,9 +229,7 @@ export default function AccountForm() {
             },
           }}
         />
-        <StyledInputLabel htmlFor="birthdate">
-          {t("auth:account_form.birthday.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="birthdate">{t("auth:account_form.birthday.field_label")}</StyledInputLabel>
         <StyledDatepicker
           control={control}
           error={!!errors?.birthdate?.message}
@@ -283,12 +252,7 @@ export default function AccountForm() {
                 return t("auth:account_form.birthday.not_real_date_error");
               }
 
-              if (
-                Temporal.PlainDate.compare(
-                  birthDate,
-                  Temporal.Now.plainDateISO(),
-                ) >= 0
-              ) {
+              if (Temporal.PlainDate.compare(birthDate, Temporal.Now.plainDateISO()) >= 0) {
                 return t("auth:account_form.birthday.validation_error");
               }
 
@@ -304,16 +268,13 @@ export default function AccountForm() {
             sx: { backgroundColor: "var(--mui-palette-background-paper)" },
           }}
         />
-        <StyledInputLabel htmlFor="location">
-          {t("auth:location.field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="location">{t("auth:location.field_label")}</StyledInputLabel>
       </StyledForm>
       <Controller
         name="location"
         control={control}
         rules={{
-          validate: (location) =>
-            !!location.address || t("auth:location.validation_error"),
+          validate: (location) => !!location.address || t("auth:location.validation_error"),
         }}
         render={({ field, fieldState: { error } }) => (
           <StyledEditLocationMap
@@ -347,11 +308,7 @@ export default function AccountForm() {
           {t("auth:account_form.hosting_status.field_label")}
         </StyledInputLabel>
         <StyledFormControl variant="outlined">
-          {errors?.hostingStatus?.message && (
-            <FormHelperText error>
-              {errors.hostingStatus.message}
-            </FormHelperText>
-          )}
+          {errors?.hostingStatus?.message && <FormHelperText error>{errors.hostingStatus.message}</FormHelperText>}
           <Controller
             control={control}
             rules={{ required: t("global:required") }}
@@ -361,9 +318,7 @@ export default function AccountForm() {
                 {...field}
                 variant="outlined"
                 onChange={(event) => {
-                  field.onChange(
-                    Number.parseInt(event.target.value as string) || "",
-                  );
+                  field.onChange(Number.parseInt(event.target.value as string) || "");
                 }}
                 value={field.value}
                 id="hosting-status"
@@ -376,15 +331,9 @@ export default function AccountForm() {
                 ]}
                 optionLabelMap={{
                   "": "",
-                  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
-                    "auth:account_form.hosting_status.can_host",
-                  ),
-                  [HostingStatus.HOSTING_STATUS_MAYBE]: t(
-                    "auth:account_form.hosting_status.maybe",
-                  ),
-                  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
-                    "auth:account_form.hosting_status.cant_host",
-                  ),
+                  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("auth:account_form.hosting_status.can_host"),
+                  [HostingStatus.HOSTING_STATUS_MAYBE]: t("auth:account_form.hosting_status.maybe"),
+                  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t("auth:account_form.hosting_status.cant_host"),
                 }}
               />
             )}
@@ -397,9 +346,7 @@ export default function AccountForm() {
           rules={{ required: t("auth:account_form.gender.required_error") }}
           render={({ field }) => (
             <FormControl variant="standard" component="fieldset">
-              <StyledFormLabel component="legend">
-                {t("auth:account_form.gender.field_label")}
-              </StyledFormLabel>
+              <StyledFormLabel component="legend">{t("auth:account_form.gender.field_label")}</StyledFormLabel>
               <RadioGroup
                 id="gender"
                 {...field}
@@ -407,33 +354,20 @@ export default function AccountForm() {
                 aria-label={t("auth:account_form.gender.selector_a11y")}
                 name="gender-radio"
               >
-                <FormControlLabel
-                  value="Woman"
-                  control={<Radio />}
-                  label={t("auth:account_form.gender.woman")}
-                />
-                <FormControlLabel
-                  value="Man"
-                  control={<Radio />}
-                  label={t("auth:account_form.gender.man")}
-                />
+                <FormControlLabel value="Woman" control={<Radio />} label={t("auth:account_form.gender.woman")} />
+                <FormControlLabel value="Man" control={<Radio />} label={t("auth:account_form.gender.man")} />
                 <FormControlLabel
                   value="Non-binary"
                   control={<Radio />}
                   label={t("auth:account_form.gender.non_binary")}
                 />
               </RadioGroup>
-              <FormHelperText error={!!errors?.gender?.message}>
-                {errors?.gender?.message ?? " "}
-              </FormHelperText>
+              <FormHelperText error={!!errors?.gender?.message}>{errors?.gender?.message ?? " "}</FormHelperText>
             </FormControl>
           )}
         />
         <Typography variant="body1">
-          <Trans
-            i18nKey="auth:account_form.tos_prompt"
-            components={{ 1: <TOSLink /> }}
-          />
+          <Trans i18nKey="auth:account_form.tos_prompt" components={{ 1: <TOSLink /> }} />
         </Typography>
         <FormControlLabel
           control={
@@ -452,9 +386,7 @@ export default function AccountForm() {
               control={control}
               name="optInToNewsletter"
               defaultValue={true}
-              render={({ field }) => (
-                <Checkbox {...field} defaultChecked={true} />
-              )}
+              render={({ field }) => <Checkbox {...field} defaultChecked={true} />}
             />
           }
           label={t("auth:account_form.opt_in_newsletter")}

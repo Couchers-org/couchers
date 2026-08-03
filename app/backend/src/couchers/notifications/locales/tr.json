@@ -243,7 +243,7 @@
     "create": {
       "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
       "push": {
-        "title": "{{user}}'dan yeni ev sahipliği isteği",
+        "title": "{{user}}'dan yeni konaklama isteği",
         "ios_title": "{{user}}",
         "ios_subtitle": "Yeni Ev Sahipliği İsteği",
         "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",

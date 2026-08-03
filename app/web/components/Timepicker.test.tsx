@@ -15,11 +15,7 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const Form = ({
-  setTime,
-}: {
-  setTime: (time: Temporal.PlainTime | null) => void;
-}) => {
+const Form = ({ setTime }: { setTime: (time: Temporal.PlainTime | null) => void }) => {
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setTime(data.timefield));
   return (
