@@ -476,7 +476,6 @@ def test_job_retry(db):
                 == 0
             )
 
-            # 15 * 2**1 seconds of backoff after the first failure; the resets below step over the later waits
             job = session.execute(select(BackgroundJob)).scalar_one()
             assert job.next_attempt_after > now() + timedelta(seconds=25)
 
@@ -519,7 +518,6 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
     with session_scope() as session:
         queue_job(session, job=mock_job, payload=empty_pb2.Empty())
         session.flush()
-        # the job sat in a backlog for an hour before a worker got round to it
         session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = now() - timedelta(hours=1)
 
     new_config = config.copy()
@@ -532,10 +530,8 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
             job = session.execute(select(BackgroundJob)).scalar_one()
             assert job.state == BackgroundJobState.error
             assert job.try_count == 1
-            # 15 * 2**1 seconds from now, rather than from the hour-old value, which would leave it in the past
             assert now() + timedelta(seconds=25) < job.next_attempt_after < now() + timedelta(seconds=35)
 
-        # so the job is not immediately due again and doesn't burn through its remaining tries
         assert not process_job()
 
 

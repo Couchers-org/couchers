@@ -103,9 +103,7 @@ def process_job() -> bool:
                 logger.info(f"Job #{job.id} failed on try number {job.try_count}")
             else:
                 job.state = BackgroundJobState.error
-                # exponential backoff from now, not from the old next_attempt_after: if the job sat in a backlog, that
-                # value is already in the past and adding to it leaves the retry immediately due, so the job would burn
-                # through all its tries back to back
+                # exponential backoff
                 job.next_attempt_after = now() + timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             observe_in_jobs_duration_histogram(
