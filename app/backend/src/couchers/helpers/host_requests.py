@@ -1,22 +1,34 @@
-from sqlalchemy.sql import and_, or_
-from sqlalchemy.sql.elements import ColumnElement
-
-from couchers.models import HostRequest
-
 """
-Role-based party predicates for host requests.
+Shared host request helpers, kept out of the servicers so the Ping counts, the thread list and the
+requests API can't drift apart.
 
-A host request has a fixed direction (initiator -> recipient), but the *stay-role* of each party
-depends on how the request came about:
+The role-based party predicates below exist because a host request has a fixed direction
+(initiator -> recipient), but the *stay-role* of each party depends on how the request came about:
 
   - a normal request: the initiator is the surfer, the recipient is the host
   - a public-trip offer: the roles are reversed — the initiator is offering their couch, so they are
     the host, and the recipient (the trip owner) is the surfer
 
-So "am I hosting?" is not the same question as "did I receive this?". These helpers express the
-role-based version, and live here rather than in a servicer so the Ping counts and the thread list
-can't drift apart.
+So "am I hosting?" is not the same question as "did I receive this?".
 """
+
+from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql.elements import ColumnElement
+
+from couchers.models import HostRequest
+from couchers.models.notifications import NotificationTopicAction
+
+# topic actions whose notifications are marked seen alongside a host request being read
+HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS = [
+    NotificationTopicAction.host_request__create,
+    NotificationTopicAction.host_request__accept,
+    NotificationTopicAction.host_request__reject,
+    NotificationTopicAction.host_request__confirm,
+    NotificationTopicAction.host_request__cancel,
+    NotificationTopicAction.host_request__message,
+    NotificationTopicAction.host_request__missed_messages,
+    NotificationTopicAction.host_request__reminder,
+]
 
 
 def is_hosting_party(user_id: int) -> ColumnElement[bool]:

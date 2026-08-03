@@ -316,6 +316,42 @@ def test_mark_all_threads_seen_respects_filter(db, moderator):
     assert chat_id  # referenced
 
 
+def test_departed_group_chat_unseen_count_agrees_with_ping_and_clears(db, moderator):
+    """
+    Regression test: the per-thread unseen count used to include messages sent after the viewer left
+    the chat, which the Ping badge never counted, and MarkAllThreadsSeen skipped departed chats
+    entirely — so the list showed unread messages the viewer couldn't read and couldn't clear.
+
+    The viewer is removed rather than leaving, because leaving posts a message of your own, which
+    marks everything up to it seen.
+    """
+    user1, token1 = generate_user()
+    _user2, token2 = generate_user()
+    user3, _token3 = generate_user()
+
+    chat_id = _create_group_chat(token2, [user1.id, user3.id], moderator)
+
+    with conversations_session(token2) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=user1.id))
+        for _ in range(3):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="after you left"))
+
+    def unseen_counts() -> tuple[int, int]:
+        with real_api_session(token1) as api:
+            ping_count = api.Ping(api_pb2.PingReq()).unseen_message_count
+        with conversations_session(token1) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        thread = next(t for t in res.threads if t.group_chat.group_chat_id == chat_id)
+        return thread.group_chat.unseen_message_count, ping_count
+
+    # chat created, "hi", and the removal notice; the three messages sent afterwards are out of reach
+    assert unseen_counts() == (3, 3)
+
+    with conversations_session(token1) as c:
+        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    assert unseen_counts() == (0, 0)
+
+
 def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator):
     """
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
