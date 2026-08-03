@@ -203,7 +203,8 @@
     "switch_to_dark_mode": "Passa alla modalità scura",
     "close_menu_a11y": "Chiudi menu",
     "open_drawer_a11y": "Apri menu a tendina",
-    "close_drawer_a11y": "Chiudi menu a tendina"
+    "close_drawer_a11y": "Chiudi menu a tendina",
+    "press": "Stampa e media"
   },
   "invites": {
     "title": "Invita membri",
