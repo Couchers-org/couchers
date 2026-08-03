@@ -142,10 +142,16 @@ class Message(Base, kw_only=True):
 
     __tablename__ = "messages"
     __table_args__ = (
+        # serves "is there anything in this conversation newer than X", which the unread badge counts ask
+        # once per host request. can't be the partial index below: those counts include control messages
+        Index("ix_messages_conversation_id_id", "conversation_id", "id"),
+        # send_request_notifications only wakes users for text messages; time is included so it can decide
+        # the "older than 5 minutes" cutoff without leaving the index
         Index(
-            "ix_messages_conversation_id_id_text_only",
+            "ix_messages_conversation_id_id_time_text_only",
             "conversation_id",
             "id",
+            postgresql_include=["time"],
             postgresql_where=text("message_type = 'text'"),
         ),
     )
@@ -153,7 +159,7 @@ class Message(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # which conversation the message belongs in
-    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"))
 
     # the user that sent the message/command
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
