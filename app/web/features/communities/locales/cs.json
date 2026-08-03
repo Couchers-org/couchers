@@ -163,5 +163,6 @@
   "search_communities_helper": "Vyber komunitu a přejdi na její stránku",
   "no_results_found_with_link": "Žádné komunity nebyly nalezeny. <0>Požádej o vytvoření této komunity!</0>",
   "community_breadcrumb_a11y": "Aktuální komunita",
-  "sub_community_dropdown_a11y": "Procházet konkrétnější komunity"
+  "sub_community_dropdown_a11y": "Procházet konkrétnější komunity",
+  "report_discussion_button_a11y": "Nahlásit tuto diskuzi"
 }
