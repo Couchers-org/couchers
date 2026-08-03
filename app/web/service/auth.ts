@@ -151,7 +151,6 @@ export async function signupFlowRestartSignup(flowToken: string) {
   return res.toObject();
 }
 
-
 export async function validateUsername(username: string) {
   const req = new UsernameValidReq();
   req.setUsername(username);

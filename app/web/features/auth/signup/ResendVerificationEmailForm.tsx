@@ -12,7 +12,7 @@ export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
   const handleRestartSignup = async () => {
-    let state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
+    const state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
     state.needBasic = true;
     authActions.updateSignupState(state);
   };
