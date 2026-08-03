@@ -70,10 +70,12 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
   "zh-Hant": "zh-tw",
 };
 
-/// Maps an i18n language code to a registered dayjs locale name, falling back to
-/// the base language, then English, for unmapped codes. Use this for MUI's
-/// LocalizationProvider `adapterLocale` and for call-site formatting, e.g.
-/// `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
+/**
+ * Maps an i18n language code to a registered dayjs locale name, falling back to
+ * the base language, then English, for unmapped codes. Use this for MUI's
+ * LocalizationProvider `adapterLocale` and for call-site formatting, e.g.
+ * `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
+ */
 export function i18nToDayjsLocale(language: string): string {
   return I18N_TO_DAYJS_LOCALE[language] ?? I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ?? "en";
 }
