@@ -13,6 +13,7 @@ import { routeToCommunity } from "routes";
 
 const CARD_GAP = 12;
 const CARD_WIDTH = 200;
+const SCROLL_END_TOL = 6;
 
 const SectionHeader = styled("div")({
   display: "flex",
