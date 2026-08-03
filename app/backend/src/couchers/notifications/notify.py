@@ -87,11 +87,6 @@ def mark_notifications_seen_bulk(
 ) -> None:
     """
     Bulk variant of mark_notifications_seen, marking several groups of notifications seen in one update.
-
-    Each group pairs topic actions with the keys those actions are keyed by. Keys are only meaningful
-    within a topic action, so they must not be pooled into one flat list: chat__message is keyed by
-    chat id while chat__missed_messages is a summary keyed with "", and unrelated topics reuse the
-    same key values for entirely different things.
     """
     clauses = [
         and_(Notification.topic_action.in_(topic_actions), Notification.key.in_(keys))
