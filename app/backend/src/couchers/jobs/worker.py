@@ -104,7 +104,7 @@ def process_job() -> bool:
             else:
                 job.state = BackgroundJobState.error
                 # exponential backoff
-                job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
+                job.next_attempt_after = now() + timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             observe_in_jobs_duration_histogram(
                 job.job_type, job.state.name, job.try_count, type(e).__name__, (finished - start) / 1e9

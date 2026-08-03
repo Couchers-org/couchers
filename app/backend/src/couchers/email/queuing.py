@@ -28,7 +28,7 @@ def _queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
         session,
         job=send_email,
         payload=payload,
-        priority=5,
+        priority=15,
     )
 
     emails_counter.inc()
