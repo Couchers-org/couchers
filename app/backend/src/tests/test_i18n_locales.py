@@ -6,6 +6,8 @@ from couchers.i18n.locales import (
     get_locale_chain,
     get_main_i18next,
     get_supported_locales,
+    is_locale_with_translations,
+    is_supported_locale,
     to_supported_locale,
 )
 
@@ -35,6 +37,10 @@ def test_to_supported_locale():
     assert to_supported_locale("fr-CA") == "fr-CA"
     assert to_supported_locale("zh-Hans") == "zh-Hans"
 
+    # Supported locale with no translations
+    assert is_supported_locale("en-US") and not is_locale_with_translations("en-US")
+    assert to_supported_locale("en-US") == "en-US"
+
     # Bogus locales
     assert to_supported_locale("") == DEFAULT_LOCALE
     assert to_supported_locale("xx") == DEFAULT_LOCALE
@@ -49,12 +55,24 @@ def test_to_supported_locale():
 
 def test_all_supported_locales_have_babel_locales():
     for locale in get_supported_locales():
-        assert get_babel_locale(locale), f"Locale {locale} does not have a valid Babel locale"
+        babel_locale = get_babel_locale(locale)
+        assert babel_locale, f"Locale {locale} does not have a valid Babel locale"
+
+        # Ensure minimal support for the i18n operations we care about
+        assert babel_locale.date_formats
+        assert babel_locale.datetime_formats
+        assert babel_locale.datetime_skeletons
+        assert babel_locale.list_patterns
+        assert babel_locale.languages
+        assert babel_locale.time_zones
+        assert babel_locale.zone_formats
+        assert babel_locale.territories
 
 
 def test_get_locale_chain():
     """Test that fallbacks are correctly set up"""
     assert get_locale_chain("en") == ["en"]
+    assert get_locale_chain("en-US") == ["en-US", "en"]
     assert get_locale_chain("pl") == ["pl", "en"]
     assert get_locale_chain("xx") == ["xx", "en"]
     assert get_locale_chain("fr-CA") == ["fr-CA", "fr", "en"]

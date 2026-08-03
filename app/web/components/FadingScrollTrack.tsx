@@ -4,21 +4,13 @@ const FADE = "40px";
 
 const FadingScrollTrack = styled(Box, {
   shouldForwardProp: (prop) =>
-    prop !== "$canScrollLeft" &&
-    prop !== "$canScrollRight" &&
-    prop !== "$gap" &&
-    prop !== "$snapType",
+    prop !== "$canScrollLeft" && prop !== "$canScrollRight" && prop !== "$gap" && prop !== "$snapType",
 })<{
   $canScrollLeft?: boolean;
   $canScrollRight?: boolean;
   $gap?: number;
   $snapType?: "x mandatory" | "x proximity";
-}>(({
-  $canScrollLeft,
-  $canScrollRight,
-  $gap = 16,
-  $snapType = "x mandatory",
-}) => {
+}>(({ $canScrollLeft, $canScrollRight, $gap = 16, $snapType = "x mandatory" }) => {
   const mask =
     $canScrollLeft && $canScrollRight
       ? `linear-gradient(to right, transparent, black ${FADE}, black calc(100% - ${FADE}), transparent)`

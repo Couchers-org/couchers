@@ -51,10 +51,7 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
   const { t } = useTranslation([AUTH]);
   const { data: currentUser } = useCurrentUser();
 
-  const formValues = useMemo(
-    () => getFormDefaultValues(volunteerInfo),
-    [volunteerInfo],
-  );
+  const formValues = useMemo(() => getFormDefaultValues(volunteerInfo), [volunteerInfo]);
 
   const {
     control,
@@ -92,15 +89,11 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
   const getLinkTextPlaceholder = (linkType: string) => {
     switch (linkType) {
       case "linkedin":
-        return t(
-          "auth:volunteer_management.form.link_text_linkedin_placeholder",
-        );
+        return t("auth:volunteer_management.form.link_text_linkedin_placeholder");
       case "email":
         return t("auth:volunteer_management.form.link_text_email_placeholder");
       case "website":
-        return t(
-          "auth:volunteer_management.form.link_text_website_placeholder",
-        );
+        return t("auth:volunteer_management.form.link_text_website_placeholder");
       default:
         return "";
     }
@@ -109,16 +102,10 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
   return (
     <>
       {updateError && <Alert severity="error">{updateError.message}</Alert>}
-      {isUpdateSuccess && (
-        <Alert severity="success">
-          {t("auth:volunteer_management.update_success")}
-        </Alert>
-      )}
+      {isUpdateSuccess && <Alert severity="success">{t("auth:volunteer_management.update_success")}</Alert>}
 
       <StyledForm onSubmit={onSubmit}>
-        <Typography variant="h3">
-          {t("auth:volunteer_management.form.title")}
-        </Typography>
+        <Typography variant="h3">{t("auth:volunteer_management.form.title")}</Typography>
 
         <div>
           <Controller
@@ -126,15 +113,9 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
             name="overrideName"
             render={({ field }) => (
               <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
-                }
+                control={<Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
                 label={t("auth:volunteer_management.form.override_name_label", {
-                  profileName:
-                    volunteerInfo.displayName || currentUser?.name || "",
+                  profileName: volunteerInfo.displayName || currentUser?.name || "",
                 })}
               />
             )}
@@ -155,19 +136,10 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
             name="overrideLocation"
             render={({ field }) => (
               <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
-                }
-                label={t(
-                  "auth:volunteer_management.form.override_location_label",
-                  {
-                    profileLocation:
-                      volunteerInfo.displayLocation || currentUser?.city || "",
-                  },
-                )}
+                control={<Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
+                label={t("auth:volunteer_management.form.override_location_label", {
+                  profileLocation: volunteerInfo.displayLocation || currentUser?.city || "",
+                })}
               />
             )}
           />
@@ -187,15 +159,8 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
           name="showOnTeamPage"
           render={({ field }) => (
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                />
-              }
-              label={t(
-                "auth:volunteer_management.form.show_on_team_page_label",
-              )}
+              control={<Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
+              label={t("auth:volunteer_management.form.show_on_team_page_label")}
             />
           )}
         />
@@ -205,9 +170,7 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
             name="linkType"
             render={({ field }) => (
               <FormControl sx={{ minWidth: 150 }}>
-                <InputLabel id="link-type-label">
-                  {t("auth:volunteer_management.form.link_type_label")}
-                </InputLabel>
+                <InputLabel id="link-type-label">{t("auth:volunteer_management.form.link_type_label")}</InputLabel>
                 <Select
                   labelId="link-type-label"
                   id="linkType"
@@ -236,27 +199,15 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
               {...register("linkText", {
                 validate: (value) => {
                   if (!value || value.trim() === "") {
-                    return t(
-                      "auth:volunteer_management.form.link_text_required",
-                    );
+                    return t("auth:volunteer_management.form.link_text_required");
                   }
 
-                  if (
-                    watchedLinkType === "email" &&
-                    !EMAIL_PATTERN.test(value)
-                  ) {
-                    return t(
-                      "auth:volunteer_management.form.link_text_email_invalid",
-                    );
+                  if (watchedLinkType === "email" && !EMAIL_PATTERN.test(value)) {
+                    return t("auth:volunteer_management.form.link_text_email_invalid");
                   }
 
-                  if (
-                    watchedLinkType === "linkedin" &&
-                    !LINKEDIN_USERNAME_PATTERN.test(value)
-                  ) {
-                    return t(
-                      "auth:volunteer_management.form.link_text_linkedin_invalid",
-                    );
+                  if (watchedLinkType === "linkedin" && !LINKEDIN_USERNAME_PATTERN.test(value)) {
+                    return t("auth:volunteer_management.form.link_text_linkedin_invalid");
                   }
 
                   return true;
@@ -265,10 +216,7 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
               error={!!errors?.linkText}
               placeholder={getLinkTextPlaceholder(watchedLinkType)}
               helperText={
-                errors?.linkText?.message ||
-                t(
-                  `auth:volunteer_management.form.link_text_${watchedLinkType}_helper`,
-                )
+                errors?.linkText?.message || t(`auth:volunteer_management.form.link_text_${watchedLinkType}_helper`)
               }
               sx={{ flex: 1, minWidth: 200 }}
             />
@@ -285,9 +233,7 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
                   if (watchedLinkType !== "website") return true;
 
                   if (!value || value.trim() === "") {
-                    return t(
-                      "auth:volunteer_management.form.link_url_required",
-                    );
+                    return t("auth:volunteer_management.form.link_url_required");
                   }
 
                   if (!URL_PATTERN.test(value)) {
@@ -298,13 +244,8 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
                 },
               })}
               error={!!errors?.linkUrl}
-              placeholder={t(
-                "auth:volunteer_management.form.link_url_placeholder",
-              )}
-              helperText={
-                errors?.linkUrl?.message ||
-                t("auth:volunteer_management.form.link_url_helper")
-              }
+              placeholder={t("auth:volunteer_management.form.link_url_placeholder")}
+              helperText={errors?.linkUrl?.message || t("auth:volunteer_management.form.link_url_helper")}
               fullWidth
             />
           </Box>

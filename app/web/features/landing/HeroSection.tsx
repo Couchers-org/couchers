@@ -45,18 +45,14 @@ export default function HeroSection() {
     (async () => {
       if (urlToken) {
         try {
-          authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken),
-          );
+          authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
         } catch (err) {
           Sentry.captureException(err, {
             tags: {
               component: "auth/signup/Signup",
             },
           });
-          authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
-          );
+          authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
           router.push(signupRoute);
           return;
         }

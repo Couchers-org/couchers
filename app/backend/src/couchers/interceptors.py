@@ -35,7 +35,6 @@ from couchers.context import CouchersContext, make_interactive_context, make_med
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
-from couchers.i18n.locales import to_supported_locale
 from couchers.metrics import (
     observe_api_call,
     observe_in_servicer_duration_histogram,
@@ -388,9 +387,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             else:
                 sofa, new_sofa_cookie = generate_sofa_cookie()
 
-            locale = to_supported_locale((auth_info.ui_language_preference if auth_info else headers.ui_lang) or "")
             loc_context = LocalizationContext(
-                locale=locale,
+                locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
                 timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
             )
 
@@ -480,7 +478,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
                         sentry_sdk.set_tag("user_agent", headers.user_agent)
-                        sentry_sdk.set_tag("ui_lang", loc_context.locale)
+                        sentry_sdk.set_tag("ui_lang", loc_context.preferred_locale)
                         sentry_sdk.set_user(
                             {
                                 "id": couchers_context._user_id,

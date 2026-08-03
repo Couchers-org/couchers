@@ -2,42 +2,29 @@ import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Temporal } from "temporal-polyfill";
 
+export const UTC_TIMEZONE = "Etc/UTC";
+
 /// Computes the number of days/nights between two dates.
 /// E.g. there's one day/night between 2020-01-01 and 2020-01-02.
-export function daysBetween(
-  date1: Temporal.PlainDate,
-  date2: Temporal.PlainDate,
-): number {
+export function daysBetween(date1: Temporal.PlainDate, date2: Temporal.PlainDate): number {
   return date1.until(date2, { largestUnit: "days" }).days;
 }
 
 /// Converts a protobuf Timestamp to a Temporal.Instant value (timezone-agnostic).
-export function timestampToInstant(
-  timestamp: Timestamp.AsObject,
-): Temporal.Instant {
+export function timestampToInstant(timestamp: Timestamp.AsObject): Temporal.Instant {
   // By protobuf, seconds and nanos should be integers.
   // Just in case, drop decimals otherwise BigInt will blow up.
-  const nanos =
-    BigInt(Math.floor(timestamp.nanos)) +
-    BigInt(Math.floor(timestamp.seconds)) * 1_000_000_000n;
+  const nanos = BigInt(Math.floor(timestamp.nanos)) + BigInt(Math.floor(timestamp.seconds)) * 1_000_000_000n;
   return new Temporal.Instant(nanos);
 }
 
 /// Converts a Temporal Instant to a PlainDateTime in the browser's timezone.
-export function instantToPlainDateTime(
-  instant: Temporal.Instant,
-  timezone?: string,
-): Temporal.PlainDateTime {
-  return instant
-    .toZonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId())
-    .toPlainDateTime();
+export function instantToPlainDateTime(instant: Temporal.Instant, timezone?: string): Temporal.PlainDateTime {
+  return instant.toZonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()).toPlainDateTime();
 }
 
 /// Converts a protobuf Timestamp to a PlainDateTime in the browser's timezone.
-export function timestampToPlainDateTime(
-  timestamp: Timestamp.AsObject,
-  timezone?: string,
-): Temporal.PlainDateTime {
+export function timestampToPlainDateTime(timestamp: Timestamp.AsObject, timezone?: string): Temporal.PlainDateTime {
   return instantToPlainDateTime(timestampToInstant(timestamp), timezone);
 }
 
@@ -45,9 +32,7 @@ export function timestampToZonedDateTime(
   timestamp: Timestamp.AsObject,
   timezone: string | undefined,
 ): Temporal.ZonedDateTime {
-  return timestampToInstant(timestamp).toZonedDateTimeISO(
-    timezone ?? Temporal.Now.timeZoneId(),
-  );
+  return timestampToInstant(timestamp).toZonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId());
 }
 
 const APPROX_DAYS_PER_YEAR = 365;
@@ -57,9 +42,7 @@ const APPROX_DAYS_PER_MONTH = 30;
 /// to an approximate equivalent which only has time units.
 /// E.g. if the user asks to snooze something for 1 month (non-specific duration),
 /// we need to convert that to an amount of time by approximating hours/month.
-export function approxTimeDuration(
-  duration: Temporal.Duration,
-): Temporal.Duration {
+export function approxTimeDuration(duration: Temporal.Duration): Temporal.Duration {
   if (duration.years != 0) {
     duration = duration.with({
       years: 0,
@@ -89,9 +72,7 @@ export function approxTimeDuration(
 
 /// Converts a duration which might have time and date units,
 /// to an approximate equivalent that uses date units.
-export function approxDateDuration(
-  duration: Temporal.Duration,
-): Temporal.Duration {
+export function approxDateDuration(duration: Temporal.Duration): Temporal.Duration {
   duration = approxTimeDuration(duration); // Remove date units
   // Spreads 90 seconds -> 1 minute + 30 seconds, etc. for time units
   duration = duration.round({ largestUnit: "hours" });

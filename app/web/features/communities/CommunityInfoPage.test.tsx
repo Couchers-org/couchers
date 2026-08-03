@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import mockRouter from "next-router-mock";
@@ -21,33 +15,23 @@ import CommunityInfoPage from "./CommunityInfoPage";
 
 const { t } = i18n;
 
-const listAdminsMock = service.communities.listAdmins as jest.MockedFunction<
-  typeof service.communities.listAdmins
->;
-const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
-  typeof service.user.getLiteUsers
->;
+const listAdminsMock = service.communities.listAdmins as jest.MockedFunction<typeof service.communities.listAdmins>;
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
 const [, firstAdmin, secondAdmin, thirdAdmin] = users;
 
-async function assertAdminsShown(
-  element: typeof screen | ReturnType<typeof within>,
-) {
+async function assertAdminsShown(element: typeof screen | ReturnType<typeof within>) {
   expect(
     await element.findByRole("link", {
       name: getProfileLinkA11yLabel(firstAdmin.name),
     }),
   ).toBeVisible();
-  expect(
-    element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`),
-  ).toBeVisible();
+  expect(element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`)).toBeVisible();
   expect(
     element.getByRole("link", {
       name: getProfileLinkA11yLabel(secondAdmin.name),
     }),
   ).toBeVisible();
-  expect(
-    element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`),
-  ).toBeVisible();
+  expect(element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`)).toBeVisible();
 }
 
 describe("Community info page", () => {
@@ -76,9 +60,7 @@ describe("Community info page", () => {
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Shouldn't show the edit link since the default user doesn't have permission
-    expect(
-      screen.queryByRole("link", { name: t("global:edit") }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: t("global:edit") })).not.toBeInTheDocument();
 
     // Community moderators section checks
     expect(
@@ -100,9 +82,7 @@ describe("Community info page", () => {
 
   describe("when the user has permission to edit a community info page", () => {
     it("takes the user to the edit community info page when such a link is clicked", async () => {
-      mockRouter.setCurrentUrl(
-        routeToCommunity(community.communityId, community.slug, "info"),
-      );
+      mockRouter.setCurrentUrl(routeToCommunity(community.communityId, community.slug, "info"));
       render(
         <CommunityInfoPage
           community={{
@@ -122,9 +102,7 @@ describe("Community info page", () => {
       await user.click(editLink);
 
       await waitFor(() =>
-        expect(mockRouter.pathname).toBe(
-          routeToEditCommunityPage(community.communityId, community.slug),
-        ),
+        expect(mockRouter.pathname).toBe(routeToEditCommunityPage(community.communityId, community.slug)),
       );
     });
   });
@@ -137,9 +115,7 @@ describe("Community info page", () => {
 
     await assertErrorAlert(errorMessage);
 
-    expect(
-      screen.queryByText(t("communities:no_moderators")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("communities:no_moderators"))).not.toBeInTheDocument();
   });
 
   describe("when there are more than one page of moderators", () => {
@@ -231,9 +207,7 @@ describe("Community info page", () => {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         }),
       ).toBeVisible();
-      expect(
-        adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`),
-      ).toBeVisible();
+      expect(adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`)).toBeVisible();
 
       // Check it doesn't affect the underlying page
       await user.click(document.querySelector(".MuiBackdrop-root")!);

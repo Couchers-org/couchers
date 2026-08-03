@@ -3,10 +3,7 @@ import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
-import {
-  mapSearchActionTypes,
-  MapSearchState,
-} from "../state/mapSearchReducers";
+import { mapSearchActionTypes, MapSearchState } from "../state/mapSearchReducers";
 import { Coordinates } from "../utils/constants";
 
 function useMapSearchActions() {
@@ -86,9 +83,7 @@ function useMapSearchActions() {
       payload: { userId },
     });
 
-    document
-      .getElementById(`search-result-${userId}`)
-      ?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById(`search-result-${userId}`)?.scrollIntoView({ behavior: "smooth" });
   };
 
   const clearSearchFilters = () => {

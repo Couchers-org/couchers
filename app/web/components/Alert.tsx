@@ -1,8 +1,4 @@
-import {
-  Alert as MuiAlert,
-  AlertProps as MuiAlertProps,
-  styled,
-} from "@mui/material";
+import { Alert as MuiAlert, AlertProps as MuiAlertProps, styled } from "@mui/material";
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
 import React, { ReactNode } from "react";
 
@@ -15,14 +11,9 @@ interface AlertProps extends MuiAlertProps {
   children: string | ReactNode;
 }
 
-export default function Alert({
-  className,
-  children,
-  ...otherProps
-}: AlertProps) {
+export default function Alert({ className, children, ...otherProps }: AlertProps) {
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
-    (oldError): oldError is ObscureGrpcErrorMessages =>
-      typeof children === "string" && children.includes(oldError),
+    (oldError): oldError is ObscureGrpcErrorMessages => typeof children === "string" && children.includes(oldError),
   );
 
   return (

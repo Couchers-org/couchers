@@ -9,15 +9,10 @@ import { VolunteerFormData } from "./utils";
 export function useUpdateVolunteerInfo() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    GetMyVolunteerInfoRes.AsObject,
-    RpcError,
-    VolunteerFormData
-  >({
+  return useMutation<GetMyVolunteerInfoRes.AsObject, RpcError, VolunteerFormData>({
     mutationFn: async (data) => {
       // For website, use the URL as both the display text and href
-      const linkText =
-        data.linkType === "website" ? data.linkUrl : data.linkText;
+      const linkText = data.linkType === "website" ? data.linkUrl : data.linkText;
 
       const result = await service.account.updateVolunteerInfo({
         displayName: data.overrideName ? data.displayName : "",
@@ -25,8 +20,7 @@ export function useUpdateVolunteerInfo() {
         showOnTeamPage: data.showOnTeamPage,
         linkType: data.linkType || undefined,
         linkText: linkText || undefined,
-        linkUrl:
-          data.linkType === "website" ? data.linkUrl || undefined : undefined,
+        linkUrl: data.linkType === "website" ? data.linkUrl || undefined : undefined,
       });
       return result.toObject();
     },

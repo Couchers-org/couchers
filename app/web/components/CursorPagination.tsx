@@ -38,12 +38,7 @@ export default function CursorPagination({
         >
           {t("previous")}
         </Button>
-        <Button
-          variant="outlined"
-          endIcon={<ChevronRightIcon />}
-          onClick={onNext}
-          disabled={!hasNextPage || isLoading}
-        >
+        <Button variant="outlined" endIcon={<ChevronRightIcon />} onClick={onNext} disabled={!hasNextPage || isLoading}>
           {t("next")}
         </Button>
       </Stack>

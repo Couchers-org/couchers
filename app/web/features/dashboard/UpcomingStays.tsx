@@ -1,9 +1,4 @@
-import {
-  ArrowBack,
-  ArrowForward,
-  Luggage,
-  MeetingRoom,
-} from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -15,11 +10,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/messages_pb";
-import {
-  HostRequest,
-  HostRequestSortBy,
-  ListHostRequestsRes,
-} from "proto/requests_pb";
+import { HostRequest, HostRequestSortBy, ListHostRequestsRes } from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
@@ -78,9 +69,7 @@ function UpcomingStaysWidget({
     // scrollLeft: pixels scrolled; clientWidth: visible width; scrollWidth: total content width.
     // scrollLeft is a float on high-DPI screens, so Math.round prevents the right arrow staying lit at the end.
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(
-      Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth,
-    );
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
   };
 
   useEffect(() => {
@@ -97,10 +86,7 @@ function UpcomingStaysWidget({
   return (
     <section>
       <SectionHeader>
-        <Typography
-          variant="h2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-        >
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           {icon}
           {title}
           {!isLoading && requests.length > 0 && (
@@ -132,26 +118,17 @@ function UpcomingStaysWidget({
       {isLoading ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
           {[0, 1, 2].map((i) => (
-            <Box
-              key={i}
-              sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}
-            >
+            <Box key={i} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
               <UpcomingStayCardSkeleton />
             </Box>
           ))}
         </FadingScrollTrack>
       ) : requests.length === 0 ? (
         <EmptyStateRow>
-          <Typography
-            variant="body2"
-            sx={{ flex: 1, color: "var(--mui-palette-text-secondary)" }}
-          >
+          <Typography variant="body2" sx={{ flex: 1, color: "var(--mui-palette-text-secondary)" }}>
             {emptyMessage}
           </Typography>
-          <Link
-            href={emptyCtaHref}
-            style={{ textDecoration: "none", whiteSpace: "nowrap" }}
-          >
+          <Link href={emptyCtaHref} style={{ textDecoration: "none", whiteSpace: "nowrap" }}>
             <Typography
               component="span"
               variant="body2"
@@ -215,8 +192,7 @@ export default function UpcomingStays() {
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
     initialPageParam: undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
   });
 
   const {
@@ -234,16 +210,11 @@ export default function UpcomingStays() {
         sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
       }),
     initialPageParam: undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
   });
 
-  const upcomingTrips = (tripsData?.pages ?? []).flatMap(
-    (page) => page.hostRequestsList,
-  );
-  const upcomingGuests = (guestsData?.pages ?? []).flatMap(
-    (page) => page.hostRequestsList,
-  );
+  const upcomingTrips = (tripsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
+  const upcomingGuests = (guestsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
 
   const error = tripsError ?? guestsError;
 
@@ -252,11 +223,7 @@ export default function UpcomingStays() {
       {error && <Alert severity="error">{error.message}</Alert>}
 
       <UpcomingStaysWidget
-        icon={
-          <MeetingRoom
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
-        }
+        icon={<MeetingRoom sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
         title={t("dashboard:stays.upcoming_guests_header")}
         requests={upcomingGuests}
         isLoading={guestsLoading}
@@ -268,11 +235,7 @@ export default function UpcomingStays() {
       <Box sx={{ height: theme.spacing(3) }} />
 
       <UpcomingStaysWidget
-        icon={
-          <Luggage
-            sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }}
-          />
-        }
+        icon={<Luggage sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
         title={t("dashboard:stays.upcoming_trips_header")}
         requests={upcomingTrips}
         isLoading={tripsLoading}

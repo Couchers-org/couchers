@@ -1,15 +1,6 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  IMAGE_DESCRIPTION,
-  INSERT_IMAGE,
-} from "components/MarkdownInput/constants";
+import { IMAGE_DESCRIPTION, INSERT_IMAGE } from "components/MarkdownInput/constants";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -20,9 +11,7 @@ import MarkdownInput from "./MarkdownInput";
 
 const { t } = i18n;
 
-const uploadFileMock = service.api.uploadFile as MockedService<
-  typeof service.api.uploadFile
->;
+const uploadFileMock = service.api.uploadFile as MockedService<typeof service.api.uploadFile>;
 
 const Form = ({ submit }: { submit(value: string): void }) => {
   const { control, handleSubmit } = useForm();
@@ -30,13 +19,7 @@ const Form = ({ submit }: { submit(value: string): void }) => {
   return (
     <form onSubmit={onSubmit}>
       <h1 id="form-header">Form</h1>
-      <MarkdownInput
-        control={control}
-        labelId="form-header"
-        id="markdown-input"
-        name="value"
-        imageUpload
-      />
+      <MarkdownInput control={control} labelId="form-header" id="markdown-input" name="value" imageUpload />
       <input type="submit" />
     </form>
   );
@@ -63,14 +46,8 @@ describe("MarkdownInput", () => {
 
     await user.click(screen.getByRole("button", { name: INSERT_IMAGE }));
     const dialog = await screen.findByRole("dialog");
-    await user.upload(
-      within(dialog).getByLabelText(t("global:image_input.select_button_a11y")),
-      MOCK_FILE,
-    );
-    await user.type(
-      within(dialog).getByLabelText(IMAGE_DESCRIPTION),
-      "description",
-    );
+    await user.upload(within(dialog).getByLabelText(t("global:image_input.select_button_a11y")), MOCK_FILE);
+    await user.type(within(dialog).getByLabelText(IMAGE_DESCRIPTION), "description");
     await waitForElementToBeRemoved(dialog);
     await user.click(screen.getByRole("button", { name: "Submit" }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith("![](full.jpg)"));

@@ -23,11 +23,7 @@ const mockHostRequest: HostRequest.AsObject = {
   isArchived: false,
 };
 
-const mockSendMutation: UseMutationResult<
-  string | undefined | Empty,
-  RpcError,
-  string
-> = {
+const mockSendMutation: UseMutationResult<string | undefined | Empty, RpcError, string> = {
   mutate: jest.fn(),
   mutateAsync: jest.fn(),
   isPending: false,
@@ -56,45 +52,25 @@ describe("HostRequestSendField", () => {
   });
 
   it("renders the message input and send button", () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     expect(
       screen.getByLabelText(t("messages:chat_input.label"), {
         selector: "textarea",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: t("global:send") }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t("global:send") })).toBeInTheDocument();
   });
 
   it("disables the send button when the input field is empty", () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
   });
 
   it("disables the send button when the input contains only whitespace", async () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"), {
@@ -108,13 +84,7 @@ describe("HostRequestSendField", () => {
   });
 
   it("enables the send button when there is text in the input field", async () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"), {
@@ -128,13 +98,7 @@ describe("HostRequestSendField", () => {
   });
 
   it("sends the message when the send button is clicked", async () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
 
@@ -153,13 +117,7 @@ describe("HostRequestSendField", () => {
   });
 
   it("clears the input field after sending a message", async () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"), {
@@ -176,13 +134,7 @@ describe("HostRequestSendField", () => {
   });
 
   it("sends message on Ctrl+Enter key combination", async () => {
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={mockSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"), {
@@ -203,17 +155,9 @@ describe("HostRequestSendField", () => {
       status: HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
     };
 
-    render(
-      <HostRequestSendField
-        hostRequest={cancelledRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={cancelledRequest} sendMutation={mockSendMutation} />, { wrapper });
 
-    const input = document.getElementById(
-      "host-request-message",
-    ) as HTMLTextAreaElement;
+    const input = document.getElementById("host-request-message") as HTMLTextAreaElement;
     const sendButton = screen.getByRole("button", { name: t("global:send") });
 
     expect(input).not.toBeDisabled();
@@ -226,17 +170,9 @@ describe("HostRequestSendField", () => {
       status: HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
     };
 
-    render(
-      <HostRequestSendField
-        hostRequest={rejectedRequest}
-        sendMutation={mockSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={rejectedRequest} sendMutation={mockSendMutation} />, { wrapper });
 
-    const input = document.getElementById(
-      "host-request-message",
-    ) as HTMLTextAreaElement;
+    const input = document.getElementById("host-request-message") as HTMLTextAreaElement;
     const sendButton = screen.getByRole("button", { name: t("global:send") });
 
     expect(input).not.toBeDisabled();
@@ -244,11 +180,7 @@ describe("HostRequestSendField", () => {
   });
 
   it("disables the send button while a message is being sent", async () => {
-    const pendingSendMutation: UseMutationResult<
-      string | undefined | Empty,
-      RpcError,
-      string
-    > = {
+    const pendingSendMutation: UseMutationResult<string | undefined | Empty, RpcError, string> = {
       ...mockSendMutation,
       isPending: true,
       isIdle: false,
@@ -256,13 +188,7 @@ describe("HostRequestSendField", () => {
       variables: "test message",
     };
 
-    render(
-      <HostRequestSendField
-        hostRequest={mockHostRequest}
-        sendMutation={pendingSendMutation}
-      />,
-      { wrapper },
-    );
+    render(<HostRequestSendField hostRequest={mockHostRequest} sendMutation={pendingSendMutation} />, { wrapper });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"), {

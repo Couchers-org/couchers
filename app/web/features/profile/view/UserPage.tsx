@@ -5,10 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
-import {
-  readSearchReferrer,
-  referrerToProperties,
-} from "features/analytics/searchAttribution";
+import { readSearchReferrer, referrerToProperties } from "features/analytics/searchAttribution";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
@@ -31,10 +28,7 @@ const REQUEST_ID = "request";
  */
 function useProfileTabViewTracking(userId: number | undefined, tab: UserTab) {
   const logEvent = useLogEvent();
-  const referrerProps = useMemo(
-    () => referrerToProperties(userId ? readSearchReferrer(userId) : null),
-    [userId],
-  );
+  const referrerProps = useMemo(() => referrerToProperties(userId ? readSearchReferrer(userId) : null), [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -42,10 +36,7 @@ function useProfileTabViewTracking(userId: number | undefined, tab: UserTab) {
     document.addEventListener("visibilitychange", tracker.onVisibilityChange);
 
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        tracker.onVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", tracker.onVisibilityChange);
       const { foregroundMs, totalMs } = tracker.finalize();
       logEvent("profile.tab_viewed", {
         user_id: userId,
@@ -76,13 +67,7 @@ export const StyledProfileRoot = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function UserPage({
-  username,
-  tab = "about",
-}: {
-  username: string;
-  tab?: UserTab;
-}) {
+export default function UserPage({ username, tab = "about" }: { username: string; tab?: UserTab }) {
   const { t } = useTranslation([PROFILE, GLOBAL]);
   const router = useRouter();
 
@@ -104,20 +89,14 @@ export default function UserPage({
   return (
     <>
       <HtmlMeta title={user?.name} />
-      {isSuccessRequest && (
-        <Snackbar severity="success">{t("request_form.success")}</Snackbar>
-      )}
+      {isSuccessRequest && <Snackbar severity="success">{t("request_form.success")}</Snackbar>}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>
-            <Overview
-              setIsRequesting={setIsRequesting}
-              setIsMessaging={setIsMessaging}
-              tab={tab}
-            />
+            <Overview setIsRequesting={setIsRequesting} setIsMessaging={setIsMessaging} tab={tab} />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
@@ -128,10 +107,7 @@ export default function UserPage({
               top={
                 <>
                   <Collapse in={isRequesting} mountOnEnter unmountOnExit>
-                    <NewHostRequest
-                      setIsRequesting={setIsRequesting}
-                      setIsRequestSuccess={setIsSuccessRequest}
-                    />
+                    <NewHostRequest setIsRequesting={setIsRequesting} setIsRequestSuccess={setIsSuccessRequest} />
                   </Collapse>
                   <Collapse in={isMessaging}>
                     <NewMessage setIsMessaging={setIsMessaging} />

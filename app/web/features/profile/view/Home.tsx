@@ -45,9 +45,7 @@ export default function Home({ user }: HomeProps) {
     <>
       <StyledRoot>
         <StyledInfoColumn>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.hosting_preferences")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.hosting_preferences")}</Typography>
           <LabelAndText
             label={t("profile:home_info_headings.last_minute")}
             text={booleanConversion(t, user.lastMinute?.value)}
@@ -82,15 +80,10 @@ export default function Home({ user }: HomeProps) {
           />
         </StyledInfoColumn>
         <StyledInfoColumn>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.my_home")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.my_home")}</Typography>
           <LabelAndText
             label={t("profile:home_info_headings.space")}
-            text={
-              sleepingArrangementLabelsShort(t)[user.sleepingArrangement] ||
-              t("profile:unspecified_info")
-            }
+            text={sleepingArrangementLabelsShort(t)[user.sleepingArrangement] || t("profile:unspecified_info")}
           />
           <LabelAndText
             label={t("profile:home_info_headings.parking")}
@@ -103,9 +96,7 @@ export default function Home({ user }: HomeProps) {
           <LabelAndText
             label={t("profile:home_info_headings.has_housemates")}
             text={`${booleanConversion(t, user.hasHousemates?.value)}${
-              user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value}`
-                : ""
+              user.housemateDetails?.value ? `, ${user.housemateDetails?.value}` : ""
             }`}
           />
           <LabelAndText
@@ -133,45 +124,35 @@ export default function Home({ user }: HomeProps) {
       <StyledSpacedDivider />
       {user.aboutPlace && (
         <>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.about_home")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.about_home")}</Typography>
           <Markdown source={user.aboutPlace} />
           <StyledSpacedDivider />
         </>
       )}
       {user.area && (
         <>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.local_area")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.local_area")}</Typography>
           <Markdown source={user.area?.value} />
           <StyledSpacedDivider />
         </>
       )}
       {user.sleepingDetails && (
         <>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.sleeping_arrangement")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.sleeping_arrangement")}</Typography>
           <Markdown source={user.sleepingDetails?.value} />
           <StyledSpacedDivider />
         </>
       )}
       {user.houseRules && (
         <>
-          <Typography variant="h1">
-            {t("profile:home_info_headings.house_rules")}
-          </Typography>
+          <Typography variant="h1">{t("profile:home_info_headings.house_rules")}</Typography>
           <Markdown source={user.houseRules?.value} />
           <StyledSpacedDivider />
         </>
       )}
       {user.otherHostInfo && (
         <>
-          <Typography variant="h1">
-            {t("profile:heading.additional_information_section")}
-          </Typography>
+          <Typography variant="h1">{t("profile:heading.additional_information_section")}</Typography>
           <Markdown source={user.otherHostInfo?.value} />
         </>
       )}

@@ -1,11 +1,15 @@
 import {
   getMuiDateFormat,
   getMuiTimeFormat,
+  localizeDateOnly,
   localizeDateTime,
   localizeDuration,
+  localizeMonthName,
   localizeRelativeTime,
   localizeTimeOffset,
+  localizeTimeOnly,
   localizeTimeZone,
+  localizeYearMonth,
 } from "i18n/datetimes";
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
@@ -19,14 +23,9 @@ describe("localizeDateTime", () => {
   });
 
   it("excludes dates when specified", () => {
+    expect(localizeDateTime(janFirst2000, "en")).toContain("2000");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("2000");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDate: false,
       }),
     ).not.toContain("2000");
@@ -34,14 +33,12 @@ describe("localizeDateTime", () => {
 
   it("supports all includeYear modes", () => {
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: true,
       }),
     ).toContain("2000");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: false,
       }),
     ).not.toContain("2000");
@@ -50,28 +47,21 @@ describe("localizeDateTime", () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2001-01-01T00:00:00Z"));
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeYear: "auto",
       }),
     ).toContain("2000");
     expect(
-      localizeDateTime(Temporal.PlainDateTime.from("2001-01-01"), {
-        locale: "en",
+      localizeDateTime(Temporal.PlainDateTime.from("2001-01-01"), "en", {
         includeYear: "auto",
       }),
     ).not.toContain("2001");
   });
 
   it("honors abbreviated month names", () => {
+    expect(localizeDateTime(janFirst2000, "en")).toContain("January");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         abbreviate: true,
       }),
     ).not.toContain("uary");
@@ -79,20 +69,17 @@ describe("localizeDateTime", () => {
 
   it("includes the day of week when specified", () => {
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: false,
       }),
     ).not.toContain("Sat");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: true,
       }),
     ).toContain("Saturday");
     expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
+      localizeDateTime(janFirst2000, "en", {
         includeDayOfWeek: true,
         abbreviate: true,
       }),
@@ -100,14 +87,9 @@ describe("localizeDateTime", () => {
   });
 
   it("excludes times when specified", () => {
+    expect(localizeDateTime(janFirst2000.add({ hours: 11 }), "en")).toContain("11");
     expect(
-      localizeDateTime(janFirst2000.add({ hours: 11 }), {
-        locale: "en",
-      }),
-    ).toContain("11");
-    expect(
-      localizeDateTime(janFirst2000.add({ hours: 11 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ hours: 11 }), "en", {
         includeTime: false,
       }),
     ).not.toContain("11");
@@ -115,66 +97,31 @@ describe("localizeDateTime", () => {
 
   it("includes seconds when specified", () => {
     expect(
-      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), "en", {
         includeSeconds: false,
       }),
     ).not.toContain("42");
     expect(
-      localizeDateTime(janFirst2000.add({ seconds: 42 }), {
-        locale: "en",
+      localizeDateTime(janFirst2000.add({ seconds: 42 }), "en", {
         includeSeconds: true,
       }),
     ).toContain("42");
   });
 
   it("honors the locale", () => {
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "en-US",
-      }),
-    ).toContain("January");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "es",
-      }),
-    ).toContain("enero");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "de",
-      }),
-    ).toContain("Januar");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "pt-BR",
-      }),
-    ).toContain("janeiro");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "ca",
-      }),
-    ).toContain("gener");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "zh-Hans",
-      }),
-    ).toContain("1月");
-    expect(
-      localizeDateTime(janFirst2000, {
-        locale: "zh-Hant",
-      }),
-    ).toContain("1月");
+    expect(localizeDateTime(janFirst2000, "en")).toContain("January");
+    expect(localizeDateTime(janFirst2000, "en-US")).toContain("January");
+    expect(localizeDateTime(janFirst2000, "es")).toContain("enero");
+    expect(localizeDateTime(janFirst2000, "de")).toContain("Januar");
+    expect(localizeDateTime(janFirst2000, "pt-BR")).toContain("janeiro");
+    expect(localizeDateTime(janFirst2000, "ca")).toContain("gener");
+    expect(localizeDateTime(janFirst2000, "zh-Hans")).toContain("1月");
+    expect(localizeDateTime(janFirst2000, "zh-Hant")).toContain("1月");
   });
 
   it("does not capitalize day/month names by default (assumed mid-sentence)", () => {
     // Spanish weekday + month stay lowercase when the date may be part of a sentence.
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeDayOfWeek: true,
       includeTime: false,
     });
@@ -183,8 +130,7 @@ describe("localizeDateTime", () => {
   });
 
   it("capitalizes only the first letter when capitalize is set (standalone date)", () => {
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeDayOfWeek: true,
       includeTime: false,
       capitalize: true,
@@ -196,12 +142,32 @@ describe("localizeDateTime", () => {
 
   it("leaves a non-letter first grapheme unchanged when capitalize is set", () => {
     // Spanish dates without a weekday start with the day number.
-    const formatted = localizeDateTime(janFirst2000, {
-      locale: "es",
+    const formatted = localizeDateTime(janFirst2000, "es", {
       includeTime: false,
       capitalize: true,
     });
     expect(formatted).toMatch(/^1 de enero/);
+  });
+});
+
+describe("localizeDateTime-derived helpers", () => {
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
+  it("localizeDateOnly", () => {
+    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("January 1, 2000");
+  });
+
+  it("localizeTimeOnly", () => {
+    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 AM");
+  });
+
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
+  it("localizeYearMonth", () => {
+    expect(localizeYearMonth(new Temporal.PlainYearMonth(2000, 2), "en")).toBe("February 2000");
+  });
+
+  // Sanity check. Testing is otherwise covered by localizeDateTime, which it delegates to.
+  it("localizeMonthName", () => {
+    expect(localizeMonthName(2, "en")).toBe("February");
   });
 });
 
@@ -212,71 +178,45 @@ describe("localizeTimeOffset", () => {
         numeric: "always",
       }),
     ).toBe("in 0 seconds");
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en"),
-    ).toBe("in 1 second");
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ seconds: 3 }), "en"),
-    ).toBe("in 3 seconds");
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ minutes: 1 }), "en"),
-    ).toBe("in 1 minute");
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ minutes: 3 }), "en"),
-    ).toBe("in 3 minutes");
-    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 1 }), "en")).toBe(
-      "in 1 hour",
-    );
-    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "en")).toBe(
-      "in 3 hours",
-    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en")).toBe("in 1 second");
+    expect(localizeTimeOffset(Temporal.Duration.from({ seconds: 3 }), "en")).toBe("in 3 seconds");
+    expect(localizeTimeOffset(Temporal.Duration.from({ minutes: 1 }), "en")).toBe("in 1 minute");
+    expect(localizeTimeOffset(Temporal.Duration.from({ minutes: 3 }), "en")).toBe("in 3 minutes");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 1 }), "en")).toBe("in 1 hour");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "en")).toBe("in 3 hours");
     expect(
       localizeTimeOffset(Temporal.Duration.from({ days: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 day");
-    expect(localizeTimeOffset(Temporal.Duration.from({ days: 3 }), "en")).toBe(
-      "in 3 days",
-    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ days: 3 }), "en")).toBe("in 3 days");
     expect(
       localizeTimeOffset(Temporal.Duration.from({ weeks: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 week");
-    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: 3 }), "en")).toBe(
-      "in 3 weeks",
-    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: 3 }), "en")).toBe("in 3 weeks");
     expect(
       localizeTimeOffset(Temporal.Duration.from({ months: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 month");
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ months: 3 }), "en"),
-    ).toBe("in 3 months");
+    expect(localizeTimeOffset(Temporal.Duration.from({ months: 3 }), "en")).toBe("in 3 months");
     expect(
       localizeTimeOffset(Temporal.Duration.from({ years: 1 }), "en", {
         numeric: "always",
       }),
     ).toBe("in 1 year");
-    expect(localizeTimeOffset(Temporal.Duration.from({ years: 3 }), "en")).toBe(
-      "in 3 years",
-    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ years: 3 }), "en")).toBe("in 3 years");
   });
 
   it("works with negative offsets", () => {
-    expect(
-      localizeTimeOffset(Temporal.Duration.from({ hours: -3 }), "en"),
-    ).toBe("3 hours ago");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: -3 }), "en")).toBe("3 hours ago");
   });
 
   it("works with other locales", () => {
-    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "fr")).toBe(
-      "dans 3 heures",
-    );
-    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "es")).toBe(
-      "dentro de 3 horas",
-    );
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "fr")).toBe("dans 3 heures");
+    expect(localizeTimeOffset(Temporal.Duration.from({ hours: 3 }), "es")).toBe("dentro de 3 horas");
   });
 
   it("uses friendly readable forms for date unit deltas of 1", () => {
@@ -364,25 +304,15 @@ describe("localizeTimeOffset", () => {
 
 describe("localizeRelativeTime", () => {
   const instantZero = new Temporal.Instant(0n);
-  const nanosecondsPerHour = instantZero.add(
-    Temporal.Duration.from({ hours: 1 }),
-  ).epochNanoseconds;
+  const nanosecondsPerHour = instantZero.add(Temporal.Duration.from({ hours: 1 })).epochNanoseconds;
   const nanosecondsPerDay = nanosecondsPerHour * 24n;
 
   it("handles time units", () => {
+    expect(localizeRelativeTime(new Temporal.Instant(nanosecondsPerHour * 3n), "en", { relativeTo: instantZero })).toBe(
+      "in 3 hours",
+    );
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerHour * 3n),
-        "en",
-        { relativeTo: instantZero },
-      ),
-    ).toBe("in 3 hours");
-    expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerHour * -3n),
-        "en",
-        { relativeTo: instantZero },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerHour * -3n), "en", { relativeTo: instantZero }),
     ).toBe("3 hours ago");
   });
 
@@ -399,99 +329,59 @@ describe("localizeRelativeTime", () => {
       }),
     ).toBe("in 1 week");
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 13n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 13n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("in 1 week");
+    expect(localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 14n), "en", { relativeTo: instantZero })).toBe(
+      "in 2 weeks",
+    );
+    expect(localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 29n), "en", { relativeTo: instantZero })).toBe(
+      "in 4 weeks",
+    );
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 14n),
-        "en",
-        { relativeTo: instantZero },
-      ),
-    ).toBe("in 2 weeks");
-    expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 29n),
-        "en",
-        { relativeTo: instantZero },
-      ),
-    ).toBe("in 4 weeks");
-    expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 30n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 30n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("in 1 month");
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 364n),
-        "en",
-        { relativeTo: instantZero },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 364n), "en", { relativeTo: instantZero }),
     ).toBe("in 12 months"); // We approximate months as 30 days
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * 365n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * 365n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("in 1 year"); // We approximate years as 365 days
   });
 
   it("handles date units with negative durations", () => {
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * -13n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * -13n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("1 week ago");
     expect(
-      localizeRelativeTime(
-        new Temporal.Instant(nanosecondsPerDay * -14n),
-        "en",
-        {
-          numeric: "always",
-          relativeTo: instantZero,
-        },
-      ),
+      localizeRelativeTime(new Temporal.Instant(nanosecondsPerDay * -14n), "en", {
+        numeric: "always",
+        relativeTo: instantZero,
+      }),
     ).toBe("2 weeks ago");
   });
 });
 
 describe("localizeDuration", () => {
   it("works with different units", () => {
-    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe(
-      "3 minutes",
-    );
-    expect(localizeDuration(Temporal.Duration.from({ hours: 3 }), "en")).toBe(
-      "3 hours",
-    );
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe("3 minutes");
+    expect(localizeDuration(Temporal.Duration.from({ hours: 3 }), "en")).toBe("3 hours");
   });
 
   it("honors the locale", () => {
-    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe(
-      "3 minutes",
-    );
-    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "es")).toBe(
-      "3 minutos",
-    );
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "en")).toBe("3 minutes");
+    expect(localizeDuration(Temporal.Duration.from({ minutes: 3 }), "es")).toBe("3 minutos");
   });
 });
 
@@ -500,34 +390,22 @@ describe("localizeTimeZone", () => {
   // depending on the time of the year.
   it("supports for different time zones", () => {
     expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
-    expect(localizeTimeZone("America/Mexico_City", "en")).toBe(
-      "Central Standard Time",
-    );
+    expect(localizeTimeZone("America/Mexico_City", "en")).toBe("Central Standard Time");
   });
 
   it("supports for different languages", () => {
     expect(localizeTimeZone("Asia/Shanghai", "en")).toBe("China Standard Time");
-    expect(localizeTimeZone("Asia/Shanghai", "es")).toBe(
-      "hora estándar de China",
-    );
+    expect(localizeTimeZone("Asia/Shanghai", "es")).toBe("hora estándar de China");
   });
 
   it("supports short and long forms", () => {
-    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: false })).toBe(
-      "Greenwich Mean Time",
-    );
-    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: true })).toBe(
-      "GMT",
-    );
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: false })).toBe("Greenwich Mean Time");
+    expect(localizeTimeZone("Atlantic/Reykjavik", "en", { short: true })).toBe("GMT");
   });
 
   it("supports for capitalization", () => {
-    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: false })).toBe(
-      "hora estándar de China",
-    );
-    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: true })).toBe(
-      "Hora estándar de China",
-    );
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: false })).toBe("hora estándar de China");
+    expect(localizeTimeZone("Asia/Shanghai", "es", { capitalize: true })).toBe("Hora estándar de China");
   });
 });
 

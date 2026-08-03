@@ -12,10 +12,7 @@ type StrongVerificationProps = {
   className?: string;
 };
 
-export default function StrongVerification({
-  className,
-  accountInfo,
-}: StrongVerificationProps) {
+export default function StrongVerification({ className, accountInfo }: StrongVerificationProps) {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -56,11 +53,7 @@ export default function StrongVerification({
           }}
         />
       </Typography>
-      {accountInfo.hasStrongVerification ? (
-        <DeleteStrongVerificationDataButton />
-      ) : (
-        <StartStrongVerificationButton />
-      )}
+      {accountInfo.hasStrongVerification ? <DeleteStrongVerificationDataButton /> : <StartStrongVerificationButton />}
     </div>
   );
 }

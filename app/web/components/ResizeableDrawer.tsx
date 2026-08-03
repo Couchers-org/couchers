@@ -1,7 +1,4 @@
-import {
-  KeyboardDoubleArrowLeft,
-  KeyboardDoubleArrowRight,
-} from "@mui/icons-material";
+import { KeyboardDoubleArrowLeft, KeyboardDoubleArrowRight } from "@mui/icons-material";
 import { styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -63,9 +60,7 @@ export default function ResizeableDrawer({
   const handleDrawerExpansion = () => {
     setIsExpanded(!isExpanded);
 
-    onDrawerWidthChange(
-      isExpanded ? DEFAULT_DRAWER_WIDTH : Math.floor(window?.innerWidth * 0.6),
-    );
+    onDrawerWidthChange(isExpanded ? DEFAULT_DRAWER_WIDTH : Math.floor(window?.innerWidth * 0.6));
   };
 
   return (

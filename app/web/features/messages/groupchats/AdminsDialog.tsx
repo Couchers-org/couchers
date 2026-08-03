@@ -5,21 +5,12 @@ import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import IconButton from "components/IconButton";
 import { AddIcon, CloseIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "features/queryKeys";
+import { groupChatKey, groupChatMessagesKey, groupChatsListKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -73,19 +64,13 @@ function AdminListItem({
   };
 
   const makeAdmin = useMutation({
-    mutationFn: () =>
-      service.conversations.makeGroupChatAdmin(groupChatId, member),
+    mutationFn: () => service.conversations.makeGroupChatAdmin(groupChatId, member),
     onError: handleError,
     onMutate: clearError,
 
     onSuccess: () => {
-      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
-        "groupChat",
-        groupChatId,
-      ]);
-      const newAdminUserIdsList = Array.from(
-        previousGroupChat?.adminUserIdsList ?? [],
-      );
+      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(["groupChat", groupChatId]);
+      const newAdminUserIdsList = Array.from(previousGroupChat?.adminUserIdsList ?? []);
       newAdminUserIdsList.push(member.userId);
       queryClient.setQueryData(groupChatKey(groupChatId), {
         ...previousGroupChat,
@@ -95,18 +80,13 @@ function AdminListItem({
     },
   });
   const removeAdmin = useMutation({
-    mutationFn: () =>
-      service.conversations.removeGroupChatAdmin(groupChatId, member),
+    mutationFn: () => service.conversations.removeGroupChatAdmin(groupChatId, member),
     onError: handleError,
     onMutate: clearError,
 
     onSuccess: () => {
-      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
-        groupChatKey(groupChatId),
-      );
-      const newAdminUserIdsList = Array.from(
-        previousGroupChat?.adminUserIdsList ?? [],
-      );
+      const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(groupChatKey(groupChatId));
+      const newAdminUserIdsList = Array.from(previousGroupChat?.adminUserIdsList ?? []);
       newAdminUserIdsList.splice(newAdminUserIdsList.indexOf(member.userId), 1);
       queryClient.setQueryData(groupChatKey(groupChatId), {
         ...previousGroupChat,
@@ -172,16 +152,11 @@ interface AdminsDialogProps extends DialogProps {
   groupChat?: GroupChat.AsObject;
 }
 
-export default function AdminsDialog({
-  groupChat,
-  ...props
-}: AdminsDialogProps) {
+export default function AdminsDialog({ groupChat, ...props }: AdminsDialogProps) {
   const { t, i18n } = useTranslation([GLOBAL, MESSAGES]);
   const [error, setError] = useState("");
 
-  const nonAdminIds = groupChat?.memberUserIdsList.filter(
-    (id) => !groupChat?.adminUserIdsList.includes(id),
-  );
+  const nonAdminIds = groupChat?.memberUserIdsList.filter((id) => !groupChat?.adminUserIdsList.includes(id));
 
   const currentUserId = useAuthContext().authState.userId;
   const admins = useLiteUsers(groupChat?.adminUserIdsList ?? []);
@@ -204,27 +179,20 @@ export default function AdminsDialog({
           <Alert severity="error">{error}</Alert>
         </DialogContent>
       )}
-      <DialogTitle id="admins-dialog-title">
-        {t("messages:admins_dialog.remove_admin.title")}
-      </DialogTitle>
+      <DialogTitle id="admins-dialog-title">{t("messages:admins_dialog.remove_admin.title")}</DialogTitle>
       <DialogContent>
         <List>
           {admins.isLoading ? (
             <CenteredSpinner />
           ) : (
             Array.from(admins.data?.values() ?? [])
-              .sort(
-                (a, b) =>
-                  b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0,
-              )
+              .sort((a, b) => b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0)
               .map((user) =>
                 user ? (
                   <AdminListItem
                     key={`admin-dialog-${user.userId}`}
                     member={user}
-                    memberIsAdmin={
-                      groupChat?.adminUserIdsList.includes(user.userId) ?? false
-                    }
+                    memberIsAdmin={groupChat?.adminUserIdsList.includes(user.userId) ?? false}
                     groupChatId={groupChat?.groupChatId ?? 0}
                     setError={setError}
                   />
@@ -235,9 +203,7 @@ export default function AdminsDialog({
       </DialogContent>
       {nonAdminIds?.length !== 0 && (
         <>
-          <DialogTitle id="admins-dialog-title">
-            {t("messages:admins_dialog.add_admin.title")}
-          </DialogTitle>
+          <DialogTitle id="admins-dialog-title">{t("messages:admins_dialog.add_admin.title")}</DialogTitle>
 
           <DialogContent>
             <List>
@@ -245,19 +211,13 @@ export default function AdminsDialog({
                 <CenteredSpinner />
               ) : (
                 Array.from(nonAdmins.data?.values() ?? [])
-                  .sort(
-                    (a, b) =>
-                      b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0,
-                  )
+                  .sort((a, b) => b?.name.localeCompare(a?.name ?? "", i18n.language) ?? 0)
                   .map((user) =>
                     user ? (
                       <AdminListItem
                         key={`admin-dialog-${user.userId}`}
                         member={user}
-                        memberIsAdmin={
-                          groupChat?.adminUserIdsList.includes(user.userId) ??
-                          false
-                        }
+                        memberIsAdmin={groupChat?.adminUserIdsList.includes(user.userId) ?? false}
                         groupChatId={groupChat?.groupChatId ?? 0}
                         setError={setError}
                       />
@@ -269,9 +229,7 @@ export default function AdminsDialog({
         </>
       )}
       <DialogActions>
-        <Button onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}>
-          {t("global:ok")}
-        </Button>
+        <Button onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}>{t("global:ok")}</Button>
       </DialogActions>
     </Dialog>
   );

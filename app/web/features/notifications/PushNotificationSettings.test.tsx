@@ -1,18 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "i18n";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "service/notifications";
+import { getVapidPublicKey, registerPushNotificationSubscription } from "service/notifications";
 import wrapper from "test/hookWrapper";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import PushNotificationSettings from "./PushNotificationSettings";
-import {
-  checkPushEnabled,
-  turnPushNotificationsOff,
-  turnPushNotificationsOn,
-} from "./utils/helpers";
+import { checkPushEnabled, turnPushNotificationsOff, turnPushNotificationsOn } from "./utils/helpers";
 
 jest.mock("platform/sentry", () => ({
   captureException: jest.fn(),
@@ -38,8 +31,7 @@ jest.mock("./utils/helpers", () => ({
   turnPushNotificationsOff: jest.fn(),
 }));
 
-const actualHelpers =
-  jest.requireActual<typeof import("./utils/helpers")>("./utils/helpers");
+const actualHelpers = jest.requireActual<typeof import("./utils/helpers")>("./utils/helpers");
 
 const mockServiceWorker = {
   register: jest.fn(),
@@ -78,9 +70,7 @@ describe("PushNotificationSettings Component", () => {
 
   it("Renders push notifications settings", () => {
     render(<PushNotificationSettings />, { wrapper });
-    expect(
-      screen.getByText("notification_settings.push_notifications.title"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("notification_settings.push_notifications.title")).toBeInTheDocument();
   });
 
   it("Displays enabled message when permission is granted", async () => {
@@ -107,9 +97,7 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "notifications:notification_settings.push_notifications.enabled_message",
-        ),
+        screen.getByText("notifications:notification_settings.push_notifications.enabled_message"),
       ).toBeInTheDocument();
     });
   });
@@ -136,9 +124,7 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "notifications:notification_settings.push_notifications.disabled_message",
-        ),
+        screen.getByText("notifications:notification_settings.push_notifications.disabled_message"),
       ).toBeInTheDocument();
     });
   });
@@ -146,8 +132,7 @@ describe("PushNotificationSettings Component", () => {
   it("Displays error message when push notifications are not supported", async () => {
     (turnPushNotificationsOn as jest.Mock).mockResolvedValue({
       success: false,
-      errorMessage:
-        "notification_settings.push_notifications.error_unsupported",
+      errorMessage: "notification_settings.push_notifications.error_unsupported",
     });
 
     const mockDefault = {
@@ -163,28 +148,21 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "notifications:notification_settings.push_notifications.disabled_message",
-        ),
+        screen.getByText("notifications:notification_settings.push_notifications.disabled_message"),
       ).toBeInTheDocument();
     });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          "notification_settings.push_notifications.error_unsupported",
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText("notification_settings.push_notifications.error_unsupported")).toBeInTheDocument();
     });
   });
 
   it("Displays error when permission is denied", async () => {
     (turnPushNotificationsOn as jest.Mock).mockResolvedValue({
       success: false,
-      errorMessage:
-        "notification_settings.push_notifications.permission_denied.instructions.generic",
+      errorMessage: "notification_settings.push_notifications.permission_denied.instructions.generic",
     });
 
     const mockDenied = {
@@ -201,18 +179,14 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "notification_settings.push_notifications.permission_denied.instructions.generic",
-        ),
+        screen.getByText("notification_settings.push_notifications.permission_denied.instructions.generic"),
       ).toBeInTheDocument();
     });
   });
 
   it("Unsubscribes when permission is revoked", async () => {
     (checkPushEnabled as jest.Mock).mockResolvedValue(true);
-    (turnPushNotificationsOff as jest.Mock).mockImplementation(
-      actualHelpers.turnPushNotificationsOff,
-    );
+    (turnPushNotificationsOff as jest.Mock).mockImplementation(actualHelpers.turnPushNotificationsOff);
 
     Object.defineProperty(navigator, "serviceWorker", {
       value: mockServiceWorker,
@@ -249,9 +223,7 @@ describe("PushNotificationSettings Component", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "notifications:notification_settings.push_notifications.enabled_message",
-        ),
+        screen.getByText("notifications:notification_settings.push_notifications.enabled_message"),
       ).toBeInTheDocument();
     });
 
@@ -263,9 +235,7 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Subscribes to push notifications when permission is granted", async () => {
-    (turnPushNotificationsOn as jest.Mock).mockImplementation(
-      actualHelpers.turnPushNotificationsOn,
-    );
+    (turnPushNotificationsOn as jest.Mock).mockImplementation(actualHelpers.turnPushNotificationsOn);
 
     Object.defineProperty(navigator, "serviceWorker", {
       value: mockServiceWorker,
@@ -313,9 +283,7 @@ describe("PushNotificationSettings Component", () => {
     render(<PushNotificationSettings />, { wrapper });
 
     await waitFor(() => {
-      expect(
-        screen.getByText("notification_settings.push_notifications.title"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("notification_settings.push_notifications.title")).toBeInTheDocument();
     });
 
     // checkPushEnabled should NOT be called when isNativeEmbed is true
@@ -346,9 +314,7 @@ describe("PushNotificationSettings Component", () => {
     await waitFor(() => {
       expect(checkPushEnabled).toHaveBeenCalled();
       expect(
-        screen.getByText(
-          "notifications:notification_settings.push_notifications.enabled_message",
-        ),
+        screen.getByText("notifications:notification_settings.push_notifications.enabled_message"),
       ).toBeInTheDocument();
     });
   });

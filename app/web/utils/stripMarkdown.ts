@@ -9,12 +9,7 @@ interface StripMarkdownOptions {
 
 export default function stripMarkdown(
   md: string,
-  {
-    listUnicodeChar,
-    stripListLeaders,
-    gfm,
-    useImgAltText,
-  }: StripMarkdownOptions = {
+  { listUnicodeChar, stripListLeaders, gfm, useImgAltText }: StripMarkdownOptions = {
     gfm: true,
     listUnicodeChar: "",
     stripListLeaders: true,
@@ -28,11 +23,7 @@ export default function stripMarkdown(
 
   try {
     if (stripListLeaders) {
-      if (listUnicodeChar)
-        output = output.replace(
-          /^([\s\t]*)([*\-+]|\d+\.)\s+/gm,
-          listUnicodeChar + " $1",
-        );
+      if (listUnicodeChar) output = output.replace(/^([\s\t]*)([*\-+]|\d+\.)\s+/gm, listUnicodeChar + " $1");
       else output = output.replace(/^([\s\t]*)([*\-+]|\d+\.)\s+/gm, "$1");
     }
     if (gfm) {
@@ -63,10 +54,7 @@ export default function stripMarkdown(
       // Remove reference-style links?
       .replace(/^\s{1,2}\[(.*?)\]: (\S+)( ".*?")?\s*$/g, "")
       // Remove atx-style headers
-      .replace(
-        /^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$/gm,
-        "$1$2$3",
-      )
+      .replace(/^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$/gm, "$1$2$3")
       // Remove emphasis (repeat the line to remove double emphasis)
       .replace(/([*_]{1,3})(\S.*?\S{0,1})\1/g, "$2")
       .replace(/([*_]{1,3})(\S.*?\S{0,1})\1/g, "$2")

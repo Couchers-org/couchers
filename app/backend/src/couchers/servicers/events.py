@@ -9,7 +9,7 @@ from geoalchemy2 import WKBElement
 from google.protobuf import empty_pb2
 from psycopg.types.range import TimestamptzRange
 from sqlalchemy import Select, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_, tuple_, update
 
 from couchers.context import CouchersContext, make_notification_user_context
@@ -45,7 +45,12 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    users_visible,
+    users_visible_to_each_other,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -334,18 +339,32 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     )
 
     cluster = occurrence.event.parent_node.official_cluster
+    creator = aliased(User)
     if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
         logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible).where(not_already_involved)), occurrence.event.parent_node_id
+        members = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
+                .where(not_already_involved)
+            )
+            .scalars()
+            .all()
+        )
+        return list(members), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where(User.is_visible)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
                 .where(not_already_involved)
@@ -367,7 +386,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
 
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
-        creator = occurrence.creator_user
 
         users, node_id = get_users_to_notify_for_new_event(session, occurrence)
 
@@ -378,8 +396,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             return
 
         for user in users:
-            if is_not_visible(session, user.id, creator.id):
-                continue
             context = make_notification_user_context(user_id=user.id)
             topic_action = (
                 NotificationTopicAction.event__create_approved

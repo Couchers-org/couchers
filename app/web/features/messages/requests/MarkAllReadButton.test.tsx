@@ -14,20 +14,16 @@ import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 const { t } = i18n;
 
-const listGroupChatsMock = service.conversations
-  .listGroupChats as jest.MockedFunction<
+const listGroupChatsMock = service.conversations.listGroupChats as jest.MockedFunction<
   typeof service.conversations.listGroupChats
 >;
-const listHostRequestsMock = service.requests
-  .listHostRequests as jest.MockedFunction<
+const listHostRequestsMock = service.requests.listHostRequests as jest.MockedFunction<
   typeof service.requests.listHostRequests
 >;
-const markLastRequestSeenMock = service.requests
-  .markLastRequestSeen as jest.MockedFunction<
+const markLastRequestSeenMock = service.requests.markLastRequestSeen as jest.MockedFunction<
   typeof service.requests.markLastRequestSeen
 >;
-const markLastSeenGroupChatMock = service.conversations
-  .markLastSeenGroupChat as jest.MockedFunction<
+const markLastSeenGroupChatMock = service.conversations.markLastSeenGroupChat as jest.MockedFunction<
   typeof service.conversations.markLastSeenGroupChat
 >;
 
@@ -43,39 +39,27 @@ describe("MarkAllReadButton", () => {
     mutableStore.chats = [...defaultChats];
     mutableStore.requests = [...defaultRequests];
     //naive implementations rely on id = array index + 1
-    listGroupChatsMock.mockImplementation(
-      async (lastMessageId = 0, number = 1) => {
-        const chats = [
-          ...mutableStore.chats.slice(lastMessageId, lastMessageId + number),
-        ];
-        return {
-          groupChatsList: chats,
-          lastMessageId: chats[chats.length - 1].latestMessage!.messageId,
-          noMore: lastMessageId + 1 === mutableStore.chats.length,
-        };
-      },
-    );
-    listHostRequestsMock.mockImplementation(
-      async ({ pageToken = "", count = 1 }) => {
-        const offset = pageToken ? parseInt(pageToken) : 0;
-        const requests = [
-          ...mutableStore.requests.slice(offset, offset + count),
-        ];
-        return {
-          hostRequestsList: requests,
-          nextPageToken: String(
-            requests[requests.length - 1].latestMessage!.messageId,
-          ),
-          noMore: offset + 1 === mutableStore.requests.length,
-        };
-      },
-    );
-    markLastRequestSeenMock.mockImplementation(
-      async (hostRequestId, messageId) => {
-        mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
-        return new Empty();
-      },
-    );
+    listGroupChatsMock.mockImplementation(async (lastMessageId = 0, number = 1) => {
+      const chats = [...mutableStore.chats.slice(lastMessageId, lastMessageId + number)];
+      return {
+        groupChatsList: chats,
+        lastMessageId: chats[chats.length - 1].latestMessage!.messageId,
+        noMore: lastMessageId + 1 === mutableStore.chats.length,
+      };
+    });
+    listHostRequestsMock.mockImplementation(async ({ pageToken = "", count = 1 }) => {
+      const offset = pageToken ? parseInt(pageToken) : 0;
+      const requests = [...mutableStore.requests.slice(offset, offset + count)];
+      return {
+        hostRequestsList: requests,
+        nextPageToken: String(requests[requests.length - 1].latestMessage!.messageId),
+        noMore: offset + 1 === mutableStore.requests.length,
+      };
+    });
+    markLastRequestSeenMock.mockImplementation(async (hostRequestId, messageId) => {
+      mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
+      return new Empty();
+    });
     markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
       mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
       return new Empty();
@@ -96,11 +80,7 @@ describe("MarkAllReadButton", () => {
       expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
       expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
-        chats: [
-          { lastSeenMessageId: 1 },
-          { lastSeenMessageId: 2 },
-          { lastSeenMessageId: 4 },
-        ],
+        chats: [{ lastSeenMessageId: 1 }, { lastSeenMessageId: 2 }, { lastSeenMessageId: 4 }],
       });
     });
   });
@@ -118,11 +98,7 @@ describe("MarkAllReadButton", () => {
       expect(markLastRequestSeenMock).toHaveBeenCalledTimes(1);
       expect(markLastRequestSeenMock).toHaveBeenCalledWith(2, 2);
       expect(mutableStore).toMatchObject({
-        requests: [
-          { lastSeenMessageId: 1 },
-          { lastSeenMessageId: 2 },
-          { lastSeenMessageId: 4 },
-        ],
+        requests: [{ lastSeenMessageId: 1 }, { lastSeenMessageId: 2 }, { lastSeenMessageId: 4 }],
       });
     });
   });

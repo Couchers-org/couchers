@@ -15,29 +15,19 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      GLOBAL,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? "en", [GLOBAL, NOTIFICATIONS])),
   },
 });
 export default function PagePage() {
   const router = useRouter();
 
-  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED)
-    return <NotFoundPage />;
+  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED) return <NotFoundPage />;
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
   const slug = stringOrFirstString(router.query.slug);
 
-  return (
-    <PagePageComponent
-      pageType={PageType.PAGE_TYPE_PLACE}
-      pageId={parsedId}
-      pageSlug={slug}
-    />
-  );
+  return <PagePageComponent pageType={PageType.PAGE_TYPE_PLACE} pageId={parsedId} pageSlug={slug} />;
 }
 
 PagePage.getLayout = appGetLayout();

@@ -9,12 +9,7 @@ import { useTranslation } from "i18n";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import {
-  EditUserTab,
-  routeToEditProfile,
-  routeToProfile,
-  settingsRoute,
-} from "routes";
+import { EditUserTab, routeToEditProfile, routeToProfile, settingsRoute } from "routes";
 import { theme } from "theme";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -70,11 +65,7 @@ const BackButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-export default function EditProfilePage({
-  tab = "about",
-}: {
-  tab?: EditUserTab;
-}) {
+export default function EditProfilePage({ tab = "about" }: { tab?: EditUserTab }) {
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -83,20 +74,12 @@ export default function EditProfilePage({
       <HtmlMeta title={t("profile:heading.edit_profile")} />
       <HeaderContainer>
         <LeftHeader>
-          <BackButton
-            onClick={() => router.push(routeToProfile())}
-            aria-label={t("global:back")}
-          >
+          <BackButton onClick={() => router.push(routeToProfile())} aria-label={t("global:back")}>
             <BackIcon />
           </BackButton>
           <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         </LeftHeader>
-        <Button
-          component={Link}
-          variant="contained"
-          color="primary"
-          href={settingsRoute}
-        >
+        <Button component={Link} variant="contained" color="primary" href={settingsRoute}>
           {t("global:nav.account_settings")}
         </Button>
       </HeaderContainer>

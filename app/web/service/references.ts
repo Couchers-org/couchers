@@ -36,8 +36,7 @@ interface WriteReferenceBaseInput {
   privateText?: string;
 }
 
-export interface WriteHostRequestReferenceInput
-  extends WriteReferenceBaseInput {
+export interface WriteHostRequestReferenceInput extends WriteReferenceBaseInput {
   hostRequestId: number;
 }
 
@@ -47,10 +46,7 @@ export interface WriteFriendReferenceInput extends WriteReferenceBaseInput {
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
 
-export async function getReferencesGivenByUser({
-  userId,
-  pageToken = "0",
-}: GetReferencesGivenInput) {
+export async function getReferencesGivenByUser({ userId, pageToken = "0" }: GetReferencesGivenInput) {
   const req = new ListReferencesReq();
   req.setFromUserId(userId);
   req.setReferenceTypeFilterList([]);
@@ -72,9 +68,7 @@ export async function getReferencesReceivedForUser({
 }: GetReferencesReceivedInput) {
   const req = new ListReferencesReq();
   req.setToUserId(userId);
-  req.setReferenceTypeFilterList(
-    referenceType !== "all" ? [referenceType] : [],
-  );
+  req.setReferenceTypeFilterList(referenceType !== "all" ? [referenceType] : []);
   req.setPageSize(REFERENCES_PAGE_SIZE);
   req.setPageToken(pageToken);
 
@@ -82,9 +76,7 @@ export async function getReferencesReceivedForUser({
   return res.toObject();
 }
 
-export async function getAvailableReferences({
-  userId,
-}: GetAvailableReferencesInput) {
+export async function getAvailableReferences({ userId }: GetAvailableReferencesInput) {
   const req = new AvailableWriteReferencesReq();
   req.setToUserId(userId);
 

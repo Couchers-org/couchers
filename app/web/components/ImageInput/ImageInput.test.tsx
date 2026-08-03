@@ -5,11 +5,7 @@ import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import client from "service/client";
-import {
-  IMAGE_TOO_LARGE,
-  INTERNAL_ERROR,
-  SERVER_ERROR,
-} from "service/constants";
+import { IMAGE_TOO_LARGE, INTERNAL_ERROR, SERVER_ERROR } from "service/constants";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { server } from "test/restMock";
@@ -20,9 +16,7 @@ import ImageInput from "./ImageInput";
 
 const { t } = i18n;
 
-const uploadFileMock = service.api.uploadFile as MockedService<
-  typeof service.api.uploadFile
->;
+const uploadFileMock = service.api.uploadFile as MockedService<typeof service.api.uploadFile>;
 const submitForm = jest.fn();
 const onSuccessMock = jest.fn(() => Promise.resolve());
 
@@ -74,20 +68,12 @@ describe("ImageInput component", () => {
 
   it("displays initial preview", async () => {
     expect(screen.getByAltText(ALT_TEXT)).toBeVisible();
-    expect(screen.getByAltText(ALT_TEXT)).toHaveProperty(
-      "src",
-      MOCK_INITIAL_SRC,
-    );
+    expect(screen.getByAltText(ALT_TEXT)).toHaveProperty("src", MOCK_INITIAL_SRC);
   });
 
   it("uploads and submits key", async () => {
     const user = userEvent.setup({ applyAccept: false });
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      MOCK_FILE,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, MOCK_FILE);
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
@@ -106,9 +92,7 @@ describe("ImageInput component", () => {
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
     });
-    expect(screen.getByAltText(ALT_TEXT).getAttribute("src")).toMatch(
-      new RegExp(MOCK_FULL_IMAGE),
-    );
+    expect(screen.getByAltText(ALT_TEXT).getAttribute("src")).toMatch(new RegExp(MOCK_FULL_IMAGE));
   });
 
   it("displays an error when the passed onSuccess function rejects", async () => {
@@ -119,12 +103,7 @@ describe("ImageInput component", () => {
     });
     const user = userEvent.setup({ applyAccept: false });
 
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      MOCK_FILE,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, MOCK_FILE);
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
@@ -140,16 +119,10 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
+      screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
-    expect(
-      await screen.findByText(
-        new RegExp(t("global:image_input.read_file_error_message")),
-      ),
-    ).toBeVisible();
+    expect(await screen.findByText(new RegExp(t("global:image_input.read_file_error_message")))).toBeVisible();
   });
 
   it("displays an error if the upload fails", async () => {
@@ -159,9 +132,7 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
+      screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
 
@@ -171,20 +142,11 @@ describe("ImageInput component", () => {
   it("displays an error for files exceeding max size without uploading", async () => {
     // Create a file larger than MAX_FILE_SIZE (20MB)
     const largeFileSize = MAX_FILE_SIZE + 1;
-    const largeFile = new File(
-      [new ArrayBuffer(largeFileSize)],
-      "large-image.jpg",
-      { type: "image/jpeg" },
-    );
+    const largeFile = new File([new ArrayBuffer(largeFileSize)], "large-image.jpg", { type: "image/jpeg" });
 
     const user = userEvent.setup({ applyAccept: false });
 
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      largeFile,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, largeFile);
 
     // Verify error message is displayed
     expect(await screen.findByText(IMAGE_TOO_LARGE)).toBeVisible();
@@ -218,9 +180,7 @@ describe("ImageInput component", () => {
 
     // Start upload
     await user.upload(
-      within(form).getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
+      within(form).getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -258,10 +218,7 @@ describe("ImageInput http error tests", () => {
     render(<View />, { wrapper });
     const uploadFile = jest.requireActual("service").service.api.uploadFile;
     uploadFileMock.mockImplementation(uploadFile);
-    const initiateMediaUploadMock = jest.spyOn(
-      client.api,
-      "initiateMediaUpload",
-    );
+    const initiateMediaUploadMock = jest.spyOn(client.api, "initiateMediaUpload");
     initiateMediaUploadMock.mockResolvedValue({
       getUploadUrl: () => "https://example.com/upload",
     } as InitiateMediaUploadRes);
@@ -285,12 +242,7 @@ describe("ImageInput http error tests", () => {
     );
     const user = userEvent.setup({ applyAccept: false });
 
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      MOCK_FILE,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, MOCK_FILE);
 
     await assertErrorAlert(IMAGE_TOO_LARGE);
   });
@@ -307,12 +259,7 @@ describe("ImageInput http error tests", () => {
 
     const user = userEvent.setup({ applyAccept: false });
 
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      MOCK_FILE,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, MOCK_FILE);
 
     await assertErrorAlert(SERVER_ERROR);
   });
@@ -332,12 +279,7 @@ describe("ImageInput http error tests", () => {
 
     const user = userEvent.setup({ applyAccept: false });
 
-    await user.upload(
-      screen.getByLabelText(
-        t("global:image_input.select_button_a11y"),
-      ) as HTMLInputElement,
-      MOCK_FILE,
-    );
+    await user.upload(screen.getByLabelText(t("global:image_input.select_button_a11y")) as HTMLInputElement, MOCK_FILE);
 
     await assertErrorAlert(INTERNAL_ERROR);
   });

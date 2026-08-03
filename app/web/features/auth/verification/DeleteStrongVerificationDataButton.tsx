@@ -1,13 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import Snackbar from "components/Snackbar";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -56,13 +50,9 @@ export default function DeleteStrongVerificationDataButton() {
               <Alert severity="error">{error.message}</Alert>
             </DialogContentText>
           )}
+          <DialogContentText>{t("auth:strong_verification.delete_information")}</DialogContentText>
           <DialogContentText>
-            {t("auth:strong_verification.delete_information")}
-          </DialogContentText>
-          <DialogContentText>
-            <strong>
-              {t("auth:strong_verification.delete_information_text2")}
-            </strong>
+            <strong>{t("auth:strong_verification.delete_information_text2")}</strong>
           </DialogContentText>
         </DialogContent>
         <DialogActions>

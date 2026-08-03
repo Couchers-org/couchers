@@ -1,19 +1,9 @@
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemProps,
-  ListItemText,
-  styled,
-} from "@mui/material";
+import { Divider, List, ListItem, ListItemProps, ListItemText, styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import StyledLink from "components/StyledLink";
-import {
-  useCommunity,
-  useListSubCommunities,
-} from "features/communities/hooks";
+import { useCommunity, useListSubCommunities } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -74,9 +64,7 @@ export default function CommunityBrowser() {
   //react-query doesn't have useInfiniteQueries
   //as a workaround, cache query results
   //and only show "Load more" for last column
-  const query = useListSubCommunities(
-    selected?.[selected.length - 1]?.communityId || 1,
-  );
+  const query = useListSubCommunities(selected?.[selected.length - 1]?.communityId || 1);
   const [cachedQueryResults, setCachedQueryResults] = useState<
     {
       data: Community.AsObject[];
@@ -142,22 +130,12 @@ export default function CommunityBrowser() {
         ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
           <div>
             <BrowserColumn
-              parent={
-                selected?.[selected.length - 1] ?? globalCommunityQuery.data
-              }
-              communities={query.data.pages.flatMap(
-                (page) => page.communitiesList,
-              )}
-              handleClick={(community) =>
-                handleClick(community, selected.length)
-              }
+              parent={selected?.[selected.length - 1] ?? globalCommunityQuery.data}
+              communities={query.data.pages.flatMap((page) => page.communitiesList)}
+              handleClick={(community) => handleClick(community, selected.length)}
             />
             {query.hasNextPage && (
-              <Button
-                onClick={() => query.fetchNextPage()}
-                loading={query.isFetchingNextPage}
-                variant="outlined"
-              >
+              <Button onClick={() => query.fetchNextPage()} loading={query.isFetchingNextPage} variant="outlined">
                 {t("dashboard:load_more")}
               </Button>
             )}
@@ -188,9 +166,7 @@ function BrowserColumn({
       {parent && (
         <>
           <StyledListItem>
-            <StyledLink
-              href={routeToCommunity(parent.communityId, parent.slug)}
-            >
+            <StyledLink href={routeToCommunity(parent.communityId, parent.slug)}>
               <StyledListItemText
                 primary={parent.name}
                 sx={{
@@ -226,8 +202,7 @@ function BrowserColumn({
             <StyledListItemText
               slotProps={{
                 primary: {
-                  className:
-                    community.communityId === selected ? "selected" : undefined,
+                  className: community.communityId === selected ? "selected" : undefined,
                 },
               }}
             >

@@ -1,7 +1,4 @@
-export function arrayEq(
-  a: (number | string | boolean | undefined)[],
-  b: (number | string | boolean | undefined)[],
-) {
+export function arrayEq(a: (number | string | boolean | undefined)[], b: (number | string | boolean | undefined)[]) {
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (a.length !== b.length) return false;

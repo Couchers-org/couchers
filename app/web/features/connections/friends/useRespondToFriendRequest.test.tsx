@@ -6,8 +6,7 @@ import { FriendRequest } from "proto/api_pb";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 
-const respondToFriendRequestMock = service.api
-  .respondFriendRequest as jest.Mock<
+const respondToFriendRequestMock = service.api.respondFriendRequest as jest.Mock<
   ReturnType<typeof service.api.respondFriendRequest>
 >;
 
@@ -30,10 +29,7 @@ describe("useRespondToFriendRequest hook", () => {
         sent: false,
       },
     ]);
-    client.setQueryData<FriendRequest.AsObject[]>(
-      friendRequestKey("received"),
-      [],
-    );
+    client.setQueryData<FriendRequest.AsObject[]>(friendRequestKey("received"), []);
     client.setQueryData<number[]>(["friendIds"], [2]);
   });
 
@@ -61,15 +57,9 @@ describe("useRespondToFriendRequest hook", () => {
 
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
+    await waitFor(() => expect(spy).toHaveBeenCalledWith(expect.objectContaining({ queryKey: ["friendIds"] })));
     await waitFor(() =>
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({ queryKey: ["friendIds"] }),
-      ),
-    );
-    await waitFor(() =>
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({ queryKey: friendRequestKey("received") }),
-      ),
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ queryKey: friendRequestKey("received") })),
     );
   });
 

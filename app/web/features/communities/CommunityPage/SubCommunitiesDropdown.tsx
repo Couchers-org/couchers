@@ -1,12 +1,5 @@
 import { ExpandLess, ExpandMore, SearchOutlined } from "@mui/icons-material";
-import {
-  Button,
-  InputAdornment,
-  Menu,
-  MenuItem,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Button, InputAdornment, Menu, MenuItem, styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -31,11 +24,7 @@ const StyledSearchBox = styled("li")(({ theme }) => ({
 
 const menuId = "sub-communities-menu";
 
-export default function SubCommunitiesDropdown({
-  subCommunities,
-}: {
-  subCommunities: Community.AsObject[];
-}) {
+export default function SubCommunitiesDropdown({ subCommunities }: { subCommunities: Community.AsObject[] }) {
   const { t } = useTranslation(COMMUNITIES);
   const router = useRouter();
   const { data: accountInfo } = useAccountInfo();
@@ -43,12 +32,8 @@ export default function SubCommunitiesDropdown({
   const [query, setQuery] = useState("");
   const open = !!anchorEl;
 
-  const filteredOptions = subCommunities.filter((option) =>
-    option.name.toLowerCase().includes(query.toLowerCase()),
-  );
-  const labelKey =
-    NODE_TYPE_LABEL_KEYS[subCommunities[0].nodeType] ??
-    "communities:select_sub_community";
+  const filteredOptions = subCommunities.filter((option) => option.name.toLowerCase().includes(query.toLowerCase()));
+  const labelKey = NODE_TYPE_LABEL_KEYS[subCommunities[0].nodeType] ?? "communities:select_sub_community";
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -119,19 +104,13 @@ export default function SubCommunitiesDropdown({
         </StyledSearchBox>
         {filteredOptions.length > 0 ? (
           filteredOptions.map((option) => (
-            <MenuItem
-              key={option.communityId}
-              onClick={() => handleSelect(option)}
-            >
+            <MenuItem key={option.communityId} onClick={() => handleSelect(option)}>
               {option.name}
             </MenuItem>
           ))
         ) : (
           <StyledSearchBox>
-            <Typography
-              variant="body2"
-              color="var(--mui-palette-text-secondary)"
-            >
+            <Typography variant="body2" color="var(--mui-palette-text-secondary)">
               <Trans
                 t={t}
                 i18nKey="communities:no_results_found_with_link"

@@ -6,7 +6,7 @@ import pytest
 import requests
 from google.protobuf import empty_pb2
 from google.protobuf.empty_pb2 import Empty
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
@@ -504,6 +504,54 @@ def test_job_retry(db):
 
     _check_job_counter("mock_job", "error", "4", "Exception")
     _check_job_counter("mock_job", "failed", "5", "Exception")
+
+
+def test_job_dequeue_steps_over_other_workers_jobs(db):
+    handled = []
+
+    def mock_job(payload: jobs_pb2.SendEmailPayload) -> None:
+        handled.append(payload.subject)
+
+    MOCK_JOBS: dict[str, Job[Any]] = {"mock_job": Job(mock_job)}
+
+    with session_scope() as session:
+        for subject in ["first", "second", "third"]:
+            queue_job(session, job=mock_job, payload=jobs_pb2.SendEmailPayload(subject=subject))
+        session.flush()
+        # queued in one transaction, so they'd otherwise all share a next_attempt_after and tie in the ordering
+        for i, job in enumerate(session.execute(select(BackgroundJob).order_by(BackgroundJob.id)).scalars()):
+            job.next_attempt_after = now() - timedelta(seconds=3 - i)
+
+    # another worker already finished "first" and committed
+    with session_scope() as session:
+        finished = (
+            session.execute(select(BackgroundJob).order_by(BackgroundJob.next_attempt_after).limit(1)).scalars().one()
+        )
+        finished.state = BackgroundJobState.completed
+
+    with session_scope() as holder:
+        # another worker is holding "second", mid-flight
+        held = (
+            holder.execute(
+                select(BackgroundJob)
+                .where(BackgroundJob.ready_for_retry)
+                .order_by(BackgroundJob.next_attempt_after)
+                .limit(1)
+                .with_for_update(skip_locked=True)
+            )
+            .scalars()
+            .one()
+        )
+        assert held.payload == jobs_pb2.SendEmailPayload(subject="second").SerializeToString()
+
+        # the dequeue must run at READ COMMITTED: under a stricter isolation level it can't follow the update chain of
+        # the row the other worker just completed, and aborts the whole transaction rather than stepping over it
+        assert holder.execute(text("show transaction_isolation")).scalar_one() == "read committed"
+
+        with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+            assert process_job()
+
+    assert handled == ["third"]
 
 
 def test_no_jobs_no_problem(db):

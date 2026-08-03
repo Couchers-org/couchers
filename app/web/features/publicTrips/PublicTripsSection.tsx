@@ -33,11 +33,7 @@ const PaginationRow = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function PublicTripsSection({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function PublicTripsSection({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([PUBLIC_TRIPS, DASHBOARD]);
   // Stack of page tokens visited so far. First entry is "" (the initial page).
   const [tokens, setTokens] = useState<string[]>([""]);
@@ -48,16 +44,11 @@ export default function PublicTripsSection({
 
   const pageIndex = tokens.length - 1;
   const currentToken = tokens[pageIndex];
-  const { data, error, isLoading } = useListPublicTrips(
-    community.communityId,
-    currentToken,
-  );
+  const { data, error, isLoading } = useListPublicTrips(community.communityId, currentToken);
 
   // TODO: Replace with real ListPublicTripsByUser query once we wire it up for
   // the user's dashboard; for now we infer "has own trip" from the page we're on.
-  const hasOwnTrip = data?.publicTripsList.some(
-    (trip) => trip.user?.userId === authState.userId,
-  );
+  const hasOwnTrip = data?.publicTripsList.some((trip) => trip.user?.userId === authState.userId);
 
   const handleCreateClick = () => {
     if (!accountInfo?.profileComplete) {
@@ -100,20 +91,11 @@ export default function PublicTripsSection({
       />
       <SectionTitle icon={<CouchIcon />}>{t("publicTrips:label")}</SectionTitle>
       {hasOwnTrip ? (
-        <Button
-          sx={{ my: 2 }}
-          startIcon={<EditIcon />}
-          component={Link}
-          href={myPublicTripsRoute}
-        >
+        <Button sx={{ my: 2 }} startIcon={<EditIcon />} component={Link} href={myPublicTripsRoute}>
           {t("publicTrips:edit_my_trips")}
         </Button>
       ) : (
-        <Button
-          sx={{ my: 2 }}
-          startIcon={<AddIcon />}
-          onClick={handleCreateClick}
-        >
+        <Button sx={{ my: 2 }} startIcon={<AddIcon />} onClick={handleCreateClick}>
           {t("publicTrips:create_trip")}
         </Button>
       )}
@@ -138,11 +120,7 @@ export default function PublicTripsSection({
             ))}
           </TripsList>
           <PaginationRow>
-            <Button
-              onClick={goPrev}
-              disabled={pageIndex === 0}
-              startIcon={<ChevronLeftIcon />}
-            >
+            <Button onClick={goPrev} disabled={pageIndex === 0} startIcon={<ChevronLeftIcon />}>
               {t("publicTrips:previous")}
             </Button>
             <Typography variant="body2">
@@ -150,11 +128,7 @@ export default function PublicTripsSection({
                 current: pageIndex + 1,
               })}
             </Typography>
-            <Button
-              onClick={goNext}
-              disabled={!data?.nextPageToken}
-              endIcon={<ChevronRightIcon />}
-            >
+            <Button onClick={goNext} disabled={!data?.nextPageToken} endIcon={<ChevronRightIcon />}>
               {t("publicTrips:next")}
             </Button>
           </PaginationRow>

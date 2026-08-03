@@ -37,7 +37,7 @@ def test_fallback():
     en = i18next.add_translation("en")
     en.add_string("greeting", "hello")
     i18next.add_translation("fr")
-    assert i18next.localize("greeting", ["fr", "en"]) == "hello"
+    assert i18next.localize("greeting", ["xx", "fr", "en"]) == "hello"
 
 
 def test_mutual_fallback():

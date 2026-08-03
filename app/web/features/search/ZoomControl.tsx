@@ -24,12 +24,7 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const ZoomControl = ({
-  mapRef,
-  onZoomIn,
-  onZoomOut,
-  isZoomFromControlRef,
-}: ZoomControlProps) => {
+const ZoomControl = ({ mapRef, onZoomIn, onZoomOut, isZoomFromControlRef }: ZoomControlProps) => {
   const handleZoomIn = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();

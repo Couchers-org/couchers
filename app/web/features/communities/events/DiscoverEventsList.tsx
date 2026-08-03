@@ -44,9 +44,7 @@ const StyledFilterTagContainer = styled("div")(() => ({
 const StyledFilterTag = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isSelected",
 })<{ isSelected: boolean }>(({ isSelected }) => ({
-  backgroundColor: isSelected
-    ? theme.palette.secondary.main
-    : theme.palette.grey[200],
+  backgroundColor: isSelected ? theme.palette.secondary.main : theme.palette.grey[200],
   color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
   padding: theme.spacing(1, 2),
   textAlign: "center",
@@ -101,10 +99,7 @@ const DiscoverEventsList = () => {
   const hasEvents = data && data.eventsList && data.eventsList.length > 0;
   const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize) ?? 1;
 
-  const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageNumberChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPageNumber(value);
   };
 
@@ -143,16 +138,10 @@ const DiscoverEventsList = () => {
   return (
     <>
       <StyledColumn>
-        <Typography variant="h2">
-          {t("communities:discover_events_title")}
-        </Typography>
+        <Typography variant="h2">{t("communities:discover_events_title")}</Typography>
         <StyledRow>
           <StyledFilterTagContainer>
-            <StyledFilterTag
-              isSelected={isMyCommunities}
-              variant="body2"
-              onClick={handleFilterIsMyCommunitiesClick}
-            >
+            <StyledFilterTag isSelected={isMyCommunities} variant="body2" onClick={handleFilterIsMyCommunitiesClick}>
               {t("communities:my_communities")}
             </StyledFilterTag>
           </StyledFilterTagContainer>
@@ -165,9 +154,7 @@ const DiscoverEventsList = () => {
           <Trans
             t={t}
             i18nKey="communities:events_empty_state"
-            components={[
-              <StyledLink key="create-link" href={routeToNewEvent()} />,
-            ]}
+            components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
           />
         </TextBody>
       )}
