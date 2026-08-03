@@ -1,6 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
+import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -61,7 +62,11 @@ export default function CommunitiesList() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const { data, isPending, error } = useListUserCommunities();
+  const { data, isPending, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useListUserCommunities();
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
@@ -69,7 +74,7 @@ export default function CommunitiesList() {
     const el = scrollerRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
+    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth - SCROLL_END_TOL);
   };
 
   useEffect(() => {
@@ -91,23 +96,7 @@ export default function CommunitiesList() {
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
-          {!isPending && communities.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {communities.length}
-            </Box>
-          )}
+          {!isPending && communities.length > 0 && <CountBadge count={communities.length} />}
         </Typography>
         <div>
           <IconButton

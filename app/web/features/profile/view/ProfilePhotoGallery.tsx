@@ -1,5 +1,6 @@
 import { Box, ImageList, ImageListItem, styled, Typography } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useGallery } from "features/profile/hooks/useGallery";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -133,7 +134,7 @@ export default function ProfilePhotoGallery({ galleryId }: ProfilePhotoGalleryPr
                 }}
                 aria-label={t("profile:gallery.report_photo")}
               >
-                <FlagButton contentRef={`photo/${photo.itemId}`} authorUser={profileUser.userId} />
+                <FlagButton contentRef={contentRefs.photo(photo)} authorUser={profileUser.userId} />
               </FlagButtonWrapper>
             </ThumbnailContainer>
           </StyledImageListItem>
@@ -141,12 +142,7 @@ export default function ProfilePhotoGallery({ galleryId }: ProfilePhotoGalleryPr
       </StyledImageList>
 
       <PhotoLightbox
-        photos={gallery.photosList.map((photo) => ({
-          fullUrl: photo.fullUrl,
-          thumbnailUrl: photo.thumbnailUrl,
-          caption: photo.caption,
-          itemId: photo.itemId,
-        }))}
+        photos={gallery.photosList}
         initialIndex={selectedPhotoIndex}
         open={lightboxOpen}
         onClose={handleCloseLightbox}

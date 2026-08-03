@@ -6,6 +6,7 @@ import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileI
 import { doAntibot } from "features/antibot/antibot";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
+import { contentRefs } from "features/contentRefs";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import UserOverview from "features/profile/view/UserOverview";
@@ -111,7 +112,7 @@ function DefaultActions({
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
-        <ProfileReportFlagButton contentRef={`profile/${user.userId}`} authorUser={user.userId} profileUser={user} />
+        <ProfileReportFlagButton contentRef={contentRefs.profile(user)} authorUser={user.userId} profileUser={user} />
         <AdminPanelUserButton username={user.username} />
       </StyledModButtons>
 

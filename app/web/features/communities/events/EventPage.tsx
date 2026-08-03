@@ -13,6 +13,8 @@ import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
+import { contentRefs } from "features/contentRefs";
+import FlagButton from "features/FlagButton";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -304,6 +306,11 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               </StyledTitle>
               <StyledActionButtonsContainer>
                 <StyledIconButtonGroup>
+                  <FlagButton
+                    contentRef={contentRefs.event(event)}
+                    authorUser={event.creatorUserId}
+                    ariaLabel={t("communities:report_event_button_a11y")}
+                  />
                   <EllipsisMenu
                     idName="event-page"
                     isMenuOpen={isEllipsisMenuOpen}

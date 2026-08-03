@@ -13,6 +13,8 @@ import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
+import { contentRefs } from "features/contentRefs";
+import FlagButton from "features/FlagButton";
 import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -90,6 +92,12 @@ const StyledActionButtons = styled("div")(() => ({
   display: "flex",
   gap: theme.spacing(1),
   justifyContent: "flex-end",
+}));
+
+const StyledTitleRowButtons = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+  flexShrink: 0,
 }));
 
 export const CREATOR_TEST_ID = "creator";
@@ -194,15 +202,26 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                   </HeaderButton>
                   <StyledTitleRow>
                     <PageTitle>{discussion.deleted ? t("communities:discussion_deleted") : discussion.title}</PageTitle>
-                    {ellipsisMenuItems.length > 0 && !isEditing && (
-                      <EllipsisMenu
-                        idName="discussion-page"
-                        isMenuOpen={isEllipsisMenuOpen}
-                        menuAnchorEl={ellipsisMenuAnchorEl}
-                        onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
-                        onMenuClose={() => setEllipsisMenuAnchorEl(null)}
-                        items={ellipsisMenuItems}
-                      />
+                    {!isEditing && (
+                      <StyledTitleRowButtons>
+                        {!discussion.deleted && (
+                          <FlagButton
+                            contentRef={contentRefs.discussion(discussion)}
+                            authorUser={discussion.creatorUserId}
+                            ariaLabel={t("communities:report_discussion_button_a11y")}
+                          />
+                        )}
+                        {ellipsisMenuItems.length > 0 && (
+                          <EllipsisMenu
+                            idName="discussion-page"
+                            isMenuOpen={isEllipsisMenuOpen}
+                            menuAnchorEl={ellipsisMenuAnchorEl}
+                            onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
+                            onMenuClose={() => setEllipsisMenuAnchorEl(null)}
+                            items={ellipsisMenuItems}
+                          />
+                        )}
+                      </StyledTitleRowButtons>
                     )}
                   </StyledTitleRow>
                   <div>

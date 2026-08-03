@@ -1,6 +1,7 @@
 import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { discussionBaseRoute } from "routes";
 import { service } from "service";
@@ -37,6 +38,7 @@ const deleteDiscussionMock = service.discussions.deleteDiscussion as MockedServi
 >;
 const updateReplyMock = service.threads.updateReply as MockedService<typeof service.threads.updateReply>;
 const deleteReplyMock = service.threads.deleteReply as MockedService<typeof service.threads.deleteReply>;
+const reportContentMock = service.reporting.reportContent as MockedService<typeof service.reporting.reportContent>;
 
 function renderDiscussion() {
   mockRouter.setCurrentUrl(`${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`);
@@ -446,6 +448,56 @@ describe("Discussion page", () => {
       const user = await openEditForm();
       user.click(screen.getByRole("button", { name: t("global:save") }));
       await assertErrorAlert("Update failed");
+    });
+  });
+
+  describe("Reporting a discussion", () => {
+    it("submits a report for the discussion itself", async () => {
+      reportContentMock.mockResolvedValue(new Empty());
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      const user = userEvent.setup();
+
+      user.click(
+        screen.getByRole("button", {
+          name: t("communities:report_discussion_button_a11y"),
+        }),
+      );
+
+      const reason = t("global:report.flag.reason.spam");
+      const reasonSelect = await screen.findByLabelText(t("global:report.flag.reason_label"));
+      user.selectOptions(reasonSelect, reason);
+      await waitFor(() => expect(reasonSelect).toHaveValue(reason));
+
+      user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+      await waitFor(() => {
+        expect(reportContentMock).toHaveBeenCalledWith({
+          authorUser: discussions[0].creatorUserId,
+          contentRef: `community/${discussions[0].ownerCommunityId}/discussion/${discussions[0].discussionId}`,
+          description: "",
+          reason,
+        });
+      });
+    });
+
+    it("does not show the report button for a deleted discussion", async () => {
+      getDiscussionMock.mockResolvedValue({ ...discussions[0], deleted: true });
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      expect(
+        await screen.findByRole("heading", {
+          level: 1,
+          name: t("communities:discussion_deleted"),
+        }),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("button", {
+          name: t("communities:report_discussion_button_a11y"),
+        }),
+      ).not.toBeInTheDocument();
     });
   });
 

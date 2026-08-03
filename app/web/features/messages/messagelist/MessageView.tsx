@@ -2,6 +2,7 @@ import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Linkify from "components/Linkify";
 import TextBody from "components/TextBody";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -170,11 +171,7 @@ export default function MessageView({ className, message, onVisible, isDm = fals
         <StyledFooter>
           <StyledTimeInterval instant={timestampToInstant(message.time!)} />
           {author && !isCurrentUser && (
-            <StyledFlagButton
-              contentRef={`chat/message/${message.messageId}`}
-              authorUser={author.userId}
-              size="small"
-            />
+            <StyledFlagButton contentRef={contentRefs.chatMessage(message)} authorUser={author.userId} size="small" />
           )}
         </StyledFooter>
       </StyledCard>

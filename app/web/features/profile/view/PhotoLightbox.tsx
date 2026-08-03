@@ -1,18 +1,15 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
 import { FlagIcon } from "components/Icons";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import type { PhotoGalleryItem } from "proto/galleries_pb";
 import { useCallback, useEffect, useState } from "react";
 
 interface PhotoLightboxProps {
-  photos: Array<{
-    fullUrl: string;
-    thumbnailUrl: string;
-    caption?: string;
-    itemId?: number;
-  }>;
+  photos: Array<PhotoGalleryItem.AsObject>;
   initialIndex: number;
   open: boolean;
   onClose: () => void;
@@ -306,7 +303,7 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
 
         {galleryOwnerId && currentPhoto.itemId && (
           <FlagButton
-            contentRef={`photo/${currentPhoto.itemId}`}
+            contentRef={contentRefs.photo(currentPhoto)}
             authorUser={galleryOwnerId}
             renderButton={(onClick) => (
               <ReportButtonContainer

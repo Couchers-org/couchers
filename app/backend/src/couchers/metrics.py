@@ -644,11 +644,6 @@ background_jobs_ready_to_execute_gauge: Gauge = _make_gauge_from_query(
     select(func.count()).select_from(BackgroundJob).where(BackgroundJob.ready_for_retry),
 )
 
-background_jobs_serialization_errors_counter: Counter = Counter(
-    "couchers_background_jobs_serialization_errors_total",
-    "Number of times a bg worker has a serialization error",
-)
-
 background_jobs_no_jobs_counter: Counter = Counter(
     "couchers_background_jobs_no_jobs_total",
     "Number of times a bg worker tries to grab a job but there is none",

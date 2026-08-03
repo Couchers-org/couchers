@@ -19,6 +19,7 @@ import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileI
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { localizeDateRange } from "i18n/datetimes";
@@ -427,7 +428,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                       {t("publicTrips:view_profile")}
                     </StyledLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <FlagButton contentRef={`public_trip/${trip.tripId}`} authorUser={user.userId} />
+                      <FlagButton contentRef={contentRefs.publicTrip(trip)} authorUser={user.userId} />
                       {alreadyOffered ? (
                         // Link to the existing offer thread.
                         <Button

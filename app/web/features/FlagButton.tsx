@@ -19,6 +19,7 @@ import { theme } from "theme";
 interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
+  ariaLabel?: string;
   className?: string;
   size?: IconButtonProps["size"];
   renderButton?: (onClick: (event: React.MouseEvent) => void) => React.ReactNode;
@@ -27,6 +28,7 @@ interface FlagButtonProps {
 export default function FlagButton({
   contentRef,
   authorUser,
+  ariaLabel,
   className,
   size = "large",
   renderButton,
@@ -125,7 +127,7 @@ export default function FlagButton({
         renderButton(handleButtonClick)
       ) : (
         <IconButton
-          aria-label={t("report.flag.button_aria_label")}
+          aria-label={ariaLabel ?? t("report.flag.button_aria_label")}
           className={className}
           onClick={handleButtonClick}
           color="primary"
