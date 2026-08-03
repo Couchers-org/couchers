@@ -76,9 +76,7 @@ export default function EventTimeChanger({
     //...this function will make endTime in 08:00 AM after the second click,
     //but we still want it to fill in 8:00 PM
     const userChangedMeridiem =
-      endTime && value != undefined
-        ? Math.abs(value.until(endTime).total("hours")) == 12
-        : false;
+      endTime && value != undefined ? Math.abs(value.until(endTime).total("hours")) == 12 : false;
     if (!endTime || userChangedMeridiem) {
       setValue("endTime", value, {
         shouldDirty: true,

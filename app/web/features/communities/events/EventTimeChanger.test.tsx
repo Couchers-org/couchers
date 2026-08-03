@@ -414,12 +414,8 @@ describe("Event time changer", () => {
       await user.click(screen.getByTestId("submit"));
       const submittedData = onValidSubmit.mock.calls[0][0];
 
-      expect(submittedData.endDate).toEqual(
-        Temporal.PlainDate.from("2021-08-05"),
-      );
-      expect(submittedData.endTime).toEqual(
-        Temporal.PlainTime.from("22:00"),
-      );
+      expect(submittedData.endDate).toEqual(Temporal.PlainDate.from("2021-08-05"));
+      expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("22:00"));
     });
 
     it("should not accept submission if startDate/Time and endDate/Time are the same", async () => {
@@ -441,9 +437,9 @@ describe("Event time changer", () => {
       await user.keyboard("1000 PM");
 
       await user.click(screen.getByTestId("submit"));
-  
+
       // Should not submit due to same date/time as start
       expect(onValidSubmit).not.toHaveBeenCalled();
     });
-  }); 
+  });
 });
