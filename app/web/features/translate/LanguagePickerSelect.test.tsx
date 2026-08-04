@@ -68,7 +68,7 @@ describe("LanguagePickerSelect", () => {
 
     // Languages with >= 50% translation are shown by their autonym (the name in
     // their own language), regardless of the current UI language — no flags.
-    const expectedLanguages = ["English", "Español (España)", "Français (France)", "Deutsch"];
+    const expectedLanguages = ["English", "Español (España)", "Français", "Deutsch"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
@@ -163,7 +163,7 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const frenchOption = within(listBox).getByText("Français (France)");
+    const frenchOption = within(listBox).getByText("Français");
 
     await user.click(frenchOption);
 
@@ -237,7 +237,7 @@ describe("LanguagePickerSelect", () => {
     // Second change should work after first completes
     await user.click(select);
     const listBox2 = await screen.findByRole("listbox");
-    const frenchOption = within(listBox2).getByText("Français (France)");
+    const frenchOption = within(listBox2).getByText("Français");
     await user.click(frenchOption);
 
     // Second change should succeed

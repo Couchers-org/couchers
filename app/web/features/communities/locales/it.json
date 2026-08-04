@@ -167,5 +167,7 @@
   "select_sublocality": "Seleziona quartiere",
   "select_sub_community": "Seleziona community",
   "sub_community_search_placeholder": "Località",
-  "sub_community_dropdown_a11y": "Esplora community più specifiche"
+  "sub_community_dropdown_a11y": "Esplora community più specifiche",
+  "report_discussion_button_a11y": "Segnala questa discussione",
+  "report_event_button_a11y": "Segnala questo evento"
 }
