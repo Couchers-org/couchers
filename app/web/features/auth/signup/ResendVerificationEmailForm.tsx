@@ -26,11 +26,11 @@ export default function ResendVerificationEmailForm() {
       authActions.updateSignupState(state);
     },
   });
-  const handleResendVerification = (e) => {
+  const handleResendVerification = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     mutationResend.mutateAsync();
   };
-  const handleRestartSignup = (e) => {
+  const handleRestartSignup = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     mutationRestart.mutateAsync();
   };
