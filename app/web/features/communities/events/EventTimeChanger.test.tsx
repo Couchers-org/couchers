@@ -415,7 +415,7 @@ describe("Event time changer", () => {
       expect(onValidSubmit).toHaveBeenCalled();
       const submittedData = onValidSubmit.mock.calls[0][0];
       expect(submittedData).toBeDefined();
-      
+
       expect(submittedData.endDate).toEqual(Temporal.PlainDate.from("2021-08-05"));
       expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("22:00"));
     });
