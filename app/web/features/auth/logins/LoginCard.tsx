@@ -50,9 +50,7 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
   return (
     <StyledCard>
       <CardContent>
-        <Typography variant="h2">
-          <Trans t={t} i18nKey="auth:active_logins.login_header" values={{ login_datetime: createdDisplay }} />
-        </Typography>
+        <Typography variant="h2">{t("auth:active_logins.login_header", { login_datetime: createdDisplay })}</Typography>
         {error && <Alert severity="error">{error.message}</Alert>}
         <IconText
           icon={LocationIcon}
