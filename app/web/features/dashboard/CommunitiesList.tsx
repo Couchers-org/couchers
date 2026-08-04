@@ -29,7 +29,6 @@ const CardSlot = styled(Box)(({ theme }) => ({
   },
 }));
 
-
 // trailing pad so the last card's border doesn't clip at scroll end; SCROLL_END_TOL covers
 // this pad + sub-pixel rounding so the right arrow disables once the last card is fully shown.
 const TRACK_END_PAD = 4;
