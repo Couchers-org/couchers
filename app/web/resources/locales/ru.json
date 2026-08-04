@@ -167,7 +167,8 @@
     "home": "Главная",
     "close_menu_a11y": "Закрыть меню",
     "open_drawer_a11y": "Открыть меню",
-    "close_drawer_a11y": "Закрыть меню"
+    "close_drawer_a11y": "Закрыть меню",
+    "press": "Пресса и СМИ"
   },
   "team": {
     "title": "Команда",
