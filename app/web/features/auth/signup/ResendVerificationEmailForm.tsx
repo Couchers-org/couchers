@@ -21,16 +21,16 @@ export default function ResendVerificationEmailForm() {
   });
   const mutationRestart = useMutation({
     mutationFn: async () => {
-      let state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
+      const state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
       state.needBasic = true;
       authActions.updateSignupState(state);
     },
   });
-  const handleResendVerification = async (e) =>{
+  const handleResendVerification = async (e) => {
     e.preventDefault();
     mutationResend.mutateAsync();
   };
-  const handleRestartSignup = async (e) =>{
+  const handleRestartSignup = async (e) => {
     e.preventDefault();
     mutationRestart.mutateAsync();
   };
@@ -46,12 +46,7 @@ export default function ResendVerificationEmailForm() {
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
             components={{
-              2: (
-                <StyledLink
-                  href="#"
-                  onClick={handleResendVerification}
-                />
-              ),
+              2: <StyledLink href="#" onClick={handleResendVerification} />,
             }}
           />
         ) : (
