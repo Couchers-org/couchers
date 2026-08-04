@@ -15,11 +15,14 @@ export default function MyDocument(props: DocumentProps & DocumentHeadTagsProps)
         <link rel="apple-touch-icon" href="/logo512.png" />
         <link rel="stylesheet" href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css" />
         <link rel="stylesheet" href="https://cdn.couchers.org/fonts/wordmark/wordmark.css" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,
-          }}
-        />
+        {/* Antibot script. Its fingerprint loop leaks WebGL contexts, so we skip it in dev. */}
+        {process.env.NODE_ENV !== "development" && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,
+            }}
+          />
+        )}
       </Head>
       <body>
         <InitColorSchemeScript defaultMode="system" attribute="data-mui-color-scheme" />

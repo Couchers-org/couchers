@@ -4,6 +4,9 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 const projectId = 5887585;
 
 Sentry.init({
+  // Locally there's nowhere to send events to, and the API instrumentation just adds overhead
+  enabled: process.env.NODE_ENV !== "development",
+
   dsn: `https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/${projectId}`,
 
   // Ad-blockers prevent events from being sent to Sentry. This is a workaround.
