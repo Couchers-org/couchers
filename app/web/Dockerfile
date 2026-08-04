@@ -10,6 +10,9 @@ COPY package.json yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile && yarn cache clean
 
+# See Dockerfile.prod for why this is a named build context placed after yarn install.
+COPY --from=shared . /client-shared
+
 COPY . .
 
 RUN cp .env.$environment env && \

@@ -17,7 +17,7 @@ const nextConfig = {
   // localePath's template literal; listing it makes the dependency explicit so a refactor of that
   // path can't silently ship an image with no translations.
   outputFileTracingIncludes: {
-    "*": ["features/*/locales/*.json", "resources/locales/*.json"],
+    "*": ["features/*/locales/*.json", "node_modules/@couchers/client-shared/locales/*/*.json"],
   },
   productionBrowserSourceMaps: true,
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to

@@ -232,13 +232,14 @@ build:web-dev:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
-    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
+    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-context shared=app/client-shared/ --build-arg environment=next -f app/web/Dockerfile
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
         - app/.gitlab-ci.yml
   tags:
       - saas-linux-large-amd64
@@ -251,19 +252,21 @@ build:web:
   script:
     - - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-context shared=app/client-shared/ --build-arg environment=production --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
     - cp static/manifest.txt static/manifest-$CI_PIPELINE_ID-$CI_COMMIT_SHA.txt
     - mkdir -p artifacts
     - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
+    - cd $CI_PROJECT_DIR && ./app/web/ci-i18n-smoke.sh $WEB_TAG
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
         - app/.gitlab-ci.yml
   artifacts:
     paths:
@@ -279,7 +282,7 @@ build:web-next:
   script:
     - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-context shared=app/client-shared/ --build-arg environment=next --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -292,6 +295,7 @@ build:web-next:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
         - app/.gitlab-ci.yml
   artifacts:
     paths:
@@ -512,6 +516,7 @@ test:web:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
   tags:
     - saas-linux-large-amd64
 
@@ -530,6 +535,7 @@ test:web-prettier:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
+        - app/client-shared/**/*
 
 test:web-linting:
   needs: ["build:web-dev"]
@@ -546,6 +552,7 @@ test:web-linting:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
+        - app/client-shared/**/*
 
 test:mobile:
   needs: ["protos"]
@@ -571,6 +578,7 @@ test:mobile:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/client-shared/**/*
 
 test:mobile-linting:
   needs: ["protos"]
@@ -587,6 +595,7 @@ test:mobile-linting:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/mobile/**/*
+        - app/client-shared/**/*
 
 test:mobile-typecheck:
   needs: ["protos"]
@@ -603,6 +612,7 @@ test:mobile-typecheck:
     - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/mobile/**/*
+        - app/client-shared/**/*
 
 test:mobile-expo-doctor:
   needs: ["protos"]
@@ -640,6 +650,7 @@ test:mobile-fingerprints:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/client-shared/**/*
 
 test:proxy:
   needs: ["build:proxy"]
@@ -844,6 +855,7 @@ preview:web-coverage:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
 
 preview:wcov:
   needs: ["preview:web-coverage"]
@@ -868,6 +880,7 @@ preview:wcov:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/client-shared/**/*
 
 preview:web:
   needs: ["build:web"]
@@ -885,6 +898,7 @@ preview:web:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/web/**/*
+      - app/client-shared/**/*
 
 preview:web-next:
   needs: ["build:web-next"]
@@ -902,6 +916,7 @@ preview:web-next:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/web/**/*
+      - app/client-shared/**/*
 
 build:mobile-ota-devtool:
   needs: ["protos"]
@@ -948,6 +963,7 @@ build:mobile-ota-devtool:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/client-shared/**/*
         - app/scripts/**/*
 
 preview:mobile-ota-devtool:
@@ -978,6 +994,7 @@ preview:mobile-ota-devtool:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/client-shared/**/*
         - app/scripts/**/*
 
 # posts the comment placeholder within seconds of the push
@@ -1015,6 +1032,7 @@ preview:pr-comment-mobile:
       changes:
         - app/proto/**/*
         - app/mobile/**/*
+        - app/client-shared/**/*
         - app/scripts/**/*
 
 # Vercel owns the web deploy, so this resolves the preview URL from its API

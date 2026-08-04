@@ -418,7 +418,7 @@ function getLanguageName(code) {
 }
 
 function addToResourceLanguageNames(languageCode) {
-  const resourcesEnPath = path.join(__dirname, "..", "resources", "locales", "en.json");
+  const resourcesEnPath = path.join(__dirname, "..", "..", "client-shared", "locales", "global", "en.json");
 
   try {
     const raw = fs.readFileSync(resourcesEnPath, "utf8");

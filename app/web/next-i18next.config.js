@@ -94,7 +94,15 @@ module.exports = {
     // eslint-disable-next-line
     const path = require("path");
     if (namespace === "global") {
-      return path.resolve(process.cwd(), `resources/locales/${locale.replace("-", "_")}.json`);
+      // Lives in the shared package (app/client-shared) so app/mobile can read the same
+      // strings. The node_modules path is deliberate: require.resolve would be the idiomatic
+      // way to locate a package, but webpack bundles this file and rewrites require.resolve
+      // into a numeric module id, so path.dirname() of it throws at prerender time. The same
+      // glob is declared in next.config.js's outputFileTracingIncludes.
+      return path.resolve(
+        process.cwd(),
+        `node_modules/@couchers/client-shared/locales/global/${locale.replace("-", "_")}.json`,
+      );
     }
     if (namespace == "mod") {
       // Localization is not supported for the moderation namespace.

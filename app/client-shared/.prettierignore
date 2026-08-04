@@ -1,0 +1,2 @@
+# Translator-owned. Weblate writes these; prettier must not reformat them.
+locales/*/*.json

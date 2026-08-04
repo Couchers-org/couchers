@@ -1,4 +1,5 @@
 import * as Updates from "expo-updates";
+import type { TFunction } from "i18next";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,10 +21,7 @@ import { theme } from "@/theme";
 const logo = require("@/assets/images/couchers_logo.png");
 
 // Default button label per action when the backend doesn't supply link_text.
-function defaultLinkText(
-  action: NativeUpdateAction,
-  t: (key: string) => string,
-): string {
+function defaultLinkText(action: NativeUpdateAction, t: TFunction): string {
   switch (action) {
     case NativeUpdateAction.NATIVE_UPDATE_ACTION_REINSTALL:
       return t("update.action_reinstall");

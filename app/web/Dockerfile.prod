@@ -10,6 +10,13 @@ COPY package.json yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile && yarn cache clean
 
+# app/client-shared is a sibling of this build context, so it arrives as a named build
+# context (--build-context shared=app/client-shared/ in .gitlab-ci.yml). The path matches
+# where yarn's "link:../client-shared" symlink points from /app/node_modules/@couchers/.
+# Placed after yarn install because the link: protocol tolerates a missing target, so
+# locale edits never invalidate the install layer.
+COPY --from=shared . /client-shared
+
 COPY . .
 
 RUN cp .env.$environment env && \

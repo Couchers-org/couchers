@@ -1,3 +1,4 @@
+import global from "@couchers/client-shared/locales/global/en.json";
 import auth from "features/auth/locales/en.json";
 import communities from "features/communities/locales/en.json";
 import connections from "features/connections/locales/en.json";
@@ -11,7 +12,6 @@ import press from "features/press/locales/en.json";
 import profile from "features/profile/locales/en.json";
 import publicTrips from "features/publicTrips/locales/en.json";
 import search from "features/search/locales/en.json";
-import global from "resources/locales/en.json";
 
 const resources = {
   auth,
