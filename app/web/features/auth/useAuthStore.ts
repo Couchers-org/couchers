@@ -143,11 +143,6 @@ export default function useAuthStore() {
           return;
         }
       },
-      async restartSignup() {
-        return client.signupFlow({
-          restartSignup: true,
-        });
-      },
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
         setUserId(res.userId);
