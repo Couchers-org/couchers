@@ -11,6 +11,14 @@ const nextConfig = {
     dirs: ["components", "features", "i18n", "markdown", "pages", "resources", "service", "test", "types", "utils"],
   },
   i18n,
+  // Locale JSON is read from disk at request time (next-i18next uses i18next-fs-backend and our
+  // pages are fallback: "blocking"), and Dockerfile.prod's runner stage copies no locale dir - so
+  // they reach the image only via .next/standalone. File tracing already infers this from
+  // localePath's template literal; listing it makes the dependency explicit so a refactor of that
+  // path can't silently ship an image with no translations.
+  outputFileTracingIncludes: {
+    "*": ["features/*/locales/*.json", "resources/locales/*.json"],
+  },
   productionBrowserSourceMaps: true,
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
   // transpile these themselves rather than treating them as pre-built node_modules.

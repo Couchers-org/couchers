@@ -1,0 +1,6 @@
+{
+  "name": "@couchers/client-shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Resource bundles shared by app/web and app/mobile. Raw JSON only - no runtime i18n setup, which stays per-app."
+}
