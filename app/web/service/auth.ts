@@ -137,14 +137,16 @@ export async function signupFlowCommunityGuidelines(flowToken: string, accept: b
 }
 
 export async function signupFlowResendVerificationEmail(flowToken: string) {
+  console.log("TEST1");
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  req.setResendVerificationEmail(true);
+  // req.setResendVerificationEmail(true);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }
 
 export async function signupFlowRestartSignup(flowToken: string) {
+  console.log("TEST2");
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const res = await client.auth.signupFlow(req);

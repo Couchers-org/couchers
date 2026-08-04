@@ -11,23 +11,36 @@ import { service } from "service";
 export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
-  const handleRestartSignup = async () => {
-    const state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
-    state.needBasic = true;
-    authActions.updateSignupState(state);
-  };
   const [resent, setResent] = useState<boolean>(false);
-
-  const mutation = useMutation({
+  const mutationResend = useMutation({
     mutationFn: async () => {
       const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       authActions.updateSignupState(state);
       setResent(true);
     },
   });
+  const mutationRestart = useMutation({
+    mutationFn: async () => {
+      let state = await service.auth.signupFlowRestartSignup(authState.flowState!.flowToken);
+      state.needBasic = true;
+      authActions.updateSignupState(state);
+    },
+  });
+
+  const handleResendVerification = async (e) =>{
+    e.preventDefault();
+    mutationResend.mutateAsync();
+  };
+
+  const handleRestartSignup = async (e) =>{
+    e.preventDefault();
+    mutationRestart.mutateAsync();
+  };
+
   return (
     <>
-      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
+      {mutationResend.error && <Alert severity="error">{mutationResend.error.message || ""}</Alert>}
+      {mutationRestart.error && <Alert severity="error">{mutationRestart.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
         {t("auth:sign_up_completed_prompt")}
       </Typography>
@@ -39,10 +52,7 @@ export default function ResendVerificationEmailForm() {
               2: (
                 <StyledLink
                   href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    mutation.mutateAsync();
-                  }}
+                  onClick={handleResendVerification}
                 />
               ),
             }}
