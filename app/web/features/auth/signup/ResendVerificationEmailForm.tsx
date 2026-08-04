@@ -11,6 +11,7 @@ import { service } from "service";
 export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
+
   const [resent, setResent] = useState<boolean>(false);
 
   const mutation = useMutation({
@@ -47,17 +48,6 @@ export default function ResendVerificationEmailForm() {
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}
       </Typography>
-<<<<<<< HEAD
-      <Typography variant="body1">
-        <Trans
-          i18nKey="auth:sign_up_restart_signup"
-          components={{
-            2: <StyledLink href="#" onClick={handleRestartSignup} />,
-          }}
-        />
-      </Typography>
-=======
->>>>>>> fdd908466 (Revert "Allow starting over from verification page")
     </>
   );
 }
