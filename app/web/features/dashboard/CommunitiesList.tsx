@@ -1,6 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
+import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -92,6 +93,7 @@ export default function CommunitiesList() {
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
+          {!isPending && communities.length > 0 && <CountBadge count={communities.length} />}
         </Typography>
         <div>
           <IconButton

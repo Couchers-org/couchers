@@ -1,5 +1,6 @@
 import { TabPanel } from "@mui/lab";
 import { Box, Card, styled } from "@mui/material";
+import CountBadge from "components/CountBadge";
 import TabBar from "components/TabBar";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -35,7 +36,7 @@ export const sectionLabels = (
         }}
       >
         {t("profile:heading.references")}
-        {!!user?.numReferences && <StyledNumReferences>{user?.numReferences}</StyledNumReferences>}
+        {!!user?.numReferences && <CountBadge count={user.numReferences} />}
       </Box>
     ),
     ...(isSuperuser ? { mod: t("global:mod") } : {}),
@@ -49,20 +50,6 @@ const StyledDetailsCard = styled(Card)(({ theme }) => ({
   },
   flexGrow: 1,
   padding: theme.spacing(2),
-}));
-
-const StyledNumReferences = styled("div")(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "var(--mui-palette-primary-main)",
-  color: "var(--mui-palette-background-paper)",
-  fontWeight: "bold",
-  fontSize: "0.65rem",
-  width: "15px",
-  height: "15px",
-  borderRadius: "50%",
-  padding: theme.spacing(1),
 }));
 
 export default function UserCard({
