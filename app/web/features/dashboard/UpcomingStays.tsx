@@ -2,7 +2,6 @@ import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-materi
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import CountBadge from "components/CountBadge";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -89,7 +88,23 @@ function UpcomingStaysWidget({
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           {icon}
           {title}
-          {!isLoading && requests.length > 0 && <CountBadge count={requests.length} />}
+          {!isLoading && requests.length > 0 && (
+            <Box
+              component="span"
+              sx={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--mui-palette-text-secondary)",
+                background: "var(--mui-palette-grey-50)",
+                borderRadius: 999,
+                px: 1.125,
+                lineHeight: "20px",
+                display: "inline-block",
+              }}
+            >
+              {requests.length}
+            </Box>
+          )}
         </Typography>
         <div>
           <IconButton
