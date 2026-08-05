@@ -414,6 +414,7 @@ describe("Event time changer", () => {
       const endTimeGroup = screen.getByRole("group", {
         name: t("communities:end_time"),
       });
+      //user must manually make endTime later
       await user.click(endTimeGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard("1100 PM");
