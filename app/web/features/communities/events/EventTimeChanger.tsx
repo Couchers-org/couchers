@@ -45,7 +45,8 @@ export default function EventTimeChanger({
 
   const handleStartDateAccept = (value: Temporal.PlainDate) => {
     const endDate = getValues("endDate");
-    if (!endDate) {
+    //limiting value.year>1000 to prevent autofilling year "2027" too early as "202 A.D."
+    if (!endDate  && value && value.year > 1000) {
       setValue("endDate", value, {
         shouldDirty: true,
         shouldValidate: true,
