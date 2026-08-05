@@ -240,11 +240,30 @@
     "user_not_found": "No se pudo encontrar ese usuario.",
     "user_not_in_chat": "Ese usuario no está en ese chat.",
     "user_not_member": "Ese usuario no está en la comunidad.",
-    "username_not_available": "Lo sentimos, ese nombre de usuario no está disponible."
+    "username_not_available": "Lo sentimos, ese nombre de usuario no está disponible.",
+    "wrong_signature": "Firma incorrecta.",
+    "wrong_sms_code": "El código no es válido."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
     "board_member_name": "Miembro de la junta",
-    "past_board_member_name": "Anterior miembro de la junta"
+    "past_board_member_name": "Anterior miembro de la junta",
+    "founder_name": "Fundador",
+    "founder_description": "Este usuario es uno de los dos fundadores de Couchers.org",
+    "board_member_description": "Este usuario forma parte del Consejo de la organización sin ánimo de lucro Couchers, Inc.",
+    "past_board_member_description": "Este usuario formó parte del Consejo de la organización sin ánimo de lucro Couchers, Inc.",
+    "moderator_name": "Moderador",
+    "moderator_description": "Este usuario es un moderador de Couchers.org",
+    "volunteer_description": "Este usuario es un voluntario en activo de Couchers.org",
+    "past_volunteer_name": "Antiguo Voluntario",
+    "past_volunteer_description": "Este usuario fue un Voluntario de Couchers.org",
+    "donor_name": "Donante"
+  },
+  "quick_links": {
+    "chat_unsub": "Ese chat grupal ha sido silenciado.",
+    "host_request_quick_decline": "¡Gracias por responder a la solicitud de alojamiento!"
+  },
+  "ghost_users": {
+    "display_name": "Cuenta desactivada"
   }
 }

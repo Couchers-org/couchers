@@ -157,7 +157,6 @@
       "location_publicly_visible": "這將是公開可見的",
       "location_warn": "拖曳下方的圓圈，向其他人顯示您住處的大致範圍。請確保您的住處不在圓圈正中央，這樣別人才不會知道確切位置。",
       "map_is_blank": "缺少座標，請先使用上方地圖搜尋位置",
-      "radius_text2_one": "{{count}}米",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "找不到結果，請嘗試只搜尋城市名稱。",
       "press_enter_to_search": "按Enter鍵搜尋"
@@ -204,7 +203,6 @@
     "no_codes_message": "尚無邀請代碼",
     "created_datetime": "已建立：{{datetime}}",
     "disabled_datetime": "已禁用：{{datetime}}",
-    "number_of_uses_one": "使用：{{count}}已完成註冊",
     "number_of_uses_other": "使用：{{count}}已完成註冊",
     "disable_link": "停用",
     "banner": {
@@ -320,7 +318,6 @@
     "es": "西班牙語（西班牙）",
     "es-419": "西班牙語",
     "fr": "法語（法國）",
-    "fr-CA": "法語（加拿大）",
     "he": "希伯來語",
     "hi": "印地語",
     "it": "意大利語",

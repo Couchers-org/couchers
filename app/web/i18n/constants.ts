@@ -28,10 +28,7 @@ export const LANGUAGE_MAP: LanguageMap = {
     nativeName: "Español (Latinoamérica)",
   },
   fr: {
-    nativeName: "Français (France)",
-  },
-  "fr-CA": {
-    nativeName: "Français (Canada)",
+    nativeName: "Français",
   },
   he: {
     nativeName: "עברית",
