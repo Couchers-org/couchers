@@ -411,6 +411,13 @@ describe("Event time changer", () => {
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard("1000 PM");
 
+      const endTimeGroup = screen.getByRole("group", {
+        name: t("communities:end_time"),
+      });
+      await user.click(endTimeGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("1100 PM");
+
       await user.click(screen.getByTestId("submit"));
       expect(onValidSubmit).toHaveBeenCalled();
       const submittedData = onValidSubmit.mock.calls[0][0];
