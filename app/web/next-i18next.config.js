@@ -9,7 +9,6 @@ const fallbackLng = {
   pt: ["pt-BR", "en"],
   "es-419": ["es", "en"],
   es: ["es-419", "en"],
-  "fr-CA": ["fr", "en"],
   zh: ["zh-Hans", "en"],
 };
 

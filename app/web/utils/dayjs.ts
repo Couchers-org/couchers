@@ -8,7 +8,6 @@ import "dayjs/locale/cs";
 import "dayjs/locale/de";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
-import "dayjs/locale/fr-ca";
 import "dayjs/locale/he";
 import "dayjs/locale/hi";
 import "dayjs/locale/hu";
@@ -51,7 +50,6 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
   es: "es",
   "es-419": "es",
   fr: "fr",
-  "fr-CA": "fr-ca",
   he: "he",
   hi: "hi",
   hu: "hu",

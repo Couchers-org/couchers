@@ -156,7 +156,8 @@
     "home": "Inicio",
     "close_menu_a11y": "Cerrar menú",
     "open_drawer_a11y": "Abrir cajón",
-    "close_drawer_a11y": "Cerrar cajón"
+    "close_drawer_a11y": "Cerrar cajón",
+    "press": "Prensa y medios"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -272,7 +273,6 @@
     "sv": "Sueco",
     "uk": "Ucraniano",
     "fr": "Francés (Francia)",
-    "fr-CA": "Francés (Canadá)",
     "hi": "Hindi",
     "it": "Italiano",
     "ja": "Japonés",
