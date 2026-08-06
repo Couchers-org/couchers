@@ -126,6 +126,18 @@ def test_check_config_only_references_known_keys(dev):
     _complete_config(dev=dev).check()
 
 
+def test_check_requires_mypostcard_credentials_only_when_live() -> None:
+    cfg = _complete_config(dev=False)
+    cfg.MYPOSTCARD_API_KEY = ""
+
+    with pytest.raises(Exception, match="MyPostcard API credentials"):
+        cfg.check()
+
+    # A simulated send never talks to MyPostcard, so non-prod needs no credentials at all
+    cfg.MYPOSTCARD_LIVE = False
+    cfg.check()
+
+
 def test_check_rejects_too_many_worker_threads() -> None:
     cfg = _complete_config(dev=True)
     cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2
