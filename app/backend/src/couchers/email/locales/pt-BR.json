@@ -1,1 +1,64 @@
-{}
+{
+  "generic": {
+    "greeting_line": "Oi {{name}},",
+    "security_warning_contact_support": "Se você não iniciou essa ação, por favor entre em contato conosco em {{ email_link }} para que possamos resolver isso o mais rápido possível.",
+    "do_not_reply_request": "Não responda a esse e-mail. Use um dos botões acima para responder a esse pedido.",
+    "thanks": "Obrigado!",
+    "closing_lines": {
+      "default": "Abraços,<br> Equipe Couchers.org",
+      "founders": "Aapeli e Itsi,<br>Fundadores do Couchers.org",
+      "aapeli": "Aapeli<br>Co-fundador do Couchers.org<br>{{ profile_link }}",
+      "emily": "Emily do Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Você está recebendo este e-mail porque se cadastrou no Couchers.org.",
+      "contact_support": "Você pode entrar em contato com a nossa equipe de suporte em {{ email_link }}.",
+      "timezone_note": "Todas as horas estão no {{ timezone }}, baseadas na localização do seu perfil.",
+      "donate_link": "Doar",
+      "volunteer_link": "Se voluntariar",
+      "blog_link": "Blog",
+      "nonprofit_note": "Coucher.org é um projeto de Couchers, Inc. uma organização 501(c)(3) dos EUA, sem fins lucrativos e isenta de taxas.",
+      "security_email_note": "Esse é um e-mail de segurança, você não pode cancelar a sua inscrição por ele.",
+      "notification_settings_link": "Gerenciar preferências de notificações",
+      "do_not_email_link": "Não envie e-mails para mim (desabilite a hospedagem)",
+      "happy_couch_icon_caption": "O sofá feliz do Couchers espera que você tenha um belo descanso do dia."
+    }
+  },
+  "calendar_events": {
+    "title_cancelled": "Cancelado: {{ title }}",
+    "host_requests": {
+      "title_host": "Hospedando {{ name }}",
+      "title_surfer": "Surfando com {{ name }}"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "Confirme a exclusão da sua conta",
+      "purpose": "Você requisitou que excluíssemos a sua conta Couchers.org. Para concluir esse processo, clique no link a seguir:",
+      "confirm_action": "Confirme a exclusão da sua conta"
+    },
+    "completed": {
+      "subject": "Sua conta foi excluída",
+      "purpose": "Você excluiu sua conta Couchers.org com sucesso.",
+      "farewell": "Estamos tristes em deixar você ir e desejamos o melhor em suas futuras viagens. Você sempre será bem-vindo(a) de volta na plataforma do Couchers.org :)",
+      "recovery_instructions_days_one": "Se você mudar de ideia, <strong> você tem {{count}} dia(s) para recuperar sua conta</strong> clicando no link a seguir:",
+      "recovery_instructions_days_many": "Se você mudar de ideia, <strong> você tem {{count}} dias para recuperar sua conta</strong> clicando no link a seguir:",
+      "recovery_instructions_days_other": "Se você mudar de ideia, <strong> você tem {{count}} dias para recuperar sua conta</strong> clicando no link a seguir:",
+      "recover_action": "Recuperar conta"
+    },
+    "recovered": {
+      "subject": "Sua conta foi recuperada!",
+      "confirmation": "Sua conta Couchers.org foi recuperada com sucesso. Nós estamos contentes que decidiu ficar!",
+      "login_instructions": "Para entrar novamente, clique no link a seguir:",
+      "redelete_instructions": "Se você mudar de ideia, você pode excluir a sua conta em qualquer momento."
+    }
+  },
+  "activeness_probe": {
+    "subject": "Você ainda está aberto a hospedagem?",
+    "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está aberto a hospedar surfers"
+  }
+}
