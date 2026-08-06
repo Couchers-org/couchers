@@ -6,6 +6,9 @@ import jsonc from "eslint-plugin-jsonc";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 
+import transComponents from "./eslint-rules/trans-components.js";
+import legacyTransFiles from "./i18n/legacyTransFiles.js";
+
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
   recommendedConfig: js.configs.recommended,
@@ -41,8 +44,12 @@ const config = [
     plugins: {
       "simple-import-sort": simpleImportSort,
       "unused-imports": unusedImports,
+      couchers: { rules: { "trans-components": transComponents } },
     },
     rules: {
+      // ~~~ settings for local couchers rules ~~~
+      "couchers/trans-components": ["error", { allow: legacyTransFiles }],
+
       // ~~~ settings for simple import sort plugin ~~~
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",

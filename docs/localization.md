@@ -16,6 +16,7 @@ All user-visible strings should be externalized to `en.json` files as to be loca
 - ✅ **DO** use simple HTML/Markdown sentence-internal markup in the string, rather than breaking it up and concatenating its parts.
   - **Good** 👍: `inactive_label` = `This user is <bold>inactive</bold>`.
   - **Bad** 👎: `inactive_label_start` = `This user is ` and `inactive_label_bold` = `inactive`.
+  - On the web frontend, that markup is rendered with `<Trans>`. See [translation-components.md](translation-components.md) for how to write the tags and wire them up.
 - ❌ **AVOID**: leading/trailing whitespace or commas as they are confusing for translators and they are a sign of concatenation.
 
 ### Choosing string keys

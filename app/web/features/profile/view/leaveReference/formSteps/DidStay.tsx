@@ -156,7 +156,7 @@ const DidStay = ({ referenceData, referenceType, hostRequestId, setReferenceValu
           </Button>
         </StyledButtonContainer>
         <StyledTextBody sx={{ marginTop: theme.spacing(3) }}>
-          <Trans i18nKey="profile:leave_reference.did_stay_explanation" components={{ bold: <strong /> }} />
+          <Trans i18nKey="profile:leave_reference.did_stay_explanation" />
         </StyledTextBody>
         {didStay === false && (
           <StyledReasonContainer>

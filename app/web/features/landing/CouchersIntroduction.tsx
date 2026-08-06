@@ -99,12 +99,7 @@ const CouchersIntroduction = () => {
             fontSize: "1.3rem",
           }}
         >
-          <Trans
-            i18nKey="landing:introduction_subtitle"
-            components={{
-              bold: <strong style={{ fontWeight: 700 }} />,
-            }}
-          />
+          <Trans i18nKey="landing:introduction_subtitle" />
         </Typography>
         <Typography
           sx={{
