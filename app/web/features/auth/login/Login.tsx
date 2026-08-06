@@ -77,9 +77,13 @@ export default function Login() {
           )}
           <LoginForm />
           <Typography sx={{ marginTop: 2 }}>
-            <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-              No account yet? <StyledLink href={signupRoute}>Sign up</StyledLink>
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="auth:login_page.no_account_prompt"
+              components={{
+                2: <StyledLink href={signupRoute} />,
+              }}
+            ></Trans>
           </Typography>
         </StyledFormWrapper>
       </StyledContent>
