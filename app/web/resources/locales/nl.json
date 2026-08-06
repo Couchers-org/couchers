@@ -44,7 +44,8 @@
     "home": "Home",
     "close_menu_a11y": "Menu sluiten",
     "open_drawer_a11y": "Menuscherm openen",
-    "close_drawer_a11y": "Menuscherm sluiten"
+    "close_drawer_a11y": "Menuscherm sluiten",
+    "press": "Pers & Media"
   },
   "components": {
     "edit_location_map": {
@@ -322,7 +323,7 @@
     "en": "Engels",
     "es": "Spaans (Spanje)",
     "es-419": "Spaans",
-    "fr": "Frans (Frankrijk)",
+    "fr": "Frans",
     "he": "Hebreeuws",
     "hi": "Hindi",
     "it": "Italiaans",
