@@ -11,7 +11,7 @@ import logging
 from sqlalchemy.orm.session import Session
 
 from couchers.email.queuing import queue_system_email
-from couchers.postal.my_postcard import generate_back_left_side_png
+from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ def send_simulated_postcard(
         },
         attachments=[
             jobs_pb2.EmailPart(
-                data=generate_back_left_side_png(verification_code),
+                data=_generate_back_left_side_png(verification_code),
                 content_type=f'image/png; name="{ATTACHMENT_FILENAME}"',
                 content_disposition=f'attachment; filename="{ATTACHMENT_FILENAME}"',
             )
