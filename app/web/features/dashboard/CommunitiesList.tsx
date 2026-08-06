@@ -1,5 +1,5 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
@@ -42,6 +42,16 @@ const CommunityCard = styled(StyledLink)(({ theme }) => ({
   },
 }));
 
+const CommunityName = styled(Typography)<TypographyProps>({
+  fontWeight: 600,
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  overflowWrap: "anywhere",
+});
+
 const SkeletonCard = styled("div")(({ theme }) => ({
   height: "100%",
   padding: theme.spacing(1.5),
@@ -62,11 +72,7 @@ export default function CommunitiesList() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const { data, isPending, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useListUserCommunities();
-
-  useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const { data, isPending, error } = useListUserCommunities();
 
   const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
@@ -152,15 +158,9 @@ export default function CommunitiesList() {
           {communities.map((community) => (
             <CardSlot key={`community-${community.communityId}`}>
               <CommunityCard href={routeToCommunity(community.communityId, community.slug)}>
-                <Typography
-                  variant="subtitle2"
-                  component="span"
-                  sx={{
-                    fontWeight: 600,
-                  }}
-                >
+                <CommunityName variant="subtitle2" component="span">
                   {community.name}
-                </Typography>
+                </CommunityName>
                 <Typography variant="body2" color="textSecondary">
                   {t("dashboard:member_count", {
                     count: community.memberCount,
