@@ -156,6 +156,19 @@ describe("VerificationPage", () => {
       expect(getPostalStatusMock).not.toHaveBeenCalled();
     });
 
+    it("asks the user to donate first when they haven't", async () => {
+      renderPage({ isPostalEnabled: true, accountInfo: { hasDonated: false } });
+
+      expect(await screen.findByRole("heading", { name: t("auth:verification_page.postal.header") })).toBeVisible();
+      // <Trans> swaps <2>donate</2> for a link, so match the rendered text.
+      const donatePrompt = t("auth:verification_page.postal.need_to_donate").replace(/<\/?2>/g, "");
+      expect(await screen.findByText((_, element) => element?.textContent === donatePrompt)).toBeVisible();
+      // No point offering the form: the backend would reject it.
+      expect(
+        screen.queryByLabelText(t("auth:verification_page.postal.address_form.address_line_1_label")),
+      ).not.toBeInTheDocument();
+    });
+
     it("starts on the address form when there is no attempt", async () => {
       renderPage({ isPostalEnabled: true });
 

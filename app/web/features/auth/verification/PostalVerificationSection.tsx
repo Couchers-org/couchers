@@ -3,12 +3,14 @@ import { alpha, Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { localizeDateOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { PostalVerificationStatus } from "proto/postal_verification_pb";
 import { useMemo, useState } from "react";
+import { howToDonateUrl } from "routes";
 import { PostalAddressData } from "service/postalVerification";
 import { timestampToPlainDateTime } from "utils/date";
 
@@ -105,7 +107,7 @@ function addressLines(address: PostalAddressData, countryName: string): string[]
   ].filter((line): line is string => !!line);
 }
 
-export default function PostalVerificationSection() {
+export default function PostalVerificationSection({ hasDonated }: { hasDonated: boolean }) {
   const {
     t,
     i18n: { language },
@@ -181,6 +183,16 @@ export default function PostalVerificationSection() {
           <CheckCircle />
           <Typography variant="body1">{t("verification_page.postal.verified_message")}</Typography>
         </SuccessBanner>
+      ) : !hasDonated ? (
+        // InitiatePostalVerification is gated on having donated backend-side too, so
+        // showing the form here would only earn a FAILED_PRECONDITION.
+        <Typography variant="body1">
+          <Trans
+            t={t}
+            i18nKey="verification_page.postal.need_to_donate"
+            components={{ 2: <StyledLink href={howToDonateUrl} /> }}
+          />
+        </Typography>
       ) : (
         <>
           <StepList>

@@ -355,14 +355,15 @@
     },
     "phone": {
       "header": "Phone verification",
-      "description": "We text you a code. Your number is never shown on your profile and we don't message you on it.",
+      "description": "We text you a code. Your number is never shown on your profile and we don't message you on it. Open to donors, as texts cost us to send.",
       "code_sent_description": "We sent a code to <strong>{{phone_number}}</strong>. Enter it below to verify your number.",
       "use_another_number_button": "Use another number",
       "verified_message": "Verified: <strong>{{phone_number}}</strong>."
     },
     "postal": {
       "header": "Postal verification",
-      "description": "We post you a card with a code, so you can confirm you live where your profile says. Your address is only used to send the card.",
+      "description": "We post you a card with a code, so you can confirm you live where your profile says. Your address is only used to send the card. Open to donors, as we cover the printing and postage.",
+      "need_to_donate": "We cover the cost of printing and posting your card, so postal verification is available to our donors. If you'd like to use it, you can <2>make a donation</2>.",
       "step_number": "Step {{step_number}}",
       "steps": {
         "address": "Your address",

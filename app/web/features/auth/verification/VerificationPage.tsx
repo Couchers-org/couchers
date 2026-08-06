@@ -174,7 +174,7 @@ export default function VerificationPage() {
             {isPostalVerificationEnabled && (
               <>
                 <Divider spacing={0} />
-                <PostalVerificationSection />
+                <PostalVerificationSection hasDonated={accountInfo.hasDonated} />
               </>
             )}
           </>
