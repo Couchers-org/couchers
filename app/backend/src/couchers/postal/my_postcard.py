@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://www.mypostcard.com/api/v1"
 
 
-def generate_back_left_side_png(verification_code: str) -> bytes:
+def _generate_back_left_side_png(verification_code: str) -> bytes:
     """
     Generates the back left side image (780x1016 px PNG at 300 DPI).
 
@@ -166,7 +166,7 @@ def send_postcard(
         recipient["state"] = state
 
     result = _place_order(
-        _authenticate(), recipient, get_postcard_front_image(), generate_back_left_side_png(verification_code)
+        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side_png(verification_code)
     )
     logger.info(f"MyPostcard order placed successfully: {result}")
     return int(result["job_id"])
