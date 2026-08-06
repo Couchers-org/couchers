@@ -312,6 +312,108 @@
     "error_message": "Error: {{message}}",
     "missing_payload_or_sig": "Invalid URL"
   },
+  "verification_page": {
+    "title": "Verification",
+    "intro": "Verifying yourself keeps our community safe and makes hosts more likely to say yes, and surfers more likely to send you a request. It's free and always optional.",
+    "settings_link": {
+      "title": "Verification",
+      "moved_message": "Looking for verification? It's <1>moved here</1>."
+    },
+    "status_pill": {
+      "verified": "Verified",
+      "not_verified": "Not verified",
+      "code_sent": "Code sent",
+      "in_progress": "In progress"
+    },
+    "strong": {
+      "description": "Verify your date of birth and gender with your biometric passport, using your phone.",
+      "benefits_header": "Features you gain",
+      "benefits": {
+        "photos_title_one": "{{count}} profile photo",
+        "photos_title_other": "{{count}} profile photos",
+        "photos_description": "Instead of {{unverified_count}}.",
+        "visibility_title": "More visibility",
+        "visibility_description": "You appear higher in search results.",
+        "badge_title": "A profile badge",
+        "badge_description": "Age and gender shown as checked.",
+        "interactions_title": "Better interactions",
+        "interactions_description": "You're more likely to get a response."
+      },
+      "data_notes": {
+        "third_party": "<strong>Scanned by Iris ID.</strong> Their app reads your passport chip on your phone and passes the result to us.",
+        "encryption": "<strong>Encrypted at rest.</strong> The passport record is encrypted with a key held outside the system. Only the minimum fields needed for verification are stored unencrypted.",
+        "deletion": "<strong>Delete it whenever you want.</strong> Verification also expires when your passport does."
+      },
+      "requirements_header": "What you need",
+      "requirements": {
+        "passport": "A biometric passport, with the gold chip symbol on the cover",
+        "nfc_phone": "A phone with NFC, with the case off",
+        "time": "About five minutes"
+      },
+      "start_hint": "We'll walk you through the passport scan step by step.",
+      "verified_message": "You're verified. It expires when your passport does."
+    },
+    "phone": {
+      "header": "Phone verification",
+      "description": "We text you a code. Your number is never shown on your profile and we don't message you on it.",
+      "code_sent_description": "We sent a code to <strong>{{phone_number}}</strong>. Enter it below to verify your number.",
+      "use_another_number_button": "Use another number",
+      "verified_message": "Verified: <strong>{{phone_number}}</strong>."
+    },
+    "postal": {
+      "header": "Postal verification",
+      "description": "We post you a card with a code, so you can confirm you live where your profile says. Your address is only used to send the card.",
+      "step_number": "Step {{step_number}}",
+      "steps": {
+        "address": "Your address",
+        "confirm": "Confirm it",
+        "in_the_post": "In the post",
+        "code": "Enter the code"
+      },
+      "address_form": {
+        "description": "Street, city and country are required. We check the address is deliverable before printing anything.",
+        "address_line_1_label": "Address line 1",
+        "address_line_2_label": "Address line 2 (optional)",
+        "address_line_2_placeholder": "Apartment, suite, floor",
+        "city_label": "City",
+        "state_label": "State or region (optional)",
+        "state_placeholder": "If your country uses one",
+        "postal_code_label": "Postal code",
+        "country_label": "Country",
+        "submit_button": "Check my address",
+        "required_field_error": "This field is required"
+      },
+      "confirm": {
+        "corrected_description": "We corrected your address to match postal records. Check it, because once you confirm we can't change where the card goes.",
+        "unchanged_description": "Check your address, because once you confirm we can't change where the card goes.",
+        "entered_header": "You entered",
+        "will_post_to_header": "We'll post to",
+        "submit_button": "Send my postcard",
+        "edit_button": "Edit address"
+      },
+      "in_the_post": {
+        "sent_message": "Your postcard was posted on {{date}}. It usually takes one to three weeks to arrive, and the code works for {{code_lifetime_days}} days.",
+        "queued_message": "Your postcard is queued for printing. It usually takes one to three weeks to arrive once posted, and the code works for {{code_lifetime_days}} days after it is sent."
+      },
+      "code_form": {
+        "description": "Enter the six characters printed on your postcard.",
+        "code_label": "Postcard code",
+        "tries_left_one": "{{count}} of {{max_tries}} tries left.",
+        "tries_left_other": "{{count}} of {{max_tries}} tries left.",
+        "wrong_code_message": "That code doesn't match. Please try again.",
+        "submit_button": "Verify code"
+      },
+      "cancel_button": "Cancel this attempt",
+      "verified_message": "Your address is verified.",
+      "rate_limited_message": "You can start postal verification again on {{date}}.",
+      "failed_message": "That postal verification attempt didn't work out. You can start again below.",
+      "cancelled_message": "You cancelled your last postal verification attempt. You can start again below."
+    },
+    "data_use": {
+      "header": "How your data is used",
+      "body": "We use verification data to stop abuse (for example by making sure a given passport is only used to verify one account). We may share verification data with authorities (but not other members) if needed in a formal investigation of serious wrongdoing. Other members only ever see that you're verified, never the details."
+    }
+  },
   "change_phone": {
     "title": "Phone number",
     "need_to_donate": "You need to <2>donate</2> before you can complete phone verification.",

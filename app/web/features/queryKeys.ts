@@ -16,6 +16,7 @@ export const listNotificationsQueryKey = "listNotifications";
 export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
 export const volunteerInfoQueryKey = "volunteerInfo";
+export const postalVerificationStatusQueryKey = "postalVerificationStatus";
 
 export function userKey(userId?: number) {
   return userId === undefined ? ["user"] : ["user", userId];

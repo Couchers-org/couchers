@@ -114,7 +114,7 @@ describe("ReminderItem", () => {
       screen.getByRole("link", {
         name: t("dashboard:reminder.strong_verification.button"),
       }),
-    ).toHaveAttribute("href", "/strong-verification");
+    ).toHaveAttribute("href", "/verification");
   });
 
   it("renders nothing for an unrecognised reminder", () => {

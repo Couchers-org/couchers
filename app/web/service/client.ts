@@ -15,6 +15,7 @@ import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
 import { NotificationsPromiseClient } from "proto/notifications_grpc_web_pb";
 import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
+import { PostalVerificationPromiseClient } from "proto/postal_verification_grpc_web_pb";
 import { PublicPromiseClient } from "proto/public_grpc_web_pb";
 import { PublicTripsPromiseClient } from "proto/public_trips_grpc_web_pb";
 import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
@@ -103,6 +104,7 @@ const client = {
   jail: new JailPromiseClient(URL, null, opts),
   notifications: new NotificationsPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
+  postalVerification: new PostalVerificationPromiseClient(URL, null, opts),
   public: new PublicPromiseClient(URL, null, opts),
   publicTrips: new PublicTripsPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
@@ -134,6 +136,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.jail,
     client.notifications,
     client.pages,
+    client.postalVerification,
     client.public,
     client.publicTrips,
     client.references,
