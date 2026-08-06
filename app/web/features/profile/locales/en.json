@@ -285,6 +285,7 @@
     "no_people": "There are no people with that badge!",
     "not_found": "Badge not found"
   },
+  "open_profile_new_tab": "Open profile in new tab",
   "reference_amounts": {
     "no_references": "No references",
     "count_references_one": "{{count}} reference",

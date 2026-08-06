@@ -2,11 +2,12 @@ import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
-import { PinIcon } from "components/Icons";
+import { OpenInNewIcon, PinIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
@@ -23,6 +24,13 @@ const StyledWrapper = styled("div")({
   alignItems: "center",
   wordBreak: "break-word",
 });
+
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+  display: "block",
+  marginInlineStart: theme.spacing(0.5),
+  height: "1.25rem",
+  width: "1.25rem",
+}));
 
 const StyledListItemText = styled(ListItemText, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
@@ -77,6 +85,7 @@ export default function UserSummary({
     return React.createElement(headlineComponent, { ...props, ref });
   });
 
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,6 +163,7 @@ export default function UserSummary({
             <ProfileLink
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
+              openInNewTab={!isMobile}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -162,6 +172,7 @@ export default function UserSummary({
               }}
             >
               {title}
+              {!isMobile && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title
