@@ -42,6 +42,26 @@
     "host_request_too_short2_one": "Een hostverzoek mag niet korter zijn dan {{count}} teken.",
     "host_request_too_short2_other": "Een hostverzoek kan niet korter zijn dan {{count}} tekens.",
     "public_trip_description_too_short_one": "Openbare reisbeschrijving mag niet korter zijn dan {{count}} teken.",
-    "public_trip_description_too_short_other": "Openbare reisbeschrijving mag niet korter zijn dan {{count}} tekens."
+    "public_trip_description_too_short_other": "Openbare reisbeschrijving mag niet korter zijn dan {{count}} tekens.",
+    "cant_write_reference_for_request": "Je kan geen referentie schrijven voor dit hostverzoek, of het is niet gevonden.",
+    "cant_write_reference_indicated_didnt_meetup": "Je kan geen referentie schrijven voor dit hostverzoek, omdat je hebt gezegd dat je elkaar niet hebt ontmoet.",
+    "chat_not_found": "Kon deze chat niet vinden.",
+    "city_required": "Plaats is verplicht.",
+    "community_not_found": "Community niet gevonden.",
+    "country_required": "Land is verplicht.",
+    "date_from_after_one_year": "De startdatum moet binnen één jaar vanaf vandaag liggen.",
+    "date_from_after_to": "De startdatum kan niet na de einddatum liggen.",
+    "date_from_before_today": "De startdatum moet vandaag of later zijn.",
+    "date_to_after_one_year": "Je kunt niet aanvragen om langer dan een jaar bij iemand te verblijven.",
+    "dev_apis_disabled": "Development API's zijn niet ingeschakeld op deze server.",
+    "discussion_delete_permission_denied": "Jij mag deze discussie niet verwijderen.",
+    "discussion_deleted": "Deze discussie is verwijderd.",
+    "discussion_edit_permission_denied": "Jij mag deze discussie niet bewerken.",
+    "discussion_not_found": "Discussie niet gevonden.",
+    "reply_delete_permission_denied": "Jij mag deze reactie niet verwijderen.",
+    "reply_deleted": "Deze reactie is verwijderd.",
+    "reply_edit_permission_denied": "Jij mag deze reactie niet bewerken.",
+    "discussions_not_enabled": "Discussies zijn niet ingeschakeld in deze groep of community.",
+    "do_not_email_cannot_host": "Je kunt hosting niet inschakelen zolang e-mails zijn uitgeschakeld in je instellingen."
   }
 }
