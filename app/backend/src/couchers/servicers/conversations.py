@@ -14,6 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context, make
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.messages import message_to_pb
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (
@@ -30,7 +31,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import mark_notifications_seen, notify
-from couchers.proto import conversations_pb2, conversations_pb2_grpc, messages_pb2, notification_data_pb2
+from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
@@ -43,54 +44,6 @@ logger = logging.getLogger(__name__)
 # TODO: Still needs custom pagination: GetUpdates
 DEFAULT_PAGINATION_LENGTH = 20
 MAX_PAGE_SIZE = 50
-
-
-def _message_to_pb(message: Message) -> messages_pb2.Message:
-    """
-    Turns the given message to a protocol buffer
-    """
-    if message.is_normal_message:
-        return messages_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            text=messages_pb2.MessageContentText(text=message.text),
-        )
-    else:
-        return messages_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            chat_created=(
-                messages_pb2.MessageContentChatCreated() if message.message_type == MessageType.chat_created else None
-            ),
-            chat_edited=(
-                messages_pb2.MessageContentChatEdited() if message.message_type == MessageType.chat_edited else None
-            ),
-            user_invited=(
-                messages_pb2.MessageContentUserInvited(target_user_id=message.target_id)
-                if message.message_type == MessageType.user_invited
-                else None
-            ),
-            user_left=(
-                messages_pb2.MessageContentUserLeft() if message.message_type == MessageType.user_left else None
-            ),
-            user_made_admin=(
-                messages_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
-                if message.message_type == MessageType.user_made_admin
-                else None
-            ),
-            user_removed_admin=(
-                messages_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
-                if message.message_type == MessageType.user_removed_admin
-                else None
-            ),
-            group_chat_user_removed=(
-                messages_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
-                if message.message_type == MessageType.user_removed
-                else None
-            ),
-        )
 
 
 def _get_visible_members_for_subscription(subscription: GroupChatSubscription) -> list[int]:
@@ -408,7 +361,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                     unseen_message_count=unseen_counts.get(result.GroupChatSubscription.id, 0),
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-                    latest_message=_message_to_pb(result.Message) if result.Message else None,
+                    latest_message=message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
                     can_message=_user_can_message(session, context, result.GroupChat),
                     is_archived=result.GroupChatSubscription.is_archived,
@@ -456,7 +409,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             created=Timestamp_from_datetime(result.GroupChat.conversation.created),
             unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-            latest_message=_message_to_pb(result.Message) if result.Message else None,
+            latest_message=message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
             is_archived=result.GroupChatSubscription.is_archived,
@@ -514,7 +467,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             created=Timestamp_from_datetime(result.GroupChat.conversation.created),
             unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-            latest_message=_message_to_pb(result.Message) if result.Message else None,
+            latest_message=message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
             is_archived=result.GroupChatSubscription.is_archived,
@@ -548,7 +501,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             updates=[
                 conversations_pb2.Update(
                     group_chat_id=message.conversation_id,
-                    message=_message_to_pb(message),
+                    message=message_to_pb(message),
                 )
                 for message in sorted(results, key=lambda message: message.id)[:DEFAULT_PAGINATION_LENGTH]
             ],
@@ -587,7 +540,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         )
 
         return conversations_pb2.GetGroupChatMessagesRes(
-            messages=[_message_to_pb(message) for message in results[:page_size]],
+            messages=[message_to_pb(message) for message in results[:page_size]],
             last_message_id=results[-2].id if len(results) > 1 else 0,  # TODO
             no_more=len(results) <= page_size,
         )
@@ -689,7 +642,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             results=[
                 conversations_pb2.MessageSearchResult(
                     group_chat_id=message.conversation_id,
-                    message=_message_to_pb(message),
+                    message=message_to_pb(message),
                 )
                 for message in results[:page_size]
             ],
