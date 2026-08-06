@@ -42,6 +42,15 @@ export const sectionLabels = (
   };
 };
 
+const StyledDetailsCard = styled(Card)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    margin: 0,
+    width: "100%",
+  },
+  flexGrow: 1,
+  padding: theme.spacing(2),
+}));
+
 const StyledNumReferences = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
@@ -54,15 +63,6 @@ const StyledNumReferences = styled("div")(({ theme }) => ({
   height: "15px",
   borderRadius: "50%",
   padding: theme.spacing(1),
-}));
-
-const StyledDetailsCard = styled(Card)(({ theme }) => ({
-  [theme.breakpoints.down("md")]: {
-    margin: 0,
-    width: "100%",
-  },
-  flexGrow: 1,
-  padding: theme.spacing(2),
 }));
 
 export default function UserCard({
