@@ -72,7 +72,13 @@ def queue_userless_email(
 _system_email_templates_dir = Path(__file__).parent / ".." / ".." / ".." / "templates" / "system"
 
 
-def queue_system_email(session: Session, recipient: str, template_name: str, template_args: dict[str, Any]) -> None:
+def queue_system_email(
+    session: Session,
+    recipient: str,
+    template_name: str,
+    template_args: dict[str, Any],
+    attachments: list[jobs_pb2.EmailPart] | None = None,
+) -> None:
     source = (_system_email_templates_dir / f"{template_name}.md").read_text(encoding="utf8")
     _, frontmatter_source, text_source = source.split("---", 2)
 
@@ -90,5 +96,6 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
             subject=config.NOTIFICATION_PREFIX + frontmatter["subject"],
             plain=plain,
             source_data=template_name,
+            attachments=attachments or [],
         ),
     )

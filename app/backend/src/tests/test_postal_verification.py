@@ -4,8 +4,10 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy import select
 
+from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
@@ -13,10 +15,11 @@ from couchers.constants import (
 )
 from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
+from couchers.jobs.handlers import check_mypostcard_jobs
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
-from couchers.postal.my_postcard import _generate_back_left_side_png
+from couchers.postal.my_postcard import generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
 from couchers.utils import now
@@ -682,6 +685,121 @@ def test_has_postal_verification_helper(db):
         assert has_postal_verification(session, db_user)
 
 
+def test_postal_verification_requires_donation(db):
+    """Postcards cost money, so non-donors can't initiate. Mirrors phone verification."""
+    user, token = generate_user(last_donated=None)
+
+    with postal_verification_session(token) as pv:
+        with pytest.raises(grpc.RpcError) as e:
+            pv.InitiatePostalVerification(
+                postal_verification_pb2.InitiatePostalVerificationReq(
+                    address=postal_verification_pb2.PostalAddress(
+                        address_line_1="123 Main St",
+                        city="Test City",
+                        country_code="US",
+                    )
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Please complete a donation to verify your address by post."
+
+    # No attempt should have been created
+    with session_scope() as session:
+        assert not session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.user_id == user.id)
+        ).scalar_one_or_none()
+
+
+def _confirmed_attempt_id(token: str) -> int:
+    """Takes a user through to `in_progress`, i.e. ready for the postcard-sending job."""
+    with postal_verification_session(token) as pv:
+        res = pv.InitiatePostalVerification(
+            postal_verification_pb2.InitiatePostalVerificationReq(
+                address=postal_verification_pb2.PostalAddress(
+                    address_line_1="123 Main St",
+                    city="Test City",
+                    state="CA",
+                    postal_code="12345",
+                    country_code="US",
+                )
+            )
+        )
+        attempt_id: int = res.postal_verification_attempt_id
+
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+
+    return attempt_id
+
+
+def test_simulated_postcard_emails_the_user_instead_of_mailing(db, email_collector):
+    """With MYPOSTCARD_LIVE off, no order is placed and the postcard is emailed to the user instead."""
+    config.MYPOSTCARD_LIVE = False
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    with patch("couchers.postal.my_postcard._place_order") as mock_order:
+        while process_job():
+            pass
+        mock_order.assert_not_called()
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.status == PostalVerificationStatus.awaiting_verification
+        assert attempt.postcard_sent_at is not None
+        assert attempt.mypostcard_job_id is None
+        verification_code = attempt.verification_code
+
+    email = email_collector.pop_for_recipient(user.email)
+    # The email must be unmistakably an example from a test server, right at the top
+    assert "EXAMPLE" in email.subject
+    assert "THIS IS AN EXAMPLE. NO POSTCARD WAS PRINTED OR MAILED." in email.plain.split("Hi ")[0]
+    assert "nothing has been charged" in email.plain
+    assert verification_code in email.plain
+
+    assert len(email.attachments) == 1
+    attachment = email.attachments[0]
+    assert attachment.data[:4] == b"\x89PNG"
+    assert 'filename="example-postcard.png"' in attachment.content_disposition
+
+    # The emailed code still works, so the whole flow can be tested
+    with postal_verification_session(token) as pv:
+        assert pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code)).success
+
+
+def test_live_postcard_places_a_real_order(db):
+    """With MYPOSTCARD_LIVE on, an order is placed and its job ID recorded."""
+    config.MYPOSTCARD_LIVE = True
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        mock_send.return_value = 12345
+        while process_job():
+            pass
+        mock_send.assert_called_once()
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.status == PostalVerificationStatus.awaiting_verification
+        assert attempt.mypostcard_job_id == 12345
+
+
+def test_check_mypostcard_jobs_skipped_when_not_live(db):
+    """The reconciliation job must not call the API when we never placed any orders."""
+    config.MYPOSTCARD_LIVE = False
+
+    with patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids:
+        check_mypostcard_jobs(empty_pb2.Empty())
+        mock_get_order_ids.assert_not_called()
+
+
 def test_generate_postcard_images():
     """
     Generates sample postcard front and back images for visual inspection.
@@ -690,7 +808,7 @@ def test_generate_postcard_images():
     """
     code = "ABC123"
     front = get_postcard_front_image()
-    back = _generate_back_left_side_png(code)
+    back = generate_back_left_side_png(code)
 
     assert len(front) > 0
     assert len(back) > 0

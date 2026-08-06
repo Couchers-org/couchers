@@ -42,6 +42,11 @@
       "admin_editable": false
     },
     {
+      "id": "postal_verified",
+      "color": "#4f8fc7",
+      "admin_editable": false
+    },
+    {
       "id": "strong_verification",
       "color": "#1b8aa0",
       "admin_editable": false

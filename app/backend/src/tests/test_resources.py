@@ -86,6 +86,7 @@ def test_GetBadges(db):
             "past_volunteer",
             "donor",
             "phone_verified",
+            "postal_verified",
             "strong_verification",
             "swagster",
         }

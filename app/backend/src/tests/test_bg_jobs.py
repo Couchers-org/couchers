@@ -49,6 +49,8 @@ from couchers.models import (
     Message,
     MessageType,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
     PushNotificationPlatform,
     PushNotificationSubscription,
     User,
@@ -1484,6 +1486,18 @@ def test_update_badges(db, push_collector: PushCollector):
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
+        session.add(
+            PostalVerificationAttempt(
+                user_id=user6.id,
+                address_line_1="123 Main St",
+                city="Test City",
+                country_code="US",
+                status=PostalVerificationStatus.succeeded,
+                verification_code="ABC123",
+                postcard_sent_at=func.now(),
+                verified_at=func.now(),
+            )
+        )
 
     update_badges(empty_pb2.Empty())
     process_jobs()
@@ -1500,6 +1514,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user2.id, "board_member"),
         (user4.id, "phone_verified"),
         (user5.id, "phone_verified"),
+        (user6.id, "postal_verified"),
     ]
 
     assert badge_tuples == expected  # type: ignore[comparison-overlap]

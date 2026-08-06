@@ -106,6 +106,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.my_postcard import get_order_ids, send_postcard
+from couchers.postal.simulated import send_simulated_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -833,6 +834,8 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
             "volunteer": 3,
             "past_volunteer": 2,
             "donor": 1,
+            # Harder to fake than a phone number, easier than a biometric passport
+            "postal_verified": 2,
             "phone_verified": 1,
         }
 
@@ -910,6 +913,12 @@ def update_badges(payload: empty_pb2.Empty) -> None:
         update_badge("donor", session.execute(select(User.id).where(User.last_donated.is_not(None))).scalars().all())
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
+        update_badge(
+            "postal_verified",
+            session.execute(select(PostalVerificationAttempt.user_id).where(PostalVerificationAttempt.is_valid))
+            .scalars()
+            .all(),
+        )
         # strong verification requires passport on file + gender/sex correspondence and date of birth match
         update_badge(
             "strong_verification",
@@ -1312,20 +1321,33 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
+        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
 
-        job_id = send_postcard(
-            recipient_name=user_name,
-            address_line_1=attempt.address_line_1,
-            address_line_2=attempt.address_line_2,
-            city=attempt.city,
-            state=attempt.state,
-            postal_code=attempt.postal_code,
-            country=attempt.country_code,
-            verification_code=not_none(attempt.verification_code),
-        )
+        if config.MYPOSTCARD_LIVE:
+            attempt.mypostcard_job_id = send_postcard(
+                recipient_name=user_name,
+                address_line_1=attempt.address_line_1,
+                address_line_2=attempt.address_line_2,
+                city=attempt.city,
+                state=attempt.state,
+                postal_code=attempt.postal_code,
+                country=attempt.country_code,
+                verification_code=not_none(attempt.verification_code),
+            )
+        else:
+            send_simulated_postcard(
+                session,
+                recipient_email=user_email,
+                recipient_name=user_name,
+                address_line_1=attempt.address_line_1,
+                address_line_2=attempt.address_line_2,
+                city=attempt.city,
+                state=attempt.state,
+                postal_code=attempt.postal_code,
+                country=attempt.country_code,
+                verification_code=not_none(attempt.verification_code),
+            )
 
-        attempt.mypostcard_job_id = job_id
         attempt.status = PostalVerificationStatus.awaiting_verification
         attempt.postcard_sent_at = func.now()
 
@@ -1340,7 +1362,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 "attempt_id": attempt.id,
                 "country": attempt.country_code,
                 "city": attempt.city,
-                "mypostcard_job_id": job_id,
+                "mypostcard_job_id": attempt.mypostcard_job_id,
             },
         )
 
@@ -1360,6 +1382,10 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
+    if not config.MYPOSTCARD_LIVE:
+        # Nothing to reconcile: we never placed any orders.
+        return
+
     if not experimentation.get_global_boolean_value("postal_verification_enabled", default=False):
         return
 

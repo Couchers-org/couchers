@@ -208,6 +208,8 @@ def testconfig():
     config.MYPOSTCARD_PASSWORD = "test-password"
     config.MYPOSTCARD_PRODUCT_CODE = "J9GCU"
     config.MYPOSTCARD_CAMPAIGN_ID = "295"
+    # Flow tests exercise the live path with `send_postcard` mocked; tests for the simulated send flip this off
+    config.MYPOSTCARD_LIVE = True
 
     config.SMTP_HOST = "localhost"
     config.SMTP_PORT = 587
