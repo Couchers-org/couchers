@@ -257,13 +257,33 @@
     "volunteer_description": "Este usuario es un voluntario en activo de Couchers.org",
     "past_volunteer_name": "Antiguo Voluntario",
     "past_volunteer_description": "Este usuario fue un Voluntario de Couchers.org",
-    "donor_name": "Donante"
+    "donor_name": "Donante",
+    "donor_description": "Este usuario ha contribuido economicamente al proyecto",
+    "phone_verified_name": "Teléfono verificado",
+    "phone_verified_description": "Este usuario ha verificado su número de teléfono",
+    "strong_verification_name": "Verificación robusta",
+    "strong_verification_description": "Este usuario ha verificado su género y su fecha de nacimiento con un pasaporte biométrico",
+    "swagster_name": "Swagster",
+    "swagster_description": "¡Este usuario ha comprado merchandising de Couchers.org!"
   },
   "quick_links": {
     "chat_unsub": "Ese chat grupal ha sido silenciado.",
-    "host_request_quick_decline": "¡Gracias por responder a la solicitud de alojamiento!"
+    "host_request_quick_decline": "¡Gracias por responder a la solicitud de alojamiento!",
+    "do_not_email": "No recibirás ningún correo electrónico que no sea de seguridad, y se ha desactivado el estado sobre tus posibilidades de hospedar. Es posible que sigas recibiendo el boletín informativo, del cual tendrás que darte de baja por separado.",
+    "topic_action": "Se ha cancelado tu suscripción a las notificaciones por correo electrónico de ese tipo."
   },
   "ghost_users": {
-    "display_name": "Cuenta desactivada"
+    "display_name": "Cuenta desactivada",
+    "about_me": "Este usuario ya no está en la plataforma. Puede que haya eliminado su cuenta, o que haya sido bloqueado o expulsado. Te recomendamos que tengas precaución con cualquier interacción posterior con este usuario fuera de la plataforma. Siempre puedes ponerte en contacto con el equipo de soporte si necesitas ayuda."
+  },
+  "community_guidelines": {
+    "be_kind_title": "Sed amables entre vosotros",
+    "be_kind_guideline": "Couchers.org es una comunidad inclusiva donde se reúnen personas de todas las culturas y orígenes. Trata a todos con respeto mutuo y dignidad.",
+    "no_dating_title": "Esta no es una app de citas",
+    "no_dating_guideline": "Couchers.org NO es para citas ni ligar. El acoso o el uso de la plataforma con el fin de tener citas o ligar resultará en una expulsión.",
+    "be_safe_title": "Sé prudente y sensato",
+    "be_safe_guideline": "Lee los perfiles, las referencias y los recursos. Denuncia cualquier contenido o comportamiento inapropiado.",
+    "no_money_title": "Mantén el dinero lejos de esto",
+    "no_money_guideline": "Mantén las cosas fuera de lo transaccional. No intercambies dinero mientras te hospedes o recibas a alguien. Couchers.org se trata de aprender, vivir experiencias y conocer gente."
   }
 }
