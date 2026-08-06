@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "E-mailadres veranderen",
-    "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
+    "current_email_message": "Je e-mailadres is nu <strong>{{email}}</strong>.",
     "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
     "new_email": "Nieuw e-mailadres",
     "current_password": "Huidig wachtwoord",
@@ -10,8 +10,8 @@
   },
   "do_not_email": {
     "status": {
-      "no_emails_disabled_message": "E-mails zijn nu <1>aangezet</1> voor jouw account.",
-      "no_emails_enabled_message": "E-mails zijn nu <1>uitgeschakeld</1> voor jouw account."
+      "no_emails_disabled_message": "E-mails zijn nu <strong>aangezet</strong> voor jouw account.",
+      "no_emails_enabled_message": "E-mails zijn nu <strong>uitgeschakeld</strong> voor jouw account."
     },
     "action_button": {
       "no_emails_enable_text": "Stuur mij geen e-mails",
@@ -55,11 +55,11 @@
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
-    "no_account_prompt": "Nog geen account? <2>Word lid</2>"
+    "no_account_prompt": "Nog geen account? <signupLink>Word lid</signupLink>"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
-    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
+    "existing_user_prompt": "Heb je al een account? <loginLink>Inloggen</loginLink>",
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <tosLink>Servicevoorwaarden</tosLink>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
   },
   "account_form": {
     "header": "Jouw account details",
@@ -97,7 +97,7 @@
       "selector_a11y": "Gender"
     },
     "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
-    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan.",
+    "tos_prompt": "Lees en accepteer de <tosLink></tosLink> om door te gaan.",
     "opt_in_newsletter": "Schrijf je in voor de nieuwsbrief met community-updates die we zo nu en dan sturen."
   },
   "reset_password_form": {
@@ -133,7 +133,7 @@
     "title": "Meer informatie nodig",
     "description": "Onderstaande doornemen om verder te gaan.",
     "terms_of_service_section": {
-      "description": "We hebben onze servicevoorwaarden veranderd, om verder te gaan moet je ze goed doorlezen en accepteren.<1></1>."
+      "description": "We hebben onze servicevoorwaarden veranderd, om verder te gaan moet je ze goed doorlezen en accepteren.<tosLink></tosLink>."
     },
     "location_section": {
       "title": "Werk je locatie bij",
@@ -174,7 +174,7 @@
   "logged_out_message": "Je bent uitgelogd.",
   "sign_up_completed_title": "Bedankt voor je aanmelding!",
   "sign_up_need_verification_title": "Nog één ding: bevestig je e-mailadres.",
-  "sign_up_resend_verification_email_help": "Geen mail ontvangen? Klik <2>hier om de verificatielink opnieuw te verzenden</2>.",
+  "sign_up_resend_verification_email_help": "Geen mail ontvangen? Klik <resendLink>hier om de verificatielink opnieuw te verzenden</resendLink>.",
   "sign_up_resend_verification_done": "Yes! We hebben je nog een keer gemaild.",
   "sign_up_completed_prompt": "We hebben een bericht met een verificatielink naar je e-mailadres gestuurd. Klik op de link in de mail om je account te activeren.",
   "sign_up_confirmed_prompt": "Klaar! Als je niet automatisch wordt doorgestuurd, probeer dan zelf in te loggen.",
@@ -194,12 +194,12 @@
     },
     "timezone_section": {
       "title": "Tijdzone en lokalisatie",
-      "description": "Je tijdzone is <1>{{timezone}}</1>. Gebaseerd hierop, is de tijd bij jou nu ongeveer <4>{{time}}</4>.",
+      "description": "Je tijdzone is <strong>{{timezone}}</strong>. Gebaseerd hierop, is de tijd bij jou nu ongeveer <strong>{{time}}</strong>.",
       "explanation": "Deze tijd en tijdzone zijn gebaseerd op de locatie van jouw huis. Klopt dit niet? Geef dan deze bug door."
     },
     "username_section": {
       "title": "Gebruikersnaam",
-      "description": "Jouw gebruikersnaam is <1>{{username}}</1>.",
+      "description": "Jouw gebruikersnaam is <strong>{{username}}</strong>.",
       "explanation": "Je gebruikersnaam wordt aangemaakt bij het opzetten van je account."
     },
     "appearance_section": {
@@ -229,9 +229,9 @@
     "settings_page_link": "Alle sessies beheren",
     "description": "Je ziet hieronder je huidige sessies. Je kan per sessie uitloggen door op de knop te klikken. Of scroll naar beneden en klik op de knop om overal (behalve bij deze sessie) in een keer uit te loggen.",
     "login_header": "Ingelogd op {{login_datetime}}",
-    "location": "In de buurt van <2>{{approximate_location}}</2>",
-    "last_activity": "Laatste activiteit <2>{{last_activity_ago}}</2>",
-    "expiry": "Wordt uitgelogd op <1>{{expiry_datetime}}</1>",
+    "location": "In de buurt van <strong>{{approximate_location}}</strong>",
+    "last_activity": "Laatste activiteit <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Wordt uitgelogd op <strong>{{expiry_datetime}}</strong>",
     "current_session": "Dit is je huidige sessie.",
     "log_out_of_session": "Deze sessie uitloggen",
     "log_out_of_all_session": "Log alle andere sessies uit"
@@ -241,8 +241,8 @@
     "title": "Sterke verificatie",
     "subtitle": "Sterke verificatie is een functie voor extra veiligheid. Je kan er je geboortedatum en gender mee bevestigen door middel van je biometrische paspoort.",
     "status": {
-      "enabled_message": "Je <1>bent op dit moment</1> geverifieerd met Sterke verificatie.",
-      "disabled_message": "Je <1>bent op dit moment niet</1> geverifieerd met Sterke verificatie."
+      "enabled_message": "Je <strong>bent op dit moment</strong> geverifieerd met Sterke verificatie.",
+      "disabled_message": "Je <strong>bent op dit moment niet</strong> geverifieerd met Sterke verificatie."
     },
     "start_button": "Begin Sterke verificatie",
     "complete_title": "We verwerken nu je verzoek tot Sterke verificatie",
@@ -302,7 +302,7 @@
         "tip2": "Probeer een andere pagina van je paspoort. De plek van de chip kan per land verschillen",
         "tip3": "Heb je Android? Vergeet dan niet de Iris ID-app te downloaden (en niet de browser te gebruiken)",
         "tip4": "Sommige oudere paspoorten hebben geen NFC-chip en doen het daarom niet",
-        "contact": "Lukt het nu nog steeds niet? <1>Laat het ons weten</1> en we helpen je graag."
+        "contact": "Lukt het nu nog steeds niet? <supportLink>Laat het ons weten</supportLink> en we helpen je graag."
       }
     }
   },
@@ -314,17 +314,17 @@
   },
   "change_phone": {
     "title": "Telefoonnummer",
-    "need_to_donate": "Je moet eerst <2>doneren</2> voordat je je telefoonverificatie kan afmaken.",
+    "need_to_donate": "Je moet eerst <donateLink>doneren</donateLink> voordat je je telefoonverificatie kan afmaken.",
     "no_phone_description": "Je hebt geen telefoonnummer toegevoegd aan je account. Je kan hem hieronder invullen. We zullen ter bevestiging je een sms sturen.",
     "phone_label": "Je telefoonnummer",
     "add_button_text": "Telefoonnummer toevoegen",
     "add_success": "Telefoonnummer toegevoegd.",
-    "phone_not_verified_description": "We hebben een code gestuurd naar <2>{{phone}}</2>. Voer de code hieronder in om je nummer te verifiëren:",
+    "phone_not_verified_description": "We hebben een code gestuurd naar <strong>{{phone}}</strong>. Voer de code hieronder in om je nummer te verifiëren:",
     "code_label": "Verificatiecode",
     "wrong_code": "De code klopt niet.",
     "verify_button_text": "Telefoonnummer verifiëren",
     "verify_success": "Telefoonnummer geverifieerd.",
-    "remove_phone_description": "Je telefoonnummer is op dit moment <2>{{phone}}</2>. Je kan dat nummer hieronder verwijderen.",
+    "remove_phone_description": "Je telefoonnummer is op dit moment <strong>{{phone}}</strong>. Je kan dat nummer hieronder verwijderen.",
     "remove_button_text": "Huidige telefoonnummer verwijderen",
     "remove_success": "Telefoonnummer verwijderd.",
     "change_to_different_description": "Om je telefoonnummer te wijzigen, voer hieronder je nieuwe nummer in.",
@@ -334,7 +334,7 @@
     "request": {
       "title": "Account verwijderen",
       "description": "Om je account te verwijderen, volg onderstaande stappen. Je krijgt een bevestiging per e-mail.",
-      "confirm_username_explanation": "Je gebruikersnaam is <1>{{ username }}</1>. Typ hieronder nog eens je gebruikersnaam in, om het verwijderen te bevestigen.",
+      "confirm_username_explanation": "Je gebruikersnaam is <strong>{{ username }}</strong>. Typ hieronder nog eens je gebruikersnaam in, om het verwijderen te bevestigen.",
       "confirm_username_label": "Gebruikersnaam bevestigen",
       "username_mismatch": "Gebruikersnaam komt niet overeen.",
       "reason_explanation": "Het zou fijn zijn als je wilt aangeven waarom je je account wilt verwijderen, zodat wij er van kunnen leren.",
@@ -359,18 +359,18 @@
     "title": "Profiel zichtbaarheid",
     "choose": "Kies welke informatie zichtbaar mag zijn voor mensen die niet zijn ingelogd",
     "visiblility_options": {
-      "nothing": "<1>Niks</1>: verberg me volledig",
-      "map_only": "<1>Alleen op de kaart</1>: laat een anonieme pin zien, zonder meer informatie",
-      "limited": "<1>Beperkt</1>: toon mijn naam, locatie, hosting-/meetup-status, badges, aantal referenties en hoelang ik al lid ben van Couchers",
-      "most": "<1>Meest</1>: toon volledige \"Over mij\"-deel, behalve de aanvullende informatie",
-      "full_profile": "<1>Volledig profiel</1>: toon mijn volledige profiel (behalve referenties)"
+      "nothing": "<strong>Niks</strong>: verberg me volledig",
+      "map_only": "<strong>Alleen op de kaart</strong>: laat een anonieme pin zien, zonder meer informatie",
+      "limited": "<strong>Beperkt</strong>: toon mijn naam, locatie, hosting-/meetup-status, badges, aantal referenties en hoelang ik al lid ben van Couchers",
+      "most": "<strong>Meest</strong>: toon volledige \"Over mij\"-deel, behalve de aanvullende informatie",
+      "full_profile": "<strong>Volledig profiel</strong>: toon mijn volledige profiel (behalve referenties)"
     }
   },
   "volunteer_management": {
     "title": "Vrijwilligersmanagement",
     "description": "Als je rol of de data niet kloppen, laat het ons dan weten.",
     "card_preview_label": "Hoe je op de teampagina wordt weergegeven",
-    "not_a_volunteer_message": "Volgens onze gegevens ben je geen huidige of voormalige vrijwilliger. Als dit niet klopt, laat het ons dan weten door <1>dit formulier</1> in te vullen.",
+    "not_a_volunteer_message": "Volgens onze gegevens ben je geen huidige of voormalige vrijwilliger. Als dit niet klopt, laat het ons dan weten door <formLink>dit formulier</formLink> in te vullen.",
     "current_volunteer": "Vrijwilliger sinds {{startDate}}.",
     "past_volunteer": "Vrijwilliger van {{startDate}} tot {{endDate}}.",
     "shown_on_team_page_current": "Je wordt op de teampagina weergegeven als een huidig teamlid.",

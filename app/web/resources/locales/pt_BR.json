@@ -27,7 +27,7 @@
   "save": "Salvar",
   "save_changes": "Salvar alterações",
   "mod": "Moderação",
-  "cookie_message": "Usamos cookies para garantir a melhor experiência em nosso website. Ao continuar a usar este site, assumiremos que você está de acordo com isso. Você pode ler mai sobre nossos <1>Termos de Serviço</1>.",
+  "cookie_message": "Usamos cookies para garantir a melhor experiência em nosso website. Ao continuar a usar este site, assumiremos que você está de acordo com isso. Você pode ler mai sobre nossos <tosLink>Termos de Serviço</tosLink>.",
   "hosting_status": {
     "can_host": "Pode hospedar",
     "cant_host": "Não pode hospedar",
@@ -126,7 +126,7 @@
     "read_file_error_message": "Não foi possível ler o arquivo"
   },
   "not_found_text_1": "Não foi possível encontrar o URL ou recurso solicitado",
-  "not_found_text_2": "Quer apenas voltar ao <1>painel inicial?</1>",
+  "not_found_text_2": "Quer apenas voltar ao <homeLink>painel inicial?</homeLink>",
   "not_found_alt": "Erro 404: recurso não encontrado",
   "change_time": "Alterar hora",
   "html_meta": {
@@ -241,7 +241,7 @@
   },
   "footer": {
     "non_profit_note": "O Couchers.org é um projeto do Couchers, Inc. uma organização sem fins lucrativos 501(c)(3) dos EUA e isenta de impostos.",
-    "version_info": "Versão <2>{{version}}</2>, última atualização <5>{{updated_ago}}</5>."
+    "version_info": "Versão <versionLink>{{version}}</versionLink>, última atualização <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "what_is_cs": {
     "title": "O que é couch surfing?",
@@ -313,9 +313,9 @@
     "board_member": "Membros do conselho"
   },
   "blog": {
-    "byline_with_author": "Escrito por <1/>. Publicado em {{date}}.",
+    "byline_with_author": "Escrito por <authorList/>. Publicado em {{date}}.",
     "byline_without_author": "Publicado em {{date}}.",
-    "cta_message": "Quer ajudar a escrever nosso blog ou ser voluntário? <1>Cadastre-se</1> e nos avise. Voluntários e <3>doações</3> é o que torna o Couchers.org possível!"
+    "cta_message": "Quer ajudar a escrever nosso blog ou ser voluntário? <volunteerLink>Cadastre-se</volunteerLink> e nos avise. Voluntários e <donateLink>doações</donateLink> é o que torna o Couchers.org possível!"
   },
   "error_loading_languages": "Falha em carregar opções de idioma",
   "language_names": {

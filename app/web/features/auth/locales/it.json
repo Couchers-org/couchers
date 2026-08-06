@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "current_email_message": "Il tuo indirizzo e-mail attuale è <1>{{email}}</1>.",
+    "current_email_message": "Il tuo indirizzo e-mail attuale è <strong>{{email}}</strong>.",
     "current_password": "Password attuale",
     "new_email": "Nuova e-mail",
     "title": "Modificare e-mail",
@@ -39,7 +39,7 @@
   "login_page": {
     "title": "Accesso",
     "header": "Bentornato/a!",
-    "no_account_prompt": "Non hai ancora un account? <2>Unisciti a noi</2>",
+    "no_account_prompt": "Non hai ancora un account? <signupLink>Unisciti a noi</signupLink>",
     "form": {
       "username_field_label": "E-mail/Nome utente",
       "password_field_label": "Password",
@@ -50,8 +50,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Hai già un'utenza? <2>Accedi</2>",
-    "sign_up_agreement_explainer": "Continuando, accetti i nostri <2>Termini di Servizio</2>, incluse le nostre politiche sui cookie, e-mail e gestione dati."
+    "existing_user_prompt": "Hai già un'utenza? <loginLink>Accedi</loginLink>",
+    "sign_up_agreement_explainer": "Continuando, accetti i nostri <tosLink>Termini di Servizio</tosLink>, incluse le nostre politiche sui cookie, e-mail e gestione dati."
   },
   "basic_form": {
     "email": {
@@ -98,7 +98,7 @@
       "selector_a11y": "Genere"
     },
     "tos_accept_label": "Io accetto i Termini di Servizio.",
-    "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
+    "tos_prompt": "Per continuare, per favore leggi ed accetta <tosLink></tosLink>.",
     "password": {
       "field_label": "Password",
       "required_error": "Inserisci una password",
@@ -137,7 +137,7 @@
     "title": "Sono necessarie più informazioni",
     "description": "Per favore, verifica quanto segue prima di continuare.",
     "terms_of_service_section": {
-      "description": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi <1></1>."
+      "description": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi <tosLink></tosLink>."
     },
     "location_section": {
       "title": "Per favore, aggiorna la tua posizione",
@@ -174,12 +174,12 @@
     },
     "timezone_section": {
       "title": "Fuso orario e posizione",
-      "description": "Il tuo fuso orario è <1>{{timezone}}</1>. In base a ciò, la tua ora locale è approssimativamente <4>{{time}}</4>.",
+      "description": "Il tuo fuso orario è <strong>{{timezone}}</strong>. In base a ciò, la tua ora locale è approssimativamente <strong>{{time}}</strong>.",
       "explanation": "Questi ora e fuso orario sono determinati in base alla posizione di casa tua. Per favore, segnala un errore se non sono corretti."
     },
     "username_section": {
       "title": "Nome utente",
-      "description": "Il tuo nome utente è <1>{{username}}</1>.",
+      "description": "Il tuo nome utente è <strong>{{username}}</strong>.",
       "explanation": "Il tuo nome utente viene definito quando crei il conto."
     },
     "title": "Impostazioni account",
@@ -201,17 +201,17 @@
     "no_phone_description": "Non hai inserito un numero di telefono nel tuo profilo. Per aggiungerne uno, digitalo qui sotto. Ti invieremo un messaggio di verifica.",
     "add_button_text": "Aggiungi un numero di telefono",
     "add_success": "Numero di telefono aggiunto.",
-    "phone_not_verified_description": "Ti abbiamo inviato un codice al <2>{{phone}}</2>. Per verificare il tuo numero inserisci il codice qui sotto:",
+    "phone_not_verified_description": "Ti abbiamo inviato un codice al <strong>{{phone}}</strong>. Per verificare il tuo numero inserisci il codice qui sotto:",
     "wrong_code": "Il codice è errato.",
     "verify_button_text": "Verifica il numero di telefono",
     "verify_success": "Numero di telefono verificato.",
-    "remove_phone_description": "Il tuo attuale numero di telefono è <2>{{phone}}</2>. Puoi rimuovere il numero di telefono qui sotto.",
+    "remove_phone_description": "Il tuo attuale numero di telefono è <strong>{{phone}}</strong>. Puoi rimuovere il numero di telefono qui sotto.",
     "remove_success": "Numero di telefono eliminato.",
     "remove_button_text": "Elimina l'attuale numero di telefono",
     "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
     "change_button_text": "Modifica numero di telefono",
     "code_label": "Codice di verifica",
-    "need_to_donate": "Devi prima fare una <2>donazione</2> per completare la verifica del telefono."
+    "need_to_donate": "Devi prima fare una <donateLink>donazione</donateLink> per completare la verifica del telefono."
   },
   "delete_account": {
     "request": {
@@ -222,7 +222,7 @@
       "success_message": "Eliminazione dell'account iniziata. Per completare l'eliminazione dell'account, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
       "confirm_username_label": "Conferma nome utente",
       "username_mismatch": "Il nome utente non coincide.",
-      "confirm_username_explanation": "Il tuo nome utente è <1>{{ username }}</1>, per favore digitalo qui sotto per confermare l'eliminazione del tuo profilo."
+      "confirm_username_explanation": "Il tuo nome utente è <strong>{{ username }}</strong>, per favore digitalo qui sotto per confermare l'eliminazione del tuo profilo."
     },
     "confirm": {
       "title": "Conferma eliminazione account",
@@ -244,9 +244,9 @@
     "login_header": "Accesso effettuato il {{login_datetime}}",
     "settings_page_link": "Gestisci gli accessi correnti",
     "description": "Questa pagina elenca gli accessi attivi, puoi disconnetterti da uno qualsiasi di essi cliccando sul pulsante accanto all'accesso oppure scorrendo fino in fondo alla pagina e cliccando sul pulsante per disconnetterti da tutte le sessioni tranne questa.",
-    "location": "Vicino a <2>{{approximate_location}}</2>",
-    "last_activity": "Ultima attività <2>{{last_activity_ago}}</2>",
-    "expiry": "Scade il <1>{{expiry_datetime}}</1>",
+    "location": "Vicino a <strong>{{approximate_location}}</strong>",
+    "last_activity": "Ultima attività <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Scade il <strong>{{expiry_datetime}}</strong>",
     "current_session": "Questa è la tua sessione attuale.",
     "log_out_of_session": "Disconnetti da questa sessione",
     "log_out_of_all_session": "Disconnetti tutte le altre sessioni"
@@ -261,8 +261,8 @@
     "donate_button": "Fai una donazione per supportare Couchers.org",
     "learn_more": "Scopri di più sulla verifica robusta <a>qui</a>.",
     "status": {
-      "disabled_message": "Attualmente <1>non hai completato</1> la verifica robusta.",
-      "enabled_message": "Attualmente <1>hai completato</1> la verifica robusta."
+      "disabled_message": "Attualmente <strong>non hai completato</strong> la verifica robusta.",
+      "enabled_message": "Attualmente <strong>hai completato</strong> la verifica robusta."
     },
     "start_button": "Inizia la verifica robusta",
     "complete_title": "Stiamo elaborando il tuo tentativo di verifica robusta",
@@ -317,7 +317,7 @@
         "tip2": "Prova una pagina diversa del tuo passaporto — la posizione del chip varia da paese a paese",
         "tip3": "Se utilizzi Android, assicurati di aver installato l'app IRIS ID (non la versione browser)",
         "tip4": "Alcuni passaporti più vecchi non hanno chip NFC e non funzioneranno",
-        "contact": "Se hai ancora problemi, <1>faccelo sapere</1> e ti aiuteremo."
+        "contact": "Se hai ancora problemi, <supportLink>faccelo sapere</supportLink> e ti aiuteremo."
       }
     }
   },
@@ -329,21 +329,21 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "nothing": "<1>Nessuna</1>: nascondimi completamente",
-      "map_only": "<1>Solo mappa</1>: Mostra una punto casuale e anonimo sulla mappa, senza ulteriori informazioni",
-      "limited": "<1>Limitata</1>: mostra il mio nome, posizione, stato di ospitalità/incontri, badge, numero di referenze e da quanto tempo sono un Coucher",
-      "most": "<1>Maggior parte</1>: mostra l'intera sezione \"Su di me\" eccetto \"Ulteriori informazioni\"",
-      "full_profile": "<1>Profilo completo</1>: mostra il mio intero profilo (eccetto le referenze)"
+      "nothing": "<strong>Nessuna</strong>: nascondimi completamente",
+      "map_only": "<strong>Solo mappa</strong>: Mostra una punto casuale e anonimo sulla mappa, senza ulteriori informazioni",
+      "limited": "<strong>Limitata</strong>: mostra il mio nome, posizione, stato di ospitalità/incontri, badge, numero di referenze e da quanto tempo sono un Coucher",
+      "most": "<strong>Maggior parte</strong>: mostra l'intera sezione \"Su di me\" eccetto \"Ulteriori informazioni\"",
+      "full_profile": "<strong>Profilo completo</strong>: mostra il mio intero profilo (eccetto le referenze)"
     },
     "title": "Visibilità del profilo",
     "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
   },
-  "sign_up_resend_verification_email_help": "Non hai ricevuto la email? Clicca <2>qui per reinviare il link di verifica</2>.",
+  "sign_up_resend_verification_email_help": "Non hai ricevuto la email? Clicca <resendLink>qui per reinviare il link di verifica</resendLink>.",
   "sign_up_resend_verification_done": "Fatto! Ti abbiamo inviato un'altra email.",
   "do_not_email": {
     "status": {
-      "no_emails_enabled_message": "Le email sono attualmente <1>disabilitate</1> per il tuo account.",
-      "no_emails_disabled_message": "Le email sono attualmente <1>abilitate</1> per il tuo account."
+      "no_emails_enabled_message": "Le email sono attualmente <strong>disabilitate</strong> per il tuo account.",
+      "no_emails_disabled_message": "Le email sono attualmente <strong>abilitate</strong> per il tuo account."
     },
     "action_button": {
       "no_emails_disable_text": "Riattiva le email",
@@ -370,7 +370,7 @@
     "title": "Gestione dei volontari",
     "description": "Se il tuo ruolo o le date non sono corretti, faccelo sapere.",
     "card_preview_label": "Elenco della pagina del tuo team",
-    "not_a_volunteer_message": "Secondo i nostri archivi non sei un volontario attuale o passato. Se questo non è corretto, faccelo sapere compilando <1>questo modulo</1>.",
+    "not_a_volunteer_message": "Secondo i nostri archivi non sei un volontario attuale o passato. Se questo non è corretto, faccelo sapere compilando <formLink>questo modulo</formLink>.",
     "current_volunteer": "Volontariato dal {{startDate}}.",
     "past_volunteer": "Volontariato dal {{startDate}} al {{endDate}}.",
     "shown_on_team_page_current": "Appare nella pagina del team come membro attuale del team.",

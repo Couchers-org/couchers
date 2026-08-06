@@ -37,7 +37,7 @@ export default function NotFoundPage() {
           <Trans
             t={t}
             i18nKey="not_found_text_2"
-            components={{ 1: <StyledLink href={!authenticated || !isMounted ? baseRoute : dashboardRoute} /> }}
+            components={{ homeLink: <StyledLink href={!authenticated || !isMounted ? baseRoute : dashboardRoute} /> }}
           />
         </Typography>
       </StyledWrapper>

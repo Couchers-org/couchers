@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Endre e-postadresse",
-    "current_email_message": "Din registrerte e-postadresse er nå <1>{{email}}</1>.",
+    "current_email_message": "Din registrerte e-postadresse er nå <strong>{{email}}</strong>.",
     "success_message": "Sjekk e-posten i sendt til din gamle e-postadresse for å bekrefte bytte til den nye.",
     "current_password": "Nåværende passord",
     "new_email": "Ny e-postadresse"
@@ -26,7 +26,7 @@
   "login_page": {
     "title": "Logg inn",
     "header": "Velkommen tilbake!",
-    "no_account_prompt": "Har du ingen brukerkonto? <2>Sign up</2>",
+    "no_account_prompt": "Har du ingen brukerkonto? <signupLink>Sign up</signupLink>",
     "form": {
       "password_field_label": "Passord",
       "remember_me": "Husk meg",
@@ -35,8 +35,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Har du allerede en brukerkonto? <2>Log in</2>",
-    "sign_up_agreement_explainer": "Ved å fortsette samtykker du til <2>tjenestevilkårene</2>, inkludert våre kake-, e-post, og datahåndteringspraksis."
+    "existing_user_prompt": "Har du allerede en brukerkonto? <loginLink>Log in</loginLink>",
+    "sign_up_agreement_explainer": "Ved å fortsette samtykker du til <tosLink>tjenestevilkårene</tosLink>, inkludert våre kake-, e-post, og datahåndteringspraksis."
   },
   "account_form": {
     "header": "Dine kontodetaljer",
@@ -64,7 +64,7 @@
       "non_binary": "Annet",
       "required_error": "Jeg er"
     },
-    "tos_prompt": "Les og godta <1></1> for å fortsette.",
+    "tos_prompt": "Les og godta <tosLink></tosLink> for å fortsette.",
     "tos_accept_label": "Jeg godtar vilkårene for tjenesten.",
     "password": {
       "field_label": "Passord",
@@ -124,8 +124,8 @@
     "change_button_text": "Endre telefonnummer",
     "no_phone_description": "Du har ikke lagt til et telefonnummer på brukerkontoen din. For å registrere en telefon, skriv inn nummeret i feltet under. Vi vil bekrefte det med en tekstmelding.",
     "add_success": "Telefonnummer er lagt til.",
-    "phone_not_verified_description": "Vi har sendt en kode til <2>{{phone}}</2>. For å bekreftet telefonnummeret ditt, vennligst skriv inn denne koden i feltet under:",
-    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt nedenfor."
+    "phone_not_verified_description": "Vi har sendt en kode til <strong>{{phone}}</strong>. For å bekreftet telefonnummeret ditt, vennligst skriv inn denne koden i feltet under:",
+    "remove_phone_description": "Ditt telefonnummer er <strong>{{phone}}</strong>. Du kan slette nummeret ditt nedenfor."
   },
   "jail": {
     "title": "Det trengs mer informasjon",
@@ -139,7 +139,7 @@
       "title": "Vennligst legg til geografisk plassering"
     },
     "terms_of_service_section": {
-      "description": "Vi har oppdatert vilkårene for tjenesten. For å fortsette, vennligst les og godta oppdateringen <1></1>."
+      "description": "Vi har oppdatert vilkårene for tjenesten. For å fortsette, vennligst les og godta oppdateringen <tosLink></tosLink>."
     }
   },
   "logged_out_message": "Du ble logget ut.",
@@ -150,13 +150,13 @@
       "explanation": "En administrator vil med glede endre fødselsdagen din. Vennligst kontakt support@couchers.org!"
     },
     "timezone_section": {
-      "description": "Din tidssone er <1>{{timezone}}</1>. Ut i fra dette er klokken hos deg ca <4>{{time}}</4>.",
+      "description": "Din tidssone er <strong>{{timezone}}</strong>. Ut i fra dette er klokken hos deg ca <strong>{{time}}</strong>.",
       "explanation": "Klokkeslett og tidssone er basert på din hjemadresse. Hvis dette ikke stemmer, vennligst send inn en feilmelding.",
       "title": "Tidssone og geografisk plassering"
     },
     "username_section": {
       "title": "Brukernavn",
-      "description": "Brukernavnet ditt er <1>{{username}}</1>.",
+      "description": "Brukernavnet ditt er <strong>{{username}}</strong>.",
       "explanation": "Brukernavnet lages når du oppretter brukerkontoen din."
     },
     "gender_section": {
@@ -168,7 +168,7 @@
     "request": {
       "title": "Slett brukerkonto",
       "description": "For å slette brukerkontoen din, vennligst følg trinnene under. Vi vil sende en e-post for å bekrefte.",
-      "confirm_username_explanation": "Brukernavnet ditt er <1>{{ username }}</1>, vennligst skriv det inn under for å bekrefte sletting av brukerkontoen.",
+      "confirm_username_explanation": "Brukernavnet ditt er <strong>{{ username }}</strong>, vennligst skriv det inn under for å bekrefte sletting av brukerkontoen.",
       "confirm_username_label": "Bekreftelse av brukernavn",
       "username_mismatch": "Brukernavnet samsvarer ikke.",
       "reason_explanation": "Vær så snill å fortelle oss hvorfor du har valgt å slette brukerkontoen din, så vi kan forbedre plattformen vår.",

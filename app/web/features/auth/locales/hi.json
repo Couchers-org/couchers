@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "ई - मेल बदलें",
-    "current_email_message": "आपका ईमेल वर्तमान में <1>{{email}}</1> है.",
+    "current_email_message": "आपका ईमेल वर्तमान में <strong>{{email}}</strong> है.",
     "current_password": "वर्तमान पासवर्ड",
     "new_email": "नया ईमेल",
     "success_message": "आपका ईमेल परिवर्तन प्राप्त हो गया है। परिवर्तन को पूरा करने के लिए अपना नया ईमेल देखें।"
@@ -61,10 +61,10 @@
       "username_field_label": "ईमेल/उपयोगकर्ता नाम",
       "password_field_label": "पासवर्ड"
     },
-    "no_account_prompt": "अभी तक कोई खाता नहीं है? <2>साइन अप करें</2>"
+    "no_account_prompt": "अभी तक कोई खाता नहीं है? <signupLink>साइन अप करें</signupLink>"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>"
+    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <loginLink>लॉग इन करें</loginLink>"
   },
   "basic_form": {
     "name": {
@@ -96,7 +96,7 @@
     "username_section": {
       "explanation": "जब आप अपना खाता बनाते हैं तो आपका उपयोगकर्ता नाम सेट हो जाता है।",
       "title": "उपयोगकर्ता नाम",
-      "description": "आपका उपयोगकर्ता नाम <1>{{username}}</1> है।"
+      "description": "आपका उपयोगकर्ता नाम <strong>{{username}}</strong> है।"
     },
     "gender_section": {
       "title": "लिंग बदलें"

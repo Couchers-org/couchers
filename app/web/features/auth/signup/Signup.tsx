@@ -174,7 +174,7 @@ export default function Signup() {
           <Typography sx={{ marginTop: theme.spacing(2) }}>
             <Trans
               i18nKey="auth:basic_sign_up_form.existing_user_prompt"
-              components={{ 2: <StyledLink href={loginRoute} /> }}
+              components={{ loginLink: <StyledLink href={loginRoute} /> }}
             />
           </Typography>
         </StyledFormWrapper>

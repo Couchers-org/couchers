@@ -84,7 +84,7 @@
     "household_details_subtitle": "Share more details about your household",
     "general_subtitle": "Additional details about your home and area"
   },
-  "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
+  "edit_profile_helper_text": "Looking for some inspiration on where to start? <guideLink>Check out our guide on creating an awesome profile</guideLink>.",
   "edit_profile_headings": {
     "regions_visited": "Regions I've Visited",
     "regions_lived": "Regions I've Lived In",
@@ -102,7 +102,7 @@
     "preferences_subtitle": "Let others know about your hosting and meetup preferences",
     "personal_information": "Personal Information",
     "personal_information_subtitle": "Share details about yourself and your background",
-    "about_me_subtitle": "Tell others about yourself. This is where trust begins. Help others get a sense of who you really are. See <1>tips for creating a great profile</1>.",
+    "about_me_subtitle": "Tell others about yourself. This is where trust begins. Help others get a sense of who you really are. See <guideLink>tips for creating a great profile</guideLink>.",
     "travel_experience": "Travel Experience",
     "travel_experience_subtitle": "Share your travel experiences and connections",
     "location_subtitle": "Approximate location of your home"
@@ -158,12 +158,12 @@
     "appropriate_explanation": "Your private feedback on this page, and your public reference on the next page, are vital to keeping the community safe, trustworthy, and welcoming. Thanks for doing your part to help the community!",
     "appropriate_question": "Did you feel safe with this person's behavior?",
     "safety_rating_selector_a11y": "Safety rating",
-    "by_writing_thoughtful": "Not sure what to write? Read our guide <1>here</1>. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
+    "by_writing_thoughtful": "Not sure what to write? Read our guide <guideLink>here</guideLink>. By writing honestly and in detail about your experience with this person, you will directly help other members and contribute to safety and trust in the Couchers community.",
     "did_stay_confirmation": {
       "title_hosted": "Confirm {{name}} did not stay",
       "title_surfed": "Confirm you did not stay with {{name}}",
-      "message_hosted": "You <strong>will not be able to write a reference</strong> if you indicate {{name}} didn't stay with you. They will not be notified but they can still leave a reference for you.<br /><br />If you need to report something find out how <2>here</2>.",
-      "message_surfed": "You <strong>will not be able to write a reference</strong> if you indicate you didn't stay with {{name}}. They will not be notified but they can still leave a reference for you.<br /><br />If you need to report something find out how <2>here</2>.",
+      "message_hosted": "You <strong>will not be able to write a reference</strong> if you indicate {{name}} didn't stay with you. They will not be notified but they can still leave a reference for you.<br /><br />If you need to report something find out how <reportLink>here</reportLink>.",
+      "message_surfed": "You <strong>will not be able to write a reference</strong> if you indicate you didn't stay with {{name}}. They will not be notified but they can still leave a reference for you.<br /><br />If you need to report something find out how <reportLink>here</reportLink>.",
       "confirm_hosted": "Confirm I didn't host",
       "confirm_surfed": "Confirm I didn't surf"
     },
@@ -196,7 +196,7 @@
     "thank_you_header": "Thank you for leaving a reference!",
     "thank_you_references_available": "When hosting or surfing, references become visible when both people have submitted their references, or after 2 weeks, whichever comes sooner.",
     "thank_you_support": "Most of all, thanks for being on Couchers and a part of our community!",
-    "thank_you_donation_prompt": "Consider <2>making a donation</2>! Couchers.org is a 501(c)(3) non-profit organization and we need donations to keep our servers running.",
+    "thank_you_donation_prompt": "Consider <donateLink>making a donation</donateLink>! Couchers.org is a 501(c)(3) non-profit organization and we need donations to keep our servers running.",
     "was_appropriate_required": "To help us keep our community safe, this question is required.",
     "rating_required": "Please move the slider and rate your experience.",
     "rating_negative": "Negative",
@@ -208,7 +208,7 @@
     "didnt_meetup_submit_success": "Thanks for letting us know! We won't ask you to write a reference!",
     "go_to_dashboard": "Go to dashboard",
     "private_text_explanation_1": "In the box below, you can privately tell our Safety Team what happened.",
-    "private_text_explanation_2": "This will only be seen by our Safety Team and will stay private. The more details the better, but even a short explanation can help a lot. Read more <2>here</2>.",
+    "private_text_explanation_2": "This will only be seen by our Safety Team and will stay private. The more details the better, but even a short explanation can help a lot. Read more <helpLink>here</helpLink>.",
     "private_text_explanation_3": "Thank you for helping us keep the community safe!",
     "private_text_summary": "Couchers.org Safety Team will get the following private feedback:",
     "private_text_placeholder": "Share information privately with our safety team.",
@@ -221,7 +221,7 @@
   },
   "request_form": {
     "send_request": "Send {{name}} a request",
-    "guide_link_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
+    "guide_link_help_text": "<guideLink>Read our guide</guideLink> on how to write a request that will get accepted.",
     "arrival_date": "Arrival Date",
     "arrival_date_empty": "Please specify an arrival date.",
     "arrival_date_before_host_today": "This date has already passed for {{name}}.",
@@ -334,8 +334,8 @@
   },
   "complete_profile_dialog": {
     "title": "Almost there: please complete your profile to continue!",
-    "description_1": "Before you can {{action_name}}, you must <4>write a bit about yourself</4> in your profile and <7>upload a profile photo</7>.",
-    "description_2": "This helps build a trusted community and reduce spam. For more information, <2>please refer to this help page</2>. Thank you for your help!",
+    "description_1": "Before you can {{action_name}}, you must <strong>write a bit about yourself</strong> in your profile and <strong>upload a profile photo</strong>.",
+    "description_2": "This helps build a trusted community and reduce spam. For more information, <helpLink>please refer to this help page</helpLink>. Thank you for your help!",
     "actions": {
       "send_request": "send a request",
       "send_message": "send a message",

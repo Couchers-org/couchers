@@ -43,8 +43,8 @@
   "confirm_request_button_text": "Confirm",
   "surfer_confirm_box_title": "{{name}} accepted your request!",
   "surfer_confirm_box_description": "Confirm to lock in your stay, or cancel if your plans have changed.",
-  "host_pending_request_help_text": "<0>Things to consider</0> before responding.",
-  "surfer_declined_request_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
+  "host_pending_request_help_text": "<guideLink>Things to consider</guideLink> before responding.",
+  "surfer_declined_request_help_text": "<guideLink>Read our guide</guideLink> on how to write a request that will get accepted.",
   "past_request_help_text": "This request is in the past, you can still send messages but cannot otherwise modify it.",
   "messages_page": {
     "title": "Messages",

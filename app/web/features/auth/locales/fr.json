@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Modifier l'adresse mail",
-    "current_email_message": "Votre adresse mail actuelle est <1>{{email}}</1>.",
+    "current_email_message": "Votre adresse mail actuelle est <strong>{{email}}</strong>.",
     "new_email": "Nouvelle adresse mail",
     "current_password": "Mot de passe actuel",
     "success_message": "Votre changement d’adresse mail a été pris en compte. Veuillez vérifier votre nouvelle adresse mail pour finaliser la procédure.",
@@ -44,8 +44,8 @@
     "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
-    "sign_up_agreement_explainer": "En continuant, vous acceptez nos <2>conditions d'utilisations</2>, incluant l'emploi de cookies, de votre mail, et la conservation de vos données."
+    "existing_user_prompt": "Déjà inscrit·e ? <loginLink>Se connecter</loginLink>",
+    "sign_up_agreement_explainer": "En continuant, vous acceptez nos <tosLink>conditions d'utilisations</tosLink>, incluant l'emploi de cookies, de votre mail, et la conservation de vos données."
   },
   "login_page": {
     "title": "Se connecter",
@@ -58,12 +58,12 @@
       "hide_password": "Masquer le mot de passe",
       "show_password": "Montrer le mot de passe"
     },
-    "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
+    "no_account_prompt": "Pas encore de compte ? <signupLink>Rejoignez-nous</signupLink>"
   },
   "do_not_email": {
     "status": {
-      "no_emails_enabled_message": "Les mails sont actuellement <1>désactivés</1> pour votre compte.",
-      "no_emails_disabled_message": "Les mails sont actuellement <1>activés</1> pour votre compte."
+      "no_emails_enabled_message": "Les mails sont actuellement <strong>désactivés</strong> pour votre compte.",
+      "no_emails_disabled_message": "Les mails sont actuellement <strong>activés</strong> pour votre compte."
     },
     "action_button": {
       "no_emails_enable_text": "Veuillez ne pas m'envoyer de mail",
@@ -91,12 +91,12 @@
     },
     "timezone_section": {
       "title": "Fuseau horaire et localisation",
-      "description": "Votre fuseau horaire est <1>{{timezone}}</1>. En fonction de cela, votre heure locale est approximativement <4>{{time}}</4>.",
+      "description": "Votre fuseau horaire est <strong>{{timezone}}</strong>. En fonction de cela, votre heure locale est approximativement <strong>{{time}}</strong>.",
       "explanation": "Cette heure et ce fuseau horaire sont déterminés en fonction de votre localisation géographique d’accueil. Veuillez signaler un bug si cela est incorrect."
     },
     "username_section": {
       "title": "Nom d’utilisateur",
-      "description": "Votre nom d'utilisateur est <1>{{username}}</1>.",
+      "description": "Votre nom d'utilisateur est <strong>{{username}}</strong>.",
       "explanation": "Votre nom d'utilisateur est défini lors de la création de votre compte."
     }
   },
@@ -105,7 +105,7 @@
   "sign_up_completed_prompt": "Nous vous avons envoyé un lien de vérification à votre adresse mail. Veuillez cliquer sur ce lien pour activer votre compte.",
   "reset_password": "Réinitialiser votre mot de passe",
   "account_form": {
-    "tos_prompt": "Pour continuer, veuillez lire et accepter <1></1>.",
+    "tos_prompt": "Pour continuer, veuillez lire et accepter <tosLink></tosLink>.",
     "header": "Détails de votre compte",
     "hosting_status": {
       "maybe": "Probable d'héberger",
@@ -149,7 +149,7 @@
   "jail": {
     "title": "Plus d'information requise",
     "terms_of_service_section": {
-      "description": "Les conditions d'utilisations ont été mise à jour. Pour continuer, veuillez lire et accepter les nouvelles <1></1>."
+      "description": "Les conditions d'utilisations ont été mise à jour. Pour continuer, veuillez lire et accepter les nouvelles <tosLink></tosLink>."
     },
     "location_section": {
       "title": "Veuillez mettre à jour votre localisation",
@@ -201,8 +201,8 @@
       }
     },
     "status": {
-      "enabled_message": "Vous <1>êtes actuellement</1> vérifié.e avec une vérification rigoureuse.",
-      "disabled_message": "Vous <1>n'êtes pas actuellement</1> vérifié.e avec la vérification rigoureuse."
+      "enabled_message": "Vous <strong>êtes actuellement</strong> vérifié.e avec une vérification rigoureuse.",
+      "disabled_message": "Vous <strong>n'êtes pas actuellement</strong> vérifié.e avec la vérification rigoureuse."
     },
     "start_button": "Activer la vérification rigoureuse",
     "complete_title": "Nous traitons votre tentative de vérification rigoureuse",
@@ -220,7 +220,7 @@
     "donate_button": "Faire un don pour soutenir Couchers.org"
   },
   "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
-  "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <2>ici pour renvoyer le lien de vérification</2>.",
+  "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <resendLink>ici pour renvoyer le lien de vérification</resendLink>.",
   "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
   "feature_preview": {
     "no_previews": {
@@ -236,19 +236,19 @@
     "settings_page_link": "Gérer les connexions actuelles",
     "description": "Cette page montre les connexions actives. Vous pouvez vous déconnecter de l’une d’elles en cliquant sur le bouton à côté de la connexion, ou faire défiler jusqu’en bas et cliquer sur le bouton pour vous déconnecter de toutes connexions sauf cette session.",
     "login_header": "Conneté.e à {{login_datetime}}",
-    "location": "Près de <2>{{approximate_location}}</2>",
-    "last_activity": "Dernière activité il y a <2>{{last_activity_ago}}</2>",
+    "location": "Près de <strong>{{approximate_location}}</strong>",
+    "last_activity": "Dernière activité il y a <strong>{{last_activity_ago}}</strong>",
     "current_session": "Ceci est votre session actuelle.",
     "log_out_of_session": "Déconnectez-vous de cette session",
     "log_out_of_all_session": "Déconnectez-vous de toutes les autres sessions",
     "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions",
-    "expiry": "Expire à <1>{{expiry_datetime}}</1>"
+    "expiry": "Expire à <strong>{{expiry_datetime}}</strong>"
   },
   "delete_account": {
     "request": {
       "reason_explanation": "Veuillez nous aider à améliorer notre plateforme en nous indiquant pourquoi vous avez choisi de supprimer votre compte.",
       "description": "Pour supprimer votre compte, veuillez suivre les étapes ci-dessous. Nous vous enverrons un mail de confirmation.",
-      "confirm_username_explanation": "Votre nom d'utilisateur est <1>{{ username }}</1>, veuillez le saisir ci-dessous pour confirmer la suppression de votre compte.",
+      "confirm_username_explanation": "Votre nom d'utilisateur est <strong>{{ username }}</strong>, veuillez le saisir ci-dessous pour confirmer la suppression de votre compte.",
       "username_mismatch": "Le nom d'utilisateur.trice ne correspond pas.",
       "confirm_username_label": "Confirmation de votre nom d'utilisateur.trice",
       "reason_label": "Raison de la suppression de votre compte",
@@ -271,26 +271,26 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "map_only": "<1>Sur la carte uniquement</1> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
-      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
-      "nothing": "<1>Rien</1> : cachez-moi complètement",
-      "limited": "<1>Limité</1> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
-      "full_profile": "<1>Profil complet</1> : afficher mon profil complet (sauf les références)"
+      "map_only": "<strong>Sur la carte uniquement</strong> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
+      "most": "<strong>La plupart de détails</strong> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
+      "nothing": "<strong>Rien</strong> : cachez-moi complètement",
+      "limited": "<strong>Limité</strong> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
+      "full_profile": "<strong>Profil complet</strong> : afficher mon profil complet (sauf les références)"
     },
     "title": "La visibilité de mon profil",
     "choose": "Choisissez quelles informations seront visibles pour les utilisateurs.trices non connecté.e.s"
   },
   "change_phone": {
-    "need_to_donate": "Vous devez <2>faire un don</2> avant de pouvoir terminer la vérification du téléphone.",
+    "need_to_donate": "Vous devez <donateLink>faire un don</donateLink> avant de pouvoir terminer la vérification du téléphone.",
     "no_phone_description": "Vous n'avez pas ajouté de numéro de téléphone à votre compte. Pour en ajouter un, saisissez-le ci-dessous. Nous le vérifierons par un texto.",
     "phone_label": "Votre numéro de téléphone",
     "add_button_text": "Ajouter un numéro de téléphone",
     "add_success": "Téléphone ajouté.",
-    "phone_not_verified_description": "Nous vous avons envoyé un code à <2>{{phone}}</2>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
+    "phone_not_verified_description": "Nous vous avons envoyé un code à <strong>{{phone}}</strong>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
     "wrong_code": "Le code est incorrect.",
     "verify_button_text": "Vérifier le numéro de téléphone",
     "verify_success": "Téléphone vérifié.",
-    "remove_phone_description": "Votre numéro de téléphone actuel est <2>{{phone}}</2>. Vous pouvez supprimer votre numéro de téléphone ci-dessous.",
+    "remove_phone_description": "Votre numéro de téléphone actuel est <strong>{{phone}}</strong>. Vous pouvez supprimer votre numéro de téléphone ci-dessous.",
     "remove_button_text": "Supprimer le numéro de téléphone actuel",
     "remove_success": "Téléphone supprimé.",
     "change_to_different_description": "Pour changer votre numéro de téléphone, veuillez le saisir ci-dessous.",
@@ -308,7 +308,7 @@
     "title": "Gestion des bénévoles",
     "description": "Si votre rôle ou vos dates sont incorrects, veuillez nous en informer.",
     "card_preview_label": "Liste de votre équipe bénévole",
-    "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <1>ce formulaire</1>.",
+    "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <formLink>ce formulaire</formLink>.",
     "current_volunteer": "Bénévole depuis {{startDate}}.",
     "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
     "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."

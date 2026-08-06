@@ -11,8 +11,8 @@
   "do_not_email": {
     "title": "请勿向我发送邮件",
     "status": {
-      "no_emails_enabled_message": "您当前已<1>禁用</1>邮件通知。",
-      "no_emails_disabled_message": "您当前已<1>启用</1>邮件通知。"
+      "no_emails_enabled_message": "您当前已<strong>禁用</strong>邮件通知。",
+      "no_emails_disabled_message": "您当前已<strong>启用</strong>邮件通知。"
     },
     "action_button": {
       "no_emails_enable_text": "禁用邮件通知",
@@ -51,7 +51,7 @@
   "login_page": {
     "title": "登录",
     "header": "欢迎回家！",
-    "no_account_prompt": "还没有账号？<2>加入我们</2>",
+    "no_account_prompt": "还没有账号？<signupLink>加入我们</signupLink>",
     "form": {
       "username_field_label": "电子邮件/用户名",
       "password_field_label": "密码",
@@ -62,8 +62,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "已经有账号了吗？<2>登录</2>",
-    "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的<2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
+    "existing_user_prompt": "已经有账号了吗？<loginLink>登录</loginLink>",
+    "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的<tosLink>服务条款</tosLink>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
   },
   "account_form": {
     "header": "您的账号详情",
@@ -100,7 +100,7 @@
       "woman": "女性"
     },
     "opt_in_newsletter": "订阅我们的社区更新偶尔通讯。",
-    "tos_prompt": "请您阅读并且接受<1></1>以继续。",
+    "tos_prompt": "请您阅读并且接受<tosLink></tosLink>以继续。",
     "tos_accept_label": "我接受服务条款。"
   },
   "basic_form": {
@@ -132,7 +132,7 @@
     "title": "需要更多信息",
     "description": "请检查以下问题后继续。",
     "terms_of_service_section": {
-      "description": "我们更新了服务条款。请阅读并接受新的<1></1>以继续。"
+      "description": "我们更新了服务条款。请阅读并接受新的<tosLink></tosLink>以继续。"
     },
     "location_section": {
       "title": "请更新您的位置",
@@ -160,7 +160,7 @@
   "logged_out_message": "您已登出。",
   "sign_up_completed_title": "感谢您注册！",
   "sign_up_need_verification_title": "快完成了，最后一步！",
-  "sign_up_resend_verification_email_help": "没有收到邮件？点击<2>这里重新发送验证链接</2>。",
+  "sign_up_resend_verification_email_help": "没有收到邮件？点击<resendLink>这里重新发送验证链接</resendLink>。",
   "sign_up_resend_verification_done": "完成！我们已向您发送了另一封邮件。",
   "sign_up_completed_prompt": "我们给您的邮箱发了一封带有确认链接的邮件，请点击链接，激活账号。",
   "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登录账号。",
@@ -180,12 +180,12 @@
     },
     "timezone_section": {
       "title": "时区和本地化",
-      "description": "您的时区是<1>{{timezone}}</1>。根据这个信息，您的当地时间大约是<4>{{time}}</4>。",
+      "description": "您的时区是<strong>{{timezone}}</strong>。根据这个信息，您的当地时间大约是<strong>{{time}}</strong>。",
       "explanation": "此时间和时区是根据您的家庭位置决定的。如果它不正确，请报告错误。"
     },
     "username_section": {
       "title": "用户名",
-      "description": "您的用户名是<1>{{username}}</1>。",
+      "description": "您的用户名是<strong>{{username}}</strong>。",
       "explanation": "您在创建账户时设置的用户名。"
     },
     "appearance_section": {
@@ -215,9 +215,9 @@
     "settings_page_link": "管理当前登录",
     "description": "此页面列出了活跃登录会话。您可以通过单击登录旁边的按钮退出某个会话，或者滚动到底部并单击按钮退出除当前会话以外的所有会话。",
     "login_header": "登录于{{login_datetime}}",
-    "location": "靠近<2>{{approximate_location}}</2>",
-    "last_activity": "上次活动<2>{{last_activity_ago}}</2>",
-    "expiry": "过期时间<1>{{expiry_datetime}}</1>",
+    "location": "靠近<strong>{{approximate_location}}</strong>",
+    "last_activity": "上次活动<strong>{{last_activity_ago}}</strong>",
+    "expiry": "过期时间<strong>{{expiry_datetime}}</strong>",
     "current_session": "这是您当前的会话。",
     "log_out_of_session": "退出此会话",
     "log_out_of_all_session": "退出其他所有会话"
@@ -226,8 +226,8 @@
     "title": "强身份验证",
     "subtitle": "强身份验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
     "status": {
-      "enabled_message": "您<1>当前已完成</1>强身份验证。",
-      "disabled_message": "您<1>尚未完成</1>强身份验证。"
+      "enabled_message": "您<strong>当前已完成</strong>强身份验证。",
+      "disabled_message": "您<strong>尚未完成</strong>强身份验证。"
     },
     "learn_more": "了解强身份验证，点击<a>此处</a>。",
     "start_button": "开始强身份验证",
@@ -288,23 +288,23 @@
         "tip2": "尝试护照的不同页面—芯片位置因国家/地区而异",
         "tip3": "如果使用Android，请确保安装了IRIS ID应用程序（不是浏览器版本）",
         "tip4": "一些较旧的护照或护照卡没有NFC芯片，因此无法使用",
-        "contact": "如果如果您仍然遇到问题，请<1>告诉我们</1>，我们会提供帮助。"
+        "contact": "如果如果您仍然遇到问题，请<supportLink>告诉我们</supportLink>，我们会提供帮助。"
       }
     }
   },
   "change_phone": {
     "title": "电话号码",
-    "need_to_donate": "您需要<2>捐赠</2>后才能完成电话号码验证。",
+    "need_to_donate": "您需要<donateLink>捐赠</donateLink>后才能完成电话号码验证。",
     "no_phone_description": "您的账户尚未添加电话号码。请在下方输入，我们会通过短信验证。",
     "phone_label": "您的电话号码",
     "add_button_text": "添加电话号码",
     "add_success": "电话号码已添加。",
-    "phone_not_verified_description": "我们已向<2>{{phone}}</2>发送了一条验证码。请在下方输入验证码以验证您的号码：",
+    "phone_not_verified_description": "我们已向<strong>{{phone}}</strong>发送了一条验证码。请在下方输入验证码以验证您的号码：",
     "code_label": "验证码",
     "wrong_code": "验证码错误。",
     "verify_button_text": "验证电话号码",
     "verify_success": "电话号码已验证。",
-    "remove_phone_description": "您的当前电话号码是<2>{{phone}}</2>。您可以在下方移除电话号码。",
+    "remove_phone_description": "您的当前电话号码是<strong>{{phone}}</strong>。您可以在下方移除电话号码。",
     "remove_button_text": "移除当前电话号码",
     "remove_success": "电话号码已移除。",
     "change_to_different_description": "如需更改为其他电话号码，请在下方输入。",
@@ -314,7 +314,7 @@
     "request": {
       "title": "删除账户",
       "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。",
-      "confirm_username_explanation": "您的用户名是<1>{{username}}</1>，请在下方输入以确认删除账户。",
+      "confirm_username_explanation": "您的用户名是<strong>{{username}}</strong>，请在下方输入以确认删除账户。",
       "confirm_username_label": "用户名确认",
       "username_mismatch": "用户名不匹配。",
       "reason_explanation": "请告诉我们删除账户的原因，以帮助我们改进平台。",
@@ -343,11 +343,11 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "most": "<1>大部分</1>：显示完整的“关于我”部分，但不包括“附加信息”",
-      "full_profile": "<1>完整资料</1>：显示我的完整资料（不包括用户评价）",
-      "nothing": "<1>不可见</1>：隐藏我的所有信息",
-      "map_only": "<1>仅地图</1>：仅显示一个随机、匿名的地图标记，不包含其他信息",
-      "limited": "<1>有限</1>：显示我的姓名、位置、接待/见面状态、徽章、评价数量，以及我成为Coucher的时长"
+      "most": "<strong>大部分</strong>：显示完整的“关于我”部分，但不包括“附加信息”",
+      "full_profile": "<strong>完整资料</strong>：显示我的完整资料（不包括用户评价）",
+      "nothing": "<strong>不可见</strong>：隐藏我的所有信息",
+      "map_only": "<strong>仅地图</strong>：仅显示一个随机、匿名的地图标记，不包含其他信息",
+      "limited": "<strong>有限</strong>：显示我的姓名、位置、接待/见面状态、徽章、评价数量，以及我成为Coucher的时长"
     },
     "title": "个人资料可见性",
     "choose": "选择哪些信息对未登录用户可见"
@@ -369,7 +369,7 @@
     "title": "志愿者管理",
     "description": "如果您的角色或日期不正确，请告知我们。",
     "card_preview_label": "您的团队页面列表",
-    "not_a_volunteer_message": "根据我们的记录，您不是当前或过去的志愿者。如果不正确，请填写<1>此表单</1>告知我们。",
+    "not_a_volunteer_message": "根据我们的记录，您不是当前或过去的志愿者。如果不正确，请填写<formLink>此表单</formLink>告知我们。",
     "current_volunteer": "自{{startDate}}起志愿服务。",
     "past_volunteer": "从{{startDate}}到{{endDate}}志愿服务。",
     "shown_on_team_page_current": "在团队页面上显示为当前团队成员。",

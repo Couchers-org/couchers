@@ -367,7 +367,7 @@ export default function AccountForm() {
           )}
         />
         <Typography variant="body1">
-          <Trans i18nKey="auth:account_form.tos_prompt" components={{ 1: <TOSLink /> }} />
+          <Trans i18nKey="auth:account_form.tos_prompt" components={{ tosLink: <TOSLink /> }} />
         </Typography>
         <FormControlLabel
           control={

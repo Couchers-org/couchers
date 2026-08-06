@@ -140,8 +140,8 @@
       "rejected_self": "Has rechazado la solicitud"
     }
   },
-  "host_pending_request_help_text": "<0>Cosas a considerar</0> antes de responder.",
-  "surfer_declined_request_help_text": "<0>Lee nuestra guía</0> sobre cómo escribir una solicitud que será aceptada.",
+  "host_pending_request_help_text": "<guideLink>Cosas a considerar</guideLink> antes de responder.",
+  "surfer_declined_request_help_text": "<guideLink>Lee nuestra guía</guideLink> sobre cómo escribir una solicitud que será aceptada.",
   "host_request_item": {
     "expired": "Esta solicitud ha caducado",
     "pending": "Esta solicitud sigue pendiente",
