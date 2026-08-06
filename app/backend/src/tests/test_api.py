@@ -29,7 +29,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, PushCollector, count_queries
 from tests.fixtures.sessions import (
     api_session,
     blocking_session,
@@ -553,6 +553,29 @@ def test_GetLiteUsers(db):
             api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=201 * [user1.username]))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == "You can't request that many users at a time."
+
+
+def test_GetLiteUsers_query_count_does_not_grow_with_users(db):
+    """
+    Visibility used to be checked per user, so a request for 200 users cost 200 extra queries. The
+    context caches the viewer's blocks for the request instead, so the cost must now be flat.
+    """
+    user1, token1 = generate_user()
+    others = [generate_user()[0] for _ in range(10)]
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(token1) as api:
+        with count_queries() as one_user_queries:
+            api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=[str(others[0].id)]))
+
+    with api_session(token1) as api:
+        with count_queries() as ten_user_queries:
+            res = api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=[str(other.id) for other in others]))
+
+    assert len(res.responses) == 10
+    assert not any(response.not_found for response in res.responses)
+    assert len(ten_user_queries) == len(one_user_queries)
 
 
 def test_update_profile(db):
