@@ -56,7 +56,7 @@ from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_p
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
-from couchers.servicers.blocking import is_not_visible
+from couchers.servicers.blocking import is_not_visible_to_viewer
 from couchers.sql import (
     moderation_state_column_visible,
     username_or_id,
@@ -1046,9 +1046,7 @@ def user_model_to_pb(
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
     viewer_user_id = context.user_id if context.is_logged_in() else None
-    if not is_admin_see_ghosts and is_not_visible(
-        session, viewer_user_id, db_user.id, ignore_shadow=context.serialize_shadowed
-    ):
+    if not is_admin_see_ghosts and is_not_visible_to_viewer(session, context, db_user):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             maybe_log_nonvisible_user_access(
@@ -1255,9 +1253,7 @@ def lite_user_to_pb(
     is_admin_see_ghosts: bool = False,
     is_get_user_return_ghosts: bool = False,
 ) -> api_pb2.LiteUser:
-    if not is_admin_see_ghosts and is_not_visible(
-        session, context.user_id, lite_user.id, ignore_shadow=context.serialize_shadowed
-    ):
+    if not is_admin_see_ghosts and is_not_visible_to_viewer(session, context, lite_user):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile

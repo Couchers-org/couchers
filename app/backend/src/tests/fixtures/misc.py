@@ -1,11 +1,15 @@
+from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 
+from sqlalchemy import event
 from sqlalchemy.orm import Session
 
 from couchers.config import config
+from couchers.db import _get_base_engine
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
@@ -23,6 +27,27 @@ def process_jobs() -> None:
 
 def now_5_min_in_future() -> datetime:
     return now() + timedelta(minutes=5)
+
+
+@contextmanager
+def count_queries() -> Generator[list[str]]:
+    """
+    Collects the SQL run inside the block, so a test can pin down what something costs in queries.
+
+    Use it to guard against an N+1 creeping back in: assert on how the count scales with the input, or
+    on the queries you care about, rather than on an exact total that any unrelated change would break.
+    """
+    engine = _get_base_engine()
+    statements: list[str] = []
+
+    def listener(conn: Any, cursor: Any, statement: str, *args: Any) -> None:
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", listener)
+    try:
+        yield statements
+    finally:
+        event.remove(engine, "before_cursor_execute", listener)
 
 
 class EmailCollector:
