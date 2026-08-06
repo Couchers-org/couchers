@@ -41,6 +41,7 @@ from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_mu
 from tests.fixtures.db import backdate_conversations, generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
+from tests.test_public_trips import _create_trip_directly, _make_node
 
 
 @pytest.fixture(autouse=True)
@@ -1584,6 +1585,84 @@ def test_mark_last_seen(db, moderator):
     with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
+
+
+def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
+    with requests_session(surfer_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=public_trip_id,
+            )
+        )
+    moderator.approve_host_request(res.host_request_id)
+    return int(res.host_request_id)
+
+
+def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # user2 surfs with user1 -> user1 is the host of the stay
+    _create_host_request_via_api(token2, user1.id, moderator)
+
+    with api_session(token1) as api:
+        res = api.Ping(api_pb2.PingReq())
+        # with no public-trip offers, role-based counts equal the direction-based ones
+        assert res.unseen_received_host_request_count == 1
+        assert res.unseen_hosting_host_request_count == 1
+        assert res.unseen_sent_host_request_count == 0
+        assert res.unseen_surfing_host_request_count == 0
+        assert res.unseen_public_trip_offer_count == 0
+
+
+def test_ping_counts_public_trip_offer_by_role(db, moderator):
+    traveler, traveler_token = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    request_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    # the traveller (recipient) has the offer's create message unseen: counts as surfing + public-trip offer
+    with api_session(traveler_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.unseen_surfing_host_request_count == 1
+        assert res.unseen_public_trip_offer_count == 1
+        assert res.unseen_hosting_host_request_count == 0
+
+    # the traveller replies, so now the offering host has an unseen message under hosting
+    with requests_session(traveler_token) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=request_id, text="thanks for the offer")
+        )
+
+    with api_session(host_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.unseen_hosting_host_request_count == 1
+        assert res.unseen_surfing_host_request_count == 0
+        assert res.unseen_public_trip_offer_count == 0
+
+
+def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags):
+    feature_flags.set("public_trips_enabled", False)
+
+    traveler, traveler_token = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    with api_session(traveler_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        # the dedicated offer count is gated off...
+        assert res.unseen_public_trip_offer_count == 0
+        # ...but the offer is a real conversation and still surfaces under surfing
+        assert res.unseen_surfing_host_request_count == 1
 
 
 def test_mark_last_seen_clears_notifications(db, moderator):

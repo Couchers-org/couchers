@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import ColumnElement, and_, false, or_, select, true
+from sqlalchemy import ColumnElement, SQLColumnExpression, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
@@ -88,7 +88,7 @@ def users_visible(context: CouchersContext, table: _User = User) -> ColumnElemen
 
 
 def where_users_column_visible[T: tuple[Any, ...]](
-    query: Select[T], context: CouchersContext, column: InstrumentedAttribute[int]
+    query: Select[T], context: CouchersContext, column: SQLColumnExpression[int]
 ) -> Select[T]:
     """
     Filters the given column, not yet joined/selected from

@@ -12,6 +12,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS
 from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
@@ -974,19 +975,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session,
             user_id=context.user_id,
             topic_actions_and_keys=[
-                (
-                    [
-                        NotificationTopicAction.host_request__create,
-                        NotificationTopicAction.host_request__accept,
-                        NotificationTopicAction.host_request__reject,
-                        NotificationTopicAction.host_request__confirm,
-                        NotificationTopicAction.host_request__cancel,
-                        NotificationTopicAction.host_request__message,
-                        NotificationTopicAction.host_request__missed_messages,
-                        NotificationTopicAction.host_request__reminder,
-                    ],
-                    [str(host_request.conversation_id)],
-                ),
+                (HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, [str(host_request.conversation_id)]),
             ],
         )
 
