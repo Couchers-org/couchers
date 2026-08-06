@@ -199,11 +199,11 @@
     "helper_text": "L'identité de ce membre a été vérifiée avec son passeport biométrique"
   },
   "footer": {
-    "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>.",
+    "version_info": "Version <versionLink>{{version}}</versionLink>, dernière mise à jour <updatedAgoLink>{{updated_ago}}</updatedAgoLink>.",
     "non_profit_note": "Couchers.org est un projet de Couchers, Inc., une organisation américaine à but non lucratif et exonérée d'impôt, régie par l'article 501(c)(3) du code fiscal américain."
   },
   "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé",
-  "not_found_text_2": "Voulez-vous simplement <1>aller au tableau de bord ?</1>",
+  "not_found_text_2": "Voulez-vous simplement <homeLink>aller au tableau de bord ?</homeLink>",
   "not_found_alt": "Erreur 404 ; ressource non trouvée",
   "change_time": "Changer l'heure",
   "html_meta": {

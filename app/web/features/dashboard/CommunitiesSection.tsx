@@ -21,7 +21,7 @@ export default function CommunitiesSection() {
         <Trans
           i18nKey="dashboard:your_communities_helper_text2"
           components={{
-            1: (
+            requestCommunityLink: (
               <MuiLink
                 href={communityCreationFormURL(accountInfo?.username)}
                 target="_blank"

@@ -33,7 +33,7 @@
   "previous": "Önceki",
   "next": "İleri",
   "mod": "Moderasyon",
-  "cookie_message": "Web sitemizde size en iyi deneyimi sunabilmek için çerezleri kullanıyoruz. Bu siteyi kullanmaya devam ederseniz, bundan memnun olduğunuzu varsayacağız. <1>Hizmet Şartlarımız</1> hakkında daha fazla bilgi edinebilirsiniz.",
+  "cookie_message": "Web sitemizde size en iyi deneyimi sunabilmek için çerezleri kullanıyoruz. Bu siteyi kullanmaya devam ederseniz, bundan memnun olduğunuzu varsayacağız. <tosLink>Hizmet Şartlarımız</tosLink> hakkında daha fazla bilgi edinebilirsiniz.",
   "language_preference": {
     "translation_progress": {
       "description": "Farklı dillerde çevirilerimizin ne kadar tamamlandığını görün. Couchers'ı dünyanın dört bir yanındaki daha fazla insan için erişilebilir hale getirmemize yardımcı olun!",
@@ -117,7 +117,7 @@
     "unspecified_info": "Belirtmemiş",
     "does_not_want_to_meetup": "Buluşamaz"
   },
-  "not_found_text_2": "Sadece <1>eve gitmek</1> mi istiyorsun?",
+  "not_found_text_2": "Sadece <homeLink>eve gitmek</homeLink> mi istiyorsun?",
   "not_found_alt": "Hata 404: Kaynak Bulunamadı",
   "change_time": "Zamanı değiştir",
   "not_found_text_1": "İstediğin URL veya kaynağı bulamadık",

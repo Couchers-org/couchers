@@ -5,13 +5,13 @@
       "explanation": "Os administradores terão todo o gosto em alterar a tua indicação de género. Por favor contacta support@couchers.org!"
     },
     "timezone_section": {
-      "description": "O teu fuso horário é <1>{{timezone}}</1>. Logo, a tua hora local é aproximadamente <4>{{time}}</4>.",
+      "description": "O teu fuso horário é <strong>{{timezone}}</strong>. Logo, a tua hora local é aproximadamente <strong>{{time}}</strong>.",
       "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro.",
       "title": "Fuso horário e localização"
     },
     "username_section": {
       "title": "Nome de utilizador",
-      "description": "O teu nome de utilizador é <1>{{username}}</1>.",
+      "description": "O teu nome de utilizador é <strong>{{username}}</strong>.",
       "explanation": "O teu nome de utilizador é definido quando crias a tua conta."
     },
     "birth_date_section": {
@@ -40,7 +40,7 @@
       "field_label": "Nome de utilizador",
       "username_taken_error": "Este nome de utilizador já existe."
     },
-    "tos_prompt": "Para continuar, por favor lê e aceita o <1></1>.",
+    "tos_prompt": "Para continuar, por favor lê e aceita o <tosLink></tosLink>.",
     "header": "Detalhes da tua conta",
     "password": {
       "required_error": "Introduz uma palavra-passe",
@@ -72,7 +72,7 @@
     "new_email": "Novo e-mail",
     "success_message": "A sua alteração de e-mail foi efetuada. Verifique o seu novo e-mail para completar a alteração.",
     "title": "Alterar e-mail",
-    "current_email_message": "O seu endereço de e-mail atual é <1>{{email}}</1>."
+    "current_email_message": "O seu endereço de e-mail atual é <strong>{{email}}</strong>."
   },
   "change_email_confirmation": {
     "change_in_progress": "Alteração de e-mail em curso…",
@@ -100,7 +100,7 @@
     },
     "title": "Iniciar sessão",
     "header": "Bem-vindo de volta!",
-    "no_account_prompt": "Ainda não tens uma conta? <2>Sign up</2>"
+    "no_account_prompt": "Ainda não tens uma conta? <signupLink>Sign up</signupLink>"
   },
   "basic_form": {
     "name": {
@@ -114,8 +114,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Já tens uma conta? <2>Inicia sessão</2>",
-    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <2>Termos de utilização</2>, incluindo as nossas políticas de gestão de cookies, email e dados."
+    "existing_user_prompt": "Já tens uma conta? <loginLink>Inicia sessão</loginLink>",
+    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <tosLink>Termos de utilização</tosLink>, incluindo as nossas políticas de gestão de cookies, email e dados."
   },
   "delete_account": {
     "recover": {
@@ -125,7 +125,7 @@
       "title": "Recupera a tua conta Couchers.org"
     },
     "request": {
-      "confirm_username_explanation": "Seu nome de utilizador é <1>{{ username }}</1>, digite-o abaixo para confirmar a exclusão de conta.",
+      "confirm_username_explanation": "Seu nome de utilizador é <strong>{{ username }}</strong>, digite-o abaixo para confirmar a exclusão de conta.",
       "description": "Para excluir a tua conta, segue as etapas abaixo. Enviaremos um e-mail de confirmação.",
       "confirm_username_label": "Confirmação de nome de utilizador",
       "username_mismatch": "O nome de utilizador não corresponde.",
@@ -156,14 +156,14 @@
   "change_phone": {
     "phone_label": "Teu número de telefone",
     "change_to_different_description": "Para alterar o teu número de telefone para um diferente, digita-o abaixo.",
-    "remove_phone_description": "O teu número de telefone atual é <2>{{phone}}</2>. Podes remover o teu número de telefone abaixo.",
+    "remove_phone_description": "O teu número de telefone atual é <strong>{{phone}}</strong>. Podes remover o teu número de telefone abaixo.",
     "add_button_text": "Adicionar número de telefone",
     "verify_button_text": "Verificar número de telefone",
     "verify_success": "Telefone verificado.",
     "remove_success": "Telefone removido.",
     "change_button_text": "Alterar número de telefone",
     "title": "Número de telefone",
-    "phone_not_verified_description": "Enviamos-te um código para o <2>{{phone}}</2>. Para verificares o teu número, por favor introduz o código em baixo:",
+    "phone_not_verified_description": "Enviamos-te um código para o <strong>{{phone}}</strong>. Para verificares o teu número, por favor introduz o código em baixo:",
     "code_label": "Código de verificação",
     "wrong_code": "O código está errado.",
     "remove_button_text": "Remover número de telefone atual",
@@ -173,7 +173,7 @@
   "jail": {
     "description": "Para continuar, por favor verifica o seguinte para continuar.",
     "terms_of_service_section": {
-      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, por favor lê e aceita os novos <1></1>."
+      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, por favor lê e aceita os novos <tosLink></tosLink>."
     },
     "location_section": {
       "title": "Adiciona a tua localização",

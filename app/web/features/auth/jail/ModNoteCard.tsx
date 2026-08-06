@@ -53,9 +53,7 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   return (
     <StyledNoteContainer key={note.noteId}>
       <Typography variant="h3">
-        <Trans t={t} i18nKey="auth:jail.mod_note_section.note_title">
-          Moderator note received on {{ time: formattedTime }}:
-        </Trans>
+        <Trans t={t} i18nKey="auth:jail.mod_note_section.note_title" values={{ time: formattedTime }} />
       </Typography>
       <StyledNoteCard>
         <Markdown source={note.noteContent} topHeaderLevel={3} />

@@ -53,7 +53,7 @@
     "basic_information_subtitle": "Comença proporcionant la teva foto, nom i ubicació",
     "preferences": "Preferències",
     "hometown": "Vaig créixer a",
-    "about_me_subtitle": "Explica als altres qui ets. Aquí és on comença la confiança. Ajuda els altres a fer-se una idea de qui ets de veritat. Consulta <1>consells per crear un bon perfil</1>.",
+    "about_me_subtitle": "Explica als altres qui ets. Aquí és on comença la confiança. Ajuda els altres a fer-se una idea de qui ets de veritat. Consulta <guideLink>consells per crear un bon perfil</guideLink>.",
     "preferences_subtitle": "Fes saber als altres sobre les teves preferències d'allotjament i trobada",
     "languages_spoken": "Idiomes que parlo amb fluïdesa",
     "personal_information": "Informació personal",
@@ -73,12 +73,12 @@
     "add_a_reference": "Afegeix una referència al perfil de {{name}}",
     "appropriate_explanation": "Els teus comentaris privats en aquesta pàgina i la teva referència pública a la pàgina següent són vitals per mantenir la comunitat segura, de confiança i acollidora. Gràcies per fer la teva part per ajudar la comunitat!",
     "appropriate_question": "Et vas sentir segur amb el comportament d'aquesta persona?",
-    "by_writing_thoughtful": "No saps què escriure? Llegeix la nostra guia <1>aquí</1>. En escriure de manera honesta i detallada sobre la teva experiència amb aquesta persona, ajudaràs directament a altres membres i contribuiràs a la seguretat i la confiança de la comunitat Couchers.",
+    "by_writing_thoughtful": "No saps què escriure? Llegeix la nostra guia <guideLink>aquí</guideLink>. En escriure de manera honesta i detallada sobre la teva experiència amb aquesta persona, ajudaràs directament a altres membres i contribuiràs a la seguretat i la confiança de la comunitat Couchers.",
     "did_stay_confirmation": {
       "title_hosted": "Confirma que {{name}} no es va quedar",
       "title_surfed": "Confirma que no et vas quedar amb {{name}}",
-      "message_hosted": "<strong>No podràs escriure una referència</strong> si indiques que {{name}} no es va quedar amb tu. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <2>aquí</2>.",
-      "message_surfed": "<strong>No podràs escriure una referència</strong> si indiques que no et vas quedar amb {{name}}. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <2>aquí</2>.",
+      "message_hosted": "<strong>No podràs escriure una referència</strong> si indiques que {{name}} no es va quedar amb tu. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <reportLink>aquí</reportLink>.",
+      "message_surfed": "<strong>No podràs escriure una referència</strong> si indiques que no et vas quedar amb {{name}}. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <reportLink>aquí</reportLink>.",
       "confirm_hosted": "Confirmo que no vaig allotjar",
       "confirm_surfed": "Confirmo que no vaig fer de surfista"
     },
@@ -111,7 +111,7 @@
     "thank_you_header": "Gràcies per deixar una referència!",
     "thank_you_references_available": "Quan t'allotges o fas d'amfitrió, les referències es fan visibles quan les dues persones han enviat les seves, o passades 2 setmanes, el que arribi primer.",
     "thank_you_support": "Sobretot, gràcies per ser a Couchers i per formar part de la nostra comunitat!",
-    "thank_you_donation_prompt": "Considera <2>fer una donació</2>! Couchers.org és una organització sense ànim de lucre 501(c)(3) i necessitem donacions per mantenir els nostres servidors en funcionament.",
+    "thank_you_donation_prompt": "Considera <donateLink>fer una donació</donateLink>! Couchers.org és una organització sense ànim de lucre 501(c)(3) i necessitem donacions per mantenir els nostres servidors en funcionament.",
     "was_appropriate_required": "Per ajudar-nos a mantenir la comunitat segura, aquesta pregunta és obligatòria.",
     "rating_required": "Mou el control lliscant i valora la teva experiència.",
     "rating_negative": "Negativa",
@@ -123,7 +123,7 @@
     "didnt_meetup_submit_success": "Gràcies per fer-nos-ho saber! No et demanarem que escriguis una referència!",
     "go_to_dashboard": "Ves al tauler",
     "private_text_explanation_1": "Al quadre de sota, pots explicar de manera privada a l'Equip de Seguretat el que va passar.",
-    "private_text_explanation_2": "Això només ho veurà el nostre Equip de Seguretat i es mantindrà privat. Com més detalls, millor, però fins i tot una explicació curta pot ajudar molt. Llegeix-ne més <2>aquí</2>.",
+    "private_text_explanation_2": "Això només ho veurà el nostre Equip de Seguretat i es mantindrà privat. Com més detalls, millor, però fins i tot una explicació curta pot ajudar molt. Llegeix-ne més <helpLink>aquí</helpLink>.",
     "private_text_explanation_3": "Gràcies per ajudar-nos a mantenir la comunitat segura!",
     "private_text_summary": "L'Equip de Seguretat de Couchers.org rebrà els comentaris privats següents:",
     "private_text_placeholder": "Comparteix informació de manera privada amb el nostre equip de seguretat.",
@@ -166,7 +166,7 @@
     "overview_section": "Resum",
     "photos_section": "Fotos"
   },
-  "edit_profile_helper_text": "Busques inspiració per on començar? <2>Consulta la nostra guia per crear un perfil fantàstic</2>.",
+  "edit_profile_helper_text": "Busques inspiració per on començar? <guideLink>Consulta la nostra guia per crear un perfil fantàstic</guideLink>.",
   "unspecified_info": "-",
   "smoking_location": {
     "no": "No",
@@ -214,7 +214,7 @@
   "active": "Actiu",
   "request_form": {
     "send_request": "Envia una sol·licitud a {{name}}",
-    "guide_link_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
+    "guide_link_help_text": "<guideLink>Llegeix la nostra guia</guideLink> sobre com escriure una sol·licitud que sigui acceptada.",
     "arrival_date": "Data d'arribada",
     "arrival_date_empty": "Especifica una data d'arribada.",
     "departure_date": "Data de sortida",
@@ -323,7 +323,7 @@
   },
   "complete_profile_dialog": {
     "title": "Gairebé, completa el teu perfil per continuar!",
-    "description_1": "Abans de poder {{action_name}}, has de <4>escriure una mica sobre tu</4> al teu perfil i <7>pujar una foto de perfil</7>.",
+    "description_1": "Abans de poder {{action_name}}, has de <strong>escriure una mica sobre tu</strong> al teu perfil i <strong>pujar una foto de perfil</strong>.",
     "actions": {
       "send_request": "enviar una sol·licitud",
       "send_message": "enviar un missatge",
@@ -332,6 +332,6 @@
     },
     "edit_profile_button": "Edita el teu perfil ara",
     "cancel_button": "Ara no",
-    "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <2>consulta aquesta pàgina d'ajuda</2>. Gràcies per la teva ajuda!"
+    "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <helpLink>consulta aquesta pàgina d'ajuda</helpLink>. Gràcies per la teva ajuda!"
   }
 }

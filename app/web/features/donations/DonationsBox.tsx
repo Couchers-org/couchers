@@ -365,9 +365,8 @@ export default function DonationsBox() {
           t={t}
           i18nKey="donations_box.helper_text"
           components={{
-            2: (
+            portalLink: (
               <StyledLink
-                key="portal-link"
                 href="#"
                 onClick={async (e) => {
                   e.preventDefault();

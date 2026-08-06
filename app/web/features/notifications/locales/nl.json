@@ -34,8 +34,8 @@
     "push_notifications": {
       "title": "Pushberichten",
       "description": "Je kunt pushberichten voor Couchers.org inschakelen op je apparaat. We werken eraan om deze functie uit te breiden.",
-      "enabled_message": "Je hebt nu pushberichten <1>ingeschakeld</1>.",
-      "disabled_message": "Je hebt nu pushberichten <1>uitgeschakeld</1>.",
+      "enabled_message": "Je hebt nu pushberichten <strong>ingeschakeld</strong>.",
+      "disabled_message": "Je hebt nu pushberichten <strong>uitgeschakeld</strong>.",
       "error_generic": "Fout tijdens het aanzetten van pushberichten",
       "error_unsupported": "Pushberichten of Service Workers worden niet ondersteund in deze browser.",
       "permission_denied": {

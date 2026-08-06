@@ -3,7 +3,7 @@
   "write_reference_button_text": "Schrijf een referentie",
   "confirm_request_button_text": "Bevestigen",
   "close_request_button_text": "Afwijzen",
-  "host_pending_request_help_text": "<0>Dingen om rekening mee te houden</0> voordat je reageert.",
+  "host_pending_request_help_text": "<guideLink>Dingen om rekening mee te houden</guideLink> voordat je reageert.",
   "messages_page": {
     "tabs": {
       "chats": "Chats",
@@ -46,7 +46,7 @@
     }
   },
   "past_request_help_text": "Dit verzoek is oud en kan niet aangepast worden, maar je kan nog wel berichten versturen.",
-  "surfer_declined_request_help_text": "<0>Lees onze handleiding</0> over hoe je het beste een verzoek doet dat wordt geaccepteerd.",
+  "surfer_declined_request_help_text": "<guideLink>Lees onze handleiding</guideLink> over hoe je het beste een verzoek doet dat wordt geaccepteerd.",
   "admins_dialog": {
     "remove_admin": {
       "title": "Admin verwijderen",

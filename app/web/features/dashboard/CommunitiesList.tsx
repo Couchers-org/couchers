@@ -123,7 +123,7 @@ export default function CommunitiesList() {
         <Trans
           i18nKey="dashboard:your_communities_helper_text"
           components={{
-            1: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
+            browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
         />
       </Typography>

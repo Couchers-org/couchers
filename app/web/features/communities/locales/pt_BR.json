@@ -1,7 +1,7 @@
 {
   "location": "Localização",
   "comments_count": "Comentários | {{count}}",
-  "events_empty_state": "Nenhum evento no momento. Por que você não <0>cria</0> um ✨?",
+  "events_empty_state": "Nenhum evento no momento. Por que você não <createEventLink>cria</createEventLink> um ✨?",
   "cancel_event": "Cancelar evento",
   "show_cancelled_events": "Mostrar eventos cancelados",
   "cancel_event_success_message": "O evento foi cancelado com sucesso.",
@@ -138,7 +138,7 @@
   "discover_events_title": "Descobrir eventos do Counchers.org",
   "created_by_me": "Criado por mim",
   "notify_attendees": "Notificar os participantes do evento sobre esta alteração",
-  "no_results_found_with_link": "Nenhuma comunidade encontrada. <0>Solicite esta comunidade!</0>",
+  "no_results_found_with_link": "Nenhuma comunidade encontrada. <requestCommunityLink>Solicite esta comunidade!</requestCommunityLink>",
   "search_communities_placeholder": "Buscar por nome de cidade ou país...",
   "search_communities_helper": "Selecionar uma comunidade para ir para sua página",
   "search_communities": "Buscar e visitar uma comunidade",

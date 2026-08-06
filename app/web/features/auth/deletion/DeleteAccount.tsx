@@ -66,11 +66,7 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
         {isDeleteAccountSuccess && <Alert severity="success">{t("auth:delete_account.request.success_message")}</Alert>}
         <StyledForm onSubmit={onSubmit}>
           <Typography variant="subtitle1" sx={{ paddingBottom: 2 }}>
-            <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }}>
-              {`Your username is `}
-              <strong>{username}</strong>
-              {`, please type it in below to confirm account deletion.`}
-            </Trans>
+            <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
           </Typography>
           <TextField
             id="confirmUsername"

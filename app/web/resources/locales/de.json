@@ -39,7 +39,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
-    "version_info": "Version <2>{{version}}</2>, zuletzt aktualisiert <5>{{updated_ago}}</5>."
+    "version_info": "Version <versionLink>{{version}}</versionLink>, zuletzt aktualisiert <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "team": {
     "title": "Das Team",
@@ -146,7 +146,7 @@
     }
   },
   "previous": "Vorherige",
-  "not_found_text_2": "Willst du einfach nur <1>zur Startseite gehen?</1>",
+  "not_found_text_2": "Willst du einfach nur <homeLink>zur Startseite gehen?</homeLink>",
   "not_found_alt": "404 Fehler: Ressource nicht gefunden",
   "change_time": "Zeit ändern",
   "html_meta": {
@@ -208,7 +208,7 @@
   "community_standing_description": "Berechnet aus verschiedenen Faktoren wie Referenzen und Community-Engagement.",
   "send": "Senden",
   "confirm": "Bestätigen",
-  "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <1>Nutzungsbedingungen</1>.",
+  "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <tosLink>Nutzungsbedingungen</tosLink>.",
   "not_found_text_1": "Wir konnten die von dir angeforderte URL oder Ressource nicht finden",
   "contribute_title": "Melde dich an, um beizutragen",
   "strong_verification": {
@@ -328,8 +328,8 @@
     "progress_label": "Spendenfortschritt"
   },
   "blog": {
-    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <1>Melde dich an</1> und lass es uns wissen. Freiwillige und <3>Spenden</3> machen Couchers.org erst möglich!",
-    "byline_with_author": "Geschrieben von <1/>. Veröffentlicht am {{date}}.",
+    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <volunteerLink>Melde dich an</volunteerLink> und lass es uns wissen. Freiwillige und <donateLink>Spenden</donateLink> machen Couchers.org erst möglich!",
+    "byline_with_author": "Geschrieben von <authorList/>. Veröffentlicht am {{date}}.",
     "byline_without_author": "Veröffentlicht am {{date}}."
   },
   "image_input": {

@@ -49,7 +49,7 @@
   "next": "Next",
   "previous": "Previous",
   "mod": "Moderation",
-  "cookie_message": "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can read more about our <1>Terms of Service</1>.",
+  "cookie_message": "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can read more about our <tosLink>Terms of Service</tosLink>.",
   "hosting_status": {
     "can_host": "Can host",
     "maybe": "May host",
@@ -129,7 +129,7 @@
     }
   },
   "not_found_text_1": "We couldn't find the URL or resource you requested",
-  "not_found_text_2": "Do you just want to <1>go home?</1>",
+  "not_found_text_2": "Do you just want to <homeLink>go home?</homeLink>",
   "not_found_alt": "404 Error: Resource Not Found",
   "change_time": "Change time",
   "html_meta": {
@@ -242,7 +242,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.",
-    "version_info": "Version <2>{{version}}</2>, last updated <5>{{updated_ago}}</5>."
+    "version_info": "Version <versionLink>{{version}}</versionLink>, last updated <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "what_is_cs": {
     "title": "What is couch surfing?",
@@ -314,9 +314,9 @@
     "board_member": "Board Member"
   },
   "blog": {
-    "byline_with_author": "Written by <1/>. Published on {{date}}.",
+    "byline_with_author": "Written by <authorList/>. Published on {{date}}.",
     "byline_without_author": "Published on {{date}}.",
-    "cta_message": "Want to help write our blog or volunteer? <1>Sign up</1> and let us know. Volunteers and <3>donations</3> are what make Couchers.org possible!"
+    "cta_message": "Want to help write our blog or volunteer? <volunteerLink>Sign up</volunteerLink> and let us know. Volunteers and <donateLink>donations</donateLink> are what make Couchers.org possible!"
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {

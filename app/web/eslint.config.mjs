@@ -7,7 +7,6 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 
 import transComponents from "./eslint-rules/trans-components.js";
-import legacyTransFiles from "./i18n/legacyTransFiles.js";
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
@@ -48,7 +47,7 @@ const config = [
     },
     rules: {
       // ~~~ settings for local couchers rules ~~~
-      "couchers/trans-components": ["error", { allow: legacyTransFiles }],
+      "couchers/trans-components": "error",
 
       // ~~~ settings for simple import sort plugin ~~~
       "simple-import-sort/imports": "warn",

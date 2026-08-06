@@ -3,7 +3,7 @@
     "title": "Cambiar correo electrónico",
     "current_password": "Contraseña actual",
     "new_email": "Nuevo correo electrónico",
-    "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
+    "current_email_message": "Tu dirección actual de correo electrónico es <strong>{{email}}</strong>.",
     "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio.",
     "hide_current_password": "Ocultar contraseña actual",
     "show_current_password": "Mostrar contraseña actual"
@@ -22,7 +22,7 @@
       "woman": "Mujer",
       "selector_a11y": "Género"
     },
-    "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
+    "tos_prompt": "Para continuar, por favor lee y acepta el <tosLink></tosLink>.",
     "header": "Detalles de tu cuenta",
     "username": {
       "field_label": "Nombre de usuario",
@@ -92,7 +92,7 @@
   "login_page": {
     "title": "Iniciar sesión",
     "header": "¡Bienvenido de nuevo!",
-    "no_account_prompt": "¿Aún no tienes una cuenta? <2>Únete</2>",
+    "no_account_prompt": "¿Aún no tienes una cuenta? <signupLink>Únete</signupLink>",
     "form": {
       "username_field_label": "Correo electrónico/Nombre de usuario",
       "password_field_label": "Contraseña",
@@ -103,8 +103,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "¿Ya tienes una cuenta? <2>Iniciar sesión</2>",
-    "sign_up_agreement_explainer": "Al continuar, aceptas nuestros <2>Términos y condiciones</2>, incluyendo nuestras políticas de gestión de cookies, de correo electrónico y de datos."
+    "existing_user_prompt": "¿Ya tienes una cuenta? <loginLink>Iniciar sesión</loginLink>",
+    "sign_up_agreement_explainer": "Al continuar, aceptas nuestros <tosLink>Términos y condiciones</tosLink>, incluyendo nuestras políticas de gestión de cookies, de correo electrónico y de datos."
   },
   "location": {
     "field_label": "Tu ubicación",
@@ -122,7 +122,7 @@
       "explanation": "Parece que tus coordenadas no eran correctas. Por favor actualiza tu ubicación para continuar."
     },
     "terms_of_service_section": {
-      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, por favor lea y acepte los nuevos <1></1>."
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, por favor lea y acepte los nuevos <tosLink></tosLink>."
     },
     "description": "Por favor, comprueba lo siguiente para continuar.",
     "mod_note_section": {
@@ -158,11 +158,11 @@
     "timezone_section": {
       "title": "Zona horaria y ubicación",
       "explanation": "Esta hora y zona horaria se han determinado en función de la ubicación de tu casa. Por favor, reporta un error si no es correcto.",
-      "description": "Tu huso horario es <1>{{timezone}}</1>. Según esto, tu hora local es aproximadamente <4>{{time}}</4>."
+      "description": "Tu huso horario es <strong>{{timezone}}</strong>. Según esto, tu hora local es aproximadamente <strong>{{time}}</strong>."
     },
     "username_section": {
       "title": "Nombre de usuario",
-      "description": "Tu nombre de usuario es <1>{{username}}</1>.",
+      "description": "Tu nombre de usuario es <strong>{{username}}</strong>.",
       "explanation": "El nombre de usuario se elige cuando creas tu cuenta."
     },
     "appearance_section": {
@@ -196,7 +196,7 @@
   },
   "delete_account": {
     "request": {
-      "confirm_username_explanation": "Tu usuario es <1>{{ username }}</1>, por favor, tecléalo abajo para confirmar la eliminación de tu cuenta.",
+      "confirm_username_explanation": "Tu usuario es <strong>{{ username }}</strong>, por favor, tecléalo abajo para confirmar la eliminación de tu cuenta.",
       "success_message": "Eliminación de cuenta iniciado. Para completar la eliminación de tu cuenta, confírmalo a través del correo electrónico que te hemos mandado, por favor.",
       "title": "Eliminar cuenta",
       "confirm_username_label": "Confirmación de nombre de usuario",
@@ -233,16 +233,16 @@
     "change_button_text": "Cambiar número de teléfono",
     "title": "Número de teléfono",
     "no_phone_description": "No has añadido un número de teléfono a tu cuenta. Para añadir uno, escríbelo abajo. Verificaremos tu número mediante un mensaje de texto.",
-    "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
-    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
-    "need_to_donate": "Necesitas <2>donar</2> antes de poder completar la verificación telefónica."
+    "phone_not_verified_description": "Te hemos enviado un código a <strong>{{phone}}</strong>. Para verificar tu teléfono, introduce el código a continuación:",
+    "remove_phone_description": "Tu número de teléfono actual es <strong>{{phone}}</strong>. Puedes eliminar tú número de teléfono abajo.",
+    "need_to_donate": "Necesitas <donateLink>donar</donateLink> antes de poder completar la verificación telefónica."
   },
   "unhandled_sign_up_state": "Error: estado del flujo de registro desconocido.",
   "do_not_email": {
     "title": "No quiero recibir correos electrónicos",
     "status": {
-      "no_emails_enabled_message": "Los correos electrónicos están actualmente <1>desactivados</1> en tu cuenta.",
-      "no_emails_disabled_message": "Los correos electrónicos están actualmente <1>activados</1> en tu cuenta."
+      "no_emails_enabled_message": "Los correos electrónicos están actualmente <strong>desactivados</strong> en tu cuenta.",
+      "no_emails_disabled_message": "Los correos electrónicos están actualmente <strong>activados</strong> en tu cuenta."
     },
     "action_button": {
       "no_emails_enable_text": "No quiero recibir correos electrónicos",
@@ -256,7 +256,7 @@
     "title": "Gestión de voluntarios",
     "description": "Si tu rol o las fechas son incorrectas, por favor avísanos.",
     "card_preview_label": "Listado de la página de tu equipo",
-    "not_a_volunteer_message": "Según nuestros registros, no eres un voluntario actual ni pasado. Si esto es incorrecto por favor háznoslo saber completando <1>este formulario</1>.",
+    "not_a_volunteer_message": "Según nuestros registros, no eres un voluntario actual ni pasado. Si esto es incorrecto por favor háznoslo saber completando <formLink>este formulario</formLink>.",
     "current_volunteer": "Voluntariado desde {{startDate}}.",
     "past_volunteer": "Voluntario desde {{startDate}} hasta {{endDate}}.",
     "shown_on_team_page_past": "Aparece en la página del equipo como voluntario anterior.",
@@ -297,8 +297,8 @@
     "title": "Verificación robusta",
     "subtitle": "La verificación robusta es una medida de seguridad adicional que te permite verificar tu fecha de nacimiento y tu género usando tu pasaporte biométrico.",
     "status": {
-      "enabled_message": "Actualmente <1>estás verificado</1> mediante verificación robusta.",
-      "disabled_message": "Actualmente <1>no estás verificado</1> mediante verificación robusta."
+      "enabled_message": "Actualmente <strong>estás verificado</strong> mediante verificación robusta.",
+      "disabled_message": "Actualmente <strong>no estás verificado</strong> mediante verificación robusta."
     },
     "start_button": "Empezar la verificación robusta",
     "complete_title": "Estamos procesando su intento de Verificación robusta",
@@ -358,7 +358,7 @@
         "tip2": "Prueba con otra página de tu pasaporte: la ubicación del chip varía según el país",
         "tip3": "Si usas Android asegúrate de tener instalada la aplicación IRIS ID (no la versión del navegador)",
         "tip4": "Algunos pasaportes o tarjetas de pasaporte más antiguos no tienen chips NFC y no funcionarán",
-        "contact": "Si sigues teniendo problemas, <1>háznoslo saber</1> y te ayudaremos."
+        "contact": "Si sigues teniendo problemas, <supportLink>háznoslo saber</supportLink> y te ayudaremos."
       }
     }
   },
@@ -367,15 +367,15 @@
     "settings_page_text": "Consulta dónde has iniciado sesión y cierra otras sesiones",
     "settings_page_link": "Gestionar sesiones actuales",
     "login_header": "Sesión del {{login_datetime}}",
-    "location": "Cerca de <2>{{approximate_location}}</2>",
-    "last_activity": "Última actividad <2>{{last_activity_ago}}</2>",
-    "expiry": "Caduca el <1>{{expiry_datetime}}</1>",
+    "location": "Cerca de <strong>{{approximate_location}}</strong>",
+    "last_activity": "Última actividad <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Caduca el <strong>{{expiry_datetime}}</strong>",
     "current_session": "Esta es tu sesión actual.",
     "log_out_of_session": "Salir de esta sesión",
     "log_out_of_all_session": "Cerrar todas las demás sesiones",
     "heading": "Sesiones actuales"
   },
-  "sign_up_resend_verification_email_help": "¿No has recibido el correo eletrónico? Haz clic <2>aquí para reenviar el enlace de verificación</2>.",
+  "sign_up_resend_verification_email_help": "¿No has recibido el correo eletrónico? Haz clic <resendLink>aquí para reenviar el enlace de verificación</resendLink>.",
   "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico.",
   "motivations_form": {
     "header": "¿Qué te trae a Couchers?",
@@ -400,11 +400,11 @@
     "title": "Visibilidad del perfil",
     "choose": "Elige qué información será visible para los usuarios que no hayan iniciado sesión",
     "visiblility_options": {
-      "nothing": "<1>Nada</1>: ocultarme completamente",
-      "map_only": "<1>Solo mapa</1>: muestra un marcador de mapa anónimo y aleatorio sin ninguna otra información",
-      "limited": "<1>Limitado</1>: muestra mi nombre, ubicación, estado de hospedaje/quedar, insignias, número de referencias y cuánto tiempo hace que estoy en Couchers",
-      "most": "<1>La mayoría</1>: muestra toda la sección \"Sobre mí\" excepto \"Información adicional\"",
-      "full_profile": "<1>Perfil completo</1>: muestra mi perfil completo (excepto las referencias)"
+      "nothing": "<strong>Nada</strong>: ocultarme completamente",
+      "map_only": "<strong>Solo mapa</strong>: muestra un marcador de mapa anónimo y aleatorio sin ninguna otra información",
+      "limited": "<strong>Limitado</strong>: muestra mi nombre, ubicación, estado de hospedaje/quedar, insignias, número de referencias y cuánto tiempo hace que estoy en Couchers",
+      "most": "<strong>La mayoría</strong>: muestra toda la sección \"Sobre mí\" excepto \"Información adicional\"",
+      "full_profile": "<strong>Perfil completo</strong>: muestra mi perfil completo (excepto las referencias)"
     }
   }
 }

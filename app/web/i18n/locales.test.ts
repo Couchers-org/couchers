@@ -91,4 +91,15 @@ describe("translated strings", () => {
     const live = new Set(translatedLanguages.flatMap(tagMismatches));
     expect(knownTagMismatches.filter((id) => !live.has(id))).toEqual([]);
   });
+
+  // The ESLint rule covers tags a call site passes a component for; this covers
+  // the rest, including strings nothing renders any more.
+  it("names every tag in the English source, rather than numbering it", () => {
+    const numbered = NAMESPACES.flatMap((namespace: string) =>
+      Object.entries(english.get(namespace) ?? {})
+        .filter(([, value]) => extractTags(value).some((tag) => /^\d+$/.test(tag)))
+        .map(([key]) => `${namespace}:${key}`),
+    );
+    expect(numbered).toEqual([]);
+  });
 });

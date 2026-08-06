@@ -116,7 +116,7 @@ export default function MyUpcomingEvents() {
               <Trans
                 t={t}
                 i18nKey="dashboard:events.your_upcoming_empty_message"
-                components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
+                components={{ createEventLink: <StyledLink href={routeToNewEvent()} /> }}
               />
             </Typography>
           </EmptyStateRow>

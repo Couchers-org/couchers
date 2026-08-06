@@ -87,7 +87,7 @@
       "rejected": "{{user}} rejeitou a solicitação"
     }
   },
-  "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever uma solicitação que vai ser aceita.",
+  "surfer_declined_request_help_text": "<guideLink>Leia nosso guia</guideLink> sobre como escrever uma solicitação que vai ser aceita.",
   "create_chat": {
     "title_label": "Título",
     "dm_title": "Criar uma nova conversa",
@@ -153,7 +153,7 @@
   "mark_all_read_button_text_chats": "Marcar todas as conversas como lidas",
   "mark_all_read_button_text_surfing": "Marcar todas as solicitações de hospedagem como lidas",
   "confirm_request_button_text": "Confirmar",
-  "host_pending_request_help_text": "<0>Coisas a se considerar</0> antes de responder.",
+  "host_pending_request_help_text": "<guideLink>Coisas a se considerar</guideLink> antes de responder.",
   "chat_input": {
     "label": "Mensagem"
   },

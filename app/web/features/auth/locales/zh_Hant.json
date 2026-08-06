@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "更改電子郵件",
-    "current_email_message": "您目前的電子郵件地址是<1>{{email}}</1>。",
+    "current_email_message": "您目前的電子郵件地址是<strong>{{email}}</strong>。",
     "success_message": "我們已收到您的電子郵件變更申請。請到新信箱完成確認。",
     "current_password": "當前密碼",
     "new_email": "新電子郵件",
@@ -11,8 +11,8 @@
   "do_not_email": {
     "title": "請勿向我發送郵件",
     "status": {
-      "no_emails_enabled_message": "您目前已<1>停用</1>郵件通知。",
-      "no_emails_disabled_message": "您目前已<1>開啟</1>郵件通知。"
+      "no_emails_enabled_message": "您目前已<strong>停用</strong>郵件通知。",
+      "no_emails_disabled_message": "您目前已<strong>開啟</strong>郵件通知。"
     },
     "action_button": {
       "no_emails_enable_text": "停用郵件通知",
@@ -51,7 +51,7 @@
   "login_page": {
     "title": "登入",
     "header": "歡迎回家！",
-    "no_account_prompt": "還沒有帳號？<2>加入我們</2>",
+    "no_account_prompt": "還沒有帳號？<signupLink>加入我們</signupLink>",
     "form": {
       "username_field_label": "電子郵件／使用者名稱",
       "password_field_label": "密碼",
@@ -62,8 +62,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "已經有帳號了嗎？<2>登入</2>",
-    "sign_up_agreement_explainer": "如果您繼續，即表示您同意我們的<2>服務條款</2>，包括我們對Cookie、電子郵件與資料的處理方式。"
+    "existing_user_prompt": "已經有帳號了嗎？<loginLink>登入</loginLink>",
+    "sign_up_agreement_explainer": "如果您繼續，即表示您同意我們的<tosLink>服務條款</tosLink>，包括我們對Cookie、電子郵件與資料的處理方式。"
   },
   "account_form": {
     "header": "您的帳戶資料",
@@ -100,7 +100,7 @@
       "woman": "女性"
     },
     "opt_in_newsletter": "訂閱我們偶爾寄送的社群更新電子報。",
-    "tos_prompt": "請您閱讀並且接受<1></1>以繼續。",
+    "tos_prompt": "請您閱讀並且接受<tosLink></tosLink>以繼續。",
     "tos_accept_label": "我接受服務條款。"
   },
   "basic_form": {
@@ -132,7 +132,7 @@
     "title": "需要更多資訊",
     "description": "請完成以下項目後再繼續。",
     "terms_of_service_section": {
-      "description": "我們更新了服務條款。請閱讀並接受新的<1></1>以繼續。"
+      "description": "我們更新了服務條款。請閱讀並接受新的<tosLink></tosLink>以繼續。"
     },
     "location_section": {
       "title": "請更新您的位置",
@@ -160,7 +160,7 @@
   "logged_out_message": "您已登出。",
   "sign_up_completed_title": "感謝您註冊！",
   "sign_up_need_verification_title": "最後一步：確認您的電子郵件。",
-  "sign_up_resend_verification_email_help": "沒有收到郵件？點擊<2>這裡重新寄送驗證連結</2>。",
+  "sign_up_resend_verification_email_help": "沒有收到郵件？點擊<resendLink>這裡重新寄送驗證連結</resendLink>。",
   "sign_up_resend_verification_done": "完成！我們已向您發送了另一封郵件。",
   "sign_up_completed_prompt": "我們已將驗證連結寄到您的電子郵件地址，請點擊連結啟用帳戶。",
   "sign_up_confirmed_prompt": "大功告成！如果頁面沒有自動跳轉，請嘗試登入。",
@@ -180,12 +180,12 @@
     },
     "timezone_section": {
       "title": "時區與在地化",
-      "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
+      "description": "您的時區是<strong>{{timezone}}</strong>。根據這個資訊，您的當地時間大約是<strong>{{time}}</strong>。",
       "explanation": "此時間和時區是根據您的家庭位置決定的。如果它不正確，請報告錯誤。"
     },
     "username_section": {
       "title": "使用者名稱",
-      "description": "您的使用者名稱是<1>{{username}}</1>。",
+      "description": "您的使用者名稱是<strong>{{username}}</strong>。",
       "explanation": "使用者名稱會在建立帳戶時設定。"
     },
     "appearance_section": {
@@ -215,9 +215,9 @@
     "settings_page_link": "管理目前登入中的裝置",
     "description": "這個頁面會列出目前仍有效的登入工作階段。您可以點擊各筆登入旁的按鈕登出單一工作階段，或在頁面底部登出除目前工作階段外的所有裝置。",
     "login_header": "登入於{{login_datetime}}",
-    "location": "靠近<2>{{approximate_location}}</2>",
-    "last_activity": "上次活動<2>{{last_activity_ago}}</2>",
-    "expiry": "過期時間<1>{{expiry_datetime}}</1>",
+    "location": "靠近<strong>{{approximate_location}}</strong>",
+    "last_activity": "上次活動<strong>{{last_activity_ago}}</strong>",
+    "expiry": "過期時間<strong>{{expiry_datetime}}</strong>",
     "current_session": "這是您當前的會話。",
     "log_out_of_session": "退出此會話",
     "log_out_of_all_session": "退出其他所有會話"
@@ -226,8 +226,8 @@
     "title": "強身份驗證",
     "subtitle": "強身份驗證是一項額外的安全功能，允許您通過生物護照驗證出生日期和性別。",
     "status": {
-      "enabled_message": "您<1>當前已完成</1>強身份驗證。",
-      "disabled_message": "您<1>尚未完成</1>強身份驗證。"
+      "enabled_message": "您<strong>當前已完成</strong>強身份驗證。",
+      "disabled_message": "您<strong>尚未完成</strong>強身份驗證。"
     },
     "learn_more": "瞭解強身份驗證，點擊<a>此處</a>。",
     "start_button": "開始強身份驗證",
@@ -288,23 +288,23 @@
         "tip2": "嘗試護照的不同頁面—芯片位置因國家/地區而異",
         "tip3": "如果使用Android，請確認已安裝IRIS ID應用程式（不是瀏覽器版本）",
         "tip4": "一些較舊的護照或護照卡沒有NFC芯片，因此無法使用",
-        "contact": "如果如果您仍然遇到問題，請<1>告訴我們</1>，我們會提供幫助。"
+        "contact": "如果如果您仍然遇到問題，請<supportLink>告訴我們</supportLink>，我們會提供幫助。"
       }
     }
   },
   "change_phone": {
     "title": "電話號碼",
-    "need_to_donate": "您需要<2>捐贈</2>後才能完成電話號碼驗證。",
+    "need_to_donate": "您需要<donateLink>捐贈</donateLink>後才能完成電話號碼驗證。",
     "no_phone_description": "您的帳戶尚未添加電話號碼。請在下方輸入，我們會通過短信驗證。",
     "phone_label": "您的電話號碼",
     "add_button_text": "添加電話號碼",
     "add_success": "電話號碼已添加。",
-    "phone_not_verified_description": "我們已向<2>{{phone}}</2>發送了一條驗證碼。請在下方輸入驗證碼以驗證您的號碼：",
+    "phone_not_verified_description": "我們已向<strong>{{phone}}</strong>發送了一條驗證碼。請在下方輸入驗證碼以驗證您的號碼：",
     "code_label": "驗證碼",
     "wrong_code": "驗證碼錯誤。",
     "verify_button_text": "驗證電話號碼",
     "verify_success": "電話號碼已驗證。",
-    "remove_phone_description": "您的當前電話號碼是<2>{{phone}}</2>。您可以在下方移除電話號碼。",
+    "remove_phone_description": "您的當前電話號碼是<strong>{{phone}}</strong>。您可以在下方移除電話號碼。",
     "remove_button_text": "移除當前電話號碼",
     "remove_success": "電話號碼已移除。",
     "change_to_different_description": "如需更改為其他電話號碼，請在下方輸入。",
@@ -314,7 +314,7 @@
     "request": {
       "title": "刪除帳戶",
       "description": "如要刪除您的帳戶，請按以下步驟操作。我們將向您發出確認郵件。",
-      "confirm_username_explanation": "您的使用者名稱是<1>{{username}}</1>，請在下方輸入以確認刪除帳戶。",
+      "confirm_username_explanation": "您的使用者名稱是<strong>{{username}}</strong>，請在下方輸入以確認刪除帳戶。",
       "confirm_username_label": "使用者名稱確認",
       "username_mismatch": "使用者名稱不匹配。",
       "reason_explanation": "請告訴我們刪除帳戶的原因，以幫助我們改進平台。",
@@ -343,11 +343,11 @@
   },
   "profile_visibility": {
     "visiblility_options": {
-      "most": "<1>大部分</1>：顯示完整的“關於我”部分，但不包括“附加資訊”",
-      "full_profile": "<1>完整資料</1>：顯示我的完整資料（不包括使用者評價）",
-      "nothing": "<1>無</1>：徹底隱藏我",
-      "map_only": "<1>僅地圖</1>：僅顯示一個隨機、匿名的地圖標記，不包含其他資訊",
-      "limited": "<1>有限</1>：顯示我的姓名、位置、接待/見面狀態、徽章、評價數量，以及我成為Coucher的時長"
+      "most": "<strong>大部分</strong>：顯示完整的“關於我”部分，但不包括“附加資訊”",
+      "full_profile": "<strong>完整資料</strong>：顯示我的完整資料（不包括使用者評價）",
+      "nothing": "<strong>無</strong>：徹底隱藏我",
+      "map_only": "<strong>僅地圖</strong>：僅顯示一個隨機、匿名的地圖標記，不包含其他資訊",
+      "limited": "<strong>有限</strong>：顯示我的姓名、位置、接待/見面狀態、徽章、評價數量，以及我成為Coucher的時長"
     },
     "title": "個人資料可見性",
     "choose": "選擇哪些資訊對未登入使用者可見"
@@ -369,7 +369,7 @@
     "title": "志願者管理",
     "description": "如果您的角色或日期不正確，請告知我們。",
     "card_preview_label": "您的團隊頁面列表",
-    "not_a_volunteer_message": "根據我們的記錄，您不是當前或過去的志願者。如果不正確，請填寫<1>此表單</1>告知我們。",
+    "not_a_volunteer_message": "根據我們的記錄，您不是當前或過去的志願者。如果不正確，請填寫<formLink>此表單</formLink>告知我們。",
     "current_volunteer": "自{{startDate}}起志願服務。",
     "past_volunteer": "從{{startDate}}到{{endDate}}志願服務。",
     "shown_on_team_page_current": "在團隊頁面上顯示為當前團隊成員。",

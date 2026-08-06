@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Změnit e-mail",
-    "current_email_message": "Tvá současná e-mailová adresa je <1>{{email}}</1>.",
+    "current_email_message": "Tvá současná e-mailová adresa je <strong>{{email}}</strong>.",
     "success_message": "Žádost o změnu e-mailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou e-mailovou schránku.",
     "current_password": "Současné heslo",
     "new_email": "Nový e-mail",
@@ -39,7 +39,7 @@
   "login_page": {
     "title": "Přihlásit se",
     "header": "Vítej zpět!",
-    "no_account_prompt": "Nemáš ještě účet? <2>Přidej se</2>",
+    "no_account_prompt": "Nemáš ještě účet? <signupLink>Přidej se</signupLink>",
     "form": {
       "password_field_label": "Heslo",
       "username_field_label": "E-mail/Uživatelské jméno",
@@ -50,8 +50,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
-    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
+    "existing_user_prompt": "Máš už vytvořený účet? <loginLink>Log in</loginLink>",
+    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <tosLink>Podmínkami použití</tosLink>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
   },
   "account_form": {
     "header": "Podrobnosti o tvém účtu",
@@ -83,7 +83,7 @@
       "required_error": "Prosím vyber svou pohlavní identitu",
       "selector_a11y": "Pohlaví"
     },
-    "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <1></1>.",
+    "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <tosLink></tosLink>.",
     "tos_accept_label": "Souhlasím s Podmínkami služby.",
     "password": {
       "required_error": "Zadej heslo",
@@ -117,7 +117,7 @@
     "title": "Nastavení účtu",
     "username_section": {
       "title": "Uživatelské jméno",
-      "description": "Tvé uživatelské jméno je <1>{{username}}</1>.",
+      "description": "Tvé uživatelské jméno je <strong>{{username}}</strong>.",
       "explanation": "Tvé uživatelské jméno je nastaveno při vytváření účtu."
     },
     "gender_section": {
@@ -141,7 +141,7 @@
     },
     "timezone_section": {
       "explanation": "Tento čas a časové pásmo jsou určeny na základě tvé domovské polohy. Pokud je údaj nesprávný, nahlas nám prosím chybu.",
-      "description": "Tvé časové pásmo je <1>{{timezone}}</1>. Na základě toho je tvůj místní čas přibližně <4>{{time}}</4>.",
+      "description": "Tvé časové pásmo je <strong>{{timezone}}</strong>. Na základě toho je tvůj místní čas přibližně <strong>{{time}}</strong>.",
       "title": "Časové pásmo a místní nastavení"
     }
   },
@@ -189,7 +189,7 @@
     },
     "title": "Potřebujeme více informací",
     "terms_of_service_section": {
-      "description": "Aktualizovali jsme naše Podmínky služby. Chceš-li pokračovat, přečti si je a potvrď nové <1></1>."
+      "description": "Aktualizovali jsme naše Podmínky služby. Chceš-li pokračovat, přečti si je a potvrď nové <tosLink></tosLink>."
     },
     "mod_note_section": {
       "acknowledge": "Potvrdit zprávu",
@@ -209,8 +209,8 @@
   "login_prompt": "Klikni zde pro přihlášení",
   "do_not_email": {
     "status": {
-      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <1>povoleny</1>.",
-      "no_emails_enabled_message": "E-maily jsou pro tvůj účet momentálně <1>zakázány</1>."
+      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <strong>povoleny</strong>.",
+      "no_emails_enabled_message": "E-maily jsou pro tvůj účet momentálně <strong>zakázány</strong>."
     },
     "title": "Neposílejte mi e-maily",
     "action_button": {
@@ -247,16 +247,16 @@
     "something_else": "Něco jiného",
     "something_else_description": "Jen se rozhlížím nebo ještě nemám jasno"
   },
-  "sign_up_resend_verification_email_help": "Nepřišel ti e-mail? Klikni <2>sem pro opětovné odeslání ověřovacího odkazu</2>.",
+  "sign_up_resend_verification_email_help": "Nepřišel ti e-mail? Klikni <resendLink>sem pro opětovné odeslání ověřovacího odkazu</resendLink>.",
   "active_logins": {
     "heading": "Aktuální přihlášení",
     "settings_page_text": "Zobraz, kde jste přihlášeni a odhlaste se z ostatních relací",
     "settings_page_link": "Správa aktuálních přihlášení",
     "description": "Na této stránce najdeš seznam aktivních přihlášení. Z kteréhokoli se můžeš odhlásit kliknutím na tlačítko vedle daného přihlášení, nebo sjeď dolů a odhlas se ze všech ostatních relací najednou.",
     "login_header": "Přihlášení {{login_datetime}}",
-    "location": "Poblíž <2>{{approximate_location}}</2>",
-    "last_activity": "Poslední aktivita <2>{{last_activity_ago}}</2>",
-    "expiry": "Vyprší dne <1>{{expiry_datetime}}</1>",
+    "location": "Poblíž <strong>{{approximate_location}}</strong>",
+    "last_activity": "Poslední aktivita <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Vyprší dne <strong>{{expiry_datetime}}</strong>",
     "current_session": "Toto je tvoje aktuální relace.",
     "log_out_of_session": "Odhlásit se z této relace",
     "log_out_of_all_session": "Odhlásit ze všech ostatních relací"

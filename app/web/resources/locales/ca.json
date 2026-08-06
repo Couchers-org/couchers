@@ -46,7 +46,7 @@
   "next": "Següent",
   "previous": "Anterior",
   "mod": "Moderació",
-  "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, assumirem que n'estàs content. Pots llegir més a les nostres <1>Condicions del servei</1>.",
+  "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, assumirem que n'estàs content. Pots llegir més a les nostres <tosLink>Condicions del servei</tosLink>.",
   "hosting_status": {
     "can_host": "Pot allotjar",
     "maybe": "Podria allotjar",
@@ -126,7 +126,7 @@
     }
   },
   "not_found_text_1": "No hem trobat l'URL o el recurs que has demanat",
-  "not_found_text_2": "Vols <1>tornar a l'inici?</1>",
+  "not_found_text_2": "Vols <homeLink>tornar a l'inici?</homeLink>",
   "not_found_alt": "Error 404: Recurs no trobat",
   "change_time": "Canvia l'hora",
   "html_meta": {
@@ -237,7 +237,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org és un projecte de Couchers, Inc., una organització sense ànim de lucre i exempta d'impostos 501(c)(3) dels EUA.",
-    "version_info": "Versió <2>{{version}}</2>, darrera actualització <5>{{updated_ago}}</5>."
+    "version_info": "Versió <versionLink>{{version}}</versionLink>, darrera actualització <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "what_is_cs": {
     "title": "Què és el couch surfing?",
@@ -309,9 +309,9 @@
     "board_member": "Membre del consell"
   },
   "blog": {
-    "byline_with_author": "Escrit per <1/>. Publicat el {{date}}.",
+    "byline_with_author": "Escrit per <authorList/>. Publicat el {{date}}.",
     "byline_without_author": "Publicat el {{date}}.",
-    "cta_message": "Vols ajudar a escriure el nostre blog o ser voluntari? <1>Registra't</1> i fes-nos-ho saber. Els voluntaris i les <3>donacions</3> són el que fa possible Couchers.org!"
+    "cta_message": "Vols ajudar a escriure el nostre blog o ser voluntari? <volunteerLink>Registra't</volunteerLink> i fes-nos-ho saber. Els voluntaris i les <donateLink>donacions</donateLink> són el que fa possible Couchers.org!"
   },
   "error_loading_languages": "No s'han pogut carregar les opcions d'idioma",
   "language_names": {

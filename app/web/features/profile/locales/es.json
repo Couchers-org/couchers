@@ -57,7 +57,7 @@
     "preferences_subtitle": "Informa a otros sobre tus preferencias de alojamiento y encuentros",
     "personal_information": "Información personal",
     "personal_information_subtitle": "Comparte detalles sobre ti y tu trasfondo",
-    "about_me_subtitle": "Cuéntale a los demás sobre ti. Así es como comienza la confianza. Ayuda a otros a hacerse una idea de quién eres realmente. Consulta <1>consejos para crear un perfil excelente</1>.",
+    "about_me_subtitle": "Cuéntale a los demás sobre ti. Así es como comienza la confianza. Ayuda a otros a hacerse una idea de quién eres realmente. Consulta <guideLink>consejos para crear un perfil excelente</guideLink>.",
     "travel_experience": "Experiencia de viaje",
     "travel_experience_subtitle": "Comparte tus experiencias de viaje y conexiones",
     "location_subtitle": "Ubicación aproximada de tu hogar"
@@ -123,16 +123,16 @@
     "did_stay_confirmation": {
       "title_hosted": "Confirma que {{name}} no se alojó",
       "title_surfed": "Confirma que no te quedaste con {{name}}",
-      "message_hosted": "No <strong>podrás escribir una referencia</strong> si indicas que {{name}} no se quedó contigo. No se le notificará, pero aún puede dejarte una referencia a ti.<br /><br />Si necesitas reportar algo, averigua cómo hacerlo <2>aquí</2>.",
-      "message_surfed": "No <strong>podrás escribir una referencia</strong> si indicas que no te alojaste con {{name}}. No se le notificará, pero aún podrá dejarte una referencia a ti.<br /><br />Si necesitas reportar algo, averigua cómo hacerlo <2>aquí</2>.",
+      "message_hosted": "No <strong>podrás escribir una referencia</strong> si indicas que {{name}} no se quedó contigo. No se le notificará, pero aún puede dejarte una referencia a ti.<br /><br />Si necesitas reportar algo, averigua cómo hacerlo <reportLink>aquí</reportLink>.",
+      "message_surfed": "No <strong>podrás escribir una referencia</strong> si indicas que no te alojaste con {{name}}. No se le notificará, pero aún podrá dejarte una referencia a ti.<br /><br />Si necesitas reportar algo, averigua cómo hacerlo <reportLink>aquí</reportLink>.",
       "confirm_hosted": "Confirmar que no alojé",
       "confirm_surfed": "Confirmar que no me alojé"
     },
     "text_explanation_hosted_surfed": "La referencia que escribes abajo se compartirá con {{name}} después de que te escriba una referencia, o después de 14 días. También será visible para el resto de la comunidad de Couchers.org.",
-    "by_writing_thoughtful": "¿No sabes bien qué escribir? Lee nuestra guía <1>aquí</1>. Al escribir sobre tu experiencia con esta persona con honestidad y detalle, ayudas directamente a otros miembros y contribuyes a la seguridad y confianza de la comunidad de Couchers.",
+    "by_writing_thoughtful": "¿No sabes bien qué escribir? Lee nuestra guía <guideLink>aquí</guideLink>. Al escribir sobre tu experiencia con esta persona con honestidad y detalle, ayudas directamente a otros miembros y contribuyes a la seguridad y confianza de la comunidad de Couchers.",
     "cant_write_reference_didnt_stay": "No puedes escribir una referencia si indicas que no te alojaste con este usuario.",
     "text_explanation": "Deja una referencia y comparte cómo fue tu experiencia con esta persona. Esto ayudará a otros a saber qué espera de esta persona en el futuro.",
-    "thank_you_donation_prompt": "¡Considera <2>hacer una donación</2>! Couchers.org es una organización sin ánimo de lucro 501(c)(3) y necesitamos donaciones para mantener nuestros servidores en funcionamiento.",
+    "thank_you_donation_prompt": "¡Considera <donateLink>hacer una donación</donateLink>! Couchers.org es una organización sin ánimo de lucro 501(c)(3) y necesitamos donaciones para mantener nuestros servidores en funcionamiento.",
     "already_wrote_reference_for_stay": "Ya escribiste una referencia para este usuario y esta estancia. Tu referencia será visible después de que escriba una referencia sobre ti, o después de 14 días.",
     "already_wrote_friend_reference": "Ya escribiste una referencia de amigo para este usuario.",
     "add_a_reference": "Añade una referencia al perfil de {{name}}",
@@ -166,7 +166,7 @@
     "didnt_meetup_submit_success": "¡Gracias por informarnos! ¡No te pediremos que escribas una referencia!",
     "go_to_dashboard": "Ir al tablón",
     "private_text_explanation_1": "En el cuadro a continuación, puedes contarle de forma privada a nuestro Equipo de Seguridad lo que sucedió.",
-    "private_text_explanation_2": "Esto solo será visto por nuestro Equipo de Seguridad y permanecerá privado. Cuantos más detalles, mejor, pero incluso una breve explicación puede ayudar mucho. Lee más <2>aquí</2>.",
+    "private_text_explanation_2": "Esto solo será visto por nuestro Equipo de Seguridad y permanecerá privado. Cuantos más detalles, mejor, pero incluso una breve explicación puede ayudar mucho. Lee más <helpLink>aquí</helpLink>.",
     "private_text_explanation_3": "¡Gracias por ayudarnos a mantener la comunidad segura!",
     "private_text_summary": "El Equipo de Seguridad de Couchers.org recibirá el siguiente comentario privado:",
     "private_text_placeholder": "Comparte información de forma privada con nuestro Equipo de Seguridad.",
@@ -188,7 +188,7 @@
   "request_form": {
     "request": "Solicitud",
     "request_description": "Comparte tus planes para la visita e incluye por qué solicitas alojarte con este anfitrión en particular.",
-    "guide_link_help_text": "<0>Lee nuestra guía</0> sobre cómo escribir una solicitud que será aceptada.",
+    "guide_link_help_text": "<guideLink>Lee nuestra guía</guideLink> sobre cómo escribir una solicitud que será aceptada.",
     "send_request": "Envía una solicitud a {{name}}",
     "arrival_date": "Fecha de llegada",
     "arrival_date_empty": "Por favor especifica una fecha de llegada.",
@@ -251,7 +251,7 @@
     "given": "A otros"
   },
   "edit": "Editar Perfil",
-  "edit_profile_helper_text": "¿Buscas inspiración sobre por dónde empezar? <2>Consulta nuestra guía para crear un perfil increíble</2>.",
+  "edit_profile_helper_text": "¿Buscas inspiración sobre por dónde empezar? <guideLink>Consulta nuestra guía para crear un perfil increíble</guideLink>.",
   "edit_profile_name_required": "Nombre requerido",
   "edit_home_questions": {
     "accept_drinking": "No me molesta que la gente beba",
@@ -331,7 +331,7 @@
   "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos.",
   "do_not_email_error_link": "Actualiza la configuración de correo electrónico para volver a habilitarlo.",
   "complete_profile_dialog": {
-    "description_1": "Antes de que puedas {{action_name}}, debes <4>escribir algo sobre ti</4> en tu perfil y <7>subir una foto de perfil</7>.",
+    "description_1": "Antes de que puedas {{action_name}}, debes <strong>escribir algo sobre ti</strong> en tu perfil y <strong>subir una foto de perfil</strong>.",
     "actions": {
       "create_event": "crear un evento",
       "send_message": "enviar un mensaje",
@@ -344,7 +344,7 @@
     "edit_profile_button": "Edita tu perfil ahora",
     "cancel_button": "Da igual",
     "title": "Ya casi estás: ¡por favor completa tu perfil para continuar!",
-    "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <2>consulta esta página de ayuda</2>. ¡Gracias por tu ayuda!"
+    "description_2": "Esto nos ayuda a construir una comunidad fiable y reduce el spam. Para más información, <helpLink>consulta esta página de ayuda</helpLink>. ¡Gracias por tu ayuda!"
   },
   "open_full_profile": "Abrir perfil completo",
   "about_me_textbox_placeholder": "p. ej. Tu misión actual, por qué usas Couchers.org, tu anécdota de viaje favorita...",

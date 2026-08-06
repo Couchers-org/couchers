@@ -15,7 +15,7 @@
     "title": "Event annuleren?",
     "message": "Weet je zeker dat je dit event wilt annuleren?"
   },
-  "events_empty_state": "Er zijn geen events op dit moment. Waarom <0>plan</0> je er zelf niet eentje ✨?",
+  "events_empty_state": "Er zijn geen events op dit moment. Waarom <createEventLink>plan</createEventLink> je er zelf niet eentje ✨?",
   "notify_attendees": "Stel aanwezigen op de hoogte van deze verandering",
   "unknown_user": "Onbekende gebruiker",
   "invite_community_dialog_buttons": {
@@ -142,7 +142,7 @@
   "search_communities": "Zoek en bezoek een community",
   "search_communities_placeholder": "Zoek op stad of land...",
   "search_communities_helper": "Klik op een community om naar de pagina te gaan",
-  "no_results_found_with_link": "Geen communities gevonden. <0>Doe een verzoek voor een nieuwe community!</0>",
+  "no_results_found_with_link": "Geen communities gevonden. <requestCommunityLink>Doe een verzoek voor een nieuwe community!</requestCommunityLink>",
   "copy_link": "Kopieer link",
   "copy_link_success": "Link gekopieerd naar klembord",
   "comment_deleted": "Deze reactie is verwijderd.",

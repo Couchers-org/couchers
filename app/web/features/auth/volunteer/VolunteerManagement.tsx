@@ -29,13 +29,8 @@ export default function VolunteerManagement({ className, accountInfo }: Voluntee
           <Trans
             t={t}
             i18nKey="auth:volunteer_management.not_a_volunteer_message"
-            components={{
-              1: <StyledLink href={volunteerNotAVolunteerFormUrl} />,
-            }}
-          >
-            According to our records you are not a current or past volunteer. If this is incorrect, please let us know
-            by filling in <StyledLink href={volunteerNotAVolunteerFormUrl}>this form</StyledLink>.
-          </Trans>
+            components={{ formLink: <StyledLink href={volunteerNotAVolunteerFormUrl} /> }}
+          />
         </Typography>
       </div>
     );

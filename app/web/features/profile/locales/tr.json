@@ -98,7 +98,7 @@
     "basic_information": "Temel Bilgiler",
     "name": "İsim"
   },
-  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>.",
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <guideLink>Harika bir profil yaratmak üzerine olan rehberimize bak</guideLink>.",
   "smoking_location": {
     "yes": "Evet"
   },
@@ -113,8 +113,8 @@
   },
   "complete_profile_dialog": {
     "title": "Neredeyse bitti: devam etmek için lütfen profilini tamamla!",
-    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli.",
-    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
+    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <strong>kendin hakkında biraz yazman<strong> ve <strong>bir profil fotoğrafı yüklemen<strong> gerekli.",
+    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <helpLink>lütfen bu destek sayfasına bak</helpLink>. Yardımın için teşekkürler!",
     "actions": {
       "send_request": "Bir istek gönder",
       "send_message": "Bir mesaj gönder",

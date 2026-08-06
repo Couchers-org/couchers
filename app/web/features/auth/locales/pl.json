@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Zmień adres e-mail",
-    "current_email_message": "Twój obecny adres e-mail to <1>{{email}}</1>.",
+    "current_email_message": "Twój obecny adres e-mail to <strong>{{email}}</strong>.",
     "new_email": "Nowy adres e-mail",
     "current_password": "Obecne hasło",
     "success_message": "Otrzymaliśmy prośbę o zmianę adresu e-mail. Sprawdź swoją skrzynkę pocztową, żeby dokończyć zmianę."
@@ -50,8 +50,8 @@
     "wrong_code": "Kod jest niepoprawny.",
     "remove_success": "Usunięto numer telefonu.",
     "remove_button_text": "Usuń obecny numer telefonu",
-    "remove_phone_description": "Twój obecny numer telefonu to <2>{{phone}}</2>. Możesz usunąć swój numer poniżej.",
-    "phone_not_verified_description": "Wysłaliśmy kod pod numer <2>{{phone}}</2>. Aby potwierdzić swój numer telefonu, wpisz kod poniżej:",
+    "remove_phone_description": "Twój obecny numer telefonu to <strong>{{phone}}</strong>. Możesz usunąć swój numer poniżej.",
+    "phone_not_verified_description": "Wysłaliśmy kod pod numer <strong>{{phone}}</strong>. Aby potwierdzić swój numer telefonu, wpisz kod poniżej:",
     "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej."
   },
   "basic_form": {

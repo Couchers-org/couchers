@@ -29,8 +29,8 @@
       "title": "Les notifications poussées",
       "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
       "error_generic": "Erreur lors de l’abonnement aux notifications poussées",
-      "disabled_message": "Les notifications poussées sont actuellement <1>désactivées</1>.",
-      "enabled_message": "Les notifications poussées sont actuellement <1>activées</1>.",
+      "disabled_message": "Les notifications poussées sont actuellement <strong>désactivées</strong>.",
+      "enabled_message": "Les notifications poussées sont actuellement <strong>activées</strong>.",
       "permission_denied": {
         "instructions": {
           "firefox": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Firefox, allez dans Préférences > Vie privée et sécurité > Permissions > Notifications, puis modifiez l'autorisation du site-web.",

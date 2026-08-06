@@ -392,7 +392,7 @@ export default function EditProfileForm() {
               <Trans
                 i18nKey="profile:edit_profile_helper_text"
                 components={{
-                  2: <StyledLink variant="body1" href={howToMakeGreatProfileUrl} />,
+                  guideLink: <StyledLink variant="body1" href={howToMakeGreatProfileUrl} />,
                 }}
               />
             </Typography>
@@ -722,7 +722,7 @@ export default function EditProfileForm() {
                 <Trans
                   i18nKey="profile:edit_profile_headings.about_me_subtitle"
                   components={{
-                    1: (
+                    guideLink: (
                       <StyledLink
                         variant="body1"
                         href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile"

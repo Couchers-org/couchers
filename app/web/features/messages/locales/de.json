@@ -1,5 +1,5 @@
 {
-  "host_pending_request_help_text": "<0>Das solltest du beachten</0>, bevor du antwortest.",
+  "host_pending_request_help_text": "<guideLink>Das solltest du beachten</guideLink>, bevor du antwortest.",
   "mark_all_read_button_text": "Alle als gelesen markieren",
   "write_reference_button_text": "Schreibe eine Referenz",
   "close_request_button_text": "Ablehnen",
@@ -156,7 +156,7 @@
     "request_duration_one": "{{count}} Nacht",
     "request_duration_other": "{{count}} Nächte"
   },
-  "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird.",
+  "surfer_declined_request_help_text": "<guideLink>Lies unseren Leitfaden</guideLink>, wie man eine Anfrage schreibt, die angenommen wird.",
   "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen.",
   "unknown_user": "Unbekannte Person",
   "mark_all_read_button_text_chats": "Alle Chats als gelesen markieren",

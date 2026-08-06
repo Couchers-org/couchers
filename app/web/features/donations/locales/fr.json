@@ -11,7 +11,7 @@
     },
     "recurrence_aria_label": "récurrent",
     "title": "Montant du don",
-    "helper_text": "Vous serez redirigé.e vers Stripe, notre gestionnaire de paiement, pour compléter votre don. Pour annuler ou modifier un don existant à tout moment, <2>cliquez ici pour accéder au portail de dons</2>."
+    "helper_text": "Vous serez redirigé.e vers Stripe, notre gestionnaire de paiement, pour compléter votre don. Pour annuler ou modifier un don existant à tout moment, <portalLink>cliquez ici pour accéder au portail de dons</portalLink>."
   },
   "donate": "Faire un don",
   "donations_banner": {
@@ -19,13 +19,13 @@
     "body": "Vous pouvez construire l'avenir du couch-surfing"
   },
   "donations_text": "Couchers.org est un site à but non lucratif géré par la communauté et financé par des dons, similaire de Wikipédia, si vous voulez. Il n'y a pas de spécialistes du capital risque ou de personnes d'intérêts privés, uniquement des gens qui travaillent dur pour construire quelque chose qui rendra le monde un peu meilleur.\n\nNous pensons que la communauté du couch-surfing possède suffisamment de bonne volonté pour créer et maintenir une plateforme florissante, gratuite pour tous et pour toujours.\n\nPourtant **nous avons besoin de votre aide** pour y parvenir.\n\nVotre don à Couchers.org est un investissement très efficace qui va directement dans les dépenses essentielles et critiques. Bien que des services comme Couchsurfing™ dépensent des sommes énormes en embauches et en services tiers, nous sommes composé.e.s de bénévoles et nous nous appuyons en code source ouvert, ce qui nous permet de maximiser efficacement l'impact de chaque don que nous recevons.\n\nSi vous croyez en cette mission, alors nous vous demandons de faire un don. De plus, nous vous demandons de réfléchir à la valeur du couch-surfing dans votre propre vie et à l'importance d'en faire profiter d'autres personnes dans le monde. Veuillez envisager de faire un don de 5, 20, 50 dollars, ou tout ce que vous pouvez pour atteindre notre objectif commun.\n\nMerci,\n\nAapeli Vuorinen et Itsi Weinstock<br />Fondateurs de Couchers.org",
-  "benefactor_contact": "Si vous souhaitez verser plus de 1 000 $, veuillez nous contacter via <1>{{email}}</1> pour que nous puissions organiser un transfert à moindre coût.",
+  "benefactor_contact": "Si vous souhaitez verser plus de 1 000 $, veuillez nous contacter via <emailLink>{{email}}</emailLink> pour que nous puissions organiser un transfert à moindre coût.",
   "donations_recurrence_explainer": "Un don mensuel nous aide à planifier à l'avance et à poursuivre nos activités d'une manière plus stable.",
   "donations_title": "Votre don est nécessaire pour construire la plateforme dont nous avons besoin",
   "donations_title2": "Où ira votre don",
   "donations_text2": "Votre don servira à financer les opérations quotidiennes de Couchers.org, notamment le paiement des serveurs pour assurer un service fiable, ainsi que les frais juridiques, les frais administratifs et le financement des outils de collaboration qui nous aident à construire cette plateforme.\n\nLes fonds supplémentaires, en tant qu'organisme à but non lucratif, seront entièrement consacrés à l'amélioration de la communauté, ce qui permettra à Couchers.org de prendre de l'expansion, notamment en améliorant le service, en augmentant le rythme de développement, en fournissant des équipes de sécurité spécialisées et en étendant le couch-surfing à plus de gens et à plus d'endroits dans le monde.",
   "donations_use_explainer": "Consultez les détails de notre état financier pour l'année {{ year }}.",
-  "donations_info": "Votre don est destiné à <1>{{ legal_name }}</1>, une organisation à but non lucratif américaine 501(c)(3) qui gère le service Couchers.org et soutient le projet. Les dons sont déductibles d'impôt aux États-Unis, notre EIN est 87-1734577.",
+  "donations_info": "Votre don est destiné à <foundationLink>{{ legal_name }}</foundationLink>, une organisation à but non lucratif américaine 501(c)(3) qui gère le service Couchers.org et soutient le projet. Les dons sont déductibles d'impôt aux États-Unis, notre EIN est 87-1734577.",
   "settings_fragment": {
     "title": "Gérez vos dons",
     "description": "Cliquez sur le bouton ci-dessous pour mettre à jour ou pour annuler votre don récurrent, ou pour consulter vos factures précédentes.",

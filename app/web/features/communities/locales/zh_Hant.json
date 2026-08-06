@@ -37,7 +37,7 @@
   "edit_event": "編輯活動",
   "edit_info_page_title": "編輯在地資訊",
   "error_loading_community": "載入社群時發生錯誤。",
-  "events_empty_state": "目前沒有活動。要不要<0>建立</0>一個✨？",
+  "events_empty_state": "目前沒有活動。要不要<createEventLink>建立</createEventLink>一個✨？",
   "find_host": "尋找接待者",
   "finished": "已完成",
   "community_info_page_title": "一般資訊",
@@ -141,6 +141,6 @@
   "search_communities": "搜尋並前往社群",
   "search_communities_placeholder": "依城市或國家名稱搜尋…",
   "search_communities_helper": "選擇一個社群進入其頁面",
-  "no_results_found_with_link": "未找到相關社群。<0>申請建立該社群！</0>",
+  "no_results_found_with_link": "未找到相關社群。<requestCommunityLink>申請建立該社群！</requestCommunityLink>",
   "fill_out_comment": "你需要先輸入一些內容！"
 }

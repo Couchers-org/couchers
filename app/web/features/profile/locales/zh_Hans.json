@@ -64,7 +64,7 @@
     "household_details_subtitle": "分享有关您家庭的更多详细信息",
     "general_subtitle": "有关您家和区域的其他详细信息"
   },
-  "edit_profile_helper_text": "需要灵感从哪里开始？<2>查看我们的指南，创建一个精彩的个人资料</2>。",
+  "edit_profile_helper_text": "需要灵感从哪里开始？<guideLink>查看我们的指南，创建一个精彩的个人资料</guideLink>。",
   "edit_profile_headings": {
     "regions_visited": "我去过的地区",
     "regions_lived": "我住过的地区",
@@ -82,7 +82,7 @@
     "preferences_subtitle": "让其他人了解您的接待和见面偏好",
     "personal_information": "个人信息",
     "personal_information_subtitle": "分享有关您自己和背景的详细信息",
-    "about_me_subtitle": "向别人介绍一下你自己。这就是信任开始的地方。帮助别人了解你的真实身份。请参阅<1>创建精彩个人资料的提示</1>。",
+    "about_me_subtitle": "向别人介绍一下你自己。这就是信任开始的地方。帮助别人了解你的真实身份。请参阅<guideLink>创建精彩个人资料的提示</guideLink>。",
     "travel_experience": "旅行体验",
     "travel_experience_subtitle": "分享您的旅行体验和联系",
     "location_subtitle": "您家的大致位置"
@@ -153,12 +153,12 @@
     "was_appropriate_required": "为了帮助我们保持社区安全，这个问题是必需的。",
     "next_step_label": "下一步",
     "add_a_reference": "添加对{{name}}个人资料的引用",
-    "by_writing_thoughtful": "不确定要写什么？请<1>在此处</1>阅读我们的指南。通过诚实、详细地写下您与此人相处的经历，您将直接帮助其他成员，并为Couchers社区的安全和信任做出贡献。",
+    "by_writing_thoughtful": "不确定要写什么？请<guideLink>在此处</guideLink>阅读我们的指南。通过诚实、详细地写下您与此人相处的经历，您将直接帮助其他成员，并为Couchers社区的安全和信任做出贡献。",
     "did_stay_confirmation": {
       "title_hosted": "确认{{name}}没有留下来",
       "title_surfed": "确认您没有和{{name}}",
-      "message_hosted": "一起留下，如果您表明{{name}}没有留下来，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要举报某些内容，请在<2>此处</2>了解如何举报。",
-      "message_surfed": "如果您表明您没有留在{{name}}，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要报告某些内容，请在<2>此处</2>找到具体方法。",
+      "message_hosted": "一起留下，如果您表明{{name}}没有留下来，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要举报某些内容，请在<reportLink>此处</reportLink>了解如何举报。",
+      "message_surfed": "如果您表明您没有留在{{name}}，您<strong>将无法撰写推荐信</strong>。他们不会收到通知，但仍然可以为您留下参考信息。<br /><br />如果您需要报告某些内容，请在<reportLink>此处</reportLink>找到具体方法。",
       "confirm_hosted": "确认我没有接待",
       "confirm_surfed": "确认我没有沙发冲浪"
     },
@@ -173,7 +173,7 @@
     "thank_you_header": "感谢您留下参考！",
     "thank_you_references_available": "接待或沙发冲浪时，当双方都提交了参考资料时，或两周后，以较早者为准。",
     "thank_you_support": "最重要的是，感谢您加入Couchers并成为我们社区的一部分！",
-    "thank_you_donation_prompt": "考虑<2>捐款</2>！Couchers.org是一个501(c)(3)非营利组织，我们需要捐款来保持服务器运行。",
+    "thank_you_donation_prompt": "考虑<donateLink>捐款</donateLink>！Couchers.org是一个501(c)(3)非营利组织，我们需要捐款来保持服务器运行。",
     "rating_required": "请移动滑块并评价您的体验。",
     "rating_negative": "负面",
     "rating_neutral": "中立",
@@ -183,7 +183,7 @@
     "didnt_meetup_submit_success": "感谢您告知我们！我们不会要求您写参考资料！",
     "go_to_dashboard": "转到仪表板",
     "private_text_explanation_1": "在下面的框中，您可以私下告诉我们的安全团队发生了什么事。",
-    "private_text_explanation_2": "这只会由我们的安全团队看到，并将保持私密。细节越多越好，但即使是简短的解释也会有很大帮助。点击<2>此处</2>了解更多信息。",
+    "private_text_explanation_2": "这只会由我们的安全团队看到，并将保持私密。细节越多越好，但即使是简短的解释也会有很大帮助。点击<helpLink>此处</helpLink>了解更多信息。",
     "private_text_explanation_3": "感谢您帮助我们保障社区安全！",
     "private_text_summary": "Couchers.org安全团队将收到以下私人反馈：",
     "private_text_placeholder": "与我们的安全团队私下分享信息。",
@@ -196,7 +196,7 @@
   },
   "request_form": {
     "send_request": "向{{name}}发送请求",
-    "guide_link_help_text": "<0>阅读我们的指南</0>，了解如何写一条能够被接受的请求。",
+    "guide_link_help_text": "<guideLink>阅读我们的指南</guideLink>，了解如何写一条能够被接受的请求。",
     "arrival_date": "到达日期",
     "arrival_date_empty": "请指定到达日期",
     "departure_date": "离开日期",

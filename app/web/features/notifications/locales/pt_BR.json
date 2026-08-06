@@ -49,8 +49,8 @@
       "title": "Notificações por Push",
       "error_generic": "Erro durante a inscrição para notificações por push",
       "error_unsupported": "Não há suporte para notificações por push ou Service Workers neste navegador.",
-      "enabled_message": "Atualmente as notificações por push estão <1>habilitadas</1>.",
-      "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>.",
+      "enabled_message": "Atualmente as notificações por push estão <strong>habilitadas</strong>.",
+      "disabled_message": "Atualmente as notificações por push estão <strong>desabilitadas</strong>.",
       "error_not_granted": "Você não deu permissão para envio de notificações por push."
     },
     "go_to_button": "Gerenciar preferências de notificações"

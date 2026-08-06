@@ -96,7 +96,7 @@
   "write_reference_button_text": "Escriu una referència",
   "close_request_button_text": "Declina",
   "confirm_request_button_text": "Confirma",
-  "host_pending_request_help_text": "<0>Coses a tenir en compte</0> abans de respondre.",
+  "host_pending_request_help_text": "<guideLink>Coses a tenir en compte</guideLink> abans de respondre.",
   "past_request_help_text": "Aquesta sol·licitud és del passat; pots continuar enviant missatges però no pots modificar-la d'altra manera.",
   "messages_page": {
     "title": "Missatges",
@@ -153,7 +153,7 @@
     }
   },
   "mark_all_read_button_text": "Marca tot com a llegit",
-  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
+  "surfer_declined_request_help_text": "<guideLink>Llegeix la nostra guia</guideLink> sobre com escriure una sol·licitud que sigui acceptada.",
   "mark_all_read_button_text_chats": "Marca tots els xats com a llegits",
   "mark_all_read_button_text_hosting": "Marca totes les sol·licituds d'allotjament com a llegides",
   "mark_all_read_button_text_surfing": "Marca totes les sol·licituds de surfista com a llegides",

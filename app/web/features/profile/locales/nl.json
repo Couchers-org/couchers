@@ -95,7 +95,7 @@
     "preferences_subtitle": "Laat anderen weten over je hosting- en meetup-voorkeuren",
     "personal_information": "Persoonlijke info",
     "personal_information_subtitle": "Deel dingen over jezelf en je achtergrond",
-    "about_me_subtitle": "Vertel anderen over jezelf, zo creëer je vertrouwen. Help anderen een beeld te krijgen van wie je bent. Zie ook deze <1>tips voor het maken van een geweldig profiel</1>.",
+    "about_me_subtitle": "Vertel anderen over jezelf, zo creëer je vertrouwen. Help anderen een beeld te krijgen van wie je bent. Zie ook deze <guideLink>tips voor het maken van een geweldig profiel</guideLink>.",
     "travel_experience": "Reiservaring",
     "travel_experience_subtitle": "Deel jouw reiservaringen en connecties",
     "location_subtitle": "Geschatte locatie van jouw huis"
@@ -143,7 +143,7 @@
   },
   "active": "Actief",
   "section_tabs_a11y_label": "tabs voor gebruikersgegevens",
-  "edit_profile_helper_text": "Heb je wat inspiratie nodig om te kunnen beginnen? <2>Check onze gids over het maken van een goed profiel</2>.",
+  "edit_profile_helper_text": "Heb je wat inspiratie nodig om te kunnen beginnen? <guideLink>Check onze gids over het maken van een goed profiel</guideLink>.",
   "what_options_mean": "Wat deze opties betekenen",
   "edit_profile_tab_bar_a11y_label": "tabs om verschillende delen van je profiel te bewerken",
   "info_unanswered": "Vraag me",
@@ -156,14 +156,14 @@
   "leave_reference": {
     "add_a_reference": "Voeg een referentie toe op het profiel van {{name}}",
     "appropriate_question": "Voelde je je veilig bij het gedrag van deze persoon?",
-    "by_writing_thoughtful": "Weet je niet zeker wat je moet schrijven? Lees onze tips <1>hier</1>. Door een gedetailleerd en eerlijk verslag te schrijven over deze persoon, kan je andere leden helpen. Zo werken we samen aan een veilige en vertrouwde Couchers-community.",
+    "by_writing_thoughtful": "Weet je niet zeker wat je moet schrijven? Lees onze tips <guideLink>hier</guideLink>. Door een gedetailleerd en eerlijk verslag te schrijven over deze persoon, kan je andere leden helpen. Zo werken we samen aan een veilige en vertrouwde Couchers-community.",
     "did_stay_confirmation": {
       "title_hosted": "Bevestig dat {{name}} niet is blijven slapen",
       "title_surfed": "Bevestig dat je niet bij {{name}} bent blijven slapen",
       "confirm_hosted": "Bevestigen dat je niet hebt gehost",
       "confirm_surfed": "Bevestig dat je niet gesurft hebt",
-      "message_hosted": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat {{name}} niet bij je heeft gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt.",
-      "message_surfed": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat je niet bij {{name}} hebt gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt."
+      "message_hosted": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat {{name}} niet bij je heeft gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <reportLink>hier</reportLink> lezen hoe dat werkt.",
+      "message_surfed": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat je niet bij {{name}} hebt gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <reportLink>hier</reportLink> lezen hoe dat werkt."
     },
     "invalid_reference_type": "Ongeldig referentietype",
     "invalid_step": "Ongeldige formulierstap",
@@ -205,10 +205,10 @@
     "didnt_meetup_submit_success": "Bedankt dat je het ons laat weten! We zullen je niet vragen om een referentie te schrijven!",
     "go_to_dashboard": "Ga naar Dashboard",
     "private_text_explanation_1": "In het invulvak hieronder kan je ons Veiligheidsteam (vertrouwelijk) vertellen wat er is gebeurd.",
-    "private_text_explanation_2": "Dit wordt alleen gelezen door ons Veiligheidsteam en blijft privé. Hoe meer details hoe beter, maar zelfs een korte uitleg kan al veel helpen. Lees <2>hier</2> meer.",
+    "private_text_explanation_2": "Dit wordt alleen gelezen door ons Veiligheidsteam en blijft privé. Hoe meer details hoe beter, maar zelfs een korte uitleg kan al veel helpen. Lees <helpLink>hier</helpLink> meer.",
     "private_text_explanation_3": "Bedankt dat je ons helpt de community veilig te houden!",
     "thank_you_references_available": "Of je nu gehost of gesurft hebt, de referenties worden zichtbaar zodra jullie allebei eentje hebben geschreven, of automatisch na twee weken.",
-    "thank_you_donation_prompt": "Overweeg eens om <2>een donatie te doen</2>! Couchers.org is een non-profitorganisatie met 501(c)(3)-status. We hebben donaties nodig om onze servers draaiende te houden.",
+    "thank_you_donation_prompt": "Overweeg eens om <donateLink>een donatie te doen</donateLink>! Couchers.org is een non-profitorganisatie met 501(c)(3)-status. We hebben donaties nodig om onze servers draaiende te houden.",
     "private_text_summary": "Het Veiligheidsteam van Couchers.org krijgt de volgende vertrouwelijke feedback:",
     "private_text_placeholder": "Deel vertrouwelijke informatie met ons Veiligheidsteam.",
     "yes_safe": "Ja, ik voelde me veilig.",
@@ -223,7 +223,7 @@
     "request_chars_remaining_one": "Schrijf nog minstens {{count}} karakter meer om een hostingverzoek te doen.",
     "request_chars_remaining_other": "Schrijf nog minstens {{count}} karakters meer om een hostingverzoek te doen.",
     "send_request": "Stuur {{name}} een verzoek",
-    "guide_link_help_text": "<0>Lees onze handleiding</0> over hoe je het beste een verzoek doet dat wordt geaccepteerd.",
+    "guide_link_help_text": "<guideLink>Lees onze handleiding</guideLink> over hoe je het beste een verzoek doet dat wordt geaccepteerd.",
     "arrival_date": "Aankomstdatum",
     "arrival_date_empty": "Vul alsjeblieft een aankomstdatum in.",
     "departure_date": "Vertrekdatum",
@@ -329,8 +329,8 @@
   "do_not_email_error_link": "Update je instellingen voor e-mail om dit weer aan te zetten.",
   "complete_profile_dialog": {
     "title": "Bijna klaar: vul je profiel helemaal in om verder te gaan!",
-    "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <4>iets over jezelf schrijven</4> en <7>een profielfoto uploaden</7>.",
-    "description_2": "Dit helpt om een betrouwbare community op te bouwen en spam te verminderen. Voor meer informatie, <2>kijk op deze hulppagina</2>. Bedankt voor je hulp!",
+    "description_1": "Voordat je kunt {{action_name}}, moet je in je profiel <strong>iets over jezelf schrijven</strong> en <strong>een profielfoto uploaden</strong>.",
+    "description_2": "Dit helpt om een betrouwbare community op te bouwen en spam te verminderen. Voor meer informatie, <helpLink>kijk op deze hulppagina</helpLink>. Bedankt voor je hulp!",
     "actions": {
       "send_request": "doe een verzoek",
       "send_message": "stuur een bericht",

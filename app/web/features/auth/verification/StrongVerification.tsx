@@ -29,9 +29,7 @@ export default function StrongVerification({ className, accountInfo }: StrongVer
               ? "strong_verification.status.enabled_message"
               : "strong_verification.status.disabled_message"
           }
-        >
-          You <strong>are currently</strong> verified with Strong Verification.
-        </Trans>
+        />
       </Typography>
       <Typography
         variant="body1"

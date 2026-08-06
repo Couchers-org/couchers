@@ -87,7 +87,7 @@
   "read_more": "Číst dále",
   "next": "Další",
   "previous": "Předchozí",
-  "cookie_message": "Abychom vám zajistili co nejlepší uživatelský zážitek na našich webových stránkách, používáme soubory cookie. Pokud budete tyto stránky nadále používat, budeme předpokládat, že s nimi jste spokojeni. Více si můžete přečíst v našich <1>Podmínkách služby</1>.",
+  "cookie_message": "Abychom vám zajistili co nejlepší uživatelský zážitek na našich webových stránkách, používáme soubory cookie. Pokud budete tyto stránky nadále používat, budeme předpokládat, že s nimi jste spokojeni. Více si můžete přečíst v našich <tosLink>Podmínkách služby</tosLink>.",
   "hosting_status": {
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
@@ -216,7 +216,7 @@
     "helper_text": "Tento uživatel ověřil svou totožnost pomocí biometrického pasu"
   },
   "footer": {
-    "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>.",
+    "version_info": "Verze <versionLink>{{version}}</versionLink>, naposledy aktualizováno <updatedAgoLink>{{updated_ago}}</updatedAgoLink>.",
     "non_profit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3)."
   },
   "what_is_cs": {
@@ -322,7 +322,7 @@
   },
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",
-  "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
+  "not_found_text_2": "Chceš prostě <homeLink>jít domů?</homeLink>",
   "contribute_title": "Zaregistruj se a zapoj se",
   "copy_button": {
     "a11y": "Kopírovat",
@@ -336,8 +336,8 @@
   },
   "blog": {
     "byline_without_author": "Publikováno {{date}}.",
-    "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <1>Zaregistruj se</1> a dej nám vědět. Dobrovolníci a <3>dary</3> jsou to, co dělá Couchers.org možným!",
-    "byline_with_author": "Napsáno <1/>. Publikováno {{date}}."
+    "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <volunteerLink>Zaregistruj se</volunteerLink> a dej nám vědět. Dobrovolníci a <donateLink>dary</donateLink> jsou to, co dělá Couchers.org možným!",
+    "byline_with_author": "Napsáno <authorList/>. Publikováno {{date}}."
   },
   "bar": {
     "help_button_a11y": "Nápověda"

@@ -15,8 +15,8 @@
   "write_reference_button_text": "Scrivi una referenza",
   "close_request_button_text": "Rifiuta",
   "confirm_request_button_text": "Conferma",
-  "host_pending_request_help_text": "<0>Cose da considerare</0> prima di rispondere.",
-  "surfer_declined_request_help_text": "<0>Leggi la nostra guida</0> su come scrivere una richiesta che possa essere accettata.",
+  "host_pending_request_help_text": "<guideLink>Cose da considerare</guideLink> prima di rispondere.",
+  "surfer_declined_request_help_text": "<guideLink>Leggi la nostra guida</guideLink> su come scrivere una richiesta che possa essere accettata.",
   "past_request_help_text": "Questa richiesta è passata, puoi ancora inviare messaggi ma non puoi modificarla.",
   "reference_card": {
     "title": "Scrivi una referenza",

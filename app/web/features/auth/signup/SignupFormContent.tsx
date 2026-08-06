@@ -34,13 +34,7 @@ export default function SignupFormContent({ inviteCode }: { inviteCode?: string 
               // Number(...) returns NaN on bad input, and || treats it as false
               count: Number(signupInfo?.userCount) || 65000,
             }}
-            components={
-              isNativeEmbed
-                ? {}
-                : {
-                    2: <StyledLink href={missionRoute} />,
-                  }
-            }
+            components={isNativeEmbed ? {} : { aboutLink: <StyledLink href={missionRoute} /> }}
           />
         </Typography>
         <BasicForm inviteCode={inviteCode} submitText={t("global:create_account")} />
@@ -48,7 +42,7 @@ export default function SignupFormContent({ inviteCode }: { inviteCode?: string 
           <Trans
             i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer"
             components={{
-              2: (
+              tosLink: (
                 <StyledLink
                   href={tosRoute}
                   target={isNativeEmbed ? undefined : "_blank"}

@@ -213,11 +213,7 @@ const DidStay = ({ referenceData, referenceType, hostRequestId, setReferenceValu
                 : "profile:leave_reference.did_stay_confirmation.message_surfed"
             }
             values={{ name: user.name }}
-            components={{
-              strong: <strong />,
-              2: <StyledLink href={helpCenterReportContentURL} target="#" />,
-              br: <br />,
-            }}
+            components={{ reportLink: <StyledLink href={helpCenterReportContentURL} target="#" /> }}
           />
         </DialogContent>
         <DialogActions>

@@ -297,7 +297,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             <Trans
               i18nKey="profile:request_form.guide_link_help_text"
               components={{
-                0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+                guideLink: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
               }}
             />
           </StyledHelpText>

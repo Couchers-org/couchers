@@ -28,7 +28,7 @@
   "upload_helper_text_replace": "Klikni pro změnu fotografie",
   "community_moderators": "Budovatelé komunity",
   "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována.",
-  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?",
+  "events_empty_state": "Aktuálně žádné události. Proč nějakou <createEventLink>nevytvořit</createEventLink> ✨?",
   "community_tabs_a11y_label": "Záložky pro podstránky komunity",
   "discussion_creation_date": "Vytvořeno dne {{dateOnly}}",
   "create_new_discussion_title": "Vytvořit nový příspěvek",
@@ -161,7 +161,7 @@
   "search_communities": "Vyhledej a navštiv komunitu",
   "search_communities_placeholder": "Hledat podle názvu města nebo země...",
   "search_communities_helper": "Vyber komunitu a přejdi na její stránku",
-  "no_results_found_with_link": "Žádné komunity nebyly nalezeny. <0>Požádej o vytvoření této komunity!</0>",
+  "no_results_found_with_link": "Žádné komunity nebyly nalezeny. <requestCommunityLink>Požádej o vytvoření této komunity!</requestCommunityLink>",
   "community_breadcrumb_a11y": "Aktuální komunita",
   "sub_community_dropdown_a11y": "Procházet konkrétnější komunity",
   "report_discussion_button_a11y": "Nahlásit tuto diskuzi"
