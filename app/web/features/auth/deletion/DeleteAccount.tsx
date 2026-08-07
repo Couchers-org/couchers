@@ -10,6 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
+import { useRef, useState, useLayoutEffect } from "react";
 import { lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(() => ({
@@ -57,6 +58,27 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
     },
   });
 
+  //the placeholder label for "confirm_username" can be very long when translated so 
+  //add a hidden element to measure the translated text & extend the box as needed
+  const labelUsername = t("auth:delete_account.request.confirm_username_label");
+  
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const [usernameWidth, setUsernameWidth] = useState(200);
+
+  useLayoutEffect(() => {
+    if (labelRef.current) {
+      setUsernameWidth(labelRef.current.offsetWidth + 48); 
+    }
+  }, [labelUsername]);
+
+  const measureUsernamePlaceholder = (
+    <span
+      ref={labelRef}
+      style={{ visibility: "hidden" }}
+    >
+      {labelUsername}
+    </span>
+  );
   return (
     <div className={className}>
       <Typography variant="h2">{t("auth:delete_account.request.title")}</Typography>
@@ -69,12 +91,15 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
             <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
           </Typography>
           <TextField
-            sx={{ width: 360, display: 'inline-flex'}}
+            sx={{
+              display: "inline-flex",
+              width: isMdOrWider ? usernameWidth : '100%',
+            }}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
-            label={t("auth:delete_account.request.confirm_username_label")}
-            fullWidth={!isMdOrWider}
+            label={labelUsername}
           />
+          {measureUsernamePlaceholder}
           <Typography variant="subtitle1" sx={{ paddingTop: 2, paddingBottom: 2 }}>
             {t("auth:delete_account.request.reason_explanation")}
           </Typography>
