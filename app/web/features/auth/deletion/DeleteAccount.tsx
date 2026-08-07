@@ -7,7 +7,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useLayoutEffect,useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
@@ -58,24 +58,21 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
     },
   });
 
-  //the placeholder label for "confirm_username" can be very long when translated so 
+  //the placeholder label for "confirm_username" can be very long when translated so
   //add a hidden element to measure the translated text & extend the box as needed
   const labelUsername = t("auth:delete_account.request.confirm_username_label");
-  
+
   const labelRef = useRef<HTMLSpanElement>(null);
   const [usernameWidth, setUsernameWidth] = useState(200);
 
   useLayoutEffect(() => {
     if (labelRef.current) {
-      setUsernameWidth(labelRef.current.offsetWidth + 48); 
+      setUsernameWidth(labelRef.current.offsetWidth + 48);
     }
   }, [labelUsername]);
 
   const measureUsernamePlaceholder = (
-    <span
-      ref={labelRef}
-      style={{ visibility: "hidden" }}
-    >
+    <span ref={labelRef} style={{ visibility: "hidden" }}>
       {labelUsername}
     </span>
   );
@@ -93,7 +90,7 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
           <TextField
             sx={{
               display: "inline-flex",
-              width: isMdOrWider ? usernameWidth : '100%',
+              width: isMdOrWider ? usernameWidth : "100%",
             }}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
