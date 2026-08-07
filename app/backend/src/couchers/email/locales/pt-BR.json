@@ -54,11 +54,15 @@
       "subject": "Sua conta foi recuperada!",
       "confirmation": "Sua conta Couchers.org foi recuperada com sucesso. Nós estamos contentes que decidiu ficar!",
       "login_instructions": "Para entrar novamente, clique no link a seguir:",
-      "redelete_instructions": "Se você mudar de ideia, você pode excluir a sua conta em qualquer momento."
+      "redelete_instructions": "Se você mudar de ideia, você pode excluir a sua conta em qualquer momento.",
+      "login_action": "Acessar novamente"
     }
   },
   "activeness_probe": {
     "subject": "Você ainda está aberto a hospedagem?",
-    "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está aberto a hospedar surfers"
+    "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está aberto a hospedar surfers",
+    "instructions_days_one": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dia(s)</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
+    "instructions_days_many": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
+    "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\""
   }
 }

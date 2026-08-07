@@ -62,6 +62,10 @@
     "reply_deleted": "Deze reactie is verwijderd.",
     "reply_edit_permission_denied": "Jij mag deze reactie niet bewerken.",
     "discussions_not_enabled": "Discussies zijn niet ingeschakeld in deze groep of community.",
-    "do_not_email_cannot_host": "Je kunt hosting niet inschakelen zolang e-mails zijn uitgeschakeld in je instellingen."
+    "do_not_email_cannot_host": "Je kunt hosting niet inschakelen zolang e-mails zijn uitgeschakeld in je instellingen.",
+    "do_not_email_cannot_meet": "Je kunt afspreken niet inschakelen zolang e-mails in je instellingen zijn uitgeschakeld.",
+    "donation_too_small": "We kunnen helaas geen donaties van minder dan $2 accepteren!",
+    "donations_disabled": "Donaties zijn op dit moment uitgeschakeld.",
+    "event_cant_cancel_old_event": "Je kunt een event dat meer dan 1 dag oud is niet annuleren."
   }
 }
