@@ -69,7 +69,7 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
             <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
           </Typography>
           <TextField
-            sx={{ width: 300, display: 'inline-flex'}}
+            sx={{ width: 360, display: 'inline-flex'}}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
             label={t("auth:delete_account.request.confirm_username_label")}
