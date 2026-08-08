@@ -37,7 +37,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.message_threads import mark_all_threads_seen
+from couchers.servicers.message_threads import list_message_threads, mark_all_threads_seen
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -48,6 +48,8 @@ DEFAULT_PAGINATION_LENGTH = 20
 MAX_PAGE_SIZE = 50
 
 
+# TODO(#7722): remove with the legacy conversations endpoints; the ListMessageThreads path filters
+# preloaded subscriptions with message_threads._member_visible_to_viewer instead
 def _get_visible_members_for_subscription(subscription: GroupChatSubscription) -> list[int]:
     """
     If a user leaves a group chat, they shouldn't be able to see who's added
@@ -288,11 +290,17 @@ def _unseen_message_count(session: Session, subscription_id: int) -> int:
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
+    def ListMessageThreads(
+        self, request: conversations_pb2.ListMessageThreadsReq, context: CouchersContext, session: Session
+    ) -> conversations_pb2.ListMessageThreadsRes:
+        return list_message_threads(request, context, session)
+
     def MarkAllThreadsSeen(
         self, request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         return mark_all_threads_seen(request, context, session)
 
+    # TODO(#7722): remove after FE migrates to ListMessageThreads
     def ListGroupChats(
         self, request: conversations_pb2.ListGroupChatsReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.ListGroupChatsRes:
