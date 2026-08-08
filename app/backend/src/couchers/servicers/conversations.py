@@ -14,6 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context, make
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.group_chats import is_unseen, was_subscribed_at
 from couchers.helpers.messages import message_to_pb
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -59,8 +60,8 @@ def _get_visible_members_for_subscription(subscription: GroupChatSubscription) -
         return [
             sub.user_id
             for sub in subscription.group_chat.subscriptions.where(
-                GroupChatSubscription.joined <= subscription.left
-            ).where(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
+                was_subscribed_at(GroupChatSubscription, subscription.left)
+            )
         ]
 
 
@@ -81,9 +82,9 @@ def _get_visible_admins_for_subscription(subscription: GroupChatSubscription) ->
         # not in chat anymore, see everyone who was in chat when we left
         return [
             sub.user_id
-            for sub in subscription.group_chat.subscriptions.where(GroupChatSubscription.role == GroupChatRole.admin)
-            .where(GroupChatSubscription.joined <= subscription.left)
-            .where(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
+            for sub in subscription.group_chat.subscriptions.where(
+                GroupChatSubscription.role == GroupChatRole.admin
+            ).where(was_subscribed_at(GroupChatSubscription, subscription.left))
         ]
 
 
@@ -134,8 +135,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     select(GroupChatSubscription.user_id)
                     .where(GroupChatSubscription.group_chat_id == message.conversation_id)
                     .where(GroupChatSubscription.user_id != message.author_id)
-                    .where(GroupChatSubscription.joined <= message.time)
-                    .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
+                    .where(was_subscribed_at(GroupChatSubscription, message.time))
                     .where(not_(GroupChatSubscription.is_muted)),
                     context=context,
                     column=GroupChatSubscription.user_id,
@@ -276,7 +276,7 @@ def _unseen_message_count(session: Session, subscription_id: int) -> int:
         .select_from(Message)
         .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
         .where(GroupChatSubscription.id == subscription_id)
-        .where(Message.id > GroupChatSubscription.last_seen_message_id)
+        .where(is_unseen(Message, GroupChatSubscription))
     )
     return session.execute(query).scalar_one()
 
@@ -307,8 +307,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.user_id == context.user_id)
-            .where(Message.time >= GroupChatSubscription.joined)
-            .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+            .where(was_subscribed_at(GroupChatSubscription, Message.time))
             .where(
                 or_(
                     to_bool(request.HasField("only_archived") == False),
@@ -344,7 +343,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(GroupChatSubscription.id, func.count(Message.id))
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.id.in_(subscription_ids))
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                .where(is_unseen(Message, GroupChatSubscription))
                 .group_by(GroupChatSubscription.id)
             ).all()
         )
@@ -386,8 +385,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(was_subscribed_at(GroupChatSubscription, Message.time))
                 .order_by(Message.id.desc())
                 .limit(1),
                 context,
@@ -444,8 +442,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(was_subscribed_at(GroupChatSubscription, Message.time))
                 .order_by(Message.id.desc())
                 .limit(1),
                 context,
@@ -483,8 +480,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                     .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
                     .where(GroupChatSubscription.user_id == context.user_id)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(was_subscribed_at(GroupChatSubscription, Message.time))
                     .where(Message.id > request.newest_message_id)
                     .order_by(Message.id.asc())
                     .limit(DEFAULT_PAGINATION_LENGTH + 1),
@@ -522,8 +518,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
                     .where(GroupChatSubscription.user_id == context.user_id)
                     .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(was_subscribed_at(GroupChatSubscription, Message.time))
                     .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
                     .where(
                         or_(Message.id > GroupChatSubscription.last_seen_message_id, to_bool(request.only_unseen == 0))
@@ -619,8 +614,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                     .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
                     .where(GroupChatSubscription.user_id == context.user_id)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(was_subscribed_at(GroupChatSubscription, Message.time))
                     .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
                     .where(Message.text.ilike(f"%{request.query}%"))
                     .order_by(Message.id.desc())

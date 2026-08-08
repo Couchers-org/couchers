@@ -677,6 +677,56 @@ def test_send_message_notifications_basic(db, moderator):
         )
 
 
+def test_send_message_notifications_ignores_abandoned_subscription(db, moderator):
+    """
+    Rejoining a chat leaves the earlier subscription behind with its own last-seen state, and the job
+    used to notify off that stale one even once the user had caught up on their current subscription.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        # unread and un-notified for user2 when they get removed below
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user2.id))
+
+    for token in [token2, token3]:
+        with conversations_session(token) as c:
+            latest_message_id = c.GetGroupChat(
+                conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
+            ).latest_message.message_id
+            c.MarkLastSeenGroupChat(
+                conversations_pb2.MarkLastSeenGroupChatReq(
+                    group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+                )
+            )
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        )
+
+
 def test_send_message_notifications_muted(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

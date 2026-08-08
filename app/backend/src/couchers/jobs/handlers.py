@@ -24,7 +24,6 @@ from sqlalchemy.sql import (
     func,
     literal,
     not_,
-    or_,
     union_all,
     update,
 )
@@ -55,6 +54,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
+from couchers.helpers.group_chats import is_current_subscription, is_unseen
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -217,10 +217,9 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 )
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(is_current_subscription(User.id))
+                .where(is_unseen(Message, GroupChatSubscription))
                 .where(Message.id > User.last_notified_message_id)
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .where(_message_unseen_long_enough(User.id))
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
@@ -248,11 +247,10 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                     )
                     .where(GroupChatSubscription.user_id == user.id)
                     .where(not_(GroupChatSubscription.is_muted))
+                    .where(is_current_subscription(user.id))
                     .where(Message.id > user.last_notified_message_id)
-                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None)),
+                    .where(is_unseen(Message, GroupChatSubscription))
+                    .where(Message.message_type == MessageType.text),  # TODO: only text messages for now
                     context,
                     Message.author_id,
                 )
