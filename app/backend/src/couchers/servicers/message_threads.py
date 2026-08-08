@@ -138,12 +138,13 @@ def _build_host_request_role_filter(user_id: int, categories: frozenset[int]) ->
     The stay-roles the selected categories cover, or None if none of them is a host request category.
     MY_PUBLIC_TRIPS is a subset of SURFING, so asking for both is redundant but harmless.
     """
-    role_filters = {
-        conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING: is_hosting_party,
-        conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING: is_surfing_party,
-        conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS: is_public_trip_offer_recipient,
-    }
-    clauses = [role_filter(user_id) for category, role_filter in role_filters.items() if category in categories]
+    clauses = []
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING in categories:
+        clauses.append(is_hosting_party(user_id))
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING in categories:
+        clauses.append(is_surfing_party(user_id))
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS in categories:
+        clauses.append(is_public_trip_offer_recipient(user_id))
     return or_(*clauses) if clauses else None
 
 
