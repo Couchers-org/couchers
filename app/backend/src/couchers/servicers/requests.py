@@ -12,6 +12,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -61,56 +62,11 @@ DEFAULT_PAGINATION_LENGTH = 10
 MAX_PAGE_SIZE = 50
 
 
-hostrequeststatus2api = {
-    HostRequestStatus.pending: messages_pb2.HOST_REQUEST_STATUS_PENDING,
-    HostRequestStatus.accepted: messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-    HostRequestStatus.rejected: messages_pb2.HOST_REQUEST_STATUS_REJECTED,
-    HostRequestStatus.confirmed: messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-    HostRequestStatus.cancelled: messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
-}
-
-api2hostrequeststatus = {
-    messages_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
-    messages_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
-    messages_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
-    messages_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
-    messages_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
-}
-
 hostrequestquality2sql = {
     requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: HostRequestQuality.high_quality,
     requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.okay_quality,
     requests_pb2.HOST_REQUEST_QUALITY_OKAY: HostRequestQuality.low_quality,
 }
-
-
-def message_to_pb(message: Message) -> messages_pb2.Message:
-    """
-    Turns the given message to a protocol buffer
-    """
-    if message.is_normal_message:
-        return messages_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            text=messages_pb2.MessageContentText(text=message.text),
-        )
-    else:
-        return messages_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            chat_created=(
-                messages_pb2.MessageContentChatCreated() if message.message_type == MessageType.chat_created else None
-            ),
-            host_request_status_changed=(
-                messages_pb2.MessageContentHostRequestStatusChanged(
-                    status=hostrequeststatus2api[message.host_request_status_target]  # type: ignore[index]
-                )
-                if message.message_type == MessageType.host_request_status_changed
-                else None
-            ),
-        )
 
 
 def host_request_to_pb(
@@ -1017,16 +973,20 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         mark_notifications_seen(
             session,
             user_id=context.user_id,
-            key=str(host_request.conversation_id),
-            topic_actions=[
-                NotificationTopicAction.host_request__create,
-                NotificationTopicAction.host_request__accept,
-                NotificationTopicAction.host_request__reject,
-                NotificationTopicAction.host_request__confirm,
-                NotificationTopicAction.host_request__cancel,
-                NotificationTopicAction.host_request__message,
-                NotificationTopicAction.host_request__missed_messages,
-                NotificationTopicAction.host_request__reminder,
+            topic_actions_and_keys=[
+                (
+                    [
+                        NotificationTopicAction.host_request__create,
+                        NotificationTopicAction.host_request__accept,
+                        NotificationTopicAction.host_request__reject,
+                        NotificationTopicAction.host_request__confirm,
+                        NotificationTopicAction.host_request__cancel,
+                        NotificationTopicAction.host_request__message,
+                        NotificationTopicAction.host_request__missed_messages,
+                        NotificationTopicAction.host_request__reminder,
+                    ],
+                    [str(host_request.conversation_id)],
+                ),
             ],
         )
 

@@ -1,8 +1,9 @@
 import logging
+from collections.abc import Sequence
 
 from google.protobuf import empty_pb2
 from google.protobuf.message import Message
-from sqlalchemy import update
+from sqlalchemy import and_, or_, update
 from sqlalchemy.orm import Session
 
 from couchers.jobs.enqueue import queue_job
@@ -69,16 +70,18 @@ def mark_notifications_seen(
     session: Session,
     *,
     user_id: int,
-    key: str,
-    topic_actions: list[NotificationTopicAction],
+    topic_actions_and_keys: Sequence[tuple[Sequence[NotificationTopicAction], Sequence[str]]],
 ) -> None:
     """
-    Marks all unseen notifications for the given user, key, and topic actions as seen.
+    Marks the user's unseen notifications matching any of the given topic action and key groups as seen.
     """
+    clauses = [
+        and_(Notification.topic_action.in_(topic_actions), Notification.key.in_(keys))
+        for topic_actions, keys in topic_actions_and_keys
+        if topic_actions and keys
+    ]
+    if not clauses:
+        return
     session.execute(
-        update(Notification)
-        .values(is_seen=True)
-        .where(Notification.user_id == user_id)
-        .where(Notification.key == key)
-        .where(Notification.topic_action.in_(topic_actions))
+        update(Notification).values(is_seen=True).where(Notification.user_id == user_id).where(or_(*clauses))
     )
