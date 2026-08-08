@@ -63,5 +63,9 @@
   "push_notification_banner": {
     "confirm": "Ja, graag!",
     "message": "Mis nooit meer verzoeken, reacties of berichten; mogen we je pushberichten sturen?"
+  },
+  "notifications_filters": {
+    "all_button": "Alle",
+    "unread_button": "Ongelezen"
   }
 }
