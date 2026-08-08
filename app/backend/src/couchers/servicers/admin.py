@@ -773,8 +773,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
-                surfer=get_chat_user_info(host_request.initiator_user_id),
-                host=get_chat_user_info(host_request.recipient_user_id),
+                surfer=get_chat_user_info(host_request.surfer_user_id),
+                host=get_chat_user_info(host_request.host_user_id),
                 status=host_request.status.name if host_request.status else "",
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
