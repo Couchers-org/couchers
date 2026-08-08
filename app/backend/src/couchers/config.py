@@ -45,8 +45,10 @@ class Config:
     COOKIE_DOMAIN: str
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
-    # OpenTelemetry endpoint to send traces to
+    # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
     OPENTELEMETRY_ENDPOINT: str = ""
+    # Bearer token for the traces endpoint; empty for an unauthenticated collector (e.g. in dev)
+    OPENTELEMETRY_AUTH_TOKEN: str = ""
     # Path to a GeoLite2-City.mmdb file for geocoding IPs in user session info
     GEOLITE2_CITY_MMDB_FILE_LOCATION: str = ""
     GEOLITE2_ASN_MMDB_FILE_LOCATION: str = ""
