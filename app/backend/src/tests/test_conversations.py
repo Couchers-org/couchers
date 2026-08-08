@@ -1782,7 +1782,7 @@ def test_left_group_chat_can_be_marked_seen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
 
 
-def test_rejoined_group_chat_ping_reads_current_subscription(db, moderator):
+def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
     """
     Rejoining a chat leaves the earlier subscription behind with its own last-seen state. Ping used to
     match on any of the viewer's subscriptions, so the stale one kept the badge up forever.
@@ -1805,7 +1805,7 @@ def test_rejoined_group_chat_ping_reads_current_subscription(db, moderator):
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
 
-    # only the invite notice and "welcome back" are in reach of the current subscription
+    # only the invite notice and "welcome back" are in reach of the newest subscription
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
 

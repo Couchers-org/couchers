@@ -14,7 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context, make
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.group_chats import is_current_subscription, is_unseen, was_subscribed_at
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen, was_subscribed_at
 from couchers.helpers.messages import message_to_pb
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -254,7 +254,7 @@ def _get_visible_message_subscription(
     session: Session, context: CouchersContext, conversation_id: int, *, include_left: bool = False
 ) -> GroupChatSubscription:
     """
-    Get the user's current subscription to the chat, with visibility filtering. Requires that they're
+    Get the user's newest subscription to the chat, with visibility filtering. Requires that they're
     still in the chat unless include_left, which is only for marking a chat seen: messages left unread
     when you leave keep counting towards the badge, so you need a way to clear it.
     """
@@ -264,7 +264,7 @@ def _get_visible_message_subscription(
             .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id == conversation_id)
             .where(GroupChatSubscription.user_id == context.user_id)
-            .where(is_current_subscription(context.user_id))
+            .where(is_newest_subscription(context.user_id))
             .where(or_(to_bool(include_left), GroupChatSubscription.left == None)),
             context,
             GroupChat,

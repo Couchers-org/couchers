@@ -680,7 +680,7 @@ def test_send_message_notifications_basic(db, moderator):
 def test_send_message_notifications_ignores_abandoned_subscription(db, moderator):
     """
     Rejoining a chat leaves the earlier subscription behind with its own last-seen state, and the job
-    used to notify off that stale one even once the user had caught up on their current subscription.
+    used to notify off that stale one even once the user had caught up on their newest subscription.
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
