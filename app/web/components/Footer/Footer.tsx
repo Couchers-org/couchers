@@ -262,17 +262,11 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 version: version_text,
                 updated_ago: updated_ago_text,
               }}
-            >
-              Version{" "}
-              <VersionLink href={version_link} target="_blank" rel="noopener noreferrer">
-                {version_text}
-              </VersionLink>
-              , last updated{" "}
-              <VersionLink href={updated_ago_link} target="_blank" rel="noopener noreferrer">
-                {updated_ago_text}
-              </VersionLink>
-              .
-            </Trans>
+              components={{
+                2: <VersionLink href={version_link} target="_blank" rel="noopener noreferrer" />,
+                5: <VersionLink href={updated_ago_link} target="_blank" rel="noopener noreferrer" />,
+              }}
+            />
           </Typography>
         </StyledLowerContainer>
       </StyledLowerOuterContainer>

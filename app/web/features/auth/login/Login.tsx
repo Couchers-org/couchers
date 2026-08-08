@@ -83,7 +83,7 @@ export default function Login() {
               components={{
                 2: <StyledLink href={signupRoute} />,
               }}
-            ></Trans>
+            />
           </Typography>
         </StyledFormWrapper>
       </StyledContent>
