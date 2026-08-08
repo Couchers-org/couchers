@@ -423,9 +423,8 @@ describe("Event time changer", () => {
       expect(onValidSubmit).toHaveBeenCalled();
       const submittedData = onValidSubmit.mock.calls[0][0];
       expect(submittedData).toBeDefined();
-
-      expect(submittedData.endDate).toEqual(Temporal.PlainDate.from("2021-08-05"));
-      expect(submittedData.endTime).toEqual(Temporal.PlainTime.from("22:00"));
+      expect(submittedData.endDate.toString()).toBe("2021-08-05");
+      expect(submittedData.endTime.toString()).toBe("23:00:00");
     });
 
     it("should not accept submission if startDate/Time and endDate/Time are the same", async () => {
@@ -447,9 +446,84 @@ describe("Event time changer", () => {
       await user.keyboard("1000 PM");
 
       await user.click(screen.getByTestId("submit"));
+      
+      expect(
+        await screen.findByText(t("communities:end_time_error"))
+      ).toBeInTheDocument();
 
       // Should not submit due to same date/time as start
       expect(onValidSubmit).not.toHaveBeenCalled();
     });
   });
+
+  describe("when endDate is set", () => {
+    it("should not autofill endDate", async () => {
+      render(<TestForm />, { wrapper });
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      const endDateGroup = await screen.findByRole("group", {
+        name: t("communities:end_date"),
+      });
+      await user.click(endDateGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("08102021");
+
+      const startDateGroup = await screen.findByRole("group", {
+        name: t("communities:start_date"),
+      });
+      await user.click(startDateGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("08052021");
+
+      const startTimeGroup = await screen.findByRole("group", {
+        name: t("communities:start_time"),
+      });
+      await user.click(startTimeGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("0800AM");
+
+      await user.click(screen.getByTestId("submit"));
+      expect(onValidSubmit).toHaveBeenCalled();
+      const submittedData = onValidSubmit.mock.calls[0][0];
+      expect(submittedData).toBeDefined();
+      expect(submittedData.endDate.toString()).toBe("2021-08-10");
+      expect(submittedData.endTime.toString()).toBe("08:00:00");
+    });
+ }); 
+  describe("when endTime is set", () => {
+    it("should not autofill endTime", async () => {
+      render(<TestForm />, { wrapper });
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      const endTimeGroup = await screen.findByRole("group", {
+        name: t("communities:end_time"),
+      });
+      await user.click(endTimeGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("1100 PM");
+
+      const startTimeGroup = await screen.findByRole("group", {
+        name: t("communities:start_time"),
+      });
+      await user.click(startTimeGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("0300 PM");
+
+      const startDateGroup = await screen.findByRole("group", {
+        name: t("communities:start_date"),
+      });
+      await user.click(startDateGroup);
+      await user.keyboard("{Control>}a{/Control}");
+      await user.keyboard("08052021");
+
+      await user.click(screen.getByTestId("submit"));
+      expect(onValidSubmit).toHaveBeenCalled();
+      const submittedData = onValidSubmit.mock.calls[0][0];
+      expect(submittedData).toBeDefined();
+      expect(submittedData.endDate.toString()).toBe("2021-08-05");
+      expect(submittedData.endTime.toString()).toBe("23:00:00");
+    });
+ });
 });
