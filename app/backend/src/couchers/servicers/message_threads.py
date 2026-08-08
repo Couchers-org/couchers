@@ -50,17 +50,17 @@ def _resolve_thread_filters(
     An empty category list means all categories. MY_PUBLIC_TRIPS is dropped when the public-trips
     flag is off; those offers still show up under SURFING.
     """
-    all_categories = frozenset(
-        {
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in request.categories:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_category")
+    categories = frozenset(
+        request.categories
+        or {
             conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS,
             conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING,
             conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING,
             conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
         }
     )
-    if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in request.categories:
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_category")
-    categories = frozenset(request.categories) or all_categories
     if not context.get_boolean_value("public_trips_enabled", False):
         categories -= {conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS}
     return _ThreadFilters(
