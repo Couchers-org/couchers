@@ -1,7 +1,6 @@
 import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CursorPagination from "components/CursorPagination";
 import { PersonIcon } from "components/Icons";
 import TextBody from "components/TextBody";
@@ -60,9 +59,8 @@ export default function CommunityMembersList({
         </Typography>
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading && <CenteredSpinner />}
       <Box sx={{ width: "100%", maxWidth: "450px" }}>
-        {data?.pages && data?.pages.length > 0 && <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />}
+        <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
       </Box>
       <PaginationWrapper>
         <CursorPagination
