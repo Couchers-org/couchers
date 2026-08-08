@@ -5,6 +5,7 @@ offers — selected by category (Conversations.MarkAllThreadsSeen).
 
 import logging
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import grpc
 from google.protobuf import empty_pb2
@@ -33,6 +34,40 @@ from couchers.proto import conversations_pb2
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class _ThreadFilters:
+    categories: frozenset[int]
+    only_archived: bool | None
+    only_unread: bool
+
+
+def _resolve_thread_filters(
+    context: CouchersContext, request: conversations_pb2.MarkAllThreadsSeenReq
+) -> _ThreadFilters:
+    """
+    An empty category list means all categories. MY_PUBLIC_TRIPS is dropped when the public-trips
+    flag is off; those offers still show up under SURFING.
+    """
+    all_categories = frozenset(
+        {
+            conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS,
+            conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING,
+            conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING,
+            conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
+        }
+    )
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in request.categories:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_category")
+    categories = frozenset(request.categories) or all_categories
+    if not context.get_boolean_value("public_trips_enabled", False):
+        categories -= {conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS}
+    return _ThreadFilters(
+        categories=categories,
+        only_archived=request.only_archived if request.HasField("only_archived") else None,
+        only_unread=request.only_unread,
+    )
 
 
 def _build_group_chat_select_query(
@@ -98,60 +133,30 @@ def _build_host_request_select_query(
     return query
 
 
-def _build_thread_select_queries(
-    context: CouchersContext, request: conversations_pb2.MarkAllThreadsSeenReq
-) -> tuple[Select[tuple[int]] | None, Select[tuple[int]] | None]:
+def _build_host_request_role_filter(user_id: int, categories: frozenset[int]) -> ColumnElement[bool] | None:
     """
-    An empty category list means all categories. MY_PUBLIC_TRIPS is dropped when the public-trips
-    flag is off; those offers still show up under SURFING. MY_PUBLIC_TRIPS is also a subset of
-    SURFING, so asking for both is redundant but harmless — the role clauses are OR'd together.
+    The stay-roles the selected categories cover, or None if none of them is a host request category.
+    MY_PUBLIC_TRIPS is a subset of SURFING, so asking for both is redundant but harmless.
     """
-    categories = set(request.categories)
-    if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in categories:
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_thread_category")
-    if not categories:
-        categories = {
-            conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS,
-            conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING,
-            conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING,
-            conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS,
-        }
-    if not context.get_boolean_value("public_trips_enabled", False):
-        categories.discard(conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS)
-
-    only_archived = request.only_archived if request.HasField("only_archived") else None
-    only_unread = request.only_unread
-
-    chat_query = (
-        _build_group_chat_select_query(context, only_archived, only_unread)
-        if conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS in categories
-        else None
-    )
-
-    role_clauses = []
-    if conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING in categories:
-        role_clauses.append(is_hosting_party(context.user_id))
-    if conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING in categories:
-        role_clauses.append(is_surfing_party(context.user_id))
-    if conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS in categories:
-        role_clauses.append(is_public_trip_offer_recipient(context.user_id))
-    host_request_query = (
-        _build_host_request_select_query(context, or_(*role_clauses), only_archived, only_unread)
-        if role_clauses
-        else None
-    )
-    return chat_query, host_request_query
+    role_filters = {
+        conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING: is_hosting_party,
+        conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING: is_surfing_party,
+        conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS: is_public_trip_offer_recipient,
+    }
+    clauses = [role_filter(user_id) for category, role_filter in role_filters.items() if category in categories]
+    return or_(*clauses) if clauses else None
 
 
 def mark_all_threads_seen(
     request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
 ) -> empty_pb2.Empty:
-    chat_query, host_request_query = _build_thread_select_queries(context, request)
+    filters = _resolve_thread_filters(context, request)
 
     # (topic actions, keys) groups for the notifications owned by the threads we mark seen
     notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
 
-    if chat_query is not None:
+    if conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS in filters.categories:
+        chat_query = _build_group_chat_select_query(context, filters.only_archived, filters.only_unread)
         # correlated, so it resolves per row of the update: every subscription advances to its own
         # chat's newest message without listing them out. windowed, so a subscription the viewer
         # has left advances only to the last message they could read, matching its unseen count
@@ -186,7 +191,11 @@ def mark_all_threads_seen(
             # string rather than a chat id (same as MarkLastSeenGroupChat)
             notification_groups.append(([NotificationTopicAction.chat__missed_messages], [""]))
 
-    if host_request_query is not None:
+    role_filter = _build_host_request_role_filter(context.user_id, filters.categories)
+    if role_filter is not None:
+        host_request_query = _build_host_request_select_query(
+            context, role_filter, filters.only_archived, filters.only_unread
+        )
         # the viewer's last-seen column depends on their role, so one update per role
         # (a user is never both initiator and recipient of the same request, so these are disjoint)
         matching_ids = select(host_request_query.subquery().c.conversation_id)
