@@ -7,6 +7,7 @@ import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
 import React, { useState } from "react";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
@@ -86,6 +87,9 @@ export default function UserSummary({
   });
 
   const isMobile = useIsScreenSizeOrSmaller("mobile");
+  const isNativeEmbed = useIsNativeEmbed();
+  // ProfileLink opens a profile sheet rather than a tab on mobile and in the native embed
+  const opensInNewTab = !isMobile && !isNativeEmbed;
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -163,7 +167,7 @@ export default function UserSummary({
             <ProfileLink
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
-              openInNewTab={!isMobile}
+              openInNewTab={opensInNewTab}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -172,7 +176,7 @@ export default function UserSummary({
               }}
             >
               {title}
-              {!isMobile && <StyledOpenInNewIcon />}
+              {opensInNewTab && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title
