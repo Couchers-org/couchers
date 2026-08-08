@@ -446,10 +446,8 @@ describe("Event time changer", () => {
       await user.keyboard("1000 PM");
 
       await user.click(screen.getByTestId("submit"));
-      
-      expect(
-        await screen.findByText(t("communities:end_time_error"))
-      ).toBeInTheDocument();
+
+      expect(await screen.findByText(t("communities:end_time_error"))).toBeInTheDocument();
 
       // Should not submit due to same date/time as start
       expect(onValidSubmit).not.toHaveBeenCalled();
@@ -490,7 +488,7 @@ describe("Event time changer", () => {
       expect(submittedData.endDate.toString()).toBe("2021-08-10");
       expect(submittedData.endTime.toString()).toBe("08:00:00");
     });
- }); 
+  });
   describe("when endTime is set", () => {
     it("should not autofill endTime", async () => {
       render(<TestForm />, { wrapper });
@@ -525,5 +523,5 @@ describe("Event time changer", () => {
       expect(submittedData.endDate.toString()).toBe("2021-08-05");
       expect(submittedData.endTime.toString()).toBe("23:00:00");
     });
- });
+  });
 });
