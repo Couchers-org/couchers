@@ -8,7 +8,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import and_, case, delete, exists, func, intersect, or_, union
+from sqlalchemy.sql import and_, case, delete, func, intersect, or_, union
 
 from couchers import urls
 from couchers.abuse import maybe_log_nonvisible_user_access
@@ -19,7 +19,12 @@ from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
-from couchers.helpers.host_requests import is_hosting_party, is_public_trip_offer_recipient, is_surfing_party
+from couchers.helpers.host_requests import (
+    has_unseen_host_request_messages,
+    is_hosting_party,
+    is_public_trip_offer_recipient,
+    is_surfing_party,
+)
 from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -196,10 +201,6 @@ class API(api_pb2_grpc.APIServicer):
         # direction (sent/received) and by stay-role. The role-based tallies bucket public-trip offers
         # correctly despite the role reversal: the offering host counts under hosting, the traveller
         # under surfing.
-        viewer_last_seen_message_id = case(
-            (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
-            else_=HostRequest.recipient_last_seen_message_id,
-        )
         other_party_user_id = case(
             (HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id),
             else_=HostRequest.initiator_user_id,
@@ -219,13 +220,7 @@ class API(api_pb2_grpc.APIServicer):
                     HostRequest.recipient_user_id == context.user_id,
                 )
             )
-            .where(
-                exists(
-                    select(1)
-                    .where(Message.conversation_id == HostRequest.conversation_id)
-                    .where(Message.id > viewer_last_seen_message_id)
-                )
-            )
+            .where(has_unseen_host_request_messages(context.user_id))
         )
         unseen_host_request_counts_query = where_users_column_visible(
             unseen_host_request_counts_query, context, other_party_user_id

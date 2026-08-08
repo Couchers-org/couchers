@@ -37,6 +37,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.message_threads import mark_all_threads_seen
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -295,6 +296,11 @@ def _mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInf
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
+    def MarkAllThreadsSeen(
+        self, request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        return mark_all_threads_seen(request, context, session)
+
     def ListGroupChats(
         self, request: conversations_pb2.ListGroupChatsReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.ListGroupChatsRes:
