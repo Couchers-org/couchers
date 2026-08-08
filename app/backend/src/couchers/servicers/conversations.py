@@ -14,7 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context, make
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.group_chats import is_unseen, was_subscribed_at
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen, was_subscribed_at
 from couchers.helpers.messages import message_to_pb
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -251,16 +251,21 @@ def _get_message_subscription(session: Session, user_id: int, conversation_id: i
 
 
 def _get_visible_message_subscription(
-    session: Session, context: CouchersContext, conversation_id: int
+    session: Session, context: CouchersContext, conversation_id: int, *, include_left: bool = False
 ) -> GroupChatSubscription:
-    """Get subscription with visibility filtering"""
+    """
+    Get the user's newest subscription to the chat, with visibility filtering. Requires that they're
+    still in the chat unless include_left, which is only for marking a chat seen: messages left unread
+    when you leave keep counting towards the badge, so you need a way to clear it.
+    """
     subscription = session.execute(
         where_moderated_content_visible(
             select(GroupChatSubscription)
             .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id == conversation_id)
             .where(GroupChatSubscription.user_id == context.user_id)
-            .where(GroupChatSubscription.left == None),
+            .where(is_newest_subscription(context.user_id))
+            .where(or_(to_bool(include_left), GroupChatSubscription.left == None)),
             context,
             GroupChat,
             is_list_operation=False,
@@ -543,7 +548,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def MarkLastSeenGroupChat(
         self, request: conversations_pb2.MarkLastSeenGroupChatReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id, include_left=True)
 
         if not subscription:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")

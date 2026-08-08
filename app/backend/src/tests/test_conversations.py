@@ -1706,7 +1706,7 @@ def test_total_unseen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 13
 
 
-def test_departed_group_chat_unseen_count_excludes_unreachable_messages(db, moderator):
+def test_left_group_chat_unseen_count_excludes_unreachable_messages(db, moderator):
     """
     ListGroupChats and GetGroupChat used to count messages sent after the viewer left the chat, which
     they can never open. The viewer is removed rather than leaving, because leaving posts a message of
@@ -1739,7 +1739,50 @@ def test_departed_group_chat_unseen_count_excludes_unreachable_messages(db, mode
         assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 3
 
 
-def test_rejoined_group_chat_ping_reads_current_subscription(db, moderator):
+def test_left_group_chat_can_be_marked_seen(db, moderator):
+    """
+    MarkLastSeenGroupChat used to require a subscription with left == None, so a chat you were removed
+    from kept contributing to the unread badge with no way to clear it.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="after you left"))
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 3
+
+    with conversations_session(token1) as c:
+        latest_message_id = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
+        ).latest_message.message_id
+        c.MarkLastSeenGroupChat(
+            conversations_pb2.MarkLastSeenGroupChatReq(
+                group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+            )
+        )
+
+        assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 0
+
+        with pytest.raises(grpc.RpcError) as e:
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="let me back in"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
+
+
+def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
     """
     Rejoining a chat leaves the earlier subscription behind with its own last-seen state. Ping used to
     match on any of the viewer's subscriptions, so the stale one kept the badge up forever.
@@ -1762,7 +1805,7 @@ def test_rejoined_group_chat_ping_reads_current_subscription(db, moderator):
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
 
-    # only the invite notice and "welcome back" are in reach of the current subscription
+    # only the invite notice and "welcome back" are in reach of the newest subscription
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
 

@@ -32,7 +32,7 @@ def is_unseen(message: type[Message], subscription: type[GroupChatSubscription])
     )
 
 
-def is_current_subscription(user_id: SQLColumnExpression[int] | int) -> ColumnElement[bool]:
+def is_newest_subscription(user_id: SQLColumnExpression[int] | int) -> ColumnElement[bool]:
     """
     Only the user's newest subscription to each chat they've been in. Rejoining a chat leaves the
     earlier subscription behind, and it's the newest one that carries the archived and last-seen state.
