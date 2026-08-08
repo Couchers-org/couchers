@@ -251,14 +251,12 @@ def _get_message_subscription(session: Session, user_id: int, conversation_id: i
 
 
 def _get_visible_message_subscription(
-    session: Session, context: CouchersContext, conversation_id: int, *, include_departed: bool = False
+    session: Session, context: CouchersContext, conversation_id: int, *, include_left: bool = False
 ) -> GroupChatSubscription:
     """
-    Get the user's current subscription to the chat, with visibility filtering.
-
-    Defaults to requiring that they're still in the chat, since that's the permission check for anything
-    that acts on the chat. include_departed relaxes it for marking a chat seen, which has to keep working
-    after you leave: your unseen messages still count towards the badge, so you need a way to clear it.
+    Get the user's current subscription to the chat, with visibility filtering. Requires that they're
+    still in the chat unless include_left, which is only for marking a chat seen: messages left unread
+    when you leave keep counting towards the badge, so you need a way to clear it.
     """
     query = (
         select(GroupChatSubscription)
@@ -267,7 +265,7 @@ def _get_visible_message_subscription(
         .where(GroupChatSubscription.user_id == context.user_id)
         .where(is_current_subscription(context.user_id))
     )
-    if not include_departed:
+    if not include_left:
         query = query.where(GroupChatSubscription.left == None)
 
     subscription = session.execute(
@@ -550,7 +548,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def MarkLastSeenGroupChat(
         self, request: conversations_pb2.MarkLastSeenGroupChatReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        subscription = _get_visible_message_subscription(session, context, request.group_chat_id, include_departed=True)
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id, include_left=True)
 
         if not subscription:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")

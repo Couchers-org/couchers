@@ -1706,7 +1706,7 @@ def test_total_unseen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 13
 
 
-def test_departed_group_chat_unseen_count_excludes_unreachable_messages(db, moderator):
+def test_left_group_chat_unseen_count_excludes_unreachable_messages(db, moderator):
     """
     ListGroupChats and GetGroupChat used to count messages sent after the viewer left the chat, which
     they can never open. The viewer is removed rather than leaving, because leaving posts a message of
@@ -1739,7 +1739,7 @@ def test_departed_group_chat_unseen_count_excludes_unreachable_messages(db, mode
         assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 3
 
 
-def test_departed_group_chat_can_be_marked_seen(db, moderator):
+def test_left_group_chat_can_be_marked_seen(db, moderator):
     """
     MarkLastSeenGroupChat used to require a subscription with left == None, so a chat you were removed
     from kept contributing to the unread badge with no way to clear it.
@@ -1774,7 +1774,6 @@ def test_departed_group_chat_can_be_marked_seen(db, moderator):
 
         assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 0
 
-        # marking it seen doesn't get you back into the chat
         with pytest.raises(grpc.RpcError) as e:
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="let me back in"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
