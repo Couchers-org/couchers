@@ -1,10 +1,6 @@
 """
 Bulk operations over the viewer's message threads — group chats, DMs, host requests and public-trip
 offers — selected by category (Conversations.MarkAllThreadsSeen).
-
-A request's categories resolve into one query per kind of conversation, each selecting the ids of
-the conversations of that kind the request matches. MarkAllThreadsSeen consumes them as UPDATE
-targets.
 """
 
 import logging
@@ -53,7 +49,6 @@ def _build_group_chat_select_query(
         .where(is_newest_subscription(context.user_id))
         .where(was_subscribed_at(GroupChatSubscription, Message.time))
         .where(or_(to_bool(only_archived is None), GroupChatSubscription.is_archived == only_archived))
-        # restrict to chats with at least one message newer than the user's last-seen
         .where(or_(to_bool(not unread), Message.id > GroupChatSubscription.last_seen_message_id))
         .group_by(GroupChatSubscription.group_chat_id),
         context,
@@ -66,13 +61,11 @@ def _build_host_request_select_query(
     context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
 ) -> Select[tuple[int]]:
     """
-    The host-request half of the same idea as _build_group_chat_select_query: the ids of the host
-    requests and public-trip offers the request covers.
+    The ids of the host requests and public-trip offers the viewer should see, narrowed by the
+    request's archived and unread filters.
 
-    role_filter decides which requests belong in this view — the ones the viewer is hosting, the ones
-    they're surfing, or offers on their public trips. Requests the viewer shouldn't see are dropped
-    here too: ones involving deleted or blocked users, ones hidden by moderation, and — when the
-    caller asks for it — archived or already-read ones.
+    role_filter picks which side of the request the viewer is on: hosting, surfing, or offers on
+    their own public trips.
     """
     viewer_last_seen_message_id = case(
         (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
@@ -114,13 +107,9 @@ def _build_thread_select_queries(
     context: CouchersContext, request: conversations_pb2.MarkAllThreadsSeenReq
 ) -> tuple[Select[tuple[int]] | None, Select[tuple[int]] | None]:
     """
-    Resolve a request into the conversation-id subqueries it matches — one for group chats, one for
-    host requests, each None if that kind isn't included.
-
-    An empty category list means all categories, and MY_PUBLIC_TRIPS is dropped when the public-trips
-    flag is off (offers still show under SURFING / all, as before). The host-request categories are
-    role-based and OR'd together; MY_PUBLIC_TRIPS is a subset of SURFING, so requesting both is
-    redundant but harmless — grouping by conversation dedupes.
+    An empty category list means all categories. MY_PUBLIC_TRIPS is dropped when the public-trips
+    flag is off; those offers still show up under SURFING. MY_PUBLIC_TRIPS is also a subset of
+    SURFING, so asking for both is redundant but harmless — grouping by conversation dedupes.
     """
     categories = set(request.categories)
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in categories:
