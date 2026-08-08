@@ -33,7 +33,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import mark_notifications_seen
 from couchers.proto import conversations_pb2
-from couchers.sql import where_moderated_content_visible, where_users_column_visible
+from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 
 logger = logging.getLogger(__name__)
 
@@ -45,21 +45,21 @@ def _group_chat_candidate_query(
     The ids of the group chats (including DMs) the viewer should see, narrowed by the request's
     archived and unread filters.
     """
-    group_chat_ids = (
+    return where_moderated_content_visible(
         select(GroupChatSubscription.group_chat_id.label("conversation_id"))
         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
         .where(GroupChatSubscription.user_id == context.user_id)
         .where(is_newest_subscription(context.user_id))
         .where(was_subscribed_at(GroupChatSubscription, Message.time))
-        .group_by(GroupChatSubscription.group_chat_id)
-    )
-    if only_archived is not None:
-        group_chat_ids = group_chat_ids.where(GroupChatSubscription.is_archived == only_archived)
-    if unread:
+        .where(or_(to_bool(only_archived is None), GroupChatSubscription.is_archived == only_archived))
         # restrict to chats with at least one message newer than the user's last-seen
-        group_chat_ids = group_chat_ids.where(Message.id > GroupChatSubscription.last_seen_message_id)
-    return where_moderated_content_visible(group_chat_ids, context, GroupChat, is_list_operation=True)
+        .where(or_(to_bool(not unread), Message.id > GroupChatSubscription.last_seen_message_id))
+        .group_by(GroupChatSubscription.group_chat_id),
+        context,
+        GroupChat,
+        is_list_operation=True,
+    )
 
 
 def _host_request_candidate_query(
