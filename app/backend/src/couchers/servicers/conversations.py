@@ -258,18 +258,18 @@ def _get_visible_message_subscription(
     still in the chat unless include_left, which is only for marking a chat seen: messages left unread
     when you leave keep counting towards the badge, so you need a way to clear it.
     """
-    query = (
-        select(GroupChatSubscription)
-        .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-        .where(GroupChatSubscription.group_chat_id == conversation_id)
-        .where(GroupChatSubscription.user_id == context.user_id)
-        .where(is_current_subscription(context.user_id))
-    )
-    if not include_left:
-        query = query.where(GroupChatSubscription.left == None)
-
     subscription = session.execute(
-        where_moderated_content_visible(query, context, GroupChat, is_list_operation=False)
+        where_moderated_content_visible(
+            select(GroupChatSubscription)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+            .where(GroupChatSubscription.group_chat_id == conversation_id)
+            .where(GroupChatSubscription.user_id == context.user_id)
+            .where(is_current_subscription(context.user_id))
+            .where(or_(to_bool(include_left), GroupChatSubscription.left == None)),
+            context,
+            GroupChat,
+            is_list_operation=False,
+        )
     ).scalar_one_or_none()
 
     return cast(GroupChatSubscription, subscription)
