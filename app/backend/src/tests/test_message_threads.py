@@ -4,9 +4,12 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
+from couchers.db import session_scope
+from couchers.helpers.host_requests import has_unseen_host_request_messages
 from couchers.jobs.handlers import send_message_notifications
-from couchers.models import NotificationTopicAction
+from couchers.models import HostRequest, NotificationTopicAction
 from couchers.proto import api_pb2, conversations_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.db import generate_user
@@ -45,6 +48,27 @@ def _create_host_request(surfer_token: str, host_id: int, moderator) -> int:
         )
     moderator.approve_host_request(res.host_request_id)
     return int(res.host_request_id)
+
+
+def test_has_unseen_host_request_messages_is_false_for_a_non_party(db, moderator):
+    user1, _token1 = generate_user()
+    _user2, token2 = generate_user()
+    outsider, _token3 = generate_user()
+
+    conversation_id = _create_host_request(token2, user1.id, moderator)
+
+    with session_scope() as session:
+        unseen_for = {
+            user_id: session.execute(
+                select(HostRequest.conversation_id)
+                .where(HostRequest.conversation_id == conversation_id)
+                .where(has_unseen_host_request_messages(user_id))
+            ).scalar_one_or_none()
+            for user_id in (user1.id, outsider.id)
+        }
+
+    assert unseen_for[user1.id] == conversation_id
+    assert unseen_for[outsider.id] is None
 
 
 def test_mark_all_threads_seen_rejects_unspecified_category(db):

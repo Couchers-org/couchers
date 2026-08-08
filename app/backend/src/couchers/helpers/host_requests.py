@@ -54,11 +54,15 @@ def is_public_trip_offer_recipient(user_id: int) -> ColumnElement[bool]:
     return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == user_id)
 
 
-def viewer_last_seen_message_id(user_id: int) -> ColumnElement[int]:
-    """The viewer's last-seen message id on a request, whichever side of it they are on."""
+def viewer_last_seen_message_id(user_id: int) -> ColumnElement[int | None]:
+    """
+    The viewer's last-seen message id on a request, whichever side of it they are on, and NULL if
+    they are on neither. NULL rather than an else_ branch so that a user who isn't a party to the
+    request compares false rather than silently reading the other party's column.
+    """
     return case(
         (HostRequest.initiator_user_id == user_id, HostRequest.initiator_last_seen_message_id),
-        else_=HostRequest.recipient_last_seen_message_id,
+        (HostRequest.recipient_user_id == user_id, HostRequest.recipient_last_seen_message_id),
     )
 
 
