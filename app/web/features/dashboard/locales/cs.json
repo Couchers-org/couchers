@@ -11,7 +11,7 @@
   "your_communities_heading": "Tvé komunity",
   "all_communities_heading": "Všechny komunity",
   "no_community": "Momentálně nejsi v žádné komunitě.",
-  "your_communities_helper_text": "Přidali jsme tě do všech komunit na základě tvé polohy. Neváhej však <1>procházet komunity</1> i v jiných lokalitách.",
+  "your_communities_helper_text": "Přidali jsme tě do všech komunit na základě tvé polohy. Neváhej však <1>procházet komunity a přidávat se do nich</1> i v jiných lokalitách.",
   "community_builder_form_text": "Založ si vlastní místní komunitu",
   "communities_welcome_title": "Vítej v Komunitách",
   "community_builder": "Chceš být ambasadorem své komunity a pomoci jí růst? Staň se <1>budovatelem komunity!</1>",
@@ -76,7 +76,8 @@
     },
     "confirm_host_request": {
       "title": "Potvrď svůj pobyt u {{name}}",
-      "button": "Potvrď pobyt"
+      "button": "Potvrď pobyt",
+      "description": "{{name}} přijal tvoji žádost. Zajisti si svůj pobyt jeho potvrzením."
     }
   },
   "public_trips": {
@@ -89,7 +90,8 @@
     "offers_count_one": "{{count}} nabídka",
     "offers_count_few": "{{count}} nabídky",
     "offers_count_other": "{{count}} nabídek",
-    "no_offers": "Zatím žádné nabídky"
+    "no_offers": "Zatím žádné nabídky",
+    "my_trips_header": "Tvé veřejné cesty"
   },
   "prev_page_button_a11y": "Předchozí stránka",
   "next_page_button_a11y": "Následující stránka",
