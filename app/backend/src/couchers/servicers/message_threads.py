@@ -88,11 +88,9 @@ def _host_request_candidate_query(
             )
         )
         .where(role_filter)
-        .group_by(HostRequest.conversation_id)
-    )
-    if only_archived is not None:
-        candidate_query = candidate_query.where(
+        .where(
             or_(
+                to_bool(only_archived is None),
                 and_(
                     HostRequest.initiator_user_id == context.user_id,
                     HostRequest.is_initiator_archived == only_archived,
@@ -103,8 +101,9 @@ def _host_request_candidate_query(
                 ),
             )
         )
-    if unread:
-        candidate_query = candidate_query.having(func.max(Message.id) > viewer_last_seen_message_id)
+        .group_by(HostRequest.conversation_id)
+        .having(or_(to_bool(not unread), func.max(Message.id) > viewer_last_seen_message_id))
+    )
     candidate_query = where_users_column_visible(candidate_query, context, HostRequest.initiator_user_id)
     candidate_query = where_users_column_visible(candidate_query, context, HostRequest.recipient_user_id)
     candidate_query = where_moderated_content_visible(candidate_query, context, HostRequest, is_list_operation=True)
