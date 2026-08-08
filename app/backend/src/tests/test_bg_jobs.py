@@ -1294,6 +1294,33 @@ def test_send_reference_reminders(db):
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
+def test_send_reference_reminders_public_trip_offer(db):
+    """An offer reverses initiator/recipient, so the reminders have to be picked by the stay role."""
+    surfer, _ = generate_user(email="surfer@couchers.org.invalid", name="Surfer")
+    host, _ = generate_user(email="host@couchers.org.invalid", name="Host")
+
+    with session_scope() as session:
+        create_host_request(session, surfer.id, host.id, timedelta(days=4), is_offer=True)
+
+    send_reference_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = {
+            email.recipient: (email.subject, email.plain) for email in session.execute(select(Email)).scalars().all()
+        }
+
+    assert set(emails) == {"surfer@couchers.org.invalid", "host@couchers.org.invalid"}
+    surfer_subject, surfer_plain = emails["surfer@couchers.org.invalid"]
+    assert surfer_subject == "[TEST] You have 14 days to write a reference for Host"
+    assert "from when you surfed with them" in surfer_plain
+    host_subject, host_plain = emails["host@couchers.org.invalid"]
+    assert host_subject == "[TEST] You have 14 days to write a reference for Surfer"
+    assert "from when you hosted them" in host_plain
+
+
 def test_send_host_request_reminders(db, moderator):
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
