@@ -11,10 +11,10 @@ The role-based party predicates below exist because a host request has a fixed d
 So "am I hosting?" is not the same question as "did I receive this?".
 """
 
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import and_, case, exists, or_, select
 from sqlalchemy.sql.elements import ColumnElement
 
-from couchers.models import HostRequest
+from couchers.models import HostRequest, Message
 from couchers.models.notifications import NotificationTopicAction
 
 # topic actions whose notifications are marked seen alongside a host request being read
@@ -52,3 +52,23 @@ def is_public_trip_offer_recipient(user_id: int) -> ColumnElement[bool]:
     A strict subset of is_surfing_party.
     """
     return and_(HostRequest.public_trip_id.isnot(None), HostRequest.recipient_user_id == user_id)
+
+
+def viewer_last_seen_message_id(user_id: int) -> ColumnElement[int]:
+    """The viewer's last-seen message id on a request, whichever side of it they are on."""
+    return case(
+        (HostRequest.initiator_user_id == user_id, HostRequest.initiator_last_seen_message_id),
+        else_=HostRequest.recipient_last_seen_message_id,
+    )
+
+
+def has_unseen_host_request_messages(user_id: int) -> ColumnElement[bool]:
+    """
+    A request carrying at least one message the viewer hasn't seen. This is what the Ping badge
+    counts, so anything clearing the badge has to agree with it.
+    """
+    return exists(
+        select(1)
+        .where(Message.conversation_id == HostRequest.conversation_id)
+        .where(Message.id > viewer_last_seen_message_id(user_id))
+    )

@@ -10,12 +10,13 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import ColumnElement, Select, select, update
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, case, func, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers.context import CouchersContext
-from couchers.helpers.group_chats import is_newest_subscription, was_subscribed_at
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen, was_subscribed_at
 from couchers.helpers.host_requests import (
     HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
+    has_unseen_host_request_messages,
     is_hosting_party,
     is_public_trip_offer_recipient,
     is_surfing_party,
@@ -49,7 +50,7 @@ def _build_group_chat_select_query(
         .where(is_newest_subscription(context.user_id))
         .where(was_subscribed_at(GroupChatSubscription, Message.time))
         .where(or_(to_bool(only_archived is None), GroupChatSubscription.is_archived == only_archived))
-        .where(or_(to_bool(not unread), Message.id > GroupChatSubscription.last_seen_message_id))
+        .where(or_(to_bool(not unread), is_unseen(Message, GroupChatSubscription)))
         .group_by(GroupChatSubscription.group_chat_id),
         context,
         GroupChat,
@@ -67,13 +68,8 @@ def _build_host_request_select_query(
     role_filter picks which side of the request the viewer is on: hosting, surfing, or offers on
     their own public trips.
     """
-    viewer_last_seen_message_id = case(
-        (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
-        else_=HostRequest.recipient_last_seen_message_id,
-    )
     query = (
         select(HostRequest.conversation_id.label("conversation_id"))
-        .join(Message, Message.conversation_id == HostRequest.conversation_id)
         .where(
             or_(
                 HostRequest.initiator_user_id == context.user_id,
@@ -94,8 +90,7 @@ def _build_host_request_select_query(
                 ),
             )
         )
-        .group_by(HostRequest.conversation_id)
-        .having(or_(to_bool(not unread), func.max(Message.id) > viewer_last_seen_message_id))
+        .where(or_(to_bool(not unread), has_unseen_host_request_messages(context.user_id)))
     )
     query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
     query = where_users_column_visible(query, context, HostRequest.recipient_user_id)
@@ -109,7 +104,7 @@ def _build_thread_select_queries(
     """
     An empty category list means all categories. MY_PUBLIC_TRIPS is dropped when the public-trips
     flag is off; those offers still show up under SURFING. MY_PUBLIC_TRIPS is also a subset of
-    SURFING, so asking for both is redundant but harmless — grouping by conversation dedupes.
+    SURFING, so asking for both is redundant but harmless — the role clauses are OR'd together.
     """
     categories = set(request.categories)
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED in categories:
