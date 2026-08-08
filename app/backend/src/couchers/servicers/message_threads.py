@@ -2,9 +2,9 @@
 Bulk operations over the viewer's message threads — group chats, DMs, host requests and public-trip
 offers — selected by category (Conversations.MarkAllThreadsSeen).
 
-A request's categories resolve into candidate queries, one per kind of conversation, each yielding
-the ids of the conversations of that kind the request covers. MarkAllThreadsSeen consumes them as
-UPDATE targets.
+A request's categories resolve into one query per kind of conversation, each selecting the ids of
+the conversations of that kind the request matches. MarkAllThreadsSeen consumes them as UPDATE
+targets.
 """
 
 import logging
@@ -38,7 +38,7 @@ from couchers.sql import to_bool, where_moderated_content_visible, where_users_c
 logger = logging.getLogger(__name__)
 
 
-def _group_chat_candidate_query(
+def _build_group_chat_select_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
 ) -> Select[tuple[int]]:
     """
@@ -62,11 +62,11 @@ def _group_chat_candidate_query(
     )
 
 
-def _host_request_candidate_query(
+def _build_host_request_select_query(
     context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
 ) -> Select[tuple[int]]:
     """
-    The host-request half of the same idea as _group_chat_candidate_query: the ids of the host
+    The host-request half of the same idea as _build_group_chat_select_query: the ids of the host
     requests and public-trip offers the request covers.
 
     role_filter decides which requests belong in this view — the ones the viewer is hosting, the ones
@@ -78,7 +78,7 @@ def _host_request_candidate_query(
         (HostRequest.initiator_user_id == context.user_id, HostRequest.initiator_last_seen_message_id),
         else_=HostRequest.recipient_last_seen_message_id,
     )
-    candidate_query = (
+    query = (
         select(HostRequest.conversation_id.label("conversation_id"))
         .join(Message, Message.conversation_id == HostRequest.conversation_id)
         .where(
@@ -104,17 +104,17 @@ def _host_request_candidate_query(
         .group_by(HostRequest.conversation_id)
         .having(or_(to_bool(not unread), func.max(Message.id) > viewer_last_seen_message_id))
     )
-    candidate_query = where_users_column_visible(candidate_query, context, HostRequest.initiator_user_id)
-    candidate_query = where_users_column_visible(candidate_query, context, HostRequest.recipient_user_id)
-    candidate_query = where_moderated_content_visible(candidate_query, context, HostRequest, is_list_operation=True)
-    return candidate_query
+    query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
+    query = where_users_column_visible(query, context, HostRequest.recipient_user_id)
+    query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
+    return query
 
 
-def _thread_candidate_queries(
+def _build_thread_select_queries(
     context: CouchersContext, request: conversations_pb2.MarkAllThreadsSeenReq
 ) -> tuple[Select[tuple[int]] | None, Select[tuple[int]] | None]:
     """
-    Resolve a request into its candidate conversation-id subqueries — one for group chats, one for
+    Resolve a request into the conversation-id subqueries it matches — one for group chats, one for
     host requests, each None if that kind isn't included.
 
     An empty category list means all categories, and MY_PUBLIC_TRIPS is dropped when the public-trips
@@ -139,7 +139,7 @@ def _thread_candidate_queries(
     only_unread = request.only_unread
 
     chat_query = (
-        _group_chat_candidate_query(context, only_archived, only_unread)
+        _build_group_chat_select_query(context, only_archived, only_unread)
         if conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS in categories
         else None
     )
@@ -152,7 +152,9 @@ def _thread_candidate_queries(
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS in categories:
         role_clauses.append(is_public_trip_offer_recipient(context.user_id))
     host_request_query = (
-        _host_request_candidate_query(context, or_(*role_clauses), only_archived, only_unread) if role_clauses else None
+        _build_host_request_select_query(context, or_(*role_clauses), only_archived, only_unread)
+        if role_clauses
+        else None
     )
     return chat_query, host_request_query
 
@@ -160,7 +162,7 @@ def _thread_candidate_queries(
 def mark_all_threads_seen(
     request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
 ) -> empty_pb2.Empty:
-    chat_query, host_request_query = _thread_candidate_queries(context, request)
+    chat_query, host_request_query = _build_thread_select_queries(context, request)
 
     # (topic actions, keys) groups for the notifications owned by the threads we mark seen
     notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
@@ -203,7 +205,7 @@ def mark_all_threads_seen(
     if host_request_query is not None:
         # the viewer's last-seen column depends on their role, so one update per role
         # (a user is never both initiator and recipient of the same request, so these are disjoint)
-        candidate_ids = select(host_request_query.subquery().c.conversation_id)
+        matching_ids = select(host_request_query.subquery().c.conversation_id)
         latest_message_id = (
             select(func.max(Message.id)).where(Message.conversation_id == HostRequest.conversation_id).scalar_subquery()
         )
@@ -216,7 +218,7 @@ def mark_all_threads_seen(
                 session.execute(
                     update(HostRequest)
                     .where(user_id_column == context.user_id)
-                    .where(HostRequest.conversation_id.in_(candidate_ids))
+                    .where(HostRequest.conversation_id.in_(matching_ids))
                     .where(last_seen_column < latest_message_id)
                     .values({last_seen_column: latest_message_id})
                     .returning(HostRequest.conversation_id)
