@@ -27,7 +27,7 @@ def update_env() -> None:
     envs = {
         **dict(backend_env),
         "SMTP_HOST": "localhost",
-        "OPENTELEMETRY_ENDPOINT": "localhost:4317",
+        "OPENTELEMETRY_ENDPOINT": "http://localhost:4318/v1/traces",
         "DATABASE_CONNECTION_STRING": f"postgresql://postgres:{db_password}@localhost:6545/postgres",
     }
 

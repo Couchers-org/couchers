@@ -44,7 +44,6 @@ services:
       - 1753
     depends_on:
       - postgres
-      - jaeger
     healthcheck:
       # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
       test: ["CMD", "python", "src/healthcheck.py"]
@@ -57,7 +56,6 @@ services:
       - postgres_backend
       - backend_media
       - backend_envoy
-      - backend_jaeger
     dns_search: ""
   media:
     image: registry.gitlab.com/couchers/couchers/media
@@ -160,20 +158,6 @@ services:
     networks:
       - web_nginx
 
-  jaeger:
-    image: jaegertracing/all-in-one:1.60
-    restart: always
-    stop_grace_period: 5s
-    ports:
-      - "16686:16686"
-    expose:
-      - 4317
-    environment:
-      - MEMORY_MAX_TRACES=10000
-      - COLLECTOR_OTLP_ENABLED=true
-    networks:
-      - backend_jaeger
-
 networks:
   backend_prometheus:
     driver: bridge
@@ -203,8 +187,5 @@ networks:
     driver: bridge
     enable_ipv6: true
   envoy_prometheus:
-    driver: bridge
-    enable_ipv6: true
-  backend_jaeger:
     driver: bridge
     enable_ipv6: true
