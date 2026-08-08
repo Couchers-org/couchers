@@ -3,7 +3,20 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import Geometry
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Enum, Float, ForeignKey, Index, String, func, text
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Computed,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    String,
+    func,
+    text,
+)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
@@ -37,7 +50,15 @@ class HostRequest(Base, kw_only=True):
     """
     A request to stay with a host.
 
-    In a normal host request, initiator = surfer and recipient = host.
+    There are two independent role axes here, and they only coincide for a normal host request:
+
+    * initiator/recipient is the conversation role: who proposed the stay and who responds to it. The whole
+      status state machine, unread tracking and archiving key off this axis.
+    * surfer/host is the stay role: whose couch it is. References, feedback, response rates and metrics key
+      off this axis.
+
+    An offer on a public trip reverses them: the host initiates and the traveller responds. surfer_user_id
+    and host_user_id are generated from that so the stay role can never drift out of sync.
     """
 
     __tablename__ = "host_requests"
@@ -47,6 +68,19 @@ class HostRequest(Base, kw_only=True):
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     recipient_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    surfer_user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        Computed("case when public_trip_id is null then initiator_user_id else recipient_user_id end", persisted=True),
+        index=True,
+        init=False,
+    )
+    host_user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        Computed("case when public_trip_id is null then recipient_user_id else initiator_user_id end", persisted=True),
+        index=True,
+        init=False,
+    )
 
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
@@ -98,6 +132,9 @@ class HostRequest(Base, kw_only=True):
     recipient: Mapped[User] = relationship(
         init=False, backref="host_requests_received", foreign_keys="HostRequest.recipient_user_id"
     )
+    # viewonly since the underlying columns are generated and can't be written through
+    surfer: Mapped[User] = relationship(init=False, foreign_keys="HostRequest.surfer_user_id", viewonly=True)
+    host: Mapped[User] = relationship(init=False, foreign_keys="HostRequest.host_user_id", viewonly=True)
     conversation: Mapped[Conversation] = relationship(init=False)
     moderation_state: Mapped[ModerationState] = relationship(init=False)
     public_trip: Mapped[PublicTrip | None] = relationship(init=False, back_populates="host_requests")
