@@ -73,7 +73,8 @@
       "notification_settings_link": "Управление настройками уведомлений",
       "volunteer_link": "Волонтёр",
       "do_not_email_link": "Не присылать мне письма (отключает хостинг)",
-      "timezone_note": "Все значения времени указаны в {{ timezone }}, согласно местоположению в вашем профиле."
+      "timezone_note": "Все значения времени указаны в {{ timezone }}, согласно местоположению в вашем профиле.",
+      "happy_couch_icon_caption": "Счастливые каучеры желают вам прекрасного завершения дня."
     }
   },
   "calendar_events": {
@@ -298,6 +299,10 @@
     "status_changed": {
       "cancelled_by_surfer": {
         "purpose": "<b>{{other_name}}</b> отменил(а) свой запрос на размещение:"
+      },
+      "accepted_by_host": {
+        "subject": "{{other_name}} принял ваш запрос на размещение",
+        "purpose": "<b>{{other_name}}</b> принял(а) ваш запрос на размещение:"
       }
     },
     "message": {
