@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -8,18 +7,19 @@ from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.helpers.host_requests import has_unseen_host_request_messages
-from couchers.jobs.handlers import send_message_notifications
+from couchers.jobs.handlers import MISSED_MESSAGES_DELAY, send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.db import generate_user, make_user_block
-from tests.fixtures.misc import now_5_min_in_future, process_jobs
+from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,
     real_api_session,
     requests_session,
 )
+from tests.fixtures.timewarp import Timewarp
 from tests.test_communities import create_community
 from tests.test_public_trips import _create_trip_directly
 from tests.test_requests import valid_request_text
@@ -553,7 +553,7 @@ def test_rejoined_group_chat_reads_the_current_subscription(db, moderator):
     assert unread_chat_ids() == []
 
 
-def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator):
+def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator, timewarp: Timewarp):
     """
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
     needs its own (topic actions, keys) group instead of being pooled with the per-chat keys.
@@ -579,9 +579,9 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     _create_group_chat(token1, [user2.id], moderator, text="hello there")
 
     # the job only picks up messages that have been unseen for five minutes
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     def unseen_missed_messages():
         with notifications_session(token2) as n:

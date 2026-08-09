@@ -1,5 +1,4 @@
 from datetime import UTC, datetime, timedelta, timezone
-from unittest.mock import patch
 
 import pytest
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -10,6 +9,7 @@ from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, to_timezone, wrap_coordinate
 from tests.fixtures.db import generate_user
+from tests.fixtures.timewarp import FrozenTimewarp
 
 
 @pytest.fixture(autouse=True)
@@ -50,14 +50,11 @@ def test_http_date_with_datetime():
     assert result == "Mon, 15 Jan 2024 10:30:45 GMT"
 
 
-def test_http_date_without_datetime():
+def test_http_date_without_datetime(frozen_timewarp: FrozenTimewarp):
     """Test http_date with dt=None to verify it uses now() and usegmt=True"""
-    mock_now = datetime(2024, 3, 20, 14, 25, 30, tzinfo=UTC)
+    frozen_timewarp.freeze_at(datetime(2024, 3, 20, 14, 25, 30, tzinfo=UTC))
 
-    with patch("couchers.utils.now", return_value=mock_now):
-        result = http_date()
-
-    assert result == "Wed, 20 Mar 2024 14:25:30 GMT"
+    assert http_date() == "Wed, 20 Mar 2024 14:25:30 GMT"
 
 
 def test_wrap_coordinate():
