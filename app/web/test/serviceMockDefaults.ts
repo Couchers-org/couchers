@@ -1,4 +1,11 @@
-import { BirthdateVerificationStatus, GenderVerificationStatus, GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
+import {
+  BirthdateVerificationStatus,
+  GenderVerificationStatus,
+  GetLiteUsersRes,
+  LiteUser,
+  Profile,
+  User,
+} from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
@@ -43,6 +50,12 @@ const liteUserMap: Record<string, LiteUser.AsObject> = {
 
 export async function getUser(userId: string): Promise<User.AsObject> {
   return userMap[userId];
+}
+
+// The users.json fixtures still carry every profile field, since GetUser returns them too.
+// This narrows one to the Profile shape rather than duplicating the fixtures.
+export async function getProfile(userId: string): Promise<Profile.AsObject> {
+  return userMap[userId] as unknown as Profile.AsObject;
 }
 
 export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {

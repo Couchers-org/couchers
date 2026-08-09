@@ -28,6 +28,10 @@ export function modUserDetailsKey(user?: string) {
   return user === undefined ? "modUserDetails" : ["modUserDetails", user];
 }
 
+export function profileKey(userId?: number) {
+  return userId === undefined ? ["profile"] : ["profile", userId];
+}
+
 export function liteUserKey(userId?: number) {
   return userId === undefined ? ["liteUser"] : ["liteUser", userId];
 }

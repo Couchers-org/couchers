@@ -1,6 +1,6 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { GetUserDetailsReq, GetUserReq, ListUserIdsReq, UserDetails } from "proto/admin_pb";
-import { User } from "proto/api_pb";
+import { Profile, User } from "proto/api_pb";
 
 import client from "./client";
 
@@ -10,6 +10,14 @@ export async function getUser(user: string): Promise<User.AsObject> {
     req.setUser(user);
   }
   return (await client.admin.getUser(req)).toObject();
+}
+
+export async function getProfile(user: string): Promise<Profile.AsObject> {
+  const req = new GetUserReq();
+  if (user) {
+    req.setUser(user);
+  }
+  return (await client.admin.getProfile(req)).toObject();
 }
 
 export async function getUserDetails(user: string): Promise<UserDetails.AsObject> {

@@ -12,6 +12,7 @@ import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
 import { TextDecoder, TextEncoder } from "util";
 
+import profile from "./fixtures/defaultProfile.json";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
@@ -62,6 +63,7 @@ jest.mock("features/weblate/useWeblateStats", () => ({
 jest.setTimeout(10000);
 
 global.defaultUser = user;
+global.defaultProfile = profile;
 global.localStorage = createWebStorageMock();
 global.sessionStorage = createWebStorageMock();
 
@@ -108,6 +110,7 @@ global.ResizeObserver = class ResizeObserver {
 declare global {
   // Disable the rule for this block
   var defaultUser: typeof user;
+  var defaultProfile: typeof profile;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
   // Re-enable the rule
 }
