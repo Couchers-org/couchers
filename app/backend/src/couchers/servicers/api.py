@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 from datetime import timedelta
-from typing import cast
+from typing import Any, cast
 from urllib.parse import urlencode
 
 import google.protobuf.message
@@ -1109,58 +1109,83 @@ def get_friendship_status(
     )
 
 
-def user_model_to_pb(
+NULLABLE_PROFILE_FIELDS = [
+    "max_guests",
+    "last_minute",
+    "has_pets",
+    "accepts_pets",
+    "pet_details",
+    "has_kids",
+    "accepts_kids",
+    "kid_details",
+    "has_housemates",
+    "housemate_details",
+    "wheelchair_accessible",
+    "smokes_at_home",
+    "drinking_allowed",
+    "drinks_at_home",
+    "other_host_info",
+    "sleeping_details",
+    "area",
+    "house_rules",
+    "parking",
+    "camping_ok",
+]
+
+
+def _ghost_fields_or_raise(
     db_user: User,
     session: Session,
     context: CouchersContext,
     *,
-    is_admin_see_ghosts: bool = False,
-    is_get_user_return_ghosts: bool = False,
-) -> api_pb2.User:
-    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
-    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
-
+    is_admin_see_ghosts: bool,
+    return_ghosts: bool,
+    caller: str,
+) -> dict[str, Any] | None:
+    """Returns anonymized ghost fields if db_user isn't visible, or None if they are and can be serialized normally."""
+    # note that this is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     viewer_user_id = context.user_id if context.is_logged_in() else None
-    if not is_admin_see_ghosts and is_not_visible(
+    if is_admin_see_ghosts or not is_not_visible(
         session, viewer_user_id, db_user.id, ignore_shadow=context.serialize_shadowed
     ):
-        # User is not visible (deleted, banned, or blocked)
-        if is_get_user_return_ghosts:
-            maybe_log_nonvisible_user_access(
-                context,
-                db_user,
-                access_type=NonvisibleUserAccessType.ghost_served,
-                actor_user_id=viewer_user_id,
-            )
-            # Return an anonymized "ghost" user profile
-            return api_pb2.User(
-                user_id=db_user.id,
-                is_ghost=True,
-                username=GHOST_USERNAME,
-                name=context.localization.localize_string("ghost_users.display_name"),
-                about_me=context.localization.localize_string("ghost_users.about_me"),
-            )
+        return None
+
+    # User is not visible (deleted, banned, or blocked)
+    if not return_ghosts:
         raise GhostUserSerializationError(
-            f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
+            f"Tried to serialize ghost profile in {caller} without appropriate flags. "
             f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
-    num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)
+    maybe_log_nonvisible_user_access(
+        context,
+        db_user,
+        access_type=NonvisibleUserAccessType.ghost_served,
+        actor_user_id=viewer_user_id,
+    )
+    return dict(
+        user_id=db_user.id,
+        is_ghost=True,
+        username=GHOST_USERNAME,
+        name=context.localization.localize_string("ghost_users.display_name"),
+        about_me=context.localization.localize_string("ghost_users.about_me"),
+    )
+
+
+def _profile_fields(db_user: User, session: Session, context: CouchersContext) -> dict[str, Any]:
+    """Constructor kwargs shared by User and Profile, which are field-for-field identical protos."""
     lat, lng = db_user.coordinates
-
     friends_status, pending_friend_request = get_friendship_status(db_user, session, context)
-
     response_rate = session.execute(
         select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
     ).scalar_one_or_none()
-
     avatar_upload = get_avatar_upload(session, db_user)
 
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
 
-    user = api_pb2.User(
+    return dict(
         user_id=db_user.id,
         username=db_user.username,
         name=db_user.name,
@@ -1172,7 +1197,7 @@ def user_model_to_pb(
         radius=db_user.geom_radius,
         verification=verification_score,
         community_standing=db_user.community_standing,
-        num_references=num_references,
+        num_references=get_num_references(session, context, [db_user.id]).get(db_user.id, 0),
         gender=db_user.gender,
         pronouns=db_user.pronouns,
         age=int(db_user.age),
@@ -1204,69 +1229,40 @@ def user_model_to_pb(
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
+        **response_rate_to_pb(response_rate),
     )
 
-    if db_user.max_guests is not None:
-        user.max_guests.value = db_user.max_guests
 
-    if db_user.last_minute is not None:
-        user.last_minute.value = db_user.last_minute
+def _set_nullable_profile_fields(pb: api_pb2.User | api_pb2.Profile, db_user: User) -> None:
+    """The wrapper-typed fields, which can't go through the constructor."""
+    for field in NULLABLE_PROFILE_FIELDS:
+        value = getattr(db_user, field)
+        if value is not None:
+            getattr(pb, field).value = value
 
-    if db_user.has_pets is not None:
-        user.has_pets.value = db_user.has_pets
 
-    if db_user.accepts_pets is not None:
-        user.accepts_pets.value = db_user.accepts_pets
+def user_model_to_pb(
+    db_user: User,
+    session: Session,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_user_return_ghosts: bool = False,
+) -> api_pb2.User:
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
+    ghost_fields = _ghost_fields_or_raise(
+        db_user,
+        session,
+        context,
+        is_admin_see_ghosts=is_admin_see_ghosts,
+        return_ghosts=is_get_user_return_ghosts,
+        caller="user_model_to_pb",
+    )
+    if ghost_fields is not None:
+        return api_pb2.User(**ghost_fields)
 
-    if db_user.pet_details is not None:
-        user.pet_details.value = db_user.pet_details
-
-    if db_user.has_kids is not None:
-        user.has_kids.value = db_user.has_kids
-
-    if db_user.accepts_kids is not None:
-        user.accepts_kids.value = db_user.accepts_kids
-
-    if db_user.kid_details is not None:
-        user.kid_details.value = db_user.kid_details
-
-    if db_user.has_housemates is not None:
-        user.has_housemates.value = db_user.has_housemates
-
-    if db_user.housemate_details is not None:
-        user.housemate_details.value = db_user.housemate_details
-
-    if db_user.wheelchair_accessible is not None:
-        user.wheelchair_accessible.value = db_user.wheelchair_accessible
-
-    if db_user.smokes_at_home is not None:
-        user.smokes_at_home.value = db_user.smokes_at_home
-
-    if db_user.drinking_allowed is not None:
-        user.drinking_allowed.value = db_user.drinking_allowed
-
-    if db_user.drinks_at_home is not None:
-        user.drinks_at_home.value = db_user.drinks_at_home
-
-    if db_user.other_host_info is not None:
-        user.other_host_info.value = db_user.other_host_info
-
-    if db_user.sleeping_details is not None:
-        user.sleeping_details.value = db_user.sleeping_details
-
-    if db_user.area is not None:
-        user.area.value = db_user.area
-
-    if db_user.house_rules is not None:
-        user.house_rules.value = db_user.house_rules
-
-    if db_user.parking is not None:
-        user.parking.value = db_user.parking
-
-    if db_user.camping_ok is not None:
-        user.camping_ok.value = db_user.camping_ok
-
+    user = api_pb2.User(**_profile_fields(db_user, session, context))
+    _set_nullable_profile_fields(user, db_user)
     return user
 
 
@@ -1278,129 +1274,20 @@ def profile_model_to_pb(
     is_admin_see_ghosts: bool = False,
     is_get_profile_return_ghosts: bool = False,
 ) -> api_pb2.Profile:
-    # mirrors user_model_to_pb: this is called from Admin.GetProfile too, so it must work for banned/deleted users
-    viewer_user_id = context.user_id if context.is_logged_in() else None
-    if not is_admin_see_ghosts and is_not_visible(
-        session, viewer_user_id, db_user.id, ignore_shadow=context.serialize_shadowed
-    ):
-        if is_get_profile_return_ghosts:
-            maybe_log_nonvisible_user_access(
-                context,
-                db_user,
-                access_type=NonvisibleUserAccessType.ghost_served,
-                actor_user_id=viewer_user_id,
-            )
-            return api_pb2.Profile(
-                user_id=db_user.id,
-                is_ghost=True,
-                username=GHOST_USERNAME,
-                name=context.localization.localize_string("ghost_users.display_name"),
-                about_me=context.localization.localize_string("ghost_users.about_me"),
-            )
-        raise GhostUserSerializationError(
-            f"Tried to serialize ghost profile in profile_model_to_pb without appropriate flags. "
-            f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
-        )
-
-    friends_status, pending_friend_request = get_friendship_status(db_user, session, context)
-    response_rate = session.execute(
-        select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
-    ).scalar_one_or_none()
-    avatar_upload = get_avatar_upload(session, db_user)
-    lat, lng = db_user.coordinates
-
-    verification_score = 0.0
-    if db_user.phone_verification_verified:
-        verification_score += 1.0 * db_user.phone_is_verified
-
-    profile = api_pb2.Profile(
-        user_id=db_user.id,
-        username=db_user.username,
-        name=db_user.name,
-        city=db_user.city,
-        timezone=db_user.timezone,
-        lat=lat,
-        lng=lng,
-        radius=db_user.geom_radius,
-        gender=db_user.gender,
-        age=int(db_user.age),
-        joined=Timestamp_from_datetime(db_user.display_joined),
-        last_active=Timestamp_from_datetime(db_user.display_last_active),
-        verification=verification_score,
-        community_standing=db_user.community_standing,
-        num_references=get_num_references(session, context, [db_user.id]).get(db_user.id, 0),
-        friends=friends_status,
-        pending_friend_request=pending_friend_request,
-        avatar_url=avatar_upload.full_url if avatar_upload else None,
-        avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
-        badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
-        .scalars()
-        .all(),
-        **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
-        hometown=db_user.hometown,
-        pronouns=db_user.pronouns,
-        occupation=db_user.occupation,
-        education=db_user.education,
-        about_me=db_user.about_me,
-        things_i_like=db_user.things_i_like,
-        about_place=db_user.about_place,
-        additional_information=db_user.additional_information,
-        hosting_status=hostingstatus2api[db_user.hosting_status],
-        meetup_status=meetupstatus2api[db_user.meetup_status],
-        regions_visited=[region.code for region in db_user.regions_visited],
-        regions_lived=[region.code for region in db_user.regions_lived],
-        language_abilities=[
-            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
-            for ability in db_user.language_abilities
-        ],
-        profile_gallery_id=db_user.profile_gallery_id,
-        smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
-        sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
-        parking_details=parkingdetails2api[db_user.parking_details],
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetProfile
+    ghost_fields = _ghost_fields_or_raise(
+        db_user,
+        session,
+        context,
+        is_admin_see_ghosts=is_admin_see_ghosts,
+        return_ghosts=is_get_profile_return_ghosts,
+        caller="profile_model_to_pb",
     )
+    if ghost_fields is not None:
+        return api_pb2.Profile(**ghost_fields)
 
-    if db_user.max_guests is not None:
-        profile.max_guests.value = db_user.max_guests
-    if db_user.last_minute is not None:
-        profile.last_minute.value = db_user.last_minute
-    if db_user.has_pets is not None:
-        profile.has_pets.value = db_user.has_pets
-    if db_user.accepts_pets is not None:
-        profile.accepts_pets.value = db_user.accepts_pets
-    if db_user.pet_details is not None:
-        profile.pet_details.value = db_user.pet_details
-    if db_user.has_kids is not None:
-        profile.has_kids.value = db_user.has_kids
-    if db_user.accepts_kids is not None:
-        profile.accepts_kids.value = db_user.accepts_kids
-    if db_user.kid_details is not None:
-        profile.kid_details.value = db_user.kid_details
-    if db_user.has_housemates is not None:
-        profile.has_housemates.value = db_user.has_housemates
-    if db_user.housemate_details is not None:
-        profile.housemate_details.value = db_user.housemate_details
-    if db_user.wheelchair_accessible is not None:
-        profile.wheelchair_accessible.value = db_user.wheelchair_accessible
-    if db_user.smokes_at_home is not None:
-        profile.smokes_at_home.value = db_user.smokes_at_home
-    if db_user.drinking_allowed is not None:
-        profile.drinking_allowed.value = db_user.drinking_allowed
-    if db_user.drinks_at_home is not None:
-        profile.drinks_at_home.value = db_user.drinks_at_home
-    if db_user.other_host_info is not None:
-        profile.other_host_info.value = db_user.other_host_info
-    if db_user.sleeping_details is not None:
-        profile.sleeping_details.value = db_user.sleeping_details
-    if db_user.area is not None:
-        profile.area.value = db_user.area
-    if db_user.house_rules is not None:
-        profile.house_rules.value = db_user.house_rules
-    if db_user.parking is not None:
-        profile.parking.value = db_user.parking
-    if db_user.camping_ok is not None:
-        profile.camping_ok.value = db_user.camping_ok
-
+    profile = api_pb2.Profile(**_profile_fields(db_user, session, context))
+    _set_nullable_profile_fields(profile, db_user)
     return profile
 
 
