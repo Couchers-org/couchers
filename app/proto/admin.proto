@@ -26,6 +26,10 @@ service Admin {
     // Get info about a particular user, ignores the fact that they may be banned/deleted
   }
 
+  rpc GetProfile(GetUserReq) returns (org.couchers.api.core.Profile) {
+    // Get the editable profile of a user, ignores the fact that they may be banned/deleted
+  }
+
   rpc SearchUsers(SearchUsersReq) returns (SearchUsersRes) {}
 
   rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
