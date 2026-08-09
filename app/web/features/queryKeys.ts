@@ -27,6 +27,9 @@ export function modUserKey(user?: string) {
 export function modUserDetailsKey(user?: string) {
   return user === undefined ? "modUserDetails" : ["modUserDetails", user];
 }
+export function modProfileKey(user?: string) {
+  return user === undefined ? "modProfile" : ["modProfile", user];
+}
 
 export function profileKey(userId?: number) {
   return userId === undefined ? ["profile"] : ["profile", userId];

@@ -1,9 +1,9 @@
 import { InfiniteData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { modUserDetailsKey, modUserKey, newUsersListKey } from "features/queryKeys";
+import { modProfileKey, modUserDetailsKey, modUserKey, newUsersListKey } from "features/queryKeys";
 import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
 import { ListUserIdsRes, UserDetails } from "proto/admin_pb";
-import { User } from "proto/api_pb";
+import { Profile, User } from "proto/api_pb";
 import { service } from "service";
 
 export const useNewUsers = () => {
@@ -37,6 +37,12 @@ export default function useUserWithDetails(user: string) {
     staleTime: userStaleTime,
   });
 
+  const profileQuery = useQuery<Profile.AsObject, RpcError>({
+    queryFn: () => service.admin.getProfile(user),
+    queryKey: [modProfileKey(user)],
+    staleTime: userStaleTime,
+  });
+
   const detailsQuery = useQuery<UserDetails.AsObject, RpcError>({
     queryFn: () => service.admin.getUserDetails(user),
     queryKey: [modUserDetailsKey(user)],
@@ -47,17 +53,21 @@ export default function useUserWithDetails(user: string) {
   if (query.error?.message) {
     errors.push(query.error?.message || "");
   }
+  if (profileQuery.error?.message) {
+    errors.push(profileQuery.error?.message || "");
+  }
   if (detailsQuery.error?.message) {
     errors.push(detailsQuery.error?.message || "");
   }
 
   const error = errors.join("\n");
-  const isLoading = query.isLoading || detailsQuery.isLoading;
-  const isFetching = query.isFetching || detailsQuery.isFetching;
-  const isError = query.isError || detailsQuery.isError;
+  const isLoading = query.isLoading || profileQuery.isLoading || detailsQuery.isLoading;
+  const isFetching = query.isFetching || profileQuery.isFetching || detailsQuery.isFetching;
+  const isError = query.isError || profileQuery.isError || detailsQuery.isError;
 
   return {
     user: query.data,
+    profile: profileQuery.data,
     userDetails: detailsQuery.data,
     error,
     isError,

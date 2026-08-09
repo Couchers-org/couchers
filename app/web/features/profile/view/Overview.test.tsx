@@ -48,7 +48,7 @@ describe("Overview", () => {
     getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
 
     render(
-      <ProfileUserProvider user={mockUsers[1]}>
+      <ProfileUserProvider user={mockUsers[1]} profile={defaultProfile}>
         <Overview setIsRequesting={jest.fn()} setIsMessaging={jest.fn()} tab="about" />
       </ProfileUserProvider>,
       { wrapper },

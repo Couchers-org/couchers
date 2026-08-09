@@ -10,7 +10,7 @@ import { service } from "service";
 import mockUsers from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
+import { getLanguages, getProfile, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import { sectionLabels } from "./UserCard";
@@ -22,6 +22,7 @@ jest.mock("features/userQueries/useCurrentUser");
 jest.mock("react-simple-maps");
 
 const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
+const getProfileMock = service.user.getProfile as MockedService<typeof service.user.getProfile>;
 const reportContentMock = service.reporting.reportContent as MockedService<typeof service.reporting.reportContent>;
 
 const blockUserMock = service.blocking.blockUser as MockedService<typeof service.blocking.blockUser>;
@@ -44,6 +45,7 @@ describe("User page", () => {
 
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
+    getProfileMock.mockImplementation(getProfile);
     reportContentMock.mockResolvedValue(new Empty());
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);

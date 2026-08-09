@@ -43,7 +43,7 @@ const LONG_TEXT = "a".repeat(250);
 
 function renderNewHostRequest() {
   render(
-    <ProfileUserProvider user={hostUser}>
+    <ProfileUserProvider user={hostUser} profile={defaultProfile}>
       <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
     </ProfileUserProvider>,
     { wrapper },
@@ -101,7 +101,7 @@ describe("NewHostRequest", () => {
 
     createHostRequestMock.mockResolvedValue(1);
     render(
-      <ProfileUserProvider user={hostUser}>
+      <ProfileUserProvider user={hostUser} profile={defaultProfile}>
         <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },
@@ -146,7 +146,7 @@ describe("NewHostRequest", () => {
     createHostRequestMock.mockResolvedValue(1);
     const hostBehindTimezone = { ...users[1], timezone: "America/Los_Angeles" };
     render(
-      <ProfileUserProvider user={hostBehindTimezone}>
+      <ProfileUserProvider user={hostBehindTimezone} profile={defaultProfile}>
         <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },

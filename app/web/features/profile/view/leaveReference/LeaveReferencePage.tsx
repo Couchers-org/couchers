@@ -7,6 +7,7 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { hasGivenHostRequestReferenceKey } from "features/queryKeys";
+import { useProfile } from "features/userQueries/useProfile";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -67,6 +68,7 @@ export default function LeaveReferencePage({
   });
 
   const { data: user, isLoading: isUserLoading, error: userError } = useUser(userId);
+  const { data: profile, isLoading: isProfileLoading, error: profileError } = useProfile(userId);
   const {
     data: availableReferences,
     isLoading: isAvailableReferencesLoading,
@@ -79,10 +81,12 @@ export default function LeaveReferencePage({
     return <Alert severity="error">{t("profile:leave_reference.invalid_reference_type")}</Alert>;
   }
 
-  if (userError || availableReferencesError) {
-    return <Alert severity="error">{userError || availableReferencesError?.message || ""}</Alert>;
+  if (userError || profileError || availableReferencesError) {
+    return (
+      <Alert severity="error">{userError || profileError?.message || availableReferencesError?.message || ""}</Alert>
+    );
   }
-  if (isUserLoading || isAvailableReferencesLoading) {
+  if (isUserLoading || isProfileLoading || isAvailableReferencesLoading) {
     return <CenteredSpinner />;
   }
 
@@ -131,7 +135,7 @@ export default function LeaveReferencePage({
 
   return (
     <StyledRoot>
-      <ProfileUserProvider user={user!}>
+      <ProfileUserProvider user={user!} profile={profile!}>
         {!isMobile && <UserOverview showHostAndMeetAvailability={false} />}
         <StyledFormWrapper>
           <ReferenceForm hostRequestId={hostRequestId} referenceType={referenceType} userId={userId} step={step} />

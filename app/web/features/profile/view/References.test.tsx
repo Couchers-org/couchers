@@ -33,7 +33,7 @@ function assertDateBadgeIsVisible(reference: ReturnType<typeof within>) {
 
 function renderReferences() {
   render(
-    <ProfileUserProvider user={users[0]}>
+    <ProfileUserProvider user={users[0]} profile={defaultProfile}>
       <References />
     </ProfileUserProvider>,
     { wrapper },

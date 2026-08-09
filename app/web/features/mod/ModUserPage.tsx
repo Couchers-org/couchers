@@ -51,7 +51,7 @@ function BanDeleteBanner({ userDetails }: { userDetails: UserDetails.AsObject })
 export default function ModUserPage({ username, tab = "about" }: { username: string; tab?: UserTab }) {
   const router = useRouter();
 
-  const { user, userDetails, isLoading, error } = useUserWithDetails(username);
+  const { user, profile, userDetails, isLoading, error } = useUserWithDetails(username);
 
   return (
     <>
@@ -59,9 +59,9 @@ export default function ModUserPage({ username, tab = "about" }: { username: str
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
-      ) : user && userDetails ? (
+      ) : user && profile && userDetails ? (
         <ModUserDetails userDetails={userDetails}>
-          <ProfileUserProvider user={user}>
+          <ProfileUserProvider user={user} profile={profile}>
             <BanDeleteBanner userDetails={userDetails} />
             <StyledProfileRoot>
               <UserOverview showHostAndMeetAvailability actions={<AdminActions username={user.username} />} />
