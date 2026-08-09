@@ -2281,6 +2281,36 @@ def test_create_request_with_public_trip(db, moderator):
         assert hr.public_trip_id == trip_id
 
 
+def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
+    """An offer snapshots the offering host's place, not the traveller's."""
+    surfer, _ = generate_user(city="Surfer city", geom=create_coordinate(1, 1), geom_radius=11)
+    host, host_token = generate_user(city="Host city", geom=create_coordinate(2, 2), geom_radius=22)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(host_token) as api:
+        hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert hr.hosting_city == "Host city"
+        assert round(hr.hosting_lat, 4) == 2
+        assert round(hr.hosting_lng, 4) == 2
+        assert hr.hosting_radius == 22
+
+
 def test_create_request_with_public_trip_dates_out_of_range(db):
     """Offered dates outside the trip window are rejected."""
     surfer, _ = generate_user()
