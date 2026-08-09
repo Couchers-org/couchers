@@ -10,7 +10,9 @@ import { theme } from "theme";
 
 import { ALMOST_DONE_CUTOFF, COMPLETE_CUTOFF, HIDDEN_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
-const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
+const ProgressBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "percent",
+})<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
   height: 8,
   backgroundColor: theme.palette.grey[200],
@@ -36,7 +38,9 @@ const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   },
 }));
 
-const LargeLanguageCard = styled(Card)<{ percent: number }>(({ theme, percent }) => ({
+const LargeLanguageCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== "percent",
+})<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
   opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
@@ -48,7 +52,9 @@ const LargeLanguageCard = styled(Card)<{ percent: number }>(({ theme, percent })
   },
 }));
 
-const SmallLanguageCard = styled(Card)<{ percent: number }>(({ theme, percent }) => ({
+const SmallLanguageCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== "percent",
+})<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
   opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,

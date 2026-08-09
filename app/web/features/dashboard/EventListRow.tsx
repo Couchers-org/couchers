@@ -49,8 +49,8 @@ const DateChip = styled("div")({
   },
 });
 
-const DateMonth = styled("div")<{ $labelFontSize?: number }>(({ $labelFontSize }) => ({
-  fontSize: $labelFontSize ? `${$labelFontSize}px` : "9px",
+const DateMonth = styled("div")<{ labelFontSize?: number }>(({ labelFontSize }) => ({
+  fontSize: labelFontSize ? `${labelFontSize}px` : "9px",
   textTransform: "uppercase",
   letterSpacing: "0.08em",
   color: "var(--mui-palette-secondary-main)",
@@ -187,7 +187,7 @@ export default function EventListRow({ event }: EventListRowProps) {
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
       <DateChip data-today={isToday || isOngoing || undefined}>
-        <DateMonth $labelFontSize={isToday || isOngoing ? chipFontSize : undefined}>
+        <DateMonth labelFontSize={isToday || isOngoing ? chipFontSize : undefined}>
           {isOngoing ? nowLabel : isToday ? todayLabel : month}
         </DateMonth>
         {!isToday && !isOngoing && <DateDay>{day}</DateDay>}
