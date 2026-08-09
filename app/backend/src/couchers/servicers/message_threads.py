@@ -29,7 +29,7 @@ from couchers.helpers.host_requests import (
     is_hosting_party,
     is_public_trip_offer_recipient,
     is_surfing_party,
-    viewer_last_seen_message_id,
+    unseen_host_request_message_count,
 )
 from couchers.helpers.messages import hostrequeststatus2api, message_to_pb
 from couchers.models import (
@@ -333,32 +333,24 @@ def _build_host_request_threads_pb(
     host_request_ids = [thread.conversation_id for thread in threads]
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
-    # the request + its latest message (id already known) + conversation, in one query
-    host_request_rows = session.execute(
-        select(HostRequest, Conversation, Message)
+    # the request, its conversation, its latest message (id already known) and its unseen count, in
+    # one query
+    rows = session.execute(
+        select(
+            HostRequest,
+            Conversation,
+            Message,
+            unseen_host_request_message_count(context.user_id),
+        )
         .join(Conversation, Conversation.id == HostRequest.conversation_id)
         .join(Message, and_(Message.conversation_id == HostRequest.conversation_id, Message.id.in_(latest_message_ids)))
         .where(HostRequest.conversation_id.in_(host_request_ids))
     ).all()
-
-    unseen_count_by_conversation: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
-            select(HostRequest.conversation_id, func.count(Message.id))
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(HostRequest.conversation_id.in_(host_request_ids))
-            .where(Message.id > viewer_last_seen_message_id(context.user_id))
-            .group_by(HostRequest.conversation_id)
-        ).all()
-    )
     return {
-        row.HostRequest.conversation_id: _host_request_thread_to_pb(
-            row.HostRequest,
-            row.Conversation,
-            row.Message,
-            context.user_id,
-            unseen_count_by_conversation.get(row.HostRequest.conversation_id, 0),
+        host_request.conversation_id: _host_request_thread_to_pb(
+            host_request, conversation, message, context.user_id, unseen_message_count
         )
-        for row in host_request_rows
+        for host_request, conversation, message, unseen_message_count in rows
     }
 
 
