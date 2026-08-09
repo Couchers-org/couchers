@@ -208,6 +208,11 @@ def test_get_profile(db):
         assert res.occupation == "Software engineer"
         assert res.max_guests.value == 3
         assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_PRIVATE
+        assert res.username == user2.username
+        assert res.name == user2.name
+        assert res.city == user2.city
+        assert res.age == user2.age
+        assert res.friends == api_pb2.User.FriendshipStatus.NOT_FRIENDS
         assert res.hosting_status in (
             api_pb2.HOSTING_STATUS_UNKNOWN,
             api_pb2.HOSTING_STATUS_CAN_HOST,
@@ -239,10 +244,20 @@ def test_get_profile_ghost_user(db, flag):
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
+    # GetProfile serves a ghost, matching GetUser, so the profile page still renders for these users
     with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        res = api.GetProfile(api_pb2.GetProfileReq(user=user2.username))
+
+    assert res.user_id == user2.id
+    assert res.is_ghost
+    assert res.username == "ghost"
+    assert res.name == "Deactivated Account"
+    assert res.city == ""
+    assert res.hometown == ""
+    assert res.age == 0
+    assert res.num_references == 0
+    assert res.avatar_url == ""
+    assert not res.badges
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])

@@ -323,10 +323,7 @@ class API(api_pb2_grpc.APIServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        if is_not_visible(session, context.user_id, user.id):
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-
-        return profile_model_to_pb(user)
+        return profile_model_to_pb(user, session, context, is_get_profile_return_ghosts=True)
 
     def GetLiteUser(
         self, request: api_pb2.GetLiteUserReq, context: CouchersContext, session: Session
@@ -1064,6 +1061,54 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
+def get_friendship_status(
+    db_user: User, session: Session, context: CouchersContext
+) -> tuple[api_pb2.User.FriendshipStatus.ValueType, api_pb2.FriendRequest | None]:
+    """Returns the viewing user's friendship status with db_user, and the pending request if there is one."""
+    if context.is_logged_out() or db_user.id == context.user_id:
+        return api_pb2.User.FriendshipStatus.NA, None
+
+    friend_relationship = session.execute(
+        where_moderated_content_visible(
+            select(FriendRelationship)
+            .where(
+                or_(
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == db_user.id,
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == db_user.id,
+                        FriendRelationship.to_user_id == context.user_id,
+                    ),
+                )
+            )
+            .where(
+                or_(
+                    FriendRelationship.status == FriendStatus.accepted,
+                    FriendRelationship.status == FriendStatus.pending,
+                )
+            ),
+            context,
+            FriendRelationship,
+        )
+    ).scalar_one_or_none()
+
+    if not friend_relationship:
+        return api_pb2.User.FriendshipStatus.NOT_FRIENDS, None
+
+    if friend_relationship.status == FriendStatus.accepted:
+        return api_pb2.User.FriendshipStatus.FRIENDS, None
+
+    sent = friend_relationship.from_user_id == context.user_id
+    return api_pb2.User.FriendshipStatus.PENDING, api_pb2.FriendRequest(
+        friend_request_id=friend_relationship.id,
+        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+        user_id=friend_relationship.to_user.id if sent else friend_relationship.from_user.id,
+        sent=sent,
+    )
+
+
 def user_model_to_pb(
     db_user: User,
     session: Session,
@@ -1103,59 +1148,7 @@ def user_model_to_pb(
     num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)
     lat, lng = db_user.coordinates
 
-    pending_friend_request = None
-    if context.is_logged_out() or db_user.id == context.user_id:
-        friends_status = api_pb2.User.FriendshipStatus.NA
-    else:
-        friend_relationship = session.execute(
-            where_moderated_content_visible(
-                select(FriendRelationship)
-                .where(
-                    or_(
-                        and_(
-                            FriendRelationship.from_user_id == context.user_id,
-                            FriendRelationship.to_user_id == db_user.id,
-                        ),
-                        and_(
-                            FriendRelationship.from_user_id == db_user.id,
-                            FriendRelationship.to_user_id == context.user_id,
-                        ),
-                    )
-                )
-                .where(
-                    or_(
-                        FriendRelationship.status == FriendStatus.accepted,
-                        FriendRelationship.status == FriendStatus.pending,
-                    )
-                ),
-                context,
-                FriendRelationship,
-            )
-        ).scalar_one_or_none()
-
-        if friend_relationship:
-            if friend_relationship.status == FriendStatus.accepted:
-                friends_status = api_pb2.User.FriendshipStatus.FRIENDS
-            else:
-                friends_status = api_pb2.User.FriendshipStatus.PENDING
-                if friend_relationship.from_user_id == context.user_id:
-                    # we sent it
-                    pending_friend_request = api_pb2.FriendRequest(
-                        friend_request_id=friend_relationship.id,
-                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user_id=friend_relationship.to_user.id,
-                        sent=True,
-                    )
-                else:
-                    # we received it
-                    pending_friend_request = api_pb2.FriendRequest(
-                        friend_request_id=friend_relationship.id,
-                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user_id=friend_relationship.from_user.id,
-                        sent=False,
-                    )
-        else:
-            friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
+    friends_status, pending_friend_request = get_friendship_status(db_user, session, context)
 
     response_rate = session.execute(
         select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
@@ -1277,9 +1270,74 @@ def user_model_to_pb(
     return user
 
 
-def profile_model_to_pb(db_user: User) -> api_pb2.Profile:
+def profile_model_to_pb(
+    db_user: User,
+    session: Session,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_profile_return_ghosts: bool = False,
+) -> api_pb2.Profile:
+    # mirrors user_model_to_pb: this is called from Admin.GetProfile too, so it must work for banned/deleted users
+    viewer_user_id = context.user_id if context.is_logged_in() else None
+    if not is_admin_see_ghosts and is_not_visible(
+        session, viewer_user_id, db_user.id, ignore_shadow=context.serialize_shadowed
+    ):
+        if is_get_profile_return_ghosts:
+            maybe_log_nonvisible_user_access(
+                context,
+                db_user,
+                access_type=NonvisibleUserAccessType.ghost_served,
+                actor_user_id=viewer_user_id,
+            )
+            return api_pb2.Profile(
+                user_id=db_user.id,
+                is_ghost=True,
+                username=GHOST_USERNAME,
+                name=context.localization.localize_string("ghost_users.display_name"),
+                about_me=context.localization.localize_string("ghost_users.about_me"),
+            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in profile_model_to_pb without appropriate flags. "
+            f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+        )
+
+    friends_status, pending_friend_request = get_friendship_status(db_user, session, context)
+    response_rate = session.execute(
+        select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
+    ).scalar_one_or_none()
+    avatar_upload = get_avatar_upload(session, db_user)
+    lat, lng = db_user.coordinates
+
+    verification_score = 0.0
+    if db_user.phone_verification_verified:
+        verification_score += 1.0 * db_user.phone_is_verified
+
     profile = api_pb2.Profile(
         user_id=db_user.id,
+        username=db_user.username,
+        name=db_user.name,
+        city=db_user.city,
+        timezone=db_user.timezone,
+        lat=lat,
+        lng=lng,
+        radius=db_user.geom_radius,
+        gender=db_user.gender,
+        age=int(db_user.age),
+        joined=Timestamp_from_datetime(db_user.display_joined),
+        last_active=Timestamp_from_datetime(db_user.display_last_active),
+        verification=verification_score,
+        community_standing=db_user.community_standing,
+        num_references=get_num_references(session, context, [db_user.id]).get(db_user.id, 0),
+        friends=friends_status,
+        pending_friend_request=pending_friend_request,
+        avatar_url=avatar_upload.full_url if avatar_upload else None,
+        avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
+        badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
+        .scalars()
+        .all(),
+        **get_strong_verification_fields(session, db_user),
+        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
         hometown=db_user.hometown,
         pronouns=db_user.pronouns,
         occupation=db_user.occupation,

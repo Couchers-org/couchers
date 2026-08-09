@@ -335,8 +335,61 @@ message GetProfileReq {
   string user = 1;
 }
 
+// Everything needed to render a user's profile page. A superset of the editable profile fields: it also carries the
+// identity, computed and viewer-relative fields, so the page renders from this message alone.
 message Profile {
   int64 user_id = 1;
+  bool is_ghost = 43;
+
+  string username = 44;
+  string name = 45;
+  string city = 46;
+
+  // the user's time zonename derived from their coordinates, for example "Australia/Melbourne"
+  string timezone = 47;
+
+  // doubles are enough to describe lat/lng
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!
+  double lat = 48;
+  double lng = 49;
+  double radius = 50; // meters
+
+  string gender = 51;
+  uint32 age = 52;
+  google.protobuf.Timestamp joined = 53; // not exact
+  google.protobuf.Timestamp last_active = 54; // not exact
+
+  double verification = 55; // 1.0 if phone number verified, 0.0 otherwise
+  double community_standing = 56;
+  uint32 num_references = 57;
+  bool has_strong_verification = 58;
+  BirthdateVerificationStatus birthdate_verification_status = 59;
+  GenderVerificationStatus gender_verification_status = 60;
+
+  User.FriendshipStatus friends = 61;
+  // only present if friends == User.FriendshipStatus.PENDING
+  FriendRequest pending_friend_request = 62;
+
+  string avatar_url = 63;
+  string avatar_thumbnail_url = 64;
+
+  repeated string badges = 65;
+
+  // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
+  // received requests.
+  oneof response_rate {
+    // received <3 requests
+    org.couchers.api.requests.ResponseRateInsufficientData insufficient_data = 66;
+    // response rate <= 33%
+    org.couchers.api.requests.ResponseRateLow low = 67;
+    // response rate > 33%, but <= 66%
+    org.couchers.api.requests.ResponseRateSome some = 68;
+    // response rate > 66%, but <= 90%
+    org.couchers.api.requests.ResponseRateMost most = 69;
+    // response rate > 90%
+    org.couchers.api.requests.ResponseRateAlmostAll almost_all = 70;
+  }
 
   string hometown = 2;
   string pronouns = 3;

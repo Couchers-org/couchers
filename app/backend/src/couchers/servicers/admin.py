@@ -320,7 +320,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        return profile_model_to_pb(user)
+        return profile_model_to_pb(user, session, context, is_admin_see_ghosts=True)
 
     def SearchUsers(
         self, request: admin_pb2.SearchUsersReq, context: CouchersContext, session: Session
