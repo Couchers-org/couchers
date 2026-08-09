@@ -53,9 +53,11 @@ of `app/.gitlab-ci.yml`. Set it to anything other than `"true"` and the recordin
 item all drop out together; nothing else in the pipeline changes. Override it for a single run from GitLab's "Run
 pipeline" form without editing the file.
 
-Turn all three off together rather than one of them. The report step treats an empty input directory as an error, so
-recording without reporting fails `preview:backend-coverage`, which blocks `preview:backend` and takes the whole
-sticky PR comment — schema, schema diff, emails, coverage — with it.
+Nothing here can break the rest of the pipeline. `preview:backend-coverage` gates `preview:backend`, which writes the
+whole sticky PR comment — schema, schema diff, emails, coverage — so the report step is run with `|| echo` and cannot
+fail the job, whether the input directory is empty, the baseline is malformed or the script has a bug. The comment
+item is added only when `index.html` actually exists, so a failed report degrades to not being linked, and the
+failure is visible in the `preview:backend-coverage` log.
 
 Turning it off leaves the query log item sitting in the comment on any PR that already has one, since each writer
 only rewrites the items it owns. New comments simply will not have it.
