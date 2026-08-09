@@ -25,8 +25,9 @@ def was_subscribed_at(
 
 def is_unseen(message: type[Message], subscription: type[GroupChatSubscription]) -> ColumnElement[bool]:
     """
-    Unseen by the subscriber and still within their reach: a message they can never open, because it
-    was sent while they were out of the chat, is not unread.
+    Unseen by the subscriber, over the window this subscription covers. Nothing outside it is unread:
+    either the subscriber wasn't in the chat, or it belongs to a subscription they abandoned on
+    rejoining, which marking seen can never advance.
     """
     return and_(
         was_subscribed_at(subscription, message.time),

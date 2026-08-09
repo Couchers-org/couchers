@@ -1823,6 +1823,81 @@ def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
 
 
+def test_rejoined_group_chat_only_unseen_matches_the_badge(db, moderator):
+    """
+    GetGroupChatMessages matched only_unseen against every one of the viewer's subscriptions, so the
+    abandoned one served up its unread messages even though the badge no longer counts them.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
+
+    with conversations_session(token1) as c:
+        unseen = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id, only_unseen=True)
+        ).messages
+        assert [m.WhichOneof("content") for m in unseen] == ["text", "user_invited"]
+        assert unseen[0].text.text == "welcome back"
+
+        # the earlier stint is still readable, it just isn't unread
+        all_messages = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id)
+        ).messages
+        assert [m.text.text for m in all_messages if m.WhichOneof("content") == "text"] == ["welcome back", "hi"]
+
+
+def test_rejoined_group_chat_archived_filter_reads_newest_subscription(db, moderator):
+    """
+    ListGroupChats applied the archived filter before picking the newest subscription, so a chat
+    archived before the viewer was removed stayed in their archived list off the abandoned
+    subscription, where nothing could ever mark it seen.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+
+    with conversations_session(token1) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=group_chat_id, is_archived=True)
+        )
+
+    with conversations_session(token2) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+
+    with conversations_session(token1) as c:
+        archived = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True)).group_chats
+        assert [gc.group_chat_id for gc in archived] == []
+
+        (listed,) = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False)).group_chats
+        assert listed.group_chat_id == group_chat_id
+        assert not listed.is_archived
+
+
 def test_regression_ListGroupChats_pagination(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
