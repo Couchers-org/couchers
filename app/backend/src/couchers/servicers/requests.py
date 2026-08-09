@@ -12,7 +12,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS
+from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
 from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
@@ -87,6 +87,12 @@ def host_request_to_pb(
         .limit(1)
     ).scalar_one()
 
+    unseen_message_count = session.execute(
+        select(unseen_host_request_message_count(context.user_id)).where(
+            HostRequest.conversation_id == host_request.conversation_id
+        )
+    ).scalar_one()
+
     lat, lng = get_coordinates(host_request.hosting_location)
 
     need_feedback = False
@@ -125,6 +131,7 @@ def host_request_to_pb(
             else host_request.is_initiator_archived
         ),
         public_trip_id=host_request.public_trip_id,
+        unseen_message_count=unseen_message_count,
     )
 
 
@@ -407,7 +414,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         statement = where_moderated_content_visible(
             where_users_column_visible(
                 where_users_column_visible(
-                    select(Message, HostRequest, Conversation)
+                    select(
+                        Message,
+                        HostRequest,
+                        Conversation,
+                        unseen_host_request_message_count(context.user_id).label("unseen_message_count"),
+                    )
                     .outerjoin(
                         message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                     )
@@ -511,6 +523,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     hosting_lat=lat,
                     hosting_lng=lng,
                     hosting_radius=result.HostRequest.hosting_radius,
+                    unseen_message_count=result.unseen_message_count,
                 )
             )
 
