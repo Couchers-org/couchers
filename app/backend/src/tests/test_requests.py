@@ -1482,6 +1482,50 @@ def test_archive_host_request(db, moderator):
         assert res.is_archived
 
 
+def test_host_request_unseen_message_count(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="and one more thing")
+        )
+        # sending marks your own messages seen
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.unseen_message_count == 0
+
+    with requests_session(token2) as api:
+        listed = api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0]
+        # the request's control message, its text, and the follow-up
+        assert listed.unseen_message_count == 3
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 3
+        )
+
+        api.MarkLastSeenHostRequest(
+            requests_pb2.MarkLastSeenHostRequestReq(
+                host_request_id=host_request_id, last_seen_message_id=listed.latest_message.message_id
+            )
+        )
+        assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].unseen_message_count == 0
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 0
+        )
+
+
 def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
