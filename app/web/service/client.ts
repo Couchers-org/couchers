@@ -87,10 +87,7 @@ function randomHex(bytes: number): string {
 
 // Injects a W3C Trace Context header so calls can be correlated end-to-end in Jaeger.
 class TraceInterceptor {
-  async intercept(
-    request: Request<unknown, unknown>,
-    invoker: (request: unknown) => unknown,
-  ) {
+  async intercept(request: Request<unknown, unknown>, invoker: (request: unknown) => unknown) {
     const traceId = randomHex(16);
     const spanId = randomHex(8);
     request.getMetadata()["traceparent"] = `00-${traceId}-${spanId}-01`;
@@ -104,12 +101,7 @@ const platformInterceptor = new PlatformInterceptor();
 const traceInterceptor = new TraceInterceptor();
 
 const opts = {
-  unaryInterceptors: [
-    traceInterceptor,
-    authInterceptor,
-    timeoutInterceptor,
-    platformInterceptor,
-  ],
+  unaryInterceptors: [traceInterceptor, authInterceptor, timeoutInterceptor, platformInterceptor],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
