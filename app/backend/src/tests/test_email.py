@@ -66,6 +66,26 @@ def test_signup_verification_email(db, email_collector: EmailCollector):
     assert flow.email_token in email.html
 
 
+def test_signup_verification_email_with_token_ending_in_src(db, email_collector: EmailCollector):
+    """
+    Signup tokens are base64 encoded, so their "=" padding makes roughly one in 65k of them end in "src=".
+    The token goes into the button's `<a href="..." style="...">`, where it must not be mistaken for an image.
+    """
+    request_email = f"{random_hex(12)}@couchers.org.invalid"
+    token = f"{'A' * 40}src="
+
+    flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
+
+    with session_scope() as session:
+        context = make_logged_out_context(LocalizationContext.en_utc())
+        with patch("couchers.tasks.urlsafe_secure_token", return_value=token):
+            send_signup_email(context, session, flow)
+
+    email = email_collector.pop_for_recipient(request_email, last=True)
+    assert flow.email_token == token
+    assert token in email.html
+
+
 def test_report_email(db, email_collector: EmailCollector):
     user_reporter, api_token_author = generate_user()
     user_author, api_token_reported = generate_user()

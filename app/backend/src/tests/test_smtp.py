@@ -57,3 +57,22 @@ def test_embed_html_relative_images() -> None:
     assert related_part.content_type == 'image/png; name="logo-grey.png"'
     assert related_part.content_disposition == 'inline; filename="logo-grey.png"'
     assert related_part.content_id == f"<{content_id_match.group(1)}>"
+
+
+def test_embed_html_relative_images_ignores_url_ending_in_src() -> None:
+    """
+    Our urls end in base64 tokens, whose "=" padding makes them occasionally end in "src=", which must not
+    be picked up as an image reference spanning into the next attribute.
+    """
+    sig = f"{'A' * 40}src="  # a 32 byte blake2b signature, base64 encoded
+    link = f"https://example.com/quick-link?payload=Zm9v&sig={sig}"
+    html = f"""
+        <a href="{link}" style="color: #777;">unsubscribe</a>
+        <img src="attachment_imgs/logo-grey.png" style="border:0;"/>
+    """
+
+    html, related_parts = embed_html_relative_images(html, base_dir=template_folder, content_id_domain="example.com")
+
+    assert link in html, "Link url was replaced"
+    assert len(related_parts) == 1
+    assert related_parts[0].content_disposition == 'inline; filename="logo-grey.png"'
