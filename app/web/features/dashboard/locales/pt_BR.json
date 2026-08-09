@@ -69,7 +69,8 @@
     "empty_description": "Indo a algum lugar? Publique uma viagem pública em uma comunidade para receber convites de anfitriões próximos.",
     "offers_count_one": "{{count}} convite",
     "offers_count_many": "{{count}} convites",
-    "offers_count_other": "{{count}} convites"
+    "offers_count_other": "{{count}} convites",
+    "no_offers": "Nenhuma oferta ainda"
   },
   "stays": {
     "upcoming_guests_header": "Seus próximos hóspedes",
