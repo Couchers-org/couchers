@@ -12,13 +12,13 @@ protobufs, batched per kind. MarkAllThreadsSeen consumes the same queries as UPD
 import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import ColumnElement, Select, select, union_all, update
-from sqlalchemy.orm import Session, contains_eager
-from sqlalchemy.sql import and_, func, literal, or_
+from sqlalchemy import ColumnElement, Row, Select, select, union_all, update
+from sqlalchemy.dialects.postgresql import aggregate_order_by
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.sql import and_, case, func, literal, or_
 
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
@@ -54,6 +54,9 @@ MAX_PAGE_SIZE = 50
 # discriminator on the unioned rows, telling us which table a conversation_id came from
 _KIND_GROUP_CHAT = "group_chat"
 _KIND_HOST_REQUEST = "host_request"
+
+# one thread as the select queries yield it: (conversation_id, latest_message_id, kind)
+_ThreadRow = Row[tuple[int, int, str]]
 
 
 @dataclass(frozen=True)
@@ -192,25 +195,25 @@ def _build_host_request_role_filter(user_id: int, categories: frozenset[int]) ->
     return or_(*clauses) if clauses else None
 
 
-def _member_visible_to_viewer(subscription: GroupChatSubscription, viewer_left: datetime | None) -> bool:
+def _member_visible_to_viewer(member: type[GroupChatSubscription]) -> ColumnElement[bool]:
     """
-    Whether `subscription`'s user is visible to a viewer whose own subscription left the chat at
-    `viewer_left` (None if the viewer is still in the chat). Same rule as
+    Whether `member` is visible to the viewer, whose own subscription is the unaliased
+    GroupChatSubscription of the enclosing query. Same rule as
     _get_visible_members_for_subscription / _get_visible_admins_for_subscription in the conversations
-    servicer, expressed as a pure predicate so a list of preloaded subscriptions can be filtered
-    without a per-chat query.
+    servicer: a viewer still in the chat sees everyone currently in it, and one who has left sees the
+    roster frozen at the moment they left.
     """
-    if viewer_left is None:
-        # still in the chat: see everyone with a current subscription
-        return subscription.left is None
-    # left the chat: see everyone who was in it at the moment the viewer left
-    return subscription.joined <= viewer_left and (subscription.left is None or subscription.left >= viewer_left)
+    return case(
+        (GroupChatSubscription.left.is_(None), member.left.is_(None)),
+        # the else_ branch only runs where left is non-NULL, which the annotation can't express
+        else_=was_subscribed_at(member, GroupChatSubscription.left),  # type: ignore[arg-type]
+    )
 
 
 def _host_request_thread_to_pb(
     host_request: HostRequest,
     conversation: Conversation,
-    message: Message | None,
+    message: Message,
     user_id: int,
     unseen_message_count: int,
 ) -> requests_pb2.HostRequest:
@@ -236,7 +239,7 @@ def _host_request_thread_to_pb(
             if host_request.initiator_user_id == user_id
             else host_request.recipient_last_seen_message_id
         ),
-        latest_message=message_to_pb(message) if message else None,
+        latest_message=message_to_pb(message),
         hosting_city=host_request.hosting_city,
         hosting_lat=lat,
         hosting_lng=lng,
@@ -252,119 +255,91 @@ def _host_request_thread_to_pb(
 
 
 def _build_group_chats_pb(
-    session: Session,
-    context: CouchersContext,
-    group_chat_ids: list[int],
-    latest_message_id_by_conversation: dict[int, int],
+    session: Session, context: CouchersContext, threads: Sequence[_ThreadRow]
 ) -> dict[int, conversations_pb2.GroupChat]:
     """
-    Build GroupChat protobufs (with unseen counts) for a page of group-chat ids.
+    Build GroupChat protobufs (with unseen counts) for the group chats on a page.
 
-    Latest-message ids come from the caller's paging pass, so they're reused rather than recomputed
-    here (mirrors _build_host_request_threads_pb).
+    Each row already carries the id of the chat's latest message, windowed to the viewer's
+    subscription, so that rule doesn't have to be restated here.
     """
-    if not group_chat_ids:
+    if not threads:
         return {}
+    group_chat_ids = [thread.conversation_id for thread in threads]
+    latest_message_ids = [thread.latest_message_id for thread in threads]
 
-    # all subscriptions for the page's chats in one query: members/admins are computed in Python
-    # (instead of two lazy queries per chat), and it also gives us the viewer's own subscription
-    # without a group-wise-max subquery
-    subscriptions_by_group_chat: dict[int, list[GroupChatSubscription]] = {}
-    for subscription in (
-        session.execute(
-            select(GroupChatSubscription)
-            .where(GroupChatSubscription.group_chat_id.in_(group_chat_ids))
-            .order_by(GroupChatSubscription.id)
-        )
-        .scalars()
-        .all()
-    ):
-        subscriptions_by_group_chat.setdefault(subscription.group_chat_id, []).append(subscription)
-
-    # the viewer's current subscription per chat = their highest-id subscription (handles rejoin)
-    viewer_subscription_by_group_chat: dict[int, GroupChatSubscription] = {}
-    for group_chat_id, subscriptions in subscriptions_by_group_chat.items():
-        viewer_subscriptions = [s for s in subscriptions if s.user_id == context.user_id]
-        if viewer_subscriptions:
-            viewer_subscription_by_group_chat[group_chat_id] = viewer_subscriptions[-1]
-
-    # the group chat + its latest message (id already known) + conversation, in one query
-    latest_message_ids = [latest_message_id_by_conversation[group_chat_id] for group_chat_id in group_chat_ids]
-    row_by_group_chat = {
-        row.GroupChat.conversation_id: row
-        for row in session.execute(
-            select(GroupChat, Message)
-            .join(Message, Message.conversation_id == GroupChat.conversation_id)
-            .join(Conversation, Conversation.id == GroupChat.conversation_id)
-            .where(GroupChat.conversation_id.in_(group_chat_ids))
-            .where(Message.id.in_(latest_message_ids))
-            .options(contains_eager(GroupChat.conversation))
-        ).all()
-    }
-
-    viewer_subscription_ids = [subscription.id for subscription in viewer_subscription_by_group_chat.values()]
-    unseen_count_by_subscription: dict[int, int] = dict(
+    unseen_count_by_group_chat: dict[int, int] = dict(
         session.execute(  # type: ignore[arg-type]
-            select(GroupChatSubscription.id, func.count(Message.id))
+            select(GroupChatSubscription.group_chat_id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-            .where(GroupChatSubscription.id.in_(viewer_subscription_ids))
+            .where(GroupChatSubscription.group_chat_id.in_(group_chat_ids))
+            .where(GroupChatSubscription.user_id == context.user_id)
+            .where(is_newest_subscription(context.user_id))
             .where(is_unseen(Message, GroupChatSubscription))
-            .group_by(GroupChatSubscription.id)
+            .group_by(GroupChatSubscription.group_chat_id)
         ).all()
     )
 
-    result: dict[int, conversations_pb2.GroupChat] = {}
-    for group_chat_id in group_chat_ids:
-        row = row_by_group_chat.get(group_chat_id)
-        viewer_subscription = viewer_subscription_by_group_chat.get(group_chat_id)
-        if row is None or viewer_subscription is None:
-            continue
-        group_chat = row.GroupChat
-        visible_members = [
-            subscription
-            for subscription in subscriptions_by_group_chat.get(group_chat_id, [])
-            if _member_visible_to_viewer(subscription, viewer_subscription.left)
-        ]
-        result[group_chat_id] = conversations_pb2.GroupChat(
-            group_chat_id=group_chat_id,
+    # the chat, its conversation, the viewer's own subscription, its latest message (id already
+    # known) and its visible roster, in one query
+    member = aliased(GroupChatSubscription)
+    member_user_ids = func.array_agg(aggregate_order_by(member.user_id, member.user_id))
+    rows = session.execute(
+        select(
+            GroupChat,
+            Conversation,
+            GroupChatSubscription,
+            Message,
+            member_user_ids,
+            member_user_ids.filter(member.role == GroupChatRole.admin),
+        )
+        .join(Conversation, Conversation.id == GroupChat.conversation_id)
+        .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+        .join(Message, and_(Message.conversation_id == GroupChat.conversation_id, Message.id.in_(latest_message_ids)))
+        .join(member, and_(member.group_chat_id == GroupChat.conversation_id, _member_visible_to_viewer(member)))
+        .where(GroupChat.conversation_id.in_(group_chat_ids))
+        .where(GroupChatSubscription.user_id == context.user_id)
+        .where(is_newest_subscription(context.user_id))
+        .group_by(GroupChat.conversation_id, Conversation.id, GroupChatSubscription.id, Message.id)
+    ).all()
+
+    return {
+        group_chat.conversation_id: conversations_pb2.GroupChat(
+            group_chat_id=group_chat.conversation_id,
             title=group_chat.title,  # TODO: proper title for DMs, etc
-            member_user_ids=[subscription.user_id for subscription in visible_members],
-            admin_user_ids=[
-                subscription.user_id for subscription in visible_members if subscription.role == GroupChatRole.admin
-            ],
+            member_user_ids=members,
+            # array_agg over an empty filter is NULL rather than an empty array
+            admin_user_ids=admins or [],
             only_admins_invite=group_chat.only_admins_invite,
             is_dm=group_chat.is_dm,
-            created=Timestamp_from_datetime(group_chat.conversation.created),
-            unseen_message_count=unseen_count_by_subscription.get(viewer_subscription.id, 0),
-            last_seen_message_id=viewer_subscription.last_seen_message_id,
-            latest_message=message_to_pb(row.Message) if row.Message else None,
-            mute_info=mute_info(viewer_subscription),
+            created=Timestamp_from_datetime(conversation.created),
+            unseen_message_count=unseen_count_by_group_chat.get(group_chat.conversation_id, 0),
+            last_seen_message_id=subscription.last_seen_message_id,
+            latest_message=message_to_pb(message),
+            mute_info=mute_info(subscription),
             # can_message omitted: list view doesn't use it, and it's a DM-only extra query
-            is_archived=viewer_subscription.is_archived,
+            is_archived=subscription.is_archived,
         )
-    return result
+        for group_chat, conversation, subscription, message, members, admins in rows
+    }
 
 
 def _build_host_request_threads_pb(
-    session: Session,
-    context: CouchersContext,
-    host_request_ids: list[int],
-    latest_message_id_by_conversation: dict[int, int],
+    session: Session, context: CouchersContext, threads: Sequence[_ThreadRow]
 ) -> dict[int, requests_pb2.HostRequest]:
-    """Build HostRequest protobufs (with unseen counts) for a page of host-request threads."""
-    if not host_request_ids:
+    """Build HostRequest protobufs (with unseen counts) for the host requests on a page."""
+    if not threads:
         return {}
+    host_request_ids = [thread.conversation_id for thread in threads]
+    latest_message_ids = [thread.latest_message_id for thread in threads]
+
+    # the request + its latest message (id already known) + conversation, in one query
     host_request_rows = session.execute(
-        select(HostRequest, Conversation)
+        select(HostRequest, Conversation, Message)
         .join(Conversation, Conversation.id == HostRequest.conversation_id)
+        .join(Message, and_(Message.conversation_id == HostRequest.conversation_id, Message.id.in_(latest_message_ids)))
         .where(HostRequest.conversation_id.in_(host_request_ids))
     ).all()
-
-    latest_message_ids = [latest_message_id_by_conversation[conversation_id] for conversation_id in host_request_ids]
-    message_by_id = {
-        message.id: message
-        for message in session.execute(select(Message).where(Message.id.in_(latest_message_ids))).scalars().all()
-    }
 
     unseen_count_by_conversation: dict[int, int] = dict(
         session.execute(  # type: ignore[arg-type]
@@ -379,7 +354,7 @@ def _build_host_request_threads_pb(
         row.HostRequest.conversation_id: _host_request_thread_to_pb(
             row.HostRequest,
             row.Conversation,
-            message_by_id.get(latest_message_id_by_conversation[row.HostRequest.conversation_id]),
+            row.Message,
             context.user_id,
             unseen_count_by_conversation.get(row.HostRequest.conversation_id, 0),
         )
@@ -421,14 +396,12 @@ def list_message_threads(
     # rows are ordered by latest_message_id desc, so the last one on the page is the cursor
     next_page_token = encrypt_page_token(str(page_rows[-1].latest_message_id)) if has_more else ""
 
-    latest_message_id_by_conversation = {row.conversation_id: row.latest_message_id for row in page_rows}
-    group_chat_ids = [row.conversation_id for row in page_rows if row.kind == _KIND_GROUP_CHAT]
-    host_request_ids = [row.conversation_id for row in page_rows if row.kind == _KIND_HOST_REQUEST]
-
     # hydrate each kind in a batch, then re-assemble in the paginated order
-    group_chats_by_id = _build_group_chats_pb(session, context, group_chat_ids, latest_message_id_by_conversation)
+    group_chats_by_id = _build_group_chats_pb(
+        session, context, [row for row in page_rows if row.kind == _KIND_GROUP_CHAT]
+    )
     host_request_threads_by_id = _build_host_request_threads_pb(
-        session, context, host_request_ids, latest_message_id_by_conversation
+        session, context, [row for row in page_rows if row.kind == _KIND_HOST_REQUEST]
     )
 
     message_threads = []

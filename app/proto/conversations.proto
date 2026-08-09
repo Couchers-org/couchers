@@ -168,13 +168,13 @@ message MessageThread {
 }
 
 message ListMessageThreadsReq {
-  // which categories to include; empty means all categories
-  repeated MessageThreadCategory categories = 1;
-  // orthogonal: when present, restrict to archived (true) or non-archived (false)
-  optional bool only_archived = 2;
-  uint32 page_size = 3;
+  uint32 page_size = 1;
   // pagination cursor; pass back the next_page_token from the previous response, or empty for the first page
-  string page_token = 4;
+  string page_token = 2;
+  // which categories to include; empty means all categories
+  repeated MessageThreadCategory categories = 3;
+  // orthogonal: when present, restrict to archived (true) or non-archived (false)
+  optional bool only_archived = 4;
   // orthogonal: when true, restrict to unread threads
   bool only_unread = 5;
 }

@@ -188,6 +188,36 @@ def test_list_message_threads_chats_filter_excludes_host_requests(db, moderator)
     assert res.threads[0].group_chat.group_chat_id == chat_id
 
 
+def test_list_message_threads_roster_is_frozen_for_a_departed_viewer(db, moderator):
+    """
+    A viewer who was removed from a chat sees its roster as it was when they left, so anyone added
+    afterwards is invisible to them.
+    """
+    admin, admin_token = generate_user()
+    viewer, viewer_token = generate_user()
+    member, _member_token = generate_user()
+    latecomer, _latecomer_token = generate_user()
+
+    chat_id = _create_group_chat(admin_token, [viewer.id, member.id], moderator)
+
+    with conversations_session(admin_token) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=viewer.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=chat_id, user_id=latecomer.id))
+
+    with conversations_session(viewer_token) as c:
+        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    departed_view = res.threads[0].group_chat
+    assert set(departed_view.member_user_ids) == {admin.id, viewer.id, member.id}
+    assert list(departed_view.admin_user_ids) == [admin.id]
+    # chat created, "hi" and the removal notice; the invite notice is out of reach
+    assert departed_view.unseen_message_count == 3
+
+    with conversations_session(admin_token) as c:
+        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    admin_view = res.threads[0].group_chat
+    assert set(admin_view.member_user_ids) == {admin.id, member.id, latecomer.id}
+
+
 def test_list_message_threads_rejects_unspecified_category(db):
     _user1, token1 = generate_user()
 
