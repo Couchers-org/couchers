@@ -7,6 +7,8 @@ from datetime import datetime
 from sqlalchemy import ColumnElement, SQLColumnExpression, and_, func, or_, select
 
 from couchers.models import GroupChatSubscription, Message
+from couchers.proto import conversations_pb2
+from couchers.utils import Timestamp_from_datetime
 
 
 def was_subscribed_at(
@@ -47,3 +49,11 @@ def is_newest_subscription(user_id: SQLColumnExpression[int] | int) -> ColumnEle
         .correlate_except(GroupChatSubscription)
     )
     return GroupChatSubscription.id.in_(newest_per_chat)
+
+
+def mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInfo:
+    (muted, muted_until) = subscription.muted_display()
+    return conversations_pb2.MuteInfo(
+        muted=muted,
+        muted_until=Timestamp_from_datetime(muted_until) if muted_until else None,
+    )

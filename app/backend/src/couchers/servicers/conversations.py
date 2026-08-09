@@ -14,7 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context, make
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.group_chats import is_newest_subscription, is_unseen, was_subscribed_at
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen, mute_info, was_subscribed_at
 from couchers.helpers.messages import message_to_pb
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -287,14 +287,6 @@ def _unseen_message_count(session: Session, subscription_id: int) -> int:
     return session.execute(query).scalar_one()
 
 
-def _mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInfo:
-    (muted, muted_until) = subscription.muted_display()
-    return conversations_pb2.MuteInfo(
-        muted=muted,
-        muted_until=Timestamp_from_datetime(muted_until) if muted_until else None,
-    )
-
-
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def MarkAllThreadsSeen(
         self, request: conversations_pb2.MarkAllThreadsSeenReq, context: CouchersContext, session: Session
@@ -372,7 +364,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     unseen_message_count=unseen_counts.get(result.GroupChatSubscription.id, 0),
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                     latest_message=message_to_pb(result.Message) if result.Message else None,
-                    mute_info=_mute_info(result.GroupChatSubscription),
+                    mute_info=mute_info(result.GroupChatSubscription),
                     can_message=_user_can_message(session, context, result.GroupChat),
                     is_archived=result.GroupChatSubscription.is_archived,
                 )
@@ -419,7 +411,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=message_to_pb(result.Message) if result.Message else None,
-            mute_info=_mute_info(result.GroupChatSubscription),
+            mute_info=mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
             is_archived=result.GroupChatSubscription.is_archived,
         )
@@ -476,7 +468,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
             last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
             latest_message=message_to_pb(result.Message) if result.Message else None,
-            mute_info=_mute_info(result.GroupChatSubscription),
+            mute_info=mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
             is_archived=result.GroupChatSubscription.is_archived,
         )
@@ -751,7 +743,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             only_admins_invite=group_chat.only_admins_invite,
             is_dm=group_chat.is_dm,
             created=Timestamp_from_datetime(group_chat.conversation.created),
-            mute_info=_mute_info(your_subscription),
+            mute_info=mute_info(your_subscription),
             can_message=True,
         )
 
