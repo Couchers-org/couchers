@@ -275,6 +275,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if existing_offer:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
+        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
+        surfer_user, host_user = (recipient, user) if public_trip_id is not None else (user, recipient)
+
         conversation = Conversation()
         session.add(conversation)
         session.flush()
@@ -315,9 +318,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             initiator_last_seen_message_id=message.id,
             # TODO: tz
             # timezone=recipient.timezone,
-            hosting_city=recipient.city,
-            hosting_location=recipient.geom,
-            hosting_radius=recipient.geom_radius,
+            hosting_city=host_user.city,
+            hosting_location=host_user.geom,
+            hosting_radius=host_user.geom_radius,
             public_trip_id=public_trip_id,
         )
         session.add(host_request)
@@ -339,7 +342,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
-        account_age_on_host_request_create_histogram.labels(user.gender, recipient.gender).observe(
+        account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
             (now() - user.joined).total_seconds()
         )
         log_event(
@@ -348,10 +351,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.created",
             {
                 "host_request_id": host_request.conversation_id,
-                "host_id": recipient.id,
-                "surfer_gender": user.gender,
-                "host_gender": recipient.gender,
-                "city": recipient.city,
+                "surfer_id": surfer_user.id,
+                "host_id": host_user.id,
+                "surfer_gender": surfer_user.gender,
+                "host_gender": host_user.gender,
+                "city": host_user.city,
                 "from_date": str(from_date),
                 "to_date": str(to_date),
                 "nights": (to_date - from_date).days,
