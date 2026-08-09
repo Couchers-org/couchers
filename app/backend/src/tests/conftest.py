@@ -1,6 +1,7 @@
 import os
 import re
 from collections.abc import Generator
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 from unittest.mock import patch
@@ -21,7 +22,9 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
 
 from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
+from couchers.db import _get_base_engine  # noqa: E402
 from couchers.models import Base  # noqa: E402
+from tests.fixtures import query_log  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
     create_schema_from_models,
@@ -29,6 +32,37 @@ from tests.fixtures.db import (  # noqa: E402
     populate_testing_resources,
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
+
+QUERY_LOG_DIR = Path(__file__).resolve().parents[2] / "test_artifacts" / "queries"
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--query-log",
+        action="store_true",
+        help="record every SQL query, grouped by test and by the RPC that issued it, into test_artifacts/queries",
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    if config.getoption("--query-log"):
+        query_log.enable(_get_base_engine())
+
+
+def pytest_sessionfinish(session: pytest.Session) -> None:
+    if session.config.getoption("--query-log"):
+        print(f"\nquery log written to {query_log.dump(QUERY_LOG_DIR)}")
+
+
+@pytest.fixture(autouse=True)
+def _record_queries_for_test(request: pytest.FixtureRequest) -> Generator[None]:
+    """Attributes every query to the running test. Cheap no-op unless --query-log is on."""
+    if not request.config.getoption("--query-log"):
+        yield
+        return
+    query_log.set_current_test(request.node.nodeid)
+    yield
+    query_log.set_current_test(None)
 
 
 @pytest.fixture(scope="session")

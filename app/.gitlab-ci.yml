@@ -23,6 +23,9 @@ variables:
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   BUILD_MOBILE: "true"
+  # whether to record the SQL the backend tests issue and diff it against develop's (see docs/query-log.md).
+  # set to "false" to turn the whole thing off: the recording, the report and the PR comment item all check it
+  BACKEND_QUERY_LOG: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
@@ -342,7 +345,11 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
+    # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json.gz, which the
+    # after_script below already picks up along with the rest of test_artifacts
+    - QUERY_LOG_FLAG=""
+    - if [ "$BACKEND_QUERY_LOG" = "true" ]; then QUERY_LOG_FLAG=--query-log; fi
+    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= $QUERY_LOG_FLAG --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
     # Move the stored durations to a node-specific file
     - mv src/tests/.test_durations /app/.test_durations.$CI_NODE_INDEX
   after_script:
@@ -710,6 +717,21 @@ preview:backend-coverage:
           json.dump(merged, fp, sort_keys=True, indent=4)
       print(f"Merged {len(merged)} test durations from {len(glob.glob('.test_durations.*'))} files")
       EOF
+    # Merge the per-node SQL query logs, diff against the log develop last published, and render the report.
+    # Writes data.json (which becomes the next baseline), index.html and summary.txt next to the node dumps.
+    # Never fatal: this job gates preview:backend, so a broken query log would otherwise take the whole sticky PR
+    # comment - schema, schema diff, sample emails, coverage - down with it. preview:backend drops the comment item
+    # when index.html is missing, so a failure here degrades to the report simply not being linked.
+    - |
+      if [ "$BACKEND_QUERY_LOG" = "true" ]; then
+        python3 app/scripts/query_log_report.py \
+          --input artifacts/test_artifacts/queries \
+          --output artifacts/test_artifacts/queries \
+          --baseline-url "https://develop--test-artifacts.$PREVIEW_DOMAIN/queries/data.json.gz" \
+          --summary-file artifacts/test_artifacts/queries/summary.txt \
+          --commit "$CI_COMMIT_SHORT_SHA" \
+          || echo "query log report failed, continuing without it"
+      fi
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -719,6 +741,7 @@ preview:backend-coverage:
     paths:
       - htmlcov
       - test_durations.json
+      - artifacts/test_artifacts/queries
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -768,6 +791,9 @@ preview:backend:
     # Upload coverage report to S3
     - |
       BACKEND_ITEMS=schema,schema-diff,emails
+      # Presence of the report is the condition, not BACKEND_QUERY_LOG: it covers the variable being off and the
+      # deliberately non-fatal render step having failed, and never links a report that is not there
+      if [ -f "artifacts/test_artifacts/queries/index.html" ]; then BACKEND_ITEMS=$BACKEND_ITEMS,queries; fi
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ] || [ "$DO_COVERAGE" = "true" ]; then
         aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
         aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
@@ -784,6 +810,9 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
+    # The per-node query logs came in from test:backend alongside preview:backend-coverage's merged data.json.gz,
+    # and only the merged one is worth publishing
+    - find artifacts/test_artifacts/queries -name 'data.*.json.gz' ! -name 'data.json.gz' -delete || true
     # Upload postcard samples
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive 2>/dev/null || true

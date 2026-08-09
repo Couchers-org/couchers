@@ -35,7 +35,7 @@ USER_AGENT = "couchers-preview-bot"
 LAYOUT = [
     ("Mobile", "rich", ["mobile"]),
     ("Web (Vercel)", "rich", ["web"]),
-    ("Backend", "table", ["schema", "schema-diff", "emails"]),
+    ("Backend", "table", ["schema", "schema-diff", "emails", "queries"]),
     ("Other", "table", ["protos", "bcov", "wcov"]),
 ]
 ITEM_KEYS = [key for _, _, keys in LAYOUT for key in keys]
@@ -204,6 +204,19 @@ def item_mobile(_sha):
     return mobile_block(short_sha, domain, platforms)
 
 
+def item_queries(_sha):
+    """Links the SQL query log report, with its headline delta inline so the common case needs no click."""
+    url = preview_url("test-artifacts", "queries/index.html")
+    try:
+        with open("artifacts/test_artifacts/queries/summary.txt") as f:
+            summary = f.read().strip()
+    except OSError:
+        summary = ""
+    cell = link("SQL query log", url)
+    # Cells are joined into one markdown table row, so the summary must not contain a pipe.
+    return f"{cell}<br>{summary.replace('|', '/')}" if summary else cell
+
+
 def item_web(sha):
     try:
         url = resolve_web_preview_url(env("CI_COMMIT_BRANCH"), sha)
@@ -220,6 +233,7 @@ ITEM_BUILDERS = {
     "schema": lambda _sha: link("Schema", preview_url("schema", "schema.sql")),
     "schema-diff": lambda _sha: link("Schema diff", preview_url("schema", "diff.html")),
     "emails": lambda _sha: link("Sample emails", preview_url("test-artifacts", "emails/index.html")),
+    "queries": item_queries,
     "protos": lambda _sha: link("Protos", preview_url("protos")),
     "bcov": lambda _sha: link("Backend coverage", preview_url("bcov")),
     "wcov": lambda _sha: link("Web coverage", preview_url("wcov")),
