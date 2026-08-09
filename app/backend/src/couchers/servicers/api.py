@@ -309,6 +309,25 @@ class API(api_pb2_grpc.APIServicer):
 
         return user_model_to_pb(user, session, context, is_get_user_return_ghosts=True)
 
+    def GetProfile(self, request: api_pb2.GetProfileReq, context: CouchersContext, session: Session) -> api_pb2.Profile:
+        user = session.execute(
+            select(User)
+            .where(username_or_id(request.user))
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one_or_none()
+
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        if is_not_visible(session, context.user_id, user.id):
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        return profile_model_to_pb(user)
+
     def GetLiteUser(
         self, request: api_pb2.GetLiteUserReq, context: CouchersContext, session: Session
     ) -> api_pb2.LiteUser:
@@ -1256,6 +1275,75 @@ def user_model_to_pb(
         user.camping_ok.value = db_user.camping_ok
 
     return user
+
+
+def profile_model_to_pb(db_user: User) -> api_pb2.Profile:
+    profile = api_pb2.Profile(
+        user_id=db_user.id,
+        hometown=db_user.hometown,
+        pronouns=db_user.pronouns,
+        occupation=db_user.occupation,
+        education=db_user.education,
+        about_me=db_user.about_me,
+        things_i_like=db_user.things_i_like,
+        about_place=db_user.about_place,
+        additional_information=db_user.additional_information,
+        hosting_status=hostingstatus2api[db_user.hosting_status],
+        meetup_status=meetupstatus2api[db_user.meetup_status],
+        regions_visited=[region.code for region in db_user.regions_visited],
+        regions_lived=[region.code for region in db_user.regions_lived],
+        language_abilities=[
+            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+            for ability in db_user.language_abilities
+        ],
+        profile_gallery_id=db_user.profile_gallery_id,
+        smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
+        sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
+        parking_details=parkingdetails2api[db_user.parking_details],
+    )
+
+    if db_user.max_guests is not None:
+        profile.max_guests.value = db_user.max_guests
+    if db_user.last_minute is not None:
+        profile.last_minute.value = db_user.last_minute
+    if db_user.has_pets is not None:
+        profile.has_pets.value = db_user.has_pets
+    if db_user.accepts_pets is not None:
+        profile.accepts_pets.value = db_user.accepts_pets
+    if db_user.pet_details is not None:
+        profile.pet_details.value = db_user.pet_details
+    if db_user.has_kids is not None:
+        profile.has_kids.value = db_user.has_kids
+    if db_user.accepts_kids is not None:
+        profile.accepts_kids.value = db_user.accepts_kids
+    if db_user.kid_details is not None:
+        profile.kid_details.value = db_user.kid_details
+    if db_user.has_housemates is not None:
+        profile.has_housemates.value = db_user.has_housemates
+    if db_user.housemate_details is not None:
+        profile.housemate_details.value = db_user.housemate_details
+    if db_user.wheelchair_accessible is not None:
+        profile.wheelchair_accessible.value = db_user.wheelchair_accessible
+    if db_user.smokes_at_home is not None:
+        profile.smokes_at_home.value = db_user.smokes_at_home
+    if db_user.drinking_allowed is not None:
+        profile.drinking_allowed.value = db_user.drinking_allowed
+    if db_user.drinks_at_home is not None:
+        profile.drinks_at_home.value = db_user.drinks_at_home
+    if db_user.other_host_info is not None:
+        profile.other_host_info.value = db_user.other_host_info
+    if db_user.sleeping_details is not None:
+        profile.sleeping_details.value = db_user.sleeping_details
+    if db_user.area is not None:
+        profile.area.value = db_user.area
+    if db_user.house_rules is not None:
+        profile.house_rules.value = db_user.house_rules
+    if db_user.parking is not None:
+        profile.parking.value = db_user.parking
+    if db_user.camping_ok is not None:
+        profile.camping_ok.value = db_user.camping_ok
+
+    return profile
 
 
 def lite_user_to_pb(
