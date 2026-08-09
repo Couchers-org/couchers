@@ -26,6 +26,14 @@ scrape_configs:
     static_configs:
       - targets: ["host.docker.internal:9100"]
 
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+    metric_relabel_configs:
+      # the image digest changes on every deploy, which would churn series in victoriametrics
+      - regex: "image"
+        action: labeldrop
+
 remote_write:
   - url: https://victoriametrics.couchershq.org/api/v1/write
     authorization:
