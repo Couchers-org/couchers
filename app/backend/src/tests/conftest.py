@@ -32,6 +32,14 @@ from tests.fixtures.db import (  # noqa: E402
     populate_testing_resources,
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
+from tests.fixtures.timewarp import (  # noqa: E402
+    FROZEN_TEST_TIME,
+    MOCK_SEARCH_PATH,
+    FrozenTimewarp,
+    Timewarp,
+    create_mock_clock,
+    install_timewarp,
+)
 
 QUERY_LOG_DIR = Path(__file__).resolve().parents[2] / "test_artifacts" / "queries"
 
@@ -125,6 +133,13 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
     postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
     postgres_conn.execute(text("CREATE DATABASE testdb"))
 
+    # A column DEFAULT resolves now() once, when the column is created, and stores the function
+    # identity forever after; later search_path changes don't reach it. So mock.now() has to
+    # already shadow pg_catalog.now() on every connection before any DDL runs, which means
+    # setting this at the database level here, ahead of the first connect. The mock schema
+    # doesn't exist yet, which postgres tolerates in a search_path.
+    postgres_conn.execute(text(f"ALTER DATABASE testdb SET search_path = {MOCK_SEARCH_PATH}"))
+
     with testdb_engine.connect() as conn:
         conn.execute(
             text(
@@ -135,6 +150,7 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
                 "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
             )
         )
+        create_mock_clock(conn)
 
         create_schema_from_models(testdb_engine)
         populate_testing_resources(conn)
@@ -180,6 +196,26 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     The same as above, but with a different scope. Used in test_communities.py.
     """
     _truncate_non_static_tables(testdb_conn)
+
+
+@pytest.fixture
+def timewarp() -> Generator[Timewarp]:
+    """
+    Lets a test move the clock, which keeps running from wherever it's put; see Timewarp.
+
+    Works without `db`, for a test that only reads the clock from python: nothing connects until
+    something runs a query.
+    """
+    yield from install_timewarp(Timewarp())
+
+
+@pytest.fixture
+def frozen_timewarp() -> Generator[FrozenTimewarp]:
+    """
+    Like `timewarp`, but the clock is stopped dead at 2020-01-01 UTC and stays stopped wherever it's
+    moved to, so both python and postgres read back exactly the instant the test asked for.
+    """
+    yield from install_timewarp(FrozenTimewarp(FROZEN_TEST_TIME))
 
 
 # Production gates forced True so tests run as "everything enabled". Used by testconfig and the `flags`
