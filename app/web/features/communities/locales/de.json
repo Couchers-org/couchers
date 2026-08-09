@@ -167,5 +167,7 @@
   "select_sublocality": "Nachbarschaft auswählen",
   "select_sub_community": "Community auswählen",
   "sub_community_search_placeholder": "Standort",
-  "sub_community_dropdown_a11y": "Weitere spezifische Communitys durchsuchen"
+  "sub_community_dropdown_a11y": "Weitere spezifische Communitys durchsuchen",
+  "report_discussion_button_a11y": "Diesen Beitrag melden",
+  "report_event_button_a11y": "Dieses Event melden"
 }
