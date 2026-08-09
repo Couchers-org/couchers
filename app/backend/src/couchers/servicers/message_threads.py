@@ -94,14 +94,6 @@ def _resolve_thread_filters(
     )
 
 
-def _latest_host_request_message_id() -> ColumnElement[int]:
-    """
-    The newest message on a request. Correlated, so it resolves per row of the enclosing query, and
-    never NULL, because creating a request writes its first message.
-    """
-    return select(func.max(Message.id)).where(Message.conversation_id == HostRequest.conversation_id).scalar_subquery()
-
-
 def _build_group_chat_select_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
 ) -> Select[tuple[int, int, str]]:
@@ -112,10 +104,11 @@ def _build_group_chat_select_query(
     The message join is windowed to the viewer's subscription, so a chat they were removed from ends
     at the last message they could read rather than at the chat's newest.
     """
-    group_chats = where_moderated_content_visible(
+    return where_moderated_content_visible(
         select(
             GroupChatSubscription.group_chat_id.label("conversation_id"),
             func.max(Message.id).label("latest_message_id"),
+            literal(_KIND_GROUP_CHAT).label("kind"),
         )
         .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
         .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
@@ -128,11 +121,6 @@ def _build_group_chat_select_query(
         context,
         GroupChat,
         is_list_operation=True,
-    ).subquery()
-    return select(
-        group_chats.c.conversation_id,
-        group_chats.c.latest_message_id,
-        literal(_KIND_GROUP_CHAT).label("kind"),
     )
 
 
@@ -149,7 +137,12 @@ def _build_host_request_select_query(
     query = (
         select(
             HostRequest.conversation_id.label("conversation_id"),
-            _latest_host_request_message_id().label("latest_message_id"),
+            # correlated, so it resolves per row, and never NULL: creating a request writes its
+            # first message
+            select(func.max(Message.id))
+            .where(Message.conversation_id == HostRequest.conversation_id)
+            .scalar_subquery()
+            .label("latest_message_id"),
             literal(_KIND_HOST_REQUEST).label("kind"),
         )
         .where(
@@ -462,7 +455,11 @@ def mark_all_threads_seen(
         # the viewer's last-seen column depends on their role, so one update per role
         # (a user is never both initiator and recipient of the same request, so these are disjoint)
         matching_ids = select(host_request_query.subquery().c.conversation_id)
-        latest_message_id = _latest_host_request_message_id()
+        # correlated, so it resolves per row of the update: every request advances to its own newest
+        # message without listing them out
+        latest_message_id = (
+            select(func.max(Message.id)).where(Message.conversation_id == HostRequest.conversation_id).scalar_subquery()
+        )
         marked_conversation_ids: list[int] = []
         for user_id_column, last_seen_column in (
             (HostRequest.initiator_user_id, HostRequest.initiator_last_seen_message_id),
