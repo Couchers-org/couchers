@@ -24,16 +24,17 @@
   },
   "host_request_item": {
     "host_status": {
-      "cancelled": "Você cancelou esta solicitação",
+      "cancelled": "O surfer cancelou esta solicitação",
       "rejected": "Você recusou esta solicitação",
       "accepted": "Você aceitou esta solicitação",
-      "confirmed": "Você confirmou esta solicitação"
+      "confirmed": "Divirta-se! Você aceitou e o surfer confirmou esta solicitação.",
+      "accepted_waiting": "Você aceitou esta solicitação — aguardando o surfer confirmar."
     },
     "surfer_status": {
-      "cancelled": "Sua solicitação foi cancelada",
-      "confirmed": "Sua solicitação foi confirmada",
+      "cancelled": "Você cancelou esta solicitação",
+      "confirmed": "Divirta-se! {{name}} aceitou e você confirmou esta solicitação.",
       "rejected": "Sua solicitação foi recusada",
-      "accepted": "Sua solicitação foi aceita"
+      "accepted": "Divirta-se! {{name}} aceitou a solicitação."
     },
     "expired": "Esta solicitação expirou",
     "pending": "Esta solicitação ainda está pendente"
@@ -84,7 +85,11 @@
       "accepted": "{{user}} aceitou a solicitação",
       "cancelled": "{{user}} cancelou a solicitação",
       "confirmed": "{{user}} confirmou a solicitação",
-      "rejected": "{{user}} rejeitou a solicitação"
+      "rejected": "{{user}} recusou a solicitação",
+      "accepted_self": "Você aceitou a solicitação",
+      "cancelled_self": "Você cancelou a solicitação",
+      "confirmed_self": "Você confirmou a solicitação",
+      "rejected_self": "Você recusou a solicitação"
     }
   },
   "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever uma solicitação que vai ser aceita.",
@@ -147,7 +152,8 @@
     "tabs": {
       "chats": "Conversas",
       "hosting": "Hospedando",
-      "surfing": "Como hóspede"
+      "surfing": "Como hóspede",
+      "unread": "Não lidas"
     }
   },
   "mark_all_read_button_text_chats": "Marcar todas as conversas como lidas",
@@ -170,5 +176,43 @@
     "filter": {
       "all": "Todas"
     }
-  }
+  },
+  "reference_card": {
+    "title": "Escreva uma referência",
+    "description": "Compartilhe sua experiência para ajudar a comunidade."
+  },
+  "respond_box_title": "Envie uma resposta",
+  "respond_box_description": "Selecione uma resposta para avisar {{name}} imediatamente. Fique à vontade para enviar uma nova mensagem mais tarde.",
+  "status_bar_edit_button": "Editar",
+  "status_bar_cancel_edit_button": "Cancelar",
+  "status_bar_close_button": "Fechar",
+  "surfer_bar_pending": "Você solicitou uma solicitação de hospedagem — aguardando {{name}} responder.",
+  "cancel_request_button": "Cancelar solicitação",
+  "cancel_request_dialog_title": "Cancelar solicitação?",
+  "cancel_request_dialog_message": "Tem certeza de que deseja cancelar sua solicitação? Esta ação não pode ser desfeita.",
+  "cancel_request_dialog_confirm_button": "Sim, cancelar",
+  "cancel_request_dialog_dismiss_button": "Não",
+  "private_feedback_card": {
+    "title": "Comentário sobre esta solicitação",
+    "quality_label": "Avalie esta solicitação de forma confidencial (opcional):",
+    "quality_high": "Excelente",
+    "quality_okay": "Boa",
+    "quality_low": "Ruim",
+    "decline_reason_label": "Por que você recusou?",
+    "decline_reason_options": {
+      "didnt_read_profile": "Não leu meu perfil",
+      "dont_want_to_host": "Não hero hospedar esta pessoa",
+      "not_available": "Não estou disponível para hospedar no momento",
+      "other": "Outro"
+    },
+    "reason_other_placeholder": "Conte mais...",
+    "privacy_notice": "Suas respostas são confidenciais e não serão compartilhadas com o usuário. Podemos usá-las de forma conjunta e anônima, junto a muitas outras, para melhorar os comentários para todos os usuários.",
+    "skip_button": "Pular",
+    "next_button": "Avançar",
+    "back_button": "Voltar",
+    "submit_button": "Enviar"
+  },
+  "surfer_confirm_box_title": "{{name}} aceitou sua solicitação!",
+  "surfer_confirm_box_description": "Confirme para garantir sua hospedagem, ou cancele se seus planos mudaram.",
+  "show_more_actions_button_a11y": "Mostrar mais ações"
 }

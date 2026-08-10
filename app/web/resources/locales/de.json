@@ -35,7 +35,8 @@
     "switch_to_light_mode": "Zum hellen Modus wechseln",
     "close_menu_a11y": "Menü schließen",
     "open_drawer_a11y": "Drawer-Menü öffnen",
-    "close_drawer_a11y": "Drawer-Menü schließen"
+    "close_drawer_a11y": "Drawer-Menü schließen",
+    "press": "Presse & Medien"
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
@@ -226,7 +227,7 @@
     "en": "Englisch",
     "es": "Spanisch (Spanien)",
     "es-419": "Spanisch",
-    "fr": "Französisch (Frankreich)",
+    "fr": "Französisch",
     "hi": "Hindi",
     "it": "Italienisch",
     "nb-NO": "Norwegisch (Bokmål)",

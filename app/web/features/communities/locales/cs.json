@@ -164,5 +164,9 @@
   "no_results_found_with_link": "Žádné komunity nebyly nalezeny. <0>Požádej o vytvoření této komunity!</0>",
   "community_breadcrumb_a11y": "Aktuální komunita",
   "sub_community_dropdown_a11y": "Procházet konkrétnější komunity",
-  "report_discussion_button_a11y": "Nahlásit tuto diskuzi"
+  "report_discussion_button_a11y": "Nahlásit tuto diskuzi",
+  "report_event_button_a11y": "Nahlásit tuto událost",
+  "hangouts_label": "Setkání",
+  "event_image_input_alt": "Vložiť obrázek události",
+  "all_events_page_tabs_a11y_label": "Záložky pro stránku se seznamem událostí"
 }

@@ -21,6 +21,7 @@ interface DatepickerProps {
   maxValue?: Temporal.PlainDate;
   openTo?: "year" | "month" | "day";
   onPostChange?(value: Temporal.PlainDate | null): void;
+  onAccept?(value: Temporal.PlainDate | null): void;
   testId?: string;
 }
 
@@ -50,6 +51,7 @@ const BaseDatepicker = ({
   name,
   openTo = "day",
   onPostChange,
+  onAccept,
   testId,
   format,
   slots,
@@ -74,6 +76,10 @@ const BaseDatepicker = ({
             const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
             field.onChange(valueTemporal);
             onPostChange?.(valueTemporal);
+          }}
+          onAccept={(valueDayjs: Dayjs | null) => {
+            const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
+            onAccept?.(valueTemporal);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
@@ -100,6 +106,7 @@ const Datepicker = ({
   name,
   openTo,
   onPostChange,
+  onAccept,
   testId,
 }: DatepickerProps) => {
   const { t, i18n } = useTranslation();
@@ -118,6 +125,7 @@ const Datepicker = ({
       name={name}
       openTo={openTo}
       onPostChange={onPostChange}
+      onAccept={onAccept}
       testId={testId}
       format={getMuiDateFormat(i18n.language)}
       slotProps={{
@@ -209,6 +217,7 @@ export const PickerOnlyDatepicker = ({
   name,
   openTo,
   onPostChange,
+  onAccept,
   testId,
   variant = "standard",
   inputProps = {},
@@ -238,6 +247,7 @@ export const PickerOnlyDatepicker = ({
       name={name}
       openTo={openTo}
       onPostChange={onPostChange}
+      onAccept={onAccept}
       testId={testId}
       // "LL" is the localized long date with the month name (e.g. "May 25, 1990")
       format="LL"

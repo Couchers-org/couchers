@@ -86,6 +86,9 @@ message ReportBugReq {
   string page = 7;
 
   ScreenResolution screen_resolution = 8;
+
+  // Sentry Session Replay id, force-flushed by the web client when the report is filed.
+  string sentry_replay_id = 9;
 }
 
 message ReportBugRes {

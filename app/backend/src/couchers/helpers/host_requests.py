@@ -11,7 +11,7 @@ The role-based party predicates below exist because a host request has a fixed d
 So "am I hosting?" is not the same question as "did I receive this?".
 """
 
-from sqlalchemy.sql import and_, case, exists, or_, select
+from sqlalchemy.sql import and_, case, exists, func, or_, select
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models import HostRequest, Message
@@ -75,4 +75,21 @@ def has_unseen_host_request_messages(user_id: int) -> ColumnElement[bool]:
         select(1)
         .where(Message.conversation_id == HostRequest.conversation_id)
         .where(Message.id > viewer_last_seen_message_id(user_id))
+    )
+
+
+def unseen_host_request_message_count(user_id: int) -> ColumnElement[int]:
+    """
+    How many messages on a request the viewer hasn't seen; the count behind has_unseen_host_request
+    _messages. Correlated, so it resolves per row of the enclosing query, and zero for a user who
+    isn't a party to the request.
+    """
+    return (
+        select(func.count(Message.id))
+        .where(Message.conversation_id == HostRequest.conversation_id)
+        .where(Message.id > viewer_last_seen_message_id(user_id))
+        # only the request correlates: an enclosing query that joins Message of its own would
+        # otherwise auto-correlate this one's away and leave it with no FROM at all
+        .correlate(HostRequest)
+        .scalar_subquery()
     )

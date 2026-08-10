@@ -1,11 +1,11 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import func, select
 
+from couchers.constants import MISSED_MESSAGES_DELAY
 from couchers.db import session_scope
 from couchers.jobs.handlers import send_message_notifications
 from couchers.jobs.worker import process_job
@@ -22,8 +22,9 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, now_5_min_in_future, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
+from tests.fixtures.timewarp import Timewarp
 
 
 @pytest.fixture(autouse=True)
@@ -1467,7 +1468,7 @@ def test_mark_last_seen_clears_notifications(db, moderator):
     assert unseen_notification_count(user2.id) == 0
 
 
-def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
+def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timewarp: Timewarp):
     """
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
     needs to be marked seen separately from the per-chat chat__message notifications.
@@ -1503,9 +1504,9 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello!"))
 
     # the job only picks up messages that have been unseen for five minutes
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     def unseen_missed_messages():
         with notifications_session(token2) as n:
@@ -1821,6 +1822,81 @@ def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
 
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
+
+
+def test_rejoined_group_chat_only_unseen_matches_the_badge(db, moderator):
+    """
+    GetGroupChatMessages matched only_unseen against every one of the viewer's subscriptions, so the
+    abandoned one served up its unread messages even though the badge no longer counts them.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
+
+    with conversations_session(token1) as c:
+        unseen = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id, only_unseen=True)
+        ).messages
+        assert [m.WhichOneof("content") for m in unseen] == ["text", "user_invited"]
+        assert unseen[0].text.text == "welcome back"
+
+        # the earlier stint is still readable, it just isn't unread
+        all_messages = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id)
+        ).messages
+        assert [m.text.text for m in all_messages if m.WhichOneof("content") == "text"] == ["welcome back", "hi"]
+
+
+def test_rejoined_group_chat_archived_filter_reads_newest_subscription(db, moderator):
+    """
+    ListGroupChats applied the archived filter before picking the newest subscription, so a chat
+    archived before the viewer was removed stayed in their archived list off the abandoned
+    subscription, where nothing could ever mark it seen.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+
+    with conversations_session(token1) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=group_chat_id, is_archived=True)
+        )
+
+    with conversations_session(token2) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+
+    with conversations_session(token1) as c:
+        archived = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True)).group_chats
+        assert [gc.group_chat_id for gc in archived] == []
+
+        (listed,) = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False)).group_chats
+        assert listed.group_chat_id == group_chat_id
+        assert not listed.is_archived
 
 
 def test_regression_ListGroupChats_pagination(db, moderator):

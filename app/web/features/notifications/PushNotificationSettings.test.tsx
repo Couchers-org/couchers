@@ -9,6 +9,7 @@ import { checkPushEnabled, turnPushNotificationsOff, turnPushNotificationsOn } f
 
 jest.mock("platform/sentry", () => ({
   captureException: jest.fn(),
+  setUser: jest.fn(),
 }));
 
 jest.mock("i18n", () => ({

@@ -33,6 +33,7 @@ from couchers.proto import (
     account_pb2,
     admin_pb2,
     auth_pb2,
+    blocking_pb2,
     events_pb2,
     references_pb2,
     reporting_pb2,
@@ -49,6 +50,7 @@ from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
+    blocking_session,
     events_session,
     real_admin_session,
     references_session,
@@ -998,6 +1000,50 @@ def test_GetFriendRequests_not_found(db):
     with real_admin_session(super_token) as admin_api:
         with pytest.raises(grpc.RpcError) as e:
             admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_GetUserBlocks(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with blocking_session(token1) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+
+    with blocking_session(token3) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+
+    with blocking_session(token4) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user=user1.username))
+
+    assert len(res.blocked_users) == 1
+    assert res.blocked_users[0].user.user_id == user2.id
+    assert res.blocked_users[0].user.username == user2.username
+    assert res.blocked_users[0].HasField("time_blocked")
+
+    # most recently blocked first
+    assert [block.user.user_id for block in res.blocking_users] == [user4.id, user3.id]
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user=user2.username))
+
+    assert len(res.blocked_users) == 0
+    assert [block.user.user_id for block in res.blocking_users] == [user1.id]
+
+
+def test_GetUserBlocks_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
