@@ -2,7 +2,7 @@ import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
-import { OpenInNewIcon, PinIcon } from "components/Icons";
+import { PinIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
@@ -24,13 +24,6 @@ const StyledWrapper = styled("div")({
   alignItems: "center",
   wordBreak: "break-word",
 });
-
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
-  display: "block",
-  marginInlineStart: theme.spacing(0.5),
-  height: "1.25rem",
-  width: "1.25rem",
-}));
 
 const StyledListItemText = styled(ListItemText, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
@@ -164,6 +157,7 @@ export default function UserSummary({
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
               openInNewTab={!isMobile}
+              showOpenIcon={!isMobile}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -172,7 +166,6 @@ export default function UserSummary({
               }}
             >
               {title}
-              {!isMobile && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title

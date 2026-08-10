@@ -40,7 +40,7 @@ describe("ProfileLink", () => {
     expect(screen.getByRole("link")).toBeInTheDocument();
   });
 
-  it("renders a button on native when userId is provided", () => {
+  it("renders a link to the profile on native so it can be opened directly too", () => {
     (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
     render(
       <ProfileLink userId={1} username="testuser">
@@ -48,7 +48,7 @@ describe("ProfileLink", () => {
       </ProfileLink>,
       { wrapper },
     );
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/user/testuser");
   });
 
   it("opens profile sheet with correct userId when clicked on native", async () => {
@@ -59,13 +59,14 @@ describe("ProfileLink", () => {
       </ProfileLink>,
       { wrapper },
     );
-    await userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("link"));
     expect(mockOpenProfileSheet).toHaveBeenCalledWith(42);
   });
 
-  it("renders a link on native when userId is not provided", () => {
+  it("navigates instead of opening the sheet on native when userId is not provided", async () => {
     (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
     render(<ProfileLink username="testuser">Test</ProfileLink>, { wrapper });
-    expect(screen.getByRole("link")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("link"));
+    expect(mockOpenProfileSheet).not.toHaveBeenCalled();
   });
 });
