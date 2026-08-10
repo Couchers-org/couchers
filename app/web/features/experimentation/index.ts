@@ -1,5 +1,7 @@
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
+export { useFeatureValue } from "@growthbook/growthbook-react";
+
 export function shouldPassAllGates(): boolean {
   return process.env.NEXT_PUBLIC_EXPERIMENTATION_PASS_ALL_GATES === "1";
 }
