@@ -12,7 +12,7 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import now_5_min_in_future, process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
@@ -147,6 +147,30 @@ def test_list_message_threads_need_host_request_feedback(db, moderator):
         )
 
     assert not host_request_thread(token1).need_host_request_feedback
+
+
+def test_list_message_threads_can_message(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    blocked_dm_id = _create_group_chat(token1, [user2.id], moderator)
+    departed_dm_id = _create_group_chat(token1, [user3.id], moderator)
+    chat_id = _create_group_chat(token1, [user2.id, user3.id], moderator)
+
+    def can_message_by_chat(token: str) -> dict[int, bool]:
+        with conversations_session(token) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        return {t.group_chat.group_chat_id: t.group_chat.can_message for t in res.threads}
+
+    assert can_message_by_chat(token1) == {blocked_dm_id: True, departed_dm_id: True, chat_id: True}
+
+    make_user_block(user2, user1)
+    with conversations_session(token3) as c:
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=departed_dm_id))
+
+    # a DM whose other party is blocked or gone can't be messaged; a true group chat always can
+    assert can_message_by_chat(token1) == {blocked_dm_id: False, departed_dm_id: False, chat_id: True}
 
 
 def test_list_message_threads_interleaves_chats_and_requests(db, moderator):

@@ -260,7 +260,7 @@ def _build_group_chats_pb(
     )
 
     # the chat, its conversation, the viewer's own subscription, its latest message (id already
-    # known) and its visible roster, in one query
+    # known), its visible roster and whether the viewer can message it, in one query
     member = aliased(GroupChatSubscription)
     member_user_ids = func.array_agg(aggregate_order_by(member.user_id, member.user_id))
     # same roster rule as _get_visible_members_for_subscription / _get_visible_admins_for_subscription
@@ -271,6 +271,23 @@ def _build_group_chats_pb(
         # the else_ branch only runs where left is non-NULL, which the annotation can't express
         else_=was_subscribed_at(member, GroupChatSubscription.left),  # type: ignore[arg-type]
     )
+    # same rule as _user_can_message in the conversations servicer: a true group chat can always be
+    # messaged, a DM only while the other party is still in it and visible to the viewer
+    other_party = aliased(GroupChatSubscription)
+    can_message = or_(
+        ~GroupChat.is_dm,
+        where_users_column_visible(
+            select(1)
+            .select_from(other_party)
+            .where(other_party.group_chat_id == GroupChat.conversation_id)
+            .where(other_party.user_id != context.user_id)
+            .where(other_party.left.is_(None)),
+            context,
+            other_party.user_id,
+        )
+        .exists()
+        .correlate(GroupChat),
+    )
     rows = session.execute(
         select(
             GroupChat,
@@ -279,6 +296,7 @@ def _build_group_chats_pb(
             Message,
             member_user_ids,
             member_user_ids.filter(member.role == GroupChatRole.admin),
+            can_message,
         )
         .join(Conversation, Conversation.id == GroupChat.conversation_id)
         .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
@@ -304,10 +322,10 @@ def _build_group_chats_pb(
             last_seen_message_id=subscription.last_seen_message_id,
             latest_message=message_to_pb(message),
             mute_info=mute_info(subscription),
-            # can_message omitted: list view doesn't use it, and it's a DM-only extra query
+            can_message=can_message,
             is_archived=subscription.is_archived,
         )
-        for group_chat, conversation, subscription, message, members, admins in rows
+        for group_chat, conversation, subscription, message, members, admins, can_message in rows
     }
 
 
