@@ -59,6 +59,6 @@ services:
     ports:
       - "16686:16686"
     expose:
-      - 4317
+      - 4318
     environment:
       - COLLECTOR_OTLP_ENABLED=true

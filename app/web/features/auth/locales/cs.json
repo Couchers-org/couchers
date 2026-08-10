@@ -60,7 +60,7 @@
       "required_error": "Zadej své uživatelské jméno",
       "username_taken_error": "Toto uživatelské jméno už používá někdo jiný.",
       "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem.",
-      "helper_text": "Toto je tvé jedinečné přihlašovací ID, nikoli zobrazované jméno."
+      "helper_text": "Toto je tvé veřejné uživatelské jméno, nikoli název tvého profilu."
     },
     "birthday": {
       "field_label": "Datum narození",
@@ -200,7 +200,9 @@
     "activeness_probe": {
       "note": "Aktualizujeme tvůj profil, aby odpovídal této volbě!",
       "still_hosting": "Pořád chci hostit!",
-      "not_hosting": "Už nemohu dále hostit."
+      "not_hosting": "Už nemohu dále hostit.",
+      "description": "Všimli jsme si u tebe delší neaktivity a chtěli jsme se zeptat, jestli máš stále zájem hostovat surfery.",
+      "title": "Máš pořád zájem hostit surfaře?"
     },
     "description": "Zkontroluj prosím následující, aby bylo možné pokračovat."
   },
@@ -245,7 +247,10 @@
     "community_organizing": "Organizování komunity",
     "community_organizing_description": "Chci organizovat akce a aktivity na platformě",
     "something_else": "Něco jiného",
-    "something_else_description": "Jen se rozhlížím nebo ještě nemám jasno"
+    "something_else_description": "Jen se rozhlížím nebo ještě nemám jasno",
+    "surfing": "Surfování",
+    "hosting": "Hostování",
+    "hosting_description": "Chci ve svém městě hostovat a vítat cestovatele"
   },
   "sign_up_resend_verification_email_help": "Nepřišel ti e-mail? Klikni <2>sem pro opětovné odeslání ověřovacího odkazu</2>.",
   "active_logins": {
@@ -260,5 +265,25 @@
     "current_session": "Toto je tvoje aktuální relace.",
     "log_out_of_session": "Odhlásit se z této relace",
     "log_out_of_all_session": "Odhlásit ze všech ostatních relací"
+  },
+  "strong_verification": {
+    "learn_more": "Přečtěte si o silném ověření <a>zde</a>.",
+    "title": "Silné ověření",
+    "subtitle": "Silné ověření je doplňková bezpečnostní funkce, která ti umožňuje ověřit datum narození a pohlaví pomocí tvého biometrického pasu.",
+    "status": {
+      "enabled_message": "Tvůj účet má v <1>tuto chvíli</1> silné ověření.",
+      "disabled_message": "Tvůj účet v <1>tuto chvíli</1> nemá silné ověření."
+    },
+    "start_button": "Zahájit silné ověření",
+    "complete_title": "Zpracováváme tvůj pokus o silné ověření",
+    "complete_message1": "Tvůj pas se právě ověřuje. Během několika minut obdržíš e-mail s výsledkem.",
+    "complete_message2": "Silné ověření vyprší v okamžiku, kdy skončí platnost tvého pasu, a ověření pak budeš muset provést znovu s novým pasem.",
+    "delete_data_title": "Smazat data tvého pasu použitého pro silné ověření",
+    "delete_information": "Svá data ze silného ověření (kromě země vydání, data platnosti a posledních tří číslic čísla dokladu) můžeš z našich serverů kdykoli smazat.",
+    "delete_information_text2": "Pokud svá data smažeš, nebudeš moci stejný pas znovu použít pro silné ověření.",
+    "delete_my_data_button": "Smazat moje data",
+    "delete_button": "Smazat má data silného ověření",
+    "delete_success": "Tvé pasové údaje byly smazány.",
+    "donation_title": "Díky za ověření – pomáháš, aby byl Couchers.org bezpečnější pro všechny."
   }
 }

@@ -23,6 +23,8 @@
     "write_action": "Napiš referenci pro {{name}}"
   },
   "generic": {
-    "greeting_line": "Ahoj {{name}},"
+    "greeting_line": "Ahoj {{name}},",
+    "do_not_reply_request": "Neodpovídej na tento e-mail. K odpovědi na tuto žádost použij jedno z tlačítek výše.",
+    "thanks": "Děkuji!"
   }
 }

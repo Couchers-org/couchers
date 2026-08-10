@@ -79,6 +79,8 @@ service Admin {
 
   rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
 
+  rpc GetUserBlocks(GetUserBlocksReq) returns (GetUserBlocksRes) {}
+
   rpc GetNonvisibleUserAccessLog(GetNonvisibleUserAccessLogReq) returns (GetNonvisibleUserAccessLogRes) {}
 
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
@@ -174,6 +176,8 @@ message UserDetails {
   repeated string admin_tags = 19;
 
   double mod_score = 20;
+
+  string ui_language_preference = 23;
 }
 
 message GetUserDetailsReq {
@@ -467,6 +471,24 @@ message GetFriendRequestsRes {
   repeated AdminFriendRequest sent = 1;
   // Friend requests received by the user
   repeated AdminFriendRequest received = 2;
+}
+
+message GetUserBlocksReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message AdminUserBlock {
+  // the other user in the block, i.e. not the user the request was made for
+  ChatUserInfo user = 1;
+  google.protobuf.Timestamp time_blocked = 2;
+}
+
+message GetUserBlocksRes {
+  // Users that this user has blocked
+  repeated AdminUserBlock blocked_users = 1;
+  // Users that have blocked this user
+  repeated AdminUserBlock blocking_users = 2;
 }
 
 enum NonvisibleUserAccessType {
