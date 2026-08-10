@@ -123,7 +123,7 @@ If you ever feel tempted to renumber, STOP and ask the user. There is essentiall
 - Use fixtures from `test_fixtures.py` (e.g., `generate_user()`, `push_collector`)
 - Mock external APIs with `unittest.mock.patch`
 - Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
-- To control time, use the `timewarp` fixture (a clock that keeps running from wherever you put it, moved with `run_from()`/`advance()`) or `frozen_timewarp` (stopped dead at an instant, moved with `freeze_at()`/`advance()`). Both shift the python *and* postgres clocks together. Never patch `now` on a module - that only moves the clock for that one module and leaves the database reporting the real time. The clock can't be moved while a transaction is open, so move it outside the `session_scope()` block
+- To control time, use the `timewarp` / `frozen_timewarp` fixtures rather than patching `now` on a module, which leaves postgres on the real clock. The clock can't be moved inside an open `session_scope()`
 
 ### Web Tests
 - Use fixture data from `test/fixtures/` (e.g., `hostRequest.json`, `messages.json`, `groupChat.json`) when available, instead of creating mock data inline

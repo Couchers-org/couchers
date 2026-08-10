@@ -5,8 +5,9 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import func, select
 
+from couchers.constants import MISSED_MESSAGES_DELAY
 from couchers.db import session_scope
-from couchers.jobs.handlers import MISSED_MESSAGES_DELAY, send_message_notifications
+from couchers.jobs.handlers import send_message_notifications
 from couchers.jobs.worker import process_job
 from couchers.models import (
     GroupChatRole,

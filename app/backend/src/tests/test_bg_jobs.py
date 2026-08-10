@@ -12,7 +12,12 @@ from sqlalchemy.sql import delete, func
 import couchers.jobs.worker
 from couchers import experimentation
 from couchers.config import config
-from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
+from couchers.constants import (
+    HOST_REQUEST_MAX_REMINDERS,
+    HOST_REQUEST_REMINDER_INTERVAL,
+    MISSED_MESSAGES_DELAY,
+    MISSED_MESSAGES_DELAY_WITH_PUSH,
+)
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -21,8 +26,6 @@ from couchers.jobs import handlers
 from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
-    MISSED_MESSAGES_DELAY,
-    MISSED_MESSAGES_DELAY_WITH_PUSH,
     add_users_to_email_list,
     enforce_community_membership,
     purge_account_deletion_tokens,

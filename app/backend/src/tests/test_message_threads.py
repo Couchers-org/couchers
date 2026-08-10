@@ -5,9 +5,10 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
+from couchers.constants import MISSED_MESSAGES_DELAY
 from couchers.db import session_scope
 from couchers.helpers.host_requests import has_unseen_host_request_messages
-from couchers.jobs.handlers import MISSED_MESSAGES_DELAY, send_message_notifications
+from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today

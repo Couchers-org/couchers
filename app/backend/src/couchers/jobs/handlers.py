@@ -37,6 +37,8 @@ from couchers.constants import (
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
+    MISSED_MESSAGES_DELAY,
+    MISSED_MESSAGES_DELAY_WITH_PUSH,
     MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
@@ -168,12 +170,6 @@ def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
             .where(~AccountDeletionToken.is_valid)
             .execution_options(synchronize_session=False)
         )
-
-
-# how long a message must go unseen before we email the user about it
-MISSED_MESSAGES_DELAY = timedelta(minutes=5)
-# ... unless we could reach them by push, in which case they've already been told about it once
-MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
 
 
 def _message_unseen_long_enough(user_id_column: InstrumentedAttribute[int]) -> ColumnElement[bool]:
