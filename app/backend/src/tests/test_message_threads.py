@@ -110,6 +110,45 @@ def test_list_message_threads_latest_status_change_message(db, moderator):
     )
 
 
+def test_list_message_threads_need_host_request_feedback(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    request_id = _create_host_request(token2, user1.id, moderator)
+
+    def host_request_thread(token: str) -> requests_pb2.HostRequest:
+        with conversations_session(token) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        thread: requests_pb2.HostRequest = next(
+            t.host_request for t in res.threads if t.host_request.host_request_id == request_id
+        )
+        return thread
+
+    assert not host_request_thread(token1).need_host_request_feedback
+
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
+            )
+        )
+
+    assert host_request_thread(token1).need_host_request_feedback
+    # only the host is asked for feedback
+    assert not host_request_thread(token2).need_host_request_feedback
+
+    with requests_session(token1) as api:
+        api.SendHostRequestFeedback(
+            requests_pb2.SendHostRequestFeedbackReq(
+                host_request_id=request_id,
+                host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
+            )
+        )
+
+    assert not host_request_thread(token1).need_host_request_feedback
+
+
 def test_list_message_threads_interleaves_chats_and_requests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import ColumnElement, Row, Select, select, union_all, update
+from sqlalchemy import ColumnElement, Row, Select, exists, select, union_all, update
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, case, func, literal, or_
@@ -38,6 +38,8 @@ from couchers.models import (
     GroupChatRole,
     GroupChatSubscription,
     HostRequest,
+    HostRequestFeedback,
+    HostRequestStatus,
     Message,
 )
 from couchers.models.notifications import NotificationTopicAction
@@ -188,36 +190,19 @@ def _build_host_request_role_filter(user_id: int, categories: frozenset[int]) ->
     return or_(*clauses) if clauses else None
 
 
-def _member_visible_to_viewer(member: type[GroupChatSubscription]) -> ColumnElement[bool]:
-    """
-    Whether `member` is visible to the viewer, whose own subscription is the unaliased
-    GroupChatSubscription of the enclosing query. Same rule as
-    _get_visible_members_for_subscription / _get_visible_admins_for_subscription in the conversations
-    servicer: a viewer still in the chat sees everyone currently in it, and one who has left sees the
-    roster frozen at the moment they left.
-    """
-    return case(
-        (GroupChatSubscription.left.is_(None), member.left.is_(None)),
-        # the else_ branch only runs where left is non-NULL, which the annotation can't express
-        else_=was_subscribed_at(member, GroupChatSubscription.left),  # type: ignore[arg-type]
-    )
-
-
 def _host_request_thread_to_pb(
     host_request: HostRequest,
     conversation: Conversation,
     message: Message,
     user_id: int,
     unseen_message_count: int,
+    need_host_request_feedback: bool,
 ) -> requests_pb2.HostRequest:
     """
     Build the HostRequest protobuf for the unified thread list. Mirrors ListHostRequests (batched, so
     no per-request queries like host_request_to_pb), with the same semantics: surfer = initiator,
     host = recipient, even for public-trip offers.
     """
-    # need_host_request_feedback is omitted: only the detail view (GetHostRequest) reads it.
-    # TODO(#9347): its recipient-based logic is wrong for public-trip offers, where the recipient is
-    # the traveller rather than the host — same for the response-rate observation.
     lat, lng = get_coordinates(host_request.hosting_location)
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
@@ -237,6 +222,7 @@ def _host_request_thread_to_pb(
         hosting_lat=lat,
         hosting_lng=lng,
         hosting_radius=host_request.hosting_radius,
+        need_host_request_feedback=need_host_request_feedback,
         is_archived=(
             host_request.is_initiator_archived
             if host_request.initiator_user_id == user_id
@@ -277,6 +263,14 @@ def _build_group_chats_pb(
     # known) and its visible roster, in one query
     member = aliased(GroupChatSubscription)
     member_user_ids = func.array_agg(aggregate_order_by(member.user_id, member.user_id))
+    # same roster rule as _get_visible_members_for_subscription / _get_visible_admins_for_subscription
+    # in the conversations servicer: a viewer still in the chat sees everyone currently in it, and one
+    # who has left sees the roster frozen at the moment they left
+    member_visible = case(
+        (GroupChatSubscription.left.is_(None), member.left.is_(None)),
+        # the else_ branch only runs where left is non-NULL, which the annotation can't express
+        else_=was_subscribed_at(member, GroupChatSubscription.left),  # type: ignore[arg-type]
+    )
     rows = session.execute(
         select(
             GroupChat,
@@ -289,7 +283,7 @@ def _build_group_chats_pb(
         .join(Conversation, Conversation.id == GroupChat.conversation_id)
         .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
         .join(Message, and_(Message.conversation_id == GroupChat.conversation_id, Message.id.in_(latest_message_ids)))
-        .join(member, and_(member.group_chat_id == GroupChat.conversation_id, _member_visible_to_viewer(member)))
+        .join(member, and_(member.group_chat_id == GroupChat.conversation_id, member_visible))
         .where(GroupChat.conversation_id.in_(group_chat_ids))
         .where(GroupChatSubscription.user_id == context.user_id)
         .where(is_newest_subscription(context.user_id))
@@ -326,14 +320,28 @@ def _build_host_request_threads_pb(
     host_request_ids = [thread.conversation_id for thread in threads]
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
-    # the request, its conversation, its latest message (id already known) and its unseen count, in
-    # one query
+    # same rule as host_request_to_pb: the host is asked for feedback once they've rejected a request
+    # and haven't given any yet.
+    # TODO(#9347): the recipient-based logic is wrong for public-trip offers, where the recipient is
+    # the traveller rather than the host — same for the response-rate observation.
+    need_host_request_feedback = and_(
+        HostRequest.recipient_user_id == context.user_id,
+        HostRequest.status == HostRequestStatus.rejected,
+        ~exists()
+        .where(HostRequestFeedback.from_user_id == context.user_id)
+        .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)
+        .correlate(HostRequest),
+    )
+
+    # the request, its conversation, its latest message (id already known), its unseen count and
+    # whether it's owed feedback, in one query
     rows = session.execute(
         select(
             HostRequest,
             Conversation,
             Message,
             unseen_host_request_message_count(context.user_id),
+            need_host_request_feedback,
         )
         .join(Conversation, Conversation.id == HostRequest.conversation_id)
         .join(Message, and_(Message.conversation_id == HostRequest.conversation_id, Message.id.in_(latest_message_ids)))
@@ -341,9 +349,9 @@ def _build_host_request_threads_pb(
     ).all()
     return {
         host_request.conversation_id: _host_request_thread_to_pb(
-            host_request, conversation, message, context.user_id, unseen_message_count
+            host_request, conversation, message, context.user_id, unseen_message_count, needs_feedback
         )
-        for host_request, conversation, message, unseen_message_count in rows
+        for host_request, conversation, message, unseen_message_count, needs_feedback in rows
     }
 
 
