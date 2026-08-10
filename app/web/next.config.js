@@ -18,12 +18,8 @@ const nextConfig = {
   experimental: {
     // Trades slightly slower compiles for a lower webpack memory ceiling.
     webpackMemoryOptimizations: true,
-    // Dev only: pages get compiled on demand anyway, so preloading every entry just
-    // inflates the footprint. In prod this is what keeps the first response per route
-    // fast, so leave it on there.
-    ...(process.env.NODE_ENV === "development" ? { preloadEntriesOnStart: false } : {}),
   },
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { isServer }) => {
     if (isServer) {
       generateBlogIndex();
     }
@@ -31,11 +27,6 @@ const nextConfig = {
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",
     });
-    if (dev) {
-      // Next defaults to "eval-source-map", which holds a full source map for every
-      // module in memory. Line-accurate mapping is enough for dev and costs much less.
-      config.devtool = "eval-cheap-module-source-map";
-    }
     return config;
   },
   redirects: async () => redirects,
