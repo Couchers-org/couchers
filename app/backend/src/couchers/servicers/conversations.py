@@ -7,7 +7,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, contains_eager
-from sqlalchemy.sql import func, not_, or_
+from sqlalchemy.sql import and_, func, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context, make_notification_user_context
@@ -318,6 +318,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.user_id == context.user_id)
+            .where(is_newest_subscription(context.user_id))
             .where(was_subscribed_at(GroupChatSubscription, Message.time))
             .where(
                 or_(
@@ -396,6 +397,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(is_newest_subscription(context.user_id))
                 .where(was_subscribed_at(GroupChatSubscription, Message.time))
                 .order_by(Message.id.desc())
                 .limit(1),
@@ -453,6 +455,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+                .where(is_newest_subscription(context.user_id))
                 .where(was_subscribed_at(GroupChatSubscription, Message.time))
                 .order_by(Message.id.desc())
                 .limit(1),
@@ -532,7 +535,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .where(was_subscribed_at(GroupChatSubscription, Message.time))
                     .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
                     .where(
-                        or_(Message.id > GroupChatSubscription.last_seen_message_id, to_bool(request.only_unseen == 0))
+                        or_(
+                            and_(
+                                is_newest_subscription(context.user_id),
+                                is_unseen(Message, GroupChatSubscription),
+                            ),
+                            to_bool(request.only_unseen == 0),
+                        )
                     )
                     .order_by(Message.id.desc())
                     .limit(page_size + 1),
