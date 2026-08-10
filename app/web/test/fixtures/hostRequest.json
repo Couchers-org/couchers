@@ -6,6 +6,7 @@
   "created": { "seconds": 1577800000, "nanos": 0 },
   "fromDate": "2025-01-01",
   "toDate": "2025-01-05",
+  "unseenMessageCount": 5,
   "lastSeenMessageId": 0,
   "latestMessage": {
     "messageId": 5,
