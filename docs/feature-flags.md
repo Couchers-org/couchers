@@ -31,13 +31,11 @@ If you have access, you can then add it to the feature flag service. If not, ask
 
 ## Local development
 
-The local backend does not pull the feature flags from the server, instead it resolves them from the override file in `feature-flags.dev.json`. You should set a value here that makes sense for devs developing locally (e.g. enable experimental features), and you can use it for local debug/testing temporary overrides (but don't commit this).
+The local dev environment does not pull feature flags from the server, instead it resolves them from override files called `feature-flags.dev.json`. Both clients (web and mobile) as well as backend have such a file: it will decide what the value is. You will need to syncrhonize them across the three files to maintain consistency across backend/frontend. You should set a value here that makes sense for devs developing locally (e.g. enable experimental features), and you can use it for local debug/testing temporary overrides (but don't commit such testing).
 
-TODO: there is currently no such mechanism in the frontend; you can just manually modify the place where you check the flags.
+## Setting the value of a feature flag to a non-code-default value
 
-## Setting the value of a feature flag to a non-default value
-
-To set the value of a feature flag to a non-default value for everyone for a given environment, follow this process:
+To set the value of a feature flag for everyone for a given environment, follow this process:
 
 1. **Click on "Add Rule"**
   ![Screenshot showing where to find "Add Rule"](feature-flags-set1.png)
