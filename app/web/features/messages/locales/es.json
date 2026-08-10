@@ -70,9 +70,9 @@
     "confirmed": "Confirmada",
     "accepted": "Aceptada",
     "cancelled": "Cancelada",
-    "past": "Pasadas",
-    "pending": "Pendientes",
-    "rejected": "Declinadas"
+    "past": "Pasada",
+    "pending": "Pendiente",
+    "rejected": "Declinada"
   },
   "invite_dialog": {
     "selected": {

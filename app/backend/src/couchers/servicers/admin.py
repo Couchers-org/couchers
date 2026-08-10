@@ -49,6 +49,7 @@ from couchers.models import (
     UserActivity,
     UserAdminTag,
     UserBadge,
+    UserBlock,
 )
 from couchers.models.discussions import (
     CommentVersion,
@@ -269,6 +270,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         admin_actions=action_pbs,
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
+        ui_language_preference=user.ui_language_preference,
     )
 
 
@@ -773,8 +775,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
-                surfer=get_chat_user_info(host_request.initiator_user_id),
-                host=get_chat_user_info(host_request.recipient_user_id),
+                surfer=get_chat_user_info(host_request.surfer_user_id),
+                host=get_chat_user_info(host_request.host_user_id),
                 status=host_request.status.name if host_request.status else "",
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
@@ -1003,6 +1005,46 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.GetFriendRequestsRes(
             sent=[friend_request_to_pb(rel) for rel in sent],
             received=[friend_request_to_pb(rel) for rel in received],
+        )
+
+    def GetUserBlocks(
+        self, request: admin_pb2.GetUserBlocksReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetUserBlocksRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        def user_block_to_pb(block: UserBlock, other_user: User) -> admin_pb2.AdminUserBlock:
+            return admin_pb2.AdminUserBlock(
+                user=admin_pb2.ChatUserInfo(
+                    user_id=other_user.id,
+                    username=other_user.username,
+                    name=other_user.name,
+                    birthdate=date_to_api(other_user.birthdate),
+                    gender=other_user.gender,
+                ),
+                time_blocked=Timestamp_from_datetime(block.time_blocked),
+            )
+
+        blocked_user = aliased(User)
+        blocked_users = session.execute(
+            select(UserBlock, blocked_user)
+            .join(blocked_user, UserBlock.blocked_user_id == blocked_user.id)
+            .where(UserBlock.blocking_user_id == user.id)
+            .order_by(UserBlock.time_blocked.desc(), UserBlock.id.desc())
+        ).all()
+
+        blocking_user = aliased(User)
+        blocking_users = session.execute(
+            select(UserBlock, blocking_user)
+            .join(blocking_user, UserBlock.blocking_user_id == blocking_user.id)
+            .where(UserBlock.blocked_user_id == user.id)
+            .order_by(UserBlock.time_blocked.desc(), UserBlock.id.desc())
+        ).all()
+
+        return admin_pb2.GetUserBlocksRes(
+            blocked_users=[user_block_to_pb(block, other_user) for block, other_user in blocked_users],
+            blocking_users=[user_block_to_pb(block, other_user) for block, other_user in blocking_users],
         )
 
     def GetNonvisibleUserAccessLog(

@@ -159,5 +159,15 @@
     "cancel": "Annuleren"
   },
   "edit_discussion": "Discussie bewerken",
-  "community_breadcrumb_a11y": "Huidige community"
+  "community_breadcrumb_a11y": "Huidige community",
+  "report_discussion_button_a11y": "Rapporteer deze discussie",
+  "report_event_button_a11y": "Rapporteer dit event",
+  "select_macroregion": "Selecteer regio",
+  "select_region": "Selecteer land",
+  "select_subregion": "Selecteer gebied",
+  "select_locality": "Selecteer stad",
+  "select_sublocality": "Selecteer buurt",
+  "select_sub_community": "Selecteer community",
+  "sub_community_search_placeholder": "Locatie",
+  "sub_community_dropdown_a11y": "Blader door meer specifieke communities"
 }

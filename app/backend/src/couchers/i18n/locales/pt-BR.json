@@ -206,7 +206,13 @@
     "host_request_too_short2_one": "A solicitação de hospedagem não pode ter menos de {{count}} caracter.",
     "host_request_too_short2_many": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
     "host_request_too_short2_other": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
-    "invalid_endpoint": "Endpoint de notificação por push inválido."
+    "invalid_endpoint": "Endpoint de notificação por push inválido.",
+    "discussion_delete_permission_denied": "Não é possível excluir esta discussão.",
+    "discussion_deleted": "Esta discussão foi excluída.",
+    "discussion_edit_permission_denied": "Não é possível editar esta discussão.",
+    "reply_delete_permission_denied": "Não é possível excluir este comentário.",
+    "reply_deleted": "Este comentário foi excluído.",
+    "reply_edit_permission_denied": "Não é possível editar este comentário."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",

@@ -38,6 +38,7 @@
     "preamble_warn": "Jsme malý tým dobrovolníků a podpora starších verzí je pro nás velmi náročná. Omlouváme se za komplikace.",
     "preamble_block": "Jsme malý tým dobrovolníků a podpora starších verzí je pro nás velmi náročná. Omlouváme se za komplikace.",
     "preamble_banned": "Jsme malý tým dobrovolníků a občas uděláme chybu, omlouváme se za potíže!",
-    "action_update": "Aktualizovat nyní"
+    "action_update": "Aktualizovat nyní",
+    "action_reinstall": "Stáhněte si novou aplikaci"
   }
 }

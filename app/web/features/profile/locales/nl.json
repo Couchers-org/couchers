@@ -162,8 +162,8 @@
       "title_surfed": "Bevestig dat je niet bij {{name}} bent blijven slapen",
       "confirm_hosted": "Bevestigen dat je niet hebt gehost",
       "confirm_surfed": "Bevestig dat je niet gesurft hebt",
-      "message_hosted": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat {{name}} niet bij je heeft gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt.",
-      "message_surfed": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat je niet bij {{name}} hebt gelogeerd. {{name}} krijgt hierover geen bericht, maar kan nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt."
+      "message_hosted": "Je <strong>kunt geen referentie schrijven</strong> als je zegt dat {{name}} niet bij je heeft gelogeerd. Ze krijgen hierover geen bericht, maar kunnen nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt.",
+      "message_surfed": "Je <strong>kunt geen referentie schrijven</strong> als je aangeeft dat je niet bij {{name}} hebt gelogeerd. Ze krijgen hierover geen bericht, maar kunnen nog steeds een referentie voor jou achterlaten.<br /><br />Als je iets wilt melden, kan je <2>hier</2> lezen hoe dat werkt."
     },
     "invalid_reference_type": "Ongeldig referentietype",
     "invalid_step": "Ongeldige formulierstap",
@@ -346,5 +346,6 @@
   "open_full_profile": "Volledig profiel openen",
   "about_me_textbox_placeholder": "bijv. Je huidige missie, waarom je Couchers.org gebruikt, je beste reisverhaal...",
   "hobbies_textbox_placeholder": "bijv. Hobby's, boeken, films, muziek...",
-  "edit_profile_pronouns_placeholder": "bijv. zij/haar"
+  "edit_profile_pronouns_placeholder": "bijv. zij/haar",
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
 }

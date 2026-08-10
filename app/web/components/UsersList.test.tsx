@@ -42,7 +42,7 @@ describe("UsersList", () => {
     ).toBeVisible();
   });
 
-  it("shows a loading spinner when userIds are undefined", () => {
+  it("shows skeletons when userIds are undefined", () => {
     render(
       <UsersList
         userIds={undefined}
@@ -52,9 +52,9 @@ describe("UsersList", () => {
       { wrapper },
     );
 
-    expect(screen.queryByRole("progressbar")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
 
-    expect(screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID)).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID).length).toBeGreaterThan(0);
 
     expect(screen.queryByText("I'm at the end!")).not.toBeInTheDocument();
     expect(screen.queryByText("I show up when the map is empty!")).not.toBeInTheDocument();
