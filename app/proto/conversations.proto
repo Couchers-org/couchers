@@ -9,12 +9,20 @@ import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "messages.proto";
+import "requests.proto";
 
 service Conversations {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
     // Retrieves list of group chats (ordered by last message), paginated
+    // TODO(#7722): remove after FE migrates to ListMessageThreads
+  }
+
+  rpc ListMessageThreads(ListMessageThreadsReq) returns (ListMessageThreadsRes) {
+    // Unified list of all message threads (group chats, DMs, host requests and
+    // public-trip offers) ordered by latest message, paginated with a single
+    // global cursor. Filterable by all/unread/chats/hosting/surfing/public_trips.
   }
 
   rpc MarkAllThreadsSeen(MarkAllThreadsSeenReq) returns (google.protobuf.Empty) {
@@ -136,9 +144,9 @@ message ListGroupChatsRes {
   bool no_more = 3;
 }
 
-// Categories of message thread. Combinable in MarkAllThreadsSeen: an empty list means all
-// categories. Read-state (only_unread) and archived (only_archived) are separate, orthogonal
-// filters.
+// Categories of message thread. Combinable in ListMessageThreads / MarkAllThreadsSeen: an empty
+// list means all categories. Read-state (only_unread) and archived (only_archived) are separate,
+// orthogonal filters.
 enum MessageThreadCategory {
   MESSAGE_THREAD_CATEGORY_UNSPECIFIED = 0;
   MESSAGE_THREAD_CATEGORY_CHATS = 1; // group chats + DMs
@@ -146,6 +154,33 @@ enum MessageThreadCategory {
   MESSAGE_THREAD_CATEGORY_SURFING = 3; // role-based: I am the guest/traveller
   // incoming offers on my public trips (I'm the traveller); a subset of SURFING
   MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS = 4;
+}
+
+message MessageThread {
+  oneof thread {
+    GroupChat group_chat = 1;
+    // Same shape and semantics as the Requests API: surfer_user_id and
+    // host_user_id are the stay roles, so a public-trip offer reverses them
+    // relative to who initiated the conversation.
+    org.couchers.api.requests.HostRequest host_request = 2;
+  }
+}
+
+message ListMessageThreadsReq {
+  uint32 page_size = 1;
+  // pagination cursor; pass back the next_page_token from the previous response, or empty for the first page
+  string page_token = 2;
+  // which categories to include; empty means all categories
+  repeated MessageThreadCategory categories = 3;
+  // orthogonal: when present, restrict to archived (true) or non-archived (false)
+  optional bool only_archived = 4;
+  // orthogonal: when true, restrict to unread threads
+  bool only_unread = 5;
+}
+
+message ListMessageThreadsRes {
+  repeated MessageThread threads = 1;
+  string next_page_token = 2;
 }
 
 message MarkAllThreadsSeenReq {
