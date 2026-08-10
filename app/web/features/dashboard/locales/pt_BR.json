@@ -23,7 +23,7 @@
   "communities_welcome_title": "Bem-vindo a Comunidades",
   "communities_intro": "Para ajudar as pessoas em todo o mundo a organizar eventos, discussões e encontros locais, criamos páginas de comunidades, que estão listadas abaixo. <strong>Você foi adicionado automaticamente a algumas comunidades com base em sua localização, mas pode se juntar a qualquer comunidade!</strong> Suas comunidades estão listadas no painel principal.",
   "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <1>Criador de Comunidade!</1>",
-  "your_communities_helper_text": "Você foi adicionado a todas as comunidades com base em sua localização. Sinta-se à vontade para <1>navegar por comunidades</1> em outras localizações também.",
+  "your_communities_helper_text": "Você foi adicionado a todas as comunidades com base em sua localização. Sinta-se à vontade para <1>navegar e se juntar a comunidades</1> em outras localizações também.",
   "find_your_community": "Encontre uma comunidade",
   "find_your_community_intro": "Abaixo você pode buscar ou navegar por todas as páginas de comunidades que existem até o momento. Não está encontrando seu país ou cidade? <1>Use este formulário</1> para solicitá-lo!",
   "find_your_community_intro_simplified": "Busque por sua comunidade ou navegue abaixo. <1>Não está vendo a sua? Solicite-a!</1>",
@@ -65,13 +65,20 @@
     "when_today": "Hoje",
     "when_tomorrow": "Amanhã",
     "same_gender_only_indicator": "Mesmo gênero",
-    "manage_link": "Gerenciar"
+    "manage_link": "Gerenciar",
+    "empty_description": "Indo a algum lugar? Publique uma viagem pública em uma comunidade para receber convites de anfitriões próximos.",
+    "offers_count_one": "{{count}} convite",
+    "offers_count_many": "{{count}} convites",
+    "offers_count_other": "{{count}} convites",
+    "no_offers": "Nenhuma oferta ainda"
   },
   "stays": {
     "upcoming_guests_header": "Seus próximos hóspedes",
     "night_count_one": "{{count}} noite",
     "night_count_many": "{{count}} noites",
     "night_count_other": "{{count}} noites",
-    "upcoming_trips_header": "Suas próximas estadias"
+    "upcoming_trips_header": "Suas próximas estadias",
+    "no_upcoming_trips": "Nenhuma viagem próxima. Que tal explorar?",
+    "no_upcoming_guests": "Nenhum próximo hóspede ainda."
   }
 }
