@@ -143,6 +143,9 @@ services:
       - "--housekeeping_interval=15s"
       # the default metric set is very wide, this keeps ingest into victoriametrics sane
       - "--disable_metrics=advtcp,cpu_topology,cpuset,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp"
+      # otherwise every compose label rides along, including the config hash, which churns series
+      - "--store_container_labels=false"
+      - "--whitelisted_container_labels=com.docker.compose.service"
     privileged: true
     devices:
       - /dev/kmsg
