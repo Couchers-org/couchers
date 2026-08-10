@@ -200,14 +200,15 @@ def _host_request_thread_to_pb(
 ) -> requests_pb2.HostRequest:
     """
     Build the HostRequest protobuf for the unified thread list. Mirrors ListHostRequests (batched, so
-    no per-request queries like host_request_to_pb), with the same semantics: surfer = initiator,
-    host = recipient, even for public-trip offers.
+    no per-request queries like host_request_to_pb), with the same semantics: surfer/host are the
+    stay roles, which a public-trip offer reverses, while last_seen and archived key off the
+    conversation roles.
     """
     lat, lng = get_coordinates(host_request.hosting_location)
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
-        surfer_user_id=host_request.initiator_user_id,
-        host_user_id=host_request.recipient_user_id,
+        surfer_user_id=host_request.surfer_user_id,
+        host_user_id=host_request.host_user_id,
         status=hostrequeststatus2api[host_request.status],
         created=Timestamp_from_datetime(conversation.created),
         from_date=date_to_api(host_request.from_date),

@@ -350,11 +350,10 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         assert hr.host_request_id == request_id
         assert hr.HasField("public_trip_id")
         assert hr.public_trip_id == trip_id
-        # payload keeps the Requests API semantics: surfer = initiator (the offering
-        # host), host = recipient (the traveller); display roles derived client-side
-        # from public_trip_id being set
-        assert hr.surfer_user_id == host.id
-        assert hr.host_user_id == traveler.id
+        # payload keeps the Requests API semantics: surfer/host are the stay roles, which an
+        # offer reverses — the offering host is the host, the trip's traveller is the surfer
+        assert hr.surfer_user_id == traveler.id
+        assert hr.host_user_id == host.id
 
         # not under SURFING for the host
         res = c.ListMessageThreads(
@@ -362,15 +361,20 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         )
         assert len(res.threads) == 0
 
+    # the same request served by the Requests API has to agree on who's who
+    with requests_session(host_token) as api:
+        from_requests_api = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+    assert (from_requests_api.surfer_user_id, from_requests_api.host_user_id) == (hr.surfer_user_id, hr.host_user_id)
+
     # From the traveller's view: appears under SURFING and MY_PUBLIC_TRIPS (role-based filters)
     with conversations_session(traveler_token) as c:
         res = c.ListMessageThreads(
             conversations_pb2.ListMessageThreadsReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING])
         )
         assert [t.host_request.host_request_id for t in res.threads] == [request_id]
-        # same initiator/recipient-based payload regardless of viewer
-        assert res.threads[0].host_request.surfer_user_id == host.id
-        assert res.threads[0].host_request.host_user_id == traveler.id
+        # same payload regardless of viewer
+        assert res.threads[0].host_request.surfer_user_id == traveler.id
+        assert res.threads[0].host_request.host_user_id == host.id
 
         res = c.ListMessageThreads(
             conversations_pb2.ListMessageThreadsReq(

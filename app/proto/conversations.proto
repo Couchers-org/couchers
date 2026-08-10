@@ -159,10 +159,9 @@ enum MessageThreadCategory {
 message MessageThread {
   oneof thread {
     GroupChat group_chat = 1;
-    // Same shape and semantics as the Requests API: surfer_user_id is the
-    // request's initiator and host_user_id its recipient, even for a
-    // public-trip offer (where the initiator is the one offering to host);
-    // clients derive display roles from public_trip_id being set.
+    // Same shape and semantics as the Requests API: surfer_user_id and
+    // host_user_id are the stay roles, so a public-trip offer reverses them
+    // relative to who initiated the conversation.
     org.couchers.api.requests.HostRequest host_request = 2;
   }
 }
