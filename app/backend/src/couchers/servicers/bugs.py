@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 import time
 import uuid
 from datetime import UTC, datetime
@@ -14,7 +15,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from couchers import urls
+from couchers import sentry, urls
 from couchers.config import config
 from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
@@ -40,6 +41,7 @@ from couchers.native_updates import (
 )
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +76,9 @@ api2updatecause = {
 }
 
 _OTA_BOUNDARY = "COUCHERS_OTA_BOUNDARY"
+
+# Validate before building a link to keep a client-supplied string out of the issue markdown.
+_SENTRY_REPLAY_ID_RE = re.compile(r"[0-9a-f]{32}")
 
 
 def _ota_multipart_body(field_name: str, content: dict[str, Any]) -> bytes:
@@ -184,6 +189,25 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         else:
             user_details = "<not logged in>"
 
+        diagnostics_lines = [
+            f"**Backend version**: `{self._version()}`",
+            f"**Frontend version**: `{request.frontend_version}`",
+            f"**User Agent**: `{request.user_agent}`",
+            f"**Locale**: `{context.localization.preferred_locale}`",
+            f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}",
+            f"**Page**: {request.page}",
+            f"**User**: {user_details} / `{(context._sofa or '')[:12]}`",
+        ]
+        if context.is_logged_in():
+            diagnostics_lines.append(
+                "**Sentry (this user)**: "
+                f"{sentry.frontend_user_issues_link(user_id=context.user_id, reported_at=now())}"
+            )
+        if _SENTRY_REPLAY_ID_RE.fullmatch(request.sentry_replay_id):
+            diagnostics_lines.append(
+                f"**Session replay**: {sentry.frontend_replay_link(replay_id=request.sentry_replay_id)}"
+            )
+
         issue_title = request.subject
         issue_body = (
             f"# {request.subject}\n"
@@ -193,14 +217,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"## Results\n"
             f"{request.results}\n"
             f"\n"
-            f"## Diagnostics\n"
-            f"**Backend version**: `{self._version()}`\n"
-            f"**Frontend version**: `{request.frontend_version}`\n"
-            f"**User Agent**: `{request.user_agent}`\n"
-            f"**Locale**: `{context.localization.preferred_locale}`\n"
-            f"**Screen resolution**: {request.screen_resolution.width}x{request.screen_resolution.height}\n"
-            f"**Page**: {request.page}\n"
-            f"**User**: {user_details} / `{(context._sofa or '')[:12]}`"
+            f"## Diagnostics\n" + "\n".join(diagnostics_lines)
         )
         issue_labels = ["bug: triage needed"]
 
@@ -285,7 +302,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             except json.JSONDecodeError, ValueError:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_diagnostics_json")
 
-            occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else datetime.now(UTC)
+            occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else now()
 
             events.append(
                 {
@@ -322,9 +339,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             request.launch_source,
             request.debug_json,
         )
-        now = datetime.now(UTC)
+        checked_at = now()
         banned = _is_update_id_banned(session, info)
-        decision = decide_native_update(context, info, now, banned=banned)
+        decision = decide_native_update(context, info, checked_at, banned=banned)
 
         # An OTA block with no newer bundle to serve would loop the client on the block screen
         # forever, so refuse to serve it: raise (pages via Sentry) and the client, which ignores
@@ -343,7 +360,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
                     f"newest_non_banned_created_at={None if newest is None else newest.manifest_created_at})"
                 )
 
-        _observe_native_check_metrics(request, info, decision, now, banned=banned)
+        _observe_native_check_metrics(request, info, decision, checked_at, banned=banned)
 
         if context.is_logged_in():
             session.add(NativeClientUser(eas_client_id=info.eas_client_id, user_id=context.user_id))

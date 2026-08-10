@@ -12,7 +12,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS
+from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
 from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
@@ -87,6 +87,12 @@ def host_request_to_pb(
         .limit(1)
     ).scalar_one()
 
+    unseen_message_count = session.execute(
+        select(unseen_host_request_message_count(context.user_id)).where(
+            HostRequest.conversation_id == host_request.conversation_id
+        )
+    ).scalar_one()
+
     lat, lng = get_coordinates(host_request.hosting_location)
 
     need_feedback = False
@@ -102,8 +108,8 @@ def host_request_to_pb(
 
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
-        surfer_user_id=host_request.initiator_user_id,
-        host_user_id=host_request.recipient_user_id,
+        surfer_user_id=host_request.surfer_user_id,
+        host_user_id=host_request.host_user_id,
         status=hostrequeststatus2api[host_request.status],
         created=Timestamp_from_datetime(initial_message.time),
         from_date=date_to_api(host_request.from_date),
@@ -125,6 +131,7 @@ def host_request_to_pb(
             else host_request.is_initiator_archived
         ),
         public_trip_id=host_request.public_trip_id,
+        unseen_message_count=unseen_message_count,
     )
 
 
@@ -141,10 +148,8 @@ def _possibly_observe_first_response_time(
     ).scalar_one_or_none()
 
     if number_messages_by_host == 0:
-        host_gender = session.execute(select(User.gender).where(User.id == host_request.recipient_user_id)).scalar_one()
-        surfer_gender = session.execute(
-            select(User.gender).where(User.id == host_request.initiator_user_id)
-        ).scalar_one()
+        host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
+        surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
         host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
             (now() - host_request.conversation.created).total_seconds()
         )
@@ -275,6 +280,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if existing_offer:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
+        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
+        surfer_user, host_user = (recipient, user) if public_trip_id is not None else (user, recipient)
+
         conversation = Conversation()
         session.add(conversation)
         session.flush()
@@ -315,9 +323,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             initiator_last_seen_message_id=message.id,
             # TODO: tz
             # timezone=recipient.timezone,
-            hosting_city=recipient.city,
-            hosting_location=recipient.geom,
-            hosting_radius=recipient.geom_radius,
+            hosting_city=host_user.city,
+            hosting_location=host_user.geom,
+            hosting_radius=host_user.geom_radius,
             public_trip_id=public_trip_id,
         )
         session.add(host_request)
@@ -339,7 +347,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
-        account_age_on_host_request_create_histogram.labels(user.gender, recipient.gender).observe(
+        account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
             (now() - user.joined).total_seconds()
         )
         log_event(
@@ -348,10 +356,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.created",
             {
                 "host_request_id": host_request.conversation_id,
-                "host_id": recipient.id,
-                "surfer_gender": user.gender,
-                "host_gender": recipient.gender,
-                "city": recipient.city,
+                "surfer_id": surfer_user.id,
+                "host_id": host_user.id,
+                "surfer_gender": surfer_user.gender,
+                "host_gender": host_user.gender,
+                "city": host_user.city,
                 "from_date": str(from_date),
                 "to_date": str(to_date),
                 "nights": (to_date - from_date).days,
@@ -389,6 +398,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return host_request_to_pb(host_request, session, context)
 
+    # TODO(#7722): remove after FE migrates to ListMessageThreads
     def ListHostRequests(
         self, request: requests_pb2.ListHostRequestsReq, context: CouchersContext, session: Session
     ) -> requests_pb2.ListHostRequestsRes:
@@ -405,7 +415,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         statement = where_moderated_content_visible(
             where_users_column_visible(
                 where_users_column_visible(
-                    select(Message, HostRequest, Conversation)
+                    select(
+                        Message,
+                        HostRequest,
+                        Conversation,
+                        unseen_host_request_message_count(context.user_id).label("unseen_message_count"),
+                    )
                     .outerjoin(
                         message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                     )
@@ -493,8 +508,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_requests.append(
                 requests_pb2.HostRequest(
                     host_request_id=result.HostRequest.conversation_id,
-                    surfer_user_id=result.HostRequest.initiator_user_id,
-                    host_user_id=result.HostRequest.recipient_user_id,
+                    surfer_user_id=result.HostRequest.surfer_user_id,
+                    host_user_id=result.HostRequest.host_user_id,
                     status=hostrequeststatus2api[result.HostRequest.status],
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
@@ -509,6 +524,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     hosting_lat=lat,
                     hosting_lng=lng,
                     hosting_radius=result.HostRequest.hosting_radius,
+                    unseen_message_count=result.unseen_message_count,
                 )
             )
 
@@ -607,10 +623,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request.accepted",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
@@ -650,10 +666,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request.rejected",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
@@ -691,10 +707,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request.confirmed",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
@@ -732,10 +748,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request.cancelled",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
@@ -882,9 +898,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.message_sent",
             {
                 "host_request_id": host_request.conversation_id,
-                "surfer_id": host_request.initiator_user_id,
-                "host_id": host_request.recipient_user_id,
-                "role": "host" if context.user_id == host_request.recipient_user_id else "surfer",
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
+                "role": "host" if context.user_id == host_request.host_user_id else "surfer",
                 "host_city": host_request.hosting_city,
             },
         )
@@ -1060,8 +1076,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.feedback_submitted",
             {
                 "host_request_id": host_request.conversation_id,
-                "surfer_id": host_request.initiator_user_id,
-                "host_id": host_request.recipient_user_id,
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
                 "request_quality": quality.name if quality else None,
                 "has_decline_reason": bool(request.decline_reason),
                 "host_city": host_request.hosting_city,

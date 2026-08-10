@@ -1482,6 +1482,50 @@ def test_archive_host_request(db, moderator):
         assert res.is_archived
 
 
+def test_host_request_unseen_message_count(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="and one more thing")
+        )
+        # sending marks your own messages seen
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.unseen_message_count == 0
+
+    with requests_session(token2) as api:
+        listed = api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0]
+        # the request's control message, its text, and the follow-up
+        assert listed.unseen_message_count == 3
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 3
+        )
+
+        api.MarkLastSeenHostRequest(
+            requests_pb2.MarkLastSeenHostRequestReq(
+                host_request_id=host_request_id, last_seen_message_id=listed.latest_message.message_id
+            )
+        )
+        assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].unseen_message_count == 0
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 0
+        )
+
+
 def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -2279,6 +2323,77 @@ def test_create_request_with_public_trip(db, moderator):
     with requests_session(host_token) as api:
         hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert hr.public_trip_id == trip_id
+
+
+def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
+    """An offer snapshots the offering host's place, not the traveller's."""
+    surfer, _ = generate_user(city="Surfer city", geom=create_coordinate(1, 1), geom_radius=11)
+    host, host_token = generate_user(city="Host city", geom=create_coordinate(2, 2), geom_radius=22)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(host_token) as api:
+        hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert hr.hosting_city == "Host city"
+        assert round(hr.hosting_lat, 4) == 2
+        assert round(hr.hosting_lng, 4) == 2
+        assert hr.hosting_radius == 22
+
+
+def test_public_trip_offer_stay_roles(db, moderator):
+    """An offer reverses initiator/recipient, but the surfer and host are still the traveller and the host."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with session_scope() as session:
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        assert host_request.initiator_user_id == host.id
+        assert host_request.recipient_user_id == surfer.id
+        assert host_request.surfer_user_id == surfer.id
+        assert host_request.host_user_id == host.id
+
+    for token in (surfer_token, host_token):
+        with requests_session(token) as api:
+            hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+            assert hr.surfer_user_id == surfer.id
+            assert hr.host_user_id == host.id
+
+            listed = api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests
+            assert [(r.surfer_user_id, r.host_user_id) for r in listed] == [(surfer.id, host.id)]
 
 
 def test_create_request_with_public_trip_dates_out_of_range(db):

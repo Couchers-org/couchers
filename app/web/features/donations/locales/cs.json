@@ -30,5 +30,12 @@
     "title": "Správa darů",
     "description": "Klikni na tlačítko níže, kde můžeš upravit nebo zrušit svůj pravidelný dar, případně zobrazit minulé faktury.",
     "button_text": "Přejít do portálu pro správu darů"
+  },
+  "logged_out": {
+    "title": "Hodnota daru",
+    "body": "Přihlas se, abys mohl přispět a my ti na profilu mohli zobrazit odznak dárce.",
+    "login_button": "Přihlas se a daruj",
+    "signup_prompt": "Nemáš účet? <1>Zaregistruj se</1>",
+    "anonymous_donation": "Pokud chceš poskytnout jednorázový dar ve výši ${{ amount }} nebo více, aniž bys jej vázal ke svému účtu, kontaktuj nás na adrese <1>{{ email }}</1>."
   }
 }

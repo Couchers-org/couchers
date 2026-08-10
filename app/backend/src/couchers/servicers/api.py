@@ -7,7 +7,7 @@ import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, undefer
 from sqlalchemy.sql import and_, case, delete, func, intersect, or_, union
 
 from couchers import urls
@@ -194,6 +194,9 @@ class API(api_pb2_grpc.APIServicer):
                 selectinload(User.regions_visited),
                 selectinload(User.regions_lived),
                 selectinload(User.language_abilities),
+                # deferred, and user_model_to_pb below reads it; loading it here saves a round trip on
+                # what is the most frequently polled endpoint we have
+                undefer(User.timezone),
             )
         ).scalar_one()
 

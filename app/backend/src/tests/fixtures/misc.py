@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 
@@ -12,17 +11,17 @@ from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.threads import unpack_thread_id
-from couchers.utils import now
+from tests.fixtures import query_log
 from tests.fixtures.sessions import real_moderation_session
 
 
 def process_jobs() -> None:
-    while process_job():
-        pass
-
-
-def now_5_min_in_future() -> datetime:
-    return now() + timedelta(minutes=5)
+    # One span for the whole drain, not one per job type: Job is a frozen dataclass deriving its name and payload
+    # type from the handler's __name__ and type hints, so wrapping handlers to name them breaks get_type_hints.
+    # Splitting these out wants a span alongside the existing tracer span in worker.process_job.
+    with query_log.span("job", "process_jobs"):
+        while process_job():
+            pass
 
 
 class EmailCollector:

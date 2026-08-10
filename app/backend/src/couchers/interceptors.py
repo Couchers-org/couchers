@@ -19,6 +19,7 @@ from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.orm import undefer
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -113,6 +114,9 @@ def _try_get_and_update_user_details(
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == is_api_key)
+            # User.timezone is deferred and read below for every authenticated call, so load it here rather
+            # than paying a second round trip for its ST_Contains against timezone_areas
+            .options(undefer(User.timezone))
         ).one_or_none()
 
         if not result:

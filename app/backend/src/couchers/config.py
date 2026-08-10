@@ -103,6 +103,9 @@ class Config:
     # Sentry
     SENTRY_ENABLED: bool
     SENTRY_URL: str
+    # Sentry project id the web frontend reports to, used to deep-link bug reports to the
+    # reporter's errors and session replay
+    SENTRY_FRONTEND_PROJECT_ID: str
     # Push notifications
     PUSH_NOTIFICATIONS_ENABLED: bool
     PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY: str
