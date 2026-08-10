@@ -503,7 +503,7 @@ def test_ChangeEmailV2_tokens_two_hour_window(db, timewarp: Timewarp):
         assert e.value.details() == "Invalid token."
 
     # and a minute after the two hour window closed
-    timewarp.advance(timedelta(hours=2, minutes=2))
+    timewarp.advance(timedelta(hours=2, minutes=1))
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
