@@ -61,11 +61,10 @@ def test_embed_html_relative_images() -> None:
 
 def test_embed_html_relative_images_ignores_url_ending_in_src() -> None:
     """
-    Our urls end in base64 tokens, whose "=" padding makes them occasionally end in "src=", which must not
-    be picked up as an image reference spanning into the next attribute.
+    A url ending in "src=" must not be picked up as an image reference reaching into the next attribute.
+    Our urls end in base64 tokens, whose "=" padding makes them end in "src=" about one time in 65k.
     """
-    sig = f"{'A' * 40}src="  # a 32 byte blake2b signature, base64 encoded
-    link = f"https://example.com/quick-link?payload=Zm9v&sig={sig}"
+    link = "https://example.com/quick-link?payload=Zm9v&sig=src="
     html = f"""
         <a href="{link}" style="color: #777;">unsubscribe</a>
         <img src="attachment_imgs/logo-grey.png" style="border:0;"/>

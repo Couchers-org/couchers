@@ -72,7 +72,7 @@ def test_signup_verification_email_with_token_ending_in_src(db, email_collector:
     The token goes into the button's `<a href="..." style="...">`, where it must not be mistaken for an image.
     """
     request_email = f"{random_hex(12)}@couchers.org.invalid"
-    token = f"{'A' * 40}src="
+    token = "a-token-ending-in-src="
 
     flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
 
