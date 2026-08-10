@@ -132,6 +132,35 @@ services:
     pid: host
     volumes:
       - "/:/host:ro,rslave"
+  # generates prometheus metrics for the containers
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.60.5
+    restart: always
+    stop_grace_period: 5s
+    command:
+      # ignore the host's non-docker cgroups
+      - "--docker_only=true"
+      - "--housekeeping_interval=15s"
+      # the default metric set is very wide, this keeps ingest into victoriametrics sane
+      - "--disable_metrics=advtcp,cpu_topology,cpuset,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp"
+      # otherwise every compose label rides along, including the config hash, which churns series
+      - "--store_container_labels=false"
+      - "--whitelisted_container_labels=com.docker.compose.service"
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+    expose:
+      - 8080
+    # cadvisor's RSS creeps over time, don't let it crowd out postgres
+    mem_limit: 512m
+    networks:
+      - cadvisor_prometheus
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
@@ -142,6 +171,7 @@ services:
       - envoy
       - pgprom
       - node_exporter
+      - cadvisor
     # this allows us to communicate with node_exporter which will be running directly on host networking
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -149,6 +179,7 @@ services:
       - backend_prometheus
       - pgprom_prometheus
       - envoy_prometheus
+      - cadvisor_prometheus
   web:
     image: registry.gitlab.com/couchers/couchers/web
     restart: always
@@ -187,5 +218,8 @@ networks:
     driver: bridge
     enable_ipv6: true
   envoy_prometheus:
+    driver: bridge
+    enable_ipv6: true
+  cadvisor_prometheus:
     driver: bridge
     enable_ipv6: true
