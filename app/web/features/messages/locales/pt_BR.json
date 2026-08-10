@@ -34,7 +34,7 @@
       "cancelled": "Você cancelou esta solicitação",
       "confirmed": "Divirta-se! {{name}} aceitou e você confirmou esta solicitação.",
       "rejected": "Sua solicitação foi recusada",
-      "accepted": "Sua solicitação foi aceita"
+      "accepted": "Divirta-se! {{name}} aceitou a solicitação."
     },
     "expired": "Esta solicitação expirou",
     "pending": "Esta solicitação ainda está pendente"
@@ -202,7 +202,7 @@
     "decline_reason_options": {
       "didnt_read_profile": "Não leu meu perfil",
       "dont_want_to_host": "Não hero hospedar esta pessoa",
-      "not_available": "Não estou disponível para hospedar",
+      "not_available": "Não estou disponível para hospedar no momento",
       "other": "Outro"
     },
     "reason_other_placeholder": "Conte mais...",
