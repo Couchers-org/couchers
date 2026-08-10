@@ -5,9 +5,7 @@ import { hasUnreadMessages } from "./utils";
 
 describe("hasUnreadMessages", () => {
   it("returns false when latestMessage is undefined", () => {
-    expect(hasUnreadMessages({ ...groupChat, latestMessage: undefined })).toBe(
-      false,
-    );
+    expect(hasUnreadMessages({ ...groupChat, latestMessage: undefined })).toBe(false);
   });
 
   it("returns false when lastSeenMessageId equals latestMessage.messageId", () => {

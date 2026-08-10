@@ -24,13 +24,9 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const createEventMock = service.events.createEvent as jest.MockedFunction<
-  typeof service.events.createEvent
->;
+const createEventMock = service.events.createEvent as jest.MockedFunction<typeof service.events.createEvent>;
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 
 const accountInfo = {
   username: "tester",
@@ -77,9 +73,7 @@ describe("Create event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = (await screen.findByLabelText(
-      t("communities:event_title_label"),
-    )) as HTMLInputElement;
+    const titleInput = (await screen.findByLabelText(t("communities:event_title_label"))) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -125,30 +119,19 @@ describe("Create event page", () => {
 
     expect(endTimeGroup).toHaveTextContent("02:00 am");
 
-    const locationInput = screen.getByLabelText(
-      t("communities:location"),
-    ) as HTMLInputElement;
+    const locationInput = screen.getByLabelText(t("communities:location")) as HTMLInputElement;
 
     await user.type(locationInput, "tes{enter}");
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
@@ -169,9 +152,7 @@ describe("Create event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = (await screen.findByLabelText(
-      t("communities:event_title_label"),
-    )) as HTMLInputElement;
+    const titleInput = (await screen.findByLabelText(t("communities:event_title_label"))) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -217,30 +198,19 @@ describe("Create event page", () => {
 
     expect(endTimeGroup).toHaveTextContent("02:00 am");
 
-    const locationInput = screen.getByLabelText(
-      t("communities:location"),
-    ) as HTMLInputElement;
+    const locationInput = screen.getByLabelText(t("communities:location")) as HTMLInputElement;
 
     await user.type(locationInput, "tes{enter}");
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(createEventMock).toHaveBeenCalledTimes(1);
 
@@ -281,9 +251,7 @@ describe("Create event page", () => {
     render(<CreateEventPage />, { wrapper });
 
     await waitFor(() => {
-      expect(
-        screen.getByText(t("profile:complete_profile_dialog.title")),
-      ).toBeInTheDocument();
+      expect(screen.getByText(t("profile:complete_profile_dialog.title"))).toBeInTheDocument();
     });
   });
 });

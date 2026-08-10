@@ -12,8 +12,7 @@ interface NavButtonProps {
 }
 
 const StyledNextLink = styled(Link, {
-  shouldForwardProp: (prop) =>
-    prop !== "isNotification" && prop !== "isSelected",
+  shouldForwardProp: (prop) => prop !== "isNotification" && prop !== "isSelected",
 })<{
   isNotification: boolean;
   isSelected: boolean;
@@ -36,24 +35,12 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export default function NavButton({
-  route,
-  label,
-  labelVariant = "h4",
-  notificationCount,
-}: NavButtonProps) {
+export default function NavButton({ route, label, labelVariant = "h4", notificationCount }: NavButtonProps) {
   const router = useRouter();
-  const isActive =
-    route === baseRoute
-      ? router.asPath === route
-      : router.asPath.includes(route);
+  const isActive = route === baseRoute ? router.asPath === route : router.asPath.includes(route);
 
   return (
-    <StyledNextLink
-      href={route}
-      isNotification={!!notificationCount}
-      isSelected={isActive}
-    >
+    <StyledNextLink href={route} isNotification={!!notificationCount} isSelected={isActive}>
       <NotificationBadge count={notificationCount}>
         <StyledTypography variant={labelVariant} noWrap>
           {label}

@@ -24,7 +24,7 @@ from couchers.email.blocks import (
 )
 from couchers.email.rendering import render_email, template_folder
 from couchers.i18n import LocalizationContext
-from couchers.i18n.locales import DEFAULT_LOCALE, get_supported_locales
+from couchers.i18n.locales import DEFAULT_LOCALE, get_locales_with_translations
 from couchers.templating import Jinja2Template
 
 
@@ -70,7 +70,7 @@ class RenderedVariation:
 
 def _ordered_locales(locales: list[str] | None) -> list[str]:
     if locales is None:
-        locales = get_supported_locales()
+        locales = get_locales_with_translations()
     return sorted(locales, key=lambda locale: (locale != DEFAULT_LOCALE, locale))
 
 

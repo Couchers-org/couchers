@@ -70,8 +70,7 @@ export default function Facts() {
 
   const currentVolunteersList = volunteers.data?.currentVolunteersList ?? [];
   const pastVolunteersList = volunteers.data?.pastVolunteersList ?? [];
-  const volunteersNumber =
-    currentVolunteersList.length + pastVolunteersList.length;
+  const volunteersNumber = currentVolunteersList.length + pastVolunteersList.length;
 
   const isLoading = isSignupInfoLoading || volunteers.isLoading;
 
@@ -107,9 +106,7 @@ export default function Facts() {
           {isLoading ? (
             <Loader width="9.5rem" />
           ) : (
-            <Typography sx={textStyle}>
-              {t("landing:num_countries2", { count: 180 })}
-            </Typography>
+            <Typography sx={textStyle}>{t("landing:num_countries2", { count: 180 })}</Typography>
           )}
         </Box>
         <Box
@@ -124,10 +121,7 @@ export default function Facts() {
           ) : signupInfo?.lastSignup ? (
             <Typography sx={textStyle}>
               {t("landing:last_signup", {
-                timeAgo: localizeRelativeTime(
-                  Temporal.Instant.from(signupInfo.lastSignup),
-                  locale,
-                ),
+                timeAgo: localizeRelativeTime(Temporal.Instant.from(signupInfo.lastSignup), locale),
               })}
             </Typography>
           ) : null}
@@ -142,9 +136,7 @@ export default function Facts() {
           {isLoading ? (
             <Loader width="7.5rem" />
           ) : (
-            <Typography sx={textStyle}>
-              {t("press:num_volunteers", { count: volunteersNumber })}
-            </Typography>
+            <Typography sx={textStyle}>{t("press:num_volunteers", { count: volunteersNumber })}</Typography>
           )}
         </Box>
       </StyledWrapper>

@@ -13,8 +13,7 @@ const articlesData = [
     padding: "1rem",
     publishedDate: "April 1, 2025",
     dateTime: "2025-04-01",
-    headline:
-      "Couchsurfing vs. house sitting: how to stay for free around the world",
+    headline: "Couchsurfing vs. house sitting: how to stay for free around the world",
     href: "https://travelnoire.com/couchsurfing-house-sitting-travel",
   },
   {
@@ -95,52 +94,35 @@ export default function PressCoverage() {
     <SectionWrapper>
       <SectionHeading>{t("press_coverage_subheading")}</SectionHeading>
       <StyledContainer>
-        {articlesData.map(
-          ({
-            imgPath,
-            altText,
-            bgColor,
-            padding,
-            publishedDate,
-            dateTime,
-            headline,
-            href,
-          }) => (
-            <StyledCard key={altText}>
-              <Box
-                sx={{
-                  margin: "0 auto",
-                }}
-              >
-                <StyledImage
-                  src={imgPath}
-                  alt={altText}
-                  loading="lazy"
-                  bgColor={bgColor}
-                  padding={padding}
-                />
-              </Box>
-              <Typography component="time" dateTime={dateTime}>
-                {publishedDate}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: "1.25rem",
-                }}
-              >
-                "{headline}"
-              </Typography>
-              <StyledLink
-                href={href}
-                aria-label={t("read_more_link_aria", { headline })}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t("read_more")}
-              </StyledLink>
-            </StyledCard>
-          ),
-        )}
+        {articlesData.map(({ imgPath, altText, bgColor, padding, publishedDate, dateTime, headline, href }) => (
+          <StyledCard key={altText}>
+            <Box
+              sx={{
+                margin: "0 auto",
+              }}
+            >
+              <StyledImage src={imgPath} alt={altText} loading="lazy" bgColor={bgColor} padding={padding} />
+            </Box>
+            <Typography component="time" dateTime={dateTime}>
+              {publishedDate}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: "1.25rem",
+              }}
+            >
+              "{headline}"
+            </Typography>
+            <StyledLink
+              href={href}
+              aria-label={t("read_more_link_aria", { headline })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("read_more")}
+            </StyledLink>
+          </StyledCard>
+        ))}
       </StyledContainer>
     </SectionWrapper>
   );

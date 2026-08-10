@@ -21,20 +21,14 @@ const StyledHeader = styled("div")({
   alignItems: "center",
 });
 
-export default function ReferenceStepHeader({
-  name,
-  referenceType,
-  step,
-}: ReferenceStepHeaderProps) {
+export default function ReferenceStepHeader({ name, referenceType, step }: ReferenceStepHeaderProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
   const user = useProfileUser();
 
   const isFirstStep =
     step === "did-stay" ||
-    (step === "private-feedback" &&
-      referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]);
+    (step === "private-feedback" && referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]);
 
   const handleBackClick = () => {
     if (isFirstStep && user.username) {
@@ -50,8 +44,7 @@ export default function ReferenceStepHeader({
     }
 
     if (step === "did-stay") {
-      return referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+      return referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
         ? t("profile:leave_reference.reference_form_heading_did_stay_surfed", {
             name,
           })
@@ -59,16 +52,12 @@ export default function ReferenceStepHeader({
             name,
           });
     }
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]) {
       return t("profile:leave_reference.reference_form_heading_friend", {
         name,
       });
     }
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-    ) {
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]) {
       return t("profile:leave_reference.reference_form_heading_surfed", {
         name,
       });
@@ -80,10 +69,7 @@ export default function ReferenceStepHeader({
 
   return (
     <StyledHeader>
-      <HeaderButton
-        onClick={handleBackClick}
-        aria-label={t("profile:leave_reference.previous_step")}
-      >
+      <HeaderButton onClick={handleBackClick} aria-label={t("profile:leave_reference.previous_step")}>
         <BackIcon />
       </HeaderButton>
       <Typography variant="h2" sx={{ marginInlineStart: theme.spacing(2) }}>

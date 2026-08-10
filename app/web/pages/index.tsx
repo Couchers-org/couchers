@@ -5,9 +5,7 @@ import { dashboardRoute, landingRoute } from "routes";
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     redirect: {
-      destination: context.req.cookies[sessionCookieName]
-        ? dashboardRoute
-        : landingRoute,
+      destination: context.req.cookies[sessionCookieName] ? dashboardRoute : landingRoute,
       permanent: true,
     },
   };

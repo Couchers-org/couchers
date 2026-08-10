@@ -1,10 +1,5 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  GetUserDetailsReq,
-  GetUserReq,
-  ListUserIdsReq,
-  UserDetails,
-} from "proto/admin_pb";
+import { GetUserDetailsReq, GetUserReq, ListUserIdsReq, UserDetails } from "proto/admin_pb";
 import { User } from "proto/api_pb";
 
 import client from "./client";
@@ -17,9 +12,7 @@ export async function getUser(user: string): Promise<User.AsObject> {
   return (await client.admin.getUser(req)).toObject();
 }
 
-export async function getUserDetails(
-  user: string,
-): Promise<UserDetails.AsObject> {
+export async function getUserDetails(user: string): Promise<UserDetails.AsObject> {
   const req = new GetUserDetailsReq();
   if (user) {
     req.setUser(user);
@@ -34,12 +27,7 @@ interface ListUserIdsInput {
   pageToken?: string;
 }
 
-export async function listUserIds({
-  startTime,
-  endTime,
-  pageSize,
-  pageToken,
-}: ListUserIdsInput) {
+export async function listUserIds({ startTime, endTime, pageSize, pageToken }: ListUserIdsInput) {
   const req = new ListUserIdsReq();
   req.setStartTime(Timestamp.fromDate(startTime));
   req.setEndTime(Timestamp.fromDate(endTime));

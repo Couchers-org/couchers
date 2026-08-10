@@ -240,7 +240,7 @@
   },
   "active_logins": {
     "heading": "Accessi attuali",
-    "settings_page_text": "Vedi da dove sei loggato ed esci da ogni accesso di altre sessioni",
+    "settings_page_text": "Controlla dove sei loggato ed esci dalle altre sessioni",
     "login_header": "Accesso effettuato il {{login_datetime}}",
     "settings_page_link": "Gestisci gli accessi correnti",
     "description": "Questa pagina elenca gli accessi attivi, puoi disconnetterti da uno qualsiasi di essi cliccando sul pulsante accanto all'accesso oppure scorrendo fino in fondo alla pagina e cliccando sul pulsante per disconnetterti da tutte le sessioni tranne questa.",

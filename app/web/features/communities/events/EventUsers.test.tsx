@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
@@ -17,9 +13,7 @@ import EventUsers, { EventUsersProps } from "./EventUsers";
 
 const { t } = i18n;
 
-const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
-  typeof service.user.getLiteUsers
->;
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
 
 function renderEventUsers(props: Partial<EventUsersProps> = {}) {
   const defaultProps: EventUsersProps = {
@@ -39,9 +33,7 @@ describe("Event users", () => {
   it("shows the users in a list if the event user IDs and users map have loaded", async () => {
     renderEventUsers({ userIds: [1, 2] });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
@@ -67,9 +59,7 @@ describe("Event users", () => {
   it("renders users successfully when grid layout is passed", async () => {
     renderEventUsers({ userIds: [1, 2], layout: "grid" });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(
       screen.getByRole("heading", {
@@ -89,13 +79,9 @@ describe("Event users", () => {
       userIds: [1, 2],
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
-    expect(
-      screen.getByRole("button", { name: t("communities:see_all") }),
-    ).toBeVisible();
+    expect(screen.getByRole("button", { name: t("communities:see_all") })).toBeVisible();
   });
 
   it("shows the pagination controls if the pagination prop is passed", async () => {
@@ -113,15 +99,11 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(screen.getByRole("button", { name: t("previous") })).toBeVisible();
     expect(screen.getByRole("button", { name: t("next") })).toBeVisible();
-    expect(
-      screen.queryByRole("button", { name: t("communities:see_all") }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: t("communities:see_all") })).not.toBeInTheDocument();
   });
 
   it("disables the next button when currentPage.nextPageToken is empty", async () => {
@@ -138,9 +120,7 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(screen.getByRole("button", { name: t("next") })).toBeDisabled();
   });
@@ -159,9 +139,7 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(screen.getByRole("button", { name: t("next") })).toBeEnabled();
   });
@@ -180,9 +158,7 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(screen.getByRole("button", { name: t("previous") })).toBeDisabled();
   });
@@ -201,9 +177,7 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     expect(screen.getByRole("button", { name: t("previous") })).toBeEnabled();
   });
@@ -225,9 +199,7 @@ describe("Event users", () => {
       },
     });
 
-    await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
-    );
+    await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
     const user = userEvent.setup();
 
@@ -251,8 +223,6 @@ describe("Event users", () => {
 
     await assertErrorAlert(errorMessage);
     // Empty state should not be shown if there is an error
-    expect(
-      screen.queryByText("There aren't any users for this event yet!"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("There aren't any users for this event yet!")).not.toBeInTheDocument();
   });
 });

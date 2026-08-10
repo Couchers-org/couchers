@@ -1,12 +1,5 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
-import {
-  Divider,
-  DividerProps,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Divider, DividerProps, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import Badge from "features/badges/Badge";
@@ -62,16 +55,13 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
   // the catalog still lists the moderator badge; the award job stops granting it once
   // show_moderator_badge is off, so hide it from the explorer to match.
   const showModeratorBadge = useFeatureValue("show_moderator_badge", true);
-  const isHiddenBadge = (badgeId: string) =>
-    badgeId === "moderator" && !showModeratorBadge;
+  const isHiddenBadge = (badgeId: string) => badgeId === "moderator" && !showModeratorBadge;
 
   return (
     <>
       <HtmlMeta title={t("global:nav.badges")} />
       <PageTitle>{t("profile:badges.title")}</PageTitle>
-      <Typography variant="subtitle1">
-        {t("profile:badges.subtitle")}
-      </Typography>
+      <Typography variant="subtitle1">{t("profile:badges.subtitle")}</Typography>
       <StyledDivider />
       <ParentFlexDiv>
         <div>
@@ -84,19 +74,14 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
                 </BadgeListItem>
               ))}
         </div>
-        <StyledDivider
-          orientation={isMobile ? "horizontal" : "vertical"}
-          flexItem
-        />
+        <StyledDivider orientation={isMobile ? "horizontal" : "vertical"} flexItem />
         {badgeId ? (
           <ContentDiv>
             <BadgeDetail badgeId={badgeId} />
           </ContentDiv>
         ) : (
           <CenteredDiv>
-            <Typography variant="subtitle1">
-              {t("profile:badges.click_on_left")}
-            </Typography>
+            <Typography variant="subtitle1">{t("profile:badges.click_on_left")}</Typography>
           </CenteredDiv>
         )}
       </ParentFlexDiv>

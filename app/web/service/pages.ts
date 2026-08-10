@@ -1,11 +1,5 @@
 import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
-import {
-  Coordinate,
-  CreateGuideReq,
-  CreatePlaceReq,
-  GetPageReq,
-  UpdatePageReq,
-} from "proto/pages_pb";
+import { Coordinate, CreateGuideReq, CreatePlaceReq, GetPageReq, UpdatePageReq } from "proto/pages_pb";
 
 import client from "./client";
 
@@ -69,12 +63,7 @@ interface UpdatePageInput {
   title?: string;
   photoKey?: string;
 }
-export async function updatePage({
-  content,
-  pageId,
-  title,
-  photoKey,
-}: UpdatePageInput) {
+export async function updatePage({ content, pageId, title, photoKey }: UpdatePageInput) {
   const req = new UpdatePageReq();
 
   if (photoKey) {

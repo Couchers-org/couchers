@@ -9,24 +9,15 @@ export interface WeblateLanguage {
 
 export const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
   try {
-    const response = await fetch(
-      "https://cdn.couchers.org/api/projects/couchers/languages/",
-      {
-        headers: {
-          Accept: "application/json",
-        },
+    const response = await fetch("https://cdn.couchers.org/api/projects/couchers/languages/", {
+      headers: {
+        Accept: "application/json",
       },
-    );
+    });
 
     if (!response.ok) {
-      Sentry.captureException(
-        new Error(
-          `Weblate API error: ${response.status} ${response.statusText}`,
-        ),
-      );
-      throw new Error(
-        `Weblate API error: ${response.status} ${response.statusText}`,
-      );
+      Sentry.captureException(new Error(`Weblate API error: ${response.status} ${response.statusText}`));
+      throw new Error(`Weblate API error: ${response.status} ${response.statusText}`);
     }
 
     const languages: WeblateLanguage[] = await response.json();

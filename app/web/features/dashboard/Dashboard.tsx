@@ -3,11 +3,11 @@ import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
 import PageTitle from "components/PageTitle";
+import CommunitiesList from "features/dashboard/CommunitiesList";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
-import CommunitiesSection from "./CommunitiesSection";
 import CommunityEvents from "./CommunityEvents";
 import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
@@ -71,7 +71,7 @@ export default function Dashboard() {
 
             <Box sx={{ height: theme.spacing(3) }} />
 
-            <CommunitiesSection />
+            <CommunitiesList />
           </Grid>
         </Grid>
       </PageContainer>

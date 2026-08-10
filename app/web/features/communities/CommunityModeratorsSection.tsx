@@ -25,14 +25,9 @@ interface CommunityModeratorsSectionProps {
   community: Community.AsObject;
 }
 
-export default function CommunityModeratorsSection({
-  community,
-}: CommunityModeratorsSectionProps) {
+export default function CommunityModeratorsSection({ community }: CommunityModeratorsSectionProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const { adminIds, error, hasNextPage } = useListAdmins(
-    community.communityId,
-    "summary",
-  );
+  const { adminIds, error, hasNextPage } = useListAdmins(community.communityId, "summary");
   const [isModeratorsDialogOpen, setIsModeratorsDialogOpen] = useState(false);
 
   return (
@@ -43,17 +38,11 @@ export default function CommunityModeratorsSection({
       <UsersList
         error={error}
         userIds={adminIds}
-        emptyListChildren={
-          <Typography variant="body1">
-            {t("communities:no_moderators")}
-          </Typography>
-        }
+        emptyListChildren={<Typography variant="body1">{t("communities:no_moderators")}</Typography>}
       />
       {hasNextPage && (
         <>
-          <StyledLoadMoreModeratorsButton
-            onClick={() => setIsModeratorsDialogOpen(true)}
-          >
+          <StyledLoadMoreModeratorsButton onClick={() => setIsModeratorsDialogOpen(true)}>
             {t("communities:see_all_moderators")}
           </StyledLoadMoreModeratorsButton>
           <CommunityModeratorsDialog

@@ -5,18 +5,9 @@ import {
   SleepingArrangementOptions,
 } from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  BoolValue,
-  StringValue,
-  UInt32Value,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { BoolValue, StringValue, UInt32Value } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import {
-  EventSearchReq,
-  EventSearchRes,
-  RectArea,
-  UserSearchReq,
-} from "proto/search_pb";
+import { EventSearchReq, EventSearchRes, RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 
@@ -112,11 +103,7 @@ function constructUserSearchReq(
   }
 
   if (showEmptyProfile !== undefined) {
-    req.setProfileCompleted(
-      showEmptyProfile
-        ? undefined
-        : new BoolValue().setValue(!showEmptyProfile),
-    );
+    req.setProfileCompleted(showEmptyProfile ? undefined : new BoolValue().setValue(!showEmptyProfile));
   }
 
   if (hasReferences) {

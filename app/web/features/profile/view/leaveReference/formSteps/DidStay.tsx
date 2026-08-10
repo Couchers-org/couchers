@@ -1,11 +1,6 @@
 import { Alert, Box, styled, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
@@ -63,22 +58,14 @@ const StyledReasonContainer = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
-const DidStay = ({
-  referenceData,
-  referenceType,
-  hostRequestId,
-  setReferenceValues,
-}: ReferenceStepProps) => {
+const DidStay = ({ referenceData, referenceType, hostRequestId, setReferenceValues }: ReferenceStepProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
-  const [
-    isDidNotStayConfirmationDialogOpen,
-    setIsDidNotStayConfirmationDialogOpen,
-  ] = useState(false);
+  const [isDidNotStayConfirmationDialogOpen, setIsDidNotStayConfirmationDialogOpen] = useState(false);
 
   const {
     control,
@@ -107,12 +94,8 @@ const DidStay = ({
     setReferenceValues({ ...referenceData, didStay: true });
     setValue("didStay", true);
 
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[1]}`,
-      );
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]) {
+      router.push(`${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[1]}`);
     } else {
       router.push(
         `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`,
@@ -137,12 +120,8 @@ const DidStay = ({
 
   if (didSubmitNotStay) {
     return (
-      <Box
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-      >
-        <Alert severity="success">
-          {t("profile:leave_reference.didnt_meetup_submit_success")}
-        </Alert>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Alert severity="success">{t("profile:leave_reference.didnt_meetup_submit_success")}</Alert>
         <Button
           variant="contained"
           type="submit"
@@ -161,11 +140,7 @@ const DidStay = ({
   return (
     <>
       <StyledForm>
-        <ReferenceStepHeader
-          name={user.name}
-          referenceType={referenceType}
-          step="did-stay"
-        />
+        <ReferenceStepHeader name={user.name} referenceType={referenceType} step="did-stay" />
         <StyledButtonContainer>
           <Button
             variant="outlined"
@@ -176,21 +151,12 @@ const DidStay = ({
           >
             {t("global:no")}
           </Button>
-          <Button
-            variant="contained"
-            type="submit"
-            size="large"
-            sx={{ marginTop: 2 }}
-            onClick={handleDidStay}
-          >
+          <Button variant="contained" type="submit" size="large" sx={{ marginTop: 2 }} onClick={handleDidStay}>
             {t("global:yes")}
           </Button>
         </StyledButtonContainer>
         <StyledTextBody sx={{ marginTop: theme.spacing(3) }}>
-          <Trans
-            i18nKey="profile:leave_reference.did_stay_explanation"
-            components={{ bold: <strong /> }}
-          />
+          <Trans i18nKey="profile:leave_reference.did_stay_explanation" components={{ bold: <strong /> }} />
         </StyledTextBody>
         {didStay === false && (
           <StyledReasonContainer>
@@ -218,10 +184,7 @@ const DidStay = ({
               )}
             />
             <StyledButtonContainer>
-              <Button
-                fullWidth={isMobile}
-                onClick={handleOpenConfirmationDialog}
-              >
+              <Button fullWidth={isMobile} onClick={handleOpenConfirmationDialog}>
                 {t("global:submit")}
               </Button>
             </StyledButtonContainer>
@@ -234,8 +197,7 @@ const DidStay = ({
         onClose={handleCloseConfirmationDialog}
       >
         <DialogTitle id="did-stay--no-dialog-title">
-          {referenceType ===
-          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+          {referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
             ? t("profile:leave_reference.did_stay_confirmation.title_hosted", {
                 name: user.name,
               })
@@ -246,8 +208,7 @@ const DidStay = ({
         <DialogContent>
           <Trans
             i18nKey={
-              referenceType ===
-              referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+              referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
                 ? "profile:leave_reference.did_stay_confirmation.message_hosted"
                 : "profile:leave_reference.did_stay_confirmation.message_surfed"
             }
@@ -264,14 +225,9 @@ const DidStay = ({
             {t("global:cancel")}
           </Button>
           <Button variant="contained" onClick={onSubmitDidNotStay}>
-            {referenceType ===
-            referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-              ? t(
-                  "profile:leave_reference.did_stay_confirmation.confirm_hosted",
-                )
-              : t(
-                  "profile:leave_reference.did_stay_confirmation.confirm_surfed",
-                )}
+            {referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+              ? t("profile:leave_reference.did_stay_confirmation.confirm_hosted")
+              : t("profile:leave_reference.did_stay_confirmation.confirm_surfed")}
           </Button>
         </DialogActions>
       </Dialog>

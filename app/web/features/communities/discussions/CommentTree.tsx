@@ -38,10 +38,7 @@ interface CommentTreeProps {
   discussionId?: number;
 }
 
-export default function CommentTree({
-  threadId,
-  discussionId,
-}: CommentTreeProps) {
+export default function CommentTree({ threadId, discussionId }: CommentTreeProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
   const {

@@ -42,56 +42,50 @@ const Wrapper = styled("div")(({ theme }) => ({
 }));
 
 const SearchResultsContainer = styled("div", {
-  shouldForwardProp: (prop) =>
-    prop !== "drawerWidth" && prop !== "isListOnlyView",
-})<{ drawerWidth: number; isListOnlyView: boolean }>(
-  ({ theme, drawerWidth, isListOnlyView }) => ({
-    display: "flex",
-    height: "100%",
-    width: isListOnlyView ? "100%" : `${drawerWidth}px`,
+  shouldForwardProp: (prop) => prop !== "drawerWidth" && prop !== "isListOnlyView",
+})<{ drawerWidth: number; isListOnlyView: boolean }>(({ theme, drawerWidth, isListOnlyView }) => ({
+  display: "flex",
+  height: "100%",
+  width: isListOnlyView ? "100%" : `${drawerWidth}px`,
 
-    ...(!isListOnlyView && {
-      [theme.breakpoints.down("md")]: {
-        width: "100%",
-        height: "45%",
-        minHeight: 0,
-        order: 2,
-        boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        overflow: "hidden",
-      },
-    }),
+  ...(!isListOnlyView && {
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      height: "45%",
+      minHeight: 0,
+      order: 2,
+      boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
+      overflow: "hidden",
+    },
   }),
-);
+}));
 
 const MapContainer = styled("div", {
-  shouldForwardProp: (prop) =>
-    prop !== "drawerWidth" && prop !== "isListOnlyView",
-})<{ drawerWidth: number; isListOnlyView: boolean }>(
-  ({ theme, drawerWidth, isListOnlyView }) => ({
-    width: `calc(100% - ${drawerWidth}px)`,
-    height: "100%",
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
+  shouldForwardProp: (prop) => prop !== "drawerWidth" && prop !== "isListOnlyView",
+})<{ drawerWidth: number; isListOnlyView: boolean }>(({ theme, drawerWidth, isListOnlyView }) => ({
+  width: `calc(100% - ${drawerWidth}px)`,
+  height: "100%",
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  ...(isListOnlyView && {
+    width: 0,
+    height: 0,
+    overflow: "hidden",
+    position: "absolute",
+    pointerEvents: "none",
+  }),
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    height: "55%",
+    order: 1,
     ...(isListOnlyView && {
       width: 0,
       height: 0,
-      overflow: "hidden",
-      position: "absolute",
-      pointerEvents: "none",
     }),
-
-    [theme.breakpoints.down("md")]: {
-      width: "100%",
-      height: "55%",
-      order: 1,
-      ...(isListOnlyView && {
-        width: 0,
-        height: 0,
-      }),
-    },
-  }),
-);
+  },
+}));
 
 const MapSearchContent = ({
   error,
@@ -137,10 +131,7 @@ const MapSearchContent = ({
 
   return (
     <Wrapper>
-      <SearchResultsContainer
-        drawerWidth={drawerWidth}
-        isListOnlyView={mapView === MapViews.LIST_ONLY}
-      >
+      <SearchResultsContainer drawerWidth={drawerWidth} isListOnlyView={mapView === MapViews.LIST_ONLY}>
         <MapSearchResultsList
           error={error}
           drawerWidth={drawerWidth}
@@ -158,10 +149,7 @@ const MapSearchContent = ({
           users={users}
         />
       </SearchResultsContainer>
-      <MapContainer
-        drawerWidth={drawerWidth}
-        isListOnlyView={mapView === MapViews.LIST_ONLY}
-      >
+      <MapContainer drawerWidth={drawerWidth} isListOnlyView={mapView === MapViews.LIST_ONLY}>
         <MapView
           isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
           isLoading={isLoading}

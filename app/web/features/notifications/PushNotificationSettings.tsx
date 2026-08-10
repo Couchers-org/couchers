@@ -9,11 +9,7 @@ import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import PushNotificationDenied from "./PushNotificationDenied";
-import {
-  checkPushEnabled,
-  turnPushNotificationsOff,
-  turnPushNotificationsOn,
-} from "./utils/helpers";
+import { checkPushEnabled, turnPushNotificationsOff, turnPushNotificationsOn } from "./utils/helpers";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -42,9 +38,7 @@ export default function PushNotificationSettings() {
       try {
         setIsPushEnabled(await checkPushEnabled());
       } catch (e) {
-        setErrorMessage(
-          t("notification_settings.push_notifications.error_unsupported"),
-        );
+        setErrorMessage(t("notification_settings.push_notifications.error_unsupported"));
         Sentry.captureException(e, {
           tags: {
             component: "PushNotificationPermission",
@@ -81,35 +75,21 @@ export default function PushNotificationSettings() {
   return (
     <div>
       <StyledTitleBox>
-        <Typography variant="h2">
-          {t("notification_settings.push_notifications.title")}
-        </Typography>
+        <Typography variant="h2">{t("notification_settings.push_notifications.title")}</Typography>
         <CustomColorSwitch
           checked={isPushEnabled}
-          onClick={
-            isPushEnabled
-              ? turnPushNotificationsOffWrap
-              : turnPushNotificationsOnWrap
-          }
+          onClick={isPushEnabled ? turnPushNotificationsOffWrap : turnPushNotificationsOnWrap}
           customColor={theme.palette.primary.main}
           isLoading={isLoading}
         />
       </StyledTitleBox>
       {errorMessage && (
         <StyledAlert severity="error">
-          {errorMessage
-            ? t(errorMessage)
-            : t("notification_settings.push_notifications.error_generic")}
+          {errorMessage ? t(errorMessage) : t("notification_settings.push_notifications.error_generic")}
         </StyledAlert>
       )}
-      {shouldPromptAllow && (
-        <Alert severity="info">
-          {t("notification_settings.push_notifications.allow_push")}
-        </Alert>
-      )}
-      {isNotificationSupported && Notification.permission === "denied" && (
-        <PushNotificationDenied />
-      )}
+      {shouldPromptAllow && <Alert severity="info">{t("notification_settings.push_notifications.allow_push")}</Alert>}
+      {isNotificationSupported && Notification.permission === "denied" && <PushNotificationDenied />}
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isPushEnabled ? (
           <Trans
@@ -123,9 +103,7 @@ export default function PushNotificationSettings() {
           />
         )}
       </Typography>
-      <Typography variant="body1">
-        {t("notification_settings.push_notifications.description")}
-      </Typography>
+      <Typography variant="body1">{t("notification_settings.push_notifications.description")}</Typography>
     </div>
   );
 }

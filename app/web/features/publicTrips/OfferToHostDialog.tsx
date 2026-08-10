@@ -3,17 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextField from "components/TextField";
-import {
-  publicTripsBaseKey,
-  publicTripsByUserBaseKey,
-} from "features/queryKeys";
+import { publicTripsBaseKey, publicTripsByUserBaseKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -74,8 +66,7 @@ export default function OfferToHostDialog({
   const today = Temporal.Now.plainDateISO();
   // The host can offer within the trip's window (shorten, not extend), and
   // never in the past. The backend enforces these too.
-  const earliest =
-    Temporal.PlainDate.compare(tripFromDate, today) > 0 ? tripFromDate : today;
+  const earliest = Temporal.PlainDate.compare(tripFromDate, today) > 0 ? tripFromDate : today;
 
   const {
     control,

@@ -7,10 +7,7 @@ import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
-import {
-  readSearchReferrer,
-  referrerToProperties,
-} from "features/analytics/searchAttribution";
+import { readSearchReferrer, referrerToProperties } from "features/analytics/searchAttribution";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
@@ -96,10 +93,7 @@ function useHostRequestFormTracking({
     formEl?.addEventListener("keydown", onKeyDown);
 
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        tracker.onVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", tracker.onVisibilityChange);
       formEl?.removeEventListener("focusin", onFocusIn);
       formEl?.removeEventListener("focusout", onFocusOut);
       formEl?.removeEventListener("keydown", onKeyDown);
@@ -108,9 +102,7 @@ function useHostRequestFormTracking({
       const { foregroundMs, totalMs } = tracker.finalize();
 
       const { text, fromDate, toDate } = getLatestValues();
-      const referrerProps = referrerToProperties(
-        readSearchReferrer(hostUserId),
-      );
+      const referrerProps = referrerToProperties(readSearchReferrer(hostUserId));
 
       logEvent("host_request.form_closed", {
         host_user_id: hostUserId,
@@ -174,10 +166,7 @@ interface NewHostRequestProps {
   setIsRequesting: (value: boolean) => void;
 }
 
-export default function NewHostRequest({
-  setIsRequestSuccess,
-  setIsRequesting,
-}: NewHostRequestProps) {
+export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }: NewHostRequestProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
 
@@ -240,16 +229,11 @@ export default function NewHostRequest({
   const hostToday = Temporal.Now.plainDateISO(user.timezone);
 
   const watchFromDate = watch("fromDate", undefined);
-  const arrivalBeforeHostToday =
-    !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;
+  const arrivalBeforeHostToday = !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;
 
   useEffect(() => {
     const toDate = getValues("toDate");
-    if (
-      watchFromDate &&
-      toDate &&
-      Temporal.PlainDate.compare(watchFromDate, toDate) >= 0
-    ) {
+    if (watchFromDate && toDate && Temporal.PlainDate.compare(watchFromDate, toDate) >= 0) {
       setValue("toDate", watchFromDate.add({ days: 1 }));
     }
   });
@@ -257,11 +241,7 @@ export default function NewHostRequest({
   return (
     <>
       <StyledTitle variant="h1">
-        {hostLoading ? (
-          <Skeleton width="100" />
-        ) : (
-          t("profile:request_form.send_request", { name: user.name })
-        )}
+        {hostLoading ? <Skeleton width="100" /> : t("profile:request_form.send_request", { name: user.name })}
       </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       {hostError ? (
@@ -284,10 +264,7 @@ export default function NewHostRequest({
                     notEmpty: (date) => !date || date !== "",
                     notBeforeHostToday: (date) =>
                       !date ||
-                      Temporal.PlainDate.compare(
-                        Temporal.PlainDate.from(date),
-                        hostToday,
-                      ) >= 0 ||
+                      Temporal.PlainDate.compare(Temporal.PlainDate.from(date), hostToday) >= 0 ||
                       t("profile:request_form.arrival_date_before_host_today", {
                         name: user.name,
                       }),
@@ -307,11 +284,7 @@ export default function NewHostRequest({
                 helperText={errors?.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
-                minValue={
-                  watchFromDate
-                    ? watchFromDate.add({ days: 1 })
-                    : Temporal.Now.plainDateISO()
-                }
+                minValue={watchFromDate ? watchFromDate.add({ days: 1 }) : Temporal.Now.plainDateISO()}
                 name="toDate"
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
@@ -324,12 +297,7 @@ export default function NewHostRequest({
             <Trans
               i18nKey="profile:request_form.guide_link_help_text"
               components={{
-                0: (
-                  <StyledLink
-                    variant="body1"
-                    href={howToWriteRequestGuideUrl}
-                  />
-                ),
+                0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
               }}
             />
           </StyledHelpText>

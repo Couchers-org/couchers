@@ -14,19 +14,14 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      COMMUNITIES,
-      GLOBAL,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? "en", [COMMUNITIES, GLOBAL, NOTIFICATIONS])),
   },
 });
 
 export default function GroupPage() {
   const router = useRouter();
 
-  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED)
-    return <NotFoundPage />;
+  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED) return <NotFoundPage />;
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;

@@ -6,10 +6,7 @@ interface NotificationBadgeProps {
   count?: number;
 }
 
-export default function NotificationBadge({
-  children,
-  count,
-}: NotificationBadgeProps) {
+export default function NotificationBadge({ children, count }: NotificationBadgeProps) {
   return (
     <Badge
       badgeContent={count}

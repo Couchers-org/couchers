@@ -5,45 +5,26 @@ import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { groupChatKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  mockAllIsIntersecting,
-  mockIsIntersecting,
-} from "react-intersection-observer/test-utils";
+import { mockAllIsIntersecting, mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import {
-  getGroupChatMessages,
-  getLiteUser,
-  getLiteUsers,
-  getUser,
-} from "test/serviceMockDefaults";
-import {
-  addDefaultUser,
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  wait,
-} from "test/utils";
+import { getGroupChatMessages, getLiteUser, getLiteUsers, getUser } from "test/serviceMockDefaults";
+import { addDefaultUser, assertErrorAlert, mockConsoleError, MockedService, wait } from "test/utils";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 const { t } = i18n;
 
-const getGroupChatMock = service.conversations.getGroupChat as MockedService<
-  typeof service.conversations.getGroupChat
->;
+const getGroupChatMock = service.conversations.getGroupChat as MockedService<typeof service.conversations.getGroupChat>;
 const getLiteUserMock = service.user.getLiteUser as jest.Mock;
 const getLiteUsersMock = service.user.getLiteUsers as jest.Mock;
 const getUserMock = service.user.getUser as jest.Mock;
 
-const listFriendsMock = service.api.listFriends as MockedService<
-  typeof service.api.listFriends
->;
+const listFriendsMock = service.api.listFriends as MockedService<typeof service.api.listFriends>;
 
-const getGroupChatMessagesMock = service.conversations
-  .getGroupChatMessages as MockedService<
+const getGroupChatMessagesMock = service.conversations.getGroupChatMessages as MockedService<
   typeof service.conversations.getGroupChatMessages
 >;
 const baseGroupChatMockResponse = {
@@ -74,20 +55,15 @@ const baseGroupChatMockResponse = {
   isArchived: false,
 };
 
-const markLastSeenGroupChatMock = service.conversations
-  .markLastSeenGroupChat as MockedService<
+const markLastSeenGroupChatMock = service.conversations.markLastSeenGroupChat as MockedService<
   typeof service.conversations.markLastSeenGroupChat
 >;
 
-const muteChatMock = service.conversations.muteChat as MockedService<
-  typeof service.conversations.muteChat
->;
+const muteChatMock = service.conversations.muteChat as MockedService<typeof service.conversations.muteChat>;
 
 // TODO: tests involving these mutations - maybe these can be localised only
 // in test blocks that need them
-const sendMessageMock = service.conversations.sendMessage as MockedService<
-  typeof service.conversations.sendMessage
->;
+const sendMessageMock = service.conversations.sendMessage as MockedService<typeof service.conversations.sendMessage>;
 // const leaveGroupChatMock = service.conversations
 //   .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
 
@@ -118,13 +94,9 @@ describe("GroupChatView", () => {
   it("renders the chat correctly", async () => {
     renderGroupChatView();
 
-    expect(
-      await screen.findByRole("heading", { level: 1, name: "Test group chat" }),
-    ).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "Test group chat" })).toBeVisible();
 
-    const messageElements = within(
-      screen.getByTestId("message-list"),
-    ).getAllByTestId(/message-\d/);
+    const messageElements = within(screen.getByTestId("message-list")).getAllByTestId(/message-\d/);
 
     for (let i = 0; i < messageData.length; i++) {
       const message = messageData[i];
@@ -138,26 +110,20 @@ describe("GroupChatView", () => {
         // non-control text message assertions
         const user = await getLiteUser(message.authorUserId.toString());
 
-        expect(
-          await messageElement.findByRole("heading", { name: user?.name }),
-        ).toBeVisible();
+        expect(await messageElement.findByRole("heading", { name: user?.name })).toBeVisible();
         expect(messageElement.getByText(message.text.text)).toBeVisible();
 
         // avatar assertion
         if (user?.avatarUrl !== "") {
           // checks that an image is rendered if an avatar exists
-          expect(
-            messageElement.getByRole("img", { name: user?.name }),
-          ).toBeVisible();
+          expect(messageElement.getByRole("img", { name: user?.name })).toBeVisible();
         } else {
           // "Funny Dog" is the only user without an image, so check initials are rendered
           expect(messageElement.getByText("FD")).toBeVisible();
         }
       } else if (message.chatCreated) {
         // control message assertions
-        expect(
-          messageElement.getByText("Funny created the chat"),
-        ).toBeVisible();
+        expect(messageElement.getByText("Funny created the chat")).toBeVisible();
       }
     }
     expect(getGroupChatMock).toHaveBeenCalledTimes(1);
@@ -187,37 +153,33 @@ describe("GroupChatView", () => {
     });
 
     it("shows the new messages", async () => {
-      getGroupChatMock
-        .mockResolvedValueOnce(baseGroupChatMockResponse)
-        .mockResolvedValue({
-          ...baseGroupChatMockResponse,
-          latestMessage: {
-            authorUserId: 1,
-            messageId: 6,
-            text: {
-              text: "Sounds good",
-            },
-            time: {
-              nanos: 0,
-              seconds: 1577962000,
-            },
+      getGroupChatMock.mockResolvedValueOnce(baseGroupChatMockResponse).mockResolvedValue({
+        ...baseGroupChatMockResponse,
+        latestMessage: {
+          authorUserId: 1,
+          messageId: 6,
+          text: {
+            text: "Sounds good",
           },
-        });
-      getGroupChatMessagesMock
-        .mockImplementationOnce(getGroupChatMessages)
-        .mockResolvedValue({
-          lastMessageId: 6,
-          messagesList: [
-            {
-              messageId: 6,
-              authorUserId: 1,
-              text: { text: "Sounds good" },
-              time: { seconds: 1577962000, nanos: 0 },
-            },
-            ...messageData,
-          ],
-          noMore: true,
-        });
+          time: {
+            nanos: 0,
+            seconds: 1577962000,
+          },
+        },
+      });
+      getGroupChatMessagesMock.mockImplementationOnce(getGroupChatMessages).mockResolvedValue({
+        lastMessageId: 6,
+        messagesList: [
+          {
+            messageId: 6,
+            authorUserId: 1,
+            text: { text: "Sounds good" },
+            time: { seconds: 1577962000, nanos: 0 },
+          },
+          ...messageData,
+        ],
+        noMore: true,
+      });
       renderGroupChatView();
 
       act(() => {
@@ -294,37 +256,33 @@ describe("GroupChatView", () => {
 
   it("sends the message successfully and shows it in the chat", async () => {
     sendMessageMock.mockResolvedValue(new Empty());
-    getGroupChatMock
-      .mockResolvedValueOnce(baseGroupChatMockResponse)
-      .mockResolvedValue({
-        ...baseGroupChatMockResponse,
-        latestMessage: {
-          authorUserId: 1,
-          messageId: 6,
-          text: {
-            text: "Sounds good",
-          },
-          time: {
-            nanos: 0,
-            seconds: 1577962000,
-          },
+    getGroupChatMock.mockResolvedValueOnce(baseGroupChatMockResponse).mockResolvedValue({
+      ...baseGroupChatMockResponse,
+      latestMessage: {
+        authorUserId: 1,
+        messageId: 6,
+        text: {
+          text: "Sounds good",
         },
-      });
-    getGroupChatMessagesMock
-      .mockImplementationOnce(getGroupChatMessages)
-      .mockResolvedValue({
-        lastMessageId: 6,
-        messagesList: [
-          {
-            messageId: 6,
-            authorUserId: 1,
-            text: { text: "Sounds good" },
-            time: { seconds: 1577962000, nanos: 0 },
-          },
-          ...messageData,
-        ],
-        noMore: true,
-      });
+        time: {
+          nanos: 0,
+          seconds: 1577962000,
+        },
+      },
+    });
+    getGroupChatMessagesMock.mockImplementationOnce(getGroupChatMessages).mockResolvedValue({
+      lastMessageId: 6,
+      messagesList: [
+        {
+          messageId: 6,
+          authorUserId: 1,
+          text: { text: "Sounds good" },
+          time: { seconds: 1577962000, nanos: 0 },
+        },
+        ...messageData,
+      ],
+      noMore: true,
+    });
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
@@ -342,37 +300,33 @@ describe("GroupChatView", () => {
 
   it("sends the message successfully via ctrl+enter combination", async () => {
     sendMessageMock.mockResolvedValue(new Empty());
-    getGroupChatMock
-      .mockResolvedValueOnce(baseGroupChatMockResponse)
-      .mockResolvedValue({
-        ...baseGroupChatMockResponse,
-        latestMessage: {
-          authorUserId: 1,
-          messageId: 6,
-          text: {
-            text: "Sounds good",
-          },
-          time: {
-            nanos: 0,
-            seconds: 1577962000,
-          },
+    getGroupChatMock.mockResolvedValueOnce(baseGroupChatMockResponse).mockResolvedValue({
+      ...baseGroupChatMockResponse,
+      latestMessage: {
+        authorUserId: 1,
+        messageId: 6,
+        text: {
+          text: "Sounds good",
         },
-      });
-    getGroupChatMessagesMock
-      .mockImplementationOnce(getGroupChatMessages)
-      .mockResolvedValue({
-        lastMessageId: 6,
-        messagesList: [
-          {
-            messageId: 6,
-            authorUserId: 1,
-            text: { text: "Sounds good" },
-            time: { seconds: 1577962000, nanos: 0 },
-          },
-          ...messageData,
-        ],
-        noMore: true,
-      });
+        time: {
+          nanos: 0,
+          seconds: 1577962000,
+        },
+      },
+    });
+    getGroupChatMessagesMock.mockImplementationOnce(getGroupChatMessages).mockResolvedValue({
+      lastMessageId: 6,
+      messagesList: [
+        {
+          messageId: 6,
+          authorUserId: 1,
+          text: { text: "Sounds good" },
+          time: { seconds: 1577962000, nanos: 0 },
+        },
+        ...messageData,
+      ],
+      noMore: true,
+    });
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
@@ -399,9 +353,7 @@ describe("GroupChatView", () => {
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText("Message"), "Not ready to se-");
-    expect(sessionStorage.getItem("messages.1.1")).toEqual(
-      JSON.stringify("Not ready to se-"),
-    );
+    expect(sessionStorage.getItem("messages.1.1")).toEqual(JSON.stringify("Not ready to se-"));
   });
 
   it("populates message draft state from sessionStorage", async () => {
@@ -469,9 +421,7 @@ describe("GroupChatView", () => {
       })
       .click();
 
-    const muteButton = await screen.findByText(
-      t("messages:chat_view.mute.button_label"),
-    );
+    const muteButton = await screen.findByText(t("messages:chat_view.mute.button_label"));
 
     const user = userEvent.setup();
 
@@ -518,14 +468,10 @@ describe("GroupChatView", () => {
 
     const user = userEvent.setup();
 
-    const muteButton = await screen.findByText(
-      t("messages:chat_view.mute.button_label"),
-    );
+    const muteButton = await screen.findByText(t("messages:chat_view.mute.button_label"));
     await user.click(muteButton);
 
-    within(screen.getByRole("dialog"))
-      .getByLabelText(t("messages:chat_view.mute.forever_label"))
-      .click();
+    within(screen.getByRole("dialog")).getByLabelText(t("messages:chat_view.mute.forever_label")).click();
     within(screen.getByRole("dialog"))
       .getByRole("button", { name: t("messages:chat_view.mute.button_label") })
       .click();

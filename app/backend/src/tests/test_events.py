@@ -3118,6 +3118,63 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
         assert cancel_notifs[0].moderation_state_id == occurrence.moderation_state_id
 
 
+def test_event_update_and_cancel_notifications_not_sent_to_actor(
+    db, push_collector: PushCollector, moderator: Moderator
+):
+    """The user who updates or cancels an event shouldn't be notified about their own action."""
+    organizer_user, organizer_token = generate_user()
+    attendee_user, attendee_token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [attendee_user], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(organizer_token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Actor Test",
+                content="Content.",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+    process_jobs()
+
+    # The attendee subscribes to notifications
+    with events_session(attendee_token) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    # The organizer updates and then cancels their own event
+    with events_session(organizer_token) as api:
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                title=wrappers_pb2.StringValue(value="Updated Title"),
+                should_notify=True,
+            )
+        )
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+    process_jobs()
+
+    # The organizer should not receive any notifications
+    assert push_collector.count_for_user(organizer_user.id) == 0
+
+    # But the attendee should receive both the update and cancel notifications
+    assert push_collector.pop_for_user(attendee_user.id).topic_action == NotificationTopicAction.event__update.display
+    assert push_collector.pop_for_user(attendee_user.id).topic_action == NotificationTopicAction.event__cancel.display
+
+
 def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event reminder notifications should carry the event's moderation_state_id for deferral."""
     user1, token1 = generate_user()

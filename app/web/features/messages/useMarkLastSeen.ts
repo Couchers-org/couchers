@@ -17,10 +17,7 @@ export default function useMarkLastSeen(
   // undefined so can't do useRef(lastSeenMessageId).
   useEffect(() => {
     if (lastSeenMessageId) {
-      maxMessageIdRef.current = Math.max(
-        maxMessageIdRef.current,
-        lastSeenMessageId,
-      );
+      maxMessageIdRef.current = Math.max(maxMessageIdRef.current, lastSeenMessageId);
     }
   }, [lastSeenMessageId]);
 

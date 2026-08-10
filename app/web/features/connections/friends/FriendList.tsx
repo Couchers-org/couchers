@@ -35,14 +35,7 @@ function FriendList({
         hasData={!!friends?.length}
         noDataMessage={t("connections:no_friends")}
       >
-        {friends &&
-          friends.map((friend) => (
-            <FriendItem
-              friend={friend}
-              key={friend.userId}
-              onError={setError}
-            />
-          ))}
+        {friends && friends.map((friend) => <FriendItem friend={friend} key={friend.userId} onError={setError} />)}
       </FriendTile>
     </>
   );

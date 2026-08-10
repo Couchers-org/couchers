@@ -11,10 +11,7 @@ import { getBrowserLocaleFromHeader } from "middleware";
 describe("Middleware locale detection logic", () => {
   describe("Browser language detection", () => {
     it("should detect Russian from Accept-Language header", () => {
-      const locale = getBrowserLocaleFromHeader(
-        "ru-RU,ru;q=0.9,en;q=0.8",
-        allLanguages,
-      );
+      const locale = getBrowserLocaleFromHeader("ru-RU,ru;q=0.9,en;q=0.8", allLanguages);
       expect(locale).toBe("ru");
     });
 
@@ -24,55 +21,37 @@ describe("Middleware locale detection logic", () => {
     });
 
     it("should detect Spanish from Accept-Language header", () => {
-      const locale = getBrowserLocaleFromHeader(
-        "es-ES,es;q=0.9,en;q=0.8",
-        allLanguages,
-      );
+      const locale = getBrowserLocaleFromHeader("es-ES,es;q=0.9,en;q=0.8", allLanguages);
       expect(locale).toBe("es");
     });
 
     it("should detect French from Accept-Language header", () => {
-      const locale = getBrowserLocaleFromHeader(
-        "fr-FR,fr;q=0.9,en;q=0.8",
-        allLanguages,
-      );
+      const locale = getBrowserLocaleFromHeader("fr-FR,fr;q=0.9,en;q=0.8", allLanguages);
       expect(locale).toBe("fr");
     });
 
     it("should detect the right Portuguese variant from Accept-Language header", () => {
-      expect(getBrowserLocaleFromHeader("pt-BR,pt,en", allLanguages)).toBe(
-        "pt-BR",
-      );
+      expect(getBrowserLocaleFromHeader("pt-BR,pt,en", allLanguages)).toBe("pt-BR");
       expect(getBrowserLocaleFromHeader("pt,en", allLanguages)).toBe("pt");
     });
 
     it("should detect the right Chinese variant from Accept-Language header", () => {
-      expect(getBrowserLocaleFromHeader("zh-Hans,en", allLanguages)).toBe(
-        "zh-Hans",
-      );
-      expect(getBrowserLocaleFromHeader("zh-Hant,en", allLanguages)).toBe(
-        "zh-Hant",
-      );
+      expect(getBrowserLocaleFromHeader("zh-Hans,en", allLanguages)).toBe("zh-Hans");
+      expect(getBrowserLocaleFromHeader("zh-Hant,en", allLanguages)).toBe("zh-Hant");
     });
   });
 
   describe("Fallback to English", () => {
     it("should return undefined for unsupported language", () => {
-      expect(
-        getBrowserLocaleFromHeader("xx-XX,xx;q=0.9", allLanguages),
-      ).toBeUndefined();
+      expect(getBrowserLocaleFromHeader("xx-XX,xx;q=0.9", allLanguages)).toBeUndefined();
     });
 
     it("should handle malformed Accept-Language header", () => {
-      expect(
-        getBrowserLocaleFromHeader("(╯°□°)╯︵ ┻━┻", allLanguages),
-      ).toBeUndefined();
+      expect(getBrowserLocaleFromHeader("(╯°□°)╯︵ ┻━┻", allLanguages)).toBeUndefined();
     });
 
     it("should return undefined when Accept-Language header is missing", () => {
-      expect(
-        getBrowserLocaleFromHeader(undefined, allLanguages),
-      ).toBeUndefined();
+      expect(getBrowserLocaleFromHeader(undefined, allLanguages)).toBeUndefined();
     });
 
     describe("Locale configuration", () => {
@@ -106,18 +85,13 @@ describe("Middleware locale detection logic", () => {
 
     beforeEach(async () => {
       const middlewareModule = await import("./middleware");
-      shouldBlockIncompleteLanguage =
-        middlewareModule.shouldBlockIncompleteLanguage;
+      shouldBlockIncompleteLanguage = middlewareModule.shouldBlockIncompleteLanguage;
     });
 
     describe("when current locale is English", () => {
       it("should never block English", () => {
-        expect(shouldBlockIncompleteLanguage("en", undefined, true)).toBe(
-          false,
-        );
-        expect(shouldBlockIncompleteLanguage("en", undefined, false)).toBe(
-          false,
-        );
+        expect(shouldBlockIncompleteLanguage("en", undefined, true)).toBe(false);
+        expect(shouldBlockIncompleteLanguage("en", undefined, false)).toBe(false);
         expect(shouldBlockIncompleteLanguage("en", "en", true)).toBe(false);
         expect(shouldBlockIncompleteLanguage("en", "de", true)).toBe(false);
       });

@@ -1,11 +1,4 @@
-import {
-  darken,
-  styled,
-  SxProps,
-  Theme,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { darken, styled, SxProps, Theme, Typography, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { BugIcon } from "components/Icons";
 import { useTranslation } from "i18n";
@@ -75,10 +68,7 @@ export default function ReportButton({
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </StyledReportButton>
       )}
-      <ReportDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
+      <ReportDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
     </>
   );
 }

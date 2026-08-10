@@ -81,10 +81,4 @@ const unclusteredPointLayer: LayerProps = {
   type: "symbol",
 };
 
-export {
-  clusterCountLayer,
-  clusterLayer,
-  UNCLUSTERED_LAYER_ID,
-  unclusteredPointLayer,
-  USERS_SOURCE_ID,
-};
+export { clusterCountLayer, clusterLayer, UNCLUSTERED_LAYER_ID, unclusteredPointLayer, USERS_SOURCE_ID };

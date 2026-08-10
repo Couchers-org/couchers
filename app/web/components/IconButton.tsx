@@ -1,9 +1,4 @@
-import {
-  IconButton as MuiIconButton,
-  IconButtonProps as MuiIconButtonProps,
-  styled,
-  useTheme,
-} from "@mui/material";
+import { IconButton as MuiIconButton, IconButtonProps as MuiIconButtonProps, styled, useTheme } from "@mui/material";
 import { forwardRef } from "react";
 
 import CircularProgress from "./CircularProgress";
@@ -24,11 +19,7 @@ export default forwardRef(function IconButton(
   const theme = useTheme();
   return (
     <MuiIconButton {...otherProps} ref={ref}>
-      {loading ? (
-        <StyledCircularProgress size={theme.typography.pxToRem(18)} />
-      ) : (
-        otherProps.children
-      )}
+      {loading ? <StyledCircularProgress size={theme.typography.pxToRem(18)} /> : otherProps.children}
     </MuiIconButton>
   );
 });

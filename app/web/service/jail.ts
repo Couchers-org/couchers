@@ -35,12 +35,7 @@ export async function acceptTOS() {
   return { isJailed: res.getJailed() };
 }
 
-export async function setLocation(
-  city: string,
-  lat: number,
-  lng: number,
-  radius: number,
-) {
+export async function setLocation(city: string, lat: number, lng: number, radius: number) {
   const req = new SetLocationReq();
   req.setCity(city).setLat(lat).setLng(lng).setRadius(radius);
   const res = await client.jail.setLocation(req);
@@ -54,10 +49,7 @@ export async function setAcceptedCommunityGuidelines(accepted: boolean) {
   return { isJailed: res.getJailed() };
 }
 
-export async function acknowledgePendingModNote(
-  modNoteId: number,
-  acknowledge: boolean,
-) {
+export async function acknowledgePendingModNote(modNoteId: number, acknowledge: boolean) {
   const req = new AcknowledgePendingModNoteReq();
   req.setNoteId(modNoteId);
   req.setAcknowledge(acknowledge);
@@ -65,9 +57,7 @@ export async function acknowledgePendingModNote(
   return { isJailed: res.getJailed() };
 }
 
-export async function respondToActivenessProbe(
-  response: ActivenessProbeResponse,
-) {
+export async function respondToActivenessProbe(response: ActivenessProbeResponse) {
   const req = new RespondToActivenessProbeReq();
   req.setResponse(response);
   const res = await client.jail.respondToActivenessProbe(req);

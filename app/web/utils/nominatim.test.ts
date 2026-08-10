@@ -1,8 +1,4 @@
-import {
-  filterDuplicatePlaces,
-  NominatimPlace,
-  simplifyPlaceDisplayName,
-} from "./nominatim";
+import { filterDuplicatePlaces, NominatimPlace, simplifyPlaceDisplayName } from "./nominatim";
 
 describe("Nominatim utilities", () => {
   describe("simplifyPlaceDisplayName", () => {
@@ -182,9 +178,7 @@ describe("Nominatim utilities", () => {
         },
       };
 
-      const result = simplifyPlaceDisplayName(
-        californiaState as NominatimPlace,
-      );
+      const result = simplifyPlaceDisplayName(californiaState as NominatimPlace);
       expect(result).toBe("California, United States");
     });
 

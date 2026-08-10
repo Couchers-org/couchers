@@ -12,9 +12,7 @@ const { t } = i18n;
 // EventSearch by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
-const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
-  typeof service.events.listMyEvents
->;
+const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
 
 describe("My events", () => {
   beforeEach(() => {
@@ -37,9 +35,7 @@ describe("My events", () => {
     ).toBeVisible();
     // 3 event row links (no "See all" link — navigation uses arrow buttons)
     expect(screen.getAllByRole("link")).toHaveLength(3);
-    expect(listMyEventsMock).toHaveBeenCalledWith(
-      expect.objectContaining({ pageSize: 3 }),
-    );
+    expect(listMyEventsMock).toHaveBeenCalledWith(expect.objectContaining({ pageSize: 3 }));
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -53,10 +49,7 @@ describe("My events", () => {
     expect(
       await screen.findByText(
         (_content, element) => {
-          return (
-            element?.textContent ===
-            "No events at the moment. Why don't you create one ✨?"
-          );
+          return element?.textContent === "No events at the moment. Why don't you create one ✨?";
         },
         { selector: "p" },
       ),

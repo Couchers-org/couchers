@@ -10,8 +10,7 @@ import MotivationsForm from "./MotivationsForm";
 
 const { t } = i18n;
 
-const signupFlowMotivationsMock = service.auth
-  .signupFlowMotivations as MockedService<
+const signupFlowMotivationsMock = service.auth.signupFlowMotivations as MockedService<
   typeof service.auth.signupFlowMotivations
 >;
 
@@ -50,20 +49,13 @@ describe("MotivationsForm", () => {
 
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByText(t("auth:motivations_form.surfing")),
-    );
+    await user.click(await screen.findByText(t("auth:motivations_form.surfing")));
     await user.click(screen.getByText(t("auth:motivations_form.hosting")));
 
-    await user.click(
-      screen.getByRole("button", { name: t("global:continue") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
     await waitFor(() => {
-      expect(signupFlowMotivationsMock).toHaveBeenCalledWith("dummy-token", [
-        "surfing",
-        "hosting",
-      ]);
+      expect(signupFlowMotivationsMock).toHaveBeenCalledWith("dummy-token", ["surfing", "hosting"]);
     });
   });
 
@@ -81,9 +73,7 @@ describe("MotivationsForm", () => {
 
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByRole("button", { name: t("global:continue") }),
-    );
+    await user.click(await screen.findByRole("button", { name: t("global:continue") }));
 
     await waitFor(() => {
       expect(signupFlowMotivationsMock).toHaveBeenCalledWith("dummy-token", []);
@@ -100,9 +90,7 @@ describe("MotivationsForm", () => {
 
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByRole("button", { name: t("global:continue") }),
-    );
+    await user.click(await screen.findByRole("button", { name: t("global:continue") }));
 
     await assertErrorAlert("Generic error");
   });
@@ -110,16 +98,10 @@ describe("MotivationsForm", () => {
   it("renders all motivation options", async () => {
     render(<MotivationsForm />, { wrapper });
 
-    expect(
-      await screen.findByText(t("auth:motivations_form.surfing")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("auth:motivations_form.surfing"))).toBeVisible();
     expect(screen.getByText(t("auth:motivations_form.hosting"))).toBeVisible();
     expect(screen.getByText(t("auth:motivations_form.events"))).toBeVisible();
-    expect(
-      screen.getByText(t("auth:motivations_form.community_organizing")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("auth:motivations_form.something_else")),
-    ).toBeVisible();
+    expect(screen.getByText(t("auth:motivations_form.community_organizing"))).toBeVisible();
+    expect(screen.getByText(t("auth:motivations_form.something_else"))).toBeVisible();
   });
 });

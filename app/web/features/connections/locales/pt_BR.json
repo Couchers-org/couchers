@@ -29,5 +29,13 @@
   "friends": "Amigos",
   "friend_list_title": "Seus amigos",
   "friend_requests": "Pedidos de amizade",
-  "friend_requests_sent": "Pedidos de amizade enviados"
+  "friend_requests_sent": "Pedidos de amizade enviados",
+  "add_friend_confirmation_dialog": {
+    "title": "Você conhece esta pessoa?",
+    "message": "Envie pedidos de amizade apenas para pessoas que você já conhece ou conheceu durante as suas viagens — a maioria das pessoas prefere se conectar depois de se conhecer pessoalmente. <helpCenterLink>Leia sobre pedidos de amizade na nossa Central de Ajuda.</helpCenterLink>",
+    "confirm": "Sim, eu conheço. Envie o pedido!"
+  },
+  "friend_request_no_longer_available": "Esta solicitação de amizade não está mais disponível.",
+  "cancel_request_button_a11y": "Cancelar solicitação",
+  "friend_requests_dismiss_button": "Rejeitar"
 }

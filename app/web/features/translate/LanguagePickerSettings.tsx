@@ -12,20 +12,15 @@ interface ChangeLanguageProps {
   className?: string;
 }
 
-export default function LanguagePickerSettings({
-  className,
-}: ChangeLanguageProps) {
+export default function LanguagePickerSettings({ className }: ChangeLanguageProps) {
   const { t, i18n } = useTranslation([GLOBAL]);
   const router = useRouter();
   const languageName = t(`global:language_names.${i18n.language}`);
-  const { isAvailable, showAllLanguages, setShowAllLanguages } =
-    useShowAllLanguages();
+  const { isAvailable, showAllLanguages, setShowAllLanguages } = useShowAllLanguages();
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("global:language_preference.form_title")}
-      </Typography>
+      <Typography variant="h2">{t("global:language_preference.form_title")}</Typography>
       <>
         <Typography variant="body1">
           <Trans
@@ -41,12 +36,7 @@ export default function LanguagePickerSettings({
             marginBottom: "16px",
           }}
         >
-          <Link
-            href={translateJobURL}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
+          <Link href={translateJobURL} target="_blank" rel="noreferrer noopener" underline="hover">
             <strong>{t("global:language_preference.help_translate")}</strong>
           </Link>
         </Typography>
@@ -63,12 +53,7 @@ export default function LanguagePickerSettings({
         </Typography>
         {isAvailable && (
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={showAllLanguages}
-                onChange={(e) => setShowAllLanguages(e.target.checked)}
-              />
-            }
+            control={<Checkbox checked={showAllLanguages} onChange={(e) => setShowAllLanguages(e.target.checked)} />}
             label={
               <div>
                 <Typography
@@ -86,9 +71,7 @@ export default function LanguagePickerSettings({
                     color: "text.secondary",
                   }}
                 >
-                  {t(
-                    "global:language_preference.show_all_languages_description",
-                  )}
+                  {t("global:language_preference.show_all_languages_description")}
                 </Typography>
               </div>
             }

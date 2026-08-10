@@ -16,11 +16,7 @@ export default function StrongVerificationBadge() {
   return (
     <StyledSpan>
       <Tooltip title={t("strong_verification.helper_text")}>
-        <VerifiedUser
-          data-testid="strong-verification-id"
-          fontSize="inherit"
-          color="primary"
-        />
+        <VerifiedUser data-testid="strong-verification-id" fontSize="inherit" color="primary" />
       </Tooltip>
     </StyledSpan>
   );

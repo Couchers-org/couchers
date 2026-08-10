@@ -71,9 +71,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
               {t("error.fallback.home_page_link_label")}
             </Button>
           )}
-          <Button onClick={handleRefresh}>
-            {t("error.fallback.refresh_page_button_label")}
-          </Button>
+          <Button onClick={handleRefresh}>{t("error.fallback.refresh_page_button_label")}</Button>
         </StyledActions>
       </StyledPanel>
     </StyledRoot>

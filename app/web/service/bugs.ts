@@ -1,18 +1,28 @@
 import { BugReportFormData } from "components/Navigation/ReportDialog";
-import {
-  GeolocationClickInfoReq,
-  GeolocationSearchInfoReq,
-  ReportBugReq,
-  ScreenResolution,
-} from "proto/bugs_pb";
+import Sentry from "platform/sentry";
+import { GeolocationClickInfoReq, GeolocationSearchInfoReq, ReportBugReq, ScreenResolution } from "proto/bugs_pb";
 
 import client from "./client";
 
-export async function reportBug({
-  description,
-  results,
-  subject,
-}: BugReportFormData) {
+const REPLAY_FLUSH_TIMEOUT_MS = 2000;
+
+// Force the buffered replay to upload and return its id. Best-effort: a failure
+// here must never block the bug report. The timeout only caps how long the user
+// waits on submit — the upload carries on in the background, so we still return
+// the id rather than drop the link.
+async function flushSentryReplay(): Promise<string> {
+  const replay = Sentry.getReplay();
+  if (!replay) return "";
+  try {
+    const flushed = replay.flush().catch(() => {});
+    await Promise.race([flushed, new Promise((resolve) => setTimeout(resolve, REPLAY_FLUSH_TIMEOUT_MS))]);
+    return replay.getReplayId() ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export async function reportBug({ description, results, subject }: BugReportFormData) {
   const req = new ReportBugReq();
 
   const screenResolution = new ScreenResolution();
@@ -26,6 +36,7 @@ export async function reportBug({
   req.setUserAgent(navigator.userAgent);
   req.setScreenResolution(screenResolution);
   req.setPage(window.location.href);
+  req.setSentryReplayId(await flushSentryReplay());
 
   const res = await client.bugs.reportBug(req);
   return res.toObject();

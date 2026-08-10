@@ -34,12 +34,7 @@ export default function Badge({ badge }: BadgeProps) {
 
   return (
     <StyledTooltip title={badge.description}>
-      <Chip
-        label={badge.name}
-        href={routeToBadge(badge.id)}
-        component={Link}
-        sx={{ background: badge.color }}
-      />
+      <Chip label={badge.name} href={routeToBadge(badge.id)} component={Link} sx={{ background: badge.color }} />
     </StyledTooltip>
   );
 }

@@ -1,18 +1,9 @@
-import {
-  BirthdateVerificationStatus,
-  GenderVerificationStatus,
-  GetLiteUsersRes,
-  LiteUser,
-  User,
-} from "proto/api_pb";
+import { BirthdateVerificationStatus, GenderVerificationStatus, GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
 import { ListNotificationsRes } from "proto/notifications_pb";
-import {
-  AvailableWriteReferencesRes,
-  ReferenceType,
-} from "proto/references_pb";
+import { AvailableWriteReferencesRes, ReferenceType } from "proto/references_pb";
 import { EventSearchRes } from "proto/search_pb";
 import comments from "test/fixtures/comments.json";
 import events from "test/fixtures/events.json";
@@ -58,9 +49,7 @@ export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
   return liteUserMap[userId];
 }
 
-export async function getLiteUsers(
-  ids: number[] | string[],
-): Promise<GetLiteUsersRes.AsObject> {
+export async function getLiteUsers(ids: number[] | string[]): Promise<GetLiteUsersRes.AsObject> {
   return {
     responsesList: ids.map((id) => ({
       query: "",
@@ -116,15 +105,12 @@ export async function getAccountInfo() {
     timezone: "Australia/Melbourne",
     hasDonated: false,
     hasStrongVerification: false,
-    birthdateVerificationStatus:
-      BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
-    genderVerificationStatus:
-      GenderVerificationStatus.GENDER_VERIFICATION_STATUS_UNVERIFIED,
+    birthdateVerificationStatus: BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
+    genderVerificationStatus: GenderVerificationStatus.GENDER_VERIFICATION_STATUS_UNVERIFIED,
     doNotEmail: false,
     isSuperuser: false,
     uiLanguagePreference: "en",
-    profilePublicVisibility:
-      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
+    profilePublicVisibility: ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
     isVolunteer: false,
     shouldShowDonationBanner: false,
   };
@@ -271,13 +257,9 @@ export async function getEvents(): Promise<EventSearchRes.AsObject> {
   };
 }
 
-export async function getMyEvents(
-  creatorUserId?: number,
-): Promise<EventSearchRes.AsObject> {
+export async function getMyEvents(creatorUserId?: number): Promise<EventSearchRes.AsObject> {
   return {
-    eventsList: !creatorUserId
-      ? events
-      : events.filter((event) => event.creatorUserId === creatorUserId),
+    eventsList: !creatorUserId ? events : events.filter((event) => event.creatorUserId === creatorUserId),
     totalItems: events.length,
     nextPageToken: "",
   };

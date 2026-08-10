@@ -46,9 +46,7 @@ jest.mock("features/weblate/useWeblateStats", () => ({
   }),
 }));
 
-const changeLanguageMock = service.account.changeLanguage as MockedService<
-  typeof service.account.changeLanguage
->;
+const changeLanguageMock = service.account.changeLanguage as MockedService<typeof service.account.changeLanguage>;
 
 describe("LanguagePickerSelect", () => {
   beforeEach(() => {
@@ -70,12 +68,7 @@ describe("LanguagePickerSelect", () => {
 
     // Languages with >= 50% translation are shown by their autonym (the name in
     // their own language), regardless of the current UI language — no flags.
-    const expectedLanguages = [
-      "English",
-      "Español (España)",
-      "Français (France)",
-      "Deutsch",
-    ];
+    const expectedLanguages = ["English", "Español (España)", "Français", "Deutsch"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
@@ -83,9 +76,7 @@ describe("LanguagePickerSelect", () => {
     // Languages < 50% should not be shown
     expect(within(listBox).queryByText("Русский")).not.toBeInTheDocument();
     expect(within(listBox).queryByText("Italiano")).not.toBeInTheDocument();
-    expect(
-      within(listBox).queryByText("Português (Portugal)"),
-    ).not.toBeInTheDocument();
+    expect(within(listBox).queryByText("Português (Portugal)")).not.toBeInTheDocument();
 
     // No flag images are rendered (issue #8523)
     expect(within(listBox).queryByRole("img")).not.toBeInTheDocument();
@@ -138,9 +129,7 @@ describe("LanguagePickerSelect", () => {
     await user.click(spanishOption);
 
     // Should set cookie client-side for authenticated users too
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax");
 
     // Should also call backend API for authenticated users
     expect(changeLanguageMock).toHaveBeenCalledWith("es");
@@ -174,14 +163,12 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const frenchOption = within(listBox).getByText("Français (France)");
+    const frenchOption = within(listBox).getByText("Français");
 
     await user.click(frenchOption);
 
     // Should set cookie client-side
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax");
 
     // Should NOT call backend API for logged-out users
     expect(changeLanguageMock).not.toHaveBeenCalled();
@@ -250,7 +237,7 @@ describe("LanguagePickerSelect", () => {
     // Second change should work after first completes
     await user.click(select);
     const listBox2 = await screen.findByRole("listbox");
-    const frenchOption = within(listBox2).getByText("Français (France)");
+    const frenchOption = within(listBox2).getByText("Français");
     await user.click(frenchOption);
 
     // Second change should succeed

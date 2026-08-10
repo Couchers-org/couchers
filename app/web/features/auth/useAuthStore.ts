@@ -27,11 +27,7 @@ async function syncLanguagePreference() {
         : null;
 
     // Only update cookie if user has a valid language preference and it differs from current cookie
-    if (
-      userLanguage &&
-      allLanguages.includes(userLanguage) &&
-      userLanguage !== currentCookieLocale
-    ) {
+    if (userLanguage && allLanguages.includes(userLanguage) && userLanguage !== currentCookieLocale) {
       document.cookie = `NEXT_LOCALE=${userLanguage}; path=/; max-age=31536000; samesite=lax`;
     }
   } catch (e) {
@@ -46,19 +42,12 @@ async function syncLanguagePreference() {
 }
 
 export default function useAuthStore() {
-  const [authenticated, setAuthenticated] = usePersistedState(
-    "auth.authenticated",
-    false,
-  );
+  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", false);
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [userId, setUserId] = usePersistedState<number | null>(
-    "auth.userId",
-    null,
-  );
+  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [flowState, setFlowState] =
-    usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
+  const [flowState, setFlowState] = usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
 
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId
@@ -94,9 +83,7 @@ export default function useAuthStore() {
         setUserId(null);
         Sentry.setUser({ id: undefined });
         if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage(
-            JSON.stringify({ type: "LOGOUT" }),
-          );
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: "LOGOUT" }));
         }
         clearStorage();
         setLoading(false);
@@ -113,11 +100,7 @@ export default function useAuthStore() {
         setError(null);
         setLoading(true);
         try {
-          const auth = await service.user.passwordLogin(
-            username,
-            password,
-            rememberDevice,
-          );
+          const auth = await service.user.passwordLogin(username, password, rememberDevice);
           setUserId(auth.userId);
           Sentry.setUser({ id: auth.userId.toString() });
 

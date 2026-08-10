@@ -44,11 +44,7 @@ interface EditDiscussionFormData {
   content: string;
 }
 
-export default function EditDiscussionPage({
-  discussionId,
-}: {
-  discussionId: number;
-}) {
+export default function EditDiscussionPage({ discussionId }: { discussionId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
@@ -65,9 +61,7 @@ export default function EditDiscussionPage({
 
   const { control, handleSubmit, register } = useForm<EditDiscussionFormData>({
     mode: "onBlur",
-    values: discussion
-      ? { title: discussion.title, content: discussion.content }
-      : undefined,
+    values: discussion ? { title: discussion.title, content: discussion.content } : undefined,
   });
 
   const {
@@ -75,8 +69,7 @@ export default function EditDiscussionPage({
     error: mutationError,
     isPending,
   } = useMutation<Discussion.AsObject, RpcError, EditDiscussionFormData>({
-    mutationFn: ({ title, content }) =>
-      service.discussions.updateDiscussion(discussionId, title, content),
+    mutationFn: ({ title, content }) => service.discussions.updateDiscussion(discussionId, title, content),
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: discussionKey(discussionId) });
       router.push(routeToDiscussion(discussionId, updated.slug));
@@ -107,12 +100,8 @@ export default function EditDiscussionPage({
       ) : (
         discussion && (
           <StyledWrapper>
-            <Typography variant="h2">
-              {t("communities:edit_discussion")}
-            </Typography>
-            {mutationError && (
-              <Alert severity="error">{mutationError.message}</Alert>
-            )}
+            <Typography variant="h2">{t("communities:edit_discussion")}</Typography>
+            {mutationError && <Alert severity="error">{mutationError.message}</Alert>}
             <StyledForm onSubmit={onSubmit}>
               <TextField
                 id="title"
@@ -123,12 +112,7 @@ export default function EditDiscussionPage({
               <Typography id="content-label" variant="h3">
                 {t("communities:new_discussion_topic")}
               </Typography>
-              <MarkdownInput
-                control={control}
-                id="content"
-                labelId="content-label"
-                name="content"
-              />
+              <MarkdownInput control={control} id="content" labelId="content-label" name="content" />
               <StyledActionButtonsContainer>
                 <Button variant="outlined" onClick={handleBackClick}>
                   {t("global:cancel")}

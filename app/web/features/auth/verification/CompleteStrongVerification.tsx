@@ -12,9 +12,7 @@ export default function CompleteStrongVerification() {
   const { t } = useTranslation(AUTH);
 
   const router = useRouter();
-  const verificationAttemptToken = stringOrFirstString(
-    router.query.verification_attempt_token,
-  );
+  const verificationAttemptToken = stringOrFirstString(router.query.verification_attempt_token);
 
   console.info("Captured token", verificationAttemptToken);
 
@@ -29,9 +27,7 @@ export default function CompleteStrongVerification() {
         <Typography variant="body1" gutterBottom>
           {t("strong_verification.complete_message2")}
         </Typography>
-        <Typography gutterBottom>
-          {t("strong_verification.delete_information")}
-        </Typography>
+        <Typography gutterBottom>{t("strong_verification.delete_information")}</Typography>
 
         <Box
           sx={{
@@ -56,21 +52,13 @@ export default function CompleteStrongVerification() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "flex-start", mb: 2 }}>
-            <Favorite
-              sx={{ color: "error.main", mr: 1.5, mt: 0.5, fontSize: 20 }}
-            />
-            <Typography sx={{ flex: 1 }}>
-              {t("strong_verification.donation_message1")}
-            </Typography>
+            <Favorite sx={{ color: "error.main", mr: 1.5, mt: 0.5, fontSize: 20 }} />
+            <Typography sx={{ flex: 1 }}>{t("strong_verification.donation_message1")}</Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "flex-start", mb: 2 }}>
-            <VolunteerActivism
-              sx={{ color: "secondary.main", mr: 1.5, mt: 0.5, fontSize: 20 }}
-            />
-            <Typography sx={{ flex: 1 }}>
-              {t("strong_verification.donation_message2")}
-            </Typography>
+            <VolunteerActivism sx={{ color: "secondary.main", mr: 1.5, mt: 0.5, fontSize: 20 }} />
+            <Typography sx={{ flex: 1 }}>{t("strong_verification.donation_message2")}</Typography>
           </Box>
 
           <Box sx={{ mt: 3, textAlign: "center" }}>

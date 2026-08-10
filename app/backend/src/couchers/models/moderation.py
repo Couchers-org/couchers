@@ -225,9 +225,13 @@ def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
 
     Discovered from every mapped model that declares __moderation_object_type__, so the moderation
     metadata stays on the models themselves rather than in a separate hand-maintained list.
+
+    Ordered by model class name. registry.mappers is a frozenset, so iterating it orders Mapper objects by id(), which
+    varies per process; callers build one OR branch per entry, so without sorting the same logical query is emitted
+    with its branches in a different order in every process. That splits it across pg_stat_statements entries.
     """
     models: dict[ModerationObjectType, ModeratedModel] = {}
-    for mapper in Base.registry.mappers:
+    for mapper in sorted(Base.registry.mappers, key=lambda m: m.class_.__name__):
         cls = mapper.class_
         if not hasattr(cls, "__moderation_object_type__"):
             continue

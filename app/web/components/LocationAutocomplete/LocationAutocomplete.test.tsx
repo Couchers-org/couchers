@@ -103,9 +103,7 @@ describe("LocationAutocomplete component", () => {
 
     await user.type(await screen.findByLabelText(LABEL), "tes{enter}");
 
-    expect(
-      await screen.findByText("test city, test county, test country"),
-    ).toBeVisible();
+    expect(await screen.findByText("test city, test county, test country")).toBeVisible();
   });
 
   it("shows the list of places using the button instead of enter", async () => {
@@ -139,9 +137,7 @@ describe("LocationAutocomplete component", () => {
 
     await user.type(input, "test{enter}");
 
-    const alert = await screen.findByText(
-      t("global:location_autocomplete.search_location_hint"),
-    );
+    const alert = await screen.findByText(t("global:location_autocomplete.search_location_hint"));
 
     await waitFor(() => {
       expect(alert).toBeVisible();
@@ -182,12 +178,9 @@ describe("LocationAutocomplete component", () => {
 
   it("shows an error when the geocode lookup fails", async () => {
     server.use(
-      rest.get(
-        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-        async (_req, res, ctx) => {
-          return res(ctx.status(500), ctx.text("generic error"));
-        },
-      ),
+      rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, async (_req, res, ctx) => {
+        return res(ctx.status(500), ctx.text("generic error"));
+      }),
     );
 
     renderForm("", () => {});
@@ -205,22 +198,19 @@ describe("LocationAutocomplete component", () => {
 
   it("shows an error when a region is selected and disableRegions is true", async () => {
     server.use(
-      rest.get(
-        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json([
-              {
-                address: { country: "test country" },
-                lon: 1.0,
-                lat: 2.0,
-                display_name: "test county, test country",
-                boundingbox: [1, 1, 1, 1],
-              },
-            ]),
-          );
-        },
-      ),
+      rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (req, res, ctx) => {
+        return res(
+          ctx.json([
+            {
+              address: { country: "test country" },
+              lon: 1.0,
+              lat: 2.0,
+              display_name: "test county, test country",
+              boundingbox: [1, 1, 1, 1],
+            },
+          ]),
+        );
+      }),
     );
     renderForm("", () => {}, false, true);
 
@@ -236,9 +226,7 @@ describe("LocationAutocomplete component", () => {
     const submitButton = await screen.findByRole("button", { name: "submit" });
     await user.click(submitButton);
 
-    expect(
-      await screen.findByText(t("global:location_autocomplete.more_specific")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("global:location_autocomplete.more_specific"))).toBeVisible();
     expect(submitAction).not.toHaveBeenCalled();
   });
 });

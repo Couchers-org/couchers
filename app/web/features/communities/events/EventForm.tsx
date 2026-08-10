@@ -75,12 +75,7 @@ interface EventFormProps {
   children(data: { isMutationLoading: boolean }): React.ReactNode;
   event?: Event.AsObject;
   error: RpcError | null;
-  mutate: UseMutateFunction<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    unknown
-  >;
+  mutate: UseMutateFunction<Event.AsObject, RpcError, CreateEventVariables, unknown>;
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
@@ -147,14 +142,10 @@ export default function EventForm({
         height={"200px"}
         width={"100%"}
       />
-      <StyledImageUploadHelperText variant="body1">
-        {t("communities:upload_helper_text")}
-      </StyledImageUploadHelperText>
+      <StyledImageUploadHelperText variant="body1">{t("communities:upload_helper_text")}</StyledImageUploadHelperText>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
-        <Alert severity="error">
-          {error?.message || errors.eventImage?.message || ""}
-        </Alert>
+        <Alert severity="error">{error?.message || errors.eventImage?.message || ""}</Alert>
       )}
       <StyledForm onSubmit={onSubmit}>
         <TextField
@@ -191,13 +182,7 @@ export default function EventForm({
 
           {isEdit && (
             <FormControlLabel
-              control={
-                <Checkbox
-                  {...register("shouldNotify")}
-                  defaultChecked={false}
-                  name="shouldNotify"
-                />
-              }
+              control={<Checkbox {...register("shouldNotify")} defaultChecked={false} name="shouldNotify" />}
               label={t("communities:notify_attendees")}
             />
           )}

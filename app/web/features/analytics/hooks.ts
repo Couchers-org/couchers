@@ -6,16 +6,9 @@ import { logEvent } from "./eventCollector";
  * Returns a stable `logEvent` function for use in components.
  */
 export function useLogEvent() {
-  return useCallback(
-    (
-      eventType: string,
-      properties?: Record<string, unknown>,
-      value?: number,
-    ) => {
-      logEvent(eventType, properties, value);
-    },
-    [],
-  );
+  return useCallback((eventType: string, properties?: Record<string, unknown>, value?: number) => {
+    logEvent(eventType, properties, value);
+  }, []);
 }
 
 /**
@@ -25,10 +18,7 @@ export function useLogEvent() {
  * `properties` is stored in a ref so callers don't need to memoize it.
  * `stop` accepts optional `extraProperties` for dynamic data at measurement time.
  */
-export function useDurationEvent(
-  eventType: string,
-  properties: Record<string, unknown> = {},
-) {
+export function useDurationEvent(eventType: string, properties: Record<string, unknown> = {}) {
   const startTimeRef = useRef<number | null>(null);
   const propsRef = useRef(properties);
   propsRef.current = properties;
@@ -42,11 +32,7 @@ export function useDurationEvent(
       if (startTimeRef.current === null) return;
       const durationS = (performance.now() - startTimeRef.current) / 1000;
       startTimeRef.current = null;
-      logEvent(
-        eventType,
-        { ...propsRef.current, ...extraProperties },
-        durationS,
-      );
+      logEvent(eventType, { ...propsRef.current, ...extraProperties }, durationS);
     },
     [eventType],
   );

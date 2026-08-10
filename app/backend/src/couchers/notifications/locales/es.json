@@ -13,7 +13,10 @@
       "event_description": "Tu cuenta ha sido eliminada",
       "push": {
         "title": "Cuenta eliminada",
-        "ios_title": "Cuenta Eliminada"
+        "ios_title": "Cuenta Eliminada",
+        "body_one": "Puedes restaurarla en {{count}} día usando el enlace que te hemos enviado por correo electrónico.",
+        "body_many": "Puedes restaurarla en {{count}} de días usando el enlace que te hemos enviado por correo electrónico.",
+        "body_other": "Puedes restaurarla en {{count}} días usando el enlace que te hemos enviado por correo electrónico."
       }
     },
     "recovered": {
@@ -55,15 +58,30 @@
   },
   "badge": {
     "add": {
-      "event_description": "Se añade una insignia en tu cuenta"
+      "event_description": "Se añade una insignia en tu cuenta",
+      "push": {
+        "title": "Nueva insignia de perfil: {{badge_name}}",
+        "ios_title": "Nueva insignia de perfil",
+        "body": "La insignia {{badge_name}} se ha añadido a tu perfil."
+      }
     },
     "remove": {
-      "event_description": "Se elimina una insignia de tu cuenta"
+      "event_description": "Se elimina una insignia de tu cuenta",
+      "push": {
+        "title": "Insignia de perfil eliminada",
+        "ios_title": "Insignia de perfil eliminada",
+        "body": "La insignia {{badge_name}} se ha eliminado de tu perfil."
+      }
     }
   },
   "birthdate": {
     "change": {
-      "event_description": "Tu fecha de nacimiento ha sido cambiada"
+      "event_description": "Tu fecha de nacimiento ha sido cambiada",
+      "push": {
+        "title": "Fecha de nacimiento modificada",
+        "ios_title": "Fecha de nacimiento modificada",
+        "body": "Un administrador ha modificado fecha de nacimiento a {{birthdate}}."
+      }
     }
   },
   "chat": {
@@ -78,16 +96,25 @@
         "title_other": "{{count}} mensajes perdidos",
         "ios_title_one": "{{count}} Mensaje perdido",
         "ios_title_many": "{{count}} de mensajes perdidos",
-        "ios_title_other": "{{count}} Mensajes perdidos"
+        "ios_title_other": "{{count}} Mensajes perdidos",
+        "body": "Tienes nuevos mensajes sin leer."
       }
     }
   },
   "discussion": {
     "comment": {
-      "event_description": "Alguien comenta en una discusión que estás siguiendo"
+      "event_description": "Alguien comenta en una discusión que estás siguiendo",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
     },
     "create": {
-      "event_description": "Alguien crea una discusión en una comunidad a la que perteneces"
+      "event_description": "Alguien crea una discusión en una comunidad a la que perteneces",
+      "push": {
+        "title": "Nuevo debate: {{title}}",
+        "ios_title": "Nuevo debate",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "donation": {

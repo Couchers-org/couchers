@@ -13,9 +13,7 @@ const { t } = i18n;
 
 const setErrorMock = jest.fn();
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 
 const baseAccountInfo = {
   username: "tester",
@@ -78,8 +76,6 @@ describe("AdminPanelUserButton", () => {
       expect(getAccountInfoMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(
-      screen.queryByText(t("profile:view_in_admin_console")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("profile:view_in_admin_console"))).not.toBeInTheDocument();
   });
 });

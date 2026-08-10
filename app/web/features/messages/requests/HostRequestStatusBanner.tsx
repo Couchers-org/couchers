@@ -47,8 +47,7 @@ export default function HostRequestStatusBanner({
 
     if (!message) return null;
 
-    const isRejected =
-      status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+    const isRejected = status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
     return (
       <StyledBanner>
@@ -61,9 +60,7 @@ export default function HostRequestStatusBanner({
           loading={isLoading}
           sx={{ flexShrink: 0 }}
         >
-          {isRejected
-            ? t("global:accept")
-            : t("messages:close_request_button_text")}
+          {isRejected ? t("global:accept") : t("messages:close_request_button_text")}
         </Button>
       </StyledBanner>
     );
@@ -92,13 +89,7 @@ export default function HostRequestStatusBanner({
         onConfirm={onCancel}
       >
         {(setIsOpen) => (
-          <Button
-            variant="text"
-            size="small"
-            color="primary"
-            onClick={() => setIsOpen(true)}
-            loading={isLoading}
-          >
+          <Button variant="text" size="small" color="primary" onClick={() => setIsOpen(true)} loading={isLoading}>
             {t("messages:cancel_request_button")}
           </Button>
         )}

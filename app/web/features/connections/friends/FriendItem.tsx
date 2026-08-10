@@ -17,12 +17,8 @@ interface FriendItemProps {
 const FriendItem = ({ friend, onError }: FriendItemProps) => {
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
-  const [openDialog, setOpenDialog] = useState<
-    "remove-friend" | "block-user" | null
-  >(null);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [openDialog, setOpenDialog] = useState<"remove-friend" | "block-user" | null>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const isMenuOpen = Boolean(menuAnchorEl);
 
@@ -94,14 +90,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
       />
       {openDialog === "remove-friend" && (
         <ConnectionActionDialog
-          dialogConfirm={t(
-            "connections:remove_friend_confirmation_dialog.confirm",
-          )}
+          dialogConfirm={t("connections:remove_friend_confirmation_dialog.confirm")}
           dialogId="friend-item--confirmation-dialog"
-          dialogMessage={t(
-            "connections:remove_friend_confirmation_dialog.message",
-            { name: friend.name },
-          )}
+          dialogMessage={t("connections:remove_friend_confirmation_dialog.message", { name: friend.name })}
           dialogTitle={t("connections:remove_friend_confirmation_dialog.title")}
           isLoading={isRemoving}
           onConfirm={handleConfirmRemoveFriend}
@@ -111,13 +102,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
       )}
       {openDialog === "block-user" && (
         <ConnectionActionDialog
-          dialogConfirm={t(
-            "connections:block_user_confirmation_dialog.confirm",
-          )}
+          dialogConfirm={t("connections:block_user_confirmation_dialog.confirm")}
           dialogId="block-user--confirmation-dialog"
-          dialogMessage={t(
-            "connections:block_user_confirmation_dialog.message",
-          )}
+          dialogMessage={t("connections:block_user_confirmation_dialog.message")}
           dialogTitle={t("connections:block_user_confirmation_dialog.title", {
             name: friend.name,
           })}

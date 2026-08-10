@@ -3,13 +3,7 @@ import CircularProgress from "components/CircularProgress";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { messageElementId } from "features/messages/messagelist/MessageView";
 import { Message } from "proto/messages_pb";
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { theme } from "theme";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
@@ -94,9 +88,7 @@ export default function InfiniteMessageLoader({
 
   useLayoutEffect(() => {
     if (isFetchingNextPage) return;
-    const messageEl = document.getElementById(
-      messageElementId(prevTopMessageId.current ?? 0),
-    );
+    const messageEl = document.getElementById(messageElementId(prevTopMessageId.current ?? 0));
     messageEl?.scrollIntoView();
   }, [isFetchingNextPage]);
 
@@ -143,11 +135,7 @@ export default function InfiniteMessageLoader({
           {isFetchingNextPage ? (
             <CircularProgress />
           ) : (
-            <CircularProgress
-              variant="determinate"
-              value={0}
-              ref={loadMoreRef}
-            />
+            <CircularProgress variant="determinate" value={0} ref={loadMoreRef} />
           )}
         </StyledLoader>
       )}

@@ -8,9 +8,7 @@ const { t } = i18n;
 
 jest.mock("features/donations/useDonationStats");
 
-const mockUseDonationStats = useDonationStats as jest.MockedFunction<
-  typeof useDonationStats
->;
+const mockUseDonationStats = useDonationStats as jest.MockedFunction<typeof useDonationStats>;
 
 describe("DonationProgressBar", () => {
   beforeEach(() => {

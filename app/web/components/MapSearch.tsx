@@ -44,23 +44,14 @@ const StyledForm = styled("div")(({ theme }) => ({
 
 interface MapSearchProps {
   setError: (error: string) => void;
-  setResult: (
-    lngLat: LngLat,
-    address: string,
-    simplifiedAddress: string,
-  ) => void;
+  setResult: (lngLat: LngLat, address: string, simplifiedAddress: string) => void;
   inputFieldProps?:
     | ControllerRenderProps<SignupAccountInputs, "location">
     | ControllerRenderProps<EditProfileFormValues, "location">;
   inputFieldError?: FieldError;
 }
 
-export default function MapSearch({
-  setError,
-  setResult,
-  inputFieldProps,
-  inputFieldError,
-}: MapSearchProps) {
+export default function MapSearch({ setError, setResult, inputFieldProps, inputFieldError }: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
@@ -74,9 +65,7 @@ export default function MapSearch({
       ? [
           {
             location: new LngLat(0, 0),
-            name: t(
-              "global:components.edit_location_map.no_location_results_text",
-            ),
+            name: t("global:components.edit_location_map.no_location_results_text"),
             simplifiedName: "",
           },
         ]
@@ -101,11 +90,7 @@ export default function MapSearch({
         setOpen(true);
       }
     } else {
-      setResult(
-        searchOption.location,
-        searchOption.name,
-        searchOption.simplifiedName,
-      );
+      setResult(searchOption.location, searchOption.name, searchOption.simplifiedName);
       setOpen(false);
     }
   };
@@ -135,13 +120,8 @@ export default function MapSearch({
           filterOptions={(x) => x}
           disableClearable
           sx={{ flexGrow: 1 }}
-          getOptionDisabled={(option) =>
-            option ===
-            t("global:components.edit_location_map.no_location_results_text")
-          }
-          helperText={t(
-            "global:components.edit_location_map.press_enter_to_search",
-          )}
+          getOptionDisabled={(option) => option === t("global:components.edit_location_map.no_location_results_text")}
+          helperText={t("global:components.edit_location_map.press_enter_to_search")}
           onKeyDown={(e) => {
             if (e.key === "Enter") searchSubmit(value, "createOption");
           }}

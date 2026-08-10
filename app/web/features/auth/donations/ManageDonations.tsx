@@ -25,9 +25,7 @@ export default function ManageDonations({ className }: ManageDonationsProps) {
         {t("settings_fragment.description")}
       </Typography>
       <Typography variant="body1">
-        <Button onClick={goToPortal}>
-          {t("settings_fragment.button_text")}
-        </Button>
+        <Button onClick={goToPortal}>{t("settings_fragment.button_text")}</Button>
       </Typography>
     </div>
   );

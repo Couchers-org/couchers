@@ -73,18 +73,10 @@ export default function HeroSearch() {
           defaultValue={""}
           onChange={(value) => {
             if (value && value.bbox && value.simplifiedName) {
-              const newBbox: Coordinates = [
-                value.bbox[2],
-                value.bbox[3],
-                value.bbox[0],
-                value.bbox[1],
-              ];
+              const newBbox: Coordinates = [value.bbox[2], value.bbox[3], value.bbox[0], value.bbox[1]];
               const searchRouteWithSearchQuery = routeToSearch({
                 location: value.simplifiedName,
-                hostingStatus: [
-                  HostingStatus.HOSTING_STATUS_CAN_HOST,
-                  HostingStatus.HOSTING_STATUS_MAYBE,
-                ],
+                hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE],
                 bbox: newBbox,
                 showEmptyProfile: false,
               });

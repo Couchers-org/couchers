@@ -23,16 +23,13 @@ const missions = [
 ];
 
 describe("CouchersMission", () => {
-  test.each(missions)(
-    "renders the component correctly with bubble mission clicked: %s",
-    async (mission) => {
-      render(<CouchersMission />);
-      const missionBubble = screen.getByText(`${mission}_title`);
-      expect(missionBubble).toBeInTheDocument();
+  test.each(missions)("renders the component correctly with bubble mission clicked: %s", async (mission) => {
+    render(<CouchersMission />);
+    const missionBubble = screen.getByText(`${mission}_title`);
+    expect(missionBubble).toBeInTheDocument();
 
-      await userEvent.click(missionBubble);
-      const missionDescription = screen.getByText(`${mission}_description`);
-      expect(missionDescription).toBeInTheDocument();
-    },
-  );
+    await userEvent.click(missionBubble);
+    const missionDescription = screen.getByText(`${mission}_description`);
+    expect(missionDescription).toBeInTheDocument();
+  });
 });

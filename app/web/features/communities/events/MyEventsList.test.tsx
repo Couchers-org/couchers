@@ -10,9 +10,7 @@ import MyEventsList from "./MyEventsList";
 
 const { t } = i18n;
 
-const mockListMyEvents = service.events.listMyEvents as jest.MockedFunction<
-  typeof service.events.listMyEvents
->;
+const mockListMyEvents = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
 
 describe("MyEventsList", () => {
   const creatorUserId = 4;
@@ -47,10 +45,7 @@ describe("MyEventsList", () => {
     expect(
       await screen.findByText((content, element) => {
         // Match text split across multiple elements by checking the full text content
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
+        return element?.textContent === "No events at the moment. Why don't you create one ✨?";
       }),
     ).toBeInTheDocument();
     // Check that there's a link to create a new event
@@ -80,9 +75,7 @@ describe("MyEventsList", () => {
 
     await user.click(pastFilter);
 
-    expect(mockListMyEvents).toHaveBeenCalledWith(
-      expect.objectContaining({ pastEvents: true }),
-    );
+    expect(mockListMyEvents).toHaveBeenCalledWith(expect.objectContaining({ pastEvents: true }));
   });
 
   it("Can toggle show cancelled filter", async () => {
@@ -90,18 +83,14 @@ describe("MyEventsList", () => {
 
     render(<MyEventsList />, { wrapper });
 
-    const cancelledFilter = await screen.findByText(
-      t("communities:show_cancelled_events"),
-    );
+    const cancelledFilter = await screen.findByText(t("communities:show_cancelled_events"));
     expect(cancelledFilter).toBeInTheDocument();
 
     const user = userEvent.setup();
 
     await user.click(cancelledFilter);
 
-    expect(mockListMyEvents).toHaveBeenCalledWith(
-      expect.objectContaining({ showCancelled: true }),
-    );
+    expect(mockListMyEvents).toHaveBeenCalledWith(expect.objectContaining({ showCancelled: true }));
   });
 
   it("Handles pagination", async () => {
@@ -118,8 +107,6 @@ describe("MyEventsList", () => {
     const user = userEvent.setup();
     await user.click(paginationButton);
 
-    expect(mockListMyEvents).toHaveBeenCalledWith(
-      expect.objectContaining({ pageNumber: 2 }),
-    );
+    expect(mockListMyEvents).toHaveBeenCalledWith(expect.objectContaining({ pageNumber: 2 }));
   });
 });

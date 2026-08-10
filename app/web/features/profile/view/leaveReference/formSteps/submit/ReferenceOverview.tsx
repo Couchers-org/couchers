@@ -1,11 +1,4 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Card, CardContent, styled, Typography, useMediaQuery } from "@mui/material";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
@@ -44,25 +37,17 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function ReferenceOverview({
-  referenceData,
-}: {
-  referenceData: ReferenceContextFormData;
-}) {
+export default function ReferenceOverview({ referenceData }: { referenceData: ReferenceContextFormData }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
-      <StyledTextBody>
-        {t("profile:leave_reference.thank_you_message")}
-      </StyledTextBody>
+      <StyledTextBody>{t("profile:leave_reference.thank_you_message")}</StyledTextBody>
       {isMobile && (
         <Box sx={{ margin: theme.spacing(2, 0) }}>
-          <TextBody sx={{ marginBottom: theme.spacing(2) }}>
-            {t("profile:leave_reference.writing_for_text")}
-          </TextBody>
+          <TextBody sx={{ marginBottom: theme.spacing(2) }}>{t("profile:leave_reference.writing_for_text")}</TextBody>
           <UserSummary user={user} />
         </Box>
       )}
@@ -71,9 +56,7 @@ export default function ReferenceOverview({
       </StyledTypography>
       <StyledCard>
         <CardContent>
-          <TextBody sx={{ whiteSpace: "pre-wrap" }}>
-            {referenceData.text}
-          </TextBody>
+          <TextBody sx={{ whiteSpace: "pre-wrap" }}>{referenceData.text}</TextBody>
         </CardContent>
       </StyledCard>
       <StyledTypography variant="h3" sx={{ marginTop: theme.spacing(3) }}>
@@ -89,9 +72,7 @@ export default function ReferenceOverview({
         </li>
         <li>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography sx={{ paddingRight: theme.spacing(1) }}>
-              {t("profile:leave_reference.rating_label")}
-            </Typography>
+            <Typography sx={{ paddingRight: theme.spacing(1) }}>{t("profile:leave_reference.rating_label")}</Typography>
             <SliderLabel value={referenceData.rating} />
           </Box>
         </li>
@@ -103,9 +84,7 @@ export default function ReferenceOverview({
           </StyledTypography>
           <StyledCard>
             <CardContent>
-              <TextBody sx={{ whiteSpace: "pre-wrap" }}>
-                {referenceData.privateText}
-              </TextBody>
+              <TextBody sx={{ whiteSpace: "pre-wrap" }}>{referenceData.privateText}</TextBody>
             </CardContent>
           </StyledCard>
         </>

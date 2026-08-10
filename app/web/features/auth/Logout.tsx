@@ -28,13 +28,5 @@ export default function Logout() {
     mutate();
   }, [mutate]);
 
-  return (
-    <>
-      {logout.error ? (
-        <Alert severity="error">{logout.error.message}</Alert>
-      ) : (
-        <CenteredSpinner />
-      )}
-    </>
-  );
+  return <>{logout.error ? <Alert severity="error">{logout.error.message}</Alert> : <CenteredSpinner />}</>;
 }

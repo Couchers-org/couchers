@@ -24,8 +24,7 @@ function CancelFriendRequestAction({
   setMutationError,
   userId,
 }: CancelFriendRequestActionProps) {
-  const { cancelFriendRequest, isPending, isSuccess, reset } =
-    useCancelFriendRequest();
+  const { cancelFriendRequest, isPending, isSuccess, reset } = useCancelFriendRequest();
   const { t } = useTranslation(CONNECTIONS);
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
@@ -52,9 +51,7 @@ function FriendRequestsSent() {
   return (
     <FriendTile
       title={t("connections:friend_requests_sent")}
-      errorMessage={
-        isError ? errors.join("\n") : mutationError ? mutationError : null
-      }
+      errorMessage={isError ? errors.join("\n") : mutationError ? mutationError : null}
       isLoading={isLoading}
       hasData={!!data?.length}
       noDataMessage={t("connections:no_friend_requests_sent")}

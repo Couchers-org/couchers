@@ -19,36 +19,33 @@ interface SearchControlsProps {
 }
 
 const MapControlsWrapper = styled("div", {
-  shouldForwardProp: (prop) =>
-    prop !== "isDualView" && prop !== "drawerWidth" && prop !== "isMobile",
-})<{ drawerWidth: number; isDualView: boolean; isMobile: boolean }>(
-  ({ theme, drawerWidth, isDualView, isMobile }) => ({
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    marginTop: theme.spacing(2),
-    flexDirection: "column",
-    gap: theme.spacing(2),
+  shouldForwardProp: (prop) => prop !== "isDualView" && prop !== "drawerWidth" && prop !== "isMobile",
+})<{ drawerWidth: number; isDualView: boolean; isMobile: boolean }>(({ theme, drawerWidth, isDualView, isMobile }) => ({
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
+  marginTop: theme.spacing(2),
+  flexDirection: "column",
+  gap: theme.spacing(2),
 
-    [theme.breakpoints.down("md")]: {
-      marginTop: theme.spacing(1),
-    },
+  [theme.breakpoints.down("md")]: {
+    marginTop: theme.spacing(1),
+  },
 
-    ...(!isMobile && {
-      position: "absolute",
-      top: theme.spacing(1),
-      zIndex: 2,
-      right: 0,
-    }),
-
-    ...(!isMobile &&
-      isDualView && {
-        ...(drawerWidth > window.innerWidth / 2
-          ? { left: 0, width: `${drawerWidth}px` }
-          : { right: 0, width: `calc(100% - ${drawerWidth}px)` }),
-      }),
+  ...(!isMobile && {
+    position: "absolute",
+    top: theme.spacing(1),
+    zIndex: 2,
+    right: 0,
   }),
-);
+
+  ...(!isMobile &&
+    isDualView && {
+      ...(drawerWidth > window.innerWidth / 2
+        ? { left: 0, width: `${drawerWidth}px` }
+        : { right: 0, width: `calc(100% - ${drawerWidth}px)` }),
+    }),
+}));
 
 const CenterAligner = styled("div")(({ theme }) => ({
   display: "flex",
@@ -58,13 +55,7 @@ const CenterAligner = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const SearchControls = ({
-  drawerWidth,
-  mapView,
-  mapRef,
-  onSetMapView,
-  onZoomIn,
-}: SearchControlsProps) => {
+const SearchControls = ({ drawerWidth, mapView, mapRef, onSetMapView, onZoomIn }: SearchControlsProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -98,10 +89,7 @@ const SearchControls = ({
           onClick={(e) => e.stopPropagation()}
         >
           <CenterAligner>
-            <MapViewToggle
-              mapView={mapView}
-              onMapViewChange={handleMapViewChange}
-            />
+            <MapViewToggle mapView={mapView} onMapViewChange={handleMapViewChange} />
             <FloatingSearchControls
               mapRef={mapRef}
               onClearFilters={resetFilters}
@@ -132,10 +120,7 @@ const SearchControls = ({
               />
             </CenterAligner>
           </MapControlsWrapper>
-          <SearchTypeRadioGroup
-            onChange={handleSetSearchType}
-            searchType={searchType}
-          />
+          <SearchTypeRadioGroup onChange={handleSetSearchType} searchType={searchType} />
         </>
       )}
       <FilterDialog

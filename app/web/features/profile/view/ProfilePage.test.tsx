@@ -8,12 +8,7 @@ import defaultUser from "test/fixtures/defaultUser.json";
 import galleryFixtures from "test/fixtures/gallery.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import {
-  getAccountInfo,
-  getLanguages,
-  getRegions,
-  getUser,
-} from "test/serviceMockDefaults";
+import { getAccountInfo, getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import ProfilePage from "./ProfilePage";
@@ -24,31 +19,18 @@ jest.mock("features/userQueries/useCurrentUser");
 
 jest.mock("react-simple-maps");
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
->;
-const reportContentMock = service.reporting.reportContent as MockedService<
-  typeof service.reporting.reportContent
->;
+const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
+const reportContentMock = service.reporting.reportContent as MockedService<typeof service.reporting.reportContent>;
 
-const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
-  typeof service.resources.getLanguages
->;
+const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<typeof service.resources.getLanguages>;
 
-const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
-  typeof service.resources.getRegions
->;
+const getRegionsMock = service.resources.getRegions as jest.MockedFunction<typeof service.resources.getRegions>;
 
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 
-const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<
-  typeof service.gallery.getGallery
->;
+const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<typeof service.gallery.getGallery>;
 
-const getAccountInfoMock = service.account
-  .getAccountInfo as jest.MockedFunction<typeof service.account.getAccountInfo>;
+const getAccountInfoMock = service.account.getAccountInfo as jest.MockedFunction<typeof service.account.getAccountInfo>;
 
 function renderProfilePage() {
   mockRouter.setCurrentUrl("/profile");

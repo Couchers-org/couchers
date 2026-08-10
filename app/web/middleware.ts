@@ -4,10 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
 import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
-import {
-  fetchWeblateStats,
-  WeblateLanguage,
-} from "./features/weblate/useWeblateStats";
+import { fetchWeblateStats, WeblateLanguage } from "./features/weblate/useWeblateStats";
 
 // In-memory cache for Weblate stats
 let statsCache: {
@@ -53,9 +50,7 @@ async function getProductionReadyLocales(): Promise<string[]> {
     .map((lang) => lang.code.replace("_", "-"));
 
   // English is always production-ready
-  return allLanguages.filter(
-    (locale) => locale === "en" || productionReadyLocales.includes(locale),
-  );
+  return allLanguages.filter((locale) => locale === "en" || productionReadyLocales.includes(locale));
 }
 
 /**
@@ -113,12 +108,7 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
   const productionReadyLocales = await getProductionReadyLocales();
-  return (
-    getBrowserLocaleFromHeader(
-      acceptLanguage || undefined,
-      productionReadyLocales,
-    ) || "en"
-  );
+  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || "en";
 }
 
 export async function middleware(request: NextRequest) {
@@ -132,11 +122,7 @@ export async function middleware(request: NextRequest) {
 
   // Check if current locale should be blocked
   const isProductionReady = await isLocaleProductionReady(currentLocale);
-  const shouldBlock = shouldBlockIncompleteLanguage(
-    currentLocale,
-    cookieLocale,
-    isProductionReady,
-  );
+  const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
 
   if (shouldBlock) {
     const url = request.nextUrl.clone();

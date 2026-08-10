@@ -35,21 +35,12 @@ export default function Team() {
             justifyContent: "center",
           }}
         >
-          <Button
-            component={Link}
-            variant="contained"
-            color="secondary"
-            href={volunteerRoute}
-            size="large"
-          >
+          <Button component={Link} variant="contained" color="secondary" href={volunteerRoute} size="large">
             {t("team.join_the_team")}
           </Button>
         </Typography>
       </PageContainer>
-      <TeamSection
-        volunteers={volunteers.data?.currentVolunteersList}
-        variant={"current"}
-      />
+      <TeamSection volunteers={volunteers.data?.currentVolunteersList} variant={"current"} />
 
       <PageContainer>
         <Typography
@@ -62,10 +53,7 @@ export default function Team() {
           {t("team.past_members")}
         </Typography>
       </PageContainer>
-      <TeamSection
-        volunteers={volunteers.data?.pastVolunteersList}
-        variant={"past"}
-      />
+      <TeamSection volunteers={volunteers.data?.pastVolunteersList} variant={"past"} />
       <PageContainer>
         <Typography variant="h2" component="h2">
           {t("team.have_skills_contribute")}
@@ -84,13 +72,7 @@ export default function Team() {
             justifyContent: "center",
           }}
         >
-          <Button
-            component={Link}
-            variant="contained"
-            color="secondary"
-            href={volunteerRoute}
-            size="large"
-          >
+          <Button component={Link} variant="contained" color="secondary" href={volunteerRoute} size="large">
             {t("team.join_our_team")}
           </Button>
         </Typography>

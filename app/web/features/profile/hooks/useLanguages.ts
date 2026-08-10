@@ -10,11 +10,7 @@ export const useLanguages = () => {
     queryFn: () =>
       service.resources
         .getLanguages()
-        .then((result) =>
-          Object.fromEntries(
-            result.languagesList.map(({ code, name }) => [code, name]),
-          ),
-        ),
+        .then((result) => Object.fromEntries(result.languagesList.map(({ code, name }) => [code, name]))),
   });
 
   return { languages, ...rest };

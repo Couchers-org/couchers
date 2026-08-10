@@ -11,9 +11,7 @@ interface AdminPanelUserButtonProps {
   username: string;
 }
 
-export default function AdminPanelUserButton({
-  username,
-}: AdminPanelUserButtonProps) {
+export default function AdminPanelUserButton({ username }: AdminPanelUserButtonProps) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
 

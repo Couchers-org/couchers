@@ -1,10 +1,4 @@
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   availableWriteReferencesKey,
   referencesGivenKey,
@@ -15,17 +9,12 @@ import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { ListReferencesRes, Reference } from "proto/references_pb";
 import { service } from "service";
-import {
-  WriteFriendReferenceInput,
-  WriteHostRequestReferenceInput,
-} from "service/references";
+import { WriteFriendReferenceInput, WriteHostRequestReferenceInput } from "service/references";
 
 import type { ReferenceTypeState } from "../view/References";
 import type { ListReferencesInfiniteQueryResult } from "../view/ReferencesView";
 
-export function useReferencesGiven(
-  user: User.AsObject,
-): ListReferencesInfiniteQueryResult {
+export function useReferencesGiven(user: User.AsObject): ListReferencesInfiniteQueryResult {
   const referencesGivenQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
     RpcError,
@@ -95,13 +84,8 @@ export function useWriteHostReference(userId: number) {
     reset,
     error,
     isPending,
-  } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteHostRequestReferenceVariables
-  >({
-    mutationFn: ({ referenceData }) =>
-      service.references.writeHostRequestReference(referenceData),
+  } = useMutation<Reference.AsObject, Error, WriteHostRequestReferenceVariables>({
+    mutationFn: ({ referenceData }) => service.references.writeHostRequestReference(referenceData),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -109,8 +93,7 @@ export function useWriteHostReference(userId: number) {
       });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
-          queryKey[0] === referencesReceivedBaseKey &&
-          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+          queryKey[0] === referencesReceivedBaseKey && (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
       });
     },
   });
@@ -131,16 +114,14 @@ export function useWriteFriendReference(userId: number) {
     error,
     isPending,
   } = useMutation<Reference.AsObject, Error, WriteFriendReferenceVariables>({
-    mutationFn: ({ referenceData }) =>
-      service.references.writeFriendRequestReference(referenceData),
+    mutationFn: ({ referenceData }) => service.references.writeFriendRequestReference(referenceData),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [availableWriteReferencesKey(userId)],
       });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
-          queryKey[0] === referencesReceivedBaseKey &&
-          (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+          queryKey[0] === referencesReceivedBaseKey && (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
       });
     },
   });

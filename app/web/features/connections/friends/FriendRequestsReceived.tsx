@@ -19,13 +19,9 @@ interface RespondToFriendRequestActionProps {
   setMutationError: SetMutationError;
 }
 
-function RespondToFriendRequestAction({
-  friendRequest,
-  setMutationError,
-}: RespondToFriendRequestActionProps) {
+function RespondToFriendRequestAction({ friendRequest, setMutationError }: RespondToFriendRequestActionProps) {
   const { t } = useTranslation([CONNECTIONS]);
-  const { isPending, isSuccess, reset, respondToFriendRequest } =
-    useRespondToFriendRequest();
+  const { isPending, isSuccess, reset, respondToFriendRequest } = useRespondToFriendRequest();
 
   if (friendRequest.state !== FriendRequest.FriendRequestStatus.PENDING) {
     return null;
@@ -77,16 +73,11 @@ function FriendRequestsReceived() {
 
   // Counted from the list rather than the ping, so the badge always agrees with
   // the rows below it. Non-pending requests are in the list but not actionable.
-  const pendingCount = data?.filter(
-    ({ state }) => state === FriendRequest.FriendRequestStatus.PENDING,
-  ).length;
+  const pendingCount = data?.filter(({ state }) => state === FriendRequest.FriendRequestStatus.PENDING).length;
 
   const fromUserId = router.query.from ? Number(router.query.from) : null;
   const requestNotFound =
-    fromUserId !== null &&
-    !isLoading &&
-    data !== undefined &&
-    !data.some((req) => req.userId === fromUserId);
+    fromUserId !== null && !isLoading && data !== undefined && !data.some((req) => req.userId === fromUserId);
 
   // Scroll to the user id from the URL parameter
   const highlightedCardRef = useRef<HTMLDivElement>(null);
@@ -109,9 +100,7 @@ function FriendRequestsReceived() {
       <FriendTile
         title={t("connections:friend_requests")}
         count={pendingCount}
-        errorMessage={
-          isError ? errors.join("\n") : mutationError ? mutationError : null
-        }
+        errorMessage={isError ? errors.join("\n") : mutationError ? mutationError : null}
         isLoading={isLoading}
         hasData={!!data?.length}
         noDataMessage={t("connections:no_friend_requests")}
@@ -121,16 +110,9 @@ function FriendRequestsReceived() {
             <FriendSummaryView
               key={friendRequest.friendRequestId}
               friend={friendRequest.friend}
-              cardRef={
-                friendRequest.userId === fromUserId
-                  ? highlightedCardRef
-                  : undefined
-              }
+              cardRef={friendRequest.userId === fromUserId ? highlightedCardRef : undefined}
             >
-              <RespondToFriendRequestAction
-                friendRequest={friendRequest}
-                setMutationError={setMutationError}
-              />
+              <RespondToFriendRequestAction friendRequest={friendRequest} setMutationError={setMutationError} />
             </FriendSummaryView>
           ))}
       </FriendTile>

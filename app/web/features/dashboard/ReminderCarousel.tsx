@@ -1,7 +1,4 @@
-import {
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-} from "@mui/icons-material";
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@mui/icons-material";
 import { Box, styled, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -57,9 +54,7 @@ function pruneStaleEntries(
   currentDismissalTime: number,
 ): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const [reminderId, dismissalTime] of Object.entries(
-    dismissedReminders,
-  )) {
+  for (const [reminderId, dismissalTime] of Object.entries(dismissedReminders)) {
     if (currentDismissalTime - dismissalTime < ONE_WEEK_MS) {
       out[reminderId] = dismissalTime;
     }
@@ -67,10 +62,7 @@ function pruneStaleEntries(
   return out;
 }
 
-function isStillDismissed(
-  dismissedReminders: Record<string, number>,
-  key: string,
-): boolean {
+function isStillDismissed(dismissedReminders: Record<string, number>, key: string): boolean {
   const now = Date.now();
   const ts = dismissedReminders[key];
   if (ts === undefined) return false;
@@ -113,9 +105,10 @@ export default function ReminderCarousel() {
     queryFn: () => service.account.getReminders(),
   });
 
-  const [dismissedReminders, setDismissedReminders] = usePersistedState<
-    Record<string, number>
-  >("dismissedReminders", {});
+  const [dismissedReminders, setDismissedReminders] = usePersistedState<Record<string, number>>(
+    "dismissedReminders",
+    {},
+  );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -152,11 +145,7 @@ export default function ReminderCarousel() {
 
   const scrollByCard = (direction: 1 | -1) => {
     scrollerRef.current?.scrollBy({
-      left:
-        direction *
-        (isMobile
-          ? CARD_WIDTH_MOBILE + CARD_GAP
-          : CARD_WIDTH_DESKTOP + CARD_GAP),
+      left: direction * (isMobile ? CARD_WIDTH_MOBILE + CARD_GAP : CARD_WIDTH_DESKTOP + CARD_GAP),
       behavior: "smooth",
     });
   };
@@ -184,17 +173,12 @@ export default function ReminderCarousel() {
         sx={{
           flex: 1,
           minWidth: 0,
-          ...(isMobile && visibleReminders.length === 1
-            ? { justifyContent: "center" }
-            : {}),
+          ...(isMobile && visibleReminders.length === 1 ? { justifyContent: "center" } : {}),
         }}
       >
         {visibleReminders.map(({ id, reminder }) => (
           <StyledCardSlot key={id}>
-            <ReminderItem
-              reminder={reminder}
-              onDismiss={() => handleDismiss(id)}
-            />
+            <ReminderItem reminder={reminder} onDismiss={() => handleDismiss(id)} />
           </StyledCardSlot>
         ))}
       </FadingScrollTrack>

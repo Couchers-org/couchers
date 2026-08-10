@@ -1,27 +1,12 @@
-import {
-  BottomNavigation as MuiBottomNavigation,
-  BottomNavigationAction,
-  Paper,
-  styled,
-} from "@mui/material";
-import {
-  CalendarIcon,
-  ChatBubbleIcon,
-  HomeIcon,
-  PersonIcon,
-  SearchIcon,
-} from "components/Icons";
+import { BottomNavigation as MuiBottomNavigation, BottomNavigationAction, Paper, styled } from "@mui/material";
+import { CalendarIcon, ChatBubbleIcon, HomeIcon, PersonIcon, SearchIcon } from "components/Icons";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
-import {
-  communitiesRoute,
-  dashboardRoute,
-  eventsRoute,
-  messagesRoute,
-  searchRoute,
-} from "routes";
+import { communitiesRoute, dashboardRoute, eventsRoute, messagesRoute, searchRoute } from "routes";
+
+import { BOTTOM_NAV_BASE_HEIGHT } from "./constants";
 
 const StyledPaper = styled(Paper)(() => ({
   position: "fixed",
@@ -33,6 +18,8 @@ const StyledPaper = styled(Paper)(() => ({
 }));
 
 const StyledBottomNavigation = styled(MuiBottomNavigation)(({ theme }) => ({
+  // the height must account for the safe area (e.g. iOS notch) + MUI base height
+  height: `calc(${BOTTOM_NAV_BASE_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
   paddingBottom: "env(safe-area-inset-bottom, 0px)",
   "& .MuiBottomNavigationAction-root": {
     minWidth: "auto",
@@ -54,10 +41,7 @@ export default function BottomNavigation() {
   // Strip locale prefix from pathname to determine current route
   const currentRoute = useMemo(() => {
     // Remove locale prefix (e.g., /en/, /es/, etc.) from pathname
-    const pathWithoutLocale = router.pathname.replace(
-      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
-      "/",
-    );
+    const pathWithoutLocale = router.pathname.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/");
 
     if (pathWithoutLocale.startsWith("/messages")) return messagesRoute;
     if (pathWithoutLocale.startsWith("/communities")) return communitiesRoute;

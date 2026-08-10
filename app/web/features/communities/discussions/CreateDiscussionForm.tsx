@@ -48,11 +48,7 @@ interface CreateDiscussionFormProps {
 
 type CreateDiscussionData = Omit<CreateDiscussionInput, "ownerCommunityId">;
 
-export default function CreateDiscussionForm({
-  communityId,
-  onCancel,
-  onPostSuccess,
-}: CreateDiscussionFormProps) {
+export default function CreateDiscussionForm({ communityId, onCancel, onPostSuccess }: CreateDiscussionFormProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const {
     control,
@@ -63,12 +59,7 @@ export default function CreateDiscussionForm({
     mode: "onBlur",
   });
 
-  const {
-    error,
-    isPending,
-    mutate: createDiscussion,
-    reset: resetMutation,
-  } = useNewDiscussionMutation(handleSuccess);
+  const { error, isPending, mutate: createDiscussion, reset: resetMutation } = useNewDiscussionMutation(handleSuccess);
 
   function handleSuccess() {
     resetForm();
@@ -88,9 +79,7 @@ export default function CreateDiscussionForm({
 
   return (
     <StyledWrapper>
-      <StyledTitle variant="h2">
-        {t("communities:create_new_discussion_title")}
-      </StyledTitle>
+      <StyledTitle variant="h2">{t("communities:create_new_discussion_title")}</StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       <StyledForm onSubmit={onSubmit}>
         <TextField
@@ -102,16 +91,9 @@ export default function CreateDiscussionForm({
         <Typography id="content-label" variant="h3">
           {t("communities:new_discussion_topic")}
         </Typography>
-        <MarkdownInput
-          control={control}
-          id="content"
-          labelId="content-label"
-          name="content"
-        />
+        <MarkdownInput control={control} id="content" labelId="content-label" name="content" />
         <StyledActionButtonsContainer>
-          <StyledCancelButton onClick={handleCancel}>
-            {t("global:cancel")}
-          </StyledCancelButton>
+          <StyledCancelButton onClick={handleCancel}>{t("global:cancel")}</StyledCancelButton>
           <Button loading={isPending} type="submit">
             {t("communities:post")}
           </Button>

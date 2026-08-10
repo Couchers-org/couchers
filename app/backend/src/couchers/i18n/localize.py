@@ -16,45 +16,58 @@ from babel.lists import format_list
 from couchers.resources import get_region_code_iso3166_alpha3_to_alpha2
 
 
-def localize_list(items: Sequence[str], locale: babel.Locale) -> str:
-    return format_list(items, locale=locale)
+def localize_list(items: Sequence[str], locales: list[babel.Locale]) -> str:
+    for locale in locales:
+        try:
+            return format_list(items, locale=locale)
+        except ValueError:  # Raised if the locale doesn't support list formatting
+            continue
+    return format_list(items, locale=babel.Locale.parse("en"))
 
 
-def try_localize_language_name_from_iso639(code: str, locale: babel.Locale, standalone: bool = False) -> str | None:
+def try_localize_language_name_from_iso639(
+    code: str, locales: list[babel.Locale], standalone: bool = False
+) -> str | None:
     """
     Attempts to localize the name of a language expressed as an ISO639 code.
 
     Args:
         code: The ISO639 language code.
-        locale: The locale to render the language name in.
+        locales: The acceptable locales to render the language name in.
         standalone: The result won't be part of a larger sentence and should be capitalized if the language has capitals.
 
     Returns:
         The localized name, or None if no localized name is available.
     """
-    try:
-        name = babel.Locale.parse(code).get_language_name(locale)
-        if name is None:
-            return None
-        if standalone:
-            # The Unicode CLDR returns a casing that allows embedding in a larger sentence, e.g. "español".
-            # If we're displaying the language name on its own, capitalize its first letter if applicable.
-            # An LLM prompt revealed that this holds for all major languages.
-            # It is a no-op for scripts that don't have capital letters.
-            name = name[:1].title() + name[1:]
-        return name
-    except ValueError, babel.UnknownLocaleError:
-        return None
+    for locale in locales:
+        try:
+            name = babel.Locale.parse(code).get_language_name(locale)
+            if name is None:
+                continue
+            if standalone:
+                # The Unicode CLDR returns a casing that allows embedding in a larger sentence, e.g. "español".
+                # If we're displaying the language name on its own, capitalize its first letter if applicable.
+                # An LLM prompt revealed that this holds for all major languages.
+                # It is a no-op for scripts that don't have capital letters.
+                name = name[:1].title() + name[1:]
+            return name
+        except ValueError, babel.UnknownLocaleError:
+            continue
+    return None
 
 
-def try_localize_region_name_from_iso3166(code: str, locale: babel.Locale) -> str | None:
+def try_localize_region_name_from_iso3166(code: str, locales: list[babel.Locale]) -> str | None:
     """
-    Gets a region name specified as an ISO3166 alpha2 or alpha3 code, localized in the given locale.
+    Gets a region name specified as an ISO3166 alpha2 or alpha3 code,
+    localized in the first acceptable locale provided.
     """
     # The Unicode CLDR uses alpha2 codes as keys (all alpha3 codes have a corresponding alpha2 code)
     code = get_region_code_iso3166_alpha3_to_alpha2().get(code, code)
-    region_name: str | None = locale.territories.get(code, None)
-    return region_name
+    for locale in locales:
+        region_name: str | None = locale.territories.get(code, None)
+        if region_name is not None:
+            return region_name
+    return None
 
 
 def localize_date(
@@ -157,8 +170,10 @@ def _combine_cldr_date_time_patterns(locale: babel.Locale, date_pattern: str, ti
     return combining_format.replace("{1}", date_pattern).replace("{0}", time_pattern)
 
 
-def localize_timezone(timezone: tzinfo, locale: babel.Locale, *, short: bool = False) -> str:
-    return get_timezone_name(timezone, width="short" if short else "long", locale=locale)
+def localize_timezone(timezone: tzinfo, locales: list[babel.Locale], *, short: bool = False) -> str:
+    # From the implementation, get_timezone_name has no failure condition for unsupported locales,
+    # so just used the preferred locale.
+    return get_timezone_name(timezone, width="short" if short else "long", locale=locales[0])
 
 
 def format_phone_number(value: str) -> str:

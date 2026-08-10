@@ -27,9 +27,7 @@ export default function DarkModeToggle() {
     setMode(isDark ? "light" : "dark");
   };
 
-  const tooltipText = isDark
-    ? t("nav.switch_to_light_mode")
-    : t("nav.switch_to_dark_mode");
+  const tooltipText = isDark ? t("nav.switch_to_light_mode") : t("nav.switch_to_dark_mode");
 
   return (
     <Tooltip title={tooltipText}>

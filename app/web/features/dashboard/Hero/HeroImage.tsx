@@ -11,19 +11,17 @@ const ImageOuterContainer = styled("div")(() => ({
   display: "block",
 }));
 
-const PlaceholderLayer = styled("div")<{ placeholderSrc: string }>(
-  ({ placeholderSrc }) => ({
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundImage: `url(${placeholderSrc})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    zIndex: -1,
-  }),
-);
+const PlaceholderLayer = styled("div")<{ placeholderSrc: string }>(({ placeholderSrc }) => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundImage: `url(${placeholderSrc})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  zIndex: -1,
+}));
 
 const StyledActualImage = styled("img")(() => ({
   position: "absolute",
@@ -48,26 +46,15 @@ interface HeroImageProps {
   imageWidths: ImageWidth[];
 }
 
-const HeroImage: React.FC<HeroImageProps> = ({
-  alt,
-  placeHolderSrc,
-  imageWidths,
-}) => {
-  const srcset = imageWidths
-    .map(({ width, fileName }) => `${fileName} ${width}w`)
-    .join(", ");
+const HeroImage: React.FC<HeroImageProps> = ({ alt, placeHolderSrc, imageWidths }) => {
+  const srcset = imageWidths.map(({ width, fileName }) => `${fileName} ${width}w`).join(", ");
 
   const primarySrc = `${imageWidths[imageWidths.length - 1].fileName}`;
 
   return (
     <ImageOuterContainer>
       <PlaceholderLayer placeholderSrc={placeHolderSrc} />
-      <StyledActualImage
-        src={primarySrc}
-        srcSet={srcset}
-        sizes="100vw"
-        alt={alt}
-      />
+      <StyledActualImage src={primarySrc} srcSet={srcset} sizes="100vw" alt={alt} />
     </ImageOuterContainer>
   );
 };

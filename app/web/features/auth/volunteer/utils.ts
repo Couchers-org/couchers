@@ -1,9 +1,4 @@
-import {
-  CouchersIcon,
-  EmailIcon,
-  GlobeIcon,
-  LinkedInIcon,
-} from "components/Icons";
+import { CouchersIcon, EmailIcon, GlobeIcon, LinkedInIcon } from "components/Icons";
 import { GetMyVolunteerInfoRes } from "proto/account_pb";
 
 // Constants
@@ -47,9 +42,7 @@ export function getLinkTypeIcon(linkType: string) {
 }
 
 // Transform API data to form defaults
-export function getFormDefaultValues(
-  volunteerInfo?: GetMyVolunteerInfoRes.AsObject,
-): VolunteerFormData {
+export function getFormDefaultValues(volunteerInfo?: GetMyVolunteerInfoRes.AsObject): VolunteerFormData {
   if (!volunteerInfo) {
     return {
       overrideName: false,
@@ -64,9 +57,7 @@ export function getFormDefaultValues(
   }
 
   const linkType =
-    volunteerInfo.linkType && isValidLinkType(volunteerInfo.linkType)
-      ? volunteerInfo.linkType
-      : "couchers";
+    volunteerInfo.linkType && isValidLinkType(volunteerInfo.linkType) ? volunteerInfo.linkType : "couchers";
 
   return {
     overrideName: false,

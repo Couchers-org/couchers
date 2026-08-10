@@ -200,7 +200,8 @@
     "switch_to_dark_mode": "Alternar para modo escuro",
     "close_menu_a11y": "Fechar menu",
     "open_drawer_a11y": "Abrir menu hamburguer",
-    "close_drawer_a11y": "Fechar menu hamburguer"
+    "close_drawer_a11y": "Fechar menu hamburguer",
+    "press": "Imprensa"
   },
   "invites": {
     "title": "Convidar membros",
@@ -324,8 +325,7 @@
     "en": "Inglês",
     "es": "Espanhol (Espanha)",
     "es-419": "Espanhol",
-    "fr": "Francês (França)",
-    "fr-CA": "Francês (Candadá)",
+    "fr": "Francês",
     "he": "Hebraico",
     "hi": "Hindi",
     "it": "Italiano",

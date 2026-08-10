@@ -5,16 +5,12 @@ import React from "react";
 
 import { getProfileLinkA11yLabel } from "./constants";
 
-type UserWithAvatarUrl = Pick<
-  LiteUser.AsObject,
-  "username" | "name" | "avatarUrl"
-> & {
+type UserWithAvatarUrl = Pick<LiteUser.AsObject, "username" | "name" | "avatarUrl"> & {
   userId?: number;
 };
-type UserWithAvatarThumbnailUrl = Pick<
-  LiteUser.AsObject,
-  "username" | "name" | "avatarThumbnailUrl"
-> & { userId?: number };
+type UserWithAvatarThumbnailUrl = Pick<LiteUser.AsObject, "username" | "name" | "avatarThumbnailUrl"> & {
+  userId?: number;
+};
 interface AvatarPropsHighRes {
   children?: React.ReactNode;
   highRes?: true;
@@ -26,8 +22,7 @@ interface AvatarPropsHighRes {
   openInNewTab?: boolean;
 }
 
-interface AvatarPropsLowRes
-  extends Omit<AvatarPropsHighRes, "highRes" | "user"> {
+interface AvatarPropsLowRes extends Omit<AvatarPropsHighRes, "highRes" | "user"> {
   highRes?: false | undefined;
   user?: UserWithAvatarThumbnailUrl;
 }
@@ -69,23 +64,14 @@ export default function Avatar({
   const avatarImg = user ? (
     <StyledMuiAvatar
       alt={user.name}
-      src={
-        !!highRes
-          ? (user as UserWithAvatarUrl).avatarUrl
-          : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl
-      }
+      src={!!highRes ? (user as UserWithAvatarUrl).avatarUrl : (user as UserWithAvatarThumbnailUrl).avatarThumbnailUrl}
     >
       {user.name.split(/\s+/).map((name) => name[0])}
     </StyledMuiAvatar>
   ) : null;
 
   return (
-    <StyledWrapper
-      isDefaultSize={!className}
-      grow={grow}
-      className={className}
-      {...otherProps}
-    >
+    <StyledWrapper isDefaultSize={!className} grow={grow} className={className} {...otherProps}>
       {user ? (
         isProfileLink ? (
           <ProfileLink

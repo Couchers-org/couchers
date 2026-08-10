@@ -9,10 +9,7 @@ import { CONNECTIONS, MESSAGES, PROFILE } from "./namespaces";
  * CONNECTIONS, MESSAGES). Without this, navigating between pages that have
  * different namespace sets causes translation keys to flash in the ProfileSheet.
  */
-export async function appServerSideTranslations(
-  locale: string,
-  namespacesRequired: string[],
-) {
+export async function appServerSideTranslations(locale: string, namespacesRequired: string[]) {
   return serverSideTranslations(
     locale,
     [...new Set([...namespacesRequired, PROFILE, CONNECTIONS, MESSAGES])],

@@ -1,11 +1,4 @@
-import {
-  Breadcrumbs,
-  Container,
-  Link,
-  styled,
-  Typography,
-  TypographyProps,
-} from "@mui/material";
+import { Breadcrumbs, Container, Link, styled, Typography, TypographyProps } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
@@ -119,17 +112,13 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
     backgroundColor: "inherit !important",
   },
   // Pending items with peach gradient
-  '[data-mui-color-scheme="dark"] & td[style*="linear-gradient(to right, #FDE9D4"]':
-    {
-      background:
-        "linear-gradient(to right, rgba(254, 152, 42, 0.3), transparent) !important",
-    },
+  '[data-mui-color-scheme="dark"] & td[style*="linear-gradient(to right, #FDE9D4"]': {
+    background: "linear-gradient(to right, rgba(254, 152, 42, 0.3), transparent) !important",
+  },
   // Completed items with green gradient - fade to dark background instead of white
-  '[data-mui-color-scheme="dark"] & td[style*="linear-gradient(to right, #20686C"]':
-    {
-      background:
-        "linear-gradient(to right, #20686C, #00A398, #313539) !important",
-    },
+  '[data-mui-color-scheme="dark"] & td[style*="linear-gradient(to right, #20686C"]': {
+    background: "linear-gradient(to right, #20686C, #00A398, #313539) !important",
+  },
   // Partially completed checkmark - make it white in dark mode
   '[data-mui-color-scheme="dark"] & .partial-check': {
     filter: "grayscale(1) brightness(10)",
@@ -153,40 +142,22 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
   lineHeight: "1.125",
 }));
 
-function AuthorList({
-  author,
-  authorUsername,
-}: {
-  author: string;
-  authorUsername?: string;
-}) {
+function AuthorList({ author, authorUsername }: { author: string; authorUsername?: string }) {
   const authors = author.split(",").map((a) => a.trim());
-  const usernames = authorUsername
-    ? authorUsername.split(",").map((u) => u.trim())
-    : [];
+  const usernames = authorUsername ? authorUsername.split(",").map((u) => u.trim()) : [];
   return (
     <>
       {authors.map((name, i) => (
         <span key={name}>
           {i > 0 && i === authors.length - 1 ? " and " : i > 0 ? ", " : ""}
-          {usernames[i] ? (
-            <Link href={`/user/${usernames[i]}`}>{name}</Link>
-          ) : (
-            name
-          )}
+          {usernames[i] ? <Link href={`/user/${usernames[i]}`}>{name}</Link> : name}
         </span>
       ))}
     </>
   );
 }
 
-function createBreadcrumbs({
-  slug,
-  frontmatter,
-}: {
-  slug: Array<string>;
-  frontmatter: MarkdownPageFrontmatter;
-}) {
+function createBreadcrumbs({ slug, frontmatter }: { slug: Array<string>; frontmatter: MarkdownPageFrontmatter }) {
   const crumbs = [{ key: "root", value: "Couchers.org", path: "/" }];
   if (slug.length > 2 && slug[0] == "blog") {
     // this is fragile, but basically hides the date from the blog crumbs
@@ -210,8 +181,7 @@ function createBreadcrumbs({
             ? frontmatter.crumb
               ? frontmatter.crumb
               : frontmatter.title
-            : item.substring(0, 1).toUpperCase() +
-              item.substring(1, item.length),
+            : item.substring(0, 1).toUpperCase() + item.substring(1, item.length),
         path: (i == 0 ? "/" : crumbs[i - 1].path) + item + "/",
       });
     }
@@ -219,45 +189,22 @@ function createBreadcrumbs({
   return crumbs;
 }
 
-export default function MarkdownPage({
-  slug,
-  frontmatter,
-  content,
-}: MarkdownPageProps) {
+export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPageProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const subtitle = !!frontmatter.subtitle
-    ? mkd.renderInline(frontmatter.subtitle)
-    : null;
-  const bustitle = !!frontmatter.bustitle
-    ? mkd.renderInline(frontmatter.bustitle)
-    : null;
+  const subtitle = !!frontmatter.subtitle ? mkd.renderInline(frontmatter.subtitle) : null;
+  const bustitle = !!frontmatter.bustitle ? mkd.renderInline(frontmatter.bustitle) : null;
 
   const crumbs = createBreadcrumbs({ slug, frontmatter });
   return (
     <>
-      <HtmlMeta
-        title={frontmatter.title}
-        description={frontmatter.description}
-        shareImage={frontmatter.share_image}
-      />
+      <HtmlMeta title={frontmatter.title} description={frontmatter.description} shareImage={frontmatter.share_image} />
       {slug.length === 1 && slug[0] === "blog" && (
         <Head>
-          <link
-            rel="alternate"
-            type="application/rss+xml"
-            title="Couchers.org Blog"
-            href="/blog/rss.xml"
-          />
+          <link rel="alternate" type="application/rss+xml" title="Couchers.org Blog" href="/blog/rss.xml" />
         </Head>
       )}
-      <Container
-        disableGutters
-        maxWidth="md"
-        sx={{ marginTop: theme.spacing(3) }}
-      >
-        <StyledBreadcrumbs
-          aria-label={t("communities:community_breadcrumb_a11y")}
-        >
+      <Container disableGutters maxWidth="md" sx={{ marginTop: theme.spacing(3) }}>
+        <StyledBreadcrumbs aria-label={t("communities:community_breadcrumb_a11y")}>
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (
@@ -265,44 +212,27 @@ export default function MarkdownPage({
                 {crumb.value}
               </Typography>
             ) : (
-              <Link
-                key={crumb.key}
-                underline="hover"
-                color="inherit"
-                href={crumb.path}
-              >
+              <Link key={crumb.key} underline="hover" color="inherit" href={crumb.path}>
                 {crumb.value}
               </Link>
             );
           })}
         </StyledBreadcrumbs>
-        {!frontmatter.hide_title && (
-          <StyledTitle>{frontmatter.title}</StyledTitle>
-        )}
+        {!frontmatter.hide_title && <StyledTitle>{frontmatter.title}</StyledTitle>}
         {subtitle && (
           <Typography component="h2">
             <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
           </Typography>
         )}
-        <StyledMarkdown
-          dangerouslySetInnerHTML={{ __html: content }}
-        ></StyledMarkdown>
+        <StyledMarkdown dangerouslySetInnerHTML={{ __html: content }}></StyledMarkdown>
         {frontmatter.is_blog_post && frontmatter.date && (
-          <Typography
-            variant="body1"
-            sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}
-          >
+          <Typography variant="body1" sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}>
             {frontmatter.author ? (
               <Trans
                 i18nKey="blog.byline_with_author"
                 values={{ date: frontmatter.date }}
                 components={{
-                  1: (
-                    <AuthorList
-                      author={frontmatter.author}
-                      authorUsername={frontmatter.author_username}
-                    />
-                  ),
+                  1: <AuthorList author={frontmatter.author} authorUsername={frontmatter.author_username} />,
                 }}
               />
             ) : (
@@ -311,10 +241,7 @@ export default function MarkdownPage({
           </Typography>
         )}
         {frontmatter.is_blog_post && !frontmatter.has_custom_cta && (
-          <Typography
-            variant="body1"
-            sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
-          >
+          <Typography variant="body1" sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}>
             <Trans
               i18nKey="blog.cta_message"
               components={{
@@ -325,31 +252,12 @@ export default function MarkdownPage({
           </Typography>
         )}
         {frontmatter.is_blog_post && (
-          <Typography
-            variant="body1"
-            sx={{ marginTop: theme.spacing(3), display: "flex", gap: 1 }}
-          >
-            <Link
-              href="https://www.instagram.com/couchersorg/"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/img/blog/instagram_logo.svg"
-                alt="Instagram"
-                style={{ width: 26 }}
-              />
+          <Typography variant="body1" sx={{ marginTop: theme.spacing(3), display: "flex", gap: 1 }}>
+            <Link href="https://www.instagram.com/couchersorg/" target="_blank" rel="noopener">
+              <img src="/img/blog/instagram_logo.svg" alt="Instagram" style={{ width: 26 }} />
             </Link>
-            <Link
-              href="https://bsky.app/profile/couchers.bsky.social"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/img/blog/bluesky_logo.svg"
-                alt="Bluesky"
-                style={{ width: 26 }}
-              />
+            <Link href="https://bsky.app/profile/couchers.bsky.social" target="_blank" rel="noopener">
+              <img src="/img/blog/bluesky_logo.svg" alt="Bluesky" style={{ width: 26 }} />
             </Link>
           </Typography>
         )}

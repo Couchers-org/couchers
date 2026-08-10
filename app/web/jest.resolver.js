@@ -6,9 +6,7 @@
 const ESM_ONLY_PACKAGES = ["temporal-polyfill", "temporal-utils"];
 
 module.exports = (path, options) => {
-  const isEsmOnly = ESM_ONLY_PACKAGES.some(
-    (name) => path === name || path.startsWith(`${name}/`),
-  );
+  const isEsmOnly = ESM_ONLY_PACKAGES.some((name) => path === name || path.startsWith(`${name}/`));
   if (isEsmOnly) {
     return options.defaultResolver(path, {
       ...options,

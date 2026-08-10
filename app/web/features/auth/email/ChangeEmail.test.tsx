@@ -9,12 +9,8 @@ import { MockedService } from "test/utils";
 
 const { t } = i18n;
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
-const changeEmailMock = service.account.changeEmail as MockedService<
-  typeof service.account.changeEmail
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
+const changeEmailMock = service.account.changeEmail as MockedService<typeof service.account.changeEmail>;
 
 const accountInfo = {
   username: "tester",
@@ -57,29 +53,16 @@ describe("ChangeEmail", () => {
           name: t("auth:change_email_form.title"),
         }),
       ).toBeVisible();
-      expect(
-        await screen.findByLabelText(
-          t("auth:change_email_form.current_password"),
-        ),
-      ).toBeVisible();
-      expect(
-        screen.getByLabelText(t("auth:change_email_form.new_email")),
-      ).toBeVisible();
-      expect(
-        screen.getByRole("button", { name: t("global:submit") }),
-      ).toBeVisible();
+      expect(await screen.findByLabelText(t("auth:change_email_form.current_password"))).toBeVisible();
+      expect(screen.getByLabelText(t("auth:change_email_form.new_email"))).toBeVisible();
+      expect(screen.getByRole("button", { name: t("global:submit") })).toBeVisible();
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
       const user = userEvent.setup();
 
-      await user.type(
-        await screen.findByLabelText(t("auth:change_email_form.new_email")),
-        "test@example.com",
-      );
-      await user.click(
-        screen.getByRole("button", { name: t("global:submit") }),
-      );
+      await user.type(await screen.findByLabelText(t("auth:change_email_form.new_email")), "test@example.com");
+      await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -89,15 +72,8 @@ describe("ChangeEmail", () => {
     it("does not try to submit the form if the user didn't provide a new email", async () => {
       const user = userEvent.setup();
 
-      await user.type(
-        await screen.findByLabelText(
-          t("auth:change_email_form.current_password"),
-        ),
-        "password",
-      );
-      await user.click(
-        screen.getByRole("button", { name: t("global:submit") }),
-      );
+      await user.type(await screen.findByLabelText(t("auth:change_email_form.current_password")), "password");
+      await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -107,38 +83,19 @@ describe("ChangeEmail", () => {
     it("changes the user's email successfully if all required fields have been filled in", async () => {
       const user = userEvent.setup();
 
-      await user.type(
-        await screen.findByLabelText(
-          t("auth:change_email_form.current_password"),
-        ),
-        "password",
-      );
-      await user.type(
-        screen.getByLabelText(t("auth:change_email_form.new_email")),
-        "test@example.com",
-      );
-      await user.click(
-        screen.getByRole("button", { name: t("global:submit") }),
-      );
+      await user.type(await screen.findByLabelText(t("auth:change_email_form.current_password")), "password");
+      await user.type(screen.getByLabelText(t("auth:change_email_form.new_email")), "test@example.com");
+      await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        t("auth:change_email_form.success_message"),
-      );
+      expect(successAlert).toHaveTextContent(t("auth:change_email_form.success_message"));
       expect(changeEmailMock).toHaveBeenCalledTimes(1);
-      expect(changeEmailMock).toHaveBeenCalledWith(
-        "test@example.com",
-        "password",
-      );
+      expect(changeEmailMock).toHaveBeenCalledWith("test@example.com", "password");
 
       // Also check form has been cleared
-      expect(
-        screen.getByLabelText(t("auth:change_email_form.current_password")),
-      ).not.toHaveValue();
-      expect(
-        screen.getByLabelText(t("auth:change_email_form.new_email")),
-      ).not.toHaveValue();
+      expect(screen.getByLabelText(t("auth:change_email_form.current_password"))).not.toHaveValue();
+      expect(screen.getByLabelText(t("auth:change_email_form.new_email"))).not.toHaveValue();
     });
   });
 
@@ -149,24 +106,14 @@ describe("ChangeEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      await screen.findByLabelText(
-        t("auth:change_email_form.current_password"),
-      ),
-      "password",
-    );
-    await user.type(
-      await screen.findByLabelText(t("auth:change_email_form.new_email")),
-      "test@example.com",
-    );
+    await user.type(await screen.findByLabelText(t("auth:change_email_form.current_password")), "password");
+    await user.type(await screen.findByLabelText(t("auth:change_email_form.new_email")), "test@example.com");
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("Invalid email");
-    expect(
-      screen.queryByText(/Your email change has been received/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Your email change has been received/i)).not.toBeInTheDocument();
   });
 
   describe("password visibility toggle", () => {
@@ -177,21 +124,14 @@ describe("ChangeEmail", () => {
 
     it("toggles password visibility when clicking the button", async () => {
       const user = userEvent.setup();
-      const passwordField = await screen.findByLabelText(
-        t("auth:change_email_form.current_password"),
-      );
+      const passwordField = await screen.findByLabelText(t("auth:change_email_form.current_password"));
 
       // Initially password should be hidden
       expect(passwordField).toHaveAttribute("type", "password");
 
-      const showButton = screen.getByLabelText(
-        t("auth:change_email_form.show_current_password"),
-      );
+      const showButton = screen.getByLabelText(t("auth:change_email_form.show_current_password"));
 
-      expect(showButton).toHaveAttribute(
-        "aria-label",
-        t("auth:change_email_form.show_current_password"),
-      );
+      expect(showButton).toHaveAttribute("aria-label", t("auth:change_email_form.show_current_password"));
 
       await user.click(showButton);
 
@@ -199,14 +139,9 @@ describe("ChangeEmail", () => {
         expect(passwordField).toHaveAttribute("type", "text");
       });
 
-      expect(showButton).toHaveAttribute(
-        "aria-label",
-        t("auth:change_email_form.hide_current_password"),
-      );
+      expect(showButton).toHaveAttribute("aria-label", t("auth:change_email_form.hide_current_password"));
 
-      const hideButton = screen.getByLabelText(
-        t("auth:change_email_form.hide_current_password"),
-      );
+      const hideButton = screen.getByLabelText(t("auth:change_email_form.hide_current_password"));
       await user.click(hideButton);
 
       // Password should be hidden again
@@ -217,17 +152,13 @@ describe("ChangeEmail", () => {
 
     it("allows typing visible text in the password field when toggled", async () => {
       const user = userEvent.setup();
-      const passwordField = await screen.findByLabelText(
-        t("auth:change_email_form.current_password"),
-      );
+      const passwordField = await screen.findByLabelText(t("auth:change_email_form.current_password"));
 
       await user.type(passwordField, "mypassword");
       expect(passwordField).toHaveValue("mypassword");
       expect(passwordField).toHaveAttribute("type", "password");
 
-      const showButton = screen.getByLabelText(
-        t("auth:change_email_form.show_current_password"),
-      );
+      const showButton = screen.getByLabelText(t("auth:change_email_form.show_current_password"));
       await user.click(showButton);
 
       // Verify text is still there and type is now text

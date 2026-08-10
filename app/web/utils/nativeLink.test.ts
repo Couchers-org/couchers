@@ -18,8 +18,7 @@ describe("nativeLink", () => {
 
     it("handles image base64 data", () => {
       // Small 1x1 red pixel PNG in base64
-      const base64 =
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
+      const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
       const mimeType = "image/png";
       const filename = "pixel.png";
 

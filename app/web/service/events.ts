@@ -1,7 +1,4 @@
-import {
-  Int64Value,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { Int64Value, StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
@@ -23,11 +20,7 @@ import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
-export async function listCommunityEvents(
-  communityId: number,
-  pageToken?: string,
-  pageSize?: number,
-) {
+export async function listCommunityEvents(communityId: number, pageToken?: string, pageSize?: number) {
   const req = new ListEventsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -66,11 +59,7 @@ interface ListEventUsersInput {
   pageToken?: string;
 }
 
-export async function listEventOrganizers({
-  eventId,
-  pageSize,
-  pageToken,
-}: ListEventUsersInput) {
+export async function listEventOrganizers({ eventId, pageSize, pageToken }: ListEventUsersInput) {
   const req = new ListEventOrganizersReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -83,11 +72,7 @@ export async function listEventOrganizers({
   return res.toObject();
 }
 
-export async function listEventAttendees({
-  eventId,
-  pageSize,
-  pageToken,
-}: ListEventUsersInput) {
+export async function listEventAttendees({ eventId, pageSize, pageToken }: ListEventUsersInput) {
   const req = new ListEventAttendeesReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -153,8 +138,7 @@ export async function createEvent(input: CreateEventInput) {
   return res.toObject();
 }
 
-export interface UpdateEventInput
-  extends Partial<Omit<EventInput, "parentCommunityId">> {
+export interface UpdateEventInput extends Partial<Omit<EventInput, "parentCommunityId">> {
   eventId: number;
   shouldNotify: boolean;
 }
@@ -169,14 +153,10 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartDatetimeIso8601Local(
-      new StringValue().setValue(input.startTime.toString()),
-    );
+    req.setStartDatetimeIso8601Local(new StringValue().setValue(input.startTime.toString()));
   }
   if (input.endTime) {
-    req.setEndDatetimeIso8601Local(
-      new StringValue().setValue(input.endTime.toString()),
-    );
+    req.setEndDatetimeIso8601Local(new StringValue().setValue(input.endTime.toString()));
   }
 
   if (input.photoKey) {
@@ -206,12 +186,7 @@ export interface ListAllEventsInput {
   showCancelled?: boolean;
 }
 
-export async function listAllEvents({
-  pastEvents = false,
-  pageSize,
-  pageToken,
-  showCancelled,
-}: ListAllEventsInput) {
+export async function listAllEvents({ pastEvents = false, pageSize, pageToken, showCancelled }: ListAllEventsInput) {
   const req = new ListAllEventsReq();
 
   if (pastEvents !== undefined) {

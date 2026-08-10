@@ -3,14 +3,7 @@ import { useController } from "react-hook-form";
 
 import { MarkdownInputProps } from "..";
 
-export default function MarkdownInputMock({
-  control,
-  id,
-  labelId,
-  name,
-  defaultValue,
-  required,
-}: MarkdownInputProps) {
+export default function MarkdownInputMock({ control, id, labelId, name, defaultValue, required }: MarkdownInputProps) {
   const [value, setValue] = useState(defaultValue ?? "");
 
   const { field } = useController({

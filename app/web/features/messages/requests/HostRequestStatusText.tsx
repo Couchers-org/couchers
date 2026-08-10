@@ -11,19 +11,12 @@ interface HostRequestStatusTextProps {
   hostName?: string;
 }
 
-export default function HostRequestStatusText({
-  isHost,
-  requestStatus,
-  isPast,
-  hostName,
-}: HostRequestStatusTextProps) {
+export default function HostRequestStatusText({ isHost, requestStatus, isPast, hostName }: HostRequestStatusTextProps) {
   const { t } = useTranslation(MESSAGES);
 
   let statusText = "";
   if (requestStatus === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
-    statusText = isPast
-      ? t("host_request_item.expired")
-      : t("host_request_item.pending");
+    statusText = isPast ? t("host_request_item.expired") : t("host_request_item.pending");
   }
 
   if (isHost) {
@@ -67,10 +60,7 @@ export default function HostRequestStatusText({
   }
 
   return (
-    <Typography
-      variant="body2"
-      sx={{ color: isPast ? theme.palette.grey[500] : "default" }}
-    >
+    <Typography variant="body2" sx={{ color: isPast ? theme.palette.grey[500] : "default" }}>
       {statusText}
     </Typography>
   );

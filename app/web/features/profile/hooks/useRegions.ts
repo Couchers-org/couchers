@@ -10,11 +10,7 @@ export const useRegions = () => {
     queryFn: () =>
       service.resources
         .getRegions()
-        .then((result) =>
-          Object.fromEntries(
-            result.regionsList.map(({ alpha3, name }) => [alpha3, name]),
-          ),
-        ),
+        .then((result) => Object.fromEntries(result.regionsList.map(({ alpha3, name }) => [alpha3, name]))),
   });
 
   return { regions, ...rest };

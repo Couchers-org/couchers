@@ -11,8 +11,7 @@ import CompleteResetPassword from "./CompleteResetPassword";
 
 const { t } = i18n;
 
-const CompletePasswordResetMock = service.account
-  .CompletePasswordResetV2 as MockedService<
+const CompletePasswordResetMock = service.account.CompletePasswordResetV2 as MockedService<
   typeof service.account.CompletePasswordResetV2
 >;
 
@@ -72,13 +71,9 @@ describe("CompletePasswordReset page", () => {
       }),
     ).toBeVisible();
 
-    expect(
-      screen.getByText(t("auth:change_password_form.subtitle")),
-    ).toBeVisible();
+    expect(screen.getByText(t("auth:change_password_form.subtitle"))).toBeVisible();
 
-    expect(
-      screen.getByRole("button", { name: t("global:submit") }),
-    ).toBeVisible();
+    expect(screen.getByRole("button", { name: t("global:submit") })).toBeVisible();
   });
 
   describe("password visibility toggle", () => {
@@ -90,21 +85,14 @@ describe("CompletePasswordReset page", () => {
       "toggles %s visibility when clicking the button",
       async (fieldName) => {
         const user = userEvent.setup();
-        const passwordField = await screen.findByLabelText(
-          t(`auth:change_password_form.${fieldName}`),
-        );
+        const passwordField = await screen.findByLabelText(t(`auth:change_password_form.${fieldName}`));
 
         // Initially password should be hidden
         expect(passwordField).toHaveAttribute("type", "password");
 
-        const showButton = screen.getByLabelText(
-          t(`auth:change_password_form.show_${fieldName}`),
-        );
+        const showButton = screen.getByLabelText(t(`auth:change_password_form.show_${fieldName}`));
 
-        expect(showButton).toHaveAttribute(
-          "aria-label",
-          t(`auth:change_password_form.show_${fieldName}`),
-        );
+        expect(showButton).toHaveAttribute("aria-label", t(`auth:change_password_form.show_${fieldName}`));
 
         await user.click(showButton);
 
@@ -112,14 +100,9 @@ describe("CompletePasswordReset page", () => {
           expect(passwordField).toHaveAttribute("type", "text");
         });
 
-        expect(showButton).toHaveAttribute(
-          "aria-label",
-          t(`auth:change_password_form.hide_${fieldName}`),
-        );
+        expect(showButton).toHaveAttribute("aria-label", t(`auth:change_password_form.hide_${fieldName}`));
 
-        const hideButton = screen.getByLabelText(
-          t(`auth:change_password_form.hide_${fieldName}`),
-        );
+        const hideButton = screen.getByLabelText(t(`auth:change_password_form.hide_${fieldName}`));
         await user.click(hideButton);
 
         // Password should be hidden again
@@ -133,17 +116,13 @@ describe("CompletePasswordReset page", () => {
       "allows typing visible text in the password field when toggled",
       async (fieldName) => {
         const user = userEvent.setup();
-        const passwordField = await screen.findByLabelText(
-          t(`auth:change_password_form.${fieldName}`),
-        );
+        const passwordField = await screen.findByLabelText(t(`auth:change_password_form.${fieldName}`));
 
         await user.type(passwordField, "mypassword");
         expect(passwordField).toHaveValue("mypassword");
         expect(passwordField).toHaveAttribute("type", "password");
 
-        const showButton = screen.getByLabelText(
-          t(`auth:change_password_form.show_${fieldName}`),
-        );
+        const showButton = screen.getByLabelText(t(`auth:change_password_form.show_${fieldName}`));
         await user.click(showButton);
 
         // Verify text is still there and type is now text
@@ -163,17 +142,13 @@ describe("CompletePasswordReset page", () => {
 
     render(<CompleteResetPassword />, { wrapper });
 
-    expect(
-      screen.queryByText(t("auth:change_password_form.token_error")),
-    ).toBeInTheDocument();
+    expect(screen.queryByText(t("auth:change_password_form.token_error"))).toBeInTheDocument();
   });
 
   it("don't show a warning when valid token", () => {
     render(<CompleteResetPassword />, { wrapper });
 
-    expect(
-      screen.queryByText(t("auth:change_password_form.token_error")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("auth:change_password_form.token_error"))).not.toBeInTheDocument();
   });
 
   it("does not submit if empty form", async () => {
@@ -193,15 +168,9 @@ describe("CompletePasswordReset page", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.new_password")), "1111");
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "2222",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.confirm_password")), "2222");
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
@@ -220,23 +189,13 @@ describe("CompletePasswordReset page", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.new_password")), "1111");
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.confirm_password")), "1111");
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(
-      await screen.findByText(
-        t("auth:change_password_form.reset_password_success"),
-      ),
-    ).toBeVisible();
+    expect(await screen.findByText(t("auth:change_password_form.reset_password_success"))).toBeVisible();
 
     expect(CompletePasswordResetMock).toHaveBeenCalledTimes(1);
   });
@@ -254,20 +213,12 @@ describe("CompletePasswordReset page", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.new_password")), "1111");
 
-    await user.type(
-      screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111",
-    );
+    await user.type(screen.getByLabelText(t("auth:change_password_form.confirm_password")), "1111");
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
-    expect(
-      screen.queryByText(t("auth:change_password_form.reset_password_success")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(t("auth:change_password_form.reset_password_success"))).not.toBeInTheDocument();
   });
 });

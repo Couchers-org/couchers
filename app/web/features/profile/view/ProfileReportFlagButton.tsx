@@ -11,13 +11,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
@@ -55,11 +49,7 @@ const FlagButtonWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function ProfileReportFlagButton({
-  contentRef,
-  authorUser,
-  profileUser,
-}: ProfileReportFlagButtonProps) {
+export default function ProfileReportFlagButton({ contentRef, authorUser, profileUser }: ProfileReportFlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
@@ -77,11 +67,7 @@ export default function ProfileReportFlagButton({
   const description = watch("description");
 
   const requiredReasons = useMemo(
-    () => [
-      t("report.flag.reason.other"),
-      t("report.flag.reason.safety"),
-      t("report.flag.reason.guidelines_breach"),
-    ],
+    () => [t("report.flag.reason.other"), t("report.flag.reason.safety"), t("report.flag.reason.guidelines_breach")],
     [t],
   );
   const {
@@ -106,8 +92,7 @@ export default function ProfileReportFlagButton({
     mutate: reportContent,
     reset: resetMutation,
   } = useMutation({
-    mutationFn: (formData: ReportInput) =>
-      service.reporting.reportContent({ ...formData, contentRef, authorUser }),
+    mutationFn: (formData: ReportInput) => service.reporting.reportContent({ ...formData, contentRef, authorUser }),
     onSuccess: () => {
       setIsOpen(false);
     },
@@ -115,10 +100,7 @@ export default function ProfileReportFlagButton({
 
   const { blockUserMutation, error: blockUserError } = useBlockUser();
 
-  const handleClose = (
-    event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button",
-  ) => {
+  const handleClose = (event: unknown, reason: "backdropClick" | "escapeKeyDown" | "button") => {
     if (reason !== "button") return;
     resetForm();
     resetMutation();
@@ -150,10 +132,7 @@ export default function ProfileReportFlagButton({
       [t("report.flag.reason.harassment")]: t("report.flag.reason.harassment", {
         lng: "en",
       }),
-      [t("report.flag.reason.guidelines_breach")]: t(
-        "report.flag.reason.guidelines_breach",
-        { lng: "en" },
-      ),
+      [t("report.flag.reason.guidelines_breach")]: t("report.flag.reason.guidelines_breach", { lng: "en" }),
       [t("report.flag.reason.other")]: t("report.flag.reason.other", {
         lng: "en",
       }),
@@ -176,22 +155,11 @@ export default function ProfileReportFlagButton({
 
   return (
     <>
-      {report && (
-        <Snackbar severity="success">
-          {t("report.content.success_message")}
-        </Snackbar>
-      )}
-      {blockUserError && (
-        <Snackbar severity="error">{blockUserError.message}</Snackbar>
-      )}
-      <FlagButtonWrapper
-        aria-label={t("report.flag.profile_button_aria_label")}
-        onClick={handleFlagButtonClick}
-      >
+      {report && <Snackbar severity="success">{t("report.content.success_message")}</Snackbar>}
+      {blockUserError && <Snackbar severity="error">{blockUserError.message}</Snackbar>}
+      <FlagButtonWrapper aria-label={t("report.flag.profile_button_aria_label")} onClick={handleFlagButtonClick}>
         <FlagIcon sx={{ marginRight: theme.spacing(1) }} />
-        <Typography sx={{ fontSize: ".875rem" }}>
-          {t("report.flag.profile_title")}
-        </Typography>
+        <Typography sx={{ fontSize: ".875rem" }}>{t("report.flag.profile_title")}</Typography>
       </FlagButtonWrapper>
       <Dialog
         aria-labelledby="content-reporter"
@@ -201,9 +169,7 @@ export default function ProfileReportFlagButton({
           event.stopPropagation();
         }}
       >
-        <DialogTitle id="content-reporter">
-          {t("report.flag.profile_title")}
-        </DialogTitle>
+        <DialogTitle id="content-reporter">{t("report.flag.profile_title")}</DialogTitle>
         <form onSubmit={onSubmit}>
           <DialogContent>
             {error && (
@@ -211,10 +177,7 @@ export default function ProfileReportFlagButton({
                 {error.message}
               </Alert>
             )}
-            <DialogContentText
-              variant="body2"
-              sx={{ paddingLeft: 1, paddingBottom: 0 }}
-            >
+            <DialogContentText variant="body2" sx={{ paddingLeft: 1, paddingBottom: 0 }}>
               <strong> {t("report.flag.explainer")}</strong>
             </DialogContentText>
             <FormControl
@@ -228,9 +191,7 @@ export default function ProfileReportFlagButton({
                 },
               }}
             >
-              <InputLabel htmlFor="content-report-reason">
-                {t("report.flag.reason_label")}
-              </InputLabel>
+              <InputLabel htmlFor="content-report-reason">{t("report.flag.reason_label")}</InputLabel>
               <Controller
                 control={control}
                 defaultValue={""}
@@ -267,11 +228,7 @@ export default function ProfileReportFlagButton({
                   </Select>
                 )}
               />
-              {errors?.reason && (
-                <FormHelperText error={!!errors?.reason}>
-                  {errors?.reason?.message}
-                </FormHelperText>
-              )}
+              {errors?.reason && <FormHelperText error={!!errors?.reason}>{errors?.reason?.message}</FormHelperText>}
             </FormControl>
             <Controller
               control={control}
@@ -291,11 +248,7 @@ export default function ProfileReportFlagButton({
                   id="content-report-description"
                   {...field}
                   error={!!errors?.description?.message}
-                  helperText={
-                    !errors?.description?.message
-                      ? t("report.flag.description_helper")
-                      : undefined
-                  }
+                  helperText={!errors?.description?.message ? t("report.flag.description_helper") : undefined}
                   label={t("report.flag.description_label")}
                   fullWidth
                   multiline
@@ -316,36 +269,22 @@ export default function ProfileReportFlagButton({
               }}
             >
               <FormControlLabel
-                control={
-                  <Checkbox
-                    {...blockRegister("shouldBlock")}
-                    data-testid="block-user-check"
-                  />
-                }
+                control={<Checkbox {...blockRegister("shouldBlock")} data-testid="block-user-check" />}
                 label={t("report.flag.block_user", {
                   username: profileUser.username,
                 })}
               />
-              <DialogContentText
-                variant="body2"
-                sx={{ paddingTop: 0, paddingBottom: 0 }}
-              >
+              <DialogContentText variant="body2" sx={{ paddingTop: 0, paddingBottom: 0 }}>
                 <strong>{t("report.flag.block_user_explainer")}</strong>
               </DialogContentText>
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => handleClose({}, "button")}
-              variant="outlined"
-            >
+            <Button onClick={() => handleClose({}, "button")} variant="outlined">
               {t("cancel")}
             </Button>
             <Button
-              disabled={
-                (requiredReasons.includes(reason) && !description) ||
-                (!reason && !shouldBlockField)
-              }
+              disabled={(requiredReasons.includes(reason) && !description) || (!reason && !shouldBlockField)}
               type="submit"
               loading={isPending}
               onClick={onSubmit}

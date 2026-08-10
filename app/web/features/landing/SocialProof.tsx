@@ -1,11 +1,5 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  Skeleton,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Divider, Skeleton, Typography, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, LANDING } from "i18n/namespaces";
@@ -85,10 +79,7 @@ const SocialProof = () => {
           {isLoading ? (
             <Box sx={{ width: 120 }}>
               <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", width: "100%" }}
-                >
+                <Box component="span" sx={{ display: "inline-block", width: "100%" }}>
                   <Skeleton variant="text" width="100%" height={36} />
                 </Box>
               </Typography>
@@ -135,10 +126,7 @@ const SocialProof = () => {
           {isLoading ? (
             <Box sx={{ width: 220 }}>
               <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", width: "100%" }}
-                >
+                <Box component="span" sx={{ display: "inline-block", width: "100%" }}>
                   <Skeleton variant="text" width="100%" height={36} />
                 </Box>
               </Typography>
@@ -153,10 +141,7 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: localizeRelativeTime(
-                    Temporal.Instant.from(signupInfo.lastSignup),
-                    locale,
-                  ),
+                  timeAgo: localizeRelativeTime(Temporal.Instant.from(signupInfo.lastSignup), locale),
                 })}
               </Typography>
             )

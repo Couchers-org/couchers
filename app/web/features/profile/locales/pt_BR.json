@@ -3,7 +3,8 @@
   "actions": {
     "back_to_dashboard": "Voltar ao painel principal",
     "message_label": "Enviar mensagem",
-    "request": "Solicitar"
+    "request": "Solicitar",
+    "add_friend": "Adicionar amigo"
   },
   "active": "Ativo",
   "cancel": "Cancelar",
@@ -90,7 +91,7 @@
     "meetup_status": "Status para encontros",
     "hosting_status": "Status de hospedagem",
     "name": "Nome",
-    "pronouns": "Pronomes",
+    "pronouns": "Pronomes (opcional)",
     "hometown": "Cresci em",
     "occupation": "Ocupação",
     "education": "Educação",
@@ -210,7 +211,8 @@
     "what_happened": "O que aconteceu?",
     "friend_reference_requires_friendship": "Você pode escrever uma referência de amigo apenas para quem é seu amigo.",
     "already_wrote_reference_for_stay": "Você já escreveu uma referência para esse usuário e essa hospedagem. Sua referência ficará visível depois que ele escrever uma referência para você, ou após 14 dias.",
-    "already_wrote_friend_reference": "Você já escreveu uma referência de amigo para esse usuário."
+    "already_wrote_friend_reference": "Você já escreveu uma referência de amigo para esse usuário.",
+    "safety_rating_selector_a11y": "Classificação de segurança"
   },
   "request_form": {
     "send_request": "Envie uma solicitação para {{name}}",
@@ -225,10 +227,16 @@
     "request_chars_remaining_one": "Escreva pelo menos mais {{count}} caractere para enviar uma solicitação de hospedagem.",
     "request_chars_remaining_many": "Escreva pelo menos mais {{count}} caracteres para enviar uma solicitação de hospedagem.",
     "request_chars_remaining_other": "Escreva pelo menos mais {{count}} caracteres a mais para enviar uma solicitação de hospedagem.",
-    "success": "Solicitação enviada!"
+    "success": "Solicitação enviada!",
+    "arrival_date_before_host_today": "Essa data já foi passada para {{name}}."
   },
   "message_form": {
-    "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso."
+    "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso.",
+    "send_message": "Enviar uma mensagem para {{name}}",
+    "message": "Mensagem",
+    "message_description": "Escreva sua mensagem...",
+    "message_empty": "Escreva uma mensagem.",
+    "success": "Mensagem enviada!"
   },
   "reference_filter_label": {
     "friend": "De amigos",
@@ -328,10 +336,19 @@
     "actions": {
       "send_request": "enviar uma solicitação",
       "send_message": "enviar uma mensagem",
-      "send_friend_request": "send a friend request",
-      "create_event": "criar um evento"
+      "send_friend_request": "enviar uma solicitação de amizade",
+      "create_event": "criar um evento",
+      "create_public_trip": "criar uma viagem pública",
+      "create_discussion": "criar uma debate",
+      "post_comment": "publicar um comentário"
     },
     "edit_profile_button": "Edite seu perfil agora",
     "cancel_button": "Outra hora"
-  }
+  },
+  "local_time_with_time_zone_text": "{{ time }}<timeZone/>",
+  "hobbies_textbox_placeholder": "p. ex. Atividades, livros, filmes, música...",
+  "about_me_textbox_placeholder": "p. ex. Sua missão atual, por que você usa Couchers.org, sua história de viagem favorita...",
+  "edit_profile_pronouns_placeholder": "p. ex. ela/dela",
+  "open_full_profile": "Abrir perfil completo",
+  "do_not_email_error_link": "Atualize as configurações do seu e-mail para reabilitar isso."
 }

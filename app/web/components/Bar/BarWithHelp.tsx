@@ -20,12 +20,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export default function BarWithHelp({
-  value,
-  label,
-  description,
-  className,
-}: BarWithHelpProps) {
+export default function BarWithHelp({ value, label, description, className }: BarWithHelpProps) {
   const { t } = useTranslation(GLOBAL);
 
   return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (

@@ -19,19 +19,14 @@ const queryClient = new QueryClient({
       staleTime: userStaleTime,
       retry: (failureCount, error) => {
         // don't retry if the user isn't found
-        return (
-          (error as RpcError).code !== StatusCode.NOT_FOUND &&
-          failureCount < reactQueryRetries
-        );
+        return (error as RpcError).code !== StatusCode.NOT_FOUND && failureCount < reactQueryRetries;
       },
     },
   },
 });
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
 describe("useLiteUsers & useLiteUser", () => {
@@ -39,9 +34,7 @@ describe("useLiteUsers & useLiteUser", () => {
     const mockGetLiteUsers = service.user.getLiteUsers as jest.Mock;
 
     const ids = [1, 2, 3, 4, 5];
-    const mockLiteUsersMap = new Map(
-      mockLiteUsers.map((user) => [user.userId, user]),
-    );
+    const mockLiteUsersMap = new Map(mockLiteUsers.map((user) => [user.userId, user]));
 
     beforeEach(() => {
       jest.clearAllMocks();

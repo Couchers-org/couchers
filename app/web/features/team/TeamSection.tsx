@@ -1,18 +1,5 @@
-import {
-  Avatar as MuiAvatar,
-  Card,
-  CardContent,
-  Grid,
-  styled,
-  Typography,
-} from "@mui/material";
-import {
-  CouchersIcon,
-  EmailIcon,
-  GlobeIcon,
-  LinkedInIcon,
-  PinIcon,
-} from "components/Icons";
+import { Avatar as MuiAvatar, Card, CardContent, Grid, styled, Typography } from "@mui/material";
+import { CouchersIcon, EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
 import { GLOBAL } from "i18n/namespaces";
@@ -87,11 +74,7 @@ function BoardMemberBadge() {
   const { t } = useTranslation([GLOBAL]);
 
   return (
-    <Typography
-      variant="h4"
-      component={StyleBoardMemberBadgeText}
-      sx={{ color: theme.palette.common.white }}
-    >
+    <Typography variant="h4" component={StyleBoardMemberBadgeText} sx={{ color: theme.palette.common.white }}>
       {t("team.board_member")}
     </Typography>
   );
@@ -105,13 +88,7 @@ interface MemberListProps {
   boardMembersOnly?: boolean;
 }
 
-function MemberList({
-  variant,
-  members,
-  hasExtraCard,
-  extraCardContent,
-  boardMembersOnly,
-}: MemberListProps) {
+function MemberList({ variant, members, hasExtraCard, extraCardContent, boardMembersOnly }: MemberListProps) {
   if (!members?.length) {
     return <></>;
   }
@@ -127,66 +104,49 @@ function MemberList({
         alignItems: "stretch",
       }}
     >
-      {members?.map(
-        ({
-          name,
-          isBoardMember,
-          role,
-          location,
-          img,
-          linkType,
-          linkText,
-          linkUrl,
-        }) => {
-          return (
-            <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
-              <TeamMemberCard
-                key={name}
-                memberType={
-                  variant === "past"
-                    ? "pastMember"
-                    : isBoardMember
-                      ? "boardMember"
-                      : undefined
-                }
-                variant="outlined"
-              >
-                <TeamMemberCardContent>
-                  <StyledAvatar alt={`Headshot of ${name}`} src={img} />
-                  <DetailDiv>
-                    <Typography variant={"h3"} component="h2">
-                      {name}
-                    </Typography>
-                    {isBoardMember && <BoardMemberBadge />}
-                    <Typography variant="body1">{role}</Typography>
-                    <div>
-                      <IconText icon={PinIcon} text={location} />
-                      {linkUrl && (
-                        <IconText
-                          icon={
-                            linkType === "linkedin"
-                              ? LinkedInIcon
-                              : linkType === "email"
-                                ? EmailIcon
-                                : linkType === "couchers"
-                                  ? CouchersIcon
-                                  : GlobeIcon
-                          }
-                          text={
-                            <Typography variant="body1">
-                              <StyledLink href={linkUrl}>{linkText}</StyledLink>
-                            </Typography>
-                          }
-                        />
-                      )}
-                    </div>
-                  </DetailDiv>
-                </TeamMemberCardContent>
-              </TeamMemberCard>
-            </Grid>
-          );
-        },
-      )}
+      {members?.map(({ name, isBoardMember, role, location, img, linkType, linkText, linkUrl }) => {
+        return (
+          <Grid key={name} size={{ xs: 12, md: 6, lg: 4 }}>
+            <TeamMemberCard
+              key={name}
+              memberType={variant === "past" ? "pastMember" : isBoardMember ? "boardMember" : undefined}
+              variant="outlined"
+            >
+              <TeamMemberCardContent>
+                <StyledAvatar alt={`Headshot of ${name}`} src={img} />
+                <DetailDiv>
+                  <Typography variant={"h3"} component="h2">
+                    {name}
+                  </Typography>
+                  {isBoardMember && <BoardMemberBadge />}
+                  <Typography variant="body1">{role}</Typography>
+                  <div>
+                    <IconText icon={PinIcon} text={location} />
+                    {linkUrl && (
+                      <IconText
+                        icon={
+                          linkType === "linkedin"
+                            ? LinkedInIcon
+                            : linkType === "email"
+                              ? EmailIcon
+                              : linkType === "couchers"
+                                ? CouchersIcon
+                                : GlobeIcon
+                        }
+                        text={
+                          <Typography variant="body1">
+                            <StyledLink href={linkUrl}>{linkText}</StyledLink>
+                          </Typography>
+                        }
+                      />
+                    )}
+                  </div>
+                </DetailDiv>
+              </TeamMemberCardContent>
+            </TeamMemberCard>
+          </Grid>
+        );
+      })}
       {hasExtraCard && extraCardContent ? (
         <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
           <ExtraCard variant="outlined">
@@ -218,13 +178,7 @@ interface TeamSectionProps {
   boardMembersOnly?: boolean;
 }
 
-function TeamSection({
-  variant,
-  volunteers,
-  hasExtraCard,
-  extraCardContent,
-  boardMembersOnly,
-}: TeamSectionProps) {
+function TeamSection({ variant, volunteers, hasExtraCard, extraCardContent, boardMembersOnly }: TeamSectionProps) {
   const volunteersList = useMemo(() => {
     if (!volunteers) {
       return;
@@ -258,9 +212,7 @@ function TeamSection({
               boardMembersOnly={boardMembersOnly}
             />
           ) : null}
-          {!boardMembersOnly ? (
-            <MemberList members={volunteersList} variant={variant} />
-          ) : null}
+          {!boardMembersOnly ? <MemberList members={volunteersList} variant={variant} /> : null}
         </>
       )}
     </StyledSection>

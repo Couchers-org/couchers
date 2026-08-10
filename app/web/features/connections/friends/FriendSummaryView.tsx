@@ -39,38 +39,19 @@ const StyledFriendItem = styled("div", {
   alignItems: "flex-start",
   padding: `0 ${theme.spacing(1)}`,
   // Wide rows still stack once the viewport itself gets narrow.
-  ...(isCompact
-    ? stacked(theme)
-    : { [theme.breakpoints.down("md")]: stacked(theme) }),
+  ...(isCompact ? stacked(theme) : { [theme.breakpoints.down("md")]: stacked(theme) }),
 }));
 
 const ButtonWrapper = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCompact",
 })<{ isCompact: boolean }>(({ theme, isCompact }) =>
-  isCompact
-    ? fullWidthActions
-    : { [theme.breakpoints.down("md")]: fullWidthActions },
+  isCompact ? fullWidthActions : { [theme.breakpoints.down("md")]: fullWidthActions },
 );
 
-function FriendSummaryView({
-  children,
-  friend,
-  isCompact = true,
-  isProfileLink,
-  cardRef,
-}: FriendSummaryViewProps) {
+function FriendSummaryView({ children, friend, isCompact = true, isProfileLink, cardRef }: FriendSummaryViewProps) {
   return friend ? (
-    <StyledFriendItem
-      ref={cardRef}
-      data-testid={FRIEND_ITEM_TEST_ID}
-      isCompact={isCompact}
-    >
-      <UserSummary
-        headlineComponent="h3"
-        user={friend}
-        isProfileLink={isProfileLink}
-        smallAvatar={isCompact}
-      />
+    <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID} isCompact={isCompact}>
+      <UserSummary headlineComponent="h3" user={friend} isProfileLink={isProfileLink} smallAvatar={isCompact} />
       <ButtonWrapper isCompact={isCompact}>{children}</ButtonWrapper>
     </StyledFriendItem>
   ) : null;

@@ -9,11 +9,9 @@ export default function ReferencesGivenList() {
   const referencesGivenQuery = useReferencesGiven(user);
 
   const userIds =
-    referencesGivenQuery.data?.pages
-      .map((page) => page.referencesList.map((reference) => reference.toUserId))
-      .flat() ?? [];
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
-    useLiteUsers(userIds);
+    referencesGivenQuery.data?.pages.map((page) => page.referencesList.map((reference) => reference.toUserId)).flat() ??
+    [];
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useLiteUsers(userIds);
 
   return (
     <ReferencesView

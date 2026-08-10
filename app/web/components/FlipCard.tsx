@@ -14,12 +14,7 @@ export interface FlipCardProps {
  * Flip card: hover (desktop) and click/tap (mobile) to reveal back content.
  * Accessible: focusable + keyboard toggle.
  */
-export default function FlipCard({
-  icon,
-  title,
-  children,
-  height = { xs: 300, md: 320 },
-}: FlipCardProps) {
+export default function FlipCard({ icon, title, children, height = { xs: 300, md: 320 } }: FlipCardProps) {
   const { t } = useTranslation([GLOBAL]);
   const [flipped, setFlipped] = useState(false);
   const toggle = useCallback(() => setFlipped((f) => !f), []);
@@ -88,9 +83,7 @@ export default function FlipCard({
               justifyContent: "center",
             }}
           >
-            <Box sx={{ color: (theme) => theme.palette.primary.main }}>
-              {icon}
-            </Box>
+            <Box sx={{ color: (theme) => theme.palette.primary.main }}>{icon}</Box>
             <Typography
               variant="h3"
               component="h3"

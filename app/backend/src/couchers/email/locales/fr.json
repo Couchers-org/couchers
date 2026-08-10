@@ -1,1 +1,5 @@
-{}
+{
+  "generic": {
+    "greeting_line": "Bonjour {{name}},"
+  }
+}

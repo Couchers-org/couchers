@@ -9,12 +9,7 @@ export interface ReportInput {
   authorUser: string | number;
 }
 
-export function reportContent({
-  reason,
-  description,
-  contentRef,
-  authorUser,
-}: ReportInput) {
+export function reportContent({ reason, description, contentRef, authorUser }: ReportInput) {
   const req = new ReportReq();
   req.setReason(reason);
   req.setDescription(description);

@@ -20,8 +20,7 @@ export default function useRespondToFriendRequest() {
     isSuccess,
     reset,
   } = useMutation<Empty, Error, RespondToFriendRequestVariables>({
-    mutationFn: ({ friendRequest, accept }) =>
-      service.api.respondFriendRequest(friendRequest.friendRequestId, accept),
+    mutationFn: ({ friendRequest, accept }) => service.api.respondFriendRequest(friendRequest.friendRequestId, accept),
 
     onMutate: async ({ setMutationError, friendRequest, accept }) => {
       setMutationError("");
@@ -29,28 +28,19 @@ export default function useRespondToFriendRequest() {
         queryKey: friendRequestKey("received"),
       });
 
-      const cachedUser = queryClient.getQueryData<User.AsObject>([
-        "user",
-        friendRequest.userId,
-      ]);
+      const cachedUser = queryClient.getQueryData<User.AsObject>(["user", friendRequest.userId]);
 
       if (cachedUser) {
         if (accept === true) {
-          queryClient.setQueryData<User.AsObject>(
-            userKey(friendRequest.userId),
-            {
-              ...cachedUser,
-              friends: User.FriendshipStatus.FRIENDS,
-            },
-          );
+          queryClient.setQueryData<User.AsObject>(userKey(friendRequest.userId), {
+            ...cachedUser,
+            friends: User.FriendshipStatus.FRIENDS,
+          });
         } else {
-          queryClient.setQueryData<User.AsObject>(
-            userKey(friendRequest.userId),
-            {
-              ...cachedUser,
-              friends: User.FriendshipStatus.NOT_FRIENDS,
-            },
-          );
+          queryClient.setQueryData<User.AsObject>(userKey(friendRequest.userId), {
+            ...cachedUser,
+            friends: User.FriendshipStatus.NOT_FRIENDS,
+          });
         }
       }
       return cachedUser;

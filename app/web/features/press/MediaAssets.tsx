@@ -118,10 +118,7 @@ export default function MediaAssets() {
           </StyledCard>
         </StyledSection>
         <StyledSection>
-          <StyledImage
-            src="/img/press/mobile-image.webp"
-            alt={t("download.mobile_image_alt")}
-          />
+          <StyledImage src="/img/press/mobile-image.webp" alt={t("download.mobile_image_alt")} />
           <StyledCard>
             <Typography
               sx={{

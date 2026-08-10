@@ -1,9 +1,4 @@
-import {
-  ChatBubbleOutlined,
-  ChevronRight,
-  Place,
-  Schedule,
-} from "@mui/icons-material";
+import { ChatBubbleOutlined, ChevronRight, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import getContentSummary from "features/communities/getContentSummary";
 import { useTranslation } from "i18n";
@@ -15,13 +10,7 @@ import { routeToDiscussion } from "routes";
 
 type DiscussionSummary = Pick<
   Discussion.AsObject,
-  | "discussionId"
-  | "slug"
-  | "title"
-  | "ownerTitle"
-  | "created"
-  | "thread"
-  | "content"
+  "discussionId" | "slug" | "title" | "ownerTitle" | "created" | "thread" | "content"
 >;
 
 interface DiscussionListRowProps {
@@ -109,17 +98,13 @@ export function DiscussionListRowSkeleton() {
   );
 }
 
-export default function DiscussionListRow({
-  discussion,
-}: DiscussionListRowProps) {
+export default function DiscussionListRow({ discussion }: DiscussionListRowProps) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([DASHBOARD, GLOBAL]);
 
-  const timeStr = discussion.created
-    ? localizeRelativeTime(discussion.created, locale)
-    : "";
+  const timeStr = discussion.created ? localizeRelativeTime(discussion.created, locale) : "";
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
     originalContent: discussion.content?.replace(/\n/g, " "),

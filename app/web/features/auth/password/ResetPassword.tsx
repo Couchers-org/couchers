@@ -61,11 +61,7 @@ export default function ResetPassword() {
         <Button loading={isPending} type="submit">
           {t("global:submit")}
         </Button>
-        {isSuccess && (
-          <Typography variant="body1">
-            {t("auth:reset_password_form.success_message")}
-          </Typography>
-        )}
+        {isSuccess && <Typography variant="body1">{t("auth:reset_password_form.success_message")}</Typography>}
       </StyledForm>
     </>
   );

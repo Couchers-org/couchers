@@ -17,9 +17,7 @@ describe("useIsMounted hook", () => {
 
 describe("useSafeState hook", () => {
   it("sets state when mounted only", () => {
-    const { result, unmount } = renderHook(() =>
-      useSafeState(useIsMounted(), 1),
-    );
+    const { result, unmount } = renderHook(() => useSafeState(useIsMounted(), 1));
     expect(result.current[0]).toBe(1);
     act(() => result.current[1](2));
     expect(result.current[0]).toBe(2);
@@ -67,12 +65,9 @@ describe("useGeocodeQuery hook", () => {
 
   it("gives correct error result", async () => {
     server.use(
-      rest.get(
-        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-        async (_req, res, ctx) => {
-          return res(ctx.status(500), ctx.text("Generic error"));
-        },
-      ),
+      rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, async (_req, res, ctx) => {
+        return res(ctx.status(500), ctx.text("Generic error"));
+      }),
     );
     const { result } = renderHook(() => useGeocodeQuery());
     expect(result.current).toMatchObject({

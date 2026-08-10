@@ -70,10 +70,7 @@ export default function Jail() {
       )}
       {jailInfo?.hasPendingModNotes && (
         <StyledContainer>
-          <ModNoteSection
-            updateJailed={updateJailed}
-            pendingModNotes={jailInfo.pendingModNotesList}
-          />
+          <ModNoteSection updateJailed={updateJailed} pendingModNotes={jailInfo.pendingModNotesList} />
         </StyledContainer>
       )}
       {jailInfo?.hasNotAcceptedCommunityGuidelines && (

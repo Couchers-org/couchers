@@ -66,21 +66,15 @@ const TimelineTab = memo(function TimelineTab({
           width: active ? 20 : 14,
           height: active ? 20 : 14,
           border: "none",
-          background: active
-            ? "var(--mui-palette-secondary-main)"
-            : "var(--mui-palette-grey-300)",
+          background: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-grey-300)",
           borderRadius: "50%",
-          boxShadow: active
-            ? `${"var(--mui-palette-secondary-light)"} 0 0 0 4px`
-            : `transparent 0 0 0 4px`,
+          boxShadow: active ? `${"var(--mui-palette-secondary-light)"} 0 0 0 4px` : `transparent 0 0 0 4px`,
           transition: "all .25s ease",
           position: "relative",
           zIndex: 1,
           outline: "none",
           "&:hover": {
-            background: active
-              ? "var(--mui-palette-secondary-main)"
-              : "var(--mui-palette-grey-400)",
+            background: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-grey-400)",
           },
           "&:focus-visible": {
             boxShadow: `${"var(--mui-palette-secondary-main)"} 0 0 0 3px, ${"var(--mui-palette-secondary-light)"} 0 0 0 5px`,
@@ -93,9 +87,7 @@ const TimelineTab = memo(function TimelineTab({
           mt: active ? 1 : 1.375,
           fontSize: { xs: "1rem", md: "1.1rem" },
           fontWeight: active ? 700 : 500,
-          color: active
-            ? "var(--mui-palette-secondary-main)"
-            : "var(--mui-palette-text-primary)",
+          color: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-text-primary)",
           transition: "color .25s, margin-top .25s",
         }}
       >
@@ -211,11 +203,7 @@ export default function HistoryTimeline() {
             },
           }}
           ref={timelineRef}
-          onScroll={(e) =>
-            setTimelineNudge(
-              (e.currentTarget as HTMLDivElement).scrollLeft === 0,
-            )
-          }
+          onScroll={(e) => setTimelineNudge((e.currentTarget as HTMLDivElement).scrollLeft === 0)}
         >
           <Box
             sx={{

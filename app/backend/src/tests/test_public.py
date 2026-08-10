@@ -6,6 +6,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
@@ -20,9 +21,11 @@ from couchers.models import (
     ProfilePublicVisibility,
     Reference,
     ReferenceType,
+    User,
 )
 from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
+from couchers.utils import now
 from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
@@ -89,6 +92,23 @@ def test_GetPublicMapLayer(db):
                 ydiff = coords[1] - test_user_coordinates[1]
                 dist = sqrt(xdiff**2 + ydiff**2)
                 assert dist > 0.02 and dist < 0.1
+
+
+def test_GetPublicMapLayer_excludes_shadowed(db):
+    """Test GetPublicUsers excludes shadowed users from the public map"""
+
+    _get_public_users.cache_clear()
+
+    generate_user(username="visible", public_visibility=ProfilePublicVisibility.limited)
+    shadowed_user, _ = generate_user(username="shadowed", public_visibility=ProfilePublicVisibility.limited)
+
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == shadowed_user.id)).scalar_one().shadowed_at = now()
+
+    with public_session() as public:
+        data = json.loads(public.GetPublicUsers(empty_pb2.Empty()).data)
+
+    assert {feature["properties"]["username"] for feature in data["features"]} == {"visible"}
 
 
 def test_GetDonationStats_empty(db, feature_flags):
@@ -516,6 +536,19 @@ def test_GetPublicUser_invisible_user(db):
     with public_session() as public:
         with pytest.raises(grpc.RpcError) as exc:
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="deleted"))
+        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_GetPublicUser_shadowed_user(db):
+    """Test GetPublicUser returns NOT_FOUND for a shadowed user"""
+    shadowed_user, _ = generate_user(username="shadowed", public_visibility=ProfilePublicVisibility.full)
+
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == shadowed_user.id)).scalar_one().shadowed_at = now()
+
+    with public_session() as public:
+        with pytest.raises(grpc.RpcError) as exc:
+            public.GetPublicUser(public_pb2.GetPublicUserReq(user="shadowed"))
         assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 

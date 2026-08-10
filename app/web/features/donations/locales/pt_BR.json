@@ -30,5 +30,12 @@
     "title": "Gerencie suas doações",
     "description": "Clique no botão abaixo para atualizar ou cancelar suas doações recorrentes, ou visualizar recibos passados."
   },
-  "donations_use_explainer": "Veja nosso balanço financeiro para {{ year }}."
+  "donations_use_explainer": "Veja nosso balanço financeiro para {{ year }}.",
+  "logged_out": {
+    "title": "Quantia da doação",
+    "body": "Faça login para doar, assim poderemos colocar uma insígnia de doador no seu perfil.",
+    "login_button": "Fazer login para doar",
+    "signup_prompt": "Não tem uma conta? <1>Registre-se</1>",
+    "anonymous_donation": "Para fazer uma única doação de ${{ amount }} ou mais sem vinculá-la a uma conta, entre em contato conosco em <1>{{ email }}</1>."
+  }
 }

@@ -25,9 +25,7 @@ const ThankYouReference = () => {
 
   return (
     <>
-      <Typography variant="h2">
-        {t("profile:leave_reference.thank_you_header")}
-      </Typography>
+      <Typography variant="h2">{t("profile:leave_reference.thank_you_header")}</Typography>
       <Typography sx={{ marginTop: theme.spacing(3) }}>
         {t("profile:leave_reference.thank_you_references_available")}
       </Typography>
@@ -35,22 +33,12 @@ const ThankYouReference = () => {
         <Trans
           i18nKey="profile:leave_reference.thank_you_donation_prompt"
           components={{
-            2: (
-              <StyledLink
-                href={`${donationsRoute}?utm_source=leave-reference-thank-you`}
-                sx={{ fontWeight: 600 }}
-              />
-            ),
+            2: <StyledLink href={`${donationsRoute}?utm_source=leave-reference-thank-you`} sx={{ fontWeight: 600 }} />,
           }}
         />
       </Typography>
-      <Typography sx={{ marginTop: theme.spacing(3) }}>
-        {t("profile:leave_reference.thank_you_support")}
-      </Typography>
-      <Button
-        sx={{ marginTop: theme.spacing(3) }}
-        onClick={() => router.push(dashboardRoute)}
-      >
+      <Typography sx={{ marginTop: theme.spacing(3) }}>{t("profile:leave_reference.thank_you_support")}</Typography>
+      <Button sx={{ marginTop: theme.spacing(3) }} onClick={() => router.push(dashboardRoute)}>
         {t("profile:actions.back_to_dashboard")}
       </Button>
     </>

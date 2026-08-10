@@ -3,11 +3,7 @@
  *
  * We reset module state before each test to avoid state leaking between tests.
  */
-import {
-  _resetCollectorState,
-  destroyCollector,
-  logEvent,
-} from "./eventCollector";
+import { _resetCollectorState, destroyCollector, logEvent } from "./eventCollector";
 
 const mockReportDiagnostics = jest.fn();
 
@@ -74,9 +70,7 @@ describe("event-collector", () => {
 
       jest.advanceTimersByTime(3000);
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(2);
-      expect(mockReportDiagnostics.mock.calls[1][0][0].tag).toBe(
-        "button.clicked",
-      );
+      expect(mockReportDiagnostics.mock.calls[1][0][0].tag).toBe("button.clicked");
     });
   });
 
@@ -127,15 +121,11 @@ describe("event-collector", () => {
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(2);
 
       // The same event should have been retried
-      expect(mockReportDiagnostics.mock.calls[1][0][0].tag).toBe(
-        "session.started",
-      );
+      expect(mockReportDiagnostics.mock.calls[1][0][0].tag).toBe("session.started");
     });
 
     it("resets backoff to 0 on success", async () => {
-      mockReportDiagnostics
-        .mockRejectedValueOnce(new Error("fail"))
-        .mockResolvedValueOnce(undefined);
+      mockReportDiagnostics.mockRejectedValueOnce(new Error("fail")).mockResolvedValueOnce(undefined);
 
       logEvent("event.one");
       jest.advanceTimersByTime(150);
@@ -245,11 +235,7 @@ describe("event-collector", () => {
       // The event should have been sent on destroy after the re-queue
       const lastCall = (global.fetch as jest.Mock).mock.calls.at(-1);
       const body = JSON.parse(lastCall[1].body);
-      expect(
-        body.infos.some(
-          (info: { tag: string }) => info.tag === "important.event",
-        ),
-      ).toBe(true);
+      expect(body.infos.some((info: { tag: string }) => info.tag === "important.event")).toBe(true);
     });
   });
 
@@ -268,14 +254,8 @@ describe("event-collector", () => {
 
       destroyCollector();
 
-      expect(removeSpy).toHaveBeenCalledWith(
-        "visibilitychange",
-        expect.any(Function),
-      );
-      expect(removeWindowSpy).toHaveBeenCalledWith(
-        "beforeunload",
-        expect.any(Function),
-      );
+      expect(removeSpy).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+      expect(removeWindowSpy).toHaveBeenCalledWith("beforeunload", expect.any(Function));
 
       removeSpy.mockRestore();
       removeWindowSpy.mockRestore();

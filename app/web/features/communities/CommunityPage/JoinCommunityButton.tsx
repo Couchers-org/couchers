@@ -7,17 +7,9 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 
-import {
-  communityKey,
-  listMyCommunitiesDiscussionsKey,
-  userCommunitiesKey,
-} from "../../queryKeys";
+import { communityKey, listMyCommunitiesDiscussionsKey, userCommunitiesKey } from "../../queryKeys";
 
-export default function JoinCommunityButton({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function JoinCommunityButton({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
   const invalidateMembershipQueries = () => {
@@ -30,15 +22,13 @@ export default function JoinCommunityButton({
   const join = useMutation<void, RpcError>({
     mutationFn: () => service.communities.joinCommunity(community.communityId),
     onSuccess() {
-      queryClient.setQueryData<Community.AsObject | undefined>(
-        communityKey(community.communityId),
-        (prevData) =>
-          prevData
-            ? {
-                ...prevData,
-                member: true,
-              }
-            : undefined,
+      queryClient.setQueryData<Community.AsObject | undefined>(communityKey(community.communityId), (prevData) =>
+        prevData
+          ? {
+              ...prevData,
+              member: true,
+            }
+          : undefined,
       );
       queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
@@ -49,15 +39,13 @@ export default function JoinCommunityButton({
   const leave = useMutation<void, RpcError>({
     mutationFn: () => service.communities.leaveCommunity(community.communityId),
     onSuccess() {
-      queryClient.setQueryData<Community.AsObject | undefined>(
-        communityKey(community.communityId),
-        (prevData) =>
-          prevData
-            ? {
-                ...prevData,
-                member: false,
-              }
-            : undefined,
+      queryClient.setQueryData<Community.AsObject | undefined>(communityKey(community.communityId), (prevData) =>
+        prevData
+          ? {
+              ...prevData,
+              member: false,
+            }
+          : undefined,
       );
       queryClient.invalidateQueries({
         queryKey: communityKey(community.communityId),
@@ -78,14 +66,10 @@ export default function JoinCommunityButton({
           alignSelf: { xs: "center", sm: "auto" },
         }}
       >
-        {community.member
-          ? t("communities:leave_community")
-          : t("communities:join_community")}
+        {community.member ? t("communities:leave_community") : t("communities:join_community")}
       </Button>
       {(join.isError || leave.isError) && (
-        <Snackbar severity="error">
-          {join.error?.message || leave.error?.message}
-        </Snackbar>
+        <Snackbar severity="error">{join.error?.message || leave.error?.message}</Snackbar>
       )}
     </>
   );

@@ -29,49 +29,26 @@ function AdminActions({ username }: { username: string }) {
   const { t } = useTranslation([GLOBAL, MOD]);
   return (
     <>
-      <Button
-        component={Link}
-        variant="outlined"
-        href={adminPanelUserLink(username)}
-      >
+      <Button component={Link} variant="outlined" href={adminPanelUserLink(username)}>
         {t("mod:actions.open_in_console")}
       </Button>
     </>
   );
 }
 
-function BanDeleteBanner({
-  userDetails,
-}: {
-  userDetails: UserDetails.AsObject;
-}) {
+function BanDeleteBanner({ userDetails }: { userDetails: UserDetails.AsObject }) {
   const { t } = useTranslation(MOD);
   let status = "";
   if (userDetails.banned || userDetails.deleted) {
     status =
       " " +
-      [
-        userDetails.deleted && t("mod:deleted"),
-        userDetails.banned && t("mod:banned"),
-      ]
-        .filter(Boolean)
-        .join(" + ");
+      [userDetails.deleted && t("mod:deleted"), userDetails.banned && t("mod:banned")].filter(Boolean).join(" + ");
   }
 
-  return (
-    <StyledBanDelBanner>
-      {status ? `☠️ ${status} ☠️` : t("mod:title")}
-    </StyledBanDelBanner>
-  );
+  return <StyledBanDelBanner>{status ? `☠️ ${status} ☠️` : t("mod:title")}</StyledBanDelBanner>;
 }
 
-export default function ModUserPage({
-  username,
-  tab = "about",
-}: {
-  username: string;
-  tab?: UserTab;
-}) {
+export default function ModUserPage({ username, tab = "about" }: { username: string; tab?: UserTab }) {
   const router = useRouter();
 
   const { user, userDetails, isLoading, error } = useUserWithDetails(username);
@@ -87,10 +64,7 @@ export default function ModUserPage({
           <ProfileUserProvider user={user}>
             <BanDeleteBanner userDetails={userDetails} />
             <StyledProfileRoot>
-              <UserOverview
-                showHostAndMeetAvailability
-                actions={<AdminActions username={user.username} />}
-              />
+              <UserOverview showHostAndMeetAvailability actions={<AdminActions username={user.username} />} />
               <UserCard
                 tab={tab}
                 modPanel={
@@ -99,13 +73,9 @@ export default function ModUserPage({
                   </TabPanel>
                 }
                 onTabChange={(newTab) => {
-                  router.push(
-                    routeToModUser(user.username, newTab),
-                    undefined,
-                    {
-                      scroll: false,
-                    },
-                  );
+                  router.push(routeToModUser(user.username, newTab), undefined, {
+                    scroll: false,
+                  });
                 }}
               />
             </StyledProfileRoot>

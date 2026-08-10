@@ -48,10 +48,7 @@ const StyledVerticalStyleContainer = styled("div")(({ theme }) => ({
 
 const DEFAULT_EVENTS: Event.AsObject[] = [];
 
-const EventsList = ({
-  events = DEFAULT_EVENTS,
-  isVerticalStyle = false,
-}: EventListProps) => {
+const EventsList = ({ events = DEFAULT_EVENTS, isVerticalStyle = false }: EventListProps) => {
   const {
     authState: { userId },
   } = useAuthContext();
@@ -65,9 +62,7 @@ const EventsList = ({
           ))}
         </StyledVerticalStyleContainer>
       ) : (
-        events.map((event) => (
-          <LongEventCard key={event.eventId} event={event} userId={userId} />
-        ))
+        events.map((event) => <LongEventCard key={event.eventId} event={event} userId={userId} />)
       )}
     </StyledRoot>
   );

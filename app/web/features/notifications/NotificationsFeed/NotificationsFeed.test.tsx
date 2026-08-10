@@ -14,18 +14,15 @@ const { t } = i18n;
 
 jest.mock("service/client");
 
-const markNotificationIsSeenMock = service.notifications
-  .markNotificationSeen as MockedService<
+const markNotificationIsSeenMock = service.notifications.markNotificationSeen as MockedService<
   typeof service.notifications.markNotificationSeen
 >;
 
-const listNotificationsMock = service.notifications
-  .listNotifications as MockedService<
+const listNotificationsMock = service.notifications.listNotifications as MockedService<
   typeof service.notifications.listNotifications
 >;
 
-const markAllNotificationsIsSeenMock = service.notifications
-  .markAllNotificationsSeen as MockedService<
+const markAllNotificationsIsSeenMock = service.notifications.markAllNotificationsSeen as MockedService<
   typeof service.notifications.markAllNotificationsSeen
 >;
 
@@ -57,14 +54,9 @@ describe("NotificationsFeed", () => {
   });
 
   it("renders notifications feed with notifications", async () => {
-    render(
-      <NotificationsFeed
-        anchorEl={document.createElement("div")}
-        isOpen={true}
-        onClose={mockOnClose}
-      />,
-      { wrapper },
-    );
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
 
     const notifications = await screen.findAllByTestId("notification-item");
 
@@ -76,22 +68,13 @@ describe("NotificationsFeed", () => {
   it("marks all notifications as seen when 'Mark all as read' is clicked", async () => {
     const latestNotificationId = 1;
 
-    render(
-      <NotificationsFeed
-        anchorEl={document.createElement("div")}
-        isOpen={true}
-        onClose={mockOnClose}
-      />,
-      { wrapper },
-    );
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
 
-    await userEvent.click(
-      screen.getByTestId("notifications-feed--more-options"),
-    );
+    await userEvent.click(screen.getByTestId("notifications-feed--more-options"));
 
-    const markAllReadButton = screen.getByText(
-      t("notifications:mark_all_read"),
-    );
+    const markAllReadButton = screen.getByText(t("notifications:mark_all_read"));
 
     await waitFor(() => {
       expect(markAllReadButton).toBeVisible();
@@ -99,28 +82,17 @@ describe("NotificationsFeed", () => {
 
     await userEvent.click(markAllReadButton);
 
-    expect(markAllNotificationsIsSeenMock).toHaveBeenCalledWith(
-      latestNotificationId,
-    );
+    expect(markAllNotificationsIsSeenMock).toHaveBeenCalledWith(latestNotificationId);
   });
 
   it("navigates to notification settings when 'Notification Settings' is clicked", async () => {
-    render(
-      <NotificationsFeed
-        anchorEl={document.createElement("div")}
-        isOpen={true}
-        onClose={mockOnClose}
-      />,
-      { wrapper },
-    );
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
 
-    await userEvent.click(
-      screen.getByTestId("notifications-feed--more-options"),
-    );
+    await userEvent.click(screen.getByTestId("notifications-feed--more-options"));
 
-    const notificationSettingsButton = screen.getByText(
-      t("notifications:notification_settings.title"),
-    );
+    const notificationSettingsButton = screen.getByText(t("notifications:notification_settings.title"));
 
     await waitFor(() => {
       expect(notificationSettingsButton).toBeVisible();

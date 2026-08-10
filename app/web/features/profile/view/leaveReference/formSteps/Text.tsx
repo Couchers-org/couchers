@@ -6,10 +6,7 @@ import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
-import {
-  ReferenceContextFormData,
-  ReferenceStepProps,
-} from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceContextFormData, ReferenceStepProps } from "features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -50,12 +47,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   paddingTop: theme.spacing(1),
 }));
 
-export default function Text({
-  referenceData,
-  setReferenceValues,
-  referenceType,
-  hostRequestId,
-}: ReferenceStepProps) {
+export default function Text({ referenceData, setReferenceValues, referenceType, hostRequestId }: ReferenceStepProps) {
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -72,12 +64,8 @@ export default function Text({
 
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`,
-      );
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]) {
+      router.push(`${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`);
     } else {
       router.push(
         `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`,
@@ -87,17 +75,10 @@ export default function Text({
 
   return (
     <StyledForm onSubmit={onSubmit}>
-      <ReferenceStepHeader
-        name={user.name}
-        referenceType={referenceType}
-        step="reference"
-      />
-      <StyledTextBody>
-        {t("profile:leave_reference.text_explanation")}
-      </StyledTextBody>
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} step="reference" />
+      <StyledTextBody>{t("profile:leave_reference.text_explanation")}</StyledTextBody>
       <StyledTextBody sx={{ marginTop: theme.spacing(2) }}>
-        {referenceType !==
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+        {referenceType !== referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
           ? t("profile:leave_reference.text_explanation_hosted_surfed", {
               name: user.name,
             })

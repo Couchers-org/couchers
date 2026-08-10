@@ -11,11 +11,7 @@ import GroupChatSendField from "./GroupChatSendField";
 
 const { t } = i18n;
 
-const mockSendMutation: UseMutationResult<
-  string | undefined | Empty,
-  RpcError,
-  string
-> = {
+const mockSendMutation: UseMutationResult<string | undefined | Empty, RpcError, string> = {
   mutate: jest.fn(),
   mutateAsync: jest.fn(),
   isPending: false,
@@ -48,28 +44,18 @@ describe("GroupChatSendField", () => {
   });
 
   it("disables the send button when the input field is empty", () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
   });
 
   it("disables the send button when the input contains only whitespace", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -81,14 +67,9 @@ describe("GroupChatSendField", () => {
   });
 
   it("enables the send button when there is text in the input field", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -100,14 +81,9 @@ describe("GroupChatSendField", () => {
   });
 
   it("sends the message when the send button is clicked", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -123,19 +99,12 @@ describe("GroupChatSendField", () => {
   });
 
   it("clears the input field after sending a message", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
-    const input = screen.getByLabelText(
-      t("messages:chat_input.label"),
-    ) as HTMLInputElement;
+    const input = screen.getByLabelText(t("messages:chat_input.label")) as HTMLInputElement;
     const sendButton = screen.getByRole("button", { name: t("global:send") });
 
     await user.type(input, "Hello, world!");
@@ -147,14 +116,9 @@ describe("GroupChatSendField", () => {
   });
 
   it("sends message on Ctrl+Enter key combination", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -168,14 +132,9 @@ describe("GroupChatSendField", () => {
   });
 
   it("trims trailing whitespace from the message before sending", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -190,11 +149,7 @@ describe("GroupChatSendField", () => {
   });
 
   it("disables the send button while a message is being sent", () => {
-    const pendingSendMutation: UseMutationResult<
-      string | undefined | Empty,
-      RpcError,
-      string
-    > = {
+    const pendingSendMutation: UseMutationResult<string | undefined | Empty, RpcError, string> = {
       ...mockSendMutation,
       isPending: true,
       isIdle: false,
@@ -202,28 +157,18 @@ describe("GroupChatSendField", () => {
       variables: "test message",
     };
 
-    render(
-      <GroupChatSendField
-        sendMutation={pendingSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={pendingSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
   });
 
   it("persists message text in session storage", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -231,22 +176,15 @@ describe("GroupChatSendField", () => {
     await user.type(input, "Draft message");
 
     await waitFor(() => {
-      const persisted = sessionStorage.getItem(
-        `messages.${currentUserId}.${chatId}`,
-      );
+      const persisted = sessionStorage.getItem(`messages.${currentUserId}.${chatId}`);
       expect(persisted).toBe('"Draft message"');
     });
   });
 
   it("clears persisted message from session storage after sending", async () => {
-    render(
-      <GroupChatSendField
-        sendMutation={mockSendMutation}
-        chatId={chatId}
-        currentUserId={currentUserId}
-      />,
-      { wrapper },
-    );
+    render(<GroupChatSendField sendMutation={mockSendMutation} chatId={chatId} currentUserId={currentUserId} />, {
+      wrapper,
+    });
 
     const user = userEvent.setup();
     const input = screen.getByLabelText(t("messages:chat_input.label"));
@@ -256,9 +194,7 @@ describe("GroupChatSendField", () => {
     await user.click(sendButton);
 
     await waitFor(() => {
-      const persisted = sessionStorage.getItem(
-        `messages.${currentUserId}.${chatId}`,
-      );
+      const persisted = sessionStorage.getItem(`messages.${currentUserId}.${chatId}`);
       expect(persisted).toBeNull();
     });
   });

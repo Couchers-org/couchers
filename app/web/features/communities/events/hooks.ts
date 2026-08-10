@@ -1,18 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import {
-  eventAttendeesKey,
-  eventKey,
-  eventOrganizersKey,
-  myEventsKey,
-  QueryType,
-} from "features/queryKeys";
+import { eventAttendeesKey, eventKey, eventOrganizersKey, myEventsKey, QueryType } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import {
-  Event,
-  ListEventAttendeesRes,
-  ListEventOrganizersRes,
-  ListMyEventsRes,
-} from "proto/events_pb";
+import { Event, ListEventAttendeesRes, ListEventOrganizersRes, ListMyEventsRes } from "proto/events_pb";
 import { EventSearchRes } from "proto/search_pb";
 import { service } from "service";
 import type { ListMyEventsInput } from "service/events";
@@ -27,11 +16,7 @@ interface UseEventUsersInput {
 
 const SUMMARY_QUERY_PAGE_SIZE = 5;
 
-export function useEventOrganizers({
-  enabled = true,
-  eventId,
-  type,
-}: UseEventUsersInput) {
+export function useEventOrganizers({ enabled = true, eventId, type }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, RpcError>({
     queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
@@ -44,49 +29,32 @@ export function useEventOrganizers({
     enabled,
     initialPageParam: undefined,
   });
-  const organizerIds = query.data?.pages.flatMap(
-    (res) => res.organizerUserIdsList,
-  );
+  const organizerIds = query.data?.pages.flatMap((res) => res.organizerUserIdsList);
 
   return { ...query, organizerIds };
 }
 
-export function useEventAttendees({
-  enabled = true,
-  eventId,
-  type,
-  pageSize,
-}: UseEventUsersInput) {
+export function useEventAttendees({ enabled = true, eventId, type, pageSize }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, RpcError>({
     queryKey: [...eventAttendeesKey({ eventId, type }), pageSize],
     queryFn: ({ pageParam }) =>
       service.events.listEventAttendees({
         eventId,
-        pageSize:
-          pageSize ??
-          (type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined),
+        pageSize: pageSize ?? (type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined),
         pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
     initialPageParam: undefined,
   });
-  const attendeesIds = query.data?.pages.flatMap(
-    (data) => data.attendeeUserIdsList,
-  );
+  const attendeesIds = query.data?.pages.flatMap((data) => data.attendeeUserIdsList);
   return {
     ...query,
     attendeesIds,
   };
 }
 
-export function useEvent({
-  eventId,
-  enabled,
-}: {
-  eventId: number;
-  enabled?: boolean;
-}) {
+export function useEvent({ eventId, enabled }: { eventId: number; enabled?: boolean }) {
   const isValidEventId = eventId > 0;
 
   const eventQuery = useQuery<Event.AsObject, RpcError>({
@@ -110,11 +78,7 @@ export function useListMyEvents({
   showCancelled,
 }: Omit<ListMyEventsInput, "pageToken">) {
   return useQuery<ListMyEventsRes.AsObject, RpcError>({
-    queryKey: [
-      myEventsKey(pastEvents ? "past" : "upcoming"),
-      pageNumber,
-      showCancelled,
-    ],
+    queryKey: [myEventsKey(pastEvents ? "past" : "upcoming"), pageNumber, showCancelled],
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
         myCommunitiesExcludeGlobal,
@@ -145,14 +109,7 @@ export function useEventSearch({
   excludeAttending?: boolean;
 }) {
   return useQuery<EventSearchRes.AsObject, RpcError>({
-    queryKey: [
-      "searchEvents",
-      isMyCommunities,
-      pageNumber,
-      pastEvents,
-      searchLocation,
-      excludeAttending,
-    ],
+    queryKey: ["searchEvents", isMyCommunities, pageNumber, pastEvents, searchLocation, excludeAttending],
     queryFn: () =>
       service.search.EventSearch({
         pageNumber,

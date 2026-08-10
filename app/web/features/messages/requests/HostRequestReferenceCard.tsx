@@ -26,11 +26,7 @@ const StyledButtonRow = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
 }));
 
-export default function HostRequestReferenceCard({
-  hostRequest,
-}: {
-  hostRequest: HostRequest.AsObject;
-}) {
+export default function HostRequestReferenceCard({ hostRequest }: { hostRequest: HostRequest.AsObject }) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
 
@@ -50,11 +46,7 @@ export default function HostRequestReferenceCard({
   if (!isReferenceAvailable) return null;
 
   const referenceRoute = routeToLeaveReference(
-    referenceTypeRoute[
-      isHost
-        ? ReferenceType.REFERENCE_TYPE_HOSTED
-        : ReferenceType.REFERENCE_TYPE_SURFED
-    ],
+    referenceTypeRoute[isHost ? ReferenceType.REFERENCE_TYPE_HOSTED : ReferenceType.REFERENCE_TYPE_SURFED],
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
     hostRequest.hostRequestId,
   );

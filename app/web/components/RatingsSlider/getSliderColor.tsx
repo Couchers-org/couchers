@@ -10,9 +10,7 @@ export const getSliderColor = (value: number | undefined) => {
     return theme.palette.grey[100];
   }
 
-  const interpolatedHsl = badHsl.map((v, index) =>
-    lerp(v, goodHsl[index], value),
-  );
+  const interpolatedHsl = badHsl.map((v, index) => lerp(v, goodHsl[index], value));
 
   return `hsl(${interpolatedHsl[0]}, ${interpolatedHsl[1]}%, ${interpolatedHsl[2]}%)`;
 };

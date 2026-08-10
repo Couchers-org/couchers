@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -26,28 +21,16 @@ const { t } = i18n;
 jest.mock("features/userQueries/useCurrentUser");
 jest.mock("react-simple-maps");
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
->;
-const reportContentMock = service.reporting.reportContent as MockedService<
-  typeof service.reporting.reportContent
->;
+const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
+const reportContentMock = service.reporting.reportContent as MockedService<typeof service.reporting.reportContent>;
 
-const blockUserMock = service.blocking.blockUser as MockedService<
-  typeof service.blocking.blockUser
->;
+const blockUserMock = service.blocking.blockUser as MockedService<typeof service.blocking.blockUser>;
 
-const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
-  typeof service.resources.getLanguages
->;
+const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<typeof service.resources.getLanguages>;
 
-const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
-  typeof service.resources.getRegions
->;
+const getRegionsMock = service.resources.getRegions as jest.MockedFunction<typeof service.resources.getRegions>;
 
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 
 function renderUserPage(username: string) {
   mockRouter.setCurrentUrl(routeToUser(username));
@@ -83,9 +66,7 @@ describe("User page", () => {
     it("does not show the button for opening a profile actions menu (viewed with username)", async () => {
       renderUserPage("funnycat");
 
-      expect(
-        await screen.findByRole("heading", { name: "Funny Cat current User" }),
-      ).toBeVisible();
+      expect(await screen.findByRole("heading", { name: "Funny Cat current User" })).toBeVisible();
       expect(
         screen.queryByRole("button", {
           name: t("profile:more_profile_actions_a11y_text"),
@@ -144,11 +125,7 @@ describe("User page", () => {
     describe("and the 'report user' option is clicked", () => {
       beforeEach(async () => {
         const user = userEvent.setup();
-        await user.click(
-          await screen.findByLabelText(
-            t("global:report.flag.profile_button_aria_label"),
-          ),
-        );
+        await user.click(await screen.findByLabelText(t("global:report.flag.profile_button_aria_label")));
       });
 
       it("opens the report user dialog", async () => {
@@ -162,9 +139,7 @@ describe("User page", () => {
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
         const user = userEvent.setup();
 
-        await user.click(
-          await screen.findByRole("button", { name: t("global:cancel") }),
-        );
+        await user.click(await screen.findByRole("button", { name: t("global:cancel") }));
 
         await waitForElementToBeRemoved(
           screen.getByRole("heading", {
@@ -180,22 +155,12 @@ describe("User page", () => {
 
         const user = userEvent.setup();
 
-        await user.selectOptions(
-          await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason,
-        );
-        await user.type(
-          screen.getByLabelText(t("global:report.flag.description_label")),
-          description,
-        );
-        await user.click(
-          screen.getByRole("button", { name: t("global:submit") }),
-        );
+        await user.selectOptions(await screen.findByLabelText(t("global:report.flag.reason_label")), reason);
+        await user.type(screen.getByLabelText(t("global:report.flag.description_label")), description);
+        await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
         const successAlert = await screen.findByRole("alert");
-        expect(
-          within(successAlert).getByText(t("global:report.flag.success")),
-        ).toBeVisible();
+        expect(within(successAlert).getByText(t("global:report.flag.success"))).toBeVisible();
         expect(reportContentMock).toHaveBeenCalledTimes(1);
         expect(reportContentMock).toHaveBeenCalledWith({
           authorUser: 2,
@@ -206,9 +171,7 @@ describe("User page", () => {
       });
 
       it("has disabled submit button if the required fields are not filled in", async () => {
-        expect(
-          screen.getByRole("button", { name: t("global:submit") }),
-        ).toBeDisabled();
+        expect(screen.getByRole("button", { name: t("global:submit") })).toBeDisabled();
 
         expect(reportContentMock).not.toHaveBeenCalled();
         expect(blockUserMock).not.toHaveBeenCalled();
@@ -222,17 +185,9 @@ describe("User page", () => {
 
         const user = userEvent.setup();
 
-        await user.selectOptions(
-          await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason,
-        );
-        await user.type(
-          screen.getByLabelText(t("global:report.flag.description_label")),
-          description,
-        );
-        await user.click(
-          screen.getByRole("button", { name: t("global:submit") }),
-        );
+        await user.selectOptions(await screen.findByLabelText(t("global:report.flag.reason_label")), reason);
+        await user.type(screen.getByLabelText(t("global:report.flag.description_label")), description);
+        await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
         const errorAlert = await screen.findByRole("alert");
         expect(within(errorAlert).getByText("API error")).toBeVisible();
@@ -254,9 +209,7 @@ describe("User page", () => {
         expect(emptyCheckBox).not.toBeVisible();
         expect(checkedCheckBox).toBeVisible();
 
-        await user.click(
-          screen.getByRole("button", { name: t("global:submit") }),
-        );
+        await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
         expect(blockUserMock).toHaveBeenCalledTimes(1);
         expect(blockUserMock).toHaveBeenCalledWith({

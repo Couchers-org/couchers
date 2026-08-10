@@ -1,24 +1,13 @@
 import { styled } from "@mui/material";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
+import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
-import useMarkLastSeen, {
-  MarkLastSeenVariables,
-} from "features/messages/useMarkLastSeen";
+import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
 import { groupChatTitleText } from "features/messages/utils";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-  pingQueryKey,
-} from "features/queryKeys";
+import { groupChatKey, groupChatMessagesKey, groupChatsListKey, pingQueryKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -62,7 +51,7 @@ const StyledPageWrapper = styled("div")<{
         // Use CSS custom property set by Navigation component for actual height
         height: isNativeEmbed
           ? "calc(100dvh - var(--nav-height, 3.5rem))"
-          : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
+          : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`,
 
         [theme.breakpoints.up("md")]: {
           height: "calc(100dvh - var(--nav-height, 4rem))",
@@ -90,13 +79,7 @@ const StyledCannotMessageText = styled("div")(({ theme }) => ({
   textAlign: "center",
 }));
 
-export default function GroupChatView({
-  chatId,
-  embedded = false,
-}: {
-  chatId: number;
-  embedded?: boolean;
-}) {
+export default function GroupChatView({ chatId, embedded = false }: { chatId: number; embedded?: boolean }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -111,9 +94,7 @@ export default function GroupChatView({
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
-  const groupChatMembersQuery = useLiteUsers(
-    groupChat?.memberUserIdsList ?? [],
-  );
+  const groupChatMembersQuery = useLiteUsers(groupChat?.memberUserIdsList ?? []);
 
   const {
     data: messagesRes,
@@ -124,15 +105,10 @@ export default function GroupChatView({
     hasNextPage,
   } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, RpcError>({
     queryKey: groupChatMessagesKey(chatId),
-    queryFn: ({ pageParam }) =>
-      service.conversations.getGroupChatMessages(
-        chatId,
-        pageParam as number | undefined,
-      ),
+    queryFn: ({ pageParam }) => service.conversations.getGroupChatMessages(chatId, pageParam as number | undefined),
     enabled: !!chatId,
     initialPageParam: undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore ? undefined : lastPage.lastMessageId,
+    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.lastMessageId),
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
 
@@ -145,26 +121,16 @@ export default function GroupChatView({
     },
   });
 
-  const { mutate: markLastSeenGroupChat } = useMutation<
-    Empty,
-    RpcError,
-    MarkLastSeenVariables
-  >({
-    mutationFn: (messageId) =>
-      service.conversations.markLastSeenGroupChat(chatId, messageId),
+  const { mutate: markLastSeenGroupChat } = useMutation<Empty, RpcError, MarkLastSeenVariables>({
+    mutationFn: (messageId) => service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
-  const { markLastSeen } = useMarkLastSeen(
-    markLastSeenGroupChat,
-    groupChat?.lastSeenMessageId,
-  );
+  const { markLastSeen } = useMarkLastSeen(markLastSeenGroupChat, groupChat?.lastSeenMessageId);
 
-  const title = groupChat
-    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t)
-    : undefined;
+  const title = groupChat ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t) : undefined;
 
   const hasError = groupChatError || messagesError || sendMutation.error;
 
@@ -172,9 +138,7 @@ export default function GroupChatView({
     <>
       <HtmlMeta title={title} />
       {!chatId ? (
-        <Alert severity="error">
-          {t("messages:chat_view.invalid_id_error")}
-        </Alert>
+        <Alert severity="error">{t("messages:chat_view.invalid_id_error")}</Alert>
       ) : (
         <StyledPageWrapper isNativeEmbed={isNativeEmbed} embedded={embedded}>
           <StyledHeader>
@@ -207,15 +171,9 @@ export default function GroupChatView({
           />
           <StyledFooter>
             {groupChat?.canMessage ? (
-              <GroupChatSendField
-                sendMutation={sendMutation}
-                chatId={chatId}
-                currentUserId={currentUserId}
-              />
+              <GroupChatSendField sendMutation={sendMutation} chatId={chatId} currentUserId={currentUserId} />
             ) : (
-              <StyledCannotMessageText>
-                {t("messages:chat_view.cannot_message_text")}
-              </StyledCannotMessageText>
+              <StyledCannotMessageText>{t("messages:chat_view.cannot_message_text")}</StyledCannotMessageText>
             )}
           </StyledFooter>
         </StyledPageWrapper>

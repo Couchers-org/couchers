@@ -1,26 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { reactQueryRetries } from "appConstants";
 import { userKey, username2Id } from "features/queryKeys";
-import {
-  username2IdStaleTime,
-  userStaleTime,
-} from "features/userQueries/constants";
+import { username2IdStaleTime, userStaleTime } from "features/userQueries/constants";
 import { RpcError, StatusCode } from "grpc-web";
 import { User } from "proto/api_pb";
 import { useEffect } from "react";
 import { service } from "service";
 
-export default function useUserByUsername(
-  username: string,
-  invalidate = false,
-) {
+export default function useUserByUsername(username: string, invalidate = false) {
   //We look up the userId first from the username.
   //This causes a duplicate query, but it is not made stale for a long time
   //and ensures no duplication of users in the queryCache.
-  const usernameQuery = useQuery<
-    { username: string; userId: number },
-    RpcError
-  >({
+  const usernameQuery = useQuery<{ username: string; userId: number }, RpcError>({
     gcTime: username2IdStaleTime,
     queryFn: async () => {
       const user = await service.user.getUser(username);
@@ -32,9 +23,7 @@ export default function useUserByUsername(
     queryKey: [username2Id, username],
     retry: (failureCount, error) => {
       //don't retry if the user isn't found
-      return (
-        error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
-      );
+      return error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries;
     },
     staleTime: username2IdStaleTime,
     enabled: !!username,
@@ -51,8 +40,7 @@ export default function useUserByUsername(
 
   const query = useQuery<User.AsObject, RpcError>({
     enabled: !!usernameQuery.data,
-    queryFn: () =>
-      service.user.getUser(usernameQuery.data?.userId.toString() || ""),
+    queryFn: () => service.user.getUser(usernameQuery.data?.userId.toString() || ""),
     queryKey: userKey(usernameQuery.data?.userId ?? 0),
     staleTime: userStaleTime,
   });

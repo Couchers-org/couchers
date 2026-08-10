@@ -19,9 +19,7 @@ const StyledHeader = styled("div")(({ theme }) => ({
 }));
 
 // Map tab to MarkAllReadButton type (excluding archived)
-const getMarkAllReadType = (
-  tab: MessageType,
-): "chats" | "hosting" | "surfing" | "all" | null => {
+const getMarkAllReadType = (tab: MessageType): "chats" | "hosting" | "surfing" | "all" | null => {
   switch (tab) {
     case "chats":
     case "hosting":

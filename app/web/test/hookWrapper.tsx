@@ -51,9 +51,7 @@ function Providers({
             <QueryClientProvider client={client}>
               <MemoryRouterProvider>
                 <AuthProvider>
-                  <GrowthBookProvider growthbook={growthbook}>
-                    {children}
-                  </GrowthBookProvider>
+                  <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
                 </AuthProvider>
               </MemoryRouterProvider>
             </QueryClientProvider>
@@ -64,11 +62,7 @@ function Providers({
   );
 }
 
-export default function hookWrapper({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
+export default function hookWrapper({ children }: { children?: React.ReactNode }) {
   return (
     <Providers client={newQueryClient()} growthbook={testGrowthBook}>
       {children}
@@ -80,9 +74,7 @@ export default function hookWrapper({
  * Test utility function for retrieving the wrapper with the React Query client.
  * Useful for when you need access to the client as well for certain tests.
  */
-export function getHookWrapperWithClient(
-  features: FeatureApiResponse["features"] = {},
-) {
+export function getHookWrapperWithClient(features: FeatureApiResponse["features"] = {}) {
   const growthbook = newGrowthBook(features);
   const client = newQueryClient();
   const wrapper = ({ children }: { children?: React.ReactNode }) => (

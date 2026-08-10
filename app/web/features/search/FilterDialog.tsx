@@ -29,12 +29,7 @@ import { theme } from "theme";
 import { settingsRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
-import {
-  DEFAULT_AGE_MAX,
-  DEFAULT_AGE_MIN,
-  lastActiveOptions,
-  SleepingArrangementOptions,
-} from "./utils/constants";
+import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, lastActiveOptions, SleepingArrangementOptions } from "./utils/constants";
 
 interface FilterDialogProps {
   filters: FilterOptions;
@@ -138,13 +133,7 @@ function SliderThumbComponent(props: SliderThumbComponentProps) {
   );
 }
 
-const FilterDialog = ({
-  filters,
-  isOpen,
-  onCloseDialog,
-  resetFilters,
-  updateFilter,
-}: FilterDialogProps) => {
+const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilter }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { data: currentUser } = useCurrentUser();
@@ -193,10 +182,7 @@ const FilterDialog = ({
     updateFilter({ hasStrongVerification: !filters.hasStrongVerification });
   };
 
-  const handleHostingStatusChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newHostingStatus: HostingStatus[],
-  ) => {
+  const handleHostingStatusChange = (event: React.MouseEvent<HTMLElement>, newHostingStatus: HostingStatus[]) => {
     updateFilter({ hostingStatus: newHostingStatus });
   };
 
@@ -204,8 +190,7 @@ const FilterDialog = ({
     event: React.MouseEvent<HTMLElement>,
     newMeetupStatus: Exclude<
       MeetupStatus,
-      | MeetupStatus.MEETUP_STATUS_UNKNOWN
-      | MeetupStatus.MEETUP_STATUS_UNSPECIFIED
+      MeetupStatus.MEETUP_STATUS_UNKNOWN | MeetupStatus.MEETUP_STATUS_UNSPECIFIED
     >[],
   ) => {
     updateFilter({ meetupStatus: newMeetupStatus });
@@ -222,10 +207,7 @@ const FilterDialog = ({
     updateFilter({ sleepingArrangement: newSleepingArrangement });
   };
 
-  const handleSmokesAtHomeChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newSmokesAtHome: boolean | undefined,
-  ) => {
+  const handleSmokesAtHomeChange = (event: React.MouseEvent<HTMLElement>, newSmokesAtHome: boolean | undefined) => {
     updateFilter({ smokesAtHome: newSmokesAtHome });
   };
 
@@ -253,9 +235,7 @@ const FilterDialog = ({
       title={t("search:filter_dialog.desktop_title")}
     >
       <DialogTitle id="filter-dialog-title">
-        {isMobile
-          ? t("search:filter_dialog.mobile_title")
-          : t("search:filter_dialog.desktop_title")}
+        {isMobile ? t("search:filter_dialog.mobile_title") : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
       <IconButton
         aria-label={t("global:close_button_a11y")}
@@ -271,9 +251,7 @@ const FilterDialog = ({
       </IconButton>
       <FilterItemsContainer>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.empty_profile_filters.title")}
-          </Typography>
+          <Typography>{t("search:form.empty_profile_filters.title")}</Typography>
           <CustomColorSwitch
             checked={filters.showEmptyProfile || false}
             onClick={handleShowEmptyProfileChange}
@@ -281,15 +259,11 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.hosting_status_field_label")}
-          </Typography>
+          <Typography>{t("search:form.host_filters.hosting_status_field_label")}</Typography>
           <ToggleButtonGroup
             onChange={handleHostingStatusChange}
             value={filters.hostingStatus}
-            aria-label={t(
-              "search:form.host_filters.hosting_status_field_label",
-            )}
+            aria-label={t("search:form.host_filters.hosting_status_field_label")}
             size="small"
             color="primary"
             sx={{
@@ -304,10 +278,7 @@ const FilterDialog = ({
             >
               {t("global:hosting_status.can_host")}
             </ToggleButton>
-            <ToggleButton
-              value={HostingStatus.HOSTING_STATUS_MAYBE}
-              aria-label={t("global:hosting_status.maybe")}
-            >
+            <ToggleButton value={HostingStatus.HOSTING_STATUS_MAYBE} aria-label={t("global:hosting_status.maybe")}>
               {t("global:hosting_status.maybe")}
             </ToggleButton>
             <ToggleButton
@@ -320,9 +291,7 @@ const FilterDialog = ({
           </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.meetup_status_field_label")}
-          </Typography>
+          <Typography>{t("search:form.host_filters.meetup_status_field_label")}</Typography>
           <ToggleButtonGroup
             onChange={handleMeetupStatusChange}
             value={filters.meetupStatus}
@@ -357,29 +326,17 @@ const FilterDialog = ({
           </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.last_active_field_label")}
-          </Typography>
+          <Typography>{t("search:form.host_filters.last_active_field_label")}</Typography>
           <Select<number>
             id="last_active_filter"
             onChange={handleLastActiveSelect}
             variant="outlined"
             size="small"
             value={filters.lastActive ?? lastActiveOptions.LAST_ACTIVE_ANY}
-            sx={
-              isMobile
-                ? { "& .MuiSelect-select": { fontSize: "0.875rem" } }
-                : undefined
-            }
-            MenuProps={
-              isMobile
-                ? { sx: { "& .MuiMenuItem-root": { fontSize: "0.875rem" } } }
-                : undefined
-            }
+            sx={isMobile ? { "& .MuiSelect-select": { fontSize: "0.875rem" } } : undefined}
+            MenuProps={isMobile ? { sx: { "& .MuiMenuItem-root": { fontSize: "0.875rem" } } } : undefined}
           >
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
-              {t("search:any")}
-            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>{t("search:any")}</MenuItem>
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_YEAR}>
               {t("search:last_active_options.last_year")}
             </MenuItem>
@@ -398,9 +355,7 @@ const FilterDialog = ({
           </Select>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.general_filters.has_references")}
-          </Typography>
+          <Typography>{t("search:form.general_filters.has_references")}</Typography>
           <CustomColorSwitch
             checked={filters.hasReferences || false}
             onClick={handleHasReferencesChange}
@@ -436,9 +391,7 @@ const FilterDialog = ({
           <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
             <Typography
               sx={{
-                color: !currentUser?.hasStrongVerification
-                  ? "var(--mui-palette-grey-400)"
-                  : "inherit",
+                color: !currentUser?.hasStrongVerification ? "var(--mui-palette-grey-400)" : "inherit",
               }}
             >
               {t("search:form.general_filters.same_gender_only")}
@@ -471,9 +424,7 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.general_filters.accepts_last_minute_requests")}
-          </Typography>
+          <Typography>{t("search:form.general_filters.accepts_last_minute_requests")}</Typography>
           <CustomColorSwitch
             checked={filters.acceptsLastMinRequests || false}
             onClick={handleAcceptsLastMinRequestsChange}
@@ -514,18 +465,10 @@ const FilterDialog = ({
               marginRight: "-5px",
             }}
           >
-            <ToggleButton
-              value={true}
-              aria-label={t("global:yes")}
-              sx={{ borderRadius: "20px 0 0 20px" }}
-            >
+            <ToggleButton value={true} aria-label={t("global:yes")} sx={{ borderRadius: "20px 0 0 20px" }}>
               {t("global:yes")}
             </ToggleButton>
-            <ToggleButton
-              value={false}
-              aria-label={t("global:no")}
-              sx={{ borderRadius: "0 20px 20px 0" }}
-            >
+            <ToggleButton value={false} aria-label={t("global:no")} sx={{ borderRadius: "0 20px 20px 0" }}>
               {t("global:no")}
             </ToggleButton>
           </ToggleButtonGroup>
@@ -544,18 +487,10 @@ const FilterDialog = ({
               marginRight: "-5px",
             }}
           >
-            <ToggleButton
-              value={true}
-              aria-label={t("global:yes")}
-              sx={{ borderRadius: "20px 0 0 20px" }}
-            >
+            <ToggleButton value={true} aria-label={t("global:yes")} sx={{ borderRadius: "20px 0 0 20px" }}>
               {t("global:yes")}
             </ToggleButton>
-            <ToggleButton
-              value={false}
-              aria-label={t("global:no")}
-              sx={{ borderRadius: "0 20px 20px 0" }}
-            >
+            <ToggleButton value={false} aria-label={t("global:no")} sx={{ borderRadius: "0 20px 20px 0" }}>
               {t("global:no")}
             </ToggleButton>
           </ToggleButtonGroup>
@@ -565,32 +500,17 @@ const FilterDialog = ({
           {t("search:form.accommodation_filters.title")}
         </Typography>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.accommodation_filters.guests_field_label")}
-          </Typography>
-          <Box
-            sx={
-              isMobile
-                ? { "& .MuiTypography-root": { fontSize: "0.875rem" } }
-                : undefined
-            }
-          >
-            <PlusMinusSelector
-              onChange={handleNumberOfGuestsChange}
-              value={filters.numGuests}
-            />
+          <Typography>{t("search:form.accommodation_filters.guests_field_label")}</Typography>
+          <Box sx={isMobile ? { "& .MuiTypography-root": { fontSize: "0.875rem" } } : undefined}>
+            <PlusMinusSelector onChange={handleNumberOfGuestsChange} value={filters.numGuests} />
           </Box>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.accommodation_filters.sleeping_arrangement_label")}
-          </Typography>
+          <Typography>{t("search:form.accommodation_filters.sleeping_arrangement_label")}</Typography>
           <ToggleButtonGroup
             onChange={handleSleepingArrangementChange}
             value={filters.sleepingArrangement}
-            aria-label={t(
-              "search:form.accommodation_filters.sleeping_arrangement_label",
-            )}
+            aria-label={t("search:form.accommodation_filters.sleeping_arrangement_label")}
             size="small"
             color="primary"
             sx={{
@@ -600,35 +520,23 @@ const FilterDialog = ({
           >
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON}
-              aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
-              )}
+              aria-label={t("search:form.accommodation_filters.sleeping_arrangement_filters.common.label")}
               sx={{ borderRadius: "20px 0 0 20px" }}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.common.label")}
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE}
-              aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
-              )}
+              aria-label={t("search:form.accommodation_filters.sleeping_arrangement_filters.private.label")}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.private.label")}
             </ToggleButton>
             <ToggleButton
               value={SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM}
-              aria-label={t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
-              )}
+              aria-label={t("search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label")}
               sx={{ borderRadius: "0 20px 20px 0" }}
             >
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label")}
             </ToggleButton>
           </ToggleButtonGroup>
         </FilterItemRow>
@@ -650,47 +558,28 @@ const FilterDialog = ({
             }}
           >
             <Typography variant="caption">
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common.label",
-              )}{" "}
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.common.description",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.common.label")}{" "}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.common.description")}
             </Typography>
             <Typography variant="caption">
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private.label",
-              )}{" "}
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.private.description",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.private.label")}{" "}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.private.description")}
             </Typography>
             <Typography variant="caption">
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label",
-              )}{" "}
-              {t(
-                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.description",
-              )}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.label")}{" "}
+              {t("search:form.accommodation_filters.sleeping_arrangement_filters.shared_room.description")}
             </Typography>
           </Box>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.age.field_label")}
-          </Typography>
+          <Typography>{t("search:form.host_filters.age.field_label")}</Typography>
         </FilterItemRow>
         <FilterItemRow>
           <StyledSlider
             getAriaLabel={(index) =>
-              index === 0
-                ? t("search:form.host_filters.age.min_age")
-                : t("search:form.host_filters.age.max_age")
+              index === 0 ? t("search:form.host_filters.age.min_age") : t("search:form.host_filters.age.max_age")
             }
-            value={[
-              filters.ageMin || DEFAULT_AGE_MIN,
-              filters.ageMax || DEFAULT_AGE_MAX,
-            ]}
+            value={[filters.ageMin || DEFAULT_AGE_MIN, filters.ageMax || DEFAULT_AGE_MAX]}
             onChange={handleAgeRangeChange}
             valueLabelDisplay="auto"
             slots={{ thumb: SliderThumbComponent }}
@@ -711,9 +600,7 @@ const FilterDialog = ({
         </FilterItemRow>
       </FilterItemsContainer>
       <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Button onClick={handleClearFilters}>
-          {t("search:form.clear_filters")}
-        </Button>
+        <Button onClick={handleClearFilters}>{t("search:form.clear_filters")}</Button>
         <Button onClick={handleApplyFilters} variant="contained">
           {t("search:form.submit_button_label")}
         </Button>

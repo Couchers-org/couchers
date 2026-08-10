@@ -125,13 +125,7 @@ export async function listDiscussions(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listMyCommunitiesDiscussions({
-  pageSize,
-  pageToken,
-}: {
-  pageToken?: string;
-  pageSize?: number;
-}) {
+export async function listMyCommunitiesDiscussions({ pageSize, pageToken }: { pageToken?: string; pageSize?: number }) {
   const req = new ListMyCommunitiesDiscussionsReq();
   if (pageToken) {
     req.setPageToken(pageToken);
@@ -157,10 +151,7 @@ export async function leaveCommunity(communityId: number) {
   await client.communities.leaveCommunity(req);
 }
 
-export async function listUserCommunities(
-  pageToken?: string,
-  pageSize?: number,
-) {
+export async function listUserCommunities(pageToken?: string, pageSize?: number) {
   const req = new ListUserCommunitiesReq();
   if (pageSize) req.setPageSize(pageSize);
   if (pageToken) req.setPageToken(pageToken);

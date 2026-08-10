@@ -1,10 +1,5 @@
 import { InputProps, TextField } from "@mui/material";
-import {
-  DatePicker,
-  DatePickerProps,
-  usePickerAdapter,
-  usePickerContext,
-} from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps, usePickerAdapter, usePickerContext } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { getMuiDateFormat } from "i18n/datetimes";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
@@ -26,13 +21,11 @@ interface DatepickerProps {
   maxValue?: Temporal.PlainDate;
   openTo?: "year" | "month" | "day";
   onPostChange?(value: Temporal.PlainDate | null): void;
+  onAccept?(value: Temporal.PlainDate | null): void;
   testId?: string;
 }
 
-type BaseDatepickerProps = Omit<
-  DatepickerProps,
-  "error" | "helperText" | "id"
-> &
+type BaseDatepickerProps = Omit<DatepickerProps, "error" | "helperText" | "id"> &
   Pick<DatePickerProps, "slots" | "slotProps"> & {
     format: string;
   };
@@ -58,6 +51,7 @@ const BaseDatepicker = ({
   name,
   openTo = "day",
   onPostChange,
+  onAccept,
   testId,
   format,
   slots,
@@ -79,12 +73,13 @@ const BaseDatepicker = ({
           minDate={minValue ? temporalToDayjs(minValue) : undefined}
           maxDate={maxValue ? temporalToDayjs(maxValue) : undefined}
           onChange={(valueDayjs: Dayjs | null) => {
-            const valueTemporal =
-              valueDayjs && valueDayjs.isValid()
-                ? dayjsToTemporal(valueDayjs)
-                : null;
+            const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
             field.onChange(valueTemporal);
             onPostChange?.(valueTemporal);
+          }}
+          onAccept={(valueDayjs: Dayjs | null) => {
+            const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
+            onAccept?.(valueTemporal);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
@@ -111,13 +106,12 @@ const Datepicker = ({
   name,
   openTo,
   onPostChange,
+  onAccept,
   testId,
 }: DatepickerProps) => {
   const { t, i18n } = useTranslation();
   const ariaLabel = t("components.datepicker.change_date");
-  const helperNode = (
-    <span data-testid={`${name}-helper-text`}>{helperText}</span>
-  );
+  const helperNode = <span data-testid={`${name}-helper-text`}>{helperText}</span>;
 
   return (
     <BaseDatepicker
@@ -131,6 +125,7 @@ const Datepicker = ({
       name={name}
       openTo={openTo}
       onPostChange={onPostChange}
+      onAccept={onAccept}
       testId={testId}
       format={getMuiDateFormat(i18n.language)}
       slotProps={{
@@ -169,14 +164,7 @@ interface ReadOnlyDateFieldProps {
 // a localized long date (month name) and is blank when no date is set, so there
 // is never an editable section mask or format placeholder. Clicking it opens the
 // calendar, which is the only way to set the value.
-const ReadOnlyDateField = ({
-  id,
-  error,
-  helperText,
-  variant,
-  ariaLabel,
-  inputProps,
-}: ReadOnlyDateFieldProps) => {
+const ReadOnlyDateField = ({ id, error, helperText, variant, ariaLabel, inputProps }: ReadOnlyDateFieldProps) => {
   const pickerContext = usePickerContext<Dayjs | null>();
   const adapter = usePickerAdapter();
   const value = pickerContext.value;
@@ -229,15 +217,14 @@ export const PickerOnlyDatepicker = ({
   name,
   openTo,
   onPostChange,
+  onAccept,
   testId,
   variant = "standard",
   inputProps = {},
 }: PickerOnlyDatepickerProps) => {
   const { t } = useTranslation();
   const ariaLabel = t("components.datepicker.change_date");
-  const helperNode = (
-    <span data-testid={`${name}-helper-text`}>{helperText}</span>
-  );
+  const helperNode = <span data-testid={`${name}-helper-text`}>{helperText}</span>;
 
   const readOnlyFieldProps: ReadOnlyDateFieldProps = {
     id,
@@ -260,6 +247,7 @@ export const PickerOnlyDatepicker = ({
       name={name}
       openTo={openTo}
       onPostChange={onPostChange}
+      onAccept={onAccept}
       testId={testId}
       // "LL" is the localized long date with the month name (e.g. "May 25, 1990")
       format="LL"

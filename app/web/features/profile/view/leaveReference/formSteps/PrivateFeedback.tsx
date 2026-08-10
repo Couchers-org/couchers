@@ -17,10 +17,7 @@ import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
-import {
-  ReferenceContextFormData,
-  ReferenceStepProps,
-} from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceContextFormData, ReferenceStepProps } from "features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -110,12 +107,8 @@ export default function PrivateFeedback({
 
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`,
-      );
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]) {
+      router.push(`${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`);
     } else {
       router.push(
         `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[2]}`,
@@ -130,14 +123,8 @@ export default function PrivateFeedback({
 
   return (
     <StyledForm onSubmit={onSubmit}>
-      <ReferenceStepHeader
-        name={user.name}
-        referenceType={referenceType}
-        step="private-feedback"
-      />
-      <StyledTextBody>
-        {t("profile:leave_reference.appropriate_explanation")}
-      </StyledTextBody>
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} step="private-feedback" />
+      <StyledTextBody>{t("profile:leave_reference.appropriate_explanation")}</StyledTextBody>
       <Alert severity="warning" sx={{ margin: theme.spacing(3, 0) }}>
         {t("profile:leave_reference.private_answer")}
       </Alert>
@@ -154,22 +141,9 @@ export default function PrivateFeedback({
           )}
           <Controller
             render={({ field }) => (
-              <RadioGroup
-                {...field}
-                aria-label={t(
-                  "profile:leave_reference.safety_rating_selector_a11y",
-                )}
-              >
-                <FormControlLabel
-                  value="true"
-                  control={<Radio />}
-                  label={t("profile:leave_reference.yes_safe")}
-                />
-                <FormControlLabel
-                  value="false"
-                  control={<Radio />}
-                  label={t("profile:leave_reference.no_not_safe")}
-                />
+              <RadioGroup {...field} aria-label={t("profile:leave_reference.safety_rating_selector_a11y")}>
+                <FormControlLabel value="true" control={<Radio />} label={t("profile:leave_reference.yes_safe")} />
+                <FormControlLabel value="false" control={<Radio />} label={t("profile:leave_reference.no_not_safe")} />
               </RadioGroup>
             )}
             name="wasAppropriate"
@@ -193,9 +167,7 @@ export default function PrivateFeedback({
             control={control}
             defaultValue={referenceData.rating}
             name="rating"
-            render={({ field }) => (
-              <RatingsSlider onChange={field.onChange} value={field.value} />
-            )}
+            render={({ field }) => <RatingsSlider onChange={field.onChange} value={field.value} />}
             rules={{
               required: t("profile:leave_reference.rating_required"),
             }}
@@ -214,12 +186,7 @@ export default function PrivateFeedback({
                 <Trans
                   i18nKey="profile:leave_reference.private_text_explanation_2"
                   components={{
-                    2: (
-                      <StyledLink
-                        href={helpCenterPrivateFeedbackUrl}
-                        sx={{ fontWeight: 600 }}
-                      />
-                    ),
+                    2: <StyledLink href={helpCenterPrivateFeedbackUrl} sx={{ fontWeight: 600 }} />,
                   }}
                 />
               </Typography>
@@ -237,9 +204,7 @@ export default function PrivateFeedback({
                   <TextField
                     {...field}
                     id="privateText"
-                    label={t(
-                      "profile:leave_reference.private_text_placeholder",
-                    )}
+                    label={t("profile:leave_reference.private_text_placeholder")}
                     error={!!errors.privateText}
                     helperText={errors.privateText?.message}
                     onChange={(event) => {

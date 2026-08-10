@@ -1,23 +1,12 @@
-import {
-  Card,
-  CardActions,
-  CardContent,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CardActions, CardContent, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  CalendarIcon,
-  ClockIcon,
-  InfoIcon,
-  LocationIcon,
-} from "components/Icons";
+import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
-import { localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
+import { localizeDateOnly, localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
@@ -29,31 +18,17 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-export default function LoginsPage({
-  session,
-}: {
-  session: ActiveSession.AsObject;
-}) {
+export default function LoginsPage({ session }: { session: ActiveSession.AsObject }) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
   const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
-  const createdDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.created!),
-    {
-      locale,
-      includeSeconds: true,
-    },
-  );
-  const expiryDisplay = localizeDateTime(
-    timestampToPlainDateTime(session.expiry!),
-    {
-      locale,
-      includeTime: false,
-    },
-  );
+  const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), locale, {
+    includeSeconds: true,
+  });
+  const expiryDisplay = localizeDateOnly(timestampToPlainDateTime(session.expiry!), locale);
   const queryClient = useQueryClient();
 
   const {
@@ -75,11 +50,7 @@ export default function LoginsPage({
   return (
     <StyledCard>
       <CardContent>
-        <Typography variant="h2">
-          <Trans t={t} i18nKey="auth:active_logins.login_header">
-            Login on {{ login_datetime: createdDisplay }}
-          </Trans>
-        </Typography>
+        <Typography variant="h2">{t("auth:active_logins.login_header", { login_datetime: createdDisplay })}</Typography>
         {error && <Alert severity="error">{error.message}</Alert>}
         <IconText
           icon={LocationIcon}
@@ -88,10 +59,8 @@ export default function LoginsPage({
               t={t}
               i18nKey="auth:active_logins.location"
               values={{ approximate_location: session.approximateLocation }}
-            >
-              {`Near `}
-              <strong>{session.approximateLocation}</strong>
-            </Trans>
+              components={{ 2: <strong /> }}
+            />
           }
         />
         <IconText
@@ -101,9 +70,8 @@ export default function LoginsPage({
               t={t}
               i18nKey="auth:active_logins.last_activity"
               values={{ last_activity_ago: lastSeenDisplay }}
-            >
-              Last activity <strong>{lastSeenDisplay}</strong>
-            </Trans>
+              components={{ 2: <strong /> }}
+            />
           }
         />
         <IconText
@@ -113,10 +81,8 @@ export default function LoginsPage({
               t={t}
               i18nKey="auth:active_logins.expiry"
               values={{ expiry_datetime: expiryDisplay }}
-            >
-              {`Expires on `}
-              <strong>{expiryDisplay}</strong>
-            </Trans>
+              components={{ 1: <strong /> }}
+            />
           }
         />
         <IconText

@@ -64,19 +64,12 @@ export default function VolunteerCard({ volunteerInfo }: VolunteerCardProps) {
 
   return (
     <VolunteerCardWrapper>
-      <Typography
-        variant="body2"
-        color="textSecondary"
-        sx={{ marginBottom: 1 }}
-      >
+      <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1 }}>
         {t("auth:volunteer_management.card_preview_label")}
       </Typography>
       <StyledVolunteerCard variant="outlined">
         <StyledCardContent>
-          <StyledAvatar
-            alt={volunteerInfo.displayName || currentUser?.name}
-            src={currentUser?.avatarUrl}
-          />
+          <StyledAvatar alt={volunteerInfo.displayName || currentUser?.name} src={currentUser?.avatarUrl} />
           <DetailDiv>
             <Typography variant="h3" component="h3">
               {volunteerInfo.displayName || currentUser?.name}
@@ -98,9 +91,7 @@ export default function VolunteerCard({ volunteerInfo }: VolunteerCardProps) {
                   icon={LinkIcon}
                   text={
                     <Typography variant="body1">
-                      <StyledLink href={volunteerInfo.linkUrl}>
-                        {volunteerInfo.linkText}
-                      </StyledLink>
+                      <StyledLink href={volunteerInfo.linkUrl}>{volunteerInfo.linkText}</StyledLink>
                     </Typography>
                   }
                 />

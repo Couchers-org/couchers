@@ -19,6 +19,7 @@ from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.orm import undefer
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -35,7 +36,6 @@ from couchers.context import CouchersContext, make_interactive_context, make_med
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
-from couchers.i18n.locales import to_supported_locale
 from couchers.metrics import (
     observe_api_call,
     observe_in_servicer_duration_histogram,
@@ -114,6 +114,9 @@ def _try_get_and_update_user_details(
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == is_api_key)
+            # User.timezone is deferred and read below for every authenticated call, so load it here rather
+            # than paying a second round trip for its ST_Contains against timezone_areas
+            .options(undefer(User.timezone))
         ).one_or_none()
 
         if not result:
@@ -388,9 +391,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             else:
                 sofa, new_sofa_cookie = generate_sofa_cookie()
 
-            locale = to_supported_locale((auth_info.ui_language_preference if auth_info else headers.ui_lang) or "")
             loc_context = LocalizationContext(
-                locale=locale,
+                locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
                 timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
             )
 
@@ -480,7 +482,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
                         sentry_sdk.set_tag("user_agent", headers.user_agent)
-                        sentry_sdk.set_tag("ui_lang", loc_context.locale)
+                        sentry_sdk.set_tag("ui_lang", loc_context.preferred_locale)
                         sentry_sdk.set_user(
                             {
                                 "id": couchers_context._user_id,

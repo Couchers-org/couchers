@@ -8,6 +8,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Computed,
     Date,
     DateTime,
     Enum,
@@ -176,6 +177,11 @@ class User(Base, kw_only=True):
 
     # "Who I am" under "About Me" tab
     about_me: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    # kept in sync by the database so profile-completeness checks never detoast about_me; doing so was the dominant
+    # cost of both the lite_users refresh and the profile metrics, which scan every user several times a minute
+    about_me_length: Mapped[int] = mapped_column(
+        Integer, Computed("coalesce(character_length(about_me), 0)", persisted=True), init=False
+    )
     # "What I do in my free time" under "About Me" tab
     things_i_like: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "About my home" under "My Home" tab
@@ -402,7 +408,7 @@ class User(Base, kw_only=True):
                 banned_at.is_(None),
                 deleted_at.is_(None),
                 profile_gallery_id.isnot(None),
-                func.coalesce(func.character_length(about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+                about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
             ),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry

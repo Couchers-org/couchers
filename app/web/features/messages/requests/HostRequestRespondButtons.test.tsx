@@ -45,9 +45,7 @@ describe("HostRequestRespondButtons", () => {
       />,
       { wrapper },
     );
-    expect(
-      screen.getByRole("button", { name: t("global:accept") }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t("global:accept") })).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
         name: t("messages:close_request_button_text"),
@@ -60,9 +58,7 @@ describe("HostRequestRespondButtons", () => {
     const handleStatus = jest
       .fn()
       .mockImplementation((status) =>
-        status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-          ? acceptCallback
-          : jest.fn(),
+        status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ? acceptCallback : jest.fn(),
       );
     render(
       <HostRequestRespondButtons
@@ -83,9 +79,7 @@ describe("HostRequestRespondButtons", () => {
     const handleStatus = jest
       .fn()
       .mockImplementation((status) =>
-        status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-          ? declineCallback
-          : jest.fn(),
+        status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ? declineCallback : jest.fn(),
       );
     render(
       <HostRequestRespondButtons
@@ -132,17 +126,13 @@ describe("HostRequestRespondButtons — surfer confirm card", () => {
       />,
       { wrapper },
     );
-    expect(
-      screen.getByText(t("messages:surfer_confirm_box_title", { name })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("messages:surfer_confirm_box_title", { name }))).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
         name: t("messages:confirm_request_button_text"),
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t("messages:cancel_request_button") })).toBeInTheDocument();
   });
 
   it("calls confirm callback when Confirm is clicked", async () => {
@@ -150,9 +140,7 @@ describe("HostRequestRespondButtons — surfer confirm card", () => {
     const handleStatus = jest
       .fn()
       .mockImplementation((status) =>
-        status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-          ? confirmCallback
-          : jest.fn(),
+        status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED ? confirmCallback : jest.fn(),
       );
     render(
       <HostRequestRespondButtons
@@ -183,9 +171,7 @@ describe("HostRequestRespondButtons — surfer confirm card", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", { name: t("messages:cancel_request_button") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("messages:cancel_request_button") }));
     expect(screen.getByRole("dialog")).toBeVisible();
   });
 });

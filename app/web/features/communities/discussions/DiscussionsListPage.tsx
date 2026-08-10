@@ -57,19 +57,13 @@ const StyledNewPostButtonContainer = styled("div")(() => ({
   minHeight: theme.typography.pxToRem(40),
 }));
 
-export default function DiscussionsListPage({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function DiscussionsListPage({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([COMMUNITIES]);
 
   const { data: accountInfo } = useAccountInfo();
   const hash = typeof window !== "undefined" ? window.location.hash : "";
   // Intent to create a post, set by both the #new hash and the "New post" button.
-  const [isCreatingNewPost, setIsCreatingNewPost] = useState(
-    hash.includes("new"),
-  );
+  const [isCreatingNewPost, setIsCreatingNewPost] = useState(hash.includes("new"));
 
   const {
     isLoading: isDiscussionsLoading,
@@ -86,10 +80,8 @@ export default function DiscussionsListPage({
   // Derive form/dialog visibility during render so both entry points share the
   // same gate: show the form only once the profile is known to be complete,
   // otherwise show the dialog.
-  const profileIncomplete =
-    accountInfo !== undefined && !accountInfo.profileComplete;
-  const showCreateForm =
-    isCreatingNewPost && accountInfo?.profileComplete === true;
+  const profileIncomplete = accountInfo !== undefined && !accountInfo.profileComplete;
+  const showCreateForm = isCreatingNewPost && accountInfo?.profileComplete === true;
   const profileDialogOpen = isCreatingNewPost && profileIncomplete;
 
   return (
@@ -100,18 +92,12 @@ export default function DiscussionsListPage({
         attempted_action="create_discussion"
       />
       <StyledDiscussionsHeader>
-        <SectionTitle icon={<EmailIcon />}>
-          {t("communities:discussions_title")}
-        </SectionTitle>
+        <SectionTitle icon={<EmailIcon />}>{t("communities:discussions_title")}</SectionTitle>
       </StyledDiscussionsHeader>
-      {discussionsError && (
-        <Alert severity="error">{discussionsError.message}</Alert>
-      )}
+      {discussionsError && <Alert severity="error">{discussionsError.message}</Alert>}
       <Collapse in={!showCreateForm}>
         <StyledNewPostButtonContainer>
-          <StyledCreateResourceButton
-            onClick={() => setIsCreatingNewPost(true)}
-          >
+          <StyledCreateResourceButton onClick={() => setIsCreatingNewPost(true)}>
             {t("communities:new_post_label")}
           </StyledCreateResourceButton>
           {isRefetching && <CenteredSpinner />}
@@ -131,19 +117,14 @@ export default function DiscussionsListPage({
           discussions.pages
             .flatMap((res) => res.discussionsList)
             .map((discussion) => (
-              <DiscussionCard
-                discussion={discussion}
-                key={`discussioncard-${discussion.thread!.threadId}`}
-              />
+              <DiscussionCard discussion={discussion} key={`discussioncard-${discussion.thread!.threadId}`} />
             ))
         ) : (
           <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
         {discussionsHasNextPage && (
           <StyledLoadMoreButton>
-            <Button onClick={() => fetchNextPage()}>
-              {t("communities:see_more_discussions_label")}
-            </Button>
+            <Button onClick={() => fetchNextPage()}>{t("communities:see_more_discussions_label")}</Button>
           </StyledLoadMoreButton>
         )}
       </StyledDiscussionsContainer>

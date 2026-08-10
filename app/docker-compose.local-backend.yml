@@ -8,7 +8,7 @@ services:
       service: jaeger
     # Make it visible to the backend outside of the container
     ports:
-      - 4317:4317
+      - 4318:4318
   maildev:
     extends:
       file: docker-compose.yml

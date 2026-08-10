@@ -1,10 +1,6 @@
 import { theme } from "theme";
 
-export type ClientPlatform =
-  | "web_desktop"
-  | "web_mobile"
-  | "app_ios"
-  | "app_android";
+export type ClientPlatform = "web_desktop" | "web_mobile" | "app_ios" | "app_android";
 
 // The native app's web views append this token to the browser user agent
 // (app/mobile/utils/userAgent.ts); it's the only in-app signal every shipped app

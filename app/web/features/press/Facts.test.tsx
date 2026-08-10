@@ -12,12 +12,8 @@ const { t } = i18n;
 jest.mock("utils/useSignupPageInfo");
 jest.mock("features/communities/hooks");
 
-const mockUseSignupPageInfo = useSignupPageInfo as jest.MockedFunction<
-  typeof useSignupPageInfo
->;
-const mockUseListVolunteers = useListVolunteers as jest.MockedFunction<
-  typeof useListVolunteers
->;
+const mockUseSignupPageInfo = useSignupPageInfo as jest.MockedFunction<typeof useSignupPageInfo>;
+const mockUseListVolunteers = useListVolunteers as jest.MockedFunction<typeof useListVolunteers>;
 
 const mockSignupInfo: SignupInfo = {
   userCount: "80000",
@@ -25,18 +21,11 @@ const mockSignupInfo: SignupInfo = {
   lastLocation: "Berlin",
 };
 
-const mockSignupPageInfo = (
-  signupInfo: SignupInfo | null,
-  isLoading = false,
-) => {
+const mockSignupPageInfo = (signupInfo: SignupInfo | null, isLoading = false) => {
   mockUseSignupPageInfo.mockReturnValue({ signupInfo, isLoading });
 };
 
-const mockVolunteers = (
-  current: Volunteer.AsObject[] = [],
-  past: Volunteer.AsObject[] = [],
-  isLoading = false,
-) => {
+const mockVolunteers = (current: Volunteer.AsObject[] = [], past: Volunteer.AsObject[] = [], isLoading = false) => {
   mockUseListVolunteers.mockReturnValue({
     data: { currentVolunteersList: current, pastVolunteersList: past },
     isLoading,
@@ -70,32 +59,24 @@ describe("Facts", () => {
 
   it("shows user count from the signup info", () => {
     render(<Facts />, { wrapper });
-    expect(
-      screen.getByText(t("landing:num_users2", { count: 80000 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("landing:num_users2", { count: 80000 }))).toBeInTheDocument();
   });
 
   it("falls back to 77000 when signup info is unavailable", () => {
     mockSignupPageInfo(null);
     render(<Facts />, { wrapper });
-    expect(
-      screen.getByText(t("landing:num_users2", { count: 77000 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("landing:num_users2", { count: 77000 }))).toBeInTheDocument();
   });
 
   it("falls back to 77000 when userCount is not a valid number", () => {
     mockSignupPageInfo({ ...mockSignupInfo, userCount: "bad" });
     render(<Facts />, { wrapper });
-    expect(
-      screen.getByText(t("landing:num_users2", { count: 77000 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("landing:num_users2", { count: 77000 }))).toBeInTheDocument();
   });
 
   it("shows countries count", () => {
     render(<Facts />, { wrapper });
-    expect(
-      screen.getByText(t("landing:num_countries2", { count: 180 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("landing:num_countries2", { count: 180 }))).toBeInTheDocument();
   });
 
   it("shows last signup when lastSignup is present", () => {
@@ -114,8 +95,6 @@ describe("Facts", () => {
     const past = Array(2).fill({}) as Volunteer.AsObject[];
     mockVolunteers(current, past);
     render(<Facts />, { wrapper });
-    expect(
-      screen.getByText(t("press:num_volunteers", { count: 6 })),
-    ).toBeInTheDocument();
+    expect(screen.getByText(t("press:num_volunteers", { count: 6 }))).toBeInTheDocument();
   });
 });

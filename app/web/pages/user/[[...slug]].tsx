@@ -2,13 +2,7 @@ import { appGetLayout } from "components/AppRoute";
 import NotFoundPage from "features/NotFoundPage";
 import UserPageComponent from "features/profile/view/UserPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import {
-  CONNECTIONS,
-  DASHBOARD,
-  GLOBAL,
-  NOTIFICATIONS,
-  PROFILE,
-} from "i18n/namespaces";
+import { CONNECTIONS, DASHBOARD, GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { userTabs } from "routes";
@@ -21,13 +15,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      CONNECTIONS,
-      DASHBOARD,
-      GLOBAL,
-      NOTIFICATIONS,
-      PROFILE,
-    ])),
+    ...(await appServerSideTranslations(locale ?? "en", [CONNECTIONS, DASHBOARD, GLOBAL, NOTIFICATIONS, PROFILE])),
   },
 });
 

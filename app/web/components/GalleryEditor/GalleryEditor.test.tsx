@@ -17,10 +17,9 @@ const mockGetGallery = service.gallery.getGallery as jest.Mock;
 const mockGetGalleryEditInfo = service.gallery.getGalleryEditInfo as jest.Mock;
 const mockUploadFile = service.api.uploadFile as jest.Mock;
 const mockAddPhotoToGallery = service.gallery.addPhotoToGallery as jest.Mock;
-const mockUseNativeImagePicker =
-  nativeLink.useNativeImagePicker as jest.MockedFunction<
-    typeof nativeLink.useNativeImagePicker
-  >;
+const mockUseNativeImagePicker = nativeLink.useNativeImagePicker as jest.MockedFunction<
+  typeof nativeLink.useNativeImagePicker
+>;
 
 describe("GalleryEditor", () => {
   beforeEach(() => {
@@ -48,14 +47,7 @@ describe("GalleryEditor", () => {
     mockGetGallery.mockResolvedValue(gallery);
     mockGetGalleryEditInfo.mockResolvedValue(editInfo);
 
-    render(
-      <GalleryEditor
-        galleryId={1}
-        title="Test Gallery"
-        description="Test description"
-      />,
-      { wrapper },
-    );
+    render(<GalleryEditor galleryId={1} title="Test Gallery" description="Test description" />, { wrapper });
 
     await waitFor(() => {
       expect(screen.getByText("Test Gallery")).toBeInTheDocument();
@@ -82,9 +74,7 @@ describe("GalleryEditor", () => {
       expect(screen.getByText("Add your first photo")).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText("Click here or the button above to upload a photo"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Click here or the button above to upload a photo")).toBeInTheDocument();
   });
 
   it("shows Profile Photo badge on first photo", async () => {
@@ -156,9 +146,7 @@ describe("GalleryEditor", () => {
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Complete strong verification to add more photos/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Complete strong verification to add more photos/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText("Get verified")).toBeInTheDocument();
@@ -182,9 +170,7 @@ describe("GalleryEditor", () => {
       expect(screen.getByText("3 of 4")).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByText(/Complete strong verification to add more photos/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Complete strong verification to add more photos/i)).not.toBeInTheDocument();
   });
 
   describe("image upload", () => {
@@ -318,9 +304,7 @@ describe("GalleryEditor", () => {
       await user.click(screen.getByText("Add photo"));
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Camera permission denied"),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Camera permission denied")).toBeInTheDocument();
       });
     });
   });

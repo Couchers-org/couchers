@@ -35,9 +35,7 @@ export const sectionLabels = (
         }}
       >
         {t("profile:heading.references")}
-        {!!user?.numReferences && (
-          <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
-        )}
+        {!!user?.numReferences && <StyledNumReferences>{user?.numReferences}</StyledNumReferences>}
       </Box>
     ),
     ...(isSuperuser ? { mod: t("global:mod") } : {}),

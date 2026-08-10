@@ -10,11 +10,7 @@ interface UseMessageUserParams {
   setIsMessaging: (value: boolean) => void;
 }
 
-export default function useMessageUser({
-  userId,
-  setMutationError,
-  setIsMessaging,
-}: UseMessageUserParams) {
+export default function useMessageUser({ userId, setMutationError, setIsMessaging }: UseMessageUserParams) {
   const router = useRouter();
   const { openGroupChat, openProfileUserId } = useProfileSheet();
 

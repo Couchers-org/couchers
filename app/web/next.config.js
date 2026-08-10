@@ -8,24 +8,17 @@ const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   eslint: {
-    dirs: [
-      "components",
-      "features",
-      "i18n",
-      "markdown",
-      "pages",
-      "resources",
-      "service",
-      "test",
-      "types",
-      "utils",
-    ],
+    dirs: ["components", "features", "i18n", "markdown", "pages", "resources", "service", "test", "types", "utils"],
   },
   i18n,
   productionBrowserSourceMaps: true,
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
   // transpile these themselves rather than treating them as pre-built node_modules.
   transpilePackages: ["temporal-polyfill", "temporal-utils"],
+  experimental: {
+    // Trades slightly slower compiles for a lower webpack memory ceiling.
+    webpackMemoryOptimizations: true,
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       generateBlogIndex();
@@ -43,8 +36,7 @@ const nextConfig = {
       headers: [
         {
           key: "x-help-wanted",
-          value:
-            "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
+          value: "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
         },
         {
           key: "strict-transport-security",

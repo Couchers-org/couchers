@@ -127,14 +127,11 @@ function ImageInput(props: RectImgInputProps) {
       setImageUrl(base64);
       mutation.mutate(file);
     } catch (e) {
-      Sentry.captureException(
-        new Error((e as ProgressEvent<FileReader>).toString()),
-        {
-          tags: {
-            component: "component/ImageInput",
-          },
+      Sentry.captureException(new Error((e as ProgressEvent<FileReader>).toString()), {
+        tags: {
+          component: "component/ImageInput",
         },
-      );
+      });
       setReaderError(t("global:image_input.read_file_error_message"));
     }
   };
@@ -154,11 +151,7 @@ function ImageInput(props: RectImgInputProps) {
       if (result.success) {
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
         const extension = result.mimeType.split("/")[1] || "jpg";
-        const file = base64ToFile(
-          result.imageBase64,
-          result.mimeType,
-          `image.${extension}`,
-        );
+        const file = base64ToFile(result.imageBase64, result.mimeType, `image.${extension}`);
 
         // Check file size before uploading
         if (file.size > MAX_FILE_SIZE) {
@@ -179,9 +172,7 @@ function ImageInput(props: RectImgInputProps) {
 
   return (
     <StyledWrapper>
-      {mutation.isError && (
-        <Alert severity="error">{mutation.error?.message || ""}</Alert>
-      )}
+      {mutation.isError && <Alert severity="error">{mutation.error?.message || ""}</Alert>}
       {readerError && <Alert severity="error">{readerError}</Alert>}
       {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>

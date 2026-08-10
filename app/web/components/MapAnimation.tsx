@@ -42,16 +42,13 @@ export default function MapAnimation() {
     fetch("https://cdn.couchers.org/img/hero/hero-animation.json")
       .then((res) => {
         if (!res.ok) {
-          Sentry.captureException(
-            `Failed to load map animation: ${res.statusText}`,
-            {
-              tags: {
-                component: "auth/useAuthStore",
-                action: "logout",
-                status: res.status,
-              },
+          Sentry.captureException(`Failed to load map animation: ${res.statusText}`, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "logout",
+              status: res.status,
             },
-          );
+          });
         }
         return res.json();
       })

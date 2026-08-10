@@ -15,10 +15,7 @@ export function parseAcceptLanguage(header: string): AcceptLanguageEntry[] {
 }
 
 /** Looks up a supported locale based on an Accept-Language HTTP header. */
-export function lookupAcceptLanguage(
-  header: string,
-  supportedLocales: string[],
-): string | undefined {
+export function lookupAcceptLanguage(header: string, supportedLocales: string[]): string | undefined {
   // Consider accepted locales by descending quality.
   const acceptLocales = parseAcceptLanguage(header)
     .filter((e) => e.quality > 0) // q=0 should not be matched

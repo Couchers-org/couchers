@@ -1,9 +1,7 @@
 import "utils/dayjs"; // ensure dayjs timezone plugin is registered
 
 import { act, render, screen, waitFor } from "@testing-library/react";
-import userEvent, {
-  PointerEventsCheckLevel,
-} from "@testing-library/user-event";
+import userEvent, { PointerEventsCheckLevel } from "@testing-library/user-event";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -35,8 +33,7 @@ jest.mock("features/userQueries/useLiteUsers", () => ({
   useLiteUser: () => ({ isLoading: false, error: null }),
 }));
 
-const createHostRequestMock = service.requests
-  .createHostRequest as MockedService<
+const createHostRequestMock = service.requests.createHostRequest as MockedService<
   typeof service.requests.createHostRequest
 >;
 
@@ -47,10 +44,7 @@ const LONG_TEXT = "a".repeat(250);
 function renderNewHostRequest() {
   render(
     <ProfileUserProvider user={hostUser}>
-      <NewHostRequest
-        setIsRequestSuccess={jest.fn()}
-        setIsRequesting={jest.fn()}
-      />
+      <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
     </ProfileUserProvider>,
     { wrapper },
   );
@@ -108,10 +102,7 @@ describe("NewHostRequest", () => {
     createHostRequestMock.mockResolvedValue(1);
     render(
       <ProfileUserProvider user={hostUser}>
-        <NewHostRequest
-          setIsRequestSuccess={jest.fn()}
-          setIsRequesting={jest.fn()}
-        />
+        <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },
     );
@@ -156,10 +147,7 @@ describe("NewHostRequest", () => {
     const hostBehindTimezone = { ...users[1], timezone: "America/Los_Angeles" };
     render(
       <ProfileUserProvider user={hostBehindTimezone}>
-        <NewHostRequest
-          setIsRequestSuccess={jest.fn()}
-          setIsRequesting={jest.fn()}
-        />
+        <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
       </ProfileUserProvider>,
       { wrapper },
     );
@@ -192,9 +180,7 @@ describe("NewHostRequest", () => {
   it("only sends one request when Send is tapped repeatedly before the response arrives", async () => {
     // On a slow connection the user gets no feedback and keeps tapping; each tap used to create
     // another host request.
-    createHostRequestMock.mockImplementation(
-      () => new Promise<number>(() => {}),
-    );
+    createHostRequestMock.mockImplementation(() => new Promise<number>(() => {}));
     renderNewHostRequest();
 
     // a real finger keeps tapping a disabled button, so don't refuse taps over its

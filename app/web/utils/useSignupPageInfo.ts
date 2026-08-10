@@ -14,9 +14,7 @@ export default function useSignupPageInfo() {
   useEffect(() => {
     const fetchSignupInfo = async () => {
       try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
+        const response = await fetch("https://couchers.org/api/public/signup-page-info");
 
         if (!response.ok) {
           throw new Error("Failed to fetch signup info");

@@ -46,9 +46,7 @@ type MessageType =
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
-  getReactNativeWebView()!.postMessage(
-    JSON.stringify({ type: type, data: data }),
-  );
+  getReactNativeWebView()!.postMessage(JSON.stringify({ type: type, data: data }));
 }
 
 export function sendNativeBack() {
@@ -84,8 +82,7 @@ let imagePickCallback: ImagePickCallback | null = null;
 if (typeof window !== "undefined") {
   window.addEventListener("message", (event) => {
     try {
-      const data =
-        typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
       if (data?.type === "IMAGE_PICK_RESULT" && imagePickCallback) {
         imagePickCallback(data.result);
         imagePickCallback = null;
@@ -119,11 +116,7 @@ export function useNativeImagePicker() {
 }
 
 // Helper to convert base64 to File object
-export function base64ToFile(
-  base64: string,
-  mimeType: string,
-  filename: string,
-): File {
+export function base64ToFile(base64: string, mimeType: string, filename: string): File {
   const byteString = atob(base64);
   const ab = new ArrayBuffer(byteString.length);
   const ia = new Uint8Array(ab);

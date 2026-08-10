@@ -14,8 +14,7 @@ const MarginWrapper = styled("div")(({ theme }) => ({
 export default function FeaturePreview() {
   const { t } = useTranslation(AUTH);
 
-  const { error: accountInfoError, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { error: accountInfoError, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   return (
     <>
@@ -30,9 +29,7 @@ export default function FeaturePreview() {
         {t("feature_preview.explanation")}
       </Typography>
       <MuiAlert severity="warning">
-        <Typography variant="inherit">
-          {t("feature_preview.disclaimer")}
-        </Typography>
+        <Typography variant="inherit">{t("feature_preview.disclaimer")}</Typography>
       </MuiAlert>
       {isAccountInfoLoading ? (
         <CenteredSpinner />
@@ -41,12 +38,8 @@ export default function FeaturePreview() {
       ) : (
         <>
           <MarginWrapper>
-            <Typography variant="h2">
-              {t("auth:feature_preview.no_previews.title")}
-            </Typography>
-            <Typography variant="body1">
-              {t("auth:feature_preview.no_previews.explanation")}
-            </Typography>
+            <Typography variant="h2">{t("auth:feature_preview.no_previews.title")}</Typography>
+            <Typography variant="body1">{t("auth:feature_preview.no_previews.explanation")}</Typography>
           </MarginWrapper>
         </>
       )}

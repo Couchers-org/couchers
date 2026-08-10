@@ -167,5 +167,7 @@
   "sub_community_dropdown_a11y": "Просмотреть более специализированные сообщества",
   "select_subregion": "Выбрать область",
   "select_sublocality": "Выбрать район",
-  "select_sub_community": "Выбрать сообщество"
+  "select_sub_community": "Выбрать сообщество",
+  "report_discussion_button_a11y": "Пожаловаться на это обсуждение",
+  "report_event_button_a11y": "Пожаловаться на это мероприятие"
 }

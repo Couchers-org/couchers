@@ -1,10 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  publicTripsBaseKey,
-  publicTripsByUserBaseKey,
-  publicTripsByUserKey,
-  publicTripsKey,
-} from "features/queryKeys";
+import { publicTripsBaseKey, publicTripsByUserBaseKey, publicTripsByUserKey, publicTripsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import {
   ListPublicTripsByUserRes,
@@ -53,10 +48,7 @@ export function useListPublicTripsByUser({
   });
 }
 
-export function useCreatePublicTrip(
-  communityId: number,
-  onSuccess?: () => void,
-) {
+export function useCreatePublicTrip(communityId: number, onSuccess?: () => void) {
   const queryClient = useQueryClient();
   return useMutation<
     PublicTripPb.AsObject,

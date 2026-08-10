@@ -1,9 +1,4 @@
-import {
-  Button as MuiButton,
-  ButtonProps,
-  styled,
-  useTheme,
-} from "@mui/material";
+import { Button as MuiButton, ButtonProps, styled, useTheme } from "@mui/material";
 import Sentry from "platform/sentry";
 import React, { ElementType, ForwardedRef, forwardRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
@@ -74,9 +69,7 @@ function InternalButton<D extends ElementType = "button">(
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
-      {(loading || waiting) && (
-        <StyledCircularProgress size={theme.typography.button.fontSize} />
-      )}
+      {(loading || waiting) && <StyledCircularProgress size={theme.typography.button.fontSize} />}
       {children}
     </StyledMuiButton>
   );

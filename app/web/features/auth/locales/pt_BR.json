@@ -4,7 +4,9 @@
     "new_email": "Novo e-mail",
     "current_password": "Palavra-passe actual",
     "title": "Alterar e-mail",
-    "current_email_message": "O teu endereço de e-mail atualmente é <1>{{email}}</1>."
+    "current_email_message": "O teu endereço de e-mail atualmente é <1>{{email}}</1>.",
+    "hide_current_password": "Ocultar senha atual",
+    "show_current_password": "Mostrar senha atual"
   },
   "change_email_confirmation": {
     "success_message": "O teu e-mail foi alterado com sucesso!",

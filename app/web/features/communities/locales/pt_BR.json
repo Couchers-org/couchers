@@ -142,5 +142,32 @@
   "search_communities_placeholder": "Buscar por nome de cidade ou país...",
   "search_communities_helper": "Selecionar uma comunidade para ir para sua página",
   "search_communities": "Buscar e visitar uma comunidade",
-  "past": "Antigos"
+  "past": "Antigos",
+  "comment_deleted": "Este comentário foi excluído.",
+  "edit_comment": "Editar comentário",
+  "delete_comment": "Excluir comentário",
+  "comment_edited_date": "Editado há {{timeAgo}}",
+  "discussion_edited_date": "Editado há {{timeAgo}}",
+  "discussion_deleted": "Esta discussão foi excluída.",
+  "delete_discussion": "Excluir discussão",
+  "delete_discussion_dialog": {
+    "title": "Excluir discussão",
+    "message": "Tem certeza de que deseja excluir esta discussão? Os comentários vão permanecer visíveis.",
+    "confirm": "Excluir",
+    "cancel": "Cancelar"
+  },
+  "edit_discussion": "Editar discussão",
+  "report_discussion_button_a11y": "Reportar esta discussão",
+  "copy_link": "Copiar link",
+  "copy_link_success": "Link copiado para a área de transferência",
+  "report_event_button_a11y": "Reportar este evento",
+  "community_breadcrumb_a11y": "Comunidade atual",
+  "select_macroregion": "Selecionar região",
+  "select_region": "Selecionar país",
+  "select_subregion": "Selecionar região",
+  "select_locality": "Selecionar cidade",
+  "select_sublocality": "Selecionar bairro",
+  "select_sub_community": "Selecionar comunidade",
+  "sub_community_search_placeholder": "Localização",
+  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas"
 }

@@ -14,10 +14,7 @@ import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
-import {
-  formatPhoneNumberIntl,
-  isValidPhoneNumber,
-} from "react-phone-number-input";
+import { formatPhoneNumberIntl, isValidPhoneNumber } from "react-phone-number-input";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
@@ -30,8 +27,7 @@ const StyledForm = styled("form")(() => ({
   },
 }));
 
-const validatePhoneCode = (code: string) =>
-  code.length == 6 && luhn.validate(code);
+const validatePhoneCode = (code: string) => code.length == 6 && luhn.validate(code);
 
 interface ChangePhoneFormData {
   phone: string;
@@ -46,20 +42,13 @@ type ChangePhoneProps = {
   className?: string;
 };
 
-export default function ChangePhone({
-  className,
-  accountInfo,
-}: ChangePhoneProps) {
+export default function ChangePhone({ className, accountInfo }: ChangePhoneProps) {
   const { t } = useTranslation([AUTH]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const queryClient = useQueryClient();
 
-  const {
-    handleSubmit: changeHandleSubmit,
-    reset: resetChangeForm,
-    control,
-  } = useForm<ChangePhoneFormData>();
+  const { handleSubmit: changeHandleSubmit, reset: resetChangeForm, control } = useForm<ChangePhoneFormData>();
   const onChangeSubmit = changeHandleSubmit(({ phone }) => {
     changePhone({ phone });
   });
@@ -135,19 +124,9 @@ export default function ChangePhone({
       {changeError && <Alert severity="error">{changeError.message}</Alert>}
       {verifyError && <Alert severity="error">{verifyError.message}</Alert>}
       {removeError && <Alert severity="error">{removeError.message}</Alert>}
-      {isChangeSuccess && (
-        <Alert severity="success">{t("auth:change_phone.add_success")}</Alert>
-      )}
-      {isVerifySuccess && (
-        <Alert severity="success">
-          {t("auth:change_phone.verify_success")}
-        </Alert>
-      )}
-      {isRemoveSuccess && (
-        <Alert severity="success">
-          {t("auth:change_phone.remove_success")}
-        </Alert>
-      )}
+      {isChangeSuccess && <Alert severity="success">{t("auth:change_phone.add_success")}</Alert>}
+      {isVerifySuccess && <Alert severity="success">{t("auth:change_phone.verify_success")}</Alert>}
+      {isRemoveSuccess && <Alert severity="success">{t("auth:change_phone.remove_success")}</Alert>}
       {!accountInfo.phone ? (
         !accountInfo.hasDonated ? (
           <Typography variant="body1">
@@ -160,9 +139,7 @@ export default function ChangePhone({
           </Typography>
         ) : (
           <StyledForm onSubmit={onChangeSubmit}>
-            <Typography variant="body1">
-              {t("auth:change_phone.no_phone_description")}
-            </Typography>
+            <Typography variant="body1">{t("auth:change_phone.no_phone_description")}</Typography>
             <PhoneInputWithCountry
               name="phone"
               control={control}
@@ -173,11 +150,7 @@ export default function ChangePhone({
               placeholder={t("auth:change_phone.phone_label")}
               id="phone"
             />
-            <Button
-              fullWidth={!isMdOrWider}
-              loading={isChangeLoading}
-              type="submit"
-            >
+            <Button fullWidth={!isMdOrWider} loading={isChangeLoading} type="submit">
               {t("auth:change_phone.add_button_text")}
             </Button>
           </StyledForm>
@@ -191,30 +164,21 @@ export default function ChangePhone({
                   t={t}
                   i18nKey="auth:change_phone.phone_not_verified_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                >
-                  We sent you a code to{` `}
-                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
-                  {`To verify your number, please enter the code below:`}
-                </Trans>
+                  components={{ 2: <b /> }}
+                />
               </Typography>
               <TextField
                 id="code"
                 {...verifyRegister("code", {
                   required: true,
-                  validate: (code) =>
-                    validatePhoneCode(code) ||
-                    t("auth:change_phone.wrong_code"),
+                  validate: (code) => validatePhoneCode(code) || t("auth:change_phone.wrong_code"),
                 })}
                 helperText={verifyFormErrors?.code?.message ?? " "}
                 error={!!verifyFormErrors?.code?.message}
                 label={t("auth:change_phone.code_label")}
                 fullWidth={!isMdOrWider}
               />
-              <Button
-                fullWidth={!isMdOrWider}
-                loading={isVerifyLoading}
-                type="submit"
-              >
+              <Button fullWidth={!isMdOrWider} loading={isVerifyLoading} type="submit">
                 {t("auth:change_phone.verify_button_text")}
               </Button>
             </StyledForm>
@@ -225,26 +189,16 @@ export default function ChangePhone({
                   t={t}
                   i18nKey="auth:change_phone.remove_phone_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                >
-                  Your phone number is currently{` `}
-                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
-                  {` You can remove your phone number below, but you will loose
-                  verification.`}
-                </Trans>
+                  components={{ 2: <b /> }}
+                />
               </Typography>
-              <Button
-                fullWidth={!isMdOrWider}
-                loading={isRemoveLoading}
-                onClick={() => removePhone()}
-              >
+              <Button fullWidth={!isMdOrWider} loading={isRemoveLoading} onClick={() => removePhone()}>
                 {t("auth:change_phone.remove_button_text")}
               </Button>
             </>
           )}
           <StyledForm onSubmit={onChangeSubmit}>
-            <Typography variant="body1">
-              {t("auth:change_phone.change_to_different_description")}
-            </Typography>
+            <Typography variant="body1">{t("auth:change_phone.change_to_different_description")}</Typography>
             <PhoneInputWithCountry
               name="phone"
               control={control}
@@ -256,11 +210,7 @@ export default function ChangePhone({
               placeholder={t("auth:change_phone.phone_label")}
               id="phone"
             />
-            <Button
-              fullWidth={!isMdOrWider}
-              loading={isChangeLoading}
-              type="submit"
-            >
+            <Button fullWidth={!isMdOrWider} loading={isChangeLoading} type="submit">
               {t("auth:change_phone.change_button_text")}
             </Button>
           </StyledForm>

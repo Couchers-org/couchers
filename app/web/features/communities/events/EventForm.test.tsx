@@ -24,18 +24,8 @@ jest.mock("@mui/x-date-pickers", () => {
 });
 
 const serviceFn = jest.fn();
-function TestComponent({
-  event,
-  isEdit = false,
-}: {
-  event?: Event.AsObject;
-  isEdit?: boolean;
-}) {
-  const { error, mutate, isPending } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables
-  >({
+function TestComponent({ event, isEdit = false }: { event?: Event.AsObject; isEdit?: boolean }) {
+  const { error, mutate, isPending } = useMutation<Event.AsObject, RpcError, CreateEventVariables>({
     mutationFn: serviceFn,
   });
 
@@ -92,39 +82,24 @@ describe("Event form", () => {
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     // In MUI X v8, empty date/time fields don't have easily testable values
     // So we just check that the fields exist and are rendered
-    expect(
-      screen.getByRole("group", { name: t("communities:start_date") }),
-    ).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:start_date") })).toHaveTextContent("MM/DD/YYYY");
 
-    expect(
-      screen.getByRole("group", { name: t("communities:start_time") }),
-    ).toHaveTextContent("hh:mm aa");
-    expect(
-      screen.getByRole("group", { name: t("communities:end_date") }),
-    ).toHaveTextContent("MM/DD/YYYY");
-    expect(
-      screen.getByRole("group", { name: t("communities:end_time") }),
-    ).toHaveTextContent("hh:mm aa");
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:location")),
-      "",
-    );
+    expect(screen.getByRole("group", { name: t("communities:start_time") })).toHaveTextContent("hh:mm aa");
+    expect(screen.getByRole("group", { name: t("communities:end_date") })).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:end_time") })).toHaveTextContent("hh:mm aa");
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "");
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("global:create") }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
-    ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
+    expect(screen.getByRole("button", { name: t("global:create") })).toBeVisible();
+    expect(screen.getByRole("img", { name: t("communities:event_image_input_alt") })).toHaveAttribute(
+      "src",
+      "/img/imagePlaceholder.svg",
+    );
   });
 
   it("renders the form correctly when passed an event", async () => {
     renderForm(events[0], true);
 
-    assertFieldVisibleWithValue(
-      await screen.findByLabelText(t("communities:event_title_label")),
-      "Weekly Meetup",
-    );
+    assertFieldVisibleWithValue(await screen.findByLabelText(t("communities:event_title_label")), "Weekly Meetup");
 
     const startDateGroup = screen.getByRole("group", {
       name: t("communities:start_date"),
@@ -144,17 +119,12 @@ describe("Event form", () => {
     expect(endDateGroup).toHaveTextContent("06/29/2021");
     expect(endTimeGroup).toHaveTextContent("05:37 am");
 
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:location")),
-      "Concertgebouw",
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "Concertgebouw");
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:event_details")), "*Be there* or be square!");
+    expect(screen.getByRole("img", { name: t("communities:event_image_input_alt") })).toHaveAttribute(
+      "src",
+      "https://loremflickr.com/500/120/amsterdam",
     );
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:event_details")),
-      "*Be there* or be square!",
-    );
-    expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
-    ).toHaveAttribute("src", "https://loremflickr.com/500/120/amsterdam");
   });
 
   it("renders the image input for an event with no photo correctly", async () => {
@@ -172,9 +142,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).not.toHaveBeenCalled();
   });
@@ -184,18 +152,11 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_title_label")), "Test event");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
-    expect(
-      await screen.findByText(t("communities:location_required")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("communities:location_required"))).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -204,9 +165,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("communities:event_title_label"),
-    ) as HTMLInputElement;
+    const titleInput = screen.getByLabelText(t("communities:event_title_label")) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -240,36 +199,23 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    const locationInput = await screen.getByLabelText(
-      t("communities:location"),
-    );
+    const locationInput = await screen.getByLabelText(t("communities:location"));
     await user.type(locationInput, "tes{enter}");
     expect(locationInput).toHaveValue("tes");
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
     const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.location.name).toBe(
-      "test city, test county, test country",
-    );
+    expect(submittedData.location.name).toBe("test city, test county, test country");
     expect(submittedData.content).toBe("sick social!");
     expect(submittedData.startDate.toString()).toBe("2021-08-01");
     expect(submittedData.startTime.toString()).toBe("01:00:00");
@@ -286,14 +232,9 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_title_label")), "Test event");
 
-    expect(
-      screen.getByLabelText(t("communities:event_title_label")),
-    ).toHaveValue("Test event");
+    expect(screen.getByLabelText(t("communities:event_title_label"))).toHaveValue("Test event");
 
     const startDateGroup = await screen.findByRole("group", {
       name: t("communities:start_date"),
@@ -323,29 +264,18 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    const locationInput = (await screen.findByLabelText(
-      t("communities:location"),
-    )) as HTMLInputElement;
+    const locationInput = (await screen.findByLabelText(t("communities:location"))) as HTMLInputElement;
 
     await user.type(locationInput, "tes{enter}");
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
     await assertErrorAlert(errorMessage);
@@ -356,9 +286,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("communities:event_title_label"),
-    ) as HTMLInputElement;
+    const titleInput = screen.getByLabelText(t("communities:event_title_label")) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -392,40 +320,26 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    await user.type(
-      screen.getByLabelText(t("communities:location")),
-      "tes{enter}",
-    );
+    await user.type(screen.getByLabelText(t("communities:location")), "tes{enter}");
 
     expect(screen.getByLabelText(t("communities:location"))).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
     jest.setSystemTime(new Date("2021-08-01 00:00"));
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
     const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.location.name).toBe(
-      "test city, test county, test country",
-    );
+    expect(submittedData.location.name).toBe("test city, test county, test country");
     expect(submittedData.content).toBe("sick social!");
     expect(submittedData.startDate.toString()).toBe("2021-08-01");
     expect(submittedData.startTime.toString()).toBe("01:00:00");

@@ -41,9 +41,7 @@ describe("useNotificationSettings", () => {
         },
       ],
     };
-    (
-      service.notifications.getNotificationSettings as jest.Mock
-    ).mockResolvedValue(mockData);
+    (service.notifications.getNotificationSettings as jest.Mock).mockResolvedValue(mockData);
 
     const { result } = renderHook(() => useNotificationSettings(), {
       wrapper,
@@ -51,19 +49,13 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() => result.current.isSuccess);
 
-    await waitFor(() =>
-      expect(
-        service.notifications.getNotificationSettings,
-      ).toHaveBeenCalledTimes(1),
-    );
+    await waitFor(() => expect(service.notifications.getNotificationSettings).toHaveBeenCalledTimes(1));
     expect(result.current.data).toEqual(mockData);
   });
 
   it("should return an error when the request fails", async () => {
     const mockError = new RpcError(StatusCode.UNKNOWN, "Error message", {});
-    (
-      service.notifications.getNotificationSettings as jest.Mock
-    ).mockRejectedValue(mockError);
+    (service.notifications.getNotificationSettings as jest.Mock).mockRejectedValue(mockError);
 
     const { result } = renderHook(() => useNotificationSettings(), {
       wrapper,
@@ -71,11 +63,7 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() => result.current.isError);
 
-    await waitFor(() =>
-      expect(
-        service.notifications.getNotificationSettings,
-      ).toHaveBeenCalledTimes(1),
-    );
+    await waitFor(() => expect(service.notifications.getNotificationSettings).toHaveBeenCalledTimes(1));
 
     expect(result.current.error).toEqual(mockError);
   });

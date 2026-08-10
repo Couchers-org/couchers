@@ -18,15 +18,13 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
   const { t } = useTranslation([CONNECTIONS]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
   const isMenuOpen = Boolean(menuAnchorEl);
 
-  const { data, error, isPending } = useQuery<
-    GetBlockedUsersRes.AsObject,
-    RpcError
-  >({ queryKey: [blockedUsersKey], queryFn: service.blocking.getBlockedUsers });
+  const { data, error, isPending } = useQuery<GetBlockedUsersRes.AsObject, RpcError>({
+    queryKey: [blockedUsersKey],
+    queryFn: service.blocking.getBlockedUsers,
+  });
 
   const { unblockUserMutation, isUnblocking } = useUnblockUser();
 
@@ -62,11 +60,7 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
         noDataMessage={t("connections:no_blocked_users")}
       >
         {data?.blockedUsersList.map((user: BlockedUser.AsObject) => (
-          <FriendSummaryView
-            key={user.username}
-            friend={user}
-            isProfileLink={false}
-          >
+          <FriendSummaryView key={user.username} friend={user} isProfileLink={false}>
             <EllipsisMenu
               idName="blocked-user-item"
               isMenuOpen={isMenuOpen}
@@ -85,19 +79,12 @@ function BlockedUsersList({ refetchFriends }: { refetchFriends: () => void }) {
             <ConnectionActionDialog
               isOpen={isDialogOpen}
               onClose={handleDialogClose}
-              dialogConfirm={t(
-                "connections:unblock_user_confirmation_dialog.confirm",
-              )}
+              dialogConfirm={t("connections:unblock_user_confirmation_dialog.confirm")}
               dialogId="unblock-user--confirmation-dialog"
-              dialogMessage={t(
-                "connections:unblock_user_confirmation_dialog.message",
-              )}
-              dialogTitle={t(
-                "connections:unblock_user_confirmation_dialog.title",
-                {
-                  name: user.name,
-                },
-              )}
+              dialogMessage={t("connections:unblock_user_confirmation_dialog.message")}
+              dialogTitle={t("connections:unblock_user_confirmation_dialog.title", {
+                name: user.name,
+              })}
               isLoading={isUnblocking}
               onConfirm={() =>
                 handleUnblockUserConfirm({

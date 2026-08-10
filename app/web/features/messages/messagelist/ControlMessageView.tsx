@@ -30,19 +30,11 @@ const StyledSkeleton = styled(Skeleton)(() => ({
   minWidth: 100,
 }));
 
-export default function ControlMessageView({
-  message,
-  onVisible,
-  className,
-}: MessageProps) {
+export default function ControlMessageView({ message, onVisible, className }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  const { data: author, isLoading: isAuthorLoading } = useLiteUser(
-    message.authorUserId,
-  );
-  const { data: target, isLoading: isTargetLoading } = useLiteUser(
-    messageTargetId(message),
-  );
+  const { data: author, isLoading: isAuthorLoading } = useLiteUser(message.authorUserId);
+  const { data: target, isLoading: isTargetLoading } = useLiteUser(messageTargetId(message));
   const { ref } = useOnVisibleEffect(onVisible);
 
   const authorName = firstName(author?.name);

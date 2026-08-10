@@ -4,18 +4,14 @@ import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
 import {
-  localizeDateTime,
   localizeDuration,
   localizeRelativeTime,
+  localizeTimeOnly,
   localizeTimeZone,
   localizeYearMonth,
 } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
-import {
-  BirthdateVerificationStatus,
-  GenderVerificationStatus,
-  User,
-} from "proto/api_pb";
+import { BirthdateVerificationStatus, GenderVerificationStatus, User } from "proto/api_pb";
 import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
@@ -32,10 +28,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
   } = useTranslation(PROFILE);
   return (
     <>
-      <LabelAndText
-        label={t("heading.references")}
-        text={`${user.numReferences || 0}`}
-      />
+      <LabelAndText label={t("heading.references")} text={`${user.numReferences || 0}`} />
       <LabelAndText
         label={t("heading.last_active")}
         text={
@@ -54,10 +47,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
 export const ResponseRateText = ({
   user,
 }: {
-  user: Pick<
-    User.AsObject,
-    "insufficientData" | "low" | "some" | "most" | "almostAll"
-  >;
+  user: Pick<User.AsObject, "insufficientData" | "low" | "some" | "most" | "almostAll">;
 }) => {
   const { t } = useTranslation([PROFILE]);
 
@@ -93,22 +83,13 @@ export const ResponseRateLabel = ({ user }: Props) => {
   } else if (user.some) {
     rateText = t("response_rate_text_some");
     timeText = t("response_time_text_some", {
-      p33: localizeDuration(
-        Temporal.Duration.from({ seconds: user.some.responseTimeP33!.seconds }),
-        locale,
-      ),
+      p33: localizeDuration(Temporal.Duration.from({ seconds: user.some.responseTimeP33!.seconds }), locale),
     });
   } else if (user.most) {
     rateText = t("response_rate_text_most");
     timeText = t("response_time_text_most", {
-      p33: localizeDuration(
-        Temporal.Duration.from({ seconds: user.most.responseTimeP33!.seconds }),
-        locale,
-      ),
-      p66: localizeDuration(
-        Temporal.Duration.from({ seconds: user.most.responseTimeP66!.seconds }),
-        locale,
-      ),
+      p33: localizeDuration(Temporal.Duration.from({ seconds: user.most.responseTimeP33!.seconds }), locale),
+      p66: localizeDuration(Temporal.Duration.from({ seconds: user.most.responseTimeP66!.seconds }), locale),
     });
   } else if (user.almostAll) {
     rateText = t("response_rate_text_almost_all");
@@ -131,9 +112,7 @@ export const ResponseRateLabel = ({ user }: Props) => {
   return (
     <>
       <LabelAndText label={t("response_rate_label")} text={rateText ?? ""} />
-      {timeText && (
-        <LabelAndText label={t("response_time_label")} text={timeText} />
-      )}
+      {timeText && <LabelAndText label={t("response_time_label")} text={timeText} />}
     </>
   );
 };
@@ -144,9 +123,7 @@ const StyledContainer = styled("div")(() => ({
   alignItems: "center",
 }));
 
-const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
-  component: C,
-) => {
+const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(component: C) => {
   return styled(component)(() => ({
     margin: theme.spacing(0.5),
     alignSelf: "center",
@@ -157,37 +134,21 @@ const StyledCheckCircleIcon = styledIcon(CheckCircleIcon);
 const StyledErrorIcon = styledIcon(ErrorIcon);
 
 const AgeAndGenderRenderer = ({ user }: Props) => {
-  const {
-    birthdateVerificationStatus,
-    genderVerificationStatus,
-    age,
-    gender,
-    pronouns,
-  } = user;
+  const { birthdateVerificationStatus, genderVerificationStatus, age, gender, pronouns } = user;
   const { t } = useTranslation(PROFILE);
 
-  const getBirthdateVerificationIcon = (
-    status: BirthdateVerificationStatus,
-  ) => {
+  const getBirthdateVerificationIcon = (status: BirthdateVerificationStatus) => {
     switch (status) {
       case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:
         return (
           <Tooltip title={t("heading.age_verification_verified")}>
-            <StyledCheckCircleIcon
-              color="primary"
-              data-testid="check-circle-icon"
-              fontSize="inherit"
-            />
+            <StyledCheckCircleIcon color="primary" data-testid="check-circle-icon" fontSize="inherit" />
           </Tooltip>
         );
       case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_MISMATCH:
         return (
           <Tooltip title={t("heading.age_verification_mismatch")}>
-            <StyledErrorIcon
-              color="error"
-              data-testid="error-icon"
-              fontSize="inherit"
-            />
+            <StyledErrorIcon color="error" data-testid="error-icon" fontSize="inherit" />
           </Tooltip>
         );
       default:
@@ -200,21 +161,13 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
       case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_VERIFIED:
         return (
           <Tooltip title={t("heading.gender_verification_verified")}>
-            <StyledCheckCircleIcon
-              color="primary"
-              data-testid="check-circle-icon"
-              fontSize="inherit"
-            />
+            <StyledCheckCircleIcon color="primary" data-testid="check-circle-icon" fontSize="inherit" />
           </Tooltip>
         );
       case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_MISMATCH:
         return (
           <Tooltip title={t("heading.gender_verification_mismatch")}>
-            <StyledErrorIcon
-              color="error"
-              data-testid="error-icon"
-              fontSize="inherit"
-            />
+            <StyledErrorIcon color="error" data-testid="error-icon" fontSize="inherit" />
           </Tooltip>
         );
       default:
@@ -239,17 +192,13 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
 
   return (
     <>
-      <LabelAndText
-        label={t("heading.age_gender")}
-        text={<AgeAndGenderRenderer user={user} />}
-      />
+      <LabelAndText label={t("heading.age_gender")} text={<AgeAndGenderRenderer user={user} />} />
       {languages && (
         <LabelAndText
           label={t("heading.languages_fluent")}
           text={
-            user.languageAbilitiesList
-              .map((ability) => languages[ability.code])
-              .join(", ") || t("languages_fluent_false")
+            user.languageAbilitiesList.map((ability) => languages[ability.code]).join(", ") ||
+            t("languages_fluent_false")
           }
         />
       )}
@@ -264,29 +213,16 @@ export const RemainingAboutLabels = ({ user }: Props) => {
   } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   return (
     <>
-      <LabelAndText
-        label={t("profile:heading.hometown")}
-        text={user.hometown}
-      />
-      <LabelAndText
-        label={t("profile:heading.occupation")}
-        text={user.occupation}
-      />
-      <LabelAndText
-        label={t("profile:heading.education")}
-        text={user.education}
-      />
+      <LabelAndText label={t("profile:heading.hometown")} text={user.hometown} />
+      <LabelAndText label={t("profile:heading.occupation")} text={user.occupation} />
+      <LabelAndText label={t("profile:heading.education")} text={user.education} />
       <LabelAndText
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? localizeYearMonth(
-                timestampToPlainDateTime(user.joined).toPlainDate(),
-                {
-                  locale,
-                  capitalize: true,
-                },
-              )
+            ? localizeYearMonth(timestampToPlainDateTime(user.joined), locale, {
+                capitalize: true,
+              })
             : ""
         }
       />
@@ -297,13 +233,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             <Trans
               i18nKey="profile:local_time_with_time_zone_text"
               values={{
-                time: localizeDateTime(
-                  Temporal.Now.plainDateTimeISO(user.timezone),
-                  {
-                    locale,
-                    includeDate: false,
-                  },
-                ),
+                time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(user.timezone), locale),
               }}
               components={{
                 timeZone: (

@@ -45,11 +45,7 @@ export default function Settings() {
   const [testPushLoading, setTestPushLoading] = useState(false);
   const [testPushMessage, setTestPushMessage] = useState<string | null>(null);
 
-  const {
-    data: accountInfo,
-    error: accountInfoError,
-    isLoading: isAccountInfoLoading,
-  } = useAccountInfo();
+  const { data: accountInfo, error: accountInfoError, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   // Uncomment to enable test push notification button
   const handleTestPush = async () => {
@@ -59,9 +55,7 @@ export default function Settings() {
       await sendTestMobilePushNotification();
       setTestPushMessage("✅ Test notification sent! Check your phone.");
     } catch (error) {
-      setTestPushMessage(
-        "❌ Failed to send test notification: " + (error as Error).message,
-      );
+      setTestPushMessage("❌ Failed to send test notification: " + (error as Error).message);
     } finally {
       setTestPushLoading(false);
     }
@@ -91,31 +85,13 @@ export default function Settings() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : accountInfo ? (
         <>
-          <TopMarginWrapper>
-            {isNativeEmbed ? null : <PushNotificationSettings />}
-          </TopMarginWrapper>
-          <MarginWrapper
-            style={
-              process.env.NODE_ENV === "production" ? { display: "none" } : {}
-            }
-          >
-            <Button
-              variant="contained"
-              onClick={handleTestPush}
-              disabled={testPushLoading}
-            >
-              {testPushLoading
-                ? "Sending..."
-                : "🔔 Test Mobile Push Notification"}
+          <TopMarginWrapper>{isNativeEmbed ? null : <PushNotificationSettings />}</TopMarginWrapper>
+          <MarginWrapper style={process.env.NODE_ENV === "production" ? { display: "none" } : {}}>
+            <Button variant="contained" onClick={handleTestPush} disabled={testPushLoading}>
+              {testPushLoading ? "Sending..." : "🔔 Test Mobile Push Notification"}
             </Button>
             {testPushMessage && (
-              <Alert
-                severity={
-                  testPushMessage.startsWith("✅") ? "success" : "error"
-                }
-              >
-                {testPushMessage}
-              </Alert>
+              <Alert severity={testPushMessage.startsWith("✅") ? "success" : "error"}>{testPushMessage}</Alert>
             )}
           </MarginWrapper>
           <MarginWrapper>
@@ -166,9 +142,7 @@ export default function Settings() {
           <MarginWrapper>
             <Section
               title={t("account_settings_page.birth_date_section.title")}
-              content={t(
-                "account_settings_page.birth_date_section.explanation",
-              )}
+              content={t("account_settings_page.birth_date_section.explanation")}
             />
           </MarginWrapper>
           <MarginWrapper>

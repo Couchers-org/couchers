@@ -41,11 +41,7 @@ const Message = styled("span")(({ theme }) => ({
   },
 }));
 
-export default function DonationDriveBlock({
-  onClose,
-  action,
-  alwaysShow = false,
-}: DonationDriveBlockProps) {
+export default function DonationDriveBlock({ onClose, action, alwaysShow = false }: DonationDriveBlockProps) {
   const { t, i18n } = useTranslation(GLOBAL);
   const { data: accountInfo, isLoading } = useAccountInfo();
   const { data: donationStats } = useDonationStats();
@@ -87,9 +83,7 @@ export default function DonationDriveBlock({
       <OuterWrapper>
         <ContentWrapper>
           <DonationProgressBar />
-          <Message>
-            {t("donation_banner.message", { goal: formattedGoal })}
-          </Message>
+          <Message>{t("donation_banner.message", { goal: formattedGoal })}</Message>
         </ContentWrapper>
         {action}
       </OuterWrapper>

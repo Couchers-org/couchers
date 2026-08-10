@@ -22,11 +22,7 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const Form = ({
-  setDate,
-}: {
-  setDate: (date: Temporal.PlainDate | null) => void;
-}) => {
+const Form = ({ setDate }: { setDate: (date: Temporal.PlainDate | null) => void }) => {
   const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
@@ -65,9 +61,7 @@ describe("DatePicker", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.click(
-      screen.getByLabelText(t("global:components.datepicker.change_date")),
-    );
+    await user.click(screen.getByLabelText(t("global:components.datepicker.change_date")));
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 

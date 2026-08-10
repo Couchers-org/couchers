@@ -81,13 +81,7 @@ const StyledFilterContainer = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-type FilterType =
-  | "all"
-  | "unread"
-  | "chats"
-  | "hosting"
-  | "surfing"
-  | "archived";
+type FilterType = "all" | "unread" | "chats" | "hosting" | "surfing" | "archived";
 
 interface MessageItem {
   type: "chat" | "host-request";
@@ -103,8 +97,7 @@ export default function AllMessagesTab() {
   const { data: notifications } = useNotifications();
   const { data: currentUser } = useCurrentUser();
   const unseenMessageCount = notifications?.unseenMessageCount;
-  const unseenReceivedHostRequestCount =
-    notifications?.unseenReceivedHostRequestCount;
+  const unseenReceivedHostRequestCount = notifications?.unseenReceivedHostRequestCount;
   const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
 
   useMessageListsAutoRefetch();
@@ -118,20 +111,12 @@ export default function AllMessagesTab() {
         : router.query.slug;
 
   const filterFromPath = slugs[0] as FilterType;
-  const filter = [
-    "all",
-    "unread",
-    "chats",
-    "hosting",
-    "surfing",
-    "archived",
-  ].includes(filterFromPath)
+  const filter = ["all", "unread", "chats", "hosting", "surfing", "archived"].includes(filterFromPath)
     ? filterFromPath
     : "all";
 
   const showArchived = filter === "archived";
-  const requestType =
-    filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
+  const requestType = filter === "hosting" ? "hosting" : filter === "surfing" ? "surfing" : "all";
 
   // Navigate to the appropriate route when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
@@ -152,15 +137,8 @@ export default function AllMessagesTab() {
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
     queryKey: groupChatsListKey({ onlyArchived: showArchived }),
     queryFn: ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(
-        lastMessageId as number | undefined,
-        50,
-        showArchived,
-      ),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore || !lastPage.lastMessageId
-        ? undefined
-        : lastPage.lastMessageId,
+      service.conversations.listGroupChats(lastMessageId as number | undefined, 50, showArchived),
+    getNextPageParam: (lastPage) => (lastPage.noMore || !lastPage.lastMessageId ? undefined : lastPage.lastMessageId),
     initialPageParam: undefined,
     enabled: shouldFetchChats,
   });
@@ -184,10 +162,7 @@ export default function AllMessagesTab() {
         onlyArchived: showArchived,
         type: requestType,
       }),
-    getNextPageParam: (lastPage) =>
-      lastPage.noMore || !lastPage.nextPageToken
-        ? undefined
-        : lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => (lastPage.noMore || !lastPage.nextPageToken ? undefined : lastPage.nextPageToken),
     initialPageParam: undefined,
     enabled: shouldFetchRequests,
   });
@@ -246,35 +221,25 @@ export default function AllMessagesTab() {
     }
     if (filter === "hosting") {
       return allMessages.filter(
-        (msg) =>
-          msg.type === "host-request" &&
-          (msg.data as HostRequest.AsObject).hostUserId === currentUser?.userId,
+        (msg) => msg.type === "host-request" && (msg.data as HostRequest.AsObject).hostUserId === currentUser?.userId,
       );
     }
     if (filter === "surfing") {
       return allMessages.filter(
-        (msg) =>
-          msg.type === "host-request" &&
-          (msg.data as HostRequest.AsObject).surferUserId ===
-            currentUser?.userId,
+        (msg) => msg.type === "host-request" && (msg.data as HostRequest.AsObject).surferUserId === currentUser?.userId,
       );
     }
     return allMessages;
   }, [allMessages, filter, currentUser?.userId]);
 
-  const hasMoreMessages =
-    (shouldFetchChats && chatsHasNextPage) ||
-    (shouldFetchRequests && requestsHasNextPage);
+  const hasMoreMessages = (shouldFetchChats && chatsHasNextPage) || (shouldFetchRequests && requestsHasNextPage);
   const isFetchingMore =
-    (shouldFetchChats && chatsIsFetchingNextPage) ||
-    (shouldFetchRequests && requestsIsFetchingNextPage);
+    (shouldFetchChats && chatsIsFetchingNextPage) || (shouldFetchRequests && requestsIsFetchingNextPage);
 
   const loadMoreMessages = async () => {
     const promises = [];
-    if (shouldFetchChats && chatsHasNextPage)
-      promises.push(chatsFetchNextPage());
-    if (shouldFetchRequests && requestsHasNextPage)
-      promises.push(requestsFetchNextPage());
+    if (shouldFetchChats && chatsHasNextPage) promises.push(chatsFetchNextPage());
+    if (shouldFetchRequests && requestsHasNextPage) promises.push(requestsFetchNextPage());
     await Promise.all(promises);
   };
 
@@ -282,8 +247,7 @@ export default function AllMessagesTab() {
   const unseenChatsCount = unseenMessageCount ?? 0;
   const unseenHostingCount = unseenReceivedHostRequestCount ?? 0;
   const unseenSurfingCount = unseenSentHostRequestCount ?? 0;
-  const unseenAllCount =
-    unseenChatsCount + unseenHostingCount + unseenSurfingCount;
+  const unseenAllCount = unseenChatsCount + unseenHostingCount + unseenSurfingCount;
 
   return (
     <StyledWrapper>
@@ -331,9 +295,7 @@ export default function AllMessagesTab() {
         </NotificationBadge>
         <Chip
           label={t("archive.archived")}
-          onClick={() =>
-            handleFilterChange(filter === "archived" ? "all" : "archived")
-          }
+          onClick={() => handleFilterChange(filter === "archived" ? "all" : "archived")}
           color={filter === "archived" ? "primary" : "default"}
           variant={filter === "archived" ? "filled" : "outlined"}
         />
@@ -344,11 +306,7 @@ export default function AllMessagesTab() {
       ) : (
         <StyledList>
           {filteredMessages.length === 0 ? (
-            <TextBody>
-              {showArchived
-                ? t("archive.no_archived_messages")
-                : t("all_messages_tab.no_messages")}
-            </TextBody>
+            <TextBody>{showArchived ? t("archive.no_archived_messages") : t("all_messages_tab.no_messages")}</TextBody>
           ) : (
             filteredMessages.map((message) =>
               message.type === "chat" ? (
@@ -358,10 +316,7 @@ export default function AllMessagesTab() {
                   onClick={(e) => {
                     // Prevent navigation if clicking on the menu button or menu items
                     const target = e.target as HTMLElement;
-                    if (
-                      target.closest("button") ||
-                      target.closest('[role="menu"]')
-                    ) {
+                    if (target.closest("button") || target.closest('[role="menu"]')) {
                       e.preventDefault();
                     }
                   }}
@@ -378,10 +333,7 @@ export default function AllMessagesTab() {
                   onClick={(e) => {
                     // Prevent navigation if clicking on the menu button or menu items
                     const target = e.target as HTMLElement;
-                    if (
-                      target.closest("button") ||
-                      target.closest('[role="menu"]')
-                    ) {
+                    if (target.closest("button") || target.closest('[role="menu"]')) {
                       e.preventDefault();
                     }
                   }}

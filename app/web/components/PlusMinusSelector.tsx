@@ -35,9 +35,7 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
       >
         <RemoveIcon />
       </IconButton>
-      <Typography sx={{ textAlign: "center" }}>
-        {!value ? t("search:any") : value}
-      </Typography>
+      <Typography sx={{ textAlign: "center" }}>{!value ? t("search:any") : value}</Typography>
       <IconButton
         onClick={handleIncrease}
         sx={{

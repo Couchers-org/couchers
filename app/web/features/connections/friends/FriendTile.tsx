@@ -39,24 +39,12 @@ const StyledHeader = styled(Typography)(({ theme }) => ({
   },
 }));
 
-function FriendTile({
-  children,
-  count,
-  errorMessage,
-  hasData,
-  isLoading,
-  noDataMessage,
-  title,
-}: FriendTileProps) {
+function FriendTile({ children, count, errorMessage, hasData, isLoading, noDataMessage, title }: FriendTileProps) {
   return (
     <Card>
       <StyledContainer>
         <StyledHeader variant="h2">
-          {count ? (
-            <NotificationBadge count={count}>{title}</NotificationBadge>
-          ) : (
-            title
-          )}
+          {count ? <NotificationBadge count={count}>{title}</NotificationBadge> : title}
         </StyledHeader>
         {errorMessage ? (
           <Alert severity="error" sx={{ borderRadius: 0 }}>
@@ -64,15 +52,11 @@ function FriendTile({
           </Alert>
         ) : null}
         {isLoading ? (
-          <CircularProgress
-            sx={{ display: "block", margin: `0 auto ${theme.spacing(1)}` }}
-          />
+          <CircularProgress sx={{ display: "block", margin: `0 auto ${theme.spacing(1)}` }} />
         ) : hasData ? (
           children
         ) : (
-          <TextBody sx={{ marginLeft: theme.spacing(1) }}>
-            {noDataMessage}
-          </TextBody>
+          <TextBody sx={{ marginLeft: theme.spacing(1) }}>{noDataMessage}</TextBody>
         )}
       </StyledContainer>
     </Card>

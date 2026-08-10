@@ -7,11 +7,7 @@ import { User } from "proto/api_pb";
 import { routeToProfile } from "routes";
 import { theme } from "theme";
 
-export default function MinimalUserProfileCard({
-  user,
-}: {
-  user: User.AsObject;
-}) {
+export default function MinimalUserProfileCard({ user }: { user: User.AsObject }) {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <Card

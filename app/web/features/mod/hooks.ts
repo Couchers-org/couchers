@@ -1,13 +1,5 @@
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
-import {
-  modUserDetailsKey,
-  modUserKey,
-  newUsersListKey,
-} from "features/queryKeys";
+import { InfiniteData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { modUserDetailsKey, modUserKey, newUsersListKey } from "features/queryKeys";
 import { userStaleTime } from "features/userQueries/constants";
 import { RpcError } from "grpc-web";
 import { ListUserIdsRes, UserDetails } from "proto/admin_pb";

@@ -1,10 +1,4 @@
-import {
-  Link as MuiLink,
-  styled,
-  StyledEngineProvider,
-  ThemeProvider,
-  Typography,
-} from "@mui/material";
+import { Link as MuiLink, styled, StyledEngineProvider, ThemeProvider, Typography } from "@mui/material";
 import { Trans } from "next-i18next";
 import { theme } from "theme";
 
@@ -27,8 +21,7 @@ const StyledAttribution = styled(Typography)(() => ({
 // photo URL: https://unsplash.com/phouiLink>tos/eOcyhe5-9sQ?
 const authorUrl =
   "https://unsplash.com/@directormesut?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
-const unsplashUrl =
-  "https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
+const unsplashUrl = "https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
 
 export default function HeroImageAttribution() {
   // because this component is over an image background, we need to use a theme that overrides some styles

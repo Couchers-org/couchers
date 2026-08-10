@@ -6,10 +6,7 @@ const Markdown = dynamic(() => import("components/MarkdownNoSSR"), {
 
 export default Markdown;
 
-export function increaseMarkdownHeaderLevel(
-  source: string,
-  topHeaderLevel: number,
-) {
+export function increaseMarkdownHeaderLevel(source: string, topHeaderLevel: number) {
   let convertedSource = source;
   for (let i = 6; i >= 1; i--) {
     //loop through each header level, and add extra # as necessary

@@ -11,8 +11,7 @@ import { useNewUsers } from "./hooks";
 export default function ModPage() {
   const { t } = useTranslation([GLOBAL, MOD, PROFILE]);
 
-  const { userIds, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useNewUsers();
+  const { userIds, error, hasNextPage, isFetchingNextPage, fetchNextPage } = useNewUsers();
 
   return (
     <>
@@ -22,11 +21,7 @@ export default function ModPage() {
       <UsersList
         error={error}
         userIds={userIds}
-        emptyListChildren={
-          <Typography variant="body1">
-            {t("mod:list_users.none_found")}
-          </Typography>
-        }
+        emptyListChildren={<Typography variant="body1">{t("mod:list_users.none_found")}</Typography>}
       />
       {hasNextPage && (
         <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>

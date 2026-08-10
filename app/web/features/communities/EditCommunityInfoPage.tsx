@@ -44,11 +44,7 @@ interface UpdatePageData {
   communityPhotoKey?: string;
 }
 
-export default function EditCommunityPage({
-  communityId,
-}: {
-  communityId: number;
-}) {
+export default function EditCommunityPage({ communityId }: { communityId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -75,15 +71,13 @@ export default function EditCommunityPage({
     },
 
     onSuccess(newPageData, { communityId }) {
-      queryClient.setQueryData<Community.AsObject | undefined>(
-        communityKey(+communityId),
-        (community) =>
-          community
-            ? {
-                ...community,
-                mainPage: newPageData,
-              }
-            : undefined,
+      queryClient.setQueryData<Community.AsObject | undefined>(communityKey(+communityId), (community) =>
+        community
+          ? {
+              ...community,
+              mainPage: newPageData,
+            }
+          : undefined,
       );
       queryClient.invalidateQueries({ queryKey: communityKey(+communityId) });
     },
@@ -111,9 +105,7 @@ export default function EditCommunityPage({
             <HtmlMeta title={t("communities:edit_info_page_title")} />
             <PageTitle>{t("communities:edit_info_page_title")}</PageTitle>
             {(error || errors.communityPhotoKey) && (
-              <Alert severity="error">
-                {error?.message || errors.communityPhotoKey?.message || ""}
-              </Alert>
+              <Alert severity="error">{error?.message || errors.communityPhotoKey?.message || ""}</Alert>
             )}
             <StyledForm onSubmit={onSubmit}>
               <ImageInput
@@ -141,32 +133,16 @@ export default function EditCommunityPage({
                 imageUpload
                 required={t("communities:page_content_required")}
               />
-              <input
-                id="pageId"
-                {...register("pageId")}
-                type="hidden"
-                value={community.mainPage.pageId}
-              />
-              <input
-                id="communityId"
-                {...register("communityId")}
-                type="hidden"
-                value={community.communityId}
-              />
+              <input id="pageId" {...register("pageId")} type="hidden" value={community.mainPage.pageId} />
+              <input id="communityId" {...register("communityId")} type="hidden" value={community.communityId} />
               <StyledUpdateButton loading={isPending} type="submit">
                 {t("global:save")}
               </StyledUpdateButton>
             </StyledForm>
-            {isSuccess && (
-              <Snackbar severity="success">
-                {t("communities:edit_info_page_success_message")}
-              </Snackbar>
-            )}
+            {isSuccess && <Snackbar severity="success">{t("communities:edit_info_page_success_message")}</Snackbar>}
           </>
         ) : (
-          <Redirect
-            to={routeToCommunity(community.communityId, community.slug, "info")}
-          />
+          <Redirect to={routeToCommunity(community.communityId, community.slug, "info")} />
         );
       }}
     </CommunityBase>

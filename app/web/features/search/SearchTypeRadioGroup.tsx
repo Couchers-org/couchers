@@ -1,11 +1,4 @@
-import {
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  styled,
-  Typography,
-} from "@mui/material";
+import { FormControl, FormControlLabel, Radio, RadioGroup, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent } from "react";
@@ -34,10 +27,7 @@ const SearchTypeRadioGroup = ({
 }) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-    value: string,
-  ) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>, value: string) => {
     onChange(value as MapSearchTypes);
   };
 
@@ -48,20 +38,12 @@ const SearchTypeRadioGroup = ({
           <FormControlLabel
             value="location"
             control={<Radio sx={{ py: 1 }} />}
-            label={
-              <Typography variant="body2">
-                {t("search:form.by_location_filter_label")}
-              </Typography>
-            }
+            label={<Typography variant="body2">{t("search:form.by_location_filter_label")}</Typography>}
           />
           <FormControlLabel
             value="keyword"
             control={<Radio sx={{ py: 0.5 }} />}
-            label={
-              <Typography variant="body2">
-                {t("search:form.by_keyword_filter_label")}
-              </Typography>
-            }
+            label={<Typography variant="body2">{t("search:form.by_keyword_filter_label")}</Typography>}
           />
         </RadioGroup>
       </FormControl>

@@ -88,16 +88,11 @@ const StyledLoadingSpinner = styled(CircularProgress)({
   position: "absolute",
 });
 
-const getGroupKey = (
-  groupHeading: string,
-  subTopicAction: string,
-  topicName: string,
-) => {
+const getGroupKey = (groupHeading: string, subTopicAction: string, topicName: string) => {
   if (groupHeading === "Account Security") return "account_security";
   if (groupHeading === "Account Settings") return "account_settings";
   if (groupHeading === "Other Notifications") return "other_notifications";
-  if (subTopicAction === "reply" || subTopicAction === "comment")
-    return "reply";
+  if (subTopicAction === "reply" || subTopicAction === "comment") return "reply";
   return topicName;
 };
 
@@ -115,29 +110,22 @@ export default function EditNotificationSettingsPage() {
       return;
     }
 
-    const computedGroups = data?.groupsList.reduce<GroupsByType>(
-      (acc, group) => {
-        group.topicsList.forEach((topic) => {
-          const items = topic?.itemsList;
-          if (!items) return;
+    const computedGroups = data?.groupsList.reduce<GroupsByType>((acc, group) => {
+      group.topicsList.forEach((topic) => {
+        const items = topic?.itemsList;
+        if (!items) return;
 
-          items.forEach((subTopic) => {
-            if (!subTopic?.userEditable) return;
+        items.forEach((subTopic) => {
+          if (!subTopic?.userEditable) return;
 
-            const key = getGroupKey(
-              group.heading,
-              subTopic.action,
-              topic.topic,
-            );
-            acc[key] ||= [];
-            acc[key].push({ ...subTopic, topic: topic.topic });
-          });
+          const key = getGroupKey(group.heading, subTopic.action, topic.topic);
+          acc[key] ||= [];
+          acc[key].push({ ...subTopic, topic: topic.topic });
         });
+      });
 
-        return acc;
-      },
-      {},
-    );
+      return acc;
+    }, {});
 
     setGroups(computedGroups);
     setAreGroupsLoading(false);
@@ -162,9 +150,7 @@ export default function EditNotificationSettingsPage() {
   return (
     <StyledNotificationSettingsContainer>
       <Typography variant="h2">{t("title")}</Typography>
-      <StyledNotificationDescription variant="body1">
-        {t("description")}
-      </StyledNotificationDescription>
+      <StyledNotificationDescription variant="body1">{t("description")}</StyledNotificationDescription>
       <StyledHeaderContainer>
         <StyledTitle variant="h3">{t("list_heading")}</StyledTitle>
         <StyledButton
@@ -182,9 +168,7 @@ export default function EditNotificationSettingsPage() {
         </Snackbar>
       )}
       {!isLoading && !areGroupsLoading ? (
-        <StyledAccordionContainer>
-          {renderNotificationListItems()}
-        </StyledAccordionContainer>
+        <StyledAccordionContainer>{renderNotificationListItems()}</StyledAccordionContainer>
       ) : (
         <StyledLoadingSpinner />
       )}

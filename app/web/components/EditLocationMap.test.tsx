@@ -74,11 +74,10 @@ describe("Edit location map", () => {
         { wrapper },
       );
       await waitFor(() =>
-        expect(
-          screen.getByText(
-            t("global:components.edit_location_map.display_location_label"),
-          ),
-        ).toHaveAttribute("data-shrink", "false"),
+        expect(screen.getByText(t("global:components.edit_location_map.display_location_label"))).toHaveAttribute(
+          "data-shrink",
+          "false",
+        ),
       );
     });
 
@@ -96,11 +95,10 @@ describe("Edit location map", () => {
         { wrapper },
       );
       await waitFor(() =>
-        expect(
-          screen.getByText(
-            t("global:components.edit_location_map.display_location_label"),
-          ),
-        ).toHaveAttribute("data-shrink", "true"),
+        expect(screen.getByText(t("global:components.edit_location_map.display_location_label"))).toHaveAttribute(
+          "data-shrink",
+          "true",
+        ),
       );
     });
 
@@ -122,9 +120,7 @@ describe("Edit location map", () => {
       const user = userEvent.setup();
 
       await user.type(
-        screen.getByLabelText(
-          t("global:components.edit_location_map.search_location_label"),
-        ),
+        screen.getByLabelText(t("global:components.edit_location_map.search_location_label")),
         "test{enter}",
       );
       await user.click(
@@ -133,22 +129,15 @@ describe("Edit location map", () => {
         }),
       );
 
-      expect(
-        screen.getByText(
-          t("global:components.edit_location_map.display_location_label"),
-        ),
-      ).toHaveAttribute("data-shrink", "true");
-      expect(
-        screen.getByLabelText(
-          t("global:components.edit_location_map.display_location_label"),
-        ),
-      ).toHaveValue("test city, test country");
+      expect(screen.getByText(t("global:components.edit_location_map.display_location_label"))).toHaveAttribute(
+        "data-shrink",
+        "true",
+      );
+      expect(screen.getByLabelText(t("global:components.edit_location_map.display_location_label"))).toHaveValue(
+        "test city, test country",
+      );
       await waitFor(() => {
-        expect(
-          screen
-            .getByRole("combobox")
-            .classList.contains("MuiAutocomplete-loading"),
-        ).toBe(false);
+        expect(screen.getByRole("combobox").classList.contains("MuiAutocomplete-loading")).toBe(false);
         expect(updateLocation).toHaveBeenCalledTimes(1);
       });
     });
