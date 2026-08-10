@@ -5,6 +5,7 @@ import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
+import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import PageTitle from "components/PageTitle";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
@@ -70,7 +71,7 @@ const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(({ theme, is
   // Use CSS custom property set by Navigation component for actual height
   height: isNativeEmbed
     ? "calc(100dvh - var(--nav-height, 3.5rem))"
-    : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
+    : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`,
 
   [theme.breakpoints.up("md")]: {
     // On desktop, only subtract top nav (no bottom nav)

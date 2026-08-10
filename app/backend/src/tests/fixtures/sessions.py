@@ -80,6 +80,7 @@ from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
+from tests.fixtures import query_log
 
 
 class _MockCouchersContext:
@@ -112,6 +113,35 @@ class MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
         self.latest_headers = dict(call.initial_metadata())
         self.latest_header_raw = call.initial_metadata()
         return call
+
+
+class QuerySpanInterceptor(grpc.ServerInterceptor):
+    """Attributes the queries a handler issues to the RPC being served.
+
+    Wraps only the returned handler, not the continuation, so the downstream middleware's auth lookups stay out of
+    the span. The wrapper runs on the thread that services the call, which is what query_log's thread-local needs.
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        method = handler_call_details.method
+        # The downstream middleware authenticates inside its own intercept_service, so this span covers the auth
+        # lookups. They're a real per-call cost and worth seeing, just not conflated with the handler's own work.
+        with query_log.span("auth", method):
+            handler = continuation(handler_call_details)
+        if handler is None or handler.unary_unary is None:
+            return handler
+
+        inner = handler.unary_unary
+
+        def wrapper(request, context):
+            with query_log.span("rpc", method):
+                return inner(request, context)
+
+        return grpc.unary_unary_rpc_method_handler(
+            wrapper,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
 
 
 class FakeRpcError(grpc.RpcError):
@@ -167,14 +197,15 @@ class FakeChannel:
         handler = self.handlers[method]
 
         def fake_handler(request):
-            auth_info = _try_get_and_update_user_details(
-                self._token,
-                is_api_key=False,
-                ip_address="127.0.0.1",
-                user_agent="Testing User-Agent",
-                sofa=None,
-                client_platform=None,
-            )
+            with query_log.span("auth", method):
+                auth_info = _try_get_and_update_user_details(
+                    self._token,
+                    is_api_key=False,
+                    ip_address="127.0.0.1",
+                    user_agent="Testing User-Agent",
+                    sofa=None,
+                    client_platform=None,
+                )
             auth_level = find_auth_level(self._pool, method)
             check_permissions(auth_info, auth_level)
 
@@ -182,7 +213,9 @@ class FakeChannel:
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
 
-            with session_scope() as session:
+            # Span covers the handler and its session but not the auth lookup above, matching the boundary
+            # couchers.perf uses in prod and the real-server sessions below.
+            with query_log.span("rpc", method), session_scope() as session:
                 context = make_interactive_context(
                     grpc_context=MockGrpcContext(),
                     user_id=auth_info.user_id if auth_info else None,
@@ -211,7 +244,7 @@ def run_server(grpc_channel_options=(), token: str | None = None):
         else:
             creds = grpc.local_channel_credentials()
 
-        srv = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        srv = grpc.server(executor, interceptors=[QuerySpanInterceptor(), CouchersMiddlewareInterceptor()])
         port = srv.add_secure_port("localhost:0", grpc.local_server_credentials())
         srv.start()
 

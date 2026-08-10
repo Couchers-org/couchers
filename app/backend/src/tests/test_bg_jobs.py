@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Any
 from unittest.mock import call, patch
 
@@ -12,7 +12,12 @@ from sqlalchemy.sql import delete, func
 import couchers.jobs.worker
 from couchers import experimentation
 from couchers.config import config
-from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
+from couchers.constants import (
+    HOST_REQUEST_MAX_REMINDERS,
+    HOST_REQUEST_REMINDER_INTERVAL,
+    MISSED_MESSAGES_DELAY,
+    MISSED_MESSAGES_DELAY_WITH_PUSH,
+)
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -62,14 +67,11 @@ from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
-from tests.fixtures.misc import PushCollector, now_5_min_in_future, process_jobs
+from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import conversations_session, requests_session
+from tests.fixtures.timewarp import Timewarp
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text
-
-
-def now_1_day_in_future() -> datetime:
-    return now() + timedelta(hours=25)
 
 
 def _add_mobile_push_subscription(user_id: int, *, disabled: bool = False) -> None:
@@ -595,7 +597,7 @@ def test_no_jobs_no_problem(db):
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
-def test_send_message_notifications_basic(db, moderator):
+def test_send_message_notifications_basic(db, moderator, timewarp: Timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -650,10 +652,11 @@ def test_send_message_notifications_basic(db, moderator):
             == 0
         )
 
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
     # this should generate emails for both user2 and user3
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -666,9 +669,8 @@ def test_send_message_notifications_basic(db, moderator):
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
     # shouldn't generate any more emails
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -679,7 +681,58 @@ def test_send_message_notifications_basic(db, moderator):
         )
 
 
-def test_send_message_notifications_muted(db, moderator):
+def test_send_message_notifications_ignores_abandoned_subscription(db, moderator, timewarp: Timewarp):
+    """
+    Rejoining a chat leaves the earlier subscription behind with its own last-seen state, and the job
+    used to notify off that stale one even once the user had caught up on their newest subscription.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        # unread and un-notified for user2 when they get removed below
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user2.id))
+
+    for token in [token2, token3]:
+        with conversations_session(token) as c:
+            latest_message_id = c.GetGroupChat(
+                conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
+            ).latest_message.message_id
+            c.MarkLastSeenGroupChat(
+                conversations_pb2.MarkLastSeenGroupChatReq(
+                    group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+                )
+            )
+
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -736,10 +789,11 @@ def test_send_message_notifications_muted(db, moderator):
             == 0
         )
 
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
     # this should generate emails for both user2 and NOT user3
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -752,9 +806,8 @@ def test_send_message_notifications_muted(db, moderator):
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
     # shouldn't generate any more emails
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -779,7 +832,9 @@ def _send_one_chat_message(token: str, recipient_id: int, moderator) -> None:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
 
-def test_send_message_notifications_delayed_for_push_capable_users(db, moderator, push_collector: PushCollector):
+def test_send_message_notifications_delayed_for_push_capable_users(
+    db, moderator, push_collector: PushCollector, timewarp: Timewarp
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     make_friends(user1, user2)
@@ -788,19 +843,19 @@ def test_send_message_notifications_delayed_for_push_capable_users(db, moderator
     _send_one_chat_message(token1, user2.id, moderator)
 
     # user2 already got a push about this, so the usual 5 minute delay doesn't apply to them
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
     assert _count_queued_emails() == 0
 
-    with patch("couchers.jobs.handlers.now", now_1_day_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY_WITH_PUSH)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
     assert _count_queued_emails() == 1
 
 
 def test_send_message_notifications_not_delayed_when_push_subscription_disabled(
-    db, moderator, push_collector: PushCollector
+    db, moderator, push_collector: PushCollector, timewarp: Timewarp
 ):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -810,13 +865,13 @@ def test_send_message_notifications_not_delayed_when_push_subscription_disabled(
 
     _send_one_chat_message(token1, user2.id, moderator)
 
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
     assert _count_queued_emails() == 1
 
 
-def test_send_request_notifications_host_request(db, moderator):
+def test_send_request_notifications_host_request(db, moderator, timewarp: Timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -841,17 +896,13 @@ def test_send_request_notifications_host_request(db, moderator):
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # the only unseen message is the creation message, which the host was already
-        # notified about via host_request__create — no missed_messages email
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 0
-        )
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
+    # the only unseen message is the creation message, which the host was already
+    # notified about via host_request__create — no missed_messages email
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+    assert _count_queued_emails() == 0
 
     # test that responding to host request creates email
     with requests_session(token2) as requests:
@@ -867,33 +918,24 @@ def test_send_request_notifications_host_request(db, moderator):
         # delete send_email BackgroundJob created by RespondHostRequest
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # check send_request_notifications successfully creates background job
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 1
-        )
+    timewarp.advance(MISSED_MESSAGES_DELAY)
 
+    # check send_request_notifications successfully creates background job
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+    assert _count_queued_emails() == 1
+
+    with session_scope() as session:
         # delete all BackgroundJobs
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        # should find no messages since guest has already been notified
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 0
-        )
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+    # should find no messages since guest has already been notified
+    assert _count_queued_emails() == 0
 
 
-def test_send_request_notifications_host_request_with_followup(db, moderator):
+def test_send_request_notifications_host_request_with_followup(db, moderator, timewarp: Timewarp):
     """
     When the surfer sends a follow-up message after creating the host request,
     the host should get a missed_messages notification (even though the initial
@@ -922,19 +964,15 @@ def test_send_request_notifications_host_request_with_followup(db, moderator):
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # now there are two unseen text messages for the host, so missed_messages should fire
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 1
-        )
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
+    # now there are two unseen text messages for the host, so missed_messages should fire
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+    assert _count_queued_emails() == 1
 
 
-def test_send_request_notifications_two_requests_one_with_followup(db, moderator):
+def test_send_request_notifications_two_requests_one_with_followup(db, moderator, timewarp: Timewarp):
     """
     A host (user2) receives two requests: first from user1 (with a follow-up message),
     then from user3 (creation only). Because request B is created after request A's
@@ -976,20 +1014,18 @@ def test_send_request_notifications_two_requests_one_with_followup(db, moderator
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # should get exactly 1 missed_messages email: for request A (has follow-up),
-        # not request B (creation only, skipped)
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 1
-        )
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
+    # should get exactly 1 missed_messages email: for request A (has follow-up),
+    # not request B (creation only, skipped)
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+    assert _count_queued_emails() == 1
 
 
-def test_send_request_notifications_delayed_for_push_capable_users(db, moderator, push_collector: PushCollector):
+def test_send_request_notifications_delayed_for_push_capable_users(
+    db, moderator, push_collector: PushCollector, timewarp: Timewarp
+):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     _add_mobile_push_subscription(user1.id)
@@ -1017,18 +1053,18 @@ def test_send_request_notifications_delayed_for_push_capable_users(db, moderator
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_request_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
     assert _count_queued_emails() == 0
 
-    with patch("couchers.jobs.handlers.now", now_1_day_in_future):
-        send_request_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY_WITH_PUSH)
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
     assert _count_queued_emails() == 1
 
 
-def test_send_message_notifications_seen(db, moderator):
+def test_send_message_notifications_seen(db, moderator, timewarp: Timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1073,12 +1109,10 @@ def test_send_message_notifications_seen(db, moderator):
             == 0
         )
 
-    def now_30_min_in_future():
-        return now() + timedelta(minutes=30)
+    timewarp.advance(timedelta(minutes=30))
 
     # still shouldn't generate emails as user2 has seen all messages
-    with patch("couchers.jobs.handlers.now", now_30_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -1593,7 +1627,7 @@ def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
         )
 
 
-def test_send_request_notifications_blocked_users_no_notification(db, moderator):
+def test_send_request_notifications_blocked_users_no_notification(db, moderator, timewarp: Timewarp):
     """
     Regression test: send_request_notifications should not send notifications
     when the host and surfer are not visible to each other (e.g., one blocked the other).
@@ -1620,19 +1654,14 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
     # Now user2 (host) blocks user1 (surfer)
     make_user_block(user2, user1)
 
-    with session_scope() as session:
-        # check send_request_notifications does NOT create background job because users are blocked
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
 
-        # Should be 0 emails because the host blocked the surfer
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 0
-        ), "No notification email should be sent when host has blocked surfer"
+    # check send_request_notifications does NOT create background job because users are blocked
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+
+    # Should be 0 emails because the host blocked the surfer
+    assert _count_queued_emails() == 0, "No notification email should be sent when host has blocked surfer"
 
     # Also test the reverse direction: surfer sends message to host, host should not get notification
     # First unblock
@@ -1656,19 +1685,14 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
     # Now user1 (surfer) blocks user2 (host)
     make_user_block(user1, user2)
 
-    with session_scope() as session:
-        # check send_request_notifications does NOT create background job
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
 
-        # Should be 0 emails because the surfer blocked the host
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 0
-        ), "No notification email should be sent when surfer has blocked host"
+    # check send_request_notifications does NOT create background job
+    send_request_notifications(empty_pb2.Empty())
+    process_jobs()
+
+    # Should be 0 emails because the surfer blocked the host
+    assert _count_queued_emails() == 0, "No notification email should be sent when surfer has blocked host"
 
 
 def test_send_host_request_reminders_blocked_users_no_notification(db, moderator):
@@ -1727,7 +1751,7 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         assert len(emails) == 0, "No reminder email should be sent when host has blocked surfer"
 
 
-def test_send_message_notifications_blocked_users_no_notification(db, moderator):
+def test_send_message_notifications_blocked_users_no_notification(db, moderator, timewarp: Timewarp):
     """
     Regression test: send_message_notifications should not send notifications
     for messages from users who are blocked by the recipient.
@@ -1754,16 +1778,14 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator)
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
+
+    assert _count_queued_emails() == 1, "Expected 1 notification email before blocking"
 
     with session_scope() as session:
-        email_job_count = session.execute(
-            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-        ).scalar_one()
-        assert email_job_count == 1, "Expected 1 notification email before blocking"
-
         # Clean up
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
@@ -1780,15 +1802,10 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator)
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
-    with session_scope() as session:
-        email_job_count = session.execute(
-            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-        ).scalar_one()
-        assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
+    assert _count_queued_emails() == 0, "No notification email should be sent when recipient has blocked sender"
 
 
 def test_update_badges_volunteers(db, push_collector: PushCollector):

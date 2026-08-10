@@ -60,9 +60,8 @@ export default function DoNotEmail() {
                   ? "do_not_email.status.no_emails_enabled_message"
                   : "do_not_email.status.no_emails_disabled_message"
               }
-            >
-              Emails are currently <strong>disabled/enabled</strong> for your account.
-            </Trans>
+              components={{ 1: <strong /> }}
+            />
           </Typography>
           <Typography variant="body1">
             <Button onClick={() => toggleDoNotEmail()} loading={mutation.isPending}>
