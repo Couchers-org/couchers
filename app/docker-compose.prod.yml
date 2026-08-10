@@ -134,7 +134,7 @@ services:
       - "/:/host:ro,rslave"
   # generates prometheus metrics for the containers
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.60.5
+    image: ghcr.io/google/cadvisor:v0.60.5
     restart: always
     stop_grace_period: 5s
     command:
