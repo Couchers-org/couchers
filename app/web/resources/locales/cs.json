@@ -146,7 +146,8 @@
     "home": "Domů",
     "press": "Tisk a média",
     "close_menu_a11y": "Zavřít menu",
-    "close_drawer_a11y": "Zavřít menu"
+    "close_drawer_a11y": "Zavřít menu",
+    "open_drawer_a11y": "Otevřít menu"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
