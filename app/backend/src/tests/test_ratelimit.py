@@ -169,14 +169,6 @@ def test_check_rate_limits_store_error(monkeypatch):
     assert len(captured) == 1
 
 
-def test_check_rate_limits_superuser_exempt(store):
-    pool = get_descriptor_pool()
-    # Authenticate per_ip = 10, but a superuser is never checked at all, so nothing is even counted
-    for _ in range(20):
-        assert ratelimit.check_rate_limits(pool, AUTHENTICATE, "1.2.3.4", 1, is_superuser=True) is None
-    assert store.counts == {}
-
-
 def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())

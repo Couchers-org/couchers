@@ -459,12 +459,11 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         check_permissions(auth_info, auth_level)
 
         method = handler_call_details.method
-        rl_result = check_rate_limits(
-            pool,
-            method,
-            headers.ip_address,
-            auth_info.user_id if auth_info else None,
-            is_superuser=bool(auth_info and auth_info.is_superuser),
+        # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
+        rl_result = (
+            None
+            if auth_info and auth_info.is_superuser
+            else check_rate_limits(pool, method, headers.ip_address, auth_info.user_id if auth_info else None)
         )
         if rl_result is not None:
             if rl_result.store_error:
