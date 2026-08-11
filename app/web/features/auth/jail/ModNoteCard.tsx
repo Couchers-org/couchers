@@ -1,7 +1,7 @@
 import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
