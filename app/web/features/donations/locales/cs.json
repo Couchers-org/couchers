@@ -35,7 +35,7 @@
     "title": "Hodnota daru",
     "body": "Přihlas se, abys mohl přispět a my ti na profilu mohli zobrazit odznak dárce.",
     "login_button": "Přihlas se a daruj",
-    "signup_prompt": "Nemáš účet? <1>Zaregistruj se</1>",
-    "anonymous_donation": "Pokud chceš poskytnout jednorázový dar ve výši ${{ amount }} nebo více, aniž bys jej vázal ke svému účtu, kontaktuj nás na adrese <1>{{ email }}</1>."
+    "signup_prompt": "Nemáš účet? <signupLink>Zaregistruj se</signupLink>",
+    "anonymous_donation": "Pokud chceš poskytnout jednorázový dar ve výši ${{ amount }} nebo více, aniž bys jej vázal ke svému účtu, kontaktuj nás na adrese <emailLink>{{ email }}</emailLink>."
   }
 }

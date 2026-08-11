@@ -8,7 +8,7 @@
   "no_sub_communities": "Нет подсообществ.",
   "load_more": "Загрузить еще",
   "welcome": "Добро пожаловать в Couchers.org!",
-  "landing_text": "Мы работаем над новыми <featuresLink>функциями</featuresLink>: мероприятиями, путеводителями, модерацией и встречами. Спасибо за ваше терпение и <3>поддержку</3>.",
+  "landing_text": "Мы работаем над новыми <featuresLink>функциями</featuresLink>: мероприятиями, путеводителями, модерацией и встречами. Спасибо за ваше терпение и <supportLink>поддержку</supportLink>.",
   "your_communities_helper_text": "Вы были добавлены во все сообщества, соответствующие вашему местоположению. Вы также можете <browseCommunitiesLink>просматривать сообщества и вступать в них</browseCommunitiesLink> в других местах.",
   "community_builder_form_text": "Создайте свое местное сообщество",
   "become_a_host": "Стать хостом",
