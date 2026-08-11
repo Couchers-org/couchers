@@ -168,5 +168,6 @@
   "report_event_button_a11y": "Nahlásit tuto událost",
   "hangouts_label": "Setkání",
   "event_image_input_alt": "Vložiť obrázek události",
-  "all_events_page_tabs_a11y_label": "Záložky pro stránku se seznamem událostí"
+  "all_events_page_tabs_a11y_label": "Záložky pro stránku se seznamem událostí",
+  "community_image_input_alt": "Vložení obrázku komunity"
 }
