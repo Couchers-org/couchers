@@ -7,7 +7,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { SearchUser } from "proto/search_pb";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
@@ -99,15 +99,16 @@ const SearchResultListContent = ({
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { filters, selectedUserId } = useMapSearchState();
+  const { filters, pageNumber, selectedUserId } = useMapSearchState();
 
   const { setSearchFilters } = useMapSearchActions();
 
   // Virtualizing by row means we need the column count ourselves rather than leaving it to the grid.
+  // Measured in a layout effect so the first paint already has the right count.
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [columns, setColumns] = useState(1);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = gridRef.current;
     if (!element) return;
     const update = () => {
@@ -120,17 +121,29 @@ const SearchResultListContent = ({
     return () => observer.disconnect();
   }, [isMobile]);
 
-  const userList = users ?? [];
+  const userList = useMemo(() => users ?? [], [users]);
   const rowCount = Math.ceil(userList.length / columns);
 
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
+    // Desktop rows are fixed height. Mobile cards are auto-height and are measured for real, via
+    // the library's default measureElement and the ref attached below.
     estimateSize: () => (isMobile ? MOBILE_ESTIMATED_ROW_HEIGHT : DESKTOP_CARD_HEIGHT + DESKTOP_ROW_GAP),
     overscan: 2,
-    // Mobile cards are auto-height, so let the virtualizer measure them.
-    measureElement: isMobile ? undefined : () => DESKTOP_CARD_HEIGHT + DESKTOP_ROW_GAP,
   });
+
+  // Row heights differ between breakpoints, so drop the cached sizes when crossing one.
+  useEffect(() => {
+    rowVirtualizer.measure();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
+
+  // A new page of results should start at the top rather than wherever the last one was scrolled to.
+  useEffect(() => {
+    rowVirtualizer.scrollToOffset(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageNumber]);
 
   // Scroll the selected user (e.g. from clicking a map pin) into view.
   useEffect(() => {
