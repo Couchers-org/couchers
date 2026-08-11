@@ -101,14 +101,18 @@ module.exports = withSentryConfig(module.exports, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   sourcemaps: {
-    disable: process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
+    // The auth token is only present in the deploy builds, and it's what the upload needs.
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+    // productionBrowserSourceMaps serves them from the CDN too; don't pull them out from
+    // under the sourceMappingURL comments webpack leaves in the bundles.
+    deleteSourcemapsAfterUpload: false,
   },
 
   org: "couchers",
   project: "frontend",
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  // Also cover the shared chunks, which is where most of our code ends up
+  widenClientFileUpload: true,
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
